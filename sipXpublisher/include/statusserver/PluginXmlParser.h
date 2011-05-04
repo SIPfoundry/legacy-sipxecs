@@ -17,6 +17,7 @@
 // APPLICATION INCLUDES
 #include "xmlparser/tinyxml.h"
 #include "os/OsRWMutex.h"
+#include "utl/UtlString.h"
 #include "statusserver/SubscribeServerPluginBase.h"
 #include "utl/UtlHashBag.h"
 

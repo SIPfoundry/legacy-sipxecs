@@ -40,7 +40,7 @@ CallStateEventWriter_DB::CallStateEventWriter_DB(const char* logName,
                     mLogPassword(logPassword),
                     mHandle(NULL)
 {
-   OsSysLog::add(FAC_CDR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CDR, PRI_DEBUG,
                  "%s::constructor Log type database", ModuleName);
 }
 
@@ -58,21 +58,21 @@ bool CallStateEventWriter_DB::openLog()
    {
       if ((mHandle=odbcConnect(mLogName, mLogLocation, mLogUserName, mLogDriver, mLogPassword)) != NULL)
       {
-         OsSysLog::add(FAC_CDR, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_CDR, PRI_DEBUG,
                        "%s::openLog connected to database %s", ModuleName, mLogName.data());
          mbWriteable = true;
          bRet = true;
       }
       else
       {
-         OsSysLog::add(FAC_CDR, PRI_ERR,
+         Os::Logger::instance().log(FAC_CDR, PRI_ERR,
                        "%s::openLog connection to database %s failed",
                        ModuleName, mLogName.data());
       }
    }
    else
    {
-     OsSysLog::add(FAC_CDR, PRI_ERR,
+     Os::Logger::instance().log(FAC_CDR, PRI_ERR,
                    "%s::openLog log %s already open", ModuleName, mLogName.data());
    }
    return bRet;
@@ -90,7 +90,7 @@ bool CallStateEventWriter_DB::closeLog()
    mbWriteable = false;
    bRet = true;
 
-   OsSysLog::add(FAC_CDR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CDR, PRI_DEBUG,
                  "%s::closeLog", ModuleName);
    return bRet;
 }
@@ -106,12 +106,12 @@ bool CallStateEventWriter_DB::writeLog(const char* event)
          odbcExecute(mHandle, event);
          bRet = true;
       }
-      OsSysLog::add(FAC_CDR, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_CDR, PRI_DEBUG,
                     "%s::writeLog", ModuleName);
    }
    else
    {
-      OsSysLog::add(FAC_CDR, PRI_ERR,
+      Os::Logger::instance().log(FAC_CDR, PRI_ERR,
                     "%s::writeLog log %s not writeable", ModuleName, mLogName.data());
    }
    return bRet;

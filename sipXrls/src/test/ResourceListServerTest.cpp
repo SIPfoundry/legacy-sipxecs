@@ -18,7 +18,7 @@
 #include <net/SipOutputProcessor.h>
 #include <net/SipUserAgent.h>
 #include <string>
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsMutex.h"
 #include "os/OsLock.h"
 #include "testlib/SipDbTestContext.h"

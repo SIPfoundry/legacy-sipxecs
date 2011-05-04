@@ -7,7 +7,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsDateTime.h"
 
 // APPLICATION INCLUDES
@@ -95,7 +95,7 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
       break;
    default:
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "observerEvent: invalid eventCode %d", eventCode);
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "observerEvent: invalid eventCode %d", eventCode);
       eventMethod = InvalidEvent;
       break;
    }
@@ -126,7 +126,7 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "observerEvent: %d not allowed.", eventCode);
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "observerEvent: %d not allowed.", eventCode);
    }
 }
 
@@ -177,7 +177,7 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "%s::callRequestEvent not allowed.",
                     ModuleName);
    }
@@ -223,7 +223,7 @@ void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "%s::callSetupEvent not allowed.", ModuleName);
    }
 }
@@ -264,7 +264,7 @@ void CallStateEventBuilder_DB::callFailureEvent(int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "%s::callFailureEvent not allowed.", ModuleName);
    }
 }
@@ -290,7 +290,7 @@ void CallStateEventBuilder_DB::callEndEvent(const int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "%s::callEndEvent not allowed.", ModuleName);
    }
 }
@@ -330,7 +330,7 @@ void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "%s::callEndEvent not allowed.", ModuleName);
    }
 }
@@ -371,7 +371,7 @@ void CallStateEventBuilder_DB::addCallData(const int cseqNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "%s::callEndEvent not allowed.", ModuleName);
    }
 }
@@ -389,7 +389,7 @@ void CallStateEventBuilder_DB::addEventVia(const UtlString& via
    if (!builderStateIsOk(AddVia))
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "%s::callEndEvent not allowed.", ModuleName);
    }
 }
@@ -405,7 +405,7 @@ void CallStateEventBuilder_DB::completeCallEvent()
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "%s::completeCallEvent not allowed.", ModuleName);
    }
 }

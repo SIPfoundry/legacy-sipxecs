@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include "net/XmlRpcRequest.h"
 #include "config.h"
 
@@ -67,7 +67,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    // End of constructing the XML-RPC body
    mpRequestBody->append(END_PARAMS END_METHOD_CALL);
 
-   if (OsSysLog::willLog(FAC_XMLRPC, PRI_INFO))
+   if (Os::Logger::instance().willLog(FAC_XMLRPC, PRI_INFO))
    {
       UtlString logString;
       ssize_t   logLength;
@@ -79,7 +79,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       }
       UtlString urlString;
       mUrl.toString(urlString);
-      OsSysLog::add(FAC_XMLRPC, PRI_INFO,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_INFO,
                     "XmlRpcRequest::execute XML-RPC to '%s' request =\n%s",
                     urlString.data(),
                     logString.data());
@@ -115,13 +115,13 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       if (response.parseXmlRpcResponse(bodyString))
       {
          result = true;
-         OsSysLog::add(FAC_XMLRPC, PRI_INFO,
+         Os::Logger::instance().log(FAC_XMLRPC, PRI_INFO,
                        "XmlRpcRequest::execute XML-RPC received valid response = \n%s",
                        logString.data());
       }
       else
       {
-         OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+         Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                        "XmlRpcRequest::execute XML-RPC received fault response = \n%s",
                        logString.data());
       }
@@ -130,7 +130,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    {
       response.setFault(XmlRpcResponse::ConnectionFailure, CONNECTION_FAILURE_FAULT_STRING);
 
-      OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                     "XmlRpcRequest::execute http connection failed");
    }
    else // some non-2xx HTTP response
@@ -140,7 +140,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       httpResponse.getResponseStatusText(&statusText);
       response.setFault(XmlRpcResponse::HttpFailure, statusText.data());
 
-      OsSysLog::add(FAC_XMLRPC, PRI_INFO,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_INFO,
                     "XmlRpcRequest::execute http request failed; status = %d %s",
                     statusCode, statusText.data());
    }

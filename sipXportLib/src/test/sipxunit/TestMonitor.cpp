@@ -15,7 +15,7 @@
 #include <cppunit/TestFailure.h>
 #include <sipxunit/TestUtilities.h>
 #include <sipxunit/TestMonitor.h>
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 TestMonitor::TestMonitor()
     : CppUnit::TestResultCollector()
@@ -65,7 +65,7 @@ void TestMonitor::addFailure(const CppUnit::TestFailure &failure)
     stdMessage += "\n";
     stdMessage += msg.details();
 
-    OsSysLog::add(FAC_KERNEL, PRI_ERR, "%s", stdMessage.c_str());
+    Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "%s", stdMessage.c_str());
 }
 
 bool TestMonitor::wasSuccessful() const

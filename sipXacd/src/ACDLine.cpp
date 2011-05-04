@@ -13,7 +13,7 @@
 #include <tapi/sipXtapi.h>
 #include <tapi/sipXtapiEvents.h>
 #include <tapi/sipXtapiInternal.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsDateTime.h>
 #include <net/SipUserAgent.h>
 #include <net/SipDialogEvent.h>
@@ -83,7 +83,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
    mhPublisherHandle    = 0;
    mDialogPDULength     = 0;
 
-   OsSysLog::add(FAC_ACD, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, PRI_DEBUG,
                  "ACDLine::ACDLine mUriString= '%s'",
                  mUriString.data()
                  );
@@ -119,7 +119,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
          if (SIPX_RESULT_SUCCESS
              == sipxLineAddDigestCredential(lineHandle, user, ha1_authenticator, realm))
          {
-            OsSysLog::add(FAC_ACD, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, PRI_DEBUG,
                           "ACDLine::ACDLine added credentials for "
                           "identity '%s': user '%s'",
                           lineIdentity.data(), user.data()
@@ -127,7 +127,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
          }
          else
          {
-            OsSysLog::add(FAC_ACD, PRI_ERR,
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                           "ACDLine::ACDLine setting credentials failed:"
                           " any blind transfer may not work."
                           );
@@ -136,7 +136,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
       else
       {
          // could not get credentials for the line identity - try for a default ACD identity
-         OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDLine::ACDLine"
+         Os::Logger::instance().log(FAC_ACD, PRI_WARNING, "ACDLine::ACDLine"
                        " no line-specific credentials found for '%s' in realm '%s'",
                        lineIdentity.data(), realm.data()
                        );
@@ -150,7 +150,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
             if (SIPX_RESULT_SUCCESS
                 == sipxLineAddDigestCredential(lineHandle, user, ha1_authenticator, realm))
             {
-               OsSysLog::add(FAC_ACD, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_ACD, PRI_DEBUG,
                              "ACDLine::ACDLine added default (%s) credentials for "
                              "identity '%s': user '%s'",
                              defaultAcdIdentity.toString().data(),
@@ -159,7 +159,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
             }
             else
             {
-               OsSysLog::add(FAC_ACD, PRI_ERR,
+               Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                              "ACDLine::ACDLine setting default credentials failed:"
                              " any blind transfer may not work."
                              );
@@ -167,7 +167,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
          }
          else
          {
-            OsSysLog::add(FAC_ACD, PRI_ERR,
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                           "ACDLine::ACDLine no default (%s) credentials found in realm '%s'"
                           "; transfer functions will not work",
                           defaultAcdIdentity.toString().data(), realm.data()
@@ -224,7 +224,7 @@ bool ACDLine::addCall(ACDCall* pCallRef)
    // Verify that there is an ACDQueue configured for this line
    if (mAcdQueue == NULL) {
       // No ACDQueue configured, reject the request
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLine::addCall - Call(%d) rejected due to no ACDQueue configured",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDLine::addCall - Call(%d) rejected due to no ACDQueue configured",
                     pCallRef->getCallHandle());
       return false;
    }
@@ -234,7 +234,7 @@ bool ACDLine::addCall(ACDCall* pCallRef)
    ACDQueue* pDestinationQueue = mpAcdLineManager->getAcdQueueManager()->getAcdQueueReference(mAcdQueue);
    if (pDestinationQueue == NULL) {
       // The ACDQueueManager doesn't know about this Queue.  Must be a bad configuration, reject!
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLine::addCall - Call(%d) rejected due to no ACDQueue configured",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDLine::addCall - Call(%d) rejected due to no ACDQueue configured",
                     pCallRef->getCallHandle());
       return false;
    }
@@ -250,7 +250,7 @@ bool ACDLine::addCall(ACDCall* pCallRef)
       pACDRtRec->appendCallEvent(ACDRtRecord::ENTER_QUEUE, *(pDestinationQueue->getUriString()), pCallRef);
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLine::addCall - Call(%d) sent to ACDQueue: %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDLine::addCall - Call(%d) sent to ACDQueue: %s",
                  pCallRef->getCallHandle(), pDestinationQueue->getUriString()->data());
 
    pDestinationQueue->addCall(pCallRef);
@@ -281,7 +281,7 @@ void ACDLine::deleteCall(ACDCall* pCallRef)
    if (!mTrunkMode) {
       mLineBusy = false;
    }
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLine::deleteCall - Call(%d)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDLine::deleteCall - Call(%d)",
                  pCallRef->getCallHandle());
 }
 
@@ -323,7 +323,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
 
    SIPX_INSTANCE_DATA* pInst;
    sipxCallGetCommonData(pCallRef->getCallHandle(), &pInst, &callId, &remoteAddress, NULL);
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLine::publishCallState - Publishing Call state for: hCall = %d, callId = %s, remoteAddress = %s, state = %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDLine::publishCallState - Publishing Call state for: hCall = %d, callId = %s, remoteAddress = %s, state = %s",
                  pCallRef->getCallHandle(), callId.data(), remoteAddress.data(),
                  (state == ACDCall::ALERTING ? "ALERTING" :
                   state == ACDCall::CONNECTED ? "CONNECTED" :
@@ -334,7 +334,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
       case ACDCall::ALERTING:
          // Create the dialog element
          if (pInst->pCallManager->getSipDialog(callId, remoteAddress, sipDialog) != OS_SUCCESS) {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLine::publishCallState - Failed call to getSipDialog(%s, %s)\n",
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDLine::publishCallState - Failed call to getSipDialog(%s, %s)\n",
                           callId.data(), remoteAddress.data());
             return OS_FAILED;
          }
@@ -388,7 +388,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
 
       case ACDCall::CONNECTED:
          if (pInst->pCallManager->getSipDialog(callId, remoteAddress, sipDialog) != OS_SUCCESS) {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLine::publishCallState - Failed call to getSipDialog(%s, %s)\n",
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDLine::publishCallState - Failed call to getSipDialog(%s, %s)\n",
                           callId.data(), remoteAddress.data());
             return OS_FAILED;
          }
@@ -453,7 +453,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
       case ACDCall::DISCONNECTED:
          {
             if (pInst->pCallManager->getSipDialog(callId, remoteAddress, sipDialog) != OS_SUCCESS) {
-               OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLine::publishCallState - Failed call to getSipDialog(%s, %s)\n",
+               Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDLine::publishCallState - Failed call to getSipDialog(%s, %s)\n",
                              callId.data(), remoteAddress.data());
                return OS_FAILED;
             }
@@ -524,7 +524,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
 void ACDLine::setAttributes(ProvisioningAttrList& rRequestAttributes)
 {
    // Set the individual attributes
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLine::setAttributes(%s)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDLine::setAttributes(%s)",
                  mUriString.data());
 
    // name

@@ -10,7 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <xmlparser/tinyxml.h>
 #include <net/ProvisioningAgent.h>
 #include "ACDServer.h"
@@ -231,7 +231,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
          break ;
 
       default:
-         OsSysLog::add(FAC_ACD, PRI_CRIT, "ACDQueueManager::createACDAQueue- Queue scheme unknown for %s!",
+         Os::Logger::instance().log(FAC_ACD, PRI_CRIT, "ACDQueueManager::createACDAQueue- Queue scheme unknown for %s!",
             pQueueUriString);
          abort();
    }
@@ -242,7 +242,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
    // Create a mapping between the ACDQueue URI and the ACDQueue instance.
    mAcdQueueList.insertKeyAndValue(new UtlString(pQueueUriString), pQueueRef);
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueueManager::createACDAQueue- Queue added: %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueueManager::createACDAQueue- Queue added: %s",
                  pQueueUriString);
 
    mLock.release();
@@ -279,7 +279,7 @@ void ACDQueueManager::deleteACDQueue(const char* pQueueUriString)
    pKey = mAcdQueueList.removeKeyAndValue(&searchUriKey, pQueueRef);
    if (pKey == NULL) {
       // Error. Did not find a matching ACDAgent object.
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueueManager::deleteACDQueue - Failed to find reference to Queue: %s",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueueManager::deleteACDQueue - Failed to find reference to Queue: %s",
                     pQueueUriString);
       mLock.release();
       return;
@@ -295,7 +295,7 @@ void ACDQueueManager::deleteACDQueue(const char* pQueueUriString)
    // Finally delete the ACDQueue object.
    delete pQueueRef;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueueManager::deleteACDQueue - Queue: %s deleted",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueueManager::deleteACDQueue - Queue: %s deleted",
                  pQueueUriString);
 
    mLock.release();
@@ -553,7 +553,7 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
    }
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDQueueManager::Create - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDQueueManager::Create - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();
@@ -621,7 +621,7 @@ ProvisioningAttrList* ACDQueueManager::Delete(ProvisioningAttrList& rRequestAttr
    deletePSInstance(ACD_QUEUE_TAG, QUEUE_URI_TAG, queueUriString);
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDQueueManager::Delete - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDQueueManager::Delete - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();
@@ -932,7 +932,7 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    }
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDQueueManager::Set - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDQueueManager::Set - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();

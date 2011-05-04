@@ -13,7 +13,7 @@
 // APPLICATION INCLUDES
 
 #include "ResourceListMsg.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -36,7 +36,7 @@ SubscriptionCallbackMsg::SubscriptionCallbackMsg(const char* earlyDialogHandle,
    mNewState(newState),
    mSubscriptionState(subscriptionState)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionCallbackMsg:: earlyDialogHandle = '%s', dialogHandle = '%s', newState = %d, subscriptionState = '%s'",
                  earlyDialogHandle, dialogHandle, newState, subscriptionState);
 }
@@ -137,7 +137,7 @@ NotifyCallbackMsg::NotifyCallbackMsg(const char* dialogHandle,
    mDialogHandle(dialogHandle),
    mpMsg(msg)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "NotifyCallbackMsg:: dialogHandle = '%s'",
                  dialogHandle);
 }

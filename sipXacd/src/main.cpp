@@ -18,7 +18,7 @@
 #include "config.h"
 #include <net/NameValueTokenizer.h>
 #include <os/OsTask.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlString.h>
 #include "ACDServer.h"
 
@@ -80,16 +80,16 @@ public:
        {
           if (SIGTERM == sig_num)
           {
-             OsSysLog::add( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
+             Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
           }
           else
           {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
+            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
           }
        }
        else
        {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
+            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
        }
        // set the global shutdown flag
        gShutdownFlag = TRUE ;
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
    delete pAcdServer;
 
    // Flush the log file
-   OsSysLog::flush();
+   Os::Logger::instance().flush();
 
    // Say goodnight Gracie...
 

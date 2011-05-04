@@ -51,7 +51,7 @@ void SubscribeDB::getAllRows(Subscriptions& subscriptions)
 
   if (!error.empty())
   {
-    SYSLOG_ERROR("mongoDB Exception: (SubscribeDB::getAllRows) - " << error);
+    OS_LOG_ERROR(FAC_ODBC, "mongoDB Exception: (SubscribeDB::getAllRows) - " << error);
   }
 }
 
@@ -102,7 +102,7 @@ bool SubscribeDB::insertRow (
     std::string error;
     if (!_db.updateOrInsert(_ns, query, update, error))
     {
-        SYSLOG_ERROR("mongoDB Exception: (SubscribeDB::insertRow) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "mongoDB Exception: (SubscribeDB::insertRow) - " << error);
         return false;
     }
     return true;
@@ -125,7 +125,7 @@ void SubscribeDB::removeRow (
     std::string error;
     if (!_db.remove(_ns, query, error))
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::removeRow) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::removeRow) - " << error);
     }
 }
 
@@ -143,7 +143,7 @@ void SubscribeDB::removeErrorRow (
     std::string error;
     if (!_db.remove(_ns, query, error))
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::removeErrorRow) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::removeErrorRow) - " << error);
     }
 }
 
@@ -171,7 +171,7 @@ bool SubscribeDB::subscriptionExists (
 
     if (!error.empty())
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::subscriptionExists) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::subscriptionExists) - " << error);
     }
 
     return false;
@@ -184,7 +184,7 @@ void SubscribeDB::removeRows(const UtlString& key)
     std::string error;
     if (!_db.remove(_ns, query, error))
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::removeRows) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::removeRows) - " << error);
     }
 }
 
@@ -197,7 +197,7 @@ void SubscribeDB::removeExpired( const UtlString& component, const int timeNow )
     std::string error;
     if (!_db.remove(_ns, query, error))
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::removeExpired) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::removeExpired) - " << error);
     }
 }
 
@@ -219,7 +219,7 @@ void SubscribeDB::getUnexpiredSubscriptions (
 
     if (!error.empty())
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
     }
 
     while (pCursor->more())
@@ -240,7 +240,7 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
 
     if (!error.empty())
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
     }
 
     while (pCursor->more())
@@ -280,7 +280,7 @@ void SubscribeDB::updateNotifyUnexpiredSubscription(
     std::string error;
     if (!_db.update(_ns, query, update, error))
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::updateNotifyUnexpiredSubscription) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::updateNotifyUnexpiredSubscription) - " << error);
     }
 }
 
@@ -312,7 +312,7 @@ bool SubscribeDB::updateSubscribeUnexpiredSubscription (
     std::string error;
     if (!_db.update(_ns, query, update, error))
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::updateSubscribeUnexpiredSubscription) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::updateSubscribeUnexpiredSubscription) - " << error);
         return false;
     }
 
@@ -331,7 +331,7 @@ void SubscribeDB::updateToTag(
 
     if (!error.empty())
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
     }
 
     while (pCursor->more())
@@ -361,7 +361,7 @@ void SubscribeDB::updateToTag(
                         std::string error;
                         if (!_db.update(_ns, query, update, error))
                         {
-                            SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::updateToTag) - " << error);
+                            OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::updateToTag) - " << error);
                         }
                     }
                 }
@@ -384,7 +384,7 @@ bool SubscribeDB::findFromAndTo(
 
     if (!error.empty())
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::findFromAndTo) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::findFromAndTo) - " << error);
     }
 
     while (pCursor->more())
@@ -426,7 +426,7 @@ int SubscribeDB::getMaxVersion(const UtlString& uri) const
 
     if (!error.empty())
     {
-        SYSLOG_ERROR("MongoDB Exception: (SubscribeDB::getMaxVersion) - " << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getMaxVersion) - " << error);
     }
 
     unsigned int value = 0;

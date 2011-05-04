@@ -9,7 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
@@ -74,7 +74,7 @@ bool SipxProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< 
                                                                 attribute, currentProcess)
                   ))
             {
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessResource::parse "
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxProcessResource::parse "
                              "invalid attribute '%s'",
                              attribute->Name());
             }
@@ -97,7 +97,7 @@ bool SipxProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< 
       {
          resourceIsValid = false;
          XmlErrorMsg(processDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessResource::parse "
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxProcessResource::parse "
                        "process element is empty %s",
                        errorMsg.data());
       }
@@ -105,7 +105,7 @@ bool SipxProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< 
    else
    {
       XmlErrorMsg(processDefinitionDoc, errorMsg);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessResource::parse "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxProcessResource::parse "
                     "invalid content in process element %s",
                     errorMsg.data());
    }
@@ -146,7 +146,7 @@ bool SipxProcessResource::isReadyToStart(UtlString& missingResource)
    {
       missingResource = "";
       appendDescription(missingResource);
-       OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING,
+       Os::Logger::instance().log(FAC_SUPERVISOR, PRI_WARNING,
                      "SipxProcessResource::isReadyToStart returns false; %s is not running ",
                      data());
    }

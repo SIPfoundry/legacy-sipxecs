@@ -32,7 +32,7 @@ CallStateEventWriter_XML::CallStateEventWriter_XML(const char* logName)
                               : CallStateEventWriter(CallStateEventWriter::CseLogFile, logName),
                                 mEventFile(NULL)
 {
-   OsSysLog::add(FAC_CDR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CDR, PRI_DEBUG,
                  "%s::constructor Log type file", ModuleName);
 }
 
@@ -54,14 +54,14 @@ bool CallStateEventWriter_XML::openLog()
       OsStatus callStateLogStatus = mEventFile->open(OsFile::CREATE|OsFile::APPEND);
       if (OS_SUCCESS == callStateLogStatus)
       {
-         OsSysLog::add(FAC_CDR, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_CDR, PRI_DEBUG,
                        "%s::openLog opened %s", ModuleName, mLogName.data());
          mbWriteable = true;
          bRet = true;
       }
       else
       {
-         OsSysLog::add(FAC_CDR, PRI_ERR,
+         Os::Logger::instance().log(FAC_CDR, PRI_ERR,
                        "%s::openLog failed (%d) to open Call State Event Log '%s'",
                        ModuleName, callStateLogStatus, mLogName.data());
          if (mEventFile)
@@ -73,7 +73,7 @@ bool CallStateEventWriter_XML::openLog()
    }
    else
    {
-     OsSysLog::add(FAC_CDR, PRI_ERR,
+     Os::Logger::instance().log(FAC_CDR, PRI_ERR,
                    "%s::openLog log %s already open", ModuleName, mLogName.data());
    }
    return bRet;
@@ -93,7 +93,7 @@ bool CallStateEventWriter_XML::closeLog()
    mbWriteable = false;
    bRet = true;
 
-   OsSysLog::add(FAC_CDR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CDR, PRI_DEBUG,
                  "%s::closeLog", ModuleName);
    return bRet;
 }
@@ -109,14 +109,14 @@ bool CallStateEventWriter_XML::writeLog(const char* event)
          // write it to the log file
          size_t written;
          mEventFile->write(event, strlen(event), written);
-         OsSysLog::add(FAC_CDR, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_CDR, PRI_DEBUG,
                        "%s::writeLog", ModuleName);
          bRet = true;
       }
    }
    else
    {
-      OsSysLog::add(FAC_CDR, PRI_ERR,
+      Os::Logger::instance().log(FAC_CDR, PRI_ERR,
                     "%s::writeLog log %s not writeable", ModuleName, mLogName.data());
    }
    return bRet;

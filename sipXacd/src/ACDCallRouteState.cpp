@@ -111,7 +111,7 @@ void ACDCallRouteState_IDLE::routeRequestEvent(ACDCall* pAcdCallInstance)
       // Stop the current audio, if being played
       if (pAcdCallInstance->mPlayingAudio != ACDCall::NO_AUDIO_PLAYING)
       {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG,
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                        "ACDCallRouteState_IDLE::routeRequestEvent - "
                        "Stopping the current audio for call %d", pAcdCallInstance->mhCallHandle);
          // Use ACDCall::stopAudioMessage() since we are in the same thread context.
@@ -133,13 +133,13 @@ void ACDCallRouteState_IDLE::routeRequestEvent(ACDCall* pAcdCallInstance)
       OsTime timeoutTime(pAcdCallInstance->mRingNoAnswerTime, 0);
       pAcdCallInstance->mpRingTimeoutTimer->oneshotAfter(timeoutTime);
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                     "ACDCallRouteState_IDLE::routeRequestEvent - "
                     "RingNoAnswerTimer is started for Call(%d) at %d seconds",
                     pAcdCallInstance->mhCallHandle, pAcdCallInstance->mRingNoAnswerTime);
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                  "ACDCallRouteState_IDLE::routeRequestEvent - "
                  "Attempting to route Call(%d)",
                  pAcdCallInstance->mhCallHandle);
@@ -167,7 +167,7 @@ void ACDCallRouteState_IDLE::acdCallConnectedEvent(ACDCall* pAcdCallInstance)
 {
    if (pAcdCallInstance->getXferPendingAnswer() == TRUE)
    {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdCallConnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdCallConnectedEvent - "
                     "Call(%d) is answered pending transfer",
                     pAcdCallInstance->mhCallHandle);
       // so send the CALL_CONNECTED message to the managing queue
@@ -184,7 +184,7 @@ void ACDCallRouteState_IDLE::acdCallConnectedEvent(ACDCall* pAcdCallInstance)
       }
    }
    else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdCallConnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdCallConnectedEvent - "
                     "Call(%d) is answered in %s mode",
                     pAcdCallInstance->mhCallHandle,
                     (pAcdCallInstance->mConnectionScheme == ACDQueue::TRANSFER)? "TRANSFER" : "Unknown");
@@ -283,7 +283,7 @@ void ACDCallRouteState_IDLE::acdCallDisconnectedEvent(ACDCall* pAcdCallInstance)
 
 void ACDCallRouteState_IDLE::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstance, SIPX_CALL callHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdAgentDisconnectedEvent -  Call(%d)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdAgentDisconnectedEvent -  Call(%d)",
               pAcdCallInstance->mhCallHandle);
 }
 
@@ -306,7 +306,7 @@ void ACDCallRouteState_IDLE::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstance
 
 void ACDCallRouteState_IDLE::acdCallTransferModeFailure(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdCallTransferModeFailure, Call(%d)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdCallTransferModeFailure, Call(%d)",
       pAcdCallInstance->mhCallHandle);
 
    // Drop the call...nothing further we can do
@@ -338,7 +338,7 @@ void ACDCallRouteState_IDLE::routeRequestAbortEvent(ACDCall* pAcdCallInstance)
       pAcdCallInstance->stopAudioMessage();
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
       "ACDCallRouteState_IDLE::routeRequestAbortEvent - "
       "Route request for Call(%d) was ABORTED", pAcdCallInstance->mhCallHandle);
 
@@ -513,7 +513,7 @@ void ACDCallRouteState_TRYING::acdAgentConnectedActiveEvent(ACDCall* pAcdCallIns
    if (pAcdCallInstance->mCallState != ACDCall::CONNECTED) {
       rc = sipxCallAnswer(pAcdCallInstance->mhCallHandle);
       if (rc != SIPX_RESULT_SUCCESS) {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                        "Error(%d) on sipxCallAnswer for Call(%d)", rc, pAcdCallInstance->mhCallHandle);
 
          // This is a fatal condition.  Drop the agent, update state and return
@@ -521,7 +521,7 @@ void ACDCallRouteState_TRYING::acdAgentConnectedActiveEvent(ACDCall* pAcdCallIns
             pAcdCallInstance->mpActiveAgent->drop();
          }
          else {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                           "Failed to drop the active agent for Call(%d) Object(%p)",
                           pAcdCallInstance->mhCallHandle, pAcdCallInstance);
          }
@@ -536,12 +536,12 @@ void ACDCallRouteState_TRYING::acdAgentConnectedActiveEvent(ACDCall* pAcdCallIns
       if (pAcdCallInstance->mpActiveAgent != NULL) {
          pAcdCallInstance->mpActiveAgent->hold();
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                        "ACDAgent(%s) discovered for Call(%d)",
                        pAcdCallInstance->mpActiveAgent->getUriString()->data(), pAcdCallInstance->mhCallHandle);
       }
       else {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                        "Could not find the active agent for Call(%d)",
                        pAcdCallInstance->mhCallHandle);
       }
@@ -554,24 +554,24 @@ void ACDCallRouteState_TRYING::acdAgentConnectedActiveEvent(ACDCall* pAcdCallIns
          pAcdCallInstance->mFlagCTransfer = TRUE;
          rc = sipxCallHold(pAcdCallInstance->mhCallHandle);
          if (rc != SIPX_RESULT_SUCCESS) {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                           "Error(%d) on sipxCallHold for Call(%d)",
                           rc, pAcdCallInstance->mhCallHandle);
          }
          else {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                           "SUCCESS(%d) on sipxCallHold for Call(%d) to Agent(%d)",
                           rc, pAcdCallInstance->mhCallHandle, callHandle);
          }
 
          rc = sipxCallHold(callHandle);
          if (rc != SIPX_RESULT_SUCCESS) {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                           "Error(%d) on sipxCallHold for agent(%d)",
                           rc, callHandle);
          }
          else {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                           "SUCCESS(%d) on sipxCallHold for agent(%d)",
                           rc, callHandle);
          }
@@ -582,18 +582,18 @@ void ACDCallRouteState_TRYING::acdAgentConnectedActiveEvent(ACDCall* pAcdCallIns
          rc = sipxCallTransfer(pAcdCallInstance->mhCallHandle, callHandle);
 
          if (rc != SIPX_RESULT_SUCCESS) {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                           "Error(%d) on sipxCallTransfer for Call(%d) to Agent(%d)",
                           rc, pAcdCallInstance->mhCallHandle, callHandle);
          }
 
          if (pAcdCallInstance->mpActiveAgent != NULL) {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                           "Call (%d) is being transferred to ACDAgent(%s)",
                           pAcdCallInstance->mhCallHandle, pAcdCallInstance->mpActiveAgent->getUriString()->data());
          }
          else {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentConnectedActive - "
                           "Call (%d) is being transferred to Call (%d)",
                           pAcdCallInstance->mhCallHandle, callHandle);
          }
@@ -633,7 +633,7 @@ void ACDCallRouteState_TRYING::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstan
    ACDAgent* pAgent;
    while ((pAgent = dynamic_cast<ACDAgent*>(listIterator())) != NULL) {
       if (pAgent->getCallHandle() == callHandle) {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentDisconnectedEvent - "
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentDisconnectedEvent - "
                        "ACDAgent(%s) has rejected/dropped connection", pAgent->getUriString()->data());
          // Now that the responsible agent has been found, instruct it to drop the call
          pAgent->drop(true);
@@ -653,7 +653,7 @@ void ACDCallRouteState_TRYING::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstan
          pAcdCallInstance->mPlayingRingback = false;
       }
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentDisconnectedEvent - "
                     "All ACDAgents have rejected/dropped connection, FAILING");
       failed(pAcdCallInstance) ;
       return ;
@@ -679,7 +679,7 @@ void ACDCallRouteState_TRYING::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstan
 
 void ACDCallRouteState_TRYING::disconnectCallPickUp(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::disconnectCallPickUp - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::disconnectCallPickUp - "
                  "Call was picked up");
 
    failedToRouteCall(pAcdCallInstance,false);
@@ -703,7 +703,7 @@ void ACDCallRouteState_TRYING::disconnectCallPickUp(ACDCall* pAcdCallInstance)
 
 void ACDCallRouteState_TRYING::routeRequestTimeoutEvent(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::routeRequestTimeoutEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::routeRequestTimeoutEvent - "
                  "Ring-no-answer timeout");
 
    failedToRouteCall(pAcdCallInstance,true);
@@ -772,7 +772,7 @@ void ACDCallRouteState_TRYING::routeRequestAbortEvent(ACDCall* pAcdCallInstance)
 
    dropAgents(pAcdCallInstance) ;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::routeRequestAbortEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::routeRequestAbortEvent - "
                  "Route request for Call(%d) was ABORTED", pAcdCallInstance->mhCallHandle);
 
    abort(pAcdCallInstance) ;
@@ -890,7 +890,7 @@ void ACDCallRouteState_DISCOVERED::acdCallDisconnectedEvent(ACDCall* pAcdCallIns
       pAcdCallInstance->mpActiveAgent->drop();
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_DISCOVERED::acdCallDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_DISCOVERED::acdCallDisconnectedEvent - "
                     "No active agent to drop Call(%d)", pAcdCallInstance->mhCallHandle);
    }
 
@@ -929,7 +929,7 @@ void ACDCallRouteState_DISCOVERED::acdAgentConnectedInactiveEvent(ACDCall* pAcdC
          // Add the agent to the conference
          rc = sipxConferenceJoin(pAcdCallInstance->mhConferenceHandle, callHandle);
          if (rc != SIPX_RESULT_SUCCESS) {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_DISCOVERED::acdAgentConnectedInactiveEvent - "
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_DISCOVERED::acdAgentConnectedInactiveEvent - "
                           "Error(%d) on sipxConferenceJoin for Agent(%d)", rc, callHandle);
 
             // This is a fatal condition.  Drop the agent
@@ -944,7 +944,7 @@ void ACDCallRouteState_DISCOVERED::acdAgentConnectedInactiveEvent(ACDCall* pAcdC
          // Unhold the agent
          pAcdCallInstance->mpActiveAgent->unhold();
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_DISCOVERED::acdAgentConnectedInactiveEvent - "
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_DISCOVERED::acdAgentConnectedInactiveEvent - "
                        "Completed sipxConferenceJoin for Agent(%d)", callHandle);
 
          // Transition to the ON_HOLD state
@@ -952,7 +952,7 @@ void ACDCallRouteState_DISCOVERED::acdAgentConnectedInactiveEvent(ACDCall* pAcdC
       }
    }
    else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_DISCOVERED::acdAgentConnectedInactiveEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_DISCOVERED::acdAgentConnectedInactiveEvent - "
                     "Caller not yet connected, transitioning to CONNECTING state");
 
       // The caller has not yet been connected, just transition to the CONNECTING state
@@ -985,7 +985,7 @@ void ACDCallRouteState_DISCOVERED::acdAgentDisconnectedEvent(ACDCall* pAcdCallIn
       // Drop the ACDAgent
       pAcdCallInstance->mpActiveAgent->drop();
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_DISCOVERED::acdAgentDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_DISCOVERED::acdAgentDisconnectedEvent - "
                     "Agent(%d) dropped call", pAcdCallInstance->mhCallHandle);
 
       terminate(pAcdCallInstance) ;
@@ -1020,11 +1020,11 @@ void ACDCallRouteState_DISCOVERED::routeRequestAbortEvent(ACDCall* pAcdCallInsta
       pAcdCallInstance->mpActiveAgent->drop();
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_DISCOVERED::routeRequestAbortEvent - "
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_DISCOVERED::routeRequestAbortEvent - "
                     "no active agent to drop Call(%d)", pAcdCallInstance->mhCallHandle);
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_DISCOVERED::routeRequestAbortEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_DISCOVERED::routeRequestAbortEvent - "
                  "Route request for Call(%d) was ABORTED", pAcdCallInstance->mhCallHandle);
    abort(pAcdCallInstance) ;
 }
@@ -1110,7 +1110,7 @@ void ACDCallRouteState_CONNECTING::acdCallConnectedEvent(ACDCall* pAcdCallInstan
 
       rc = sipxConferenceJoin(pAcdCallInstance->mhConferenceHandle, agentHandle);
       if (rc != SIPX_RESULT_SUCCESS) {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
                        "Error(%d) on sipxConferenceJoin for Agent(%d)", rc, agentHandle);
 
          // This is a fatal condition.
@@ -1126,7 +1126,7 @@ void ACDCallRouteState_CONNECTING::acdCallConnectedEvent(ACDCall* pAcdCallInstan
 //      OsTask::delay(500);
       pAcdCallInstance->mpActiveAgent->unhold();
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
                     "Completed sipxConferenceJoin for Agent(%d)", agentHandle);
 
       // Transition to ON_HOLD state
@@ -1139,18 +1139,18 @@ void ACDCallRouteState_CONNECTING::acdCallConnectedEvent(ACDCall* pAcdCallInstan
          pAcdCallInstance->mFlagCTransfer = TRUE;
          rc = sipxCallHold(pAcdCallInstance->mhCallHandle);
          if (rc != SIPX_RESULT_SUCCESS) {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
                           "Error(%d) on sipxCallHold for Call(%d)",
                           rc, pAcdCallInstance->mhCallHandle);
          }
          rc = sipxCallHold(agentHandle);
          if (rc != SIPX_RESULT_SUCCESS) {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdAgentConnectedActive - "
                           "Error(%d) on sipxCallHold for agent(%d)",
                           rc, agentHandle);
          }
          else {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::acdAgentConnectedActive - "
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::acdAgentConnectedActive - "
                           "SUCCESS(%d) on sipxCallHold for agent(%d)",
                           rc, agentHandle);
          }
@@ -1161,12 +1161,12 @@ void ACDCallRouteState_CONNECTING::acdCallConnectedEvent(ACDCall* pAcdCallInstan
          rc = sipxCallTransfer(pAcdCallInstance->mhCallHandle, agentHandle);
 
          if (rc != SIPX_RESULT_SUCCESS) {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
                           "Error(%d) on sipxCallTransfer for Call(%d) to Agent(%d)",
                           rc, pAcdCallInstance->mhCallHandle, agentHandle);
          }
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::acdCallConnectedEvent - "
                        "Call (%d) is being transferred to ACDAgent(%s)",
                        pAcdCallInstance->mhCallHandle, pAcdCallInstance->mpActiveAgent->getUriString()->data());
 
@@ -1205,7 +1205,7 @@ void ACDCallRouteState_CONNECTING::acdCallDisconnectedEvent(ACDCall* pAcdCallIns
       pAcdCallInstance->mpActiveAgent->drop();
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdCallDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::acdCallDisconnectedEvent - "
                     "no active agent to drop Call(%d)", pAcdCallInstance->mhCallHandle);
    }
 
@@ -1236,7 +1236,7 @@ void ACDCallRouteState_CONNECTING::acdAgentDisconnectedEvent(ACDCall* pAcdCallIn
       // Drop the ACDAgent
       pAcdCallInstance->mpActiveAgent->drop();
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::acdAgentDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::acdAgentDisconnectedEvent - "
                     "Agent(%d) dropped call", pAcdCallInstance->mhCallHandle);
 
       terminate(pAcdCallInstance) ;
@@ -1271,11 +1271,11 @@ void ACDCallRouteState_CONNECTING::routeRequestAbortEvent(ACDCall* pAcdCallInsta
       pAcdCallInstance->mpActiveAgent->drop();
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::routeRequestAbortEvent - "
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_CONNECTING::routeRequestAbortEvent - "
                     "no active agent to drop Call(%d)", pAcdCallInstance->mhCallHandle);
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::routeRequestAbortEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_CONNECTING::routeRequestAbortEvent - "
                  "Route request for Call(%d) was ABORTED", pAcdCallInstance->mhCallHandle);
 
    abort(pAcdCallInstance) ;
@@ -1351,7 +1351,7 @@ void ACDCallRouteState_ON_HOLD::acdCallDisconnectedEvent(ACDCall* pAcdCallInstan
       pAcdCallInstance->mpActiveAgent->drop();
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_ON_HOLD::acdCallDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_ON_HOLD::acdCallDisconnectedEvent - "
                     "no active agent to drop Call(%d)", pAcdCallInstance->mhCallHandle);
    }
 
@@ -1390,7 +1390,7 @@ void ACDCallRouteState_ON_HOLD::acdAgentConnectedActiveEvent(ACDCall* pAcdCallIn
       pAcdCallInstance->stopAudioMessage();
    }
 
-   OsSysLog::add(FAC_ACD, PRI_INFO, "ACDCallRouteState_ON_HOLD::acdAgentConnectedActiveEvent - "
+   Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDCallRouteState_ON_HOLD::acdAgentConnectedActiveEvent - "
                  "Call(%s) successfully routed to ACDAgent(%s)",
                  pAcdCallInstance->mpCallIdentity, pAcdCallInstance->mpActiveAgent->getUriString()->data());
 
@@ -1443,7 +1443,7 @@ void ACDCallRouteState_ON_HOLD::acdAgentDisconnectedEvent(ACDCall* pAcdCallInsta
       pAcdCallInstance->mpActiveAgent->drop();
 
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ON_HOLD::acdAgentDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ON_HOLD::acdAgentDisconnectedEvent - "
                     "Agent(%d) dropped call", pAcdCallInstance->mhCallHandle);
 
       // remove any association between transfer agent call handle and call object
@@ -1485,11 +1485,11 @@ void ACDCallRouteState_ON_HOLD::routeRequestAbortEvent(ACDCall* pAcdCallInstance
       pAcdCallInstance->mpActiveAgent->drop();
    }
    else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ON_HOLD::routeRequestAbortEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ON_HOLD::routeRequestAbortEvent - "
                     "no active agent to drop Call(%d)", pAcdCallInstance->mhCallHandle);
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ON_HOLD::routeRequestAbortEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ON_HOLD::routeRequestAbortEvent - "
                  "Route request for Call(%d) was ABORTED", pAcdCallInstance->mhCallHandle);
 
    abort(pAcdCallInstance) ;
@@ -1557,7 +1557,7 @@ void ACDCallRouteState_ROUTED::acdCallConnectedEvent(ACDCall* pAcdCallInstance)
 {
    // This appears to happen after placing both sides on hold for the transfer.
    // Since there is nothing to do, just note it and move on.
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCallConnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCallConnectedEvent - "
                  "Call(%d)", pAcdCallInstance->mhCallHandle);
 }
 
@@ -1585,13 +1585,13 @@ void ACDCallRouteState_ROUTED::acdCallDisconnectedEvent(ACDCall* pAcdCallInstanc
 
    if (pAcdCallInstance->mpActiveAgent != NULL) {
       // Drop the ACDAgent;
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCallDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCallDisconnectedEvent - "
                     "AgentCall(%d) dropped call",
                     pAcdCallInstance->mpActiveAgent->getCallHandle()) ;
       pAcdCallInstance->mpActiveAgent->drop();
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::acdCallDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::acdCallDisconnectedEvent - "
                     "no active agent to drop Call(%d)", pAcdCallInstance->mhCallHandle);
    }
 
@@ -1627,7 +1627,7 @@ void ACDCallRouteState_ROUTED::acdAgentConnectedActiveEvent(ACDCall* pAcdCallIns
    // The on hold event CONNECTED::CONNECTED_ACTIVE_HELD is ignored.
    // Then the offhold event CONNECTED::CONNECTED_ACTIVE triggers this.
    // Since there is nothing to do, just note it and move on.
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdAgentConnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdAgentConnectedEvent - "
                  "Call(%d)", pAcdCallInstance->mhCallHandle);
 }
 
@@ -1656,7 +1656,7 @@ void ACDCallRouteState_ROUTED::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstan
       // Drop the ACDAgent
       pAcdCallInstance->mpActiveAgent->drop();
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdAgentDisconnectedEvent - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdAgentDisconnectedEvent - "
                     "Agent(%d) dropped call", pAcdCallInstance->mhCallHandle);
 
       // remove any association between transfer agent call handle and call object
@@ -1697,11 +1697,11 @@ void ACDCallRouteState_ROUTED::acdCallTransferModeFailure(ACDCall* pAcdCallInsta
       pAcdCallInstance->mpActiveAgent->drop();
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::acdCallTransferModeFailure - "
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::acdCallTransferModeFailure - "
                     "no active agent to drop Call(%d)", pAcdCallInstance->mhCallHandle);
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCallTransferModeFailure - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCallTransferModeFailure - "
                  "Call(%d) dropped call", pAcdCallInstance->mhCallHandle);
 
    terminate(pAcdCallInstance) ;
@@ -1734,11 +1734,11 @@ void ACDCallRouteState_ROUTED::routeRequestAbortEvent(ACDCall* pAcdCallInstance)
       pAcdCallInstance->mpActiveAgent->drop();
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::routeRequestAbortEvent - "
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::routeRequestAbortEvent - "
                     "no active agent to drop Call(%s)", pAcdCallInstance->mpCallIdentity);
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::routeRequestAbortEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::routeRequestAbortEvent - "
                  "Routed connection for Call(%s) was ABORTED", pAcdCallInstance->mpCallIdentity);
 
    // Remove any association between transfer agent call handle and call object
@@ -1772,7 +1772,7 @@ void ACDCallRouteState_ROUTED::acdCTransferConnectedEvent(ACDCall* pAcdCallInsta
    int rc;
    if (pAcdCallInstance->mConnectionScheme == ACDQueue::TRANSFER) {
       if (pAcdCallInstance->mpActiveAgent == NULL) {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::acdCTransferConnectedActive - Null active agent !"
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::acdCTransferConnectedActive - Null active agent !"
                        "Call (%d) Object(%p)",
                        pAcdCallInstance->mhCallHandle, pAcdCallInstance);
       // Imp - The assert below is temporary - remove it after the testing !
@@ -1780,19 +1780,19 @@ void ACDCallRouteState_ROUTED::acdCTransferConnectedEvent(ACDCall* pAcdCallInsta
          return;
       }
       SIPX_CALL agentHandle = pAcdCallInstance->mpActiveAgent->getCallHandle();
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCTransferConnectedActive - call sipxCallTransfer"
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCTransferConnectedActive - call sipxCallTransfer"
                        "Call(%d) ACDAgent(%s)",
                        pAcdCallInstance->mhCallHandle, pAcdCallInstance->mpActiveAgent->getUriString()->data());
       rc = sipxCallTransfer(pAcdCallInstance->mhCallHandle, agentHandle);
 
       if (rc != SIPX_RESULT_SUCCESS) {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::acdCTransferConnectedActive - "
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState_ROUTED::acdCTransferConnectedActive - "
                        "Error(%d) on sipxCallTransfer for Call(%d) to Agent(%d)",
                        rc, pAcdCallInstance->mhCallHandle, agentHandle);
       }
       else {
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCTransferConnectedActive - "
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdCTransferConnectedActive - "
                        "Call (%d) is being transferred to ACDAgent(%s)",
                        pAcdCallInstance->mhCallHandle, pAcdCallInstance->mpActiveAgent->getUriString()->data());
       }
@@ -1862,7 +1862,7 @@ ACDCallRouteState* ACDCallRouteState_FAILED::Instance(void)
 
 void ACDCallRouteState_FAILED::acdCallDisconnectedEvent(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_FAILED::acdCallDisconnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_FAILED::acdCallDisconnectedEvent - "
               "Call(%d)", pAcdCallInstance->mhCallHandle);
    terminate(pAcdCallInstance) ;
 }
@@ -1929,7 +1929,7 @@ ACDCallRouteState* ACDCallRouteState_ABORTED::Instance(void)
 
 void ACDCallRouteState_ABORTED::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstance, SIPX_CALL callHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ABORTED::acdAgentDisconnectedEvent -  Call(%d)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ABORTED::acdAgentDisconnectedEvent -  Call(%d)",
               pAcdCallInstance->mhCallHandle);
 }
 
@@ -1953,7 +1953,7 @@ void ACDCallRouteState_ABORTED::acdAgentDisconnectedEvent(ACDCall* pAcdCallInsta
 
 void ACDCallRouteState_ABORTED::acdCallDisconnectedEvent(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ABORTED::acdCallDisconnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ABORTED::acdCallDisconnectedEvent - "
               "Call(%d)", pAcdCallInstance->mhCallHandle);
    terminate(pAcdCallInstance) ;
 }
@@ -2018,7 +2018,7 @@ ACDCallRouteState* ACDCallRouteState_TERMINATED::Instance(void)
 
 void ACDCallRouteState_TERMINATED::acdCallDisconnectedEvent(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TERMINATED::acdCallDisconnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TERMINATED::acdCallDisconnectedEvent - "
               "Call(%d)", pAcdCallInstance->mhCallHandle);
 }
 
@@ -2040,7 +2040,7 @@ void ACDCallRouteState_TERMINATED::acdCallDisconnectedEvent(ACDCall* pAcdCallIns
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void ACDCallRouteState_TERMINATED::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstance, SIPX_CALL callHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdAgentDisconnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_ROUTED::acdAgentDisconnectedEvent - "
               "Agent(%d)", callHandle);
 }
 
@@ -2096,7 +2096,7 @@ void ACDCallRouteState::routeRequestEvent(ACDCall* pAcdCallInstance)
    // Use ACDCall::stopAudioMessage() since we are in the same thread context.
    pAcdCallInstance->stopAudioMessage();
 
-   OsSysLog::add(FAC_ACD, PRI_ERR,
+   Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                  "ACDCallRouteState::routeRequestEvent - "
                  "Invalid call route state %s Call(%d)",
                  getStateString(), pAcdCallInstance->mhCallHandle);
@@ -2122,7 +2122,7 @@ void ACDCallRouteState::routeRequestEvent(ACDCall* pAcdCallInstance)
 
 void ACDCallRouteState::acdCallConnectedEvent(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdCallConnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdCallConnectedEvent - "
                  "Invalid call route state %s Call(%d)",
                  getStateString(), pAcdCallInstance->mhCallHandle);
 }
@@ -2150,7 +2150,7 @@ void ACDCallRouteState::acdCallDisconnectedEvent(ACDCall* pAcdCallInstance)
    // Stop the audio
    // Use ACDCall::stopAudioMessage() since we are in the same thread context.
    pAcdCallInstance->stopAudioMessage();
-   OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdCallDisconnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdCallDisconnectedEvent - "
               "Invalid call route state %s Call(%d)",
               getStateString(), pAcdCallInstance->mhCallHandle);
 }
@@ -2175,7 +2175,7 @@ void ACDCallRouteState::acdCallDisconnectedEvent(ACDCall* pAcdCallInstance)
 
 void ACDCallRouteState::acdAgentConnectedActiveEvent(ACDCall* pAcdCallInstance, SIPX_CALL callHandle)
 {
-   OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdAgentConnectedActiveEvent - "
+   Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdAgentConnectedActiveEvent - "
               "Invalid call route state %s Call(%d) Agent(%d)",
               getStateString(), pAcdCallInstance->mhCallHandle, callHandle);
 }
@@ -2200,7 +2200,7 @@ void ACDCallRouteState::acdAgentConnectedActiveEvent(ACDCall* pAcdCallInstance, 
 
 void ACDCallRouteState::acdAgentConnectedInactiveEvent(ACDCall* pAcdCallInstance, SIPX_CALL callHandle)
 {
-   OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDCallRouteState::acdAgentConnectedInactiveEvent - "
+   Os::Logger::instance().log(FAC_ACD, PRI_DEBUG, "ACDCallRouteState::acdAgentConnectedInactiveEvent - "
               "Invalid call route state %s Call(%d) Agent(%d)",
               getStateString(), pAcdCallInstance->mhCallHandle, callHandle);
 }
@@ -2225,7 +2225,7 @@ void ACDCallRouteState::acdAgentConnectedInactiveEvent(ACDCall* pAcdCallInstance
 
 void ACDCallRouteState::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstance, SIPX_CALL callHandle)
 {
-   OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdAgentDisconnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdAgentDisconnectedEvent - "
               "Invalid call route state %s Call(%d)",
               getStateString(), pAcdCallInstance->mhCallHandle);
 }
@@ -2249,7 +2249,7 @@ void ACDCallRouteState::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstance, SIP
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void ACDCallRouteState::acdCallTransferModeFailure(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, PRI_ERR,
+   Os::Logger::instance().log(FAC_ACD, PRI_ERR,
       "ACDCallRouteState::acdCallTransferModeFailure - "
               "Invalid call route state %s Call(%d)",
               getStateString(), pAcdCallInstance->mhCallHandle);
@@ -2274,7 +2274,7 @@ void ACDCallRouteState::acdCallTransferModeFailure(ACDCall* pAcdCallInstance)
 
 void ACDCallRouteState::routeRequestTimeoutEvent(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState::routeRequestTimeoutEvent - "
+   Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState::routeRequestTimeoutEvent - "
               "Invalid call route state %s Call(%d)",
               getStateString(), pAcdCallInstance->mhCallHandle);
 }
@@ -2303,7 +2303,7 @@ void ACDCallRouteState::routeRequestAbortEvent(ACDCall* pAcdCallInstance)
    if (pAcdCallInstance->mCallState == ACDCall::CONNECTED) {
       // Stop the current audio, if being played
       if (pAcdCallInstance->mPlayingAudio != ACDCall::NO_AUDIO_PLAYING) {
-         OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDCallRouteState::routeRequestEvent - "
+         Os::Logger::instance().log(FAC_ACD, PRI_DEBUG, "ACDCallRouteState::routeRequestEvent - "
                        "Stopping the current audio for call %d", pAcdCallInstance->mhCallHandle);
          // Use ACDCall::stopAudioMessage() since we are in the same thread context.
          pAcdCallInstance->stopAudioMessage();
@@ -2315,7 +2315,7 @@ void ACDCallRouteState::routeRequestAbortEvent(ACDCall* pAcdCallInstance)
 
 void ACDCallRouteState::acdCTransferConnectedEvent(ACDCall* pAcdCallInstance)
 {
-   OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdCTransferConnectedEvent - "
+   Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState::acdCTransferConnectedEvent - "
               "Invalid call route state %s Call(%d)",
               getStateString(), pAcdCallInstance->mhCallHandle);
 }
@@ -2345,7 +2345,7 @@ OsStatus ACDCallRouteState::join(ACDCall* pAcdCallInstance, SIPX_CALL callHandle
       // Create a conference instance for this call
       rc = sipxConferenceCreate(pAcdCallInstance->mhAcdCallManagerHandle, &pAcdCallInstance->mhConferenceHandle);
       if (rc != SIPX_RESULT_SUCCESS) {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState::join - "
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState::join - "
             "Error(%d) on sipxConferenceCreate for Call(%d)", rc, callHandle);
 
             return OS_FAILED;
@@ -2355,12 +2355,12 @@ OsStatus ACDCallRouteState::join(ACDCall* pAcdCallInstance, SIPX_CALL callHandle
       // Add this call to the conference
       rc = sipxConferenceJoin(pAcdCallInstance->mhConferenceHandle, callHandle);
       if (rc != SIPX_RESULT_SUCCESS) {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState::join - "
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallRouteState::join - "
             "Error(%d) on sipxConferenceJoin for Call(%d)", rc, callHandle);
          return OS_FAILED;
       }
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState::join - "
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallRouteState::join - "
          "Completed sipxConferenceCreate/join for Call(%d)", callHandle);
 
       return OS_SUCCESS ;

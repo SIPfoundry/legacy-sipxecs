@@ -14,7 +14,7 @@
 
 #include "ResourceCached.h"
 #include "ContactSet.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsTimer.h>
 #include <os/OsLock.h>
 #include <utl/XmlContent.h>
@@ -47,7 +47,7 @@ ResourceCached::ResourceCached(ResourceCache* resourceCache,
    mContactSetP(0),
    mSeqNo(getResourceListSet()->getNextSeqNo())
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCached:: this = %p, URI = '%s'",
                  this, data());
 
@@ -61,7 +61,7 @@ ResourceCached::ResourceCached(ResourceCache* resourceCache,
 // Destructor
 ResourceCached::~ResourceCached()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCached::~ this = %p, URI = '%s'",
                  this, data());
 
@@ -95,7 +95,7 @@ UtlBoolean ResourceCached::hasReferences()
 //! Start subscriptions for this resource.
 void ResourceCached::startSubscriptions()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCached::startSubscriptions URI = '%s'",
                  data());
 
@@ -110,7 +110,7 @@ void ResourceCached::startSubscriptions()
 // Terminate any existing subscriptions for this resource.
 void ResourceCached::terminateSubscriptions()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCached::terminateSubscriptions URI = '%s'",
                  data());
 
@@ -126,7 +126,7 @@ void ResourceCached::terminateSubscriptions()
 void ResourceCached::setToBePublished(UtlBoolean publishNow,
                                       const UtlString* chgUri)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCached::setToBePublished URI = '%s'",
                  data());
 
@@ -285,7 +285,7 @@ void ResourceCached::generateBody(UtlString& rlmi,
 // Remove dialogs in terminated state and terminated resource instances.
 void ResourceCached::purgeTerminated()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCached::purgeTerminated this = %p, URI = '%s'",
                  this, data());
 
@@ -307,7 +307,7 @@ void ResourceCached::dumpState() const
 {
    // indented 6
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t      ResourceCached %p UtlString = '%s', mSeqNo = %d",
                  this, data(), mSeqNo);
    mContactSetP->dumpState();

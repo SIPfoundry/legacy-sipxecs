@@ -21,7 +21,7 @@
 #include <os/OsDateTime.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsStatus.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsEvent.h>
 
 #include <utl/XmlContent.h>

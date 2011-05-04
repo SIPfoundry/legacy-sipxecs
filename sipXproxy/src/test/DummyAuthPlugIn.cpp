@@ -7,7 +7,7 @@
 
 // APPLICATION INCLUDES
 #include "DummyAuthPlugIn.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -23,7 +23,7 @@ DummyAuthPlugin::DummyAuthPlugin(const UtlString& pluginName )
    : AuthPlugin(pluginName),
      mbDenyNextRequest( false )
 {
-   OsSysLog::add(FAC_SIP,PRI_INFO,"DummyAuthPlugin plugin instantiated '%s'",
+   Os::Logger::instance().log(FAC_SIP,PRI_INFO,"DummyAuthPlugin plugin instantiated '%s'",
                                  pluginName.data());
 };
 

@@ -18,6 +18,8 @@
 #include "os/OsFS.h"
 #include "os/OsTime.h"
 #include "os/OsTask.h"
+#include "os/OsLogger.h"
+#include "os/OsLoggerHelper.h"
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"
@@ -70,8 +72,7 @@ initSysLog(OsConfigDb* pConfig)
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
    // exist
 
-   OsSysLog::initialize(0, "SipRegistrar");
-
+   Os::LoggerHelper::instance().processName = "SipRegistrar";
 
    //
    // Get/Apply Log Filename
@@ -92,7 +93,7 @@ initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
       }
       else
       {
@@ -101,7 +102,7 @@ initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
       }
 
       fileTarget = workingDirectory +
@@ -112,20 +113,21 @@ initSysLog(OsConfigDb* pConfig)
    {
       bSpecifiedDirError = false ;
       osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
 
       fileTarget = fileTarget +
          OsPathBase::separator +
          CONFIG_LOG_FILE;
    }
-   OsSysLog::setOutputFile(0, fileTarget) ;
+
 
 
    //
    // Get/Apply Log Level
    //
    SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX);
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::LoggerHelper::instance().initialize(fileTarget.data());
+   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    //
    // Get/Apply console logging
@@ -137,17 +139,17 @@ initSysLog(OsConfigDb* pConfig)
       consoleLogging.toUpper();
       if (consoleLogging == "ENABLE")
       {
-         OsSysLog::enableConsoleOutput(true);
+         Os::Logger::instance().enableConsoleOutput(true);
          bConsoleLoggingEnabled = true ;
       }
    }
 
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE,
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE,
                  bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(FAC_LOG, PRI_CRIT,
+      Os::Logger::instance().log(FAC_LOG, PRI_CRIT,
                     "Cannot access directory '%s'; please check configuration.",
                     CONFIG_SETTING_LOG_DIR);
    }
@@ -174,16 +176,16 @@ public:
        {
           if (SIGTERM == sig_num)
           {
-             OsSysLog::add( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
+             Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
           }
           else
           {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
+            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
           }
        }
        else
        {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
+            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
        }
        // set the global shutdown flag
        gShutdownFlag = TRUE ;
@@ -259,24 +261,24 @@ main(int argc, char* argv[] )
    }
 
    initSysLog(configDb) ;
-   OsSysLog::add(FAC_SIP, PRI_NOTICE,
+   Os::Logger::instance().log(FAC_SIP, PRI_NOTICE,
                  "SipRegistrar >>>>>>>>>>>>>>>> STARTED"
                  );
    if (configLoaded)
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "Read config %s", fileName.data());
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "Read config %s", fileName.data());
    }
    else
    {
       if (configDb->storeToFile(fileName) == OS_SUCCESS)
       {
-         OsSysLog::add( FAC_SIP, PRI_INFO, "Default config written to: %s",
+         Os::Logger::instance().log( FAC_SIP, PRI_INFO, "Default config written to: %s",
                        fileName.data()
                        );
       }
       else
       {
-         OsSysLog::add( FAC_SIP, PRI_ERR, "Default config write failed to: %s",
+         Os::Logger::instance().log( FAC_SIP, PRI_ERR, "Default config write failed to: %s",
                        fileName.data());
       }
    }
@@ -295,7 +297,7 @@ main(int argc, char* argv[] )
    {
       OsTask::delay(1 * OsTime::MSECS_PER_SEC);
    }
-   OsSysLog::add(LOG_FACILITY, PRI_NOTICE, "main: cleaning up.");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_NOTICE, "main: cleaning up.");
 
    // This is a server task so gracefully shut down the
    // server task using the waitForShutdown method, this
@@ -305,7 +307,7 @@ main(int argc, char* argv[] )
    {
       // Deleting a server task is the only way of
       // waiting for shutdown to complete cleanly
-      OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "main: shut down server task.");
+      Os::Logger::instance().log(LOG_FACILITY, PRI_DEBUG, "main: shut down server task.");
       delete pServerTask;
       pServerTask = NULL;
    }
@@ -316,7 +318,7 @@ main(int argc, char* argv[] )
    }
 
    // Flush the log file
-   OsSysLog::flush();
+   Os::Logger::instance().flush();
 
    return 0;
 }

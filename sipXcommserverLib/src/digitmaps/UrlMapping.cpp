@@ -17,7 +17,7 @@
 #include <xmlparser/TiXmlUtlStringWriter.h>
 #endif // REPLACE_TEST
 
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 #include <utl/UtlString.h>
 #include <utl/UtlRegex.h>
@@ -91,7 +91,7 @@ private:
                     const UtlString& replaceWith)
       {
 #        ifdef REPLACE_TEST
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping SymbolMap::replaceEach('%s', '%s', '%s')",
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "UrlMapping SymbolMap::replaceEach('%s', '%s', '%s')",
                        value.data(), replaceWhat.data(), replaceWith.data());
 #        endif // REPLACE_TEST
 
@@ -200,7 +200,7 @@ public:
                 )
       {
 #        ifdef REPLACE_TEST
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping SymbolMap::replace('%s', '%s')",
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "UrlMapping SymbolMap::replace('%s', '%s')",
                        value.data(), vdigits.data());
 #        endif // REPLACE_TEST
 
@@ -334,7 +334,7 @@ UrlMapping::loadMappings(const UtlString& configFileName,
     mDoc = new TiXmlDocument(configFileName.data());
     if (mDoc->LoadFile())
     {
-       OsSysLog::add(FAC_SIP, PRI_INFO, "UrlMapping::loadMappings - "
+       Os::Logger::instance().log(FAC_SIP, PRI_INFO, "UrlMapping::loadMappings - "
                      "loaded '%s'", configFileName.data());
 
        currentStatus = OS_SUCCESS;
@@ -356,7 +356,7 @@ UrlMapping::loadMappings(const UtlString& configFileName,
     }
     else
     {
-       OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::loadMappings - "
+       Os::Logger::instance().log( FAC_SIP, PRI_ERR, "UrlMapping::loadMappings - "
                      "failed to load '%s'", configFileName.data() );
        currentStatus = OS_NOT_FOUND;
     }
@@ -383,13 +383,13 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
     pPrevMappingNode = mDoc->FirstChild( XML_TAG_MAPPINGS);
     if (!pPrevMappingNode)
     {
-        OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::getContactList - "
+        Os::Logger::instance().log( FAC_SIP, PRI_ERR, "UrlMapping::getContactList - "
                       "No '%s' node",  XML_TAG_MAPPINGS);
         return OS_FILE_READ_FAILED;
     }
     if (!pPrevMappingNode->ToElement())
     {
-        OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::getContactList - "
+        Os::Logger::instance().log( FAC_SIP, PRI_ERR, "UrlMapping::getContactList - "
                       "node '%s' is not an element", XML_TAG_MAPPINGS );
         return OS_INVALID;
     }
@@ -596,7 +596,7 @@ UrlMapping::doTransform(const Url& requestUri,
       TiXmlUtlStringWriter w(&out);
       w << *permMatchNode;
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping::doTransform "
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "UrlMapping::doTransform "
                     "requestUri = '%s', vdigits = '%s', permMatchNode = '%s'",
                     requestUri.toString().data(),
                     vdigits.data(),
@@ -673,7 +673,7 @@ UrlMapping::doTransform(const Url& requestUri,
                         else
                         {
                            transformState = TransformError;
-                           OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                           Os::Logger::instance().log(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
                                          "invalid url '%s' from transform url at line %d; "
                                          "transform not used",
                                          url.data(), transformSubNode->Row()
@@ -683,7 +683,7 @@ UrlMapping::doTransform(const Url& requestUri,
                   }
                   else
                   {
-                     OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
                                    "skipped empty transform url at line %d; ",
                                    transformSubNode->Row()
                                    );
@@ -735,7 +735,7 @@ UrlMapping::doTransform(const Url& requestUri,
                      }
                      else
                      {
-                        OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                        Os::Logger::instance().log(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
                                       "skipped empty host transform at line %d; "
                                       "host is required in a SIP url",
                                       transformSubNode->Row()
@@ -757,7 +757,7 @@ UrlMapping::doTransform(const Url& requestUri,
                   }
                   else
                   {
-                     OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
                                    "invalid urlparams transform at line %d; "
                                    "transform skipped",
                                    transformSubNode->Row()
@@ -779,7 +779,7 @@ UrlMapping::doTransform(const Url& requestUri,
                   }
                   else
                   {
-                     OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
                                    "invalid headerparams transform at line %d; "
                                    "transform skipped",
                                    transformSubNode->Row()
@@ -801,7 +801,7 @@ UrlMapping::doTransform(const Url& requestUri,
                   }
                   else
                   {
-                     OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
                                    "invalid fieldparams transform at line %d; "
                                    "transform skipped",
                                    transformSubNode->Row()
@@ -811,7 +811,7 @@ UrlMapping::doTransform(const Url& requestUri,
                }
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                  Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                 "UrlMapping::doTransform element '%s' is invalid at line %d",
                                 elementType.data(), transformSubNode->Row()
                                 );
@@ -833,7 +833,7 @@ UrlMapping::doTransform(const Url& requestUri,
             UtlString* contactValue = new UtlString;
             transformedUrl.toString(*contactValue);
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping::doTransform "
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "UrlMapping::doTransform "
                           "adding '%s'", contactValue->data());
 
             UtlInt*    expiresValue = new UtlInt ( 0 );
@@ -864,7 +864,7 @@ UrlMapping::doTransform(const Url& requestUri,
       else
       {
          // some child other than transform - should not happen, but ignore
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "UrlMapping::doTransform unrecognized node when fetching transform"
                        );
       }

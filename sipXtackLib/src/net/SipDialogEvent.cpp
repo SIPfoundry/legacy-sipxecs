@@ -11,7 +11,7 @@
 #include <net/NameValueTokenizer.h>
 #include <net/SipDialogEvent.h>
 #include <net/SipSubscribeServer.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlDListIterator.h>
 #include <utl/XmlContent.h>
 #include <xmlparser/tinyxml.h>
@@ -641,7 +641,7 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
 
    if(bodyBytes)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::parseBody incoming package = %s\n",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogEvent::parseBody incoming package = %s\n",
                     bodyBytes);
 
       TiXmlDocument doc("dialogEvent.xml");
@@ -788,17 +788,17 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
             }
             if (foundDialogs == false)
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::parseBody no dialogs found");
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogEvent::parseBody no dialogs found");
             }
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogEvent::parseBody <dialog-info> not found");
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipDialogEvent::parseBody <dialog-info> not found");
          }
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogEvent::parseBody xml parsing error");
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipDialogEvent::parseBody xml parsing error");
       }
    }
 }
@@ -811,7 +811,7 @@ SipDialogEvent::operator=(const SipDialogEvent& rhs)
       return *this;
 
    // TODO: need to add code to copy members here
-   OsSysLog::add(FAC_SIP, PRI_ERR,
+   Os::Logger::instance().log(FAC_SIP, PRI_ERR,
        "SipDialogEvent::operator= not implemented");
 
    return *this;
@@ -822,12 +822,12 @@ void SipDialogEvent::insertDialog(Dialog* dialog)
    mLock.acquire();
    if (mDialogs.insert(dialog) != NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::insertDialog Dialog = %p",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogEvent::insertDialog Dialog = %p",
                     dialog);
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogEvent::insertDialog Dialog = %p failed",
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipDialogEvent::insertDialog Dialog = %p failed",
                     dialog);
    }
    mLock.release();
@@ -840,7 +840,7 @@ Dialog* SipDialogEvent::removeDialog(Dialog* dialog)
    UtlContainable *foundValue;
    foundValue = mDialogs.remove(dialog);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::removeDialog Dialog = %p",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogEvent::removeDialog Dialog = %p",
                  foundValue);
 
    mLock.release();
@@ -870,7 +870,7 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId,
           (foundRemoteTag.isNull() ||
            foundRemoteTag.compareTo(remoteTag) == 0))
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipDialogEvent::getDialog found Dialog = %p for callId = '%s', local tag = '%s', remote tag = '%s'",
                        pDialog,
                        callId.data(), localTag.data(), remoteTag ? remoteTag.data() : "(none)");
@@ -880,7 +880,7 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId,
       }
    }
 
-   OsSysLog::add(FAC_SIP, PRI_WARNING,
+   Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                  "SipDialogEvent::getDialog could not find the Dialog for callId = '%s', local tag = '%s', remote tag = '%s'",
                  callId.data(),
                  localTag ? localTag.data() : "(none)",
@@ -907,7 +907,7 @@ Dialog* SipDialogEvent::getDialogByCallId(UtlString& callId)
 
       if (foundCallId.compareTo(callId) == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipDialogEvent::getDialog found Dialog = %p for callId = '%s'",
                        pDialog, callId.data());
 
@@ -916,7 +916,7 @@ Dialog* SipDialogEvent::getDialogByCallId(UtlString& callId)
       }
    }
 
-   OsSysLog::add(FAC_SIP, PRI_WARNING,
+   Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                  "SipDialogEvent::getDialog could not find the Dialog for callId = '%s'",
                  callId.data());
    mLock.release();
@@ -941,7 +941,7 @@ Dialog* SipDialogEvent::getDialogByDialogId(UtlString& dialogId)
 
       if (foundDialogId.compareTo(dialogId) == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipDialogEvent::getDialog found Dialog = %p for dialogId = '%s'",
                        pDialog, dialogId.data());
 
@@ -950,7 +950,7 @@ Dialog* SipDialogEvent::getDialogByDialogId(UtlString& dialogId)
       }
    }
 
-   OsSysLog::add(FAC_SIP, PRI_WARNING,
+   Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                  "SipDialogEvent::getDialog could not find the Dialog for dialogId = '%s'",
                  dialogId.data());
    mLock.release();
@@ -1047,7 +1047,7 @@ void SipDialogEvent::buildBody(int* version) const
 
    (const_cast <SipDialogEvent*> (this))->mLock.release();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::buildBody Dialog content = \n%s",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogEvent::buildBody Dialog content = \n%s",
                  mBody.data());
 }
 

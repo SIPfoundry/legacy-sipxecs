@@ -54,7 +54,7 @@ public:
    void setUp()
    {
       OsSysLog::initialize(0, "processDefn");
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "processDefnTest::setUp");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "processDefnTest::setUp");
    }
 
    void badXml()

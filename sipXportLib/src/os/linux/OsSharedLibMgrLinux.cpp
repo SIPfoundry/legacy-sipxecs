@@ -12,7 +12,7 @@
 #include <dlfcn.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include <os/linux/OsSharedLibMgrLinux.h>
 #include "utl/UtlString.h"
 
@@ -81,14 +81,14 @@ OsStatus OsSharedLibMgrLinux::loadSharedLib(const char* libName)
 
         if (!libHandle)
         {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                 "Failed to load shared library: %s error: %s",
                 libName, dlerror());
             status = OS_NOT_FOUND;
         }
         else
         {
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                  "Loaded shared lib \"%s\" handle: %p", libName ? libName : "(null)",
                   libHandle);
             OsSharedLibHandleLinux* collectableHandle =
@@ -127,7 +127,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
     if(!collectableLibHandle)
     {
 
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
              "OsSharedLibMgrLinux::getSharedLibSymbol library: \"%s\" not loaded yet, attempting to load",
                      collectableName.data());
         sLock.release();
@@ -145,7 +145,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
 
         if (!symbolAddress)
         {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                 "Failed to find symbol: %s in shared lib: %s error: %s",
                 symbolName, libName ? libName : "(null)", dlerror());
 
@@ -153,7 +153,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
         }
         else
         {
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                 "Found symbol: %s in shared lib: %s",
                 symbolName, libName ? libName : "(null)");
             status = OS_SUCCESS;
@@ -162,7 +162,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
     }
     else
     {
-        OsSysLog::add(FAC_KERNEL, PRI_ERR,
+        Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                 "Could not find or create handle for shared library: \'%s\'",
                 libName ? libName : "(null)");
     }

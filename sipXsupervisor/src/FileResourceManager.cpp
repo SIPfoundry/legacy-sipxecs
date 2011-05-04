@@ -9,7 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlString.h"
 
 #include "FileResource.h"
@@ -65,7 +65,7 @@ FileResource* FileResourceManager::find(const char* fileName, /**< full path to 
             DirectoryResourceManager::getInstance()->findFilename(fileName));
    }
 
-   if ( OsSysLog::willLog( FAC_SUPERVISOR, PRI_DEBUG ))
+   if ( Os::Logger::instance().willLog( FAC_SUPERVISOR, PRI_DEBUG ))
    {
       UtlString resourceDescription;
 
@@ -79,7 +79,7 @@ FileResource* FileResourceManager::find(const char* fileName, /**< full path to 
          resourceDescription.append("not found");
       }
       
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "FileResourceManager::find '%s' %s",
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "FileResourceManager::find '%s' %s",
                     fileName, resourceDescription.data());
    }
 
@@ -93,13 +93,13 @@ void FileResourceManager::save(FileResource* fileResource)
 
    if (!mFileResourceTable.find(fileResource))
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileResourceManager::save "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "FileResourceManager::save "
                     "FileResource('%s')", fileResource->data());
       mFileResourceTable.insert(fileResource);
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "FileResourceManager::save "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "FileResourceManager::save "
                     "duplicate FileResource('%s')", fileResource->data());
    }
 }
@@ -110,7 +110,7 @@ FileResourceManager::~FileResourceManager()
 {
    OsLock tableMutex(mFileResourceTableLock);
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "FileResourceManager::~ "
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "FileResourceManager::~ "
                  "delete %zu FileResources", mFileResourceTable.entries());
 
    mFileResourceTable.destroyAll();

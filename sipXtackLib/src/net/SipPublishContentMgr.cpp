@@ -16,7 +16,7 @@
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlInt.h>
 #include <net/HttpBody.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 // Private class to contain callback for eventTypeKey
 class PublishCallbackContainer : public UtlString
@@ -119,7 +119,7 @@ void PublishContentContainer::dumpState()
    key.replace(sizeof (CONTENT_KEY_SEPARATOR) - 1,
                key.index(CONTENT_KEY_SEPARATOR),
                " ");
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t        PublishContentContainer %p UtlString = '%s'",
                  this, data());
 
@@ -128,7 +128,7 @@ void PublishContentContainer::dumpState()
    HttpBody* body;
    while ((body = dynamic_cast <HttpBody*> (content_itor())))
    {
-      OsSysLog::add(FAC_RLS, PRI_INFO,
+      Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                     "\t          mEventContent[%d] = '%s':'%s'",
                     index, body->data(), body->getBytes());
       index++;
@@ -172,14 +172,14 @@ void SipPublishContentMgr::publish(const char* resourceId,
                                    UtlBoolean fullState,
                                    UtlBoolean noNotify)
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d, noNotify %d, fullState %d",
                   resourceId ? resourceId : "(null)",
                   eventTypeKey, eventType, numContentTypes, noNotify, fullState);
 
     if (numContentTypes < 1)
     {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "SipPublishContentMgr::publish "
                      "No content bodies supplied for resourceId '%s', "
                      "eventTypeKey '%s', fullState %d",
@@ -246,7 +246,7 @@ void SipPublishContentMgr::publish(const char* resourceId,
     // Add the new content
     for (int index = 0; index < numContentTypes; index++)
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
             "SipPublishContentMgr::publish eventContent[%d] = %p, key = '%s', content type = '%s', getBytes() = %p '%s'",
                       index,
                       eventContent[index],
@@ -298,7 +298,7 @@ void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
                                           defaultConstructor,
                                           UtlBoolean fullState)
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipPublishContentMgr::publishDefault eventTypeKey '%s', eventType '%s', fullState %d, defaultConstructor %p",
                   eventTypeKey, eventType, fullState, defaultConstructor);
 
@@ -342,7 +342,7 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
                                      const char* eventType,
                                      const char* reason)
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipPublishContentMgr::unpublish resourceId '%s', eventTypeKey '%s', eventType '%s', reason '%s'",
                   resourceId ? resourceId : "(null)",
                   eventTypeKey, eventType,
@@ -507,7 +507,7 @@ void SipPublishContentMgr::setContentChangeObserver(const char* eventType,
                                                     SipPublisherContentChangeCallback callbackFunction,
                                                     void* applicationData)
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipPublishContentMgr::setContentChangeObserver eventType '%s', callbackFunction %p, applicationData = %p",
                   eventType, callbackFunction, applicationData);
     UtlString eventTypeString(eventType);
@@ -530,7 +530,7 @@ void SipPublishContentMgr::setContentChangeObserver(const char* eventType,
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "SipPublishContentMgr::setContentChangeObserver "
                      "ignored, eventType is null.");
     }
@@ -544,7 +544,7 @@ void SipPublishContentMgr::getContentChangeObserver(const char* eventType,
                                                     SipPublisherContentChangeCallback& callbackFunction,
                                                     void*& applicationData)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPublishContentMgr::getContentChangeObserver eventType '%s'",
                  eventType);
    UtlString eventTypeString(eventType);
@@ -710,7 +710,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
                           if (j == UTL_NOT_FOUND)
                           {
                              // This shouldn't happen.
-                             OsSysLog::add(FAC_SIP, PRI_WARNING,
+                             Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                            "SipPublishContentMgr::getContent "
                                            "No closing double-quote found for 'type' parameter in body MIME type '%s'",
                                            content_type->data());
@@ -748,7 +748,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
                     }
                     else
                     {
-                       OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                      "SipPublishContentMgr::getContent "
                                      "No 'type' parameter in body MIME type '%s'",
                                      content_type->data());
@@ -772,7 +772,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
            if (!foundContent)
            {
               // No content was found that matched the allowed MIME types.
-              OsSysLog::add(FAC_SIP, PRI_WARNING,
+              Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                             "SipPublishContentMgr::getContent no acceptable content found for key '%s', acceptHeaderValue '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s'",
                             key.data(),
                             acceptHeaderValue.data(),
@@ -813,7 +813,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
               {
                  availableMediaTypes->remove(0);
               }
-              OsSysLog::add(FAC_SIP, PRI_WARNING,
+              Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                             "SipPublishContentMgr::getContent no content found for key '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s' - publish() must have been called with numContentTypes==0",
                             key.data(),
                             resourceId ? resourceId : "[none]",
@@ -829,7 +829,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        {
           availableMediaTypes->remove(0);
        }
-       OsSysLog::add(FAC_SIP, PRI_WARNING,
+       Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                      "SipPublishContentMgr::getContent no container found for key '%s', acceptHeaderValue '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s', fullState = %d",
                      key.data(),
                      acceptHeaderValue.data(),
@@ -936,7 +936,7 @@ void SipPublishContentMgr::dumpState()
 
    // indented 4 and 6
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t    SipPublishContentMgr %p",
                  this);
 
@@ -955,7 +955,7 @@ void SipPublishContentMgr::dumpStateBag(UtlHashBag& bag,
    PublishContentContainer* container;
    while ((container = dynamic_cast <PublishContentContainer*> (itor())))
    {
-      OsSysLog::add(FAC_RLS, PRI_INFO,
+      Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                     "\t      %s{'%s'}",
                     name, container->data());
       container->dumpState();

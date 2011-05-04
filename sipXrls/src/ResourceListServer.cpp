@@ -10,7 +10,7 @@
 // APPLICATION INCLUDES
 
 #include <net/SipMessage.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsDefs.h>
 #include "ResourceListServer.h"
 
@@ -127,12 +127,12 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    mResourceListFileReader(UtlString(""), &mResourceListSet),
    mChangeDelay(sRunningChangeDelay)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer::_ this = %p, mDomainName = '%s', mEventType = '%s', mContentType = '%s', "
                  "mResubscribeInterval = %d",
                  this, mDomainName.data(), mEventType.data(), mContentType.data(),
                  mResubscribeInterval);
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer::_ this = %p, mPublishingDelay = %d, mMaxRegSubscInResource = %d, "
                  "mMaxContInRegSubsc = %d, mMaxResInstInCont = %d, mMaxDialogsInResInst = %d",
                  this, publishingDelay, mMaxRegSubscInResource, mMaxContInRegSubsc, mMaxResInstInCont,
@@ -176,7 +176,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
                                               serverDefaultExpiration,
                                               serverMaxExpiration))
    {
-      OsSysLog::add(FAC_RLS, PRI_ERR,
+      Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                     "ResourceListServer given unacceptable server subscription times: min = %d, default = %d, max = %d.  Using the default subscription times.",
                     serverMinExpiration,
                     serverDefaultExpiration,
@@ -224,7 +224,7 @@ void ResourceListServer::start()
                                          SipSubscribeServer::standardVersionCallback,
                                          FALSE))
    {
-      OsSysLog::add(FAC_RLS, PRI_CRIT, "ResourceListServer:: enableEventType failed");
+      Os::Logger::instance().log(FAC_RLS, PRI_CRIT, "ResourceListServer:: enableEventType failed");
    }
    mSubscribeServer.start();
 
@@ -238,7 +238,7 @@ void ResourceListServer::start()
          FALSE // outgoing
    );
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG, "ResourceListServer::_ Initialization done.");
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG, "ResourceListServer::_ Initialization done.");
 }
 
 // Shut down the server.
@@ -246,7 +246,7 @@ void ResourceListServer::shutdown()
 {
    // Close down the call processing objects.
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer::shutdown this = %p",
                  this);
 
@@ -279,7 +279,7 @@ void ResourceListServer::shutdown()
    mClientUserAgent.shutdown(FALSE);
    mResourceListTask.requestShutdown();
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer::shutdown "
                  "this = %p, waiting for final objects to shut down",
                  this);
@@ -291,7 +291,7 @@ void ResourceListServer::shutdown()
       OsTask::delay(100);
    }
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer::shutdown "
                  "this = %p, shutdown completed",
                  this);
@@ -308,7 +308,7 @@ void ResourceListServer::dumpState()
 {
    // indented 0
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\tResourceListServer %p", this);
    mResourceListSet.dumpState();
    mSubscribeServer.dumpState();

@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // APPLICATION INCLUDES
 #include <os/OsServerSocket.h>
@@ -97,11 +97,11 @@ HttpServer::HttpServer(OsServerSocket *pSocket,
    if (!mpHttpConnectionList)
    {
       mbPersistentConnection = false;
-      OsSysLog::add( FAC_SIP, PRI_CRIT, "HttpServer failed to allocate mpHttpConnectionList");
+      Os::Logger::instance().log( FAC_SIP, PRI_CRIT, "HttpServer failed to allocate mpHttpConnectionList");
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "HttpServer: Using persistent connections" );
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "HttpServer: Using persistent connections" );
    }
 
 }
@@ -217,7 +217,7 @@ int HttpServer::run(void* runArg)
 
     if (!mpServerSocket->isOk())
     {
-        OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer: port not ok" );
+        Os::Logger::instance().log( FAC_SIP, PRI_ERR, "HttpServer: port not ok" );
         httpStatus = OS_PORT_IN_USE;
     }
 
@@ -241,7 +241,7 @@ int HttpServer::run(void* runArg)
                     {
                         if (connection->toBeDeleted())
                         {
-                           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                          "HttpServer: destroying connection %p",
                                          connection);
                            mpHttpConnectionList->destroy(connection);
@@ -254,7 +254,7 @@ int HttpServer::run(void* runArg)
                         }
                     }
                     items = mpHttpConnectionList->entries();
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                   "HttpServer: "
                                   "destroyed %d inactive HttpConnections, %d remaining",
                                   deleted, items);
@@ -265,14 +265,14 @@ int HttpServer::run(void* runArg)
                     ++mHttpConnections;
                     HttpConnection* newConnection = new HttpConnection(requestSocket, this);
                     mpHttpConnectionList->append(newConnection);
-                    OsSysLog::add(FAC_SIP, PRI_INFO,
+                    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                                   "HttpServer::run starting persistent connection %d (%p)",
                                   mHttpConnections, newConnection);
                     newConnection->start();
                 }
                 else
                 {
-                   OsSysLog::add(FAC_SIP, PRI_ERR,
+                   Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                  "HttpServer::run exceeded persistent connection limit (%d):"
                                  " sending 503",
                                  MAX_PERSISTENT_HTTP_CONNECTIONS);
@@ -329,7 +329,7 @@ int HttpServer::run(void* runArg)
 
     if ( !isShuttingDown() )
     {
-       OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer: exit due to port failure" );
+       Os::Logger::instance().log( FAC_SIP, PRI_ERR, "HttpServer: exit due to port failure" );
     }
 
     httpStatus = OS_TASK_NOT_STARTED;
@@ -355,7 +355,7 @@ UtlBoolean HttpServer::processRequestIpAddr(const UtlString& remoteIp,
       response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
       HTTP_FORBIDDEN_CODE, HTTP_FORBIDDEN_TEXT);
 
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "HTTP Request from non-allowed IP address: %s disallowed",
                     remoteAddress.data());
 
@@ -392,7 +392,7 @@ void HttpServer::processRequest(const HttpMessage& request,
         UtlString mappedUriFileName;
         if (uriFileName.contains(".."))
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "HttpServer::processRequest "
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR, "HttpServer::processRequest "
                           "Disallowing URI: '%s' because it contains '..'",
                           uriFileName.data());
 
@@ -401,7 +401,7 @@ void HttpServer::processRequest(const HttpMessage& request,
         }
         else
         {
-            OsSysLog::add(FAC_SIP, PRI_INFO, "HttpServer::processRequest "
+            Os::Logger::instance().log(FAC_SIP, PRI_INFO, "HttpServer::processRequest "
                           "%s '%s'", method.data(), uriFileName.data());
 
             // Map the file name
@@ -591,12 +591,12 @@ void HttpServer::addUriMap(const char* fromUri, const char* toUri)
       UtlString* toPath   = new UtlString(toUri);
       if (mUriMaps.insertKeyAndValue(fromPath, toPath))
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addUriMap added '%s' to '%s'",
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "HttpServer::addUriMap added '%s' to '%s'",
                        fromUri, toUri);
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_CRIT, "HttpServer::addUriMap conflict with '%s' to '%s'",
+         Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "HttpServer::addUriMap conflict with '%s' to '%s'",
                        fromUri, toUri);
          assert(false);
          delete fromPath;
@@ -605,7 +605,7 @@ void HttpServer::addUriMap(const char* fromUri, const char* toUri)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "HttpServer::addUriMap invalid mapping '%s' to '%s'\n"
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "HttpServer::addUriMap invalid mapping '%s' to '%s'\n"
                     "   both from and to must begin with '/'" ,
                     fromUri, toUri);
       assert(false);
@@ -616,7 +616,7 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
                                      RequestProcessor* requestProcessor
                                      )
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addRequestProcessor '%s' to %p",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "HttpServer::addRequestProcessor '%s' to %p",
                  fileUrl, requestProcessor);
 
    addUriMap( fileUrl, fileUrl );
@@ -628,7 +628,7 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
 
 void HttpServer::addHttpService(const char* fileUrl, HttpService* service)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addHttpService '%s' to %p",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "HttpServer::addHttpService '%s' to %p",
                  fileUrl, service);
 
    UtlString* name = new UtlString(fileUrl);
@@ -755,7 +755,7 @@ UtlBoolean HttpServer::mapUri(UtlHashMap& uriMaps, const char* uri, UtlString& m
         }
     }
 
-    OsSysLog::add(FAC_SIP,
+    Os::Logger::instance().log(FAC_SIP,
                   mapFound ? PRI_INFO : PRI_DEBUG,
                   "HttpServer::mapUri %s '%s' -> '%s'",
                   mapFound ? "mapped" : "no mapping",

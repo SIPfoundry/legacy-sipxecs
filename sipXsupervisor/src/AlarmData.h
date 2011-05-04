@@ -13,7 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsTime.h"
 #include "utl/UtlString.h"
 #include "utl/UtlContainableAtomic.h"

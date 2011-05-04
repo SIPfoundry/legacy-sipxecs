@@ -11,7 +11,7 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsDefs.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
@@ -1423,7 +1423,7 @@ public:
                                localRtpCodecs,
                                rnumCodecsInCommon,
                                rppcodecsInCommonArray);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SdpBodyTest__testInsertTelephoneEvent "
                        "numCodecs %d ",
                        numCodecsInCommon);
@@ -1435,7 +1435,7 @@ public:
 
          matchingCodec1 = *pmatchingCodecs++;
          matchingCodec2 = *pmatchingCodecs++;
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SdpBodyTest__testInsertTelephoneEvent "
                        "pt[0] is %d "
                        "pt[1] is %d ",

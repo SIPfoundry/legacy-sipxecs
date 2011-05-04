@@ -15,7 +15,7 @@
 #include <utl/UtlDateTime.h>
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlHashMapIterator.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <xmlparser/tinyxml.h>
 #include "net/XmlRpcResponse.h"
 
@@ -103,7 +103,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                }
                else
                {
-                  OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+                  Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                                 "XmlRpcResponse::parseXmlRpcResponse"
                                 " Invalid response - "
                                 "no value element in param");
@@ -111,7 +111,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
             }
             else
             {
-               OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+               Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                              "XmlRpcResponse::parseXmlRpcResponse"
                              " Invalid response - "
                              "no param element in params");
@@ -123,7 +123,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
             }
             else
             {
-               OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+               Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                              "XmlRpcResponse::parseXmlRpcResponse"
                              " value parsing error: %s",
                              parseErrorMsg.data());
@@ -193,7 +193,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                                     }
                                     else
                                     {
-                                       OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+                                       Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                                                      "XmlRpcResponse::parseXmlRpcResponse"
                                                      " Invalid response - "
                                                      "no int or i4 element in faultCode value");
@@ -202,7 +202,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                               }
                               else
                               {
-                                 OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+                                 Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                                                "XmlRpcResponse::parseXmlRpcResponse"
                                                " Invalid response - "
                                                "no value element in faultCode member");
@@ -232,7 +232,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                               }
                               else
                               {
-                                 OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+                                 Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                                                "XmlRpcResponse::parseXmlRpcResponse"
                                                " Invalid response - "
                                                "no value element in faultString member");
@@ -245,7 +245,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                         }
                         else
                         {
-                           OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+                           Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                                          "XmlRpcResponse::parseXmlRpcResponse"
                                          " Invalid response - no name element in fault member");
                         }
@@ -253,21 +253,21 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                   }
                   else
                   {
-                     OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+                     Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                                    "XmlRpcResponse::parseXmlRpcResponse"
                                    " Invalid response - no struct element in fault value");
                   }
                }
                else
                {
-                  OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+                  Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                                 "XmlRpcResponse::parseXmlRpcResponse"
                                 " Invalid response - no value element in fault");
                }
             }
             else
             {
-               OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+               Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                              "XmlRpcResponse::parseXmlRpcResponse"
                              " Invalid response - no params or fault element");
             }
@@ -275,14 +275,14 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
       }
       else
       {
-         OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+         Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                        "XmlRpcResponse::parseXmlRpcResponse"
                        " Invalid response - no methodResponse element");
       }
    }
    else
    {
-      OsSysLog::add(FAC_XMLRPC, PRI_ERR,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR,
                     "XmlRpcResponse::parseXmlRpcResponse"
                     " ill formatted xml contents in %s. Parsing error = %s",
                      responseContent.data(), doc.ErrorDesc());
@@ -303,7 +303,7 @@ bool XmlRpcResponse::setResponse(UtlContainable* value)
    bool result = false;
    if (mpResponseBody != NULL)    // response body should only be created once
    {
-      OsSysLog::add(FAC_XMLRPC, PRI_CRIT,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_CRIT,
                     "XmlRpcResponse::setResponse - body already set");
       assert(false);
    }
@@ -322,12 +322,12 @@ bool XmlRpcResponse::setResponse(UtlContainable* value)
 
       mpResponseBody->append(END_PARAM END_PARAMS END_RESPONSE);
 
-      OsSysLog::add(FAC_XMLRPC, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_DEBUG,
                     "XmlRpcResponse::setResponse called");
    }
    else
    {
-      OsSysLog::add(FAC_XMLRPC, PRI_CRIT,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_CRIT,
                     "XmlRpcResponse::setResponse body allocation failed");
    }
 
@@ -344,7 +344,7 @@ bool XmlRpcResponse::setFault(int faultCode, const char* faultString)
    // Start to construct the XML-RPC body for fault response
    if (mpResponseBody != NULL)    // response body should only be created once
    {
-      OsSysLog::add(FAC_XMLRPC, PRI_CRIT,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_CRIT,
                     "XmlRpcResponse::setResponse - body already set");
       assert(false);
    }
@@ -385,12 +385,12 @@ bool XmlRpcResponse::setFault(int faultCode, const char* faultString)
       mpResponseBody->append(mFaultString);
       mpResponseBody->append(END_STRING END_MEMBER END_STRUCT END_FAULT END_RESPONSE);
 
-      OsSysLog::add(FAC_XMLRPC, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_DEBUG,
                     "mpResponseBody::setFault %d %s", mFaultCode, mFaultString.data());
    }
    else
    {
-      OsSysLog::add(FAC_XMLRPC, PRI_CRIT,
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_CRIT,
                     "mpResponseBody::setFault body allocation failed");
    }
 
@@ -423,7 +423,7 @@ XmlRpcBody* XmlRpcResponse::getBody()
 {
    if (!mpResponseBody)
    {
-      OsSysLog::add(FAC_XMLRPC,PRI_CRIT,"XmlRpcResponse::getBody no body set");
+      Os::Logger::instance().log(FAC_XMLRPC,PRI_CRIT,"XmlRpcResponse::getBody no body set");
       assert(false);
    }
 

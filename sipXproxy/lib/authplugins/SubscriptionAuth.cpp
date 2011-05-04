@@ -7,7 +7,7 @@
 
 // SYSTEM INCLUDES
 #include "SipRouter.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConfigDb.h"
 
 // APPLICATION INCLUDES
@@ -38,7 +38,7 @@ SubscriptionAuth::SubscriptionAuth(const UtlString& pluginName ///< the name for
    : AuthPlugin(pluginName),
      mpSipRouter(NULL)
 {
-   OsSysLog::add(FAC_SIP,PRI_INFO,"SubscriptionAuth plugin instantiated '%s'",
+   Os::Logger::instance().log(FAC_SIP,PRI_INFO,"SubscriptionAuth plugin instantiated '%s'",
                  mInstanceName.data());
 };
 
@@ -69,7 +69,7 @@ SubscriptionAuth::readConfig( OsConfigDb& configDb /**< a subhash of the individ
     * is used to identify the plugin (see PluginHooks) has been removed (see the
     * examples in PluginHooks::readConfig).
     */
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SubscriptionAuth[%s]::readConfig",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SubscriptionAuth[%s]::readConfig",
                  mInstanceName.data()
                  );
 
@@ -81,7 +81,7 @@ SubscriptionAuth::readConfig( OsConfigDb& configDb /**< a subhash of the individ
                     eventPackagesRequiringAuthentication) && 
         !eventPackagesRequiringAuthentication.isNull())
    {
-      OsSysLog::add( FAC_SIP, PRI_INFO
+      Os::Logger::instance().log( FAC_SIP, PRI_INFO
                     ,"SubscriptionAuth[%s]::readConfig "
                     "  %s = '%s'"
                     ,mInstanceName.data(), EventsRequiringAuthenticationKey
@@ -100,7 +100,7 @@ SubscriptionAuth::readConfig( OsConfigDb& configDb /**< a subhash of the individ
    }
    else
    {
-      OsSysLog::add( FAC_SIP, PRI_NOTICE
+      Os::Logger::instance().log( FAC_SIP, PRI_NOTICE
                     ,"SubscriptionAuth[%s]::readConfig "
                     "  %s not found - no subscription will be challenged by this plug-in"
                     ,mInstanceName.data(), EventsRequiringAuthenticationKey
@@ -112,7 +112,7 @@ SubscriptionAuth::readConfig( OsConfigDb& configDb /**< a subhash of the individ
                     targetsExemptedFromAuthentication) &&
        !targetsExemptedFromAuthentication.isNull())
    {
-      OsSysLog::add( FAC_SIP, PRI_INFO
+      Os::Logger::instance().log( FAC_SIP, PRI_INFO
                     ,"SubscriptionAuth[%s]::readConfig "
                     "  %s = '%s'"
                     ,mInstanceName.data(), TargetsExemptedFromAuthenticationKey
@@ -134,7 +134,7 @@ SubscriptionAuth::readConfig( OsConfigDb& configDb /**< a subhash of the individ
          }
          catch(const char* compileError)
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR
                           ,"SubscriptionAuth[%s]::readConfig Invalid recognizer expression '%s' for '%s': %s"
                           ,mInstanceName.data()
                           ,targetName.data()
@@ -181,7 +181,7 @@ SubscriptionAuth::authorizeAndModify(const UtlString& id,    /**< The authentica
       UtlString callId;
       request.getCallIdField(&callId);
 
-      OsSysLog::add(FAC_AUTH, PRI_INFO, "SubscriptionAuth[%s]::authorizeAndModify "
+      Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "SubscriptionAuth[%s]::authorizeAndModify "
                     "challenging subscription for dialog event package '%s' (call id = '%s')",
                     mInstanceName.data(), eventField.data(), callId.data()
                     );

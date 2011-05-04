@@ -15,7 +15,7 @@
 #include "os/linux/OsBSemLinux.h"
 #include "os/linux/OsUtilLinux.h"
 #include "os/linux/pt_csem.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsTask.h"
 
 #ifdef OS_SYNC_DEBUG
@@ -58,7 +58,7 @@ OsBSemLinux::~OsBSemLinux()
 
    if (res != POSIX_OK)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsBSemLinux::~OsBSemLinux pt_sem_destroy returned %d in task %lu",
                     res, (unsigned long)pthread_self()
                     );

@@ -37,7 +37,7 @@
 #ifdef HAVE_SSL
 #include <os/OsSSLConnectionSocket.h>
 #endif /* HAVE_SSL */
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsTask.h>
 #include <net/NetBase64Codec.h>
 #include <net/NetMd5Codec.h>
@@ -484,7 +484,7 @@ int HttpMessage::get/*[3]*/(Url& httpUrl,
                             int  maxWaitMilliSeconds,
                             bool bPersistent)
 {
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[3] httpUrl = '%s'",
+    Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[3] httpUrl = '%s'",
                   httpUrl.toString().data());
 
     HttpMessage request;
@@ -504,7 +504,7 @@ OsStatus HttpMessage::get/*[5]*/(Url& httpUrl,
                                  void* pOptionalData,
                                  OsConnectionSocket** socket)
 {
-   OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[5] httpUrl = '%s'",
+   Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[5] httpUrl = '%s'",
                  httpUrl.toString().data());
    OsStatus rc = OS_SUCCESS ;
    UtlString uriString;
@@ -548,7 +548,7 @@ OsStatus HttpMessage::get/*[5]*/(Url& httpUrl,
          httpSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, iMaxWaitMilliSeconds/1000);
 #else /* ! HAVE_SSL */
          // SSL is not configured in, so we cannot do https: gets.
-         OsSysLog::add(FAC_HTTP, PRI_CRIT,
+         Os::Logger::instance().log(FAC_HTTP, PRI_CRIT,
                        "HttpMessage::get[5] SSL not configured; "
                        "cannot get URL '%s'", httpUrl.toString().data());
          httpSocket = NULL;
@@ -563,7 +563,7 @@ OsStatus HttpMessage::get/*[5]*/(Url& httpUrl,
          connected = httpSocket->isConnected();
          if (!connected)
          {
-            OsSysLog::add(FAC_HTTP, PRI_ERR,
+            Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                           "HttpMessage::get[5] socket connection to %s:%d failed, try again %d ...",
                           httpHost.data(), httpPort, tries);
             delete httpSocket;
@@ -580,7 +580,7 @@ OsStatus HttpMessage::get/*[5]*/(Url& httpUrl,
 
    if (!connected)
    {
-      OsSysLog::add(FAC_HTTP, PRI_ERR,
+      Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                     "HttpMessage::get[5] socket connection to %s:%d failed, give up...",
                     httpHost.data(), httpPort);
       return OS_FAILED;
@@ -630,11 +630,11 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                             bool bPersistent)
 {
     int httpStatus = -1; // indicates a connection error if unchanged.
-    if (OsSysLog::willLog(FAC_HTTP, PRI_DEBUG))
+    if (Os::Logger::instance().willLog(FAC_HTTP, PRI_DEBUG))
     {
        UtlString url;
        httpUrl.toString(url);
-       OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                      "HttpMessage::get[4](httpUrl = '%s' maxwait = %d %s)",
                      url.data(),
                      maxWaitMilliSeconds,
@@ -714,7 +714,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                                                 maxWaitMilliSeconds/OsTime::MSECS_PER_SEC));
 #                 else /* ! HAVE_SSL */
                   // SSL is not configured in, so we cannot do https: gets.
-                  OsSysLog::add(FAC_HTTP, PRI_CRIT,
+                  Os::Logger::instance().log(FAC_HTTP, PRI_CRIT,
                                 "HttpMessage::get[4] SSL not configured; "
                                 "cannot get URL '%s'", httpUrl.toString().data());
                   httpSocket = NULL;
@@ -731,7 +731,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                   if (!connected)
                   {
                      int retryTime = HTTP_MIN_DELAY_MSECS*exp;
-                     OsSysLog::add(FAC_HTTP, PRI_ERR,
+                     Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                                    "HttpMessage::get[4]"
                                    " socket to %s:%d not connected, retry %d after %dms",
                                    httpHost.data(), httpPort, tries, retryTime);
@@ -743,7 +743,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                }
                else
                {
-                  OsSysLog::add(FAC_HTTP, PRI_ERR,
+                  Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                                 "HttpMessage::get[4]"
                                 " socket creation failed to %s:%d",
                                 httpHost.data(), httpPort
@@ -766,7 +766,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
 
         if (!connected)
         {
-           OsSysLog::add(FAC_HTTP, PRI_ERR,
+           Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                          "HttpMessage::get[4] socket connection to %s:%d failed, give up...\n",
                          httpHost.data(), httpPort);
            if (pConnectionMap)
@@ -781,12 +781,12 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
         if (httpSocket && httpSocket->isReadyToWrite(maxWaitMilliSeconds))
         {
             bytesSent = request.write(httpSocket);
-            OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] sent request");
+            Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] sent request");
         }
 
         if (bytesSent <= 0)
         {
-           OsSysLog::add(FAC_HTTP, PRI_WARNING,
+           Os::Logger::instance().log(FAC_HTTP, PRI_WARNING,
                          "HttpMessage::get[4] "
                          "failed sending on try %d",
                          sendTries);
@@ -802,7 +802,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                if (httpSocket)
                {
                   // Close socket to avoid timeouts in subsequent calls
-                  OsSysLog::add(FAC_HTTP, PRI_ERR,
+                  Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                                 "HttpMessage::get[4] "
                                 "closing failed socket after %d tries",
                                 sendTries);
@@ -819,7 +819,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
            if (httpSocket && httpSocket->isReadyToRead(maxWaitMilliSeconds))
            {
               bytesRead = read(httpSocket); // consumes bytes until full message is read
-              OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+              Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                             "HttpMessage::get[4] read returned %d bytes",
                             bytesRead);
               if (!bytesRead)
@@ -827,7 +827,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                  // Close a non-persistent connection
                  if (!pConnectionMap)
                  {
-                    OsSysLog::add(FAC_HTTP, PRI_ERR, "HttpMessage::get[4] read failed - closing");
+                    Os::Logger::instance().log(FAC_HTTP, PRI_ERR, "HttpMessage::get[4] read failed - closing");
                     httpSocket->close();
                  }
                  else
@@ -836,7 +836,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                     // No bytes were read .. if this is a persistent connection
                     // and it failed on retry mark it unused
                     // in the connection map. Set socket to NULL
-                    OsSysLog::add(FAC_HTTP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                                   "HttpMessage::get[4] "
                                   "Receiving failed on persistent connection on try %d",
                                   sendTries);
@@ -865,7 +865,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                   * response may eventually show up and be associated with some other request.
                   * There is no way to recover the HTTP request/response framing.
                   */
-                 OsSysLog::add(FAC_HTTP, PRI_ERR, "HttpMessage::get[4] read timed out - closing");
+                 Os::Logger::instance().log(FAC_HTTP, PRI_ERR, "HttpMessage::get[4] read timed out - closing");
                  httpSocket->close();
                  delete httpSocket;
                  if (pConnectionMapEntry)
@@ -929,7 +929,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                          new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
 #                     else /* ! HAVE_SSL */
                       // SSL is not configured in, so we cannot do https: gets.
-                      OsSysLog::add(FAC_HTTP, PRI_CRIT,
+                      Os::Logger::instance().log(FAC_HTTP, PRI_CRIT,
                                     "HttpMessage::get[4] basic auth SSL not configured; "
                                     "cannot get URL '%s'", httpUrl.toString().data());
                       httpAuthSocket = NULL;
@@ -945,7 +945,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                       connected = httpAuthSocket->isConnected();
                       if (!connected)
                       {
-                         OsSysLog::add(FAC_HTTP, PRI_ERR,
+                         Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                                        "HttpMessage::get[4] basic auth "
                                        "socket connection to %s:%d failed, try again %d ...\n",
                                        httpHost.data(), httpPort, tries);
@@ -959,7 +959,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
 
                 if (!connected)
                 {
-                   OsSysLog::add(FAC_HTTP, PRI_ERR,
+                   Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                                  "HttpMessage::get[4] basic auth "
                                  "socket connection to %s:%d failed, give up...\n",
                                  httpHost.data(), httpPort);
@@ -1010,11 +1010,11 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
 
     if (httpSocket && !bPersistent)
     {
-       OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] closing non-persistent connection");
+       Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] closing non-persistent connection");
        delete httpSocket;
        httpSocket = 0;
     }
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] returning %d response", httpStatus);
+    Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] returning %d response", httpStatus);
     return(httpStatus);
 }
 
@@ -1153,7 +1153,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
    UtlString localBuffer;
    UtlString* allBytes = externalBuffer ? externalBuffer : &localBuffer;
 #  ifdef MSG_DEBUG
-   OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                  "HttpMessage::read %zu initial residual bytes: '%s'",
                  allBytes->length(), allBytes->data());
 #  endif
@@ -1177,7 +1177,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
       setSendProtocol(socketType);
 
 #     ifdef TEST
-      OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::read socket: %p "
+      Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG, "HttpMessage::read socket: %p "
                     "getIpProtocol: %d remoteHost: %s remotePort: %d\n",
                     inSocket, socketType,
                     remoteHost.data(), remotePort);
@@ -1219,7 +1219,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
          if (residualBytes)
          {
 #           ifdef MSG_DEBUG
-            OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                           "HttpMessage::read %zu residual bytes: '%.*s'",
                           residualBytes, (int)residualBytes, buffer);
 #           endif
@@ -1239,7 +1239,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
          else // we must have read bytes from the socket
          {
 #           ifdef MSG_DEBUG
-            OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                           "HttpMessage::read %zu bytes read: '%.*s'",
                           bytesRead, (int)bytesRead, buffer);
 #           endif
@@ -1319,7 +1319,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                         // header was found.  Although sloppy, it is valid condition
                         // in most cases.  Produce a log entry and assume a content
                         // length of 0.
-                        OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                        Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                                       "HttpMessage::read "
                                       "no content-length set on %sframed %s socket",
                                       OsSocket::isFramed(socketType) ? "" : "un",
@@ -1333,7 +1333,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                   contentTypeSet = getContentType(&contentType);
 
 #                 ifdef TEST
-                  OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                                 "HttpMessage::read  "
                                 "contentLength %d, contentTypeSet %d, "
                                 "contentType '%s'",
@@ -1346,7 +1346,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                   if (   socketType == OsSocket::UDP
                       && contentLength > MAX_UDP_MESSAGE)
                   {
-                     OsSysLog::add(FAC_HTTP, PRI_ERR,
+                     Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                                    "HttpMessage::read Content-Length too big for "
                                    "UDP: %d, from %s:%d assuming: %d",
                                    contentLength, remoteHost.data(), remotePort,
@@ -1358,7 +1358,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                   // outrageously large.
                   if (contentLength > maxContentLength)
                   {
-                     OsSysLog::add(FAC_HTTP, PRI_ERR,
+                     Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                                    "HttpMessage::read "
                                    "Content-Length(%d) > maxContentLength(%d): "
                                    "closing socket type: %d to %s:%d",
@@ -1397,7 +1397,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                      {
                         // we got a content length on a framed socket,
                         // but there is not that much data in the message
-                        OsSysLog::add(FAC_HTTP, PRI_WARNING,
+                        Os::Logger::instance().log(FAC_HTTP, PRI_WARNING,
                                       "HttpMessage::read "
                                       "truncated body on framed %s socket",
                                       OsSocket::ipProtocolString(socketType));
@@ -1431,7 +1431,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                      {
                         // The headers we got said there was a body, but we didn't find
                         // the end of the headers, so this is truncated.
-                        OsSysLog::add(FAC_HTTP, PRI_ERR,
+                        Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                                       "HttpMessage::read "
                                       "truncated message on framed %s socket:\n%s",
                                       OsSocket::ipProtocolString(socketType),
@@ -1444,7 +1444,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                      {
                         // unterminated headers on a framed socket, with a content length of 0
                         // probably just forgot the blank line to terminate the headers so allow it.
-                        OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                        Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                                       "HttpMessage::read "
                                       "unterminated headers with content-length 0 on %s socket",
                                       OsSocket::ipProtocolString(socketType));
@@ -1463,7 +1463,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
          // Read more of the message and continue processing it.
       }
 #     ifdef MSG_DEBUG
-      OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                     "HttpMessage::read Reached end of reading");
 #     endif /* MSG_DEBUG */
 
@@ -1493,7 +1493,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                bodyLength = contentLength;
                messageLength = headerEnd + contentLength;
 
-               OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                              "HttpMessage::read full msg rcvd bytes %zu: header: %zu content: %d",
                              bytesTotal, headerEnd, contentLength);
 
@@ -1528,7 +1528,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
 #              ifdef MSG_DEBUG
                // At this point, the entire message should have been read
                // (in multiple reads if necessary).
-               OsSysLog::add(FAC_HTTP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_HTTP, PRI_WARNING,
                              "HttpMessage::read Not all content data "
                              "successfully read: received %zu body bytes but "
                              "Content-Length was %d",
@@ -1544,7 +1544,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
 #        ifdef MSG_DEBUG
          // This should not happen because the message will have been
          // fetched with multiple reads if necessary.
-         OsSysLog::add(FAC_HTTP, PRI_ERR,
+         Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                        "HttpMessage::read End of headers not found.  "
                        "%zu bytes read.  Content:\n>>>%.*s<<<\n",
                        allBytes->length(), (int)allBytes->length(),
@@ -1566,7 +1566,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
       // Attempt to resize the input buffer to the requested
       // approximate size (allBytes->capacity(bufferSize)) failed, so
       // return an error.
-      OsSysLog::add(FAC_HTTP, PRI_ERR,
+      Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                     "HttpMessage::read allBytes->capacity(%zu) failed, "
                     "returning %zu",
                     bufferSize, byteCapacity);
@@ -1577,10 +1577,10 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
    UtlString b;
    ssize_t l;
    getBytes(&b, &l);
-   OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                  "HttpMessage::read returning %d '%s'",
                  returnMessageLength, b.data());
-   OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                  "HttpMessage::read %zu final residual bytes: '%s'",
                  allBytes->length(), allBytes->data());
 #  endif
@@ -1614,7 +1614,7 @@ UtlBoolean HttpMessage::writeHeaders(OsSocket* outSocket) const
 
    if (!mUseChunkedEncoding)
    {
-      OsSysLog::add(FAC_HTTP, PRI_CRIT, "HttpMessage::writeHeaders used on a non-chunked message");
+      Os::Logger::instance().log(FAC_HTTP, PRI_CRIT, "HttpMessage::writeHeaders used on a non-chunked message");
       assert(mUseChunkedEncoding);
    }
 
@@ -1623,7 +1623,7 @@ UtlBoolean HttpMessage::writeHeaders(OsSocket* outSocket) const
    ssize_t bytesWritten;
 
    getBytes(&buffer, &bufferLen, false /* do not include the body */);
-   OsSysLog::add(FAC_HTTP, PRI_INFO,
+   Os::Logger::instance().log(FAC_HTTP, PRI_INFO,
                  "HttpMessage::writeHeaders writing:\n%s",
                  buffer.data());
 
@@ -1642,7 +1642,7 @@ void HttpMessage::useChunkedBody(bool useChunked)
    {
       if (body)
       {
-         OsSysLog::add(FAC_HTTP, PRI_CRIT,
+         Os::Logger::instance().log(FAC_HTTP, PRI_CRIT,
                        "HttpMessage::useChunkedBody "
                        "used on a message that has a body - existing body deleted");
          assert(body);
@@ -1759,7 +1759,7 @@ void HttpMessage::unescape(UtlString& escapedText)
                 else
                 {
 #ifdef TEST_PRINT
-                    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
+                    Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
                         escapedText.data());
 #endif
                     break;
@@ -1768,7 +1768,7 @@ void HttpMessage::unescape(UtlString& escapedText)
             else
             {
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_HTTP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
+                Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
                     escapedText.data());
 #endif
                 break;
@@ -2439,7 +2439,7 @@ void HttpMessage::getBytes(UtlString* bufferString, ssize_t* length, bool includ
             {
                 char bodyLengthString[40];
                 sprintf(bodyLengthString, "%zu", bodyLen);
-                OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                               "HttpMessage::getBytes content-length: %s wrong setting to: %s",
                               value ? value : "", bodyLengthString);
                 headerField->setValue(bodyLengthString);
@@ -2588,7 +2588,7 @@ void HttpMessage::setRequestFirstHeaderLine(const char* method,
 {
    if (uri[0] == '<')
    {
-      OsSysLog::add(FAC_HTTP,
+      Os::Logger::instance().log(FAC_HTTP,
                     PRI_ERR,
                     "HttpMessage::setRequestFirstHeaderLine(3) request URI has <>: '%s'",
                     uri);
@@ -2680,7 +2680,7 @@ void HttpMessage::setAuthenticateData(const char* scheme,
     }
     else
     {
-        OsSysLog::add( FAC_HTTP, PRI_ERR,
+        Os::Logger::instance().log( FAC_HTTP, PRI_ERR,
                       "HttpMessage::setAuthenticateData: no realm specified"
                       );
     }
@@ -2847,7 +2847,7 @@ UtlBoolean HttpMessage::getAuthorizationUser(UtlString* user,
 
    getAuthorizationScheme(&scheme);
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "HttpMessage::getAuthorizationUser authorization scheme: \"%s\"",
                  scheme.data());
 #endif
@@ -2865,13 +2865,13 @@ UtlBoolean HttpMessage::getAuthorizationUser(UtlString* user,
 #ifdef TEST_PRINT
       if (foundUserId)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "HttpMessage::getAuthorizationUser userId: \"%s\" from message",
                        user->data());
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "HttpMessage::getAuthorizationUser failed to get userId from message");
       }
 #endif
@@ -3076,7 +3076,7 @@ void HttpMessage::addAuthenticateField(const UtlString& authenticateField,
         fieldName = HTTP_WWW_AUTHENTICATE_FIELD;
         break;
     default:
-       OsSysLog::add(FAC_SIP, PRI_CRIT,
+       Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                      "HttpMessage::addAuthenticateField invalid authEntity - no field added"
                      );
        assert(false);
@@ -3103,7 +3103,7 @@ bool HttpMessage::getAuthenticateField(int index,
       fieldName = HTTP_PROXY_AUTHENTICATE_FIELD;
       break;
    default:
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "HttpMessage::getAuthenticateField invalid authEntity"
                     );
       assert(false); // invalid authEntity value
@@ -3333,7 +3333,7 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
     NetMd5Codec::encode(buffer.data(), *responseToken);
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                   "HttpMessage::buildMd5Digest "
                   "expecting authorization: "
                   "userPasswordDigest:'%s', nonce:'%s', method:'%s', uri:'%s', "
@@ -3398,7 +3398,7 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
                    uri.data(),
                    NULL, // body digest
                    &referenceHash);
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                   "HttpMessage::verifyMd5Authorization "
                   "password = '%s', nonce = '%s', method = '%s', uri = '%s', "
                   "cnonce='%s', nonceCount='%s', qop='%s', referenceHash = '%s'",
@@ -3419,7 +3419,7 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
                                      authEntity,
                                      authIndex))
     {
-        OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                       "HttpMessage::verifyMd5Authorization msgDigestHash = '%s'",
                       msgDigestHash.data());
         if((referenceHash.compareTo(msgDigestHash) == 0))
@@ -3431,8 +3431,8 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
     }
 
 #ifdef TEST
-    OsSysLog::add(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
-    OsSysLog::add(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
+    Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
+    Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
 #endif
     return(allowed);
 }
@@ -3492,8 +3492,8 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
     }
 
 #ifdef TEST
-    OsSysLog::add(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
-    OsSysLog::add(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
+    Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
+    Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
 #endif
     return(allowed);
 }
@@ -3602,7 +3602,7 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
     if(cookieFound)
     {
 #ifdef TEST
-        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                       "HttpMessage::getBasicAuthorizationData "
                       "cookie: \"%s\"\n",
                       cookie.data());
@@ -3614,7 +3614,7 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
 
 #ifdef TEST_PRINT
         decodedCookie[decodedLength] = 0;
-        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                       "HttpMessage::getBasicAuthorizationData "
                       "decoded cookie: \"%s\"\n",
             decodedCookie);
@@ -3639,7 +3639,7 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
         else
         {
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+            Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                           "HttpMessage::getBasicAuthorizationData "
                           "no user/password separator found\n");
 #endif
@@ -3652,7 +3652,7 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
 #ifdef TEST
     else
     {
-        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                       "HttpMessage::getBasicAuthorizationData "
                       "cookie not found in message\n");
     }
@@ -3671,7 +3671,7 @@ UtlBoolean HttpMessage::verifyBasicAuthorization(const char* user,
     if(user == NULL || strcmp(user, "") == 0)
     {
 #ifdef TEST
-        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                       "HttpMessage::verifyBasicAuthorization "
                       "no db user id given\n");
 #endif
@@ -3680,7 +3680,7 @@ UtlBoolean HttpMessage::verifyBasicAuthorization(const char* user,
 #ifdef TEST
     else
     {
-        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                       "HttpMessage::verifyBasicAuthorization "
                       "user: \"%s\" password: \"%s\"\n",
             user, password);
@@ -3695,15 +3695,15 @@ UtlBoolean HttpMessage::verifyBasicAuthorization(const char* user,
         // Get the user:password cookie provided in this message
         userAllowed = getBasicAuthorizationData(&givenCookie);
 #ifdef TEST
-        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                       "HttpMessage::verifyBasicAuthorization "
                       "user: \"%s\" password: \"%s\"\n",
             user, password);
-        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                       "HttpMessage::verifyBasicAuthorization "
                       " ref. cookie: \"%s\"\n",
             referenceCookie.data());
-        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                       "HttpMessage::verifyBasicAuthorization "
                       "msg. cookie: \"%s\"\n",
             givenCookie.data());
@@ -3718,7 +3718,7 @@ UtlBoolean HttpMessage::verifyBasicAuthorization(const char* user,
 #ifdef TEST
     else
     {
-            OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+            Os::Logger::instance().log(FAC_HTTP,PRI_DEBUG,
                           "HttpMessage::verifyBasicAuthorization "
                           "no cookie in authorization field\n");
     }

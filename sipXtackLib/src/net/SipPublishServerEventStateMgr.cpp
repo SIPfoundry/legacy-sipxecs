@@ -12,7 +12,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlString.h>
 #include <utl/UtlHashBagIterator.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsTimer.h>
 #include <os/OsDateTime.h>
 #include <net/SipPublishServerEventStateMgr.h>
@@ -156,7 +156,7 @@ void SipPublishServerEventStateMgr::removeOldPublication(long oldEpochTimeSecond
 
         else
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                 "SipPublishServerEventStateMgr::removeOldSubscriptions PublishServerEventStateIndex with NULL mpState, deleting");
             mSubscriptionStateResourceIndex.removeReference(stateIndex);
             delete stateIndex;

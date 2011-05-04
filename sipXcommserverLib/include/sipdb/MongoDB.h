@@ -25,7 +25,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/functional/hash.hpp>
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 #define BSON_NOT_EQUAL(val) BSON("$ne"<< val)
 #define BSON_LESS_THAN(val) BSON("$lt"<< val)

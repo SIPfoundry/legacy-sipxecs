@@ -18,7 +18,7 @@
 #include <utl/UtlString.h>
 #include <os/OsDefs.h>
 #include <os/OsDateTime.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/SipDialog.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
@@ -81,7 +81,7 @@ static void subStateCallback(SipSubscribeClient::SubscriptionState newState,
                              const SipMessage* subscribeResponse)
    {
       smNumClientSubResponsesReceived++;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "subStateCallback: smNumClientSubResponsesReceived=%d", smNumClientSubResponsesReceived);
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "subStateCallback: smNumClientSubResponsesReceived=%d", smNumClientSubResponsesReceived);
       smClientExpiration = expiration;
       if(smLastClientSubResponseReceived)
       {

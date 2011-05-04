@@ -13,7 +13,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorAliasDB.h"
 #include "net/NetBase64Codec.h"
@@ -79,7 +79,7 @@ void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
 
    UtlString base64;
    NetBase64Codec::encode(secret, base64);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorAliasDB::readConfig"
                  "%s::readConfig "
                  "set SipXauthIdentity secret",
@@ -107,14 +107,14 @@ SipRedirectorAliasDB::lookUp(
       userforwardParam.compareTo("false", UtlString::ignoreCase) == 0;
    if (disableForwarding)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp user forwarding disabled by parameter",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp user forwarding disabled by parameter",
                     mLogName.data());
    }
 
    UtlString requestIdentity;
    requestUri.getIdentity(requestIdentity);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
                  mLogName.data(), requestIdentity.data());
 
    //ResultSet aliases;
@@ -128,7 +128,7 @@ SipRedirectorAliasDB::lookUp(
 
    if (numAliasContacts > 0)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp "
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp "
                     "got %d AliasDB contacts", mLogName.data(),
                     numAliasContacts);
 

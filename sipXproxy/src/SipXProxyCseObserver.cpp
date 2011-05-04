@@ -17,7 +17,7 @@
 #include <os/OsDateTime.h>
 #include "os/OsEventMsg.h"
 #include "os/OsMutex.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlHashMapIterator.h>
 
 //#define TEST_PRINT 1
@@ -164,7 +164,7 @@ SipXProxyCseObserver::SipXProxyCseObserver(SipUserAgent&         sipUserAgent,
 
             if (!mpWriter->writeLog(event.data()))
             {      
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "SipXProxyCseObserver initial event log write failed - disabling writer");
                mpWriter = NULL;                 
             }
@@ -175,7 +175,7 @@ SipXProxyCseObserver::SipXProxyCseObserver(SipUserAgent&         sipUserAgent,
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SipXProxyCseObserver initial event log write failed - disabling writer");
             mpWriter = NULL;
             
@@ -285,7 +285,7 @@ void SipXProxyCseObserver::CleanupTransMap(void* userData, const intptr_t eventD
 
     // Acquire the map mutex and then iterate over the entries seeing if any need to be deleted.
     Observer->mCallTransMutex.acquire();
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipXProxyCseObserver CleanupTransMap number of entries in map = %zu", Observer->mCallTransMap.entries());
     UtlHashMapIterator callTransIter(Observer->mCallTransMap);
     UtlString* callId;
@@ -326,7 +326,7 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
 
       if(SipMessageEvent::TRANSPORT_ERROR == ((SipMessageEvent&)eventMessage).getMessageStatus())
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "SipXProxyCseObserver::handleMessage transport error");
       }
       else if((sipMsg = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage()))
@@ -420,12 +420,12 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver - no Cseq in response");
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipXProxyCseObserver - no Cseq in response");
             }
          }
 
 #        ifdef LOG_DEBUG
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipXProxyCseObserver message is %s",
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipXProxyCseObserver message is %s",
                        (  thisMsgIs == UnInteresting ? "UnInteresting"
                         : thisMsgIs == aCallEnd      ? "a Call End"
                         : thisMsgIs == aCallFailure  ? "a Call Failure"
@@ -626,7 +626,7 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
    
                default:
                   // shouldn't be possible to get here
-                  OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver invalid thisMsgIs");
+                  Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipXProxyCseObserver invalid thisMsgIs");
                   break;
                }
    
@@ -650,20 +650,20 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver - no CallStateEventBuilder!");               
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipXProxyCseObserver - no CallStateEventBuilder!");               
             }
          }
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver getMessage returned NULL");
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipXProxyCseObserver getMessage returned NULL");
       }
    }
    break;
    
    default:
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver invalid message type %d", msgType );
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipXProxyCseObserver invalid message type %d", msgType );
    }
    } // end switch (msgType)
    

@@ -46,9 +46,9 @@ public:
    {
       OsSysLog::initialize(0, "alarm");
       OsSysLog::setOutputFile(0, "alarmTest.log");
-      OsSysLog::setLoggingPriority(PRI_DEBUG);
+      Os::Logger::instance().setLogPriority(PRI_DEBUG);
 
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::setUp");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::setUp");
 
       // set up parallel directory structure to match actual
       mAlarmTestContext = new FileTestContext(TEST_DATA_DIR "/alarm-localization",
@@ -77,7 +77,7 @@ public:
 
    void tearDown()
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::tearDown");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::tearDown");
       cAlarmServer::getInstance()->cleanup();
       delete mAlarmTestContext;
       delete mAlarmTestContext2;
@@ -89,7 +89,7 @@ public:
 
    void testLocalizedAlarms()
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::testLoadAlarms");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::testLoadAlarms");
 
       alarmRowData expectedResult[] =
       {
@@ -163,7 +163,7 @@ public:
 
    void testParameterSubstitution()
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::testParameterSubstitution");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::testParameterSubstitution");
       UtlString localhost("localhost");
       UtlString alarmId("PARAMETER_SUBSTITUTION");
       UtlSList alarmParams;

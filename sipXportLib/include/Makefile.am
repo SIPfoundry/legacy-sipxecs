@@ -52,6 +52,7 @@ nobase_include_HEADERS = \
     os/OsLock.h \
     os/OsLockingList.h \
     os/OsLogger.h \
+    os/OsLoggerHelper.h \
     os/OsMsg.h \
     os/OsMsgPool.h \
     os/OsMsgQ.h \
@@ -79,10 +80,6 @@ nobase_include_HEADERS = \
     os/OsSSLServerSocket.h \
     os/OsStatus.h \
     os/OsSyncBase.h \
-    os/OsSysLog.h \
-    os/OsSysLogFacilities.h \
-    os/OsSysLogMsg.h \
-    os/OsSysLogTask.h \
     os/OsTask.h \
     os/OsTime.h \
     os/OsTimeLog.h \

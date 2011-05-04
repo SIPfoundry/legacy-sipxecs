@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConfigDb.h"
 #include "os/OsSharedLibMgr.h"
 #include "utl/UtlString.h"
@@ -63,7 +63,7 @@ public:
          }
          else
          {
-            OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                           "PluginHooks: no library configured for hook '%s': ignored",
                           hookName.data()
                           );
@@ -118,7 +118,7 @@ public:
 
             if (OS_SUCCESS == configDb.getSubHash(myConfigName, myConfig))
             {
-               OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                              "ConfiguredHook:: configuring instance '%s' using prefix '%s'",
                              data(), myConfigName.data()
                              );
@@ -126,7 +126,7 @@ public:
             }
             else
             {
-               OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+               Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                              "PluginHooks no configuration found for instance '%s'",
                              data()
                              );
@@ -161,14 +161,14 @@ private:
                // and tell the new instance its own name.
                mHook = factory(hookName);
 
-               OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                              "PluginHooks ConfiguredHook:: created instance '%s' from '%s'",
                              hookName.data(), libName.data()
                              );
             }
             else
             {
-               OsSysLog::add(FAC_KERNEL, PRI_ERR,
+               Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                              "PluginHooks ConfiguredHook:: "
                              "factory '%s' not found in library '%s' for instance '%s'",
                              hookFactoryName.data(), libName.data(), hookName.data()
@@ -177,7 +177,7 @@ private:
          }
          else
          {
-            OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                           "PluginHooks ConfiguredHook:: failed to getOsSharedLibMgr"
                           );
          }
@@ -203,7 +203,7 @@ PluginHooks::~PluginHooks()
 
 void PluginHooks::readConfig(const OsConfigDb& configDb)
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                  "PluginHooks::readConfig mFactory = '%s', mPrefix = '%s'",
                  mFactory.data(), mPrefix.data());
 
@@ -228,7 +228,7 @@ void PluginHooks::readConfig(const OsConfigDb& configDb)
 
    OsConfigDb allHooks;
 
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                  "PluginHooks::readConfig looking up hooks '%s'",
                  hookPrefix.data()
                  );
@@ -274,7 +274,7 @@ void PluginHooks::readConfig(const OsConfigDb& configDb)
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_INFO,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                     "PluginHooks: no '%s' hooks configured", mPrefix.data()
                     );
    }

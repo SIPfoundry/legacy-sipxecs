@@ -7,7 +7,7 @@
 
 // SYSTEM INCLUDES
 #include "SipRouter.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConfigDb.h"
 #include "utl/UtlRegex.h"
 
@@ -37,7 +37,7 @@ MSFT_ExchangeTransferHack::MSFT_ExchangeTransferHack(const UtlString& pluginName
    , mUserAgentRegEx(NULL)
    , mpSipRouter(NULL)
 {
-   OsSysLog::add(FAC_SIP,PRI_INFO,"MSFT_ExchangeTransferHack plugin instantiated '%s'",
+   Os::Logger::instance().log(FAC_SIP,PRI_INFO,"MSFT_ExchangeTransferHack plugin instantiated '%s'",
                  mInstanceName.data());
 };
 
@@ -62,7 +62,7 @@ MSFT_ExchangeTransferHack::readConfig( OsConfigDb& configDb /**< a subhash of th
     * is used to identify the plugin (see PluginHooks) has been removed (see the
     * examples in PluginHooks::readConfig).
     */
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "MSFT_ExchangeTransferHack[%s]::readConfig",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "MSFT_ExchangeTransferHack[%s]::readConfig",
                  mInstanceName.data()
                  );
 
@@ -75,7 +75,7 @@ MSFT_ExchangeTransferHack::readConfig( OsConfigDb& configDb /**< a subhash of th
    UtlString recognizer;
    if (configDb.get(RecognizerConfigKey, recognizer) && !recognizer.isNull())
    {
-      OsSysLog::add( FAC_SIP, PRI_INFO
+      Os::Logger::instance().log( FAC_SIP, PRI_INFO
                     ,"MSFT_ExchangeTransferHack[%s]::readConfig "
                     " recognizer %s : '%s'"
                     ,mInstanceName.data(), RecognizerConfigKey
@@ -88,7 +88,7 @@ MSFT_ExchangeTransferHack::readConfig( OsConfigDb& configDb /**< a subhash of th
       }
       catch(const char* compileError)
       {
-         OsSysLog::add( FAC_SIP, PRI_ERR
+         Os::Logger::instance().log( FAC_SIP, PRI_ERR
                        ,"MSFT_ExchangeTransferHack[%s]::readConfig "
                        " Invalid recognizer expression '%s' : %s"
                        ,mInstanceName.data()
@@ -100,7 +100,7 @@ MSFT_ExchangeTransferHack::readConfig( OsConfigDb& configDb /**< a subhash of th
    }
    else
    {
-      OsSysLog::add( FAC_SIP, PRI_NOTICE
+      Os::Logger::instance().log( FAC_SIP, PRI_NOTICE
                     ,"MSFT_ExchangeTransferHack[%s]::readConfig "
                     " no recognizer '%s'"
                     ,mInstanceName.data(), RecognizerConfigKey
@@ -178,7 +178,7 @@ MSFT_ExchangeTransferHack::authorizeAndModify(const UtlString& id,
                            target.toString(modifiedTarget);
                            request.setReferToField(modifiedTarget.data());
 
-                           OsSysLog::add(FAC_AUTH, PRI_INFO,
+                           Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                                          "MSFT_ExchangeTransferHack[%s]::authorizeAndModify "
                                          "corrected transfer target domain in call '%s'\n"
                                          "changed '@%s' -> '@%s'",
@@ -189,7 +189,7 @@ MSFT_ExchangeTransferHack::authorizeAndModify(const UtlString& id,
                         else
                         {
                            // oh my god... did MSFT fix Exchange?
-                           OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                           Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                                          "MSFT_ExchangeTransferHack[%s]::authorizeAndModify "
                                          "request and target domain differ in '%s'; not modified",
                                          mInstanceName.data(), callId.data()
@@ -200,7 +200,7 @@ MSFT_ExchangeTransferHack::authorizeAndModify(const UtlString& id,
                      {
                         // This is a REFER with Replaces from Exchange
                         // I don't expect this to happen, but if it does then don't mess with it.
-                        OsSysLog::add(FAC_AUTH, PRI_INFO,
+                        Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                                       "MSFT_ExchangeTransferHack[%s]::authorizeAndModify "
                                       "allowing REFER with Replaces in call '%s' to '%s'; no action",
                                       mInstanceName.data(), callId.data(), targetDialog.data()
@@ -209,7 +209,7 @@ MSFT_ExchangeTransferHack::authorizeAndModify(const UtlString& id,
                   }
                   else
                   {
-                     OsSysLog::add(FAC_AUTH, PRI_WARNING,
+                     Os::Logger::instance().log(FAC_AUTH, PRI_WARNING,
                                    "MSFT_ExchangeTransferHack[%s]::authorizeAndModify "
                                    "unrecognized refer target '%s' for call '%s'",
                                    mInstanceName.data(), targetStr.data(), callId.data()
@@ -219,7 +219,7 @@ MSFT_ExchangeTransferHack::authorizeAndModify(const UtlString& id,
                else
                {
                   // REFER without a Refer-To header... incorrect, but just ignore it.
-                  OsSysLog::add(FAC_AUTH, PRI_WARNING,
+                  Os::Logger::instance().log(FAC_AUTH, PRI_WARNING,
                                 "MSFT_ExchangeTransferHack[%s]::authorizeAndModify "
                                 "REFER method without Refer-To in call '%s'",
                                 mInstanceName.data(), callId.data()
@@ -228,7 +228,7 @@ MSFT_ExchangeTransferHack::authorizeAndModify(const UtlString& id,
             }
             else
             {
-               OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                              "MSFT_ExchangeTransferHack[%s]::authorizeAndModify "
                              "User-Agent '%s' does not match recognizer in %s",
                              mInstanceName.data(), userAgent.data(), callId.data()
@@ -243,7 +243,7 @@ MSFT_ExchangeTransferHack::authorizeAndModify(const UtlString& id,
       else
       {
          // Some earlier plugin already decided on this - don't waste time figuring it out.
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "MSFT_ExchangeTransferHack[%s]::authorizeAndModify "
+         Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "MSFT_ExchangeTransferHack[%s]::authorizeAndModify "
                        "prior authorization result %s for call %s",
                        mInstanceName.data(), AuthResultStr(priorResult), callId.data()
                        );

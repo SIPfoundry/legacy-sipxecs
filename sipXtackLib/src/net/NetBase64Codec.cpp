@@ -11,7 +11,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlRegex.h"
 #include "net/NetBase64Codec.h"
 
@@ -126,7 +126,7 @@ size_t NetBase64Codec::validEncodingBytes(int encodedDataSize, ///< number of en
    }
    else
    {
-      OsSysLog::add(FAC_NET, PRI_CRIT,
+      Os::Logger::instance().log(FAC_NET, PRI_CRIT,
                     "NetBase64Codec::validEncodingBytes invalid alphabet [%s]", alphabet);
       assert(false);
    }
@@ -157,7 +157,7 @@ size_t NetBase64Codec::validEncodingBytes(int encodedDataSize, ///< number of en
          break;
       default:
          // for any other value, the syntax is not valid
-         OsSysLog::add(FAC_NET, PRI_ERR,
+         Os::Logger::instance().log(FAC_NET, PRI_ERR,
                        "NetBase64Codec::validEncodingBytes invalid number of pad characters"
                        );
          break;
@@ -166,7 +166,7 @@ size_t NetBase64Codec::validEncodingBytes(int encodedDataSize, ///< number of en
    else
    {
       // encodedData contained invalid characters
-      OsSysLog::add(FAC_NET, PRI_ERR,
+      Os::Logger::instance().log(FAC_NET, PRI_ERR,
                     "NetBase64Codec::validEncodingBytes invalid characters in encoded data"
                     );
    }

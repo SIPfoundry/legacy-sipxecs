@@ -14,7 +14,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlVoidPtr.h>
 #include <utl/UtlSListIterator.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsConfigDb.h>
 #include <net/SdpCodec.h>
 #include <net/SdpCodecFactory.h>
@@ -32,7 +32,7 @@ CpMediaInterfaceFactory* pFactory = NULL;
 
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                   "sipXmediaFactoryFactory Loading the GIPS ConferenceEngine ...");
     if (pFactory == NULL)
     {
@@ -74,13 +74,13 @@ ConferenceEngineFactoryImpl::ConferenceEngineFactoryImpl(OsConfigDb* pConfigDb) 
         int rc = mConferenceEngine.GIPSConf_Init();
         if (rc != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineFactoryImpl::ConferenceEngineFactoryImpl GIPS ConferenceEngine failed to initialize. error = %d.",
                           mConferenceEngine.GIPSConf_GetLastError());
         }
 
         assert(rc == 0);
-        OsSysLog::add(FAC_MP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                       "ConferenceEngineFactoryImpl::ConferenceEngineFactoryImpl GIPS ConferenceEngine is initialized.");
     }
 
@@ -169,7 +169,7 @@ OsStatus ConferenceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setSpeakerDevice is not supported.");
 
     return rc ;
@@ -180,7 +180,7 @@ OsStatus ConferenceEngineFactoryImpl::setMicrophoneGain(int iGain)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setMicrophoneGain is not supported.");
 
     return rc ;
@@ -190,7 +190,7 @@ OsStatus ConferenceEngineFactoryImpl::setMicrophoneDevice(const UtlString& devic
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setMicrophoneDevice is not supported.");
 
     return rc ;
@@ -200,7 +200,7 @@ OsStatus ConferenceEngineFactoryImpl::muteMicrophone(UtlBoolean bMute)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::muteMicrophone is not supported.");
 
     return rc ;
@@ -242,7 +242,7 @@ OsStatus ConferenceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactor
         {
             UtlString references = sPreferences;
             *iRejected = pFactory->buildSdpCodecFactory(references);
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                           "ConferenceEngineFactoryImpl::buildCodecFactory: sReferences = %s with NumReject %d",
                            references.data(), *iRejected);
             rc = OS_SUCCESS;
@@ -250,7 +250,7 @@ OsStatus ConferenceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactor
         else
         {
             iCodecs = mConferenceEngine.GIPSConf_GetNofCodecs();
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                           "ConferenceEngineFactoryImpl::buildCodecFactory: Number of codecs in ConferenceEngine = %d",
                           iCodecs);
 
@@ -275,14 +275,14 @@ OsStatus ConferenceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactor
             if (iCodecs > 0)
             {
                 *iRejected += pFactory->buildSdpCodecFactory(codecList);
-                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                               "ConferenceEngineFactoryImpl::buildCodecFactory: codecList = %s with NumReject %d",
                               codecList.data(), *iRejected);
                 rc = OS_SUCCESS;
             }
             else
             {
-                OsSysLog::add(FAC_MP, PRI_WARNING,
+                Os::Logger::instance().log(FAC_MP, PRI_WARNING,
                               "ConferenceEngineFactoryImpl::buildCidecFactory: ConferenceEngine has no codecs");
                 rc = OS_FAILED;
             }
@@ -296,7 +296,7 @@ OsStatus ConferenceEngineFactoryImpl::setVideoPreviewDisplay(void* pDisplay)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setVideoPreviewDisplay is not supported.");
 
     return rc ;
@@ -306,7 +306,7 @@ OsStatus ConferenceEngineFactoryImpl::updateVideoPreviewWindow(void* displayCont
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::updateVideoPreviewWindow is not supported.");
 
     return rc ;
@@ -316,7 +316,7 @@ OsStatus ConferenceEngineFactoryImpl::setVideoQuality(int quality)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setVideoQuality is not supported.");
 
     return rc ;
@@ -326,7 +326,7 @@ OsStatus ConferenceEngineFactoryImpl::setVideoParameters(int bitRate, int frameR
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setVideoParameters is not supported.");
 
     return rc ;
@@ -348,7 +348,7 @@ OsStatus ConferenceEngineFactoryImpl::getSpeakerDevice(UtlString& device) const
 {
     OsStatus rc = OS_NOT_SUPPORTED ;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::getSpeakerDevice is not supported.");
 
     return rc ;
@@ -359,7 +359,7 @@ OsStatus ConferenceEngineFactoryImpl::getMicrophoneGain(int& iGain) const
 {
     OsStatus rc = OS_NOT_SUPPORTED ;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::getMicrophoneGain is not supported.");
 
     return rc ;
@@ -370,7 +370,7 @@ OsStatus ConferenceEngineFactoryImpl::getMicrophoneDevice(UtlString& device) con
 {
     OsStatus rc = OS_NOT_SUPPORTED ;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::getMicrophoneDevice is not supported.");
 
     return rc ;
@@ -408,7 +408,7 @@ OsStatus ConferenceEngineFactoryImpl::getVideoQuality(int& quality) const
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::getVideoQuality is not supported.");
 
     return rc ;
@@ -419,7 +419,7 @@ OsStatus ConferenceEngineFactoryImpl::getVideoBitRate(int& bitRate) const
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::ggetVideoBitRate is not supported.");
 
     return rc ;
@@ -430,7 +430,7 @@ OsStatus ConferenceEngineFactoryImpl::getVideoFrameRate(int& frameRate) const
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::getVideoFrameRate is not supported.");
 
     return rc ;

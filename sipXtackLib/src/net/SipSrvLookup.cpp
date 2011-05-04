@@ -59,7 +59,7 @@ extern "C" {
 #include "os/OsSocket.h"
 #include "os/OsLock.h"
 #include "net/SipSrvLookup.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "resparse/rr.h"
 
 // The space allocated for returns from res_query.
@@ -276,7 +276,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    int list_length_used = 0;
    struct sockaddr_in in;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSrvLookup::servers domain = '%s', service = '%s', "
                  "socketType = %s, port = %d",
                  domain, service, OsSocket::ipProtocolString(socketType), port);
@@ -295,7 +295,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    if ((strcmp(service, "sips") == 0 &&
         (socketType == OsSocket::TCP || socketType == OsSocket::UDP)))
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "SipSrvLookup::servers Incompatible service '%s' and "
                     "socketType %d",
                     service, socketType);
@@ -323,7 +323,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    // Case 1A: Domain name is a literal IPv6 address.
    else if (domain[0] == '[')
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "SipSrvLookup::servers IPv6 address '%s'", domain);
       /* Add no elements to the list. */
    }
@@ -473,7 +473,7 @@ server_t* SipSrvLookup::servers(const char* domain,
                  NULL, OsSocket::UNKNOWN, in, 0, 0);
 
    // Return the list of servers.
-   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+   if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
    {
       // Debugging print of list of servers.
       for (int j = 0; j < list_length_used; j++)
@@ -484,7 +484,7 @@ server_t* SipSrvLookup::servers(const char* domain,
             serverList[j].getHostNameFromServerT(host);
             UtlString ip_addr;
             serverList[j].getIpAddressFromServerT(ip_addr);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipSrvLookup::servers host = '%s', IP addr = '%s', "
                           "port = %d, weight = %u, score = %f, "
                           "priority = %u, proto = %s",
@@ -825,7 +825,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
                                        res_response*& out_response
    )
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSrvLookup::res_query_and_parse in_name = '%s', "
                  "type = %d (%s)",
                  in_name,type,
@@ -935,7 +935,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       if (r == -1)
       {
          // res_query failed, return.
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "DNS query for name '%s', "
                        "type = %d (%s): returned error",
                        name, type,
@@ -951,7 +951,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       if (response == NULL)
       {
          // res_parse failed, return.
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "DNS query for name '%s', "
                        "type = %d (%s): response could not be parsed",
                        name, type,
@@ -980,7 +980,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
    // variables.
    out_name = name;
    out_response = response;
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSrvLookup::res_query_and_parse out_name = '%s', out_response = %p",
                  out_name, out_response);
 

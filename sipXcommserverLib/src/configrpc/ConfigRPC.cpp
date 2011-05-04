@@ -10,7 +10,7 @@
 // APPLICATION INCLUDES
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConfigDb.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlHashMapIterator.h"
@@ -57,12 +57,12 @@ ConfigRPC::ConfigRPC( const char*         dbName     ///< dbName known to XMLRPC
 
    if ( ! sDatabases.find(this) )
    {
-      OsSysLog::add( FAC_KERNEL, PRI_INFO, "ConfigRPC:: register access to db name '%s'", dbName);
+      Os::Logger::instance().log( FAC_KERNEL, PRI_INFO, "ConfigRPC:: register access to db name '%s'", dbName);
       sDatabases.insert(this);
    }
    else
    {
-      OsSysLog::add( FAC_KERNEL, PRI_CRIT, "ConfigRPC:: duplicate db name '%s'", dbName);
+      Os::Logger::instance().log( FAC_KERNEL, PRI_CRIT, "ConfigRPC:: duplicate db name '%s'", dbName);
    }
 }
 
@@ -71,7 +71,7 @@ OsStatus ConfigRPC::load(OsConfigDb& dataset)
    OsStatus status = dataset.loadFromFile(mPath);
    if ( OS_SUCCESS != status )
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "ConfigRPC failed to load '%s' from '%s'",
                     data(), mPath.data()
                     );
@@ -85,7 +85,7 @@ OsStatus ConfigRPC::store(OsConfigDb& dataset)
    OsStatus status = dataset.storeToFile(mPath);
    if ( OS_SUCCESS != status )
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "ConfigRPC failed to store '%s' to '%s'",
                     data(), mPath.data()
                     );
@@ -114,7 +114,7 @@ XmlRpcMethod::ExecutionStatus ConfigRPC_Callback::accessAllowed(
    Method                    method
                                                                 ) const
 {
-   OsSysLog::add(FAC_KERNEL, PRI_INFO,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                  "ConfigRPC default accessAllowed for %s",
                  MethodName[method]
                  );
@@ -125,7 +125,7 @@ XmlRpcMethod::ExecutionStatus ConfigRPC_Callback::accessAllowed(
 void ConfigRPC_Callback::modified()
 {
    // in the abstract base class this is a no-op
-   OsSysLog::add(FAC_KERNEL, PRI_INFO, "ConfigRPC default modified");
+   Os::Logger::instance().log(FAC_KERNEL, PRI_INFO, "ConfigRPC default modified");
 }
 
 
@@ -158,7 +158,7 @@ XmlRpcMethod::ExecutionStatus ConfigRPC_InDomainCallback::accessAllowed(
     */
    if (XmlRpcMethod::FAILED == isAllowed)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                     "ConfigRPC_InDomainCallback disallowed configuration from untrusted peer"
                     );
    }

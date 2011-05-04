@@ -28,6 +28,118 @@
 
 namespace boost_filesystem = boost::filesystem;
 
+
+enum tagOsSysLogFacility
+{
+   FAC_PERF=0,             ///< performance related
+   FAC_KERNEL,             ///< kernel/os related
+   FAC_AUTH,               ///< authentication/security related
+   FAC_NET,                ///< networking related
+   FAC_RTP,                ///< RTP/RTCP related
+   FAC_PHONESET,           ///< phoneset related
+   FAC_HTTP,               ///< http sever related
+   FAC_SIP,                ///< sip related
+   FAC_CP,                 ///< call processing related
+   FAC_MP,                 ///< media processing related
+   FAC_TAO,                ///< TAO related
+   FAC_JNI,                ///< JNI Layer related
+   FAC_JAVA,               ///< Java related
+   FAC_LOG,                ///< OsSysLog related
+   FAC_SUPERVISOR,         ///< sipXsupervisor
+   FAC_SIP_OUTGOING,       ///< Outgoing SIP messages
+   FAC_SIP_INCOMING,       ///< Incoming SIP messages
+   FAC_SIP_INCOMING_PARSED,///< Incoming SIP messages after being parsed
+   FAC_MEDIASERVER_CGI,    ///< Mediaserver CGIs
+   FAC_MEDIASERVER_VXI,    ///< Mediaserver VXI engine
+   FAC_ACD,                ///< ACD related
+   FAC_PARK,               ///< Park Server related
+   FAC_APACHE_AUTH,        ///< Apache Authentication Module
+   FAC_UPGRADE,            ///< Update/Upgrade related
+   FAC_LINE_MGR,           ///< SIP line manager related
+   FAC_REFRESH_MGR,        ///< SIP refresh manager related
+   FAC_UNIT_TEST,          ///< Available for re-use.
+   FAC_STREAMING,          ///< Stream Media related message
+   FAC_REPLICATION_CGI,    ///< replication cgi( replicates databases across components )
+   FAC_DB,                 ///< Database related (sipdb)
+   FAC_PROCESSMGR,         ///< OsProcessMgr
+   FAC_PROCESS,            ///< process related
+   FAC_SIPXTAPI,           ///< sipXtapi related
+   FAC_AUDIO,              ///< audio related
+   FAC_CONFERENCE,         ///< Conference bridge
+   FAC_ODBC,               ///< ODBC related
+   FAC_CDR,                ///< CDR generating related
+   FAC_RLS,                ///< Resource list server
+   FAC_XMLRPC,             ///< XML RPC related
+   FAC_FSM,                ///< Finite State Machine tracking
+   FAC_NAT,                ///< NAT Traversal related
+   FAC_ALARM,              ///< Alarms
+   FAC_SAA,                ///< Shared Appearance Agent
+   FAC_MAX_FACILITY        ///< Last Facility (used to for length)
+
+   //
+   // *** READ THIS ***
+   //
+   // NOTE:  If adding a facility, please:
+   //        1) Insert it before FAC_MAX_FACILITY.
+   //        2) Update OsSysLogFacilities.cpp to include the
+   //           string name.
+   //        3) Update the !enum comments above.
+   //
+   // *** READ THIS ***
+   //
+   //
+} ;
+
+typedef enum tagOsSysLogFacility OsSysLogFacility ;
+
+/// The priority of log messages ordered from least to most severe
+typedef enum tagOsSysLogPriority
+{
+   PRI_DEBUG,     /**< Developer message needed only when debugging code.
+                   *   May include recording of such things as entry and exit from methods
+                   *   or internal branch tracking.
+                   *   Should never be required by end users.
+                   */
+   PRI_INFO,      /**< Informational message used to trace system inputs and actions.
+                   *   Significant actions in the execution of some activity; for example, the
+                   *   receipt of a message or an important decision in its disposition.
+                   *   This level should be sufficient for an administrator or support person
+                   *   to determine what occured in the system when debugging a configuration
+                   *   or interoperability problem in the field.
+                   */
+   PRI_NOTICE,    /**< Normal but significant events.
+                   *   Events that are expected but provide important context, such as service
+                   *   restarts and reloading configuration files.
+                   *   This is the default logging level, and generally logging should
+                   *   always include at least these messages.
+                   */
+   PRI_WARNING,   /**< Conditions that imply that some failure is possible but not certain.
+                   *   Generally, external inputs that are not as expected and possibly
+                   *   invalid.  Especially useful in low level routines that are going to
+                   *   return an error that may be recoverable by the caller.
+                   */
+   PRI_ERR,       /**< An unexpected condition likely to cause an end-user visibile failure.
+                   *   This level should be used whenever an error response is being sent
+                   *   outside the system to provide a record of the internal data that
+                   *   are important to understanding it.
+                   */
+   PRI_CRIT,      /**< Endangers service operation beyond the current operation.
+                   *   MUST be logged prior to any 'assert', or when exiting for any abnormal
+                   *   reason.
+                   */
+   PRI_ALERT,     /**< Fault to be communicated to operations.
+                   *   Should be replaced by usage of the new Alarm subsystem.
+                   */
+   PRI_EMERG,     /**< System is unusable.
+                   */
+
+   // NOTE: If adding/removing priorities, you MUST also adjust static name
+   // initializer in OsSysLog.cpp
+
+   SYSLOG_NUM_PRIORITIES ///< MUST BE LAST
+
+} OsSysLogPriority;
+
 namespace Os
 {
 
@@ -88,10 +200,10 @@ namespace Os
       return _fstream.tellg();
     }
 
-    bool open(const char* path, std::ios_base::openmode mode = std::fstream::in | std::fstream::out | std::fstream::app)
+    bool open(const char* path_, std::ios_base::openmode mode = default_mode)
     {
       _fstream.close();
-      _path = path;
+      _path = std::string(path_);
       _mode = mode;
       _fstream.open(_path.string().c_str(), _mode);
       return _fstream.good();
@@ -107,12 +219,12 @@ namespace Os
       return size;
     }
 
-    void open(const boost_filesystem::path& path, std::ios_base::openmode mode = std::fstream::in | std::fstream::out | std::fstream::app)
+    void open(const boost_filesystem::path& path, std::ios_base::openmode mode = default_mode)
     {
       open(path.string().c_str(), mode);
     }
 
-    void open(const std::string& path, std::ios_base::openmode mode = std::fstream::in | std::fstream::out | std::fstream::app)
+    void open(const std::string& path, std::ios_base::openmode mode = default_mode)
     {
       open(path.c_str(), mode);
     }
@@ -504,6 +616,17 @@ namespace Os
     {
     }
 
+    bool willLog(int priority)
+    {
+      return priority >= _level;
+    }
+    
+    bool willLog(int facility, int priority)
+    {
+      std::map<int, int>::const_iterator facIter = _facilityLevel.find(facility);
+      return facIter != _facilityLevel.end() && priority >= facIter->second;
+    }
+
     bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
     {
       std::map<int, int>::const_iterator facIter = _facilityLevel.find(facility);
@@ -550,6 +673,54 @@ namespace Os
     int getLevel()
     {
       return _level;
+    }
+
+    bool getLevelFromString(const char* priority, int& level)
+    {
+      static const char* _priorityNames[8] =
+      {
+         "DEBUG",
+         "INFO",
+         "NOTICE",
+         "WARNING",
+         "ERR",
+         "CRIT",
+         "ALERT",
+         "EMERG"
+      };
+
+      bool found = false;
+      for ( int entry = debug; !found && entry < 8; entry++)
+      {
+        if (::strcasecmp(_priorityNames[entry], priority) == 0)
+        {
+           level = entry;
+           found=true;
+        }
+      }
+      return found;
+    }
+
+    const char* priorityName(int level)
+    {
+      static const char* _priorityNames[8] =
+      {
+         "DEBUG",
+         "INFO",
+         "NOTICE",
+         "WARNING",
+         "ERR",
+         "CRIT",
+         "ALERT",
+         "EMERG"
+      };
+
+      return _priorityNames[level];
+    }
+
+    bool mustFlush(int level)
+    {
+      return level == debug || level >= warning;
     }
 
     void setHostName(const char* hostName)
@@ -642,7 +813,53 @@ namespace Os
     }
   };
 
-  template <typename TFilter, typename TChannel>
+  template <typename T>
+  class LogRotateStrategy
+  {
+  public:
+    T* _pChannel;
+    LogRotateStrategy() : _pChannel(0), _started(false)
+    {
+      _now = ::time(0);
+    }
+
+    ~LogRotateStrategy()
+    {
+      stop();
+    }
+
+    void start(T* pChannel)
+    {
+      _pChannel = pChannel;
+      _now = ::time(0);
+      _started = true;
+    }
+
+    void stop()
+    {
+      _started = false;
+    }
+
+    void wakeup()
+    {
+      if (!_started || !_pChannel)
+        return;
+
+      time_t now = ::time(0);
+
+      if (now >= _now + 5)
+      {
+        _now = now;
+        _pChannel->close();
+        _pChannel->open(_pChannel->path());
+      }
+    }
+
+    time_t _now;
+    bool _started;
+  };
+
+  template <typename TFilter, typename TChannel, typename TLogRotate = LogRotateStrategy<TChannel> >
   class LoggerBase : public LoggerSingleton<LoggerBase<TFilter, TChannel> >
   {
   public:
@@ -652,7 +869,8 @@ namespace Os
     typedef boost::function<std::string()> TaskCallBack;
 
     LoggerBase() :
-      _flushRate(2)
+      _flushRate(0),
+      _enableConsoleOutput(false)
     {
       _pChannel = new TChannel();
       _pFilter = new TFilter();
@@ -677,6 +895,11 @@ namespace Os
       return _pChannel->open(_pChannel->path());
     }
 
+    void flush()
+    {
+      _pChannel->flush();
+    }
+
     void setLevel(int level)
     {
       _pFilter->setLevel(level);
@@ -685,6 +908,26 @@ namespace Os
     void setLogPriority(int priority)
     {
       _pFilter->setLevel(priority);
+    }
+
+    bool priority(const char* priority, int& level)
+    {
+      return _pFilter->getLevelFromString(priority, level);
+    }
+
+    const char* priorityName(int level)
+    {
+      return _pFilter->priorityName(level);
+    }
+
+    bool willLog(int priority)
+    {
+      return _pFilter->willLog(priority);
+    }
+
+    bool willLog(int facility, int priority)
+    {
+      return _pFilter->willLog(facility, priority);
     }
 
     void setLoggingPriorityForFacility(int facility, int level)
@@ -705,11 +948,10 @@ namespace Os
     //
     // This is the OsSysLog compatibility function
     //
-    void add(int facility, int level, const char* format, ...)
+    void log(int facility, int level, const char* format, ...)
     {
       char* buff;
       size_t needed = 1024;
-
 
       bool formatted = false;
       std::string message;
@@ -719,7 +961,7 @@ namespace Os
         va_start(args, format);
         buff = (char*)::malloc(needed); /// Create a big enough buffer
         ::memset(buff, '\0', needed);
-        int oldSize = needed;
+        size_t oldSize = needed;
         needed = vsnprintf(buff, needed, format, args) + 1;
         formatted = needed <= oldSize;
         if (formatted)
@@ -729,18 +971,70 @@ namespace Os
       }
 
       if (formatted)
-        log(facility, level, message.c_str());
+        log_(facility, level, message.c_str());
     }
 
-    void log(int facility, int level, const char* msg)
+    void printf(int facility, int level, const char* format, ...)
+    {
+      char* buff;
+      size_t needed = 1024;
+
+      bool formatted = false;
+      std::string message;
+      for (int i = 0; !formatted && i < 3; i++)
+      {
+        va_list args;
+        va_start(args, format);
+        buff = (char*)::malloc(needed); /// Create a big enough buffer
+        ::memset(buff, '\0', needed);
+        size_t oldSize = needed;
+        needed = vsnprintf(buff, needed, format, args) + 1;
+        formatted = needed <= oldSize;
+        if (formatted)
+          message = buff;
+        ::free(buff);
+        va_end(args);
+      }
+
+      if (formatted)
+        log_(facility, level, message.c_str(), &std::cerr);
+    }
+
+    void log_(int facility, int level, const char* msg, std::ostream* pAlternateChannel = 0)
     {
       std::string task;
       if (getCurrentTask)
         task = getCurrentTask();
-      log(facility, level, task.c_str(), msg);
+      log_(facility, level, task.c_str(), msg, pAlternateChannel);
     }
 
-    void log(int facility, int level, const std::string& taskName, const std::string& msg)
+    void cerr(int facility, int level, const std::string& taskName, const std::string& msg)
+    {
+      log_(facility, level, taskName, msg, &std::cerr);
+    }
+
+    void cerr(int facility, int level, const char* msg)
+    {
+      std::string task;
+      if (getCurrentTask)
+        task = getCurrentTask();
+      log_(facility, level, task.c_str(), msg, &std::cerr);
+    }
+
+    void cout(int facility, int level, const std::string& taskName, const std::string& msg)
+    {
+      log_(facility, level, taskName, msg, &std::cout);
+    }
+    
+    void cout(int facility, int level, const char* msg)
+    {
+      std::string task;
+      if (getCurrentTask)
+        task = getCurrentTask();
+      log_(facility, level, task.c_str(), msg, &std::cout);
+    }
+
+    void log_(int facility, int level, const std::string& taskName, const std::string& msg, std::ostream* pAlternateChannel = 0)
     {
       mutex_write_lock lock(_mutex);
       //
@@ -756,10 +1050,25 @@ namespace Os
         headers << "\"" << message << "\"" << std::endl;
         std::string hdr(headers.str());
         _pChannel->write(hdr.c_str(), hdr.length());
+        if (pAlternateChannel)
+          pAlternateChannel->write(hdr.c_str(), hdr.length());
+        else if (_enableConsoleOutput)
+          std::cerr.write(hdr.c_str(), hdr.length());
 
         static unsigned long flushCount = 0;
-        if (_flushRate && !(++flushCount % _flushRate))
+        
+        if (_pFilter->mustFlush(level))
+        {
           _pChannel->flush();
+        }
+        else if (_flushRate && !(++flushCount % _flushRate))
+        {
+          _pChannel->flush();
+          if (pAlternateChannel)
+            pAlternateChannel->flush();
+        }
+
+        _logRotateStrategy.wakeup();
       }
     }
 
@@ -772,14 +1081,49 @@ namespace Os
     {
       getCurrentTask = taskCallBack;
     }
-  protected:
+
+    template <typename Helper>
+    bool initialize(int priorityLevel, const char* path, Helper& helper)
+    {
+      setLevel(priorityLevel);
+      setHostName(helper.getHostName().c_str());
+      setProcessName(helper.getProcessName().c_str());
+      setCurrentTaskCallBack(boost::bind(&Helper::getCurrentTask, &helper));
+      if (open(path))
+      {
+        _logRotateStrategy.start(_pChannel);
+        return true;
+      }
+      return false;
+    }
+
+    template <typename Helper>
+    bool initialize(const char* path, Helper& helper)
+    {
+      setHostName(helper.getHostName().c_str());
+      setProcessName(helper.getProcessName().c_str());
+      setCurrentTaskCallBack(boost::bind(&Helper::getCurrentTask, &helper));
+      if (open(path))
+      {
+        _logRotateStrategy.start(_pChannel);
+        return true;
+      }
+      return false;
+    }
+
+    void enableConsoleOutput(bool enableConsoleOutput = true)
+    {
+      _enableConsoleOutput = enableConsoleOutput;
+    }
 
   private:
     TChannel* _pChannel;
     TFilter* _pFilter;
+    TLogRotate _logRotateStrategy;
     mutex_read_write _mutex;
     unsigned _flushRate;
     TaskCallBack getCurrentTask;
+    bool _enableConsoleOutput;
   };
 
   typedef LogLevelFilter<
@@ -803,17 +1147,17 @@ namespace Os
   { \
     std::ostringstream strm; \
     strm << data; \
-    Os::Logger::log(facility, priority, strm.str().c_str()); \
+    Os::Logger::instance().log(facility, priority, strm.str().c_str()); \
   }
 
-  #define OS_LOG_DEBUG(priority, data) OS_LOG_PUSH(Os::LogLevelFilter::debug, priority, data)
-  #define OS_LOG_INFO(priority, data) OS_LOG_PUSH(Os::LogLevelFilter::information, priority, data)
-  #define OS_LOG_NOTICE(priority, data) OS_LOG_PUSH(Os::LogLevelFilter::notice, priority, data)
-  #define OS_LOG_WARNING(priority, data) OS_LOG_PUSH(Os::LogLevelFilter::warning, priority, data)
-  #define OS_LOG_ERR(priority, data) OS_LOG_PUSH(Os::LogLevelFilter::error, priority, data)
-  #define OS_LOG_CRIT(priority, data) OS_LOG_PUSH(Os::LogLevelFilter::critical, priority, data)
-  #define OS_LOG_ALERT(priority, data) OS_LOG_PUSH(Os::LogLevelFilter::alert, priority, data)
-  #define OS_LOG_EMERG(priority, data) OS_LOG_PUSH(Os::LogLevelFilter::emergency, priority, data)
+  #define OS_LOG_DEBUG(priority, data) OS_LOG_PUSH(Os::LogFilter::debug, priority, data)
+  #define OS_LOG_INFO(priority, data) OS_LOG_PUSH(Os::LogFilter::information, priority, data)
+  #define OS_LOG_NOTICE(priority, data) OS_LOG_PUSH(Os::LogFilter::notice, priority, data)
+  #define OS_LOG_WARNING(priority, data) OS_LOG_PUSH(Os::LogFilter::warning, priority, data)
+  #define OS_LOG_ERROR(priority, data) OS_LOG_PUSH(Os::LogFilter::error, priority, data)
+  #define OS_LOG_CRITICAL(priority, data) OS_LOG_PUSH(Os::LogFilter::critical, priority, data)
+  #define OS_LOG_ALERT(priority, data) OS_LOG_PUSH(Os::LogFilter::alert, priority, data)
+  #define OS_LOG_EMERGENCY(priority, data) OS_LOG_PUSH(Os::LogFilter::emergency, priority, data)
 
 
 } // Utl

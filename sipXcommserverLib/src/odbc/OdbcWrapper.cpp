@@ -10,7 +10,7 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlString.h>
 #include "odbc/OdbcWrapper.h"
 
@@ -37,7 +37,7 @@ void extract_error(const char *fn,
       ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len );
       if (SQL_SUCCEEDED(ret))
       {
-         OsSysLog::add(FAC_ODBC, PRI_ERR,
+         Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                        "  SQLGetDiagRec(%s):%s", fn, text);
       }
    }
@@ -59,7 +59,7 @@ OdbcHandle odbcConnect(const char* dbname,
                                         SQL_NULL_HANDLE,
                                         &handle->mEnvironmentHandle)))
       {
-         OsSysLog::add(FAC_ODBC, PRI_ERR,
+         Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                        "odbcConnect: Failed to allocate "
                        "environment handle");
          delete handle;
@@ -74,7 +74,7 @@ OdbcHandle odbcConnect(const char* dbname,
                                             handle->mEnvironmentHandle,
                                             &handle->mConnectionHandle)))
          {
-            OsSysLog::add(FAC_ODBC, PRI_ERR,
+            Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                           "odbcConnect: Failed to allocate "
                           "connection handle");
             extract_error("SQLSetEnvAttr", handle->mEnvironmentHandle, SQL_HANDLE_ENV);
@@ -132,7 +132,7 @@ OdbcHandle odbcConnect(const char* dbname,
 
             if (!SQL_SUCCEEDED(sqlRet))
             {
-               OsSysLog::add(FAC_ODBC, PRI_ERR,
+               Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                              "odbcConnect: Failed to connect %s, error code %d",
                              connectionString.data(), sqlRet);
                extract_error("SQLDriverConnect", handle->mConnectionHandle, SQL_HANDLE_DBC);
@@ -149,7 +149,7 @@ OdbcHandle odbcConnect(const char* dbname,
                                                 handle->mConnectionHandle,
                                                 &handle->mStatementHandle)))
                {
-                  OsSysLog::add(FAC_ODBC, PRI_ERR,
+                  Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                                 "odbcConnect: Failed to allocate "
                                 "statement handle");
                   extract_error("SQLAllocHandle", handle->mStatementHandle, SQL_HANDLE_STMT);
@@ -165,7 +165,7 @@ OdbcHandle odbcConnect(const char* dbname,
                }
                else
                {
-                  OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_ODBC, PRI_DEBUG,
                                 "odbcConnect: Connected to database "
                                 "%s, OdbcHandle %p",
                                 connectionString.data(), handle);
@@ -176,7 +176,7 @@ OdbcHandle odbcConnect(const char* dbname,
    }
    else
    {
-      OsSysLog::add(FAC_ODBC, PRI_ERR,
+      Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                     "odbcConnect: Couldn't create OdbcHandle");
    }
 
@@ -196,7 +196,7 @@ bool odbcDisconnect(OdbcHandle &handle)
       sqlRet = SQLDisconnect(handle->mConnectionHandle);
       if (!SQL_SUCCEEDED(sqlRet))
       {
-         OsSysLog::add(FAC_ODBC, PRI_ERR,
+         Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                        "odbcDisconnect - failed disconnecting from "
                        "database, error code %d", sqlRet);
          extract_error("SQLDisconnect", handle->mConnectionHandle, SQL_HANDLE_DBC);
@@ -210,14 +210,14 @@ bool odbcDisconnect(OdbcHandle &handle)
          delete handle;
          handle = NULL;
 
-         OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ODBC, PRI_DEBUG,
                        "odbcDisconnect - disconnecting from database");
          ret = true;
       }
    }
    else
    {
-      OsSysLog::add(FAC_ODBC, PRI_ERR,
+      Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                     "odbcDisconnect: handle == NULL");
    }
    return ret;
@@ -238,14 +238,14 @@ bool odbcExecute(const OdbcHandle handle,
 
       if (!SQL_SUCCEEDED(sqlRet))
       {
-         OsSysLog::add(FAC_ODBC, PRI_ERR,
+         Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                        "odbcExecute: statement %s failed, error code %d",
                        sqlStatement, sqlRet);
          extract_error("SQLExecDirect", handle->mStatementHandle, SQL_HANDLE_STMT);
       }
       else
       {
-         OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ODBC, PRI_DEBUG,
                        "odbcExecute: statement %s succeeded",
                        sqlStatement);
          ret = true;
@@ -253,7 +253,7 @@ bool odbcExecute(const OdbcHandle handle,
    }
    else
    {
-      OsSysLog::add(FAC_ODBC, PRI_ERR,
+      Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                     "odbcExecute: handle == NULL");
    }
 
@@ -271,7 +271,7 @@ int odbcResultColumns(const OdbcHandle handle)
 
       if (!SQL_SUCCEEDED(sqlRet))
       {
-         OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ODBC, PRI_DEBUG,
                        "odbcResultColumns: SQLNumResultCols failed, "
                        "error code %d", sqlRet);
          extract_error("SQLNumResultCols", handle->mStatementHandle, SQL_HANDLE_STMT);
@@ -280,13 +280,13 @@ int odbcResultColumns(const OdbcHandle handle)
       {
          ret = (int)columns;
 
-         OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ODBC, PRI_DEBUG,
                        "odbcResultColumns: SQLNumResultCols returned %d", ret);
       }
    }
    else
    {
-      OsSysLog::add(FAC_ODBC, PRI_ERR,
+      Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                     "odbcResultColumns: handle == NULL");
    }
 
@@ -303,21 +303,21 @@ bool odbcGetNextRow(const OdbcHandle handle)
 
       if (!SQL_SUCCEEDED(sqlRet))
       {
-         OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ODBC, PRI_DEBUG,
                        "odbcGetNextRow: SQLFetch failed, error code %d",
                        sqlRet);
          extract_error("SQLFetch", handle->mStatementHandle, SQL_HANDLE_STMT);
       }
       else
       {
-         OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ODBC, PRI_DEBUG,
                        "odbcGetNextRow: SQLFetch succeeded");
          ret = true;
       }
    }
    else
    {
-      OsSysLog::add(FAC_ODBC, PRI_ERR,
+      Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                     "odbcGetNextRow: handle == NULL");
    }
 
@@ -342,7 +342,7 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
                                     &indicator);
       if (!SQL_SUCCEEDED(sqlRet))
       {
-         OsSysLog::add(FAC_ODBC, PRI_WARNING,
+         Os::Logger::instance().log(FAC_ODBC, PRI_WARNING,
                        "odbcGetColumnStringData: SQLGetData on column %d "
                        "failed, error code %d",
                        columnIndex, sqlRet);
@@ -350,7 +350,7 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
       }
       else
       {
-         OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ODBC, PRI_DEBUG,
                        "odbcGetColumnStringData: SQLGetData on column %d "
                        "returned %s",
                        columnIndex,
@@ -360,7 +360,7 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
    }
    else
    {
-      OsSysLog::add(FAC_ODBC, PRI_ERR,
+      Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                     "odbcGetColumnStringData: handle == NULL");
    }
 
@@ -378,21 +378,21 @@ bool odbcClearResultSet(const OdbcHandle handle)
 
       if (!SQL_SUCCEEDED(sqlRet))
       {
-         OsSysLog::add(FAC_ODBC, PRI_WARNING,
+         Os::Logger::instance().log(FAC_ODBC, PRI_WARNING,
                        "odbcClearResultSet: SQLFreeStmt failed, "
                        "error code %d", sqlRet);
          extract_error("SQLFreeStmt", handle->mStatementHandle, SQL_HANDLE_STMT);
       }
       else
       {
-         OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ODBC, PRI_DEBUG,
                        "odbcClearResultSet: SQLFreeStmt succeeded");
          ret = true;
       }
    }
    else
    {
-      OsSysLog::add(FAC_ODBC, PRI_ERR,
+      Os::Logger::instance().log(FAC_ODBC, PRI_ERR,
                     "odbcClearResultSet: handle == NULL");
    }
    return ret;

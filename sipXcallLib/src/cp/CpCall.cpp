@@ -19,7 +19,7 @@
 #include <os/OsWriteLock.h>
 #include <os/OsQueuedEvent.h>
 #include <os/OsEventMsg.h>
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include <os/OsDateTime.h>
 #include <os/OsTimer.h>
 #include <cp/CpCall.h>
@@ -126,7 +126,7 @@ mDtmfQMutex(OsMutex::Q_FIFO)
 
     UtlString name = getName();
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "%s Call constructed: %s",
                   name.data(), mCallId.data());
 #endif
@@ -195,7 +195,7 @@ CpCall::~CpCall()
 
 #ifdef TEST_PRINT
     UtlString name = getName();
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "%s destructed: %s\n", name.data(), mCallId.data());
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "%s destructed: %s\n", name.data(), mCallId.data());
     osPrintf("%s destructed: %s\n", name.data(), mCallId.data());
     name.remove(0);
 #endif
@@ -214,7 +214,7 @@ void CpCall::setDropState(UtlBoolean state)
 void CpCall::setCallState(int responseCode, UtlString responseText, int state, int cause)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::setCallState "
                   "mState %d, newState %d, event %d, cause %d",
                   mCallState, state,
@@ -250,7 +250,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
     CpMultiStringMessage* multiStringMessage = (CpMultiStringMessage*)&eventMessage;
 
     UtlBoolean processedMessage = TRUE;
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::handleMessage "
                   "message type: %d subtype %d\n",
                   msgType, msgSubType);
@@ -341,7 +341,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
                 OsProtectedEvent* ev = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "CpCall::handle creating MpStreamPlaylistPlayer ppPlayer 0x%08x ev 0x%08x",
                     (int)ppPlayer, (int)ev);
 #endif
@@ -375,7 +375,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 OsProtectedEvent* ev = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
                 int flags = ((CpMultiStringMessage&)eventMessage).getInt3Data();
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "CpCall::handle creating MpStreamPlayer ppPlayer 0x%08x ev 0x%08x flags %d",
                     (int)ppPlayer, (int)ev, flags);
 #endif
@@ -407,7 +407,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
                 OsProtectedEvent* ev = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "CpCall::handle creating MpStreamQueuePlayer ppPlayer 0x%08x ev 0x%08x",
                     (int)ppPlayer, (int)ev);
 #endif
@@ -662,21 +662,21 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                         {
                             OsWriteLock lock(mDtmfQMutex);
 
-                            OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08lx QLen=%d\n",
+                            Os::Logger::instance().log(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08lx QLen=%d\n",
                                 mCallId.data(), (long)eventData, mDtmfQLen);
 
                             for (i = 0; i < mDtmfQLen; i++)
                             {
                                 if (mDtmfEvents[i].enabled == FALSE)
                                 {
-                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - event %p is disabled\n",
+                                    Os::Logger::instance().log(FAC_CP, PRI_INFO, "CpCall %s - event %p is disabled\n",
                                         mCallId.data(), &mDtmfEvents[i]);
                                     continue;
                                 }
 
                                 if (mDtmfEvents[i].ignoreKeyUp && (eventData & 0x80000000))
                                 {
-                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08lx\n",
+                                    Os::Logger::instance().log(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08lx\n",
                                         mCallId.data(), (long)eventData);
                                     continue; // ignore keyup event
                                 }
@@ -684,7 +684,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                 if ((eventData & 0x80000000) == 0 &&
                                     (eventData & 0x0000ffff))
                                 {
-                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08lx\n",
+                                    Os::Logger::instance().log(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08lx\n",
                                         mCallId.data(), (long)eventData);
                                     continue; // previous key still down, ignore long key event
                                 }
@@ -700,12 +700,12 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                     while ((tries++ < 10) && (res != OS_SUCCESS))
                                     {
                                         res = dtmfEvent->signal((eventData & 0xfffffff0));
-                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - resend dtmfEvent event 0x%08lx to %p, res=%d\n",
+                                        Os::Logger::instance().log(FAC_CP, PRI_INFO, "CpCall %s - resend dtmfEvent event 0x%08lx to %p, res=%d\n",
                                             mCallId.data(), (long)eventData, dtmfEvent, res);
                                     }
                                     if (res != OS_SUCCESS && tries >= 10)
                                     {
-                                        OsSysLog::add(FAC_CP, PRI_ERR, "CpCall %s - failed to notify DTMF event 0x%08ldx to %p, res=%d\n",
+                                        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CpCall %s - failed to notify DTMF event 0x%08ldx to %p, res=%d\n",
                                             mCallId.data(), (long)eventData, dtmfEvent, res);
                                     }
                                 }
@@ -719,7 +719,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             default:
                 processedMessage = FALSE;
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::handleMessage  "
                   "Unknown event message "
                   "TYPE: %d  subtype: %d\n",
@@ -740,7 +740,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
     default:
         processedMessage = FALSE;
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::handleMessage  "
                   "Unprocessed message "
                   "TYPE: %d  subtype: %d\n",
@@ -797,7 +797,7 @@ void CpCall::localHold()
 void CpCall::hangUp(UtlString callId, int metaEventId)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::hangUp "
                   "enter mLCstate %d mLTCstate %d ",
                   mLocalConnectionState, mLocalTermConnectionState);
@@ -840,7 +840,7 @@ OsStatus CpCall::stopRecord()
 {
 #ifdef TEST_PRINT
     osPrintf("Calling mpMediaInterface->stopRecording()\n");
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "Calling mpMediaInterface->stopRecording()");
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Calling mpMediaInterface->stopRecording()");
 #endif
     return mpMediaInterface->stopRecording();
 }
@@ -905,7 +905,7 @@ void CpCall::printCall(int showHistory)
 {
     UtlString callId;
     getCallId(callId);
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::printCall "
                   "Call[%d] id: %s state: %d%s\n", mCallIndex,
                   callId.data(), getCallState(),
@@ -913,13 +913,13 @@ void CpCall::printCall(int showHistory)
 
     if (showHistory)
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::printCall "
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpCall::printCall "
                                          "Call message history:\n");
         for(int historyIndex = 0; historyIndex < CP_CALL_HISTORY_LENGTH; historyIndex++)
         {
             if(mMessageEventCount - historyIndex >= 0)
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CpCall::printCall "
                               "%d) %s\n",
                               mMessageEventCount - historyIndex,
@@ -927,7 +927,7 @@ void CpCall::printCall(int showHistory)
             }
         }
     }
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::printCall "
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpCall::printCall "
                                      "Call message history done");
 }
 
@@ -1003,7 +1003,7 @@ int CpCall::getLocalConnectionState(int state)
     }
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::getLocalConnectionState: "
                   "state- new %d old %d ",
                   newState, state);
@@ -1182,12 +1182,12 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
 {
     if (mMetaEventId != 0 || mMetaEventType != PtEvent::META_EVENT_NONE)
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CpCall::setMetaEvent "
                       "stopping event %d type %x",
                       mMetaEventId, mMetaEventType);
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CpCall::setMetaEvent "
                       "stopMetaEvent 5");
 #endif
@@ -1199,7 +1199,7 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
 
     if(mpMetaEventCallIds)
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CpCall::setMetaEvent "
                       "deleting event call id(s)");
         delete[] mpMetaEventCallIds;
@@ -1214,7 +1214,7 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
         {
             if (metaEventCallIds)
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CpCall::setMetaEvent "
                               "callids[%d] gets '%s'",
                               i, metaEventCallIds[i]);
@@ -1223,7 +1223,7 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
             }
             else
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CpCall::setMetaEvent "
                               "callids[%d] gets '%s'",
                               i, mCallId.data());
@@ -1239,7 +1239,7 @@ void CpCall::startMetaEvent(int metaEventId,
                             const char* metaEventCallIds[],
                             int remoteIsCallee)
 {
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::startMetaEvent "
                   "m-event %d m-eventType 0x%x ",
                   metaEventId, metaEventType);
@@ -1259,7 +1259,7 @@ void CpCall::getMetaEvent(int& metaEventId, int& metaEventType,
 void CpCall::stopMetaEvent(int remoteIsCallee)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::stopMetaEvent "
                   "m-event %d m-eventType %x ",
                   mMetaEventId, mMetaEventType);
@@ -1280,7 +1280,7 @@ void CpCall::stopMetaEvent(int remoteIsCallee)
 void CpCall::setCallType(int callType)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::setCallType "
                   "change mCallType: %d to callType: %d\n",
                   mCallType, callType);
@@ -1407,7 +1407,7 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
 
 void CpCall::postMetaEvent(int state, int remoteIsCallee)
 {
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpCall::postMetaEvent "
                   "enter m-state %d m-event 0x%x numListeners=%d",
                   state, mMetaEventType, mListenerCnt);
@@ -1498,7 +1498,7 @@ void CpCall::postMetaEvent(int state, int remoteIsCallee)
             postTaoListenerMessage(0, "", eventId, CALL_STATE, PtEvent::CAUSE_UNKNOWN);
         }
 
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CpCall::postMetaEvent "
                       "leave eventId %d",
                       eventId);

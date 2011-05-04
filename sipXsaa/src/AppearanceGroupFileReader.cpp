@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlString.h"
 #include "xmlparser/tinystr.h"
 #include "AppearanceGroupFileReader.h"
@@ -54,7 +54,7 @@ AppearanceGroupFileReader::~AppearanceGroupFileReader()
 // into the AppearanceGroupSet.
 OsStatus AppearanceGroupFileReader::initialize()
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupFileReader::initialize entered");
 
    int changeDelay = mAppearanceGroupSet->getAppearanceAgent()->getChangeDelay();
@@ -93,7 +93,7 @@ OsStatus AppearanceGroupFileReader::initialize()
                if (!uri_attribute || *uri_attribute == '\0')
                {
                   // URI missing or null.
-                  OsSysLog::add(FAC_SAA, PRI_ERR, "AppearanceGroupFileReader::initialize "
+                  Os::Logger::instance().log(FAC_SAA, PRI_ERR, "AppearanceGroupFileReader::initialize "
                      "uri attribute of <resource> was missing or null");
                   resource_valid = false;
                   ret = OS_FAILED;
@@ -106,7 +106,7 @@ OsStatus AppearanceGroupFileReader::initialize()
             }
          }
 
-         OsSysLog::add(FAC_SAA, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                        "AppearanceGroupFileReader::initialize Done loading file '%s'",
                        mFileName.data());
          // For all groups in the current GroupSet, remove them if not in the new list.
@@ -150,7 +150,7 @@ OsStatus AppearanceGroupFileReader::initialize()
       else
       {
          // Report error parsing file.
-         OsSysLog::add(FAC_SAA, PRI_CRIT,
+         Os::Logger::instance().log(FAC_SAA, PRI_CRIT,
                        "AppearanceGroupFileReader::initialize "
                        "Appearance group file '%s' could not be parsed.",
                        mFileName.data());
@@ -160,7 +160,7 @@ OsStatus AppearanceGroupFileReader::initialize()
    else
    {
       // Report that there is no file.
-      OsSysLog::add(FAC_SAA, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
                     "AppearanceGroupFileReader::initialize No Appearance group file set.");
    }
 

@@ -76,7 +76,7 @@ SipxCommand* SipxCommand::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(commandDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
                         "'name' element content is invalid %s",
                         errorMsg.data()
                   );
@@ -88,7 +88,7 @@ SipxCommand* SipxCommand::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(commandDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
                         "duplicate command name '%s'\n"
                         "  %s\n"
                         "  previously defined in '%s'",
@@ -103,7 +103,7 @@ SipxCommand* SipxCommand::createFromDefinition(const OsPath& definitionFile)
             {
                definitionValid = false;
                XmlErrorMsg(commandDefinitionDoc,errorMsg);
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
                      "required 'name' element is missing %s",
                      errorMsg.data()
                );
@@ -121,7 +121,7 @@ SipxCommand* SipxCommand::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(commandDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
                         "required 'command' element is missing %s",
                         errorMsg.data()
                   );
@@ -138,7 +138,7 @@ SipxCommand* SipxCommand::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(commandDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
                         "'command' content is invalid %s",
                         errorMsg.data()
                   );
@@ -156,7 +156,7 @@ SipxCommand* SipxCommand::createFromDefinition(const OsPath& definitionFile)
          else
          {
             XmlErrorMsg(commandDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
                   "invalid root element '%s' in namespace '%s'\n"
                   //"should be '%s' in namespace '%s' "
                   "%s",
@@ -169,7 +169,7 @@ SipxCommand* SipxCommand::createFromDefinition(const OsPath& definitionFile)
       else
       {
          XmlErrorMsg(commandDefinitionDoc,errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
                "root element not found in '%s': %s",
                definitionFile.data(), errorMsg.data()
          );
@@ -179,7 +179,7 @@ SipxCommand* SipxCommand::createFromDefinition(const OsPath& definitionFile)
    {
       UtlString errorMsg;
       XmlErrorMsg(commandDefinitionDoc,errorMsg);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
             "SipxCommand::createFromDefinition failed to load '%s': %s",
             definitionFile.data(), errorMsg.data()
       );
@@ -205,7 +205,7 @@ SipxCommand* SipxCommand::createFromDefinition( const UtlString& name,
       {
          definitionValid = false;
          XmlErrorMsg(processDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxCommand::createFromDefinition "
             "'command' content is invalid %s", errorMsg.data() );
       }
 
@@ -225,7 +225,7 @@ SipxCommand* SipxCommand::createFromDefinition( const UtlString& name,
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxCommand::createFromDefinition "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "SipxCommand::createFromDefinition "
          "failed to create SipxCommand object for '%s'", name.data());
    }
 
@@ -245,7 +245,7 @@ bool SipxCommand::execute()
 
    if ( mCommand->isRunning() )
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE,
                     "SipxCommand[%s]::execute failed; command is already running",
                     data());
       return false;
@@ -265,7 +265,7 @@ void SipxCommand::evCommandStopped(const SipxProcessCmd* command, int rc)
    UtlString msg;
    msg.appendNumber(rc);
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxCommand[%s] returned %d",
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "SipxCommand[%s] returned %d",
                  data(), rc);
    addCommandMessage(commandReturnTag, msg);
 }
@@ -351,14 +351,14 @@ void SipxCommand::logCommandOutput(OsSysLogPriority pri, UtlString& msg)
       msgTag.appendNumber(++mNumStdoutMsgs);
    }
    addCommandMessage(msgTag, msg);
-   OsSysLog::add(FAC_SUPERVISOR, pri, "SipxCommand[%s]::commandOutput '%s'",
+   Os::Logger::instance().log(FAC_SUPERVISOR, pri, "SipxCommand[%s]::commandOutput '%s'",
                  data(), msg.data());
 }
 
 /// destructor
 SipxCommand::~SipxCommand()
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                  "~SipxCommand %s", data());
 
    {

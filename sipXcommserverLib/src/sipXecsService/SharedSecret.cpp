@@ -12,7 +12,7 @@
 #include "sipXecsService/SharedSecret.h"
 
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 #include "net/NetBase64Codec.h"
 
@@ -32,7 +32,7 @@ SharedSecret::SharedSecret(OsConfigDb& domainConfigDb)
           || isNull()
           )
       {
-         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                        "SharedSecret::_ invalid value '%s' for '%s' found in '%s'; aborting",
                        base64secret.data(),
                        SipXecsService::DomainDbKey::SHARED_SECRET,
@@ -44,14 +44,14 @@ SharedSecret::SharedSecret(OsConfigDb& domainConfigDb)
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                        "SharedSecret::_ loaded from '%s' length %zu",
                        domainConfigDb.getIdentityLabel(), length());
       }
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                     "SharedSecret::_ no value for '%s' found in '%s'; using fixed value",
                     SipXecsService::DomainDbKey::SHARED_SECRET, domainConfigDb.getIdentityLabel());
 

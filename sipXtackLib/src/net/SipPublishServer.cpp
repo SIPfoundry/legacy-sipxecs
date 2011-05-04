@@ -310,7 +310,7 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
                     // Check whether the expiration is too brief
                     if (!eventPackageInfo->mpEventSpecificStateMgr->checkExpiration(&expiration))
                     {
-                         OsSysLog::add(FAC_SIP, PRI_ERR,
+                         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                        "SipPublishServer::handlePublish interval too brief");
 
                          publishResponse.setResponseData(&publishRequest,
@@ -348,7 +348,7 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
                     }
                     else
                     {
-                         OsSysLog::add(FAC_SIP, PRI_ERR,
+                         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                        "SipPublishServer::handlePublish interval too brief");
 
                          publishResponse.setResponseData(&publishRequest,
@@ -397,7 +397,7 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
     // This event type has not been enabled in this SubscribeServer
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
             "SipPublishServer::handlePublish event type: %s not enabled",
             eventName.data());
 

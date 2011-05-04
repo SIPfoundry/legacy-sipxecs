@@ -13,7 +13,7 @@
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsFS.h"
 #include "net/Url.h"
 
@@ -43,7 +43,7 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "CallerAlertInfo[%s]: "
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "CallerAlertInfo[%s]: "
                     "it is invalid to configure more than one instance of the CallerAlertInfo plugin.",
                     pluginName.data());
       assert(false);
@@ -63,7 +63,7 @@ CallerAlertInfo::CallerAlertInfo(const UtlString& pluginName ///< the name for t
      mInternalEnabled(false),
      mpSipRouter( 0 )
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s] started",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s] started",
                  mInstanceName.data()
                  );
 };
@@ -83,7 +83,7 @@ CallerAlertInfo::readConfig( OsConfigDb& configDb /**< a subhash of the individu
     * is used to identify the plugin (see PluginHooks) has been removed (see the
     * examples in PluginHooks::readConfig).
     */
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s]::readConfig",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s]::readConfig",
                  mInstanceName.data()
                  );
    OsWriteLock writeLock(mConfigLock);
@@ -118,7 +118,7 @@ CallerAlertInfo::authorizeAndModify(const UtlString& id,    /**< The authenticat
                                 UtlString&  reason      ///< rejection reason
                                 )
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s]::authorizeAndModify() begin",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s]::authorizeAndModify() begin",
                  mInstanceName.data()
                  );
 
@@ -137,7 +137,7 @@ CallerAlertInfo::authorizeAndModify(const UtlString& id,    /**< The authenticat
          request.getFromUrl(_fromAddress);
          if (!mpSipRouter->isLocalDomain(_fromAddress)) {
             //if not then add Alert-Info External
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s]::authorizeAndModify() found external call",
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s]::authorizeAndModify() found external call",
                           mInstanceName.data()
                           );
             if (mExternalEnabled) {              
@@ -151,7 +151,7 @@ CallerAlertInfo::authorizeAndModify(const UtlString& id,    /**< The authenticat
          }
       }
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s]::authorizeAndModify() end",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s]::authorizeAndModify() end",
                  mInstanceName.data()
                  );
    return AuthPlugin::CONTINUE;
@@ -165,7 +165,7 @@ void CallerAlertInfo::announceAssociatedSipRouter( SipRouter* sipRouter )
 /// destructor
 CallerAlertInfo::~CallerAlertInfo()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s] stopped",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s] stopped",
                  mInstanceName.data()
                  );
 }

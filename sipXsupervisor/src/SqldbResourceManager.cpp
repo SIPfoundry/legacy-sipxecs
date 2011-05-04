@@ -9,7 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlString.h"
 
 #include "SqldbResource.h"
@@ -61,13 +61,13 @@ void SqldbResourceManager::save(SqldbResource* sqldbResource)
 
    if (!mSqldbResourceTable.find(sqldbResource))
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SqldbResourceManager::save "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "SqldbResourceManager::save "
                     "SqldbResource('%s')", sqldbResource->data());
       mSqldbResourceTable.insert(sqldbResource);
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SqldbResourceManager::save "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "SqldbResourceManager::save "
                     "duplicate SqldbResource('%s')", sqldbResource->data());
    }
 }
@@ -78,7 +78,7 @@ SqldbResourceManager::~SqldbResourceManager()
 {
    OsLock tableMutex(mSqldbResourceTableLock);
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SqldbResourceManager::~ "
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "SqldbResourceManager::~ "
                  "delete %zu SqldbResources", mSqldbResourceTable.entries());
 
    mSqldbResourceTable.destroyAll();

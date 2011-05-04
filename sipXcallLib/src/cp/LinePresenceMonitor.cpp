@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlSListIterator.h>
 #include <net/SipRefreshManager.h>
 #include <net/SipSubscribeClient.h>
@@ -265,7 +265,7 @@ void LinePresenceMonitor::subscriptionStateCallback(SipSubscribeClient::Subscrip
                                                     long expiration,
                                                     const SipMessage* subscribeResponse)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "LinePresenceMonitor::subscriptionStateCallback is called with responseCode = %d (%s)",
                  responseCode, responseText);
 }
@@ -301,7 +301,7 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    contact.prepend("sip:");
 
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "LinePresenceMonitor::handleNotifyMessage receiving a notify message from %s",
                  contact.data());
 
@@ -330,14 +330,14 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
                    StateChangeNotifier::SIGN_OUT :
                    StateChangeNotifier::SIGN_IN);
 
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "LinePresenceMonitor::handleNotifyMessage presence processed, contact '%s' set to '%s'",
                        contact.data(),
                        status.data());
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "LinePresenceMonitor::handleNotifyMessage presence event contains %d events: '%s'",
                        sipPresenceEvent.getTuples().entries(),
                        messageContent.data());
@@ -345,7 +345,7 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "LinePresenceMonitor::handleNotifyMessage received an empty notify body from '%s'",
                     contact.data());
    }
@@ -373,7 +373,7 @@ UtlBoolean LinePresenceMonitor::handleMessage(OsMsg& rMessage)
    LinePresenceMonitorMsg*    pMessage;
    LinePresenceBase*          pLine;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
       "LinePresenceMonitor::handleMessage - MsgType: %d, MsgSubType: %d\n",
          rMessage.getMsgType(), rMessage.getMsgSubType());
 
@@ -430,7 +430,7 @@ UtlBoolean LinePresenceMonitor::handleMessage(OsMsg& rMessage)
 
          default:
             // Bad message
-            OsSysLog::add(FAC_SIP, PRI_ERR, "LinePresenceMonitor::handleMessage - Received bad message");
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR, "LinePresenceMonitor::handleMessage - Received bad message");
 
             break;
       }
@@ -450,7 +450,7 @@ OsStatus LinePresenceMonitor::subscribeDialogMessage(LinePresenceBase* line)
 
    Url* lineUrl = line->getUri();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscribeDialogMessage subscribing dialog for line %s",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscribeDialogMessage subscribing dialog for line %s",
                  lineUrl->toString().data());
 
    if (mLocal)
@@ -499,7 +499,7 @@ OsStatus LinePresenceMonitor::unsubscribeDialogMessage(LinePresenceBase* line)
    lineUrl.getUserId(contact);
    mDialogSubscribeList.destroy(&contact);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "LinePresenceMonitor::unsubscribeDialogMessage unsubscribing dialog for line %s",
                  lineUrl.toString().data());
 
@@ -532,7 +532,7 @@ OsStatus LinePresenceMonitor::subscribePresenceMessage(LinePresenceBase* line)
 
    Url* lineUrl = line->getUri();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscribePresenceMessage subscribing presence for line %s",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscribePresenceMessage subscribing presence for line %s",
                  lineUrl->toString().data());
 
    // Send out the SUBSCRIBE to the presence server
@@ -541,7 +541,7 @@ OsStatus LinePresenceMonitor::subscribePresenceMessage(LinePresenceBase* line)
    if (!mPresenceServer.isNull())
    {
       resourceId = contactId + mPresenceServer;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "LinePresenceMonitor::subscribePresenceMessage Sending out the SUBSCRIBE to contact %s",
                     resourceId.data());
 
@@ -568,14 +568,14 @@ OsStatus LinePresenceMonitor::subscribePresenceMessage(LinePresenceBase* line)
 
       if (!status)
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "LinePresenceMonitor::subscribePresenceMessage Subscription failed to contact %s.",
                        resourceId.data());
       }
       else
       {
          mDialogHandleList.insertKeyAndValue(new UtlString(contactId), new UtlString(dialogHandle));
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
             "LinePresenceMonitor::subscribePresenceMessage subscribed contact %s dialogHandle %s",
                contactId.data(), dialogHandle.data());
 
@@ -615,13 +615,13 @@ OsStatus LinePresenceMonitor::unsubscribePresenceMessage(LinePresenceBase* line)
    mPresenceSubscribeList.destroy(&contact);
 
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "LinePresenceMonitor::unsubscribePresenceMessage unsubscribing presence for line %s",
                  lineUrl.toString().data());
 
    if (dialogHandle != NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
          "LinePresenceMonitor::unsubscribePresenceMessage unsubscribing contact %s dialogHandle %s",
             contact.data(), dialogHandle->data());
 
@@ -630,7 +630,7 @@ OsStatus LinePresenceMonitor::unsubscribePresenceMessage(LinePresenceBase* line)
 
       if (!status)
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "LinePresenceMonitor::unsubscribePresenceMessage Unsubscription failed for %s.",
                        contact.data());
       }
@@ -647,7 +647,7 @@ OsStatus LinePresenceMonitor::setStatusMessage(const UtlString* contact,
 
    OsStatus result = OS_FAILED;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::setStatusMessage set the value %d for %s",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::setStatusMessage set the value %d for %s",
                  value, contact->data());
 
    if (value == StateChangeNotifier::ON_HOOK ||

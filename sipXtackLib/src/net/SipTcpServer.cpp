@@ -47,7 +47,7 @@ SipTcpServer::SipTcpServer(int port,
                           protocolString,
                           taskName)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipTcpServer[%s]::_  '%s' %s port %d szBindAddr = '%s'",
                  getName().data(), mName.data(),
                  bUseNextAvailablePort ? "use next available" : "specific",
@@ -171,7 +171,7 @@ UtlBoolean SipTcpServer::createServerSocket(const char* szBindAddr,
 // Destructor
 SipTcpServer::~SipTcpServer()
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipTcpServer[%s]::~ called",
                   mName.data());
 
@@ -213,7 +213,7 @@ int SipTcpServer::run(void* runArgument)
 
 void SipTcpServer::shutdownListener()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipTcpServer[%s]::shutdownListener - before requestShutDown",
                  mName.data());
 
@@ -311,7 +311,7 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
 
             if (client->isOk())
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipTcpServer[%s]::run client created for incoming connection: %s (%p) %s:%d",
                              getName().data(),
                              client->getName().data(), client,
@@ -320,7 +320,7 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
                UtlBoolean clientStarted = client->start();
                if(!clientStarted)
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                  Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                 "SIP %s Client failed to start",
                                 mpOwner->mProtocolString.data());
                }
@@ -331,7 +331,7 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "SipTcpServer[%s]::run failed to create client for incoming connection: %s:%d",
                              getName().data(),
                              hostAddress.data(), hostPort);
@@ -346,7 +346,7 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
         }
         else
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SIP %s Client received spurious message",
                           mpOwner->mProtocolString.data());
         }

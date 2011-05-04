@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // APPLICATION INCLUDES
 #include "NatTraversalRules.h"
@@ -45,7 +45,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
    {
       mpCaller = createCallerEndpointDescriptor( sipRequest, *mpNatTraversalRules );
       mpCaller->toString( tmpString );
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Caller transport info:'%s'",
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Caller transport info:'%s'",
                                         mHandle.data(), tmpString.data() );
    }
 
@@ -53,7 +53,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
    {
       mpCallee = createCalleeEndpointDescriptor( sipRequest, *mpNatTraversalRules, pRegDB );
       mpCallee->toString( tmpString );
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Callee transport info:'%s'",
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Callee transport info:'%s'",
                                         mHandle.data(), tmpString.data() );
    }
 
@@ -64,7 +64,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
    mSystemIdentificationString.append( mpNatTraversalRules->getProxyTransportInfo().getAddress() );
    mSystemIdentificationString.append( "-" );
    mSystemIdentificationString.append( mpNatTraversalRules->getPublicTransportInfo().getAddress() );
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "+SessionContext tracker %p created; Handle=%s+",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "+SessionContext tracker %p created; Handle=%s+",
                                        this,
                                        mHandle.data() );
 }
@@ -105,7 +105,7 @@ SessionContext::~SessionContext()
    delete mpReferenceDialogTracker;
    delete mpCaller;
    delete mpCallee;
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "-SessionContext tracker %p deleted; Handle=%s-",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "-SessionContext tracker %p deleted; Handle=%s-",
                                        this,
                                        mHandle.data() );
 }
@@ -130,7 +130,7 @@ bool SessionContext::handleRequest( SipMessage& message, const char* address, in
       }
       else
       {
-         OsSysLog::add(FAC_NAT, PRI_CRIT, "SessionContext[%s]::handleRequest: received in-dialog request with unknown discriminating tag: %s",
+         Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "SessionContext[%s]::handleRequest: received in-dialog request with unknown discriminating tag: %s",
                                            mHandle.data(), discriminatingTag.data() );
       }
    }
@@ -290,7 +290,7 @@ DialogTracker* SessionContext::allocateNewDialogTrackerBasedOnReference( const U
    if( pNewDialogTracker )
    {
       addDialogTrackerToList( discriminatingTag, pNewDialogTracker );
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateNewDialogTrackerBasedOnReference: allocated DialogTracker #%zd for tag %s",
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateNewDialogTrackerBasedOnReference: allocated DialogTracker #%zd for tag %s",
                                          mHandle.data(), getNumberOfTrackedDialogs(), discriminatingTag.data() );
 
       // We have a new tracker that is utilizing the same Media RelaySessions as the
@@ -384,7 +384,7 @@ void SessionContext::addDialogTrackerToList( const UtlString& tag,  DialogTracke
    UtlString* pMapKey = new UtlString( tag );
    if( !mDialogTrackersMap.insertKeyAndValue( pMapKey, pNewDialogTracker ) )
    {
-      OsSysLog::add(FAC_NAT, PRI_CRIT, "SessionContext[%s]::addDialogTrackerToList failed to insert value for key %s",
+      Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "SessionContext[%s]::addDialogTrackerToList failed to insert value for key %s",
                                          mHandle.data(), tag.data() );
    }
 }
@@ -459,7 +459,7 @@ bool SessionContext::allocateMediaRelaySession( const UtlString& handleOfRequest
    {
       bAllocationSucceeded = true;
    }
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateMediaRelaySession for dialog tracker %s: handle %d: caller %d; callee %d",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateMediaRelaySession for dialog tracker %s: handle %d: caller %d; callee %d",
                                      mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle, callerRelayRtpPort, calleeRelayRtpPort );
    return bAllocationSucceeded;
 }
@@ -469,7 +469,7 @@ tMediaRelayHandle SessionContext::cloneMediaRelaySession( const UtlString& handl
 {
    tMediaRelayHandle clonedRelayHandle;
    clonedRelayHandle = mpMediaRelay->cloneSession( relayHandleToClone, doSwapCallerAndCallee );
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContextcloneMediaRelaySession for dialog tracker %s: src handle %d, dest handle %d",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContextcloneMediaRelaySession for dialog tracker %s: src handle %d, dest handle %d",
                                      mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandleToClone, (int)clonedRelayHandle );
    return clonedRelayHandle;
 }
@@ -477,7 +477,7 @@ tMediaRelayHandle SessionContext::cloneMediaRelaySession( const UtlString& handl
 bool SessionContext::deallocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
                          const tMediaRelayHandle& relayHandle )
 {
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::deallocateMediaRelaySession for dialog tracker %s: handle %d",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::deallocateMediaRelaySession for dialog tracker %s: handle %d",
                                      mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle );
    return mpMediaRelay->deallocateSession( relayHandle );
 }
@@ -567,7 +567,7 @@ bool SessionContext::linkFarEndMediaRelayPortToRequester(  const UtlString& hand
       requestingEndpointRtpPort   =  0;
       requestingEndpointRtcpPort  =  0;
    }
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::linkMediaRelayPortToFarEnd for dialog tracker %s: relay handle %d - linking far-end relay port to '%s':%d,%d",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::linkMediaRelayPortToFarEnd for dialog tracker %s: relay handle %d - linking far-end relay port to '%s':%d,%d",
                                      mHandle.data(), handleOfRequestingDialogContext.data(), (int)(relayHandle.getValue()), requestingEndpointIpAddress.data(), requestingEndpointRtpPort, requestingEndpointRtcpPort );
 
    bLinkPerformed = mpMediaRelay->linkSymToEndpoint( relayHandle, requestingEndpointIpAddress, requestingEndpointRtpPort, requestingEndpointRtcpPort, farEndRole );
@@ -609,7 +609,7 @@ int SessionContext::getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle
 
 void SessionContext::reportDialogTrackerReadyForDeletion( const UtlString& handleOfRequestingDialogContext )
 {
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::reportDialogTrackerReadyForDeletion for dialog tracker %s",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::reportDialogTrackerReadyForDeletion for dialog tracker %s",
                                      mHandle.data(), handleOfRequestingDialogContext.data() );
    mListOfDialogTrackersReadyForDeletion.push_back( handleOfRequestingDialogContext );
 }

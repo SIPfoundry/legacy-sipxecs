@@ -24,7 +24,7 @@
 #include "ResourceListTask.h"
 #include "ResourceListSet.h"
 #include "ResourceListMsg.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsEventMsg.h>
 #include <os/OsMsg.h>
 
@@ -47,7 +47,7 @@ ResourceListTask::ResourceListTask(ResourceListServer* parent) :
    OsServerTask("ResourceListTask-%d"),
    mResourceListServer(parent)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListTask:: this = %p, mResourceListServer = %p",
                  this, mResourceListServer);
 }
@@ -63,7 +63,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
 {
    UtlBoolean handled = FALSE;
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListTask::handleMessage message type %d subtype %d",
                  rMsg.getMsgType(), rMsg.getMsgSubType());
 
@@ -89,7 +89,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
       case ResourceListSet::PUBLISH_TIMEOUT:
       {
          // This is a request to publish lists that have changed.
-         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                        "ResourceListTask::handleMessage PUBLISH_TIMEOUT");
 
          // Don't publish if this is a gap timeout with no new RLMI content.
@@ -106,7 +106,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
       }
 
       default:
-         OsSysLog::add(FAC_RLS, PRI_ERR,
+         Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                        "ResourceListTask::handleMessage unknown event type %d, userData = %" PRIdPTR,
                        type, userData);
          break;
@@ -115,7 +115,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
    else if (rMsg.getMsgType() == RLS_SUBSCRIPTION_MSG)
    {
       // This is a subscription event.
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListTask::handleMessage RLS_SUBSCRIPTION_MSG");
       SubscriptionCallbackMsg* pSubscriptionMsg =
          dynamic_cast <SubscriptionCallbackMsg*> (&rMsg);
@@ -129,7 +129,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
    else if (rMsg.getMsgType() == RLS_NOTIFY_MSG)
    {
       // This is a NOTIFY.
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListTask::handleMessage RLS_NOTIFY_MSG");
       NotifyCallbackMsg* pNotifyMsg =
          dynamic_cast <NotifyCallbackMsg*> (&rMsg);
@@ -158,7 +158,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "ResourceListTask::handleMessage unexpected %s %s",
                           method.data(),
                           sipMessage->isResponse() ? "response" : "request");
@@ -166,7 +166,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "SipSubscribeClient::handleMessage  SipMessageEvent with NULL SipMessage");
       }
    }
@@ -176,7 +176,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_ERR,
+      Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                     "ResourceListTask::handleMessage unknown msg type %d",
                     rMsg.getMsgType());
    }
@@ -226,11 +226,11 @@ void ResourceListTask::debugDumpState(const SipMessage& msg)
    request_uri.getUrlParameter("id", id);
    // 'id' is empty string if no 'id' URI parameter.
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "ResourceListTask::debugDumpState called, id = '%s':",
                  id.data());
    getResourceListServer()->dumpState();
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "ResourceListTask::debugDumpState finished");
 }
 

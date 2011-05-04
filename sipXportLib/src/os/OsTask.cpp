@@ -78,7 +78,7 @@ void OsTaskBase::requestShutdown(void)
       after = mState;
    }
 
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                  "OsTaskBase::requestShutdown "
                  "on task '%s', transition %s -> %s",
                  mName.data(),
@@ -99,22 +99,31 @@ OsStatus OsTaskBase::syslog(const OsSysLogFacility facility,
                             const char*            format,
                                                     ...)
 {
-   pthread_t taskId;
-   pid_t     processId;
+    if (Os::Logger::instance().willLog(facility, priority))
+    {
+      char* buff;
+      size_t needed = 1024;
 
-   if (OsSysLog::willLog(facility, priority))
-   {
-      id(taskId);
-      processId = 0;
+      bool formatted = false;
+      std::string message;
+      for (int i = 0; !formatted && i < 3; i++)
+      {
+        va_list args;
+        va_start(args, format);
+        buff = (char*)::malloc(needed); /// Create a big enough buffer
+        ::memset(buff, '\0', needed);
+        size_t oldSize = needed;
+        needed = vsnprintf(buff, needed, format, args) + 1;
+        formatted = needed <= oldSize;
+        if (formatted)
+          message = buff;
+        ::free(buff);
+        va_end(args);
+      }
 
-      va_list ap;
-      va_start(ap, format);
-
-      OsSysLog::vadd(mName.data(), taskId, facility, priority,
-            format, ap) ;
-      va_end(ap);
+      if (formatted)
+        Os::Logger::instance().log_(facility, priority, message.c_str());
    }
-
    return OS_SUCCESS ;
 }
 
@@ -219,7 +228,7 @@ OsTaskBase::OsTaskBase(const UtlString& name,
     sprintf(nameBuffer, name.data(), taskNumber);
     mName.append(nameBuffer);
 
-    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTask::_ '%s' created %p", mName.data(), this);
+    Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsTask::_ '%s' created %p", mName.data(), this);
 
     if (!mName.isNull())
     {

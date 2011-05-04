@@ -32,7 +32,7 @@
 #ifdef HAVE_SSL
 #include <os/OsSSLConnectionSocket.h>
 #endif /* HAVE_SSL */
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsTask.h>
 
 // EXTERNAL FUNCTIONS
@@ -70,7 +70,7 @@ HttpConnection::~HttpConnection()
     // Wait until run exits before clobbering members
     waitUntilShutDown();
 
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                   "Shutting down HttpConnection for socket %p",
                   mpRequestSocket);
 
@@ -89,7 +89,7 @@ int HttpConnection::run(void* runArg)
 
     if (!mpRequestSocket || !mpRequestSocket->isOk())
     {
-        OsSysLog::add(FAC_HTTP, PRI_ERR, "HttpConnection: port not ok" );
+        Os::Logger::instance().log(FAC_HTTP, PRI_ERR, "HttpConnection: port not ok" );
     }
 
     while(!isShuttingDown() && mpRequestSocket && mpRequestSocket->isOk() && bConnected)
@@ -126,14 +126,14 @@ int HttpConnection::run(void* runArg)
                 // isReadyToRead indicated readability but the read returned 0 bytes - the peer
                 // must have shut down
                 bConnected = FALSE;
-                OsSysLog::add(FAC_HTTP, PRI_WARNING, "HttpConnection::run"
+                Os::Logger::instance().log(FAC_HTTP, PRI_WARNING, "HttpConnection::run"
                               " read 0 bytes, indicating peer shut down");
             }
         }
     }
     // If we're here either we're shutting down or the socket went bad. Mark for deletion
     mbToBeDeleted = true;
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpConnection::run shutting down");
+    Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG, "HttpConnection::run shutting down");
 
     return(TRUE);
 }

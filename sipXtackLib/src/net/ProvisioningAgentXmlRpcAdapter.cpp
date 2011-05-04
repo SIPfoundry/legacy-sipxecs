@@ -9,7 +9,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include "net/XmlRpcRequest.h"
 #include "net/XmlRpcResponse.h"
 #include "net/XmlRpcDispatch.h"
@@ -55,7 +55,7 @@ ProvisioningAgentXmlRpcAdapter::ProvisioningAgentXmlRpcAdapter(const Provisionin
    mpXmlRpcServer->addMethod("get",    (XmlRpcMethod::Get*)ProvisioningAgentXmlRpcGet::get,    (void*)pProvisioningAgent);
    mpXmlRpcServer->addMethod("action", (XmlRpcMethod::Get*)ProvisioningAgentXmlRpcAction::get, (void*)pProvisioningAgent);
 
-   OsSysLog::add(FAC_ACD, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, PRI_DEBUG,
                  "Creating XmlRpcDispatch on port: %d(%s)",
                  serverPort, secureTransport ? "SSL" : "NON-SSL");
 }

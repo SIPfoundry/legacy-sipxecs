@@ -10,7 +10,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <xmlparser/tinyxml.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include "net/Url.h"
 #include "net/ProvisioningClass.h"
 #include "net/ProvisioningAttrList.h"
@@ -77,7 +77,7 @@ ProvisioningAgent::ProvisioningAgent(const char* pServerClass, bool persistentSt
          mpXmlConfigDoc->Parse(blankXml.data());
          mpXmlConfigDoc->SaveFile();
 
-         OsSysLog::add(FAC_ACD, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ACD, PRI_DEBUG,
                        "ProvisioningAgent::ProvisioningAgent - Creating initial configuration file: %s",
                        mpConfigFile->data());
       }
@@ -102,7 +102,7 @@ ProvisioningAgent::ProvisioningAgent(const char* pServerClass, bool persistentSt
             mpXmlConfigDoc->Parse(blankXml.data());
             mpXmlConfigDoc->SaveFile();
 
-            OsSysLog::add(FAC_ACD, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, PRI_DEBUG,
                           "ProvisioningAgent::ProvisioningAgent - Configuration file: %s corrupted, corrupted, creating blank file",
                           mpConfigFile->data());
          }
@@ -391,7 +391,7 @@ ProvisioningClass* ProvisioningAgent::lookupProvisioningClass(ProvisioningAttrLi
    // Extract the target class value from the <object-class> parameter.
    if (rRequestAttributes.getAttribute("object-class", pTargetClass) == false) {
       // The <object-class> tag was not found. Must be a bad request.
-      OsSysLog::add(FAC_ACD, PRI_ERR,
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                     "ProvisioningAgent::lookupProvisioningClass - <object-class> parameter not found.");
       return NULL;
    }
@@ -401,7 +401,7 @@ ProvisioningClass* ProvisioningAgent::lookupProvisioningClass(ProvisioningAttrLi
    pProvisioningClass = dynamic_cast<ProvisioningClass*>(mRegisteredClasses.findValue(&targetClassString));
    if (pProvisioningClass == NULL) {
       // The class doesn't appear to be registered.
-      OsSysLog::add(FAC_ACD, PRI_ERR,
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                     "ProvisioningAgent::lookupProvisioningClass - Provisioning Class: '%s' not registered.",
                     pTargetClass);
       return NULL;

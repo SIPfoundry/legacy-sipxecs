@@ -18,7 +18,8 @@
 
 // APPLICATION INCLUDES
 #include <net/XmlRpcRequest.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
+#include <os/OsLoggerHelper.h>
 #include <os/OsTask.h>
 
 // CONSTANTS
@@ -37,24 +38,22 @@ const char* xmlrpcServer = "127.0.0.1";
 
 void initLogger(char* argv[])
 {
-    OsSysLog::initialize(0, // do not cache any log messages in memory
-                         argv[0]); // name for messages from this program
-    OsSysLog::setOutputFile(0, // no cache period
-                            LogFile); // log file name
+    Os::LoggerHelper::instance().processName = argv[0];
+    int logLevel = PRI_INFO;
     switch (Feedback)
     {
        case Quiet:
-          OsSysLog::setLoggingPriority(PRI_WARNING);
+          logLevel = PRI_WARNING;
           break;
        case Normal:
-          OsSysLog::setLoggingPriority(PRI_INFO);
+          logLevel = PRI_INFO;
           break;
        case Verbose:
-          OsSysLog::setLoggingPriority(PRI_DEBUG);
+          logLevel = PRI_DEBUG;
           break;
     }
-
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+    Os::LoggerHelper::instance().initialize(logLevel, LogFile);
+    Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 }
 
 void showHelp(char* argv[])

@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include "os/OsSSL.h"
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlString.h"
 #include "utl/UtlSList.h"
 
@@ -94,7 +94,7 @@ OsSSL::OsSSL(const char* authorityPath,
      
      if (!caFile.isNull() )
      {
-           OsSysLog::add(FAC_KERNEL, PRI_INFO ,"OsSSL::_ Enforcing Bundled Certificate: %s", caFile.data());
+           Os::Logger::instance().log(FAC_KERNEL, PRI_INFO ,"OsSSL::_ Enforcing Bundled Certificate: %s", caFile.data());
      }
 
       if (SSL_CTX_load_verify_locations(mCTX,
@@ -119,7 +119,7 @@ OsSSL::OsSSL(const char* authorityPath,
             {
                if (SSL_CTX_check_private_key(mCTX))
                {
-                  OsSysLog::add(FAC_KERNEL, PRI_INFO
+                  Os::Logger::instance().log(FAC_KERNEL, PRI_INFO
                                 ,"OsSSL::_ %p CTX %p loaded key pair:\n"
                                 "   public  '%s'\n"
                                 "   private '%s'"
@@ -146,7 +146,7 @@ OsSSL::OsSSL(const char* authorityPath,
                }
                else
                {
-                  OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                  Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                                 "OsSSL::_ Private key '%s' does not match certificate '%s'",
                                 privateKeyPath
                                 ? privateKeyPath
@@ -159,7 +159,7 @@ OsSSL::OsSSL(const char* authorityPath,
             }
             else
             {
-               OsSysLog::add(FAC_KERNEL, PRI_ERR,
+               Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                              "OsSSL::_ Private key '%s' could not be initialized.",
                              privateKeyPath
                              ? privateKeyPath
@@ -169,7 +169,7 @@ OsSSL::OsSSL(const char* authorityPath,
          }
          else
          {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                           "OsSSL::_ Public key '%s' could not be initialized.",
                           publicCertificateFile
                           ? publicCertificateFile
@@ -180,7 +180,7 @@ OsSSL::OsSSL(const char* authorityPath,
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "OsSSL::_ SSL_CTX_load_verify_locations failed\n"
                        "    authorityDir:  '%s'",
                        authorityPath ? authorityPath : defaultAuthorityPath.data());
@@ -188,7 +188,7 @@ OsSSL::OsSSL(const char* authorityPath,
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsSSL::_ SSL_CTX_new failed");
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsSSL::_ SSL_CTX_new failed");
    }
 }
 
@@ -203,7 +203,7 @@ OsSSL::~OsSSL()
 
    if (mCTX)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSL::~ SSL_CTX free %p", mCTX);
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSSL::~ SSL_CTX free %p", mCTX);
       SSL_CTX_free(mCTX);
       mCTX = NULL;
    }
@@ -304,7 +304,7 @@ SSL* OsSSL::getServerConnection()
          ciphers.append("\n    ");
          ciphers.append(cipher);
       }
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSL::getServerConnection returning %p%s",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSSL::getServerConnection returning %p%s",
                     server, ciphers.isNull() ? " NO CIPHERS" : ciphers.data());
       // SSL_set_accept_state(server);
       // SSL_set_options(server, SSL_OP_NO_SSLv2);
@@ -312,7 +312,7 @@ SSL* OsSSL::getServerConnection()
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsSSL::getServerConnection SSL_new failed.");
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsSSL::getServerConnection SSL_new failed.");
    }
 
    return server;
@@ -324,12 +324,12 @@ SSL* OsSSL::getClientConnection()
    SSL* client = SSL_new(mCTX);
    if (client)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSL::getClientConnection returning %p", client);
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSSL::getClientConnection returning %p", client);
       // SSL_set_connect_state(client);
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsSSL::getClientConnection SSL_new failed.");
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsSSL::getClientConnection SSL_new failed.");
    }
 
    return client;
@@ -412,7 +412,7 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
       // Get the name of the encryption applied to the connection
       const char* cipher = SSL_get_cipher(connection);
 
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "%s SSL Connection:\n"
                     "   status:  %s\n"
                     "   peer:    '%s'\n"
@@ -443,7 +443,7 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsSSL::logConnectParams called by %s with NULL connection",
                     callerMsg
                     );
@@ -555,24 +555,24 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
                sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free);
             }
 #           ifdef TEST_DEBUG
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "%s", debugMsg.data());
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "%s", debugMsg.data());
 #           endif
          }
          else
          {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsSSL::peerIdentity peer not validated");
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsSSL::peerIdentity peer not validated");
          }
 
          X509_free(peer_cert);
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_WARNING, "OsSSL::peerIdentity no peer certificate");
+         Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING, "OsSSL::peerIdentity no peer certificate");
       }
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT, "OsSSL::peerIdentity called with NULL connection");
+      Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT, "OsSSL::peerIdentity called with NULL connection");
    }
 
    return peerCertTrusted;
@@ -586,7 +586,7 @@ void OsSSL::logError(const OsSysLogFacility facility,
 {
    char sslErrorString[256];
    ERR_error_string_n(errCode, sslErrorString, sizeof(sslErrorString));
-   OsSysLog::add(facility, priority,
+   Os::Logger::instance().log(facility, priority,
                  "%s:\n   SSL error: %d '%s'",
                  callerMsg, errCode, sslErrorString
                  );
@@ -594,7 +594,7 @@ void OsSSL::logError(const OsSysLogFacility facility,
    while ((err = ERR_get_error()) != 0) 
    {
       ERR_error_string_n(err, sslErrorString, sizeof(sslErrorString));
-      OsSysLog::add(facility, priority,
+      Os::Logger::instance().log(facility, priority,
                  "%s:\n   SSL error: %d '%s'",
                  callerMsg, err, sslErrorString
                  );
@@ -645,7 +645,7 @@ int OsSSL::verifyCallback(int valid,            // validity so far from openssl
 
       X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer));
       X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject));
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsSSL::verifyCallback invalid certificate at depth %d\n"
                     "       error='%s'\n"
                     "       issuer='%s'\n"

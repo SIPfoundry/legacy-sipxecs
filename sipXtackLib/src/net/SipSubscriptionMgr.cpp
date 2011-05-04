@@ -12,7 +12,7 @@
 #include <utl/UtlString.h>
 #include <utl/UtlHashBagIterator.h>
 #include <os/OsEventMsg.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsTimer.h>
 #include <os/OsDateTime.h>
 #include <net/SipPublishContentMgr.h>
@@ -211,7 +211,7 @@ void SubscriptionServerState::dumpState()
 {
    // indented 6
 
-   OsSysLog::add(FAC_SIP, PRI_INFO,
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                  "\t      SubscriptionServerState %p UtlString = '%s', mResourceId = '%s', mEventTypeKey = '%s', "
                  "mAcceptHeaderValue = '%s', mExpirationDate = %+d, mDialogVer = %d",
                  this, data(), mResourceId.data(), mEventTypeKey.data(),
@@ -316,7 +316,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         mMaxExpiration = mMinExpiration;
         mMinExpiration = tmp;
 
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
             "Swapping values as mMinExpiration (%d) is greater than mMaxExpiration (%d)",
             mMinExpiration, mMaxExpiration);
     }
@@ -329,7 +329,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         mMaxExpiration = mDefaultExpiration;
         mDefaultExpiration = tmp;
 
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
             "Swapping values as mDefaultExpiration (%d) is greater than mMaxExpiration (%d)",
             mDefaultExpiration, mMaxExpiration);
     }
@@ -375,7 +375,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
     }
     // If requested expiration == mMinExpiration, leave it unchanged.
     // Cases where the expiration is less than mMinExpiration are handled below.
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipSubscriptionMgr::updateDialogInfo calculated expiration = %d",
                   expiration);
 
@@ -385,7 +385,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         UtlString establishedDialogHandle;
         if(mDialogMgr.getEstablishedDialogHandleFor(subscribeDialogHandle, establishedDialogHandle))
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                 "Incoming early SUBSCRIBE dialog: %s matches established dialog: %s",
                 subscribeDialogHandle.data(), establishedDialogHandle.data());
         }
@@ -421,7 +421,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             // Re-get the dialog handle now that the To tag is set
             subscribeCopy->getDialogHandle(subscribeDialogHandle);
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipSubscriptionMgr::updateDialogInfo subscribeDialogHandle = '%s'",
                           subscribeDialogHandle.data());
 
@@ -464,11 +464,11 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             lock();
             mSubscriptionStatesByDialogHandle.insert(state);
             mSubscriptionStateResourceIndex.insert(stateKey);
-            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
             {
                UtlString requestContact;
                subscribeRequest.getContactField(0, requestContact);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipSubscriptionMgr::updateDialogInfo insert early-dialog subscription for dialog handle '%s', key '%s', "
                              "contact '%s', mExpirationDate %ld, eventTypeKey '%s'",
                              state->data(), stateKey->data(),
@@ -575,7 +575,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         }
     }
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipSubscriptionMgr::updateDialogInfo "
                   "subscribeDialogHandle = '%s', "
                   "subscriptionSucceeded = %d, isNew = %d, isSubscriptionExpired = %d, "
@@ -603,13 +603,13 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
     // queue.
     assert(mpResendMsgQ);
 
-    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+    if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
     {
        UtlString request;
        ssize_t len;
        subscribeRequest.getBytes(&request, &len);
 
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipSubscriptionMgr::insertDialogInfo "
                      "resourceId = '%s', eventTypeKey = '%s', eventType = '%s', "
                      "expires = %d, notifyCSeq = %d, version = %d, "
@@ -628,13 +628,13 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
     // If this is an early dialog we need to make it an established dialog.
     if (SipDialog::isEarlyDialog(dialogHandle))
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipSubscriptionMgr::insertDialogInfo is an early dialog handle");
 
         UtlString establishedDialogHandle;
         if (mDialogMgr.getEstablishedDialogHandleFor(dialogHandle, establishedDialogHandle))
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                 "Incoming early SUBSCRIBE dialog: %s matches established dialog: %s",
                 dialogHandle.data(), establishedDialogHandle.data());
         }
@@ -684,11 +684,11 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         lock();
         mSubscriptionStatesByDialogHandle.insert(state);
         mSubscriptionStateResourceIndex.insert(stateKey);
-        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+        if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
         {
            UtlString requestContact;
            subscribeRequest.getContactField(0, requestContact);
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                          "SipSubscriptionMgr::insertDialogInfo insert early-dialog subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
                          state->data(), stateKey->data(),
                          requestContact.data(), state->mExpirationDate);
@@ -719,7 +719,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
             mSubscriptionStatesByDialogHandle.find(&dialogHandle);
         if (state)
         {
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                          "SipSubscriptionMgr::insertDialogInfo "
                          "is an established dialog handle, state found");
 
@@ -751,7 +751,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         // No state, but SUBSCRIBE had a to-tag.
         else
         {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipSubscriptionMgr::insertDialogInfo "
                           "is an established dialog handle, no state found");
 
@@ -782,11 +782,11 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
                new SubscriptionServerStateIndex(resourceId, eventTypeKey, state);
             mSubscriptionStatesByDialogHandle.insert(state);
             mSubscriptionStateResourceIndex.insert(stateKey);
-            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
             {
                UtlString requestContact;
                subscribeRequest.getContactField(0, requestContact);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipSubscriptionMgr::insertDialogInfo insert subscription for key '%s', contact '%s', mExpirationDate %ld",
                      stateKey->data(), requestContact.data(), state->mExpirationDate);
             }
@@ -810,7 +810,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         unlock();
     }
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipSubscriptionMgr::insertDialogInfo "
                   "subscribeDialogHandle = '%s', "
                   "subscriptionSucceeded = %d, isNew = %d, subscriptionSucceeded = %d, "
@@ -887,7 +887,7 @@ UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDia
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "SipSubscriptionMgr::getNotifyDialogInfo No subscription state found for handle '%s'",
                      subscribeDialogHandle.data());
     }
@@ -911,20 +911,20 @@ void SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
    contentKey.append(CONTENT_KEY_SEPARATOR);
    contentKey.append(eventTypeKey);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscriptionMgr::createNotifiesDialogInfo try to find contentKey '%s' in mSubscriptionStateResourceIndex (%zu entries)",
                  contentKey.data(), mSubscriptionStateResourceIndex.entries());
 
    lock();
 
 #if 0 // Enable for very detailed logging of searching for the NOTIFY info.
-   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+   if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
    {
       UtlHashBagIterator iterator(mSubscriptionStateResourceIndex);
       UtlString* contentTypeIndex;
       while ((contentTypeIndex = dynamic_cast <SubscriptionServerStateIndex*> (iterator())))
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipSubscriptionMgr::createNotifiesDialogInfo element '%s'",
                        contentTypeIndex->data());
       }
@@ -955,14 +955,14 @@ void SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
    while ((subscriptionIndex =
            dynamic_cast <SubscriptionServerStateIndex*> (iterator())))
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipSubscriptionMgr::createNotifiesDialogInfo now %ld, mExpirationDate %ld",
                     now, subscriptionIndex->mpState->mExpirationDate);
 
       // Should not happen, the container is supposed to be locked
       if (index >= count)
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "SipSubscriptionMgr::createNotifiesDialogInfo iterator elements count changed from: %d to %d while locked",
                        count, index);
       }
@@ -970,7 +970,7 @@ void SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
       // deleted with the state
       else if (subscriptionIndex->mpState == NULL)
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "SipSubscriptionMgr::createNotifiesDialogInfo SubscriptionServerStateIndex with NULL mpState");
       }
 
@@ -1005,17 +1005,17 @@ void SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                  (long) (subscriptionIndex->mpState->mExpirationDate - now));
          notifyArray[index].setHeaderValue(SIP_SUBSCRIPTION_STATE_FIELD,
                                            buffer, 0);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipSubscriptionMgr::createNotifiesDialogInfo index %d, mAcceptHeaderValue '%s', getEventField '%s'",
                        index, acceptHeaderValuesArray[index].data(),
                        eventHeader.data());
 
-         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+         if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
          {
             UtlString s;
             ssize_t i;
             notifyArray[index].getBytes(&s, &i);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipSubscriptionMgr::createNotifiesDialogInfo notifyArray[%d] = '%s'",
                           index, s.data());
          }
@@ -1040,20 +1040,20 @@ void SipSubscriptionMgr::createNotifiesDialogInfoEvent(const UtlString& eventTyp
                                                        UtlString*& eventTypeKeyArray,
                                                        bool*& fullContentArray)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscriptionMgr::createNotifiesDialogInfoEvent mSubscriptionStateResourceIndex (%zu entries)",
                  mSubscriptionStateResourceIndex.entries());
 
    lock();
 
 #if 0 // Enable for very detailed logging of searching for the NOTIFY info.
-   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+   if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
    {
       UtlHashBagIterator iterator(mSubscriptionStateResourceIndex);
       UtlString* contentTypeIndex;
       while ((contentTypeIndex = dynamic_cast <SubscriptionServerStateIndex*> (iterator())))
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipSubscriptionMgr::createNotifiesDialogInfoEvent element '%s'",
                        contentTypeIndex->data());
       }
@@ -1096,14 +1096,14 @@ void SipSubscriptionMgr::createNotifiesDialogInfoEvent(const UtlString& eventTyp
       // Select subscriptions with the right eventType.
       if (subscription->mEventType.compareTo(eventType) == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipSubscriptionMgr::createNotifiesDialogInfoEvent now %ld, mExpirationDate %ld",
                        now, subscription->mExpirationDate);
          
          // Should not happen, the container is supposed to be locked
          if (index >= count)
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SipSubscriptionMgr::createNotifiesDialogInfoEvent iterator elements count changed from: %d to %d while locked",
                           count, index);
          }
@@ -1136,7 +1136,7 @@ void SipSubscriptionMgr::createNotifiesDialogInfoEvent(const UtlString& eventTyp
                     (long) (subscription->mExpirationDate - now));
             notifyArray[index].setHeaderValue(SIP_SUBSCRIPTION_STATE_FIELD,
                                               buffer, 0);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipSubscriptionMgr::createNotifiesDialogInfoEvent index %d, mAcceptHeaderValue '%s', getEventField '%s'",
                           index, acceptHeaderValuesArray[index].data(),
                           eventHeader.data());
@@ -1145,12 +1145,12 @@ void SipSubscriptionMgr::createNotifiesDialogInfoEvent(const UtlString& eventTyp
             resourceIdArray[index] = subscription->mResourceId;
             eventTypeKeyArray[index] = subscription->mEventTypeKey;
 
-            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
             {
                UtlString s;
                ssize_t i;
                notifyArray[index].getBytes(&s, &i);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipSubscriptionMgr::createNotifiesDialogInfoEvent notifyArray[%d] = '%s'",
                              index, s.data());
             }
@@ -1170,7 +1170,7 @@ void SipSubscriptionMgr::createNotifiesDialogInfoEvent(const UtlString& eventTyp
 UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle,
                                                enum subscriptionChange change)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscriptionMgr::endSubscription dialogHandle = '%s', change = %d",
                  dialogHandle.data(), change);
 
@@ -1195,11 +1195,11 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle,
             {
                 mSubscriptionStatesByDialogHandle.removeReference(state);
                 mSubscriptionStateResourceIndex.removeReference(stateIndex);
-                if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
                 {
                     UtlString requestContact;
                     state->mpLastSubscribeRequest->getContactField(0, requestContact);
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                  "SipSubscriptionMgr::endSubscription Delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
                                  state->data(), stateIndex->data(),
                                  requestContact.data(), state->mExpirationDate);
@@ -1217,7 +1217,7 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle,
         // Should not happen, there should always be one of each
         if (!subscriptionFound)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                 "SipSubscriptionMgr::endSubscription Could not find subscription in mSubscriptionStateResourceIndex for content key '%s', dialog handle '%s'",
                           contentKey.data(),
                           dialogHandle.data());
@@ -1225,7 +1225,7 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle,
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "SipSubscriptionMgr::endSubscription Could not find subscription in mSubscriptionStatesByDialogHandle for dialog handle '%s'",
                      dialogHandle.data());
     }
@@ -1250,12 +1250,12 @@ void SipSubscriptionMgr::removeOldSubscriptions(long unsigned oldEpochTimeSecond
         {
             if(stateIndex->mpState->mExpirationDate < oldEpochTimeSeconds)
             {
-                if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
                 {
                    UtlString requestContact;
                    stateIndex->mpState->mpLastSubscribeRequest->
                       getContactField(0, requestContact);
-                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                  "SipSubscriptionMgr::removeOldSubscriptions delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
                                  stateIndex->mpState->data(),
                                  stateIndex->data(), requestContact.data(),
@@ -1271,10 +1271,10 @@ void SipSubscriptionMgr::removeOldSubscriptions(long unsigned oldEpochTimeSecond
         }
         else
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                 "SipSubscriptionMgr::removeOldSubscriptions SubscriptionServerStateIndex with NULL mpState, deleting");
             mSubscriptionStateResourceIndex.removeReference(stateIndex);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipSubscriptionMgr::removeOldSubscriptions delete subscription for key '%s'",
                           stateIndex->data());
             delete stateIndex;
@@ -1299,13 +1299,13 @@ void SipSubscriptionMgr::newNotify(const UtlString& dialogHandle)
       // Set its resend interval to the minimum.
       state->mNextResendInterval = sInitialNextResendInterval;
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipSubscriptionMgr::newNotify setting timer for dialog '%s' to %d seconds",
                     dialogHandle.data(), state->mNextResendInterval);
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipSubscriptionMgr::newNotify Could not find subscription in mSubscriptionStatesByDialogHandle for dialog handle '%s'",
                     dialogHandle.data());
    }
@@ -1349,7 +1349,7 @@ void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle)
          {
             OsTime t(interval, 0);
             state->mResendTimer.oneshotAfter(t);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipSubscriptionMgr::startResendTimer "
                           "scheduling timer for subscription '%s' in %d seconds, "
                           "mNextResendInterval = %d",
@@ -1358,7 +1358,7 @@ void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle)
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipSubscriptionMgr::startResendTimer "
                           "timer for subscription '%s' "
                           "firing in %d seconds, sooner than requested %d seconds, "
@@ -1370,7 +1370,7 @@ void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle)
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipSubscriptionMgr::startResendTimer "
                        "Not starting resend timer for dialog '%s' "
                        "because interval (%d) exceeds maximum (%d)",
@@ -1379,7 +1379,7 @@ void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipSubscriptionMgr::startResendTimer Could not find subscription in mSubscriptionStatesByDialogHandle for dialog handle '%s'",
                     dialogHandle.data());
    }
@@ -1402,13 +1402,13 @@ void SipSubscriptionMgr::successResponse(const UtlString& dialogHandle)
       // Clear the "send full content in next NOTIFY" bit.
       state->mFullContentForNextNotify = false;
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipSubscriptionMgr::successResponse clearing full-content flag of dialog '%s'",
                     dialogHandle.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipSubscriptionMgr::successResponse Could not find subscription in mSubscriptionStatesByDialogHandle for dialog handle '%s'",
                     dialogHandle.data());
    }
@@ -1472,14 +1472,14 @@ void SipSubscriptionMgr::updateNotifyVersion(SipContentVersionCallback setConten
          version = ++state->mDialogVer;
          eventTypeKey = state->mEventTypeKey;
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipSubscriptionMgr::updateNotifyVersion "
                        "dialogHandle = '%s', new mDialogVer = %d, eventTypeKey = '%s'",
                        dialogHandle.data(), state->mDialogVer, eventTypeKey.data());
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipSubscriptionMgr::updateNotifyVersion Unable to find dialog state for handle '%s'",
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipSubscriptionMgr::updateNotifyVersion Unable to find dialog state for handle '%s'",
                        dialogHandle.data());
       }
    }
@@ -1504,7 +1504,7 @@ UtlBoolean SipSubscriptionMgr::setSubscriptionTimes(int minExpiration,
    if (!(minExpiration <= defaultExpiration &&
          defaultExpiration <= maxExpiration))
    {
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                       "Arguments to SipSubscriptionMgr::setSubscriptionTimes not in order: minExpiration = %d, defaultExpiration = %d, maxExpiration = %d",
                       minExpiration, defaultExpiration, maxExpiration);
    }
@@ -1512,7 +1512,7 @@ UtlBoolean SipSubscriptionMgr::setSubscriptionTimes(int minExpiration,
    else if (!(LIMIT_MIN_EXPIRATION <= minExpiration &&
               maxExpiration <= LIMIT_MAX_EXPIRATION))
    {
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                       "Arguments to SipSubscriptionMgr::setSubscriptionTimes not within allowed range: minExpiration = %d, maxExpiration = %d, allowed range = [%d, %d]",
                       minExpiration, maxExpiration,
                       LIMIT_MIN_EXPIRATION, LIMIT_MAX_EXPIRATION);
@@ -1524,7 +1524,7 @@ UtlBoolean SipSubscriptionMgr::setSubscriptionTimes(int minExpiration,
       mDefaultExpiration = defaultExpiration;
       mMaxExpiration = maxExpiration;
       ret = TRUE;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipSubscriptionMgr::setSubscriptionTimes set mMinExpiration = %d, mDefaultExpiration = %d, mMaxExpiration = %d",
                     mMinExpiration, mDefaultExpiration, mMaxExpiration);
    }
@@ -1607,7 +1607,7 @@ void SipSubscriptionMgr::dumpState()
 
    // indented 4
 
-   OsSysLog::add(FAC_SIP, PRI_INFO,
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                  "\t    SipSubscriptionMgr %p",
                  this);
 

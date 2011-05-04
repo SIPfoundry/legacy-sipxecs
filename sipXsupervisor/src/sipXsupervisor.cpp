@@ -17,7 +17,8 @@
 
 // APPLICATION INCLUDES
 #include "net/NameValueTokenizer.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
+#include "os/OsLoggerHelper.h"
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
 #include "os/OsSSLServerSocket.h"
@@ -78,7 +79,7 @@ void cleanup()
 
     cAlarmServer::getInstance()->cleanup();
 
-    OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution Completed.");
+    Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ALERT,"Execution Completed.");
 
     //cause main loop to exit
     gbDone = TRUE;
@@ -106,20 +107,20 @@ void sig_routine(int sig)
 #ifdef DEBUG
        osPrintf("Execution CHILD exited; ignoring\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_SUPERVISOR,PRI_DEBUG,"Execution CHILD exited; ignoring");
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_DEBUG,"Execution CHILD exited; ignoring");
        return;
        break;
        case SIGINT:
 #ifdef DEBUG
        osPrintf("Execution USER ABORTED!\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution USER ABORTED!");
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ALERT,"Execution USER ABORTED!");
        break;
     case SIGABRT:
 #ifdef DEBUG
        osPrintf("Execution ABORTED!\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution ABORTED!");
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ALERT,"Execution ABORTED!");
        break;
 
     case SIGHUP:
@@ -127,7 +128,7 @@ void sig_routine(int sig)
 #ifdef DEBUG
        osPrintf("Received SIGHUP; ignoring\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Received SIGHUP; ignoring");
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ALERT,"Received SIGHUP; ignoring");
        return;
     }
 
@@ -136,7 +137,7 @@ void sig_routine(int sig)
 #ifdef DEBUG
        osPrintf("Execution TERMINATED!\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution TERMINATED!");
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ALERT,"Execution TERMINATED!");
        gbShutdown = true;
        return;
        break;
@@ -146,13 +147,13 @@ void sig_routine(int sig)
 #ifdef DEBUG
        osPrintf("Execution KILLED!\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution KILLED!");
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ALERT,"Execution KILLED!");
        break;
     default:
 #ifdef DEBUG
        osPrintf("Received unexpected signal %d, shutting down.\n", sig);
 #endif /* DEBUG */
-       OsSysLog::add(FAC_SUPERVISOR,PRI_EMERG,"UNEXPECTED SIGNAL: %d shutting down!", sig);
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_EMERG,"UNEXPECTED SIGNAL: %d shutting down!", sig);
        break;
     }
 
@@ -180,7 +181,7 @@ public:
          res = awaitSignal(sig_num);
          if (res != OS_SUCCESS)
          {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ALERT, "awaitSignal() errno=%d", errno);
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ALERT, "awaitSignal() errno=%d", errno);
          }
 
          // Call the original signal handler.  Pass -1 on error from awaitSignal
@@ -411,21 +412,21 @@ int supervisorMain(bool bOriginalSupervisor)
     enableConsoleOutput(true);
 
     // Initialize the log file.
-    OsSysLog::initialize(0, "Supervisor") ;
+    Os::LoggerHelper::instance().processName = "Supervisor";
     UtlString logFile = SipXecsService::Path(SipXecsService::LogDirType, "sipxsupervisor.log");
-    OsSysLog::setOutputFile(0, logFile) ;
-    OsSysLog::setLoggingPriority(PRI_DEBUG);
+    Os::LoggerHelper::instance().initialize(PRI_DEBUG, logFile.data());
+
     if (!bOriginalSupervisor)
     {
-       OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
+       Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT,
                      "Restarting sipxsupervisor after unexpected shutdown");
     }
-    OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
+    Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE,
                   ">>>>> Starting sipxsupervisor version %s",
                   VERSION);
 
     // Now that the log file is initialized, stop sending osPrintf to the console.
-    // All relevant log messages from this point on must use OsSysLog::add().
+    // All relevant log messages from this point on must use Os::Logger::instance().log().
     enableConsoleOutput(false);
     fflush(NULL); // Flush all output so children don't get a buffer of output
 
@@ -435,7 +436,7 @@ int supervisorMain(bool bOriginalSupervisor)
                                                        CONFIG_SETTINGS_FILE);
     if (OS_SUCCESS != supervisorConfiguration.loadFromFile(supervisorConfigPath.data()))
     {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_WARNING,
                      "Failed to open supervisor configuration file at '%s'",
                      supervisorConfigPath.data()
                      );
@@ -443,14 +444,14 @@ int supervisorMain(bool bOriginalSupervisor)
 
     // Set logging based on the supervisor configuration - TODO change default to "NOTICE" ?
     OsSysLogPriority logPri = SipXecsService::setLogPriority(supervisorConfiguration, SUPERVISOR_PREFIX, PRI_INFO );
-    OsSysLog::setLoggingPriorityForFacility(FAC_ALARM, logPri);
+    Os::Logger::instance().setLoggingPriorityForFacility(FAC_ALARM, logPri);
 
     // Open the domain configuration file
     OsConfigDb domainConfiguration;
     OsPath domainConfigPath = SipXecsService::domainConfigPath();
     if (OS_SUCCESS != domainConfiguration.loadFromFile(domainConfigPath.data()))
     {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ERR,
                      "Failed to open domain configuration '%s'",
                      domainConfigPath.data()
                      );
@@ -460,7 +461,7 @@ int supervisorMain(bool bOriginalSupervisor)
     managementPortNumber = domainConfiguration.getPort(SipXecsService::DomainDbKey::SUPERVISOR_PORT);
     if (PORT_NONE == managementPortNumber)
     {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_WARNING,
                      "%s not configured in '%s', using default: %d",
                      SipXecsService::DomainDbKey::SUPERVISOR_PORT,
                      domainConfigPath.data(), DEFAULT_SUPERVISOR_PORT
@@ -469,7 +470,7 @@ int supervisorMain(bool bOriginalSupervisor)
     }
     else if (PORT_DEFAULT == managementPortNumber)
     {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_NOTICE,"%s set to default: %d",
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_NOTICE,"%s set to default: %d",
                      SipXecsService::DomainDbKey::SUPERVISOR_PORT, DEFAULT_SUPERVISOR_PORT
                      );
        managementPortNumber=DEFAULT_SUPERVISOR_PORT;
@@ -488,7 +489,7 @@ int supervisorMain(bool bOriginalSupervisor)
           // Found at least one config hostname.
           if (!allowedPeers.contains(&hostName))
           {
-             OsSysLog::add(FAC_SUPERVISOR,PRI_DEBUG,
+             Os::Logger::instance().log(FAC_SUPERVISOR,PRI_DEBUG,
                            "%s value '%s'",
                            SipXecsService::DomainDbKey::CONFIG_HOSTS,
                            hostName.data()
@@ -499,7 +500,7 @@ int supervisorMain(bool bOriginalSupervisor)
     }
     else
     {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ERR,
                      "%s not configured in '%s'",
                      SipXecsService::DomainDbKey::CONFIG_HOSTS, domainConfigPath.data()
                      );
@@ -516,7 +517,7 @@ int supervisorMain(bool bOriginalSupervisor)
     }
     else
     {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ERR,
                      "%s not configured in '%s'",
                      SUPERVISOR_HOST, supervisorConfigPath.data()
                      );
@@ -524,13 +525,13 @@ int supervisorMain(bool bOriginalSupervisor)
 
     if (allowedPeers.isEmpty())
     {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+       Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ERR,
                      "No configuration peers configured.");
     }
 
     if (!cAlarmServer::getInstance()->init())
     {
-       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+       Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
              "sipXsupervisor failed to init AlarmServer");
     }
 
@@ -543,12 +544,12 @@ int supervisorMain(bool bOriginalSupervisor)
 
     if (serverSocket.isOk())
     {
-       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Starting Management HTTP Server");
+       Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "Starting Management HTTP Server");
        httpServer.start();
     }
     else
     {
-       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Management listening socket failure");
+       Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "Management listening socket failure");
     }
 
     // Read the process definitions.

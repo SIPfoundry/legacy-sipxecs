@@ -43,7 +43,8 @@
 #include "net/SipLineMgr.h"
 #include "net/SipRefreshMgr.h"
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
+#include "os/OsLoggerHelper.h"
 #include "os/OsTimerTask.h"
 #include "os/OsStunAgentTask.h"
 #include "net/TapiMgr.h"
@@ -100,8 +101,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 static void initLogger()
 {
-    OsSysLog::initialize(0, // do not cache any log messages in memory
-                        "sipXtapi"); // name for messages from this program
+    Os::LoggerHelper::instance().processName = "sipXtapi";
 }
 
 
@@ -260,7 +260,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                         const char* szBindToAddr,
                                         bool      bUseSequentialPorts)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxInitialize tcpPort=%d udpPort=%d tlsPort=%d rpPortStart=%d maxConnections=%d Identity=%s bindTo=%s bSequentialPorts=%d",
         tcpPort, udpPort, tlsPort, rtpPortStart, maxConnections, szIdentity, szBindToAddr, bUseSequentialPorts) ;
 
@@ -359,7 +359,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
             // The user agent failed to bind to the request port(s).  Return
             // error and cleanup.
             rc = SIPX_RESULT_OUT_OF_RESOURCES ;
-            OsSysLog::add(FAC_SIPXTAPI, PRI_NOTICE, "sipxInitialize failed; SipUserAgent reported problem") ;
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_NOTICE, "sipxInitialize failed; SipUserAgent reported problem") ;
 
             delete pInst->pLock ;
             delete pInst->pSipUserAgent ;
@@ -503,7 +503,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
 {
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxUnInitialize hInst=%p",
         hInst);
 
@@ -630,7 +630,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
         }
         else
         {
-            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                 "Unable to shut down busy SIPX_INST (%p) nCalls=%d, nLines=%d, nConferences=%d",
                         hInst, nCalls, nLines, nConferences) ;
             rc = SIPX_RESULT_BUSY ;
@@ -646,7 +646,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
 SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
                                         SIPX_VIDEO_DISPLAY* const pDisplay)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallAccept hCall=%u display=%p",
         hCall, pDisplay);
 
@@ -699,7 +699,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallReject(const SIPX_CALL hCall,
                                         const int errorCode,
                                         const char* szErrorText)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallReject hCall=%u",
         hCall);
 
@@ -724,7 +724,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallReject(const SIPX_CALL hCall,
 
 SIPXTAPI_API SIPX_RESULT sipxCallRedirect(const SIPX_CALL hCall, const char* szForwardURL)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallRedirect hCall=%u forwardURL=%s",
         hCall, szForwardURL);
 
@@ -750,7 +750,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallRedirect(const SIPX_CALL hCall, const char* szF
 
 SIPXTAPI_API SIPX_RESULT sipxCallAnswer(const SIPX_CALL hCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallAnswer hCall=%u",
         hCall);
 
@@ -892,7 +892,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallCreate(const SIPX_INST hInst,
                                         const SIPX_LINE hLine,
                                         SIPX_CALL*  phCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallCreate hInst=%p hLine=%u phCall=%p",
         hInst, hLine, phCall);
 
@@ -909,7 +909,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallCreate(const SIPX_INST hInst,
         sipxFireCallEvent(pInst->pCallManager, callId.data(), &session, NULL, DIALTONE, DIALTONE_UNKNOWN) ;
     }
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
                   "sipxCallCreate returns hInst=%p hLine=%u phCall=%p hCall=%u",
                   hInst, hLine, phCall,
                   (rc == SIPX_RESULT_SUCCESS ? *phCall : -1));
@@ -925,7 +925,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                                          const char* szFrom,
                                          const bool sendPAIheader)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
                   "sipxCallConnect "
                   "hCall=%u szAddress='%s' contactId=%d"
                   "szCallId='%s' szFrom='%s' sendPAIheader=%d",
@@ -976,7 +976,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
             }
             // Set the OutboundLine (From Address)
             // Use szFrom if not NULL, otherwise get it from lineId
-            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
                           "sipxCallConnect "
                           "hCall=%u szFrom=%s lineId=%s",
                           hCall, szFrom, lineId.data());
@@ -998,7 +998,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                     delete pData->sessionCallId ;
                 }
                 pData->sessionCallId = new UtlString(sessionId.data()) ;
-                OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
                               "sipxCallConnect "
                               "hCall=%u szAddress='%s' contactId=%d, prSsessionCallId %p, SessionId '%s'",
                               hCall, szAddress, contactId, pData->sessionCallId, sessionId.data());
@@ -1029,7 +1029,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 int numAddresses = 0 ;
                 UtlString address ;
                 OsStatus rc = pInst->pCallManager->getCalledAddresses(callId.data(), 1, numAddresses, &address) ;
-                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
                               "sipxCallConnect connected "
                               "hCall=%u callId=%s, numAddr = %d, addr = '%s'",
                               hCall, callId.data(), numAddresses, address.data());
@@ -1076,7 +1076,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
 
 SIPXTAPI_API SIPX_RESULT sipxCallHold(const SIPX_CALL hCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallHold hCall=%u",
         hCall);
 
@@ -1107,7 +1107,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallHold(const SIPX_CALL hCall)
 
 SIPXTAPI_API SIPX_RESULT sipxCallUnhold(const SIPX_CALL hCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallUnhold hCall=%u",
         hCall);
 
@@ -1143,7 +1143,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnhold(const SIPX_CALL hCall)
 
 SIPXTAPI_API SIPX_RESULT sipxCallDestroy(SIPX_CALL& hCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallDestroy hCall=%u",
         hCall);
 
@@ -1202,7 +1202,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetID(const SIPX_CALL hCall,
                                        char* szId,
                                        const size_t iMaxLength)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallGetID hCall=%u",
         hCall);
 
@@ -1226,7 +1226,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetLocalID(const SIPX_CALL hCall,
                                             char* szId,
                                             const size_t iMaxLength)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallGetLocalID hCall=%u",
         hCall);
 
@@ -1252,7 +1252,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteID(const SIPX_CALL hCall,
                                              char* szId,
                                              const size_t iMaxLength)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallGetRemoteID hCall=%u",
         hCall);
 
@@ -1315,7 +1315,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRequestURI(const SIPX_CALL hCall,
                                                char* szUri,
                                                const size_t iMaxLength)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallGetRequestURI hCall=%u",
         hCall);
 
@@ -1351,7 +1351,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRequestURI(const SIPX_CALL hCall,
             }
             else
             {
-               OsSysLog::add(FAC_ACD, PRI_ERR,
+               Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                              "sipxCallGetRequestURI - Failed call to getSipDialog(%s, %s)",
                              callId.data(), remoteAddress.data());
             }
@@ -1369,7 +1369,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteContact(const SIPX_CALL hCall,
                                                   char* szContact,
                                                   const size_t iMaxLength)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallGetRemoteContact hCall=%u",
         hCall);
 
@@ -1406,7 +1406,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteContact(const SIPX_CALL hCall,
             }
             else
             {
-               OsSysLog::add(FAC_ACD, PRI_ERR,
+               Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                              "sipxCallGetRemoteContact - Failed call to getSipDialog(%s, %s)",
                              callId.data(), remoteAddress.data());
             }
@@ -1426,7 +1426,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,
                                            const bool bLocal,
                                            const bool bRemote)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallStartTone hCall=%u ToneId=%d bLocal=%d bRemote=%d",
         hCall, toneId, bLocal, bRemote);
 
@@ -1467,7 +1467,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,
 
 SIPXTAPI_API SIPX_RESULT sipxCallStopTone(const SIPX_CALL hCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallStopTone hCall=%u",
         hCall);
 
@@ -1506,7 +1506,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayFileStart(const SIPX_CALL hCall,
                                                const bool bLocal,
                                                const bool bRemote)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallPlayFileStart hCall=%u File=%s bLocal=%d bRemote=%d bRepeat=%d",
         hCall, szFile, bLocal, bRemote, bRepeat);
 
@@ -1534,7 +1534,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayFileStart(const SIPX_CALL hCall,
 
 SIPXTAPI_API SIPX_RESULT sipxCallPlayFileStop(const SIPX_CALL hCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallPlayFileStop hCall=%u", hCall);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
@@ -1564,7 +1564,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStart(const SIPX_CALL hCall,
                                                  const bool bLocal,
                                                  const bool bRemote)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallPlayBufferStart hCall=%u Buffer=%p Size=%d Type=%d bLocal=%d bRemote=%d bRepeat=%d",
         hCall, szBuffer, bufSize, bufType, bLocal, bRemote, bRepeat);
 
@@ -1592,7 +1592,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStart(const SIPX_CALL hCall,
 
 SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallPlayBufferStop hCall=%u", hCall);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
@@ -1620,7 +1620,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
                                            SIPX_SUB* phSub,
                                            bool bRemoteContactIsGruu)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallSubscribe hCall=%u szEventType=\"%s\" szAcceptType=\"%s\"",
         hCall,
         szEventType ? szEventType : "<null>",
@@ -1690,7 +1690,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
                 contactField.length() <= 4)
             {
                 sessionDataGood = FALSE;
-                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                     "sipxCallSubscribe bad session data: hCall=%u szEventType=\"%s\" szAcceptType=\"%s\" resourceId=\"%s\" From=\"%s\" To=\"%s\" Contact=\"%s\"",
                     hCall,
                     szEventType ? szEventType : "<null>",
@@ -1704,7 +1704,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
             // Session data is big enough
             else
             {
-                OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
                     "sipxCallSubscribe subscribing: hCall=%u szEventType=\"%s\" szAcceptType=\"%s\" resourceId=\"%s\" From=\"%s\" To=\"%s\" Contact=\"%s\"",
                     hCall,
                     szEventType ? szEventType : "<null>",
@@ -1736,7 +1736,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
         // Could not find session for given call handle
         else
         {
-            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                 "sipxCallSubscribe: could not get session for call handle: %u callId: %s remote address: %s",
                 hCall, callId.data(), remoteAddress.data());
             sipXresult = SIPX_RESULT_INVALID_ARGS;
@@ -1744,7 +1744,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
     }
     else
     {
-        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                       "sipxCallSubscribe: could not find call data for call handle: %u",
                       hCall);
         sipXresult = SIPX_RESULT_INVALID_ARGS;
@@ -1757,7 +1757,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
 SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
 {
     SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallSubscribe hSub=%" PRIdPTR, hSub);
 
     SIPX_SUBSCRIPTION_DATA* subscriptionData =
@@ -1772,7 +1772,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
         }
         else
         {
-            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                 "sipxCallUnsubscribe endSubscription failed for subscription handle: %" PRIdPTR " dialog handle: \"%s\"",
                 hSub,
                 subscriptionData->pDialogHandle->data());
@@ -1795,7 +1795,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
     // Invalid subscription handle
     else
     {
-        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
             "sipxCallUnsubscribe: cannot find subscription data for handle: %" PRIdPTR,
             hSub);
         sipXresult = SIPX_RESULT_INVALID_ARGS;
@@ -1809,7 +1809,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
 SIPXTAPI_API SIPX_RESULT sipxCallBlindTransfer(const SIPX_CALL hCall,
                                                const char* pszAddress)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallBlindTransfer hCall=%u Address=%s",
         hCall, pszAddress);
 
@@ -1863,7 +1863,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallBlindTransfer(const SIPX_CALL hCall,
 SIPXTAPI_API SIPX_RESULT sipxCallTransfer(const SIPX_CALL hSourceCall,
                                           const SIPX_CALL hTargetCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallTransfer hSourceCall=%u hTargetCall=%u\n",
         hSourceCall, hTargetCall);
 
@@ -1899,7 +1899,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSendInfo(SIPX_INFO* phInfo,
                                           const char*        szContent,
                                           const size_t nContentLength)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallSendInfo phInfo=%p hCall=%u contentType=%s content=%p contentLength=%zu",
         phInfo, hCall, szContentType, szContent, nContentLength);
 
@@ -1970,7 +1970,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                                              const char* pContent,
                                              const size_t nContentLength)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxPublisherCreate hInst=%p szResourceId=\"%s\" szEventType=\"%s\" szContentType=\"%s\" pContent=\"%s\" nContentLength=%zu",
         hInst,
         szResourceId ? szResourceId : "<null>",
@@ -2020,13 +2020,13 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
     else
     {
         sipXresult = SIPX_RESULT_INVALID_ARGS;
-        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
             "sipxPublisherCreate: argument szEventType is NULL");
     }
 
     if(oldContentPtr)
     {
-        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
             "sipxPublisherCreate: content already exists for resourceId: %s and eventType: %s",
             szResourceId ? szResourceId : "<null>",
             szEventType ? szEventType : "<null>");
@@ -2118,7 +2118,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
                                              const char* pContent,
                                              const size_t nContentLength)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxPublisherUpdate hPub=%u szContentType=\"%s\" pContent=\"%s\" nContentLength=%zu",
         hPub,
         szContentType ? szContentType : "<null>",
@@ -2152,7 +2152,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
         }
         else
         {
-            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                 "sipxPublisherUpdate: no publisher for event type: %s",
                 pData->pEventType->data());
             sipXresult = SIPX_RESULT_FAILURE;
@@ -2173,7 +2173,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherDestroy(const SIPX_PUB hPub,
                                               const char* pFinalContent,
                                               const size_t nContentLength)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxDestroyPublisher hPub=%u szContentType=\"%s\" pFinalContent=\"%s\" nContentLength=%zu",
         hPub,
         szContentType ? szContentType : "<null>",
@@ -2260,7 +2260,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceCreate(const SIPX_INST hInst,
 {
     SIPX_RESULT rc = SIPX_RESULT_OUT_OF_MEMORY ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceCreate hInst=%p phConference=%p",
         hInst, phConference);
 
@@ -2295,7 +2295,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceCreate(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
                                             const SIPX_CALL hCall, bool mTransferFlag)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceJoin hConf=%u hCall=%u",
         hConf, hCall);
 
@@ -2363,7 +2363,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
 
                 sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE) ;
 #ifdef DUMP_CALL
-                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** ConfJoin1:CallDump***\nhCall %d\n****callId %s\n***ghostCallId %s\n***bRemoveInsteadOfDrop %d\n***lineId %s\n",
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG, "***************** ConfJoin1:CallDump***\nhCall %d\n****callId %s\n***ghostCallId %s\n***bRemoveInsteadOfDrop %d\n***lineId %s\n",
                         hCall,
                         pCallData->callId ? pCallData->callId->data() : NULL,
                         pCallData->ghostCallId ? pCallData->ghostCallId->data() : NULL,
@@ -2391,7 +2391,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
             // If the call fails -- hard to recover, drop the call anyways.
             pInst->pCallManager->drop(sourceCallId) ;
 #ifdef DUMP_CALL
-        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** ConfJoin2:CallDump***\nhCall %d\n****callId %s\n***ghostCallId %s\n***bRemoveInsteadOfDrop %d\n***lineId %s\n",
+        Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG, "***************** ConfJoin2:CallDump***\nhCall %d\n****callId %s\n***ghostCallId %s\n***bRemoveInsteadOfDrop %d\n***lineId %s\n",
 
                 hCall,
 
@@ -2417,7 +2417,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
 SIPXTAPI_API SIPX_RESULT sipxConferenceSplit(const SIPX_CONF hConf,
                                              const SIPX_CALL hCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceSplit hConf=%u hCall=%u",
         hConf, hCall);
 
@@ -2495,7 +2495,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                                            SIPX_CONTACT_ID contactId,
                                            SIPX_VIDEO_DISPLAY* const pDisplay)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceAdd hConf=%u hLine=%u szAddress=%s contactId=%d, pDisplay=%p",
         hConf, hLine, szAddress, contactId, pDisplay);
 
@@ -2640,7 +2640,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
 SIPXTAPI_API SIPX_RESULT sipxConferenceRemove(const SIPX_CONF hConf,
                                               const SIPX_CALL hCall)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceRemove hConf=%u hCall=%u",
         hConf, hCall);
 
@@ -2663,7 +2663,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceRemove(const SIPX_CONF hConf,
         else
         {
             // Either the call or conf doesn't exist
-           OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+           Os::Logger::instance().log(FAC_SIPXTAPI, PRI_WARNING,
                          "sipxConferenceRemove hConf=%u hCall=%u Call or conference doesn't exist.",
                          hConf, hCall);
            rc = SIPX_RESULT_FAILURE ;
@@ -2681,7 +2681,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceGetCalls(const SIPX_CONF hConf,
                                                 const size_t iMax,
                                                 size_t& nActual)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceGetCalls hConf=%u",
         hConf);
 
@@ -2717,7 +2717,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceHold(const SIPX_CONF hConf, bool bBridgin
 {
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceHold hConf=%u bBridging=%d",
         hConf,
         bBridging);
@@ -2755,7 +2755,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceUnhold(const SIPX_CONF hConf)
 {
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceUnHold hConf=%u",
         hConf);
 
@@ -2789,7 +2789,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceUnhold(const SIPX_CONF hConf)
 
 SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceDestroy hConf=%u",
         hConf);
 
@@ -2816,7 +2816,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
            }
            else
            {
-              OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+              Os::Logger::instance().log(FAC_SIPXTAPI, PRI_WARNING,
                             "sipxConferenceDestroy hConf=%d does not exist",
                             hConf);
               assert(FALSE);
@@ -2840,7 +2840,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
 
 static void initMicSettings(MIC_SETTING* pMicSetting)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "initMicSettings micSettings=%p",
         pMicSetting);
 
@@ -2852,7 +2852,7 @@ static void initMicSettings(MIC_SETTING* pMicSetting)
 
 static void initSpeakerSettings(SPEAKER_SETTING* pSpeakerSetting)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "initSpeakerSettings speakerSettings=%p",
         pSpeakerSetting);
 
@@ -2865,7 +2865,7 @@ static void initSpeakerSettings(SPEAKER_SETTING* pSpeakerSetting)
 SIPXTAPI_API SIPX_RESULT sipxAudioSetGain(const SIPX_INST hInst,
                                           const int iLevel)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioSetGain hInst=%p iLevel=%d",
         hInst, iLevel);
 
@@ -2925,7 +2925,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetGain(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioGetGain(const SIPX_INST hInst,
                                           int& iLevel)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioGetGain hInst=%p",
         hInst);
 
@@ -2964,7 +2964,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetGain(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioMute(const SIPX_INST hInst,
                                        const bool bMute)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioMute hInst=%p bMute=%d",
         hInst, bMute);
 
@@ -3031,7 +3031,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioMute(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioIsMuted(const SIPX_INST hInst,
                                           bool &bMuted)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioIsMuted hInst=%p",
         hInst);
 
@@ -3062,7 +3062,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioIsMuted(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioEnableSpeaker(const SIPX_INST hInst,
                                                 const SPEAKER_TYPE type)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioEnableSpeaker hInst=%p type=%d",
         hInst, type);
 
@@ -3137,7 +3137,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioEnableSpeaker(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioGetEnabledSpeaker(const SIPX_INST hInst,
                                                     SPEAKER_TYPE& type)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioGetEnabledSpeaker hInst=%p",
         hInst);
 
@@ -3158,7 +3158,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetVolume(const SIPX_INST hInst,
                                             const SPEAKER_TYPE type,
                                             const int iLevel)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioSetVolume hInst=%p type=%d iLevel=%d",
         hInst, type, iLevel);
 
@@ -3169,7 +3169,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetVolume(const SIPX_INST hInst,
     assert(iLevel >= VOLUME_MIN) ;
     assert(iLevel <= VOLUME_MAX) ;
 
-    OsSysLog::add(FAC_LOG, PRI_ERR, "DEBUG: Testing callback\n");
+    Os::Logger::instance().log(FAC_LOG, PRI_ERR, "DEBUG: Testing callback\n");
 
 
     if (pInst)
@@ -3230,7 +3230,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetVolume(const SIPX_INST hInst,
                                             const SPEAKER_TYPE type,
                                             int& iLevel)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioGetVolume hInst=%p type=%d",
         hInst, type);
 
@@ -3269,7 +3269,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioEnableAEC(const SIPX_INST hInst,
     SIPX_RESULT sr = SIPX_RESULT_FAILURE;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
             "sipxAudioEnableAEC hInst=%p bEnable=%d",
             hInst, bEnable);
 
@@ -3302,7 +3302,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioIsAECEnabled(const SIPX_INST hInst,
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
     UtlBoolean ubEnabled;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
             "sipxAudioIsAECEnabled hInst=%p",
             hInst);
 
@@ -3336,7 +3336,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioIsAECEnabled(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioGetNumInputDevices(const SIPX_INST hInst,
                                                      size_t& numDevices)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioGetNumInputDevices hInst=%p",
         hInst);
 
@@ -3365,7 +3365,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetInputDevice(const SIPX_INST hInst,
                                                  const int index,
                                                  const char*& szDevice)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioGetInputDevice hInst=%p index=%d",
         hInst, index);
 
@@ -3386,7 +3386,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetInputDevice(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioGetNumOutputDevices(const SIPX_INST hInst,
                                                       size_t& numDevices)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioGetNumOutputDevices hInst=%p",
         hInst);
 
@@ -3415,7 +3415,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetOutputDevice(const SIPX_INST hInst,
                                                   const int index,
                                                   const char*& szDevice)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioGetOutputDevice hInst=%p index=%d",
         hInst, index);
 
@@ -3435,7 +3435,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetOutputDevice(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
                                                      const char* szDevice)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioSetCallInputDevice hInst=%p device=%s",
         hInst, szDevice);
 
@@ -3500,7 +3500,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
                                                         const char* szDevice)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioSetRingerOutputDevice hInst=%p device=%s",
         hInst, szDevice);
 
@@ -3565,7 +3565,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
                                                       const char* szDevice)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioSetCallOutputDevice hInst=%p device=%s",
         hInst, szDevice);
 
@@ -3638,7 +3638,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
                                      SIPX_CONTACT_ID contactId)
 
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
                             "sipxLineAdd "
                             "hInst=%p lineUrl=%s, phLine=%p contactId=%d",
                             hInst, szLineUrl, phLine, contactId);
@@ -3692,7 +3692,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
             sipxGetContactHostPort(pInst, (SIPX_CONTACT_TYPE)contactType, uriPreferredContact) ;
             uriPreferredContact.setUserId(userId);
             lineToAdd.setPreferredContactUri(uriPreferredContact) ;
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "Preferred Contact >>>>>>>>>> =%s",uriPreferredContact.toString().data());
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO, "Preferred Contact >>>>>>>>>> =%s",uriPreferredContact.toString().data());
 
             UtlBoolean bRC = pInst->pLineManager->addLine(lineToAdd, false) ;
             if (bRC)
@@ -3719,7 +3719,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
         }
     }
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineAdd returns hInst=%p lineUrl=%s, phLine=%p hLine=%u contactId=%d",
                   hInst, szLineUrl, phLine,
                   (sr == SIPX_RESULT_SUCCESS ? *phLine : -1),
@@ -3731,7 +3731,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
 
 SIPXTAPI_API SIPX_RESULT sipxLineAddAlias(const SIPX_LINE hLine, const char* szLineURL)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineAddAlias hLine=%u szLineURL=%s",
         hLine, szLineURL);
 
@@ -3773,7 +3773,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddAlias(const SIPX_LINE hLine, const char* szL
 
 SIPXTAPI_API SIPX_RESULT sipxLineRegister(const SIPX_LINE hLine, const bool bRegister)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineRegister hLine=%u bRegister=%d",
         hLine, bRegister);
 
@@ -3802,7 +3802,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineRegister(const SIPX_LINE hLine, const bool bReg
 
 SIPXTAPI_API SIPX_RESULT sipxLineRemove(SIPX_LINE hLine)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineRemove hLine=%u",
         hLine);
 
@@ -3855,7 +3855,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddCredential(const SIPX_LINE hLine,
                                                 const char* szPasswd,
                                                 const char* szRealm)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineAddCredential hLine=%u userId=%s realm=%s",
         hLine, szUserID, szRealm);
 
@@ -3899,7 +3899,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddDigestCredential(const SIPX_LINE hLine,
                                                      const char* szAuthHash,
                                                      const char* szRealm)
 {
-   OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+   Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
                  "sipxLineAddDigestCredential hLine='%d' userId='%s' realm='%s'"
                  "hash '%s'",
                  hLine, szUserID, szRealm, szAuthHash);
@@ -3941,7 +3941,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineGet(const SIPX_INST hInst,
                                      const size_t max,
                                      size_t& actual)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineGet hInst=%p",
         hInst);
 
@@ -3988,7 +3988,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineGetURI(const SIPX_LINE hLine,
                                         const size_t nBuffer,
                                         size_t& nActual)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineGetURI hLine=%u",
         hLine);
 
@@ -4062,7 +4062,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetLogLevel(SIPX_LOG_LEVEL logLevel)
     initLogger() ;
 
     logLevel = (logLevel == LOG_LEVEL_NONE) ? LOG_LEVEL_EMERG : logLevel;
-    OsSysLog::setLoggingPriority((const enum tagOsSysLogPriority) logLevel) ;
+    Os::Logger::instance().setLogPriority((const enum tagOsSysLogPriority) logLevel) ;
 
     return SIPX_RESULT_SUCCESS ;
 }
@@ -4070,27 +4070,15 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetLogLevel(SIPX_LOG_LEVEL logLevel)
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetLogFile(const char* szFilename)
 {
-    OsSysLog::setOutputFile(0, szFilename) ;
-
+    Os::LoggerHelper::instance().initialize(szFilename);
     return SIPX_RESULT_SUCCESS ;
 }
 
 
-SIPXTAPI_API SIPX_RESULT sipxConfigSetLogCallback(sipxLogCallback pCallback)
-{
-    SIPX_RESULT rc = SIPX_RESULT_FAILURE;
-
-    if ( OsSysLog::setCallbackFunction(pCallback) == OS_SUCCESS )
-    {
-        rc = SIPX_RESULT_SUCCESS;
-    }
-    return rc;
-}
-
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetMicAudioHook(fnMicAudioHook hookProc)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetMicAudioHook hookProc=%p",
         hookProc);
 //    MprFromMic::s_fnMicDataHook = hookProc ;
@@ -4101,7 +4089,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetMicAudioHook(fnMicAudioHook hookProc)
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetSpkrAudioHook(fnSpkrAudioHook hookProc)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetSpkrAudioHook hookProc=%p",
         hookProc);
 //    MprToSpkr::s_fnToSpeakerHook = hookProc ;
@@ -4114,7 +4102,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetSpkrAudioHook(fnSpkrAudioHook hookProc)
 SIPXTAPI_API SIPX_RESULT sipxConfigSetOutboundProxy(const SIPX_INST hInst,
                                                     const char* szProxy)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetOutboundProxy hInst=%p proxy=%s",
         hInst, szProxy);
 
@@ -4139,7 +4127,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetOutboundProxy(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetDnsSrvTimeouts(const int initialTimeoutInSecs,
                                                      const int retries)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetDnsSrvTimeouts initialTimeoutInSecs=%d retries=%d",
         initialTimeoutInSecs, retries);
 
@@ -4167,7 +4155,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetDnsSrvTimeouts(const int initialTimeoutInS
 SIPXTAPI_API SIPX_RESULT sipxConfigEnableRport(const SIPX_INST hInst,
                                                const bool bEnable)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigEnableRport hInst=%p bEnable=%d",
         hInst, bEnable);
 
@@ -4193,7 +4181,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetUserAgentName(const SIPX_INST hInst,
                                                     const char* szName,
                                                     const bool bIncludePlatform)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetUserAgentName hInst=%p szName=%s",
         hInst, szName);
 
@@ -4218,7 +4206,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetUserAgentName(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetRegisterExpiration(const SIPX_INST hInst,
                                                       const int nRegisterExpirationSecs)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetRegisterExpiration hInst=%p seconds=%d",
         hInst, nRegisterExpirationSecs);
 
@@ -4242,7 +4230,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetRegisterExpiration(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetSubscribeExpiration(const SIPX_INST hInst,
                                                       const int nSubscribeExpirationSecs)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetSubscribeExpiration hInst=%p seconds=%d",
         hInst, nSubscribeExpirationSecs);
 
@@ -4265,7 +4253,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetSubscribeExpiration(const SIPX_INST hInst,
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetDnsSrvFailoverTimeout(const SIPX_INST hInst, const int failoverTimeoutInSecs)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetDnsSrvFailoverTimeout hInst=%p seconds=%d",
         hInst, failoverTimeoutInSecs);
 
@@ -4293,7 +4281,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableStun(const SIPX_INST hInst,
                                               int iKeepAliveInSec,
                                               int stunOptions)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigEnableStun hInst=%p server=%s keepalive=%d",
         hInst, szServer, iKeepAliveInSec);
 
@@ -4331,7 +4319,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableStun(const SIPX_INST hInst,
 
 SIPXTAPI_API SIPX_RESULT sipxConfigDisableStun(const SIPX_INST hInst)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigDisableStun hInst=%p",
         hInst);
 
@@ -4378,14 +4366,14 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVersion(char* szVersion,
             rc = SIPX_RESULT_SUCCESS;
         }
     }
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetVersion=%s", szVersion);
     return rc;
 }
 
 SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipUdpPort(SIPX_INST hInst, int* pPort)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetLocalSipUdpPort hInst=%p",
         hInst);
 
@@ -4411,7 +4399,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipUdpPort(SIPX_INST hInst, int* pPor
 
 SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipTcpPort(SIPX_INST hInst, int* pPort)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetLocalSipTcpPort hInst=%p",
         hInst);
 
@@ -4438,7 +4426,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipTcpPort(SIPX_INST hInst, int* pPor
 
 SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipTlsPort(SIPX_INST hInst, int* pPort)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetLocalSipTlsPort hInst=%p",
         hInst);
 
@@ -4468,7 +4456,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
 
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
             "sipxConfigSetAudioCodecPreferences hInst=%p bandWidth=%d",
             hInst, bandWidth);
 
@@ -4504,7 +4492,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                 // Now pick preferences out of all available codecs
                 pInst->pCodecFactory->getCodecs(numCodecs, codecsArray, "audio");
 
-                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
                               "sipxConfigSetAudioCodecPreferences number of Codec = %d for hInst=%p",
                               numCodecs, hInst);
 
@@ -4519,7 +4507,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                         }
                     }
                 }
-                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
                         "sipxConfigSetAudioCodecPreferences: %s", pInst->audioCodecSetting.sPreferences.data());
 
                 if (pInst->audioCodecSetting.sPreferences.length() != 0)
@@ -4557,7 +4545,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                 {
                     // Resetting the codec preferences failed but we've already rebuilt the factory
                     // with all codecs - go to the fallback preferences and rebuild again but return failure
-                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                             "sipxConfigSetAudioCodecPreferences: Setting %d failed, falling back to preference %d",
                             bandWidth, pInst->audioCodecSetting.fallBack);
                     sipxConfigSetAudioCodecPreferences(hInst, pInst->audioCodecSetting.fallBack);
@@ -4587,7 +4575,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
 
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
             "sipxConfigSetAudioCodecByName hInst=%p codec=%s",
             hInst, szCodecName);
 
@@ -4640,7 +4628,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
                 {
                     // Codec setting by name failed - we have an empty (except for DTMF) codec factory.
                     // Fall back to previously set bandwidth Id
-                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                             "sipxConfigSetAudioCodecByName: Setting %s failed, falling back to preference %d",
                             szCodecName, pInst->audioCodecSetting.fallBack);
                     sipxConfigSetAudioCodecPreferences(hInst, pInst->audioCodecSetting.fallBack);
@@ -4668,7 +4656,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodecPreferences(const SIPX_INST hIns
         *pBandWidth = pInst->audioCodecSetting.codecPref;
         rc = SIPX_RESULT_SUCCESS;
     }
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetAudioCodecPreferences hInst=%p bandWidth=%d",
         hInst, *pBandWidth);
 
@@ -4693,7 +4681,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetNumAudioCodecs(const SIPX_INST hInst,
             rc = SIPX_RESULT_SUCCESS;
         }
     }
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetNumAudioCodecs hInst=%p numCodecs=%d",
         hInst, *pNumCodecs);
 
@@ -4734,7 +4722,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
             }
         }
     }
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetAudioCodec hInst=%p index=%d, codec-%s",
         hInst, index, codecName.data());
 
@@ -4749,7 +4737,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecPreferences(const SIPX_INST hIns
 
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
             "sipxConfigSetVideoCodecPreferences hInst=%p bandWidth=%d",
             hInst, bandWidth);
 
@@ -4796,7 +4784,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecPreferences(const SIPX_INST hIns
                         }
                     }
                 }
-                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
                         "sipxConfigSetVideoCodecPreferences: %s", pInst->videoCodecSetting.sPreferences.data());
 
                 if (pInst->videoCodecSetting.sPreferences.length() != 0)
@@ -4834,7 +4822,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecPreferences(const SIPX_INST hIns
                 {
                     // Resetting the codec preferences failed but we've already rebuilt the factory
                     // with all codecs - go to the fallback preferences and rebuild again but return failure
-                    OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+                    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_WARNING,
                             "sipxConfigSetVideoCodecPreferences: Setting %d failed, falling back to preference %d",
                             bandWidth, pInst->videoCodecSetting.fallBack);
                     if (bandWidth != pInst->videoCodecSetting.fallBack)
@@ -4871,7 +4859,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodecPreferences(const SIPX_INST hIns
         *pBandWidth = pInst->videoCodecSetting.codecPref;
         rc = SIPX_RESULT_SUCCESS;
     }
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetVideoCodecPreferences hInst=%p bandWidth=%d",
         hInst, *pBandWidth);
 
@@ -4896,7 +4884,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetNumVideoCodecs(const SIPX_INST hInst,
             rc = SIPX_RESULT_SUCCESS;
         }
     }
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetNumVideoCodecs hInst=%p numCodecs=%d",
         hInst, *pNumCodecs);
 
@@ -4937,7 +4925,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst,
             }
         }
     }
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetVideoCodec hInst=%p index=%d, codec-%s",
         hInst, index, codecName.data());
 
@@ -4952,7 +4940,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
 
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
             "sipxConfigSetVideoCodecByName hInst=%p codec=%s",
             hInst, szCodecName);
 
@@ -5004,7 +4992,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
                 {
                     // Codec setting by name failed - we have an empty (except for DTMF) codec factory.
                     // Fall back to previously set bandwidth Id
-                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                             "sipxConfigSetVideoCodecByName: Setting %s failed, falling back to preference %d",
                             szCodecName, pInst->videoCodecSetting.fallBack);
                     //sipxConfigSetVideoCodecPreferences(hInst, pInst->audioCodecSetting.fallBack);
@@ -5022,7 +5010,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
 
 SIPXTAPI_API SIPX_RESULT sipxConfigEnableDnsSrv(const bool enable)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
             "sipxConfigEnableDnsSrv bEnable=%d",
             enable);
 
@@ -5040,7 +5028,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableOutOfBandDTMF(const SIPX_INST hInst,
 
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigEnableOutOfBandDTMF hInst=%p bEnbale=%d",
         hInst, bEnable);
 
@@ -5081,7 +5069,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigIsOutOfBandDTMFEnabled(const SIPX_INST hInst,
              rc = SIPX_RESULT_SUCCESS;
          }
     }
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigIsOutOfBandDTMFEnabled hInst=%p enabled=%d",
         hInst, enabled);
 
@@ -5115,7 +5103,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
             addresses[i].eContactType = (SIPX_CONTACT_TYPE)contacts[i]->eContactType;
             addresses[i].id = contacts[i]->id;
             addresses[i].iPort = contacts[i]->iPort;
-            OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
                 "sipxConfigGetLocalContacts index=%d contactId=%d contactType=%d port=%d address=%s adpater=%s",
                 i,
                 addresses[i].id,
@@ -5157,7 +5145,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresse
         arrAddresses[i] = szAddress;
         arrAddressAdapter[i] = szAdapter;
 
-        OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
             "sipxConfigGetAllLocalNetworkIps index=%d address=%s adapter=%s",
             i, arrAddresses[i], arrAddressAdapter[i]);
         delete utlAddresses[i];
@@ -5178,7 +5166,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallEnableSecurity(const SIPX_INST hInst,
 #ifdef VIDEO
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoPreviewDisplay(const SIPX_INST hInst, SIPX_VIDEO_DISPLAY* const pDisplay)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetVideoPreviewWindow hInst=%p, hDisplay=%p",
         hInst, pDisplay);
 
@@ -5195,7 +5183,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoPreviewDisplay(const SIPX_INST hInst,
 #ifdef VIDEO
 SIPXTAPI_API SIPX_RESULT sipxConfigUpdatePreviewWindow(const SIPX_INST hInst, const SIPX_WINDOW_HANDLE hWnd)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigUpdatePreviewWindow hInst=%p, hWnd=%p",
         hInst, hWnd);
 
@@ -5213,7 +5201,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUpdatePreviewWindow(const SIPX_INST hInst, co
 
 SIPXTAPI_API SIPX_RESULT sipxCallUpdateVideoWindow(const SIPX_CALL hCall, const SIPX_WINDOW_HANDLE hWnd)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallUpdateVideoWindow hCall=%u, hWnd=%p",
         hCall, hWnd);
 
@@ -5233,7 +5221,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUpdateVideoWindow(const SIPX_CALL hCall, const 
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoQuality(const SIPX_INST hInst, const SIPX_VIDEO_QUALITY_ID quality)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetVideoQuality hInst=%d, quality=%d",
         hInst, quality);
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
@@ -5259,7 +5247,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoParameters(const SIPX_INST hInst,
                                                       const int bitRate,
                                                       const int frameRate)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetVideoParameters hInst=%d, bitRate=%d, frameRate=%d",
         hInst, bitRate, frameRate);
 

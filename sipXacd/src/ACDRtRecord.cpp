@@ -57,7 +57,7 @@ ACDRtRecord::ACDRtRecord(UtlString& rLogDirectory) : mLock(OsMutex::Q_FIFO)
          OsPath path(rLogDirectory);
          path.getNativePath(workingDirectory);
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDRtRecord::ACDRtRecord [LogDir %s]",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDRtRecord::ACDRtRecord [LogDir %s]",
                  rLogDirectory.data());
       }
       else {
@@ -65,7 +65,7 @@ ACDRtRecord::ACDRtRecord(UtlString& rLogDirectory) : mLock(OsMutex::Q_FIFO)
          OsFileSystem::getWorkingDirectory(path);
          path.getNativePath(workingDirectory);
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDRtRecord::ACDRtRecord [LogDir %s]",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDRtRecord::ACDRtRecord [LogDir %s]",
                  workingDirectory.data());
       }
 
@@ -74,7 +74,7 @@ ACDRtRecord::ACDRtRecord(UtlString& rLogDirectory) : mLock(OsMutex::Q_FIFO)
                    RT_LOG_FILE;
    }
    else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDRtRecord::ACDRtRecord [LogDir %s]",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDRtRecord::ACDRtRecord [LogDir %s]",
                  rLogDirectory.data());
 
       mEventFile = rLogDirectory +
@@ -82,7 +82,7 @@ ACDRtRecord::ACDRtRecord(UtlString& rLogDirectory) : mLock(OsMutex::Q_FIFO)
                    RT_LOG_FILE;
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDRtRecord::ACDRtRecord - Created ACDRtRecord object");
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDRtRecord::ACDRtRecord - Created ACDRtRecord object");
 }
 
 
@@ -104,7 +104,7 @@ ACDRtRecord::ACDRtRecord(UtlString& rLogDirectory) : mLock(OsMutex::Q_FIFO)
 
 ACDRtRecord::~ACDRtRecord()
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDRtRecord::~ACDRtRecord Deleting ACDRtRecord object");
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDRtRecord::~ACDRtRecord Deleting ACDRtRecord object");
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -167,7 +167,7 @@ void ACDRtRecord::appendCallEvent(int event, UtlString queueString, ACDCall* pCa
          fclose(mFp);
       }
       else {
-         OsSysLog::add(FAC_ACD, PRI_ERR,
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                        "ACDRtRecord::appendCallEvent - File not found for recording event ACDRtRecord::appendCallEvent [event %s, error %d '%s']",
                        eventString.data(), errno, strerror(errno));
       }
@@ -204,7 +204,7 @@ void ACDRtRecord::appendTransferCallEvent(int event, ACDCall* pCallRef)
          fclose(mFp);
       }
       else {
-         OsSysLog::add(FAC_ACD, PRI_ERR,
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                        "ACDRtRecord::appendTransferCallEvent - File not found for recording event ACDRtRecord::appendTransferCallEvent [event %s, error %d '%s']",
                        eventString.data(), errno, strerror(errno));
       }
@@ -240,7 +240,7 @@ void ACDRtRecord::appendAgentEvent(int event, UtlString* pQueueListString, ACDAg
    UtlString eventString;
    eventString = getEventString(EVENT_AGENT, event);
    if (NULL != eventString.data()) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDRtRecord::appendAgentEvent event %s, queue %s",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDRtRecord::appendAgentEvent event %s, queue %s",
                  eventString.data(), pQueueListString->data());
       sprintf(realTimeDataRecord, "%s : %s : %s : %s\n", eventString.data(), dateString.data(),
               pQueueListString->data(), pAgentRef->getUriString()->data());
@@ -254,7 +254,7 @@ void ACDRtRecord::appendAgentEvent(int event, UtlString* pQueueListString, ACDAg
          fclose(mFp);
       }
       else {
-         OsSysLog::add(FAC_ACD, PRI_ERR,
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                        "ACDRtRecord::appendAgentEvent - File not found for recording event ACDRtRecord::appendAgentEvent [event %s, error %d '%s']",
                        eventString.data(), errno, strerror(errno));
       }
@@ -305,7 +305,7 @@ void ACDRtRecord::appendAcdEvent(int event)
          fclose(mFp);
       }
       else {
-         OsSysLog::add(FAC_ACD, PRI_ERR,
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                        "appendAcdEvent - File not found for recording event ACDRtRecord::appendCallEvent [event %s, error %d '%s']",
                        eventString.data(), errno, strerror(errno));
       }
@@ -334,7 +334,7 @@ void ACDRtRecord::appendAcdEvent(int event)
 UtlString ACDRtRecord::getEventString(int event_type, int event)
 {
    if (event_type < EVENT_MIN || event_type > EVENT_MAX) {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event type [%d] ACDRtRecord::getEventString",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event type [%d] ACDRtRecord::getEventString",
 					event_type);
       return NULL;
    }
@@ -345,7 +345,7 @@ UtlString ACDRtRecord::getEventString(int event_type, int event)
          case PICK_UP: return ("pick-up");
          case TERMINATE: return ("terminate");
          default : {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
 					   event);
          return NULL;
          }
@@ -356,7 +356,7 @@ UtlString ACDRtRecord::getEventString(int event_type, int event)
         case SIGNED_IN_AGENT: return ("sign-in-agent");
         case SIGNED_OUT_AGENT: return ("sign-out-agent");
         default : {
-        OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
+        Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
 			              event);
         return NULL;
         }
@@ -367,7 +367,7 @@ UtlString ACDRtRecord::getEventString(int event_type, int event)
          case START_ACD: return ("start-acd");
 	 case STOP_ACD: return ("stop-acd");
 	 default : {
-	 OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
+	 Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
 							 event);
 	 return NULL;
 	 }
@@ -378,7 +378,7 @@ UtlString ACDRtRecord::getEventString(int event_type, int event)
          case TRANSFER: return ("transfer");
 	 case TERMINATE_TRANSFER: return ("terminate");
 	 default : {
-	 OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
+	 Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
 							 event);
 	 return NULL;
 	 }

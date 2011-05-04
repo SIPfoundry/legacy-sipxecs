@@ -9,7 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsFS.h"
 #include "utl/UtlString.h"
 #include "utl/UtlSListIterator.h"
@@ -58,7 +58,7 @@ DirectoryResourceManager::findFilename(const char* fullName ///< full path to a 
 
    DirectoryResource* found = NULL;
    
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                  "DirectoryResourceManager::findFilename: path '%s' file '%s'",
                  dirName.data(), fileName.data());
 
@@ -81,13 +81,13 @@ DirectoryResourceManager::findFilename(const char* fullName ///< full path to a 
    {
       UtlString matched;
       found->appendDescription(matched);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                     "DirectoryResourceManager::findFilename: '%s' matches %s",
                     fullName, matched.data());
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_WARNING,
                     "DirectoryResourceManager::findFilename: no match found for '%s'",
                     fullName);
    }
@@ -134,7 +134,7 @@ DirectoryResourceManager::~DirectoryResourceManager()
 {
    OsLock tableMutex(mDirectoryResourceTableLock);
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "DirectoryResourceManager::~ "
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "DirectoryResourceManager::~ "
                  "delete %zu DirectoryResources", mDirectoryResourceTable.entries());
 
    mDirectoryResourceTable.destroyAll();

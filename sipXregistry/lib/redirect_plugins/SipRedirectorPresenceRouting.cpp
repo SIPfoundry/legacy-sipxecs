@@ -22,7 +22,7 @@
 #include "sipXecsService/SharedSecret.h"
 #include "os/OsDateTime.h"
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorPresenceRouting.h"
 #include "registry/SipRedirectServer.h"
@@ -123,7 +123,7 @@ void UnifiedPresenceContainer::insert( UtlString* pAor, UnifiedPresence* pUnifie
     OsLock lock( mMutex );
     mUnifiedPresences.remove( pAor );
     mUnifiedPresences.insertKeyAndValue( pAor, pUnifiedPresence );
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "UnifiedPresenceContainer::insert "
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "UnifiedPresenceContainer::insert "
                   "Presence information for '%s':\r\n"
                   "    Telephony presence: '%s'"
                   "    XMPP presence: '%s'"
@@ -198,13 +198,13 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
     if ((configDb.get(CONFIG_SETTING_REALM, mRealm) != OS_SUCCESS) ||
          mRealm.isNull())
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "%s::readConfig No Realm specified in the configuration",
                      mLogName.data());
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO,
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "%s::readConfig mRealm = '%s'",
                     mLogName.data(), mRealm.data() );
     }
@@ -214,26 +214,26 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
     if ((configDb.get(CONFIG_SETTING_SIP_DOMAIN, mSipDomain) != OS_SUCCESS) ||
          mSipDomain.isNull())
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "%s::readConfig No SIP domain specified in the configuration",
                      mLogName.data());
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO,
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "%s::readConfig mSipDomain = '%s'",
                     mLogName.data(), mSipDomain.data() );
     }
 
     mbForwardToVmOnBusy = configDb.getBoolean(CONFIG_SETTING_VOICEMAIL_ON_BUSY, FALSE);
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                  "%s::readConfig mbForwardToVmOnBusy = %d",
                  mLogName.data(), mbForwardToVmOnBusy);
 
     
     UtlString prefsFilename;
     configDb.get(CONFIG_SETTING_USER_PREFS_FILE, prefsFilename);
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                  "%s::readConfig prefsFilename = %s",
                  mLogName.data(), prefsFilename.data());
     mUserPrefs.setFileName( &prefsFilename );
@@ -242,13 +242,13 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
     if ((configDb.get(CONFIG_OPENFIRE_PRESENCE_SERVER_URL, openFirePresenceServerUrlAsString) != OS_SUCCESS) ||
           openFirePresenceServerUrlAsString.isNull())
     {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "%s::readConfig No URL specified for openfire presence server in the configuration",
                      mLogName.data());
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO,
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "%s::readConfig openFirePresenceServerUrlAsString = '%s'",
                     mLogName.data(), openFirePresenceServerUrlAsString.data() );
         mOpenFirePresenceServerUrl.fromString( openFirePresenceServerUrlAsString );
@@ -258,13 +258,13 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
     if ((configDb.get(CONFIG_PRESENCE_MONITOR_SERVER_URL, presenceMonitorServerUrlAsString) != OS_SUCCESS) ||
            presenceMonitorServerUrlAsString.isNull())
     {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "%s::readConfig No URL specified for local presence monitor server in the configuration",
                        mLogName.data());
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO,
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                       "%s::readConfig presenceMonitorServerUrlAsString = '%s'",
                       mLogName.data(), presenceMonitorServerUrlAsString.data() );
         mLocalPresenceMonitorServerUrl.fromString( presenceMonitorServerUrlAsString );
@@ -304,7 +304,7 @@ SipRedirectorPresenceRouting::initialize(OsConfigDb& configDb,
                                  int redirectorNo,
                                  const UtlString& localDomainName)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::SipRedirectorPresenceRouting::initialize", mLogName.data() );
 
    OsStatus rc = OS_FAILED;
@@ -366,12 +366,12 @@ SipRedirectorPresenceRouting::lookUp(
       requestUri.getUrlParameter("sipx-userforward", disableForwarding);
       if (disableForwarding.compareTo("false", UtlString::ignoreCase) == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp user forwarding disabled by parameter",
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp user forwarding disabled by parameter",
                        mLogName.data());
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
                        mLogName.data(), requestString.data());
          rc = doLookUp( requestUri, message, contactList );
       }
@@ -391,7 +391,7 @@ SipRedirectorPresenceRouting::doLookUp(
    UtlString username;
    requestUri.getIdentity( identity );
    requestUri.getUserId( username );
-   OsSysLog::add(FAC_SIP, PRI_INFO, "%s::LookUpStatus is looking up '%s'",
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO, "%s::LookUpStatus is looking up '%s'",
                                     mLogName.data(),identity.data() );
    pUp = UnifiedPresenceContainer::getInstance()->lookup( &identity );
 
@@ -399,7 +399,7 @@ SipRedirectorPresenceRouting::doLookUp(
    {
       // unified presence data is available for the called party.
       // Use it to make call routing decisions.
-      OsSysLog::add(FAC_SIP, PRI_INFO, "%s::LookUpStatus "
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "%s::LookUpStatus "
                                        "Presence information for '%s':\r\n"
                                        "    Telephony presence: '%s'"
                                        "    XMPP presence: '%s'"
@@ -517,7 +517,7 @@ OsStatus SipRedirectorPresenceRouting::registerPresenceMonitorServerWithOpenfire
        UtlContainable* pValue = NULL;
        if ( !registerPresenceMonitorResponse.getResponse( pValue ) || !pValue )
        {
-          OsSysLog::add(FAC_NAT, PRI_ERR, "SipRedirectorPresenceRouting::registerPresenceMonitorRequestWithOpenfire response had no result.");
+          Os::Logger::instance().log(FAC_NAT, PRI_ERR, "SipRedirectorPresenceRouting::registerPresenceMonitorRequestWithOpenfire response had no result.");
        }
        else
        {
@@ -525,7 +525,7 @@ OsStatus SipRedirectorPresenceRouting::registerPresenceMonitorServerWithOpenfire
           UtlHashMap* pMap = dynamic_cast<UtlHashMap*>( pValue );
           if ( !pMap )
           {
-             OsSysLog::add(FAC_NAT, PRI_ERR,
+             Os::Logger::instance().log(FAC_NAT, PRI_ERR,
                            "SipRedirectorPresenceRouting::registerPresenceMonitorRequestWithOpenfire response result had unexpected type: %s",
                            pValue->getContainableType() );
           }
@@ -543,7 +543,7 @@ OsStatus SipRedirectorPresenceRouting::registerPresenceMonitorServerWithOpenfire
                 UtlString* pErrorInfo = dynamic_cast<UtlString*>( pMap->findValue( &keyName ) );
                 if( pErrorCode && pErrorInfo )
                 {
-                   OsSysLog::add(FAC_NAT, PRI_ERR, "SipRedirectorPresenceRouting::registerPresenceMonitorRequestWithOpenfire request failed: %s:'%s'", pErrorCode->data(), pErrorInfo->data() );
+                   Os::Logger::instance().log(FAC_NAT, PRI_ERR, "SipRedirectorPresenceRouting::registerPresenceMonitorRequestWithOpenfire request failed: %s:'%s'", pErrorCode->data(), pErrorInfo->data() );
                 }
              }
              else
@@ -571,7 +571,7 @@ OsStatus SipRedirectorPresenceRouting::registerPresenceMonitorServerWithOpenfire
         int faultCode;
         UtlString faultString;
         registerPresenceMonitorResponse.getFault( &faultCode, faultString );
-        OsSysLog::add( FAC_NAT, PRI_ERR,
+        Os::Logger::instance().log( FAC_NAT, PRI_ERR,
                        "SipRedirectorPresenceRouting::registerPresenceMonitorRequestWithOpenfire failed to execute() request: %d : %s",
                        faultCode, faultString.data() );
     }
@@ -591,7 +591,7 @@ OsStatus SipRedirectorPresenceRouting::pingOpenfire( void )
        UtlContainable* pValue = NULL;
        if ( !pingResponse.getResponse( pValue ) || !pValue )
        {
-          OsSysLog::add(FAC_NAT, PRI_CRIT, "SipRedirectorPresenceRouting::pingOpenfire response had no result.");
+          Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "SipRedirectorPresenceRouting::pingOpenfire response had no result.");
        }
        else
        {
@@ -599,7 +599,7 @@ OsStatus SipRedirectorPresenceRouting::pingOpenfire( void )
           UtlHashMap* pMap = dynamic_cast<UtlHashMap*>( pValue );
           if ( !pMap )
           {
-             OsSysLog::add(FAC_NAT, PRI_ERR,
+             Os::Logger::instance().log(FAC_NAT, PRI_ERR,
                            "SipRedirectorPresenceRouting::pingOpenfire response result had unexpected type: %s",
                            pValue->getContainableType() );
           }
@@ -652,11 +652,11 @@ OsStatus SipRedirectorPresenceRouting::signal(intptr_t eventData)
       if( registerPresenceMonitorServerWithOpenfire() == OS_SUCCESS )
       {
          mbRegisteredWithOpenfire = true;
-         OsSysLog::add(FAC_NAT, PRI_INFO, "%s::signal: reconnected with openfire", mLogName.data() );
+         Os::Logger::instance().log(FAC_NAT, PRI_INFO, "%s::signal: reconnected with openfire", mLogName.data() );
       }
       else
       {
-         OsSysLog::add(FAC_NAT, PRI_ERR, "%s::signal: failed to reconnect with openfire - retrying later", mLogName.data() );
+         Os::Logger::instance().log(FAC_NAT, PRI_ERR, "%s::signal: failed to reconnect with openfire - retrying later", mLogName.data() );
       }
    }
    else
@@ -664,7 +664,7 @@ OsStatus SipRedirectorPresenceRouting::signal(intptr_t eventData)
       // we think we are registered with openfire, try to ping it to ensure it is still there
       if( pingOpenfire() != OS_SUCCESS )
       {
-         OsSysLog::add(FAC_NAT, PRI_ERR, "%s::signal: ping to openfire failed - trying to reconnect", mLogName.data());
+         Os::Logger::instance().log(FAC_NAT, PRI_ERR, "%s::signal: ping to openfire failed - trying to reconnect", mLogName.data());
          // We lost the server.  Flush out the cached presence info as it is now stale.
          // We should not be basing routing decisions on it.
          UnifiedPresenceContainer::getInstance()->reset();
@@ -745,7 +745,7 @@ OsStatus PresenceRoutingUserPreferences::initialize()
    if( !pDoc->LoadFile() )
    {
       UtlString parseError = pDoc->ErrorDesc();
-      OsSysLog::add( FAC_NAT, PRI_ERR, "PresenceRoutingFileReader: ERROR parsing  '%s': %s"
+      Os::Logger::instance().log( FAC_NAT, PRI_ERR, "PresenceRoutingFileReader: ERROR parsing  '%s': %s"
                     ,mFileName.data(), parseError.data());
       currentStatus = OS_NOT_FOUND;
    }
@@ -784,7 +784,7 @@ OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
                      pbVmOnDnd->setValue(TRUE);
                   }
                   mUserVmOnDndPreferences.insertKeyAndValue( pUsername, pbVmOnDnd );
-                  OsSysLog::add( FAC_NAT, PRI_DEBUG, "PresenceRoutingUserPreferences::parseDocument added %s %d"
+                  Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "PresenceRoutingUserPreferences::parseDocument added %s %d"
                                 ,pUsername->data(), pbVmOnDnd->getValue());
                }
             }
@@ -793,7 +793,7 @@ OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
    }
    else
    {
-      OsSysLog::add( FAC_NAT, PRI_ERR, "PresenceRoutingUserPreferences::parseDocument could not find node 'presenceRoutingPrefs'");
+      Os::Logger::instance().log( FAC_NAT, PRI_ERR, "PresenceRoutingUserPreferences::parseDocument could not find node 'presenceRoutingPrefs'");
       rc = OS_FAILED;
    }
    return rc;

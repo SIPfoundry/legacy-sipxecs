@@ -125,7 +125,7 @@ static void * mediaSignaller(void * arg)
 
    if(geteuid() != 0 && getuid() != 0)
    {
-      OsSysLog::add(FAC_MP, PRI_WARNING, "_REALTIME_LINUX_AUDIO_THREADS was defined but application does not have ROOT priv.");
+      Os::Logger::instance().log(FAC_MP, PRI_WARNING, "_REALTIME_LINUX_AUDIO_THREADS was defined but application does not have ROOT priv.");
    }
    else
    {

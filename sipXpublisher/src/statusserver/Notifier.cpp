@@ -157,7 +157,7 @@ Notifier::sendNotifyForeachSubscription (
             userToUri = staticUserLoc[0].toUri.c_str();
             userCallid = staticUserLoc[0].callId.c_str();
 
-             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                            "Notifier::sendNotifyForeachSubscription configured contact %s", userUri.data());
              int notifycseq = 0;
              userCallid.append("-");
@@ -176,14 +176,14 @@ Notifier::sendNotifyForeachSubscription (
 
     if (  numSubscriptions > 0 )
     {
-        OsSysLog::add( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
+        Os::Logger::instance().log( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
                       " %d '%s' subscriptions for '%s'", numSubscriptions, event, key );
 
         UtlString subscribeCallid;
         if ( subscribe )
         {
            subscribe->getCallIdField(&subscribeCallid);
-           OsSysLog::add( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
+           Os::Logger::instance().log( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
                          " notify only '%s'", subscribeCallid.data() );
         }
 
@@ -204,7 +204,7 @@ Notifier::sendNotifyForeachSubscription (
             UtlString from       = record.fromUri().c_str();
             if ( subscribe && subscribeCallid != callid  )
             {
-               OsSysLog::add( FAC_SIP, PRI_DEBUG, "Notifier::sendNotifyForeachSubscription: "
+               Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "Notifier::sendNotifyForeachSubscription: "
                              " skipping '%s'; notify only '%s'", callid.data(), subscribeCallid.data() );
                continue;
             }
@@ -256,7 +256,7 @@ Notifier::sendNotifyForeachSubscription (
     }
     else
     {
-       OsSysLog::add( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
+       Os::Logger::instance().log( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
                      " no '%s' subscriptions for '%s'", event, key );
     }
 }

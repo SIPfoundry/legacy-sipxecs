@@ -7,7 +7,7 @@
 
 // SYSTEM INCLUDES
 #include "SipRouter.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsDateTime.h"
 // APPLICATION INCLUDES
 #include "NatTraversalAgentDataTypes.h"
@@ -336,7 +336,7 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
          mPublicTransport.fromUrl( urlWithLocationInformation );
          mNativeTransport.fromUrl( urlWithLocationInformation );
       
-         OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[1]: Retrieved location info for UNKNOWN user from regDB:'%s'",
+         Os::Logger::instance().log(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[1]: Retrieved location info for UNKNOWN user from regDB:'%s'",
                pMatchingContact.data() );
       
          //update location information based on new information
@@ -378,7 +378,7 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
                mPublicTransport.fromUrl( urlWithLocationInformation );
                mNativeTransport.fromUrl( urlWithLocationInformation );
       
-               OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[2]: Retrieved location info for UNKNOWN user from regDB:'%s'",
+               Os::Logger::instance().log(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[2]: Retrieved location info for UNKNOWN user from regDB:'%s'",
                      pMatchingContact.data() );
       
                // update location information based on new information

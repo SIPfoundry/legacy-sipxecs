@@ -83,7 +83,7 @@ void RegistrarPeer::markUnReachable()
          mSyncState = UnReachable;
          notifyTestThread = true;
 
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "RegistrarPeer peer '%s' is UnReachable", name());
          break;
 
@@ -128,12 +128,12 @@ void RegistrarPeer::markReachable()
                              );
          mSyncState = Reachable;
 
-         OsSysLog::add(FAC_SIP, PRI_INFO,
+         Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                        "RegistrarPeer peer '%s' is Reachable", name());
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_CRIT,
+         Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                        "RegistrarPeer::markReachable called for Incompatible peer '%s'",
                        name()
                        );
@@ -154,7 +154,7 @@ void RegistrarPeer::markIncompatible()
 
    mSyncState = Incompatible;
 
-   OsSysLog::add(FAC_SIP, PRI_ERR,
+   Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                  "RegistrarPeer peer '%s' is Incompatible", name());
 }
 

@@ -11,7 +11,7 @@
 
 #include "ResourceList.h"
 #include "ResourceReference.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsLock.h>
 #include <utl/XmlContent.h>
 #include <utl/UtlSListIterator.h>
@@ -69,7 +69,7 @@ ResourceList::ResourceList(ResourceListSet* resourceListSet,
    mResourceListUri = mResourceListName;
    mResourceListUriCons = mResourceListNameCons;
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::_ this = %p, mUserPart = '%s', mResourceListName = '%s', mResourceListUri = '%s', mUserPartCons = '%s', mResourceListNameCons = '%s', mResourceListUriCons = '%s'",
                  this,
                  mUserPart.data(),
@@ -84,7 +84,7 @@ ResourceList::ResourceList(ResourceListSet* resourceListSet,
 // Destructor
 ResourceList::~ResourceList()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::~ mUserPart = '%s'",
                  mUserPart.data());
 
@@ -101,7 +101,7 @@ bool ResourceList::deleteResourceAt(size_t at)
 {
    bool resource_deleted = false;
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::deleteResourceAt mUserPart = '%s', at = %d",
                  mUserPart.data(), (int) at);
 
@@ -134,7 +134,7 @@ void ResourceList::addResource(const char* uri,
                                ssize_t no_check_start,
                                ssize_t no_check_end)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::addResource mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s', no_check_start = %d, no_check_end = %d",
                  mUserPart.data(), uri, nameXml, display_name,
                  (int) no_check_start, (int) no_check_end);
@@ -180,12 +180,12 @@ void ResourceList::addResource(const char* uri,
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "ResourceList::addResource Resource URI '%s' is already in resource list '%s' at location %d",
                     uri, mUserPart.data(), (int) location);
    }
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::addResource "
                  "resource_added = %d, resource_cached_created = %d",
                  resource_added,
@@ -216,7 +216,7 @@ void ResourceList::getResourceInfoAt(size_t at,
 // Declare that the contents have changed and need to be published.
 void ResourceList::setToBePublished(const UtlString* chgUri)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::setToBePublished chgUri = '%s', mUserPart = '%s'",
                  chgUri ? chgUri->data() : "[null]",
                  mUserPart.data());
@@ -236,7 +236,7 @@ void ResourceList::setToBePublished(const UtlString* chgUri)
 // Publish the contents if necessary and clear the publishing indicator.
 void ResourceList::publishIfNecessary()
 {
-    OsSysLog::add(FAC_RLS, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                   "ResourceList::publishIfNecessary mUserPart = '%s'",
                   mUserPart.data());
 
@@ -256,7 +256,7 @@ void ResourceList::publish()
 {
    UtlBoolean publishingSuspended =
       getResourceListSet()->publishingSuspended();
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::publish mUserPart = '%s', publishingSuspended = %d",
                  mUserPart.data(), publishingSuspended);
 
@@ -280,7 +280,7 @@ void ResourceList::shrink(bool& listEmpty,
 {
    resourceDeleted = false;
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::shrink mUserPart = '%s'",
                  mUserPart.data());
 
@@ -318,7 +318,7 @@ HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated,
                                          UtlBoolean fullRlmi,
                                          UtlSList& listToSend)
 {
-   if (OsSysLog::willLog(FAC_RLS, PRI_DEBUG))
+   if (Os::Logger::instance().willLog(FAC_RLS, PRI_DEBUG))
    {
       UtlString l;
 
@@ -334,7 +334,7 @@ HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated,
          l.remove(l.length() - 1);
       }
 
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceList::generateRlmiBody cons=%d URI='%s' full=%d listToSend='%s'",
                     consolidated,
                     (consolidated ? mResourceListNameCons.data() : mResourceListName.data()),
@@ -413,7 +413,7 @@ void ResourceList::dumpState() const
 {
    // indented 4
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t    ResourceList %p mUserPart='%s', mResourceListName = '%s', "
                  "mResourceListUri = '%s', mResourceListNameCons = '%s', "
                  "mResourceListUriCons = '%s', mChangesToPublish = %d",

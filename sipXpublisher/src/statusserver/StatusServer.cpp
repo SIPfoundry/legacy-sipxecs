@@ -13,7 +13,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConfigDb.h"
 #include "os/OsServerSocket.h"
 #ifdef HAVE_SSL
@@ -262,17 +262,17 @@ StatusServer::startStatusServer (
     // if the configuration file exists, load the name value pairs
     if ( sConfigDb.loadFromFile(configFileName) == OS_SUCCESS )
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "Found config file: %s", configFileName);
     } else
     {
-       OsSysLog::add(FAC_SIP, PRI_CRIT,
+       Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                      "Could not read config file: %s", configFileName);
        fprintf(stderr, "Could not read config file: %s", configFileName);
        exit(1);
     }
 
-    OsSysLog::add(LOG_FACILITY, PRI_INFO, "Starting - version: %s %s\n", VERSION, PACKAGE_REVISION);
+    Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "Starting - version: %s %s\n", VERSION, PACKAGE_REVISION);
 
     sConfigDb.get("SIP_STATUS_AUTHENTICATE_ALGORITHM", authAlgorithm);
     sConfigDb.get("SIP_STATUS_AUTHENTICATE_QOP", authQop);
@@ -290,7 +290,7 @@ StatusServer::startStatusServer (
     {
        udpPort = 5110;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_UDP_PORT : %d", udpPort);
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIP_STATUS_UDP_PORT : %d", udpPort);
 
     // SIP_STATUS_TCP_PORT
     tcpPort = sConfigDb.getPort("SIP_STATUS_TCP_PORT") ;
@@ -298,7 +298,7 @@ StatusServer::startStatusServer (
     {
        tcpPort = 5110;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TCP_PORT : %d", tcpPort);
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIP_STATUS_TCP_PORT : %d", tcpPort);
 
     // SIP_STATUS_TLS_PORT
     tlsPort = sConfigDb.getPort("SIP_STATUS_TLS_PORT") ;
@@ -306,7 +306,7 @@ StatusServer::startStatusServer (
     {
        tlsPort = 5111;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TLS_PORT : %d", tlsPort);
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIP_STATUS_TLS_PORT : %d", tlsPort);
 
     // SIP_STATUS_BIND_IP
     sConfigDb.get("SIP_STATUS_BIND_IP", bindIp) ;
@@ -314,7 +314,7 @@ StatusServer::startStatusServer (
     {
        bindIp = "0.0.0.0";
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_BIND_IP : %s", bindIp.data());
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIP_STATUS_BIND_IP : %s", bindIp.data());
 
     UtlString separatedList;
     // Get the HTTP server Valid IP address database
@@ -335,7 +335,7 @@ StatusServer::startStatusServer (
     {
         authAlgorithm.append("MD5");
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_ALGORITHM : %s",
                   authAlgorithm.data());
 
@@ -344,7 +344,7 @@ StatusServer::startStatusServer (
     {
         authQop.append("NONE");
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_QOP : %s",
                   authQop.data());
 
@@ -354,7 +354,7 @@ StatusServer::startStatusServer (
     {
         OsSocket::getHostIp(&domainName);
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_DOMAIN_NAME : %s",
                   domainName.data());
 
@@ -363,7 +363,7 @@ StatusServer::startStatusServer (
     {
        authRealm.append(domainName);
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_REALM : %s",
                   authRealm.data());
 
@@ -377,7 +377,7 @@ StatusServer::startStatusServer (
     OsStatus result;
     UtlString portStr;
     result = sConfigDb.get("SIP_STATUS_HTTPS_PORT", portStr);
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                   "startStatusServer : HTTPS port %s result %d",
                   portStr.data(), result);
     // If the key is missing or not set, set it to the default HTTPS port
@@ -386,7 +386,7 @@ StatusServer::startStatusServer (
         httpsPort = HTTPS_SERVER_PORT;
     }
 
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_HTTPS_PORT : %d", httpsPort );
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIP_STATUS_HTTPS_PORT : %d", httpsPort );
 
     // Only search for the non secure SIP_STATUS_HTTP_PORT
     // if the secure one is disabled
@@ -394,7 +394,7 @@ StatusServer::startStatusServer (
     {
         // SIP_STATUS_HTTP_PORT
         result = sConfigDb.get("SIP_STATUS_HTTP_PORT", portStr);
-        OsSysLog::add(FAC_SIP, PRI_INFO,
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                       "startStatusServer : HTTP port %s result %d",
                       portStr.data(), result);
         // If the key is missing or not set, set it to the default HTTP port
@@ -402,12 +402,12 @@ StatusServer::startStatusServer (
         {
             httpPort = HTTP_SERVER_PORT;
         }
-        OsSysLog::add( FAC_SIP, PRI_INFO, "SIP_STATUS_HTTP_PORT : %d", httpPort );
+        Os::Logger::instance().log( FAC_SIP, PRI_INFO, "SIP_STATUS_HTTP_PORT : %d", httpPort );
     }
 
     int maxNumSrvRecords = -1;
     sConfigDb.get("SIP_STATUS_DNSSRV_MAX_DESTS", maxNumSrvRecords);
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_DNSSRV_MAX_DESTS : %d",
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIP_STATUS_DNSSRV_MAX_DESTS : %d",
               maxNumSrvRecords);
     // If explicitly set to a valid number
     if(maxNumSrvRecords > 0)
@@ -421,7 +421,7 @@ StatusServer::startStatusServer (
 
     int dnsSrvTimeout = -1; //seconds
     sConfigDb.get("SIP_STATUS_DNSSRV_TIMEOUT", dnsSrvTimeout);
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_DNSSRV_TIMEOUT : %d",
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIP_STATUS_DNSSRV_TIMEOUT : %d",
               dnsSrvTimeout);
     // If explicitly set to a valid number
     if(dnsSrvTimeout > 0)
@@ -438,7 +438,7 @@ StatusServer::startStatusServer (
     {
         defaultMaxExpiresTime.append("604800"); // default to 1 week
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_MAX_EXPIRES : %s",
                   defaultMaxExpiresTime.data());
 
@@ -449,7 +449,7 @@ StatusServer::startStatusServer (
     {
         defaultMinExpiresTime.append("300");  // default to 300 seconds
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_MIN_EXPIRES : %s",
                   defaultMinExpiresTime.data());
 
@@ -474,7 +474,7 @@ StatusServer::startStatusServer (
 #         else /* ! HAVE_SSL */
           // SSL is not configured in, so we cannot open the requested
           // socket.
-          OsSysLog::add(FAC_SIP, PRI_CRIT,
+          Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                         "StatusServer::startStatusServer SSL not configured; "
                         "cannot open secure socket %d", webServerPort);
           httpServer = NULL;

@@ -9,7 +9,7 @@
 #include <errno.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlSortedListIterator.h"
 #include "utl/UtlRegex.h"
 
@@ -143,7 +143,7 @@ bool BranchId::equals(const BranchId& otherBranchId)
 {
    generateFullValue();
 #  ifdef TEST_LOG
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "BranchId::equals(BranchId '%s')\n"
                  "                          '%s'",
                  const_cast<BranchId*>(&otherBranchId)->data(), data());
@@ -156,7 +156,7 @@ bool BranchId::equals(const UtlString& otherBranchId)
 {
    generateFullValue();
 #  ifdef TEST_LOG
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "BranchId::equals(UtlString '%s')\n"
                  "                           '%s'",
                  otherBranchId.data(), data());
@@ -207,10 +207,10 @@ bool BranchId::topViaIsMyBranch(const SipMessage& response)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "BranchId::topViaIsMyBranch - no top branch found");
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "BranchId::topViaIsMyBranch - no top branch found");
    }
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "BranchId::topViaIsMyBranch = %s",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "BranchId::topViaIsMyBranch = %s",
                  isMyBranch ? "Is My Branch" : "Is Not My Branch");
    return isMyBranch;
 }
@@ -411,13 +411,13 @@ void BranchId::setSecret(const UtlString& secret /**< used as input to sign the 
        && smIdSecret.compareTo(secret) != 0
        )
    {
-      OsSysLog::add(FAC_SIP, PRI_NOTICE,
+      Os::Logger::instance().log(FAC_SIP, PRI_NOTICE,
                     "BranchId::setSecret reset identifier key;"
                     " previously generated branch ids will not be recognized as local."
                     );
       smIdSecret.remove(0);
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "BranchId::setSecret set identifier key."
                  );
    smIdSecret.append(secret);

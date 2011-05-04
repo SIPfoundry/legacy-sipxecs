@@ -14,7 +14,7 @@
 
 #include "os/OsProtectEvent.h"
 #include "os/OsUtil.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include <assert.h>
 
 //////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ OsProtectedEvent::OsProtectedEvent(void* userData)
 
 OsProtectedEvent::~OsProtectedEvent()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "Warning OsProtectedEvent deleted");
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "Warning OsProtectedEvent deleted");
    mStringData = OsUtil::NULL_OS_STRING;
 }
 

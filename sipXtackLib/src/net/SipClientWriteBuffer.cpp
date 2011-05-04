@@ -14,7 +14,7 @@
 #include <net/SipClientWriteBuffer.h>
 #include <net/SipMessageEvent.h>
 #include <net/SipUserAgentBase.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -89,7 +89,7 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
           }
           else
           {
-             OsSysLog::add(FAC_SIP, PRI_CRIT,
+             Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                            "SipClientWriteBuffer[%s]::handleMessage "
                            "message is not a SipClientSendMsg",
                            mName.data());
@@ -97,7 +97,7 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
       }
       else // send Keep Alive
       {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipClientWriteBuffer[%s]::handleMessage send TCP keep-alive CR-LF response",
                         mName.data());
           UtlString* pKeepAlive;
@@ -121,7 +121,7 @@ void SipClientWriteBuffer::sendMessage(const SipMessage& message,
                                        const char* address,
                                        int port)
 {
-   OsSysLog::add(FAC_SIP, PRI_CRIT,
+   Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                  "SipClientWriteBuffer[%s]::sendMessage "
                  "should not be called",
                  mName.data());
@@ -155,7 +155,7 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
    {
       // If so, abort all unsent messages and terminate this client (so
       // as to clear any state of the socket).
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "SipClientWriteBuffer[%s]::insertMessage "
                     "mWriteBuffer has %d entries, exceeding the limit of %d",
                     getName().data(), (int) mWriteBuffer.entries(),
@@ -223,7 +223,7 @@ void SipClientWriteBuffer::writeMore()
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_CRIT,
+               Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                              "SipClientWriteBuffer[%s]::writeMore "
                              "unrecognized message type in queue",
                              mName.data());
@@ -283,7 +283,7 @@ void SipClientWriteBuffer::writeMore()
          else
          {
             // Error while writing.
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SipClientWriteBuffer[%s]::writeMore "
                           "OsSocket::write() returned %d, errno = %d",
                           getName().data(), ret, errno);
@@ -334,7 +334,7 @@ void SipClientWriteBuffer::emptyBuffer(bool reportError)
       }
    }
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipClientWriteBuffer[%s]::emptyBuffer "
                  "had %d sip messages, %d total",
                  getName().data(), numRealEmptied, numEmptied);

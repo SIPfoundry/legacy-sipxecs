@@ -73,7 +73,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
       switch (taoEventId)
       {
          case PtEvent::CONNECTION_OFFERED:
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call arrived: callId %s address %s\n",
+            Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call arrived: callId %s address %s\n",
                           callId.data(), address.data());
 
             mpCallManager->acceptConnection(callId, address);
@@ -83,7 +83,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
          case PtEvent::CONNECTION_ESTABLISHED:
             if (localConnection)
             {
-               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call connected: callId %s\n", callId.data());
+               Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call connected: callId %s\n", callId.data());
 
                CallObject* pThisCall = new CallObject(mpCallManager, callId, mPlayfile);
 
@@ -97,7 +97,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
                {
                   // Drop the call
                   mpCallManager->drop(callId);
-                  OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING, "Listener::handleMessage - drop callId %s due to failure of playing audio\n",
+                  Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_WARNING, "Listener::handleMessage - drop callId %s due to failure of playing audio\n",
                                 callId.data());
 
                   delete pThisCall;
@@ -109,7 +109,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
          case PtEvent::CONNECTION_DISCONNECTED:
             if (!localConnection)
             {
-               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call Dropped: %s\n", callId.data());
+               Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call Dropped: %s\n", callId.data());
 
                // Remove the call from the pool and clean up the call
                CallObject* pDroppedCall = removeEntry(callId);
@@ -123,7 +123,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
                }
                else
                {
-                  OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Lisenter::handleMessage - no callId %s founded in the active call list\n",
+                  Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Lisenter::handleMessage - no callId %s founded in the active call list\n",
                                 callId.data());
                }
             }
@@ -131,7 +131,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
             break;
 
          case PtEvent::CONNECTION_FAILED:
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING, "Dropping call: %s\n", callId.data());
+            Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_WARNING, "Dropping call: %s\n", callId.data());
 
             mpCallManager->drop(callId);
 
@@ -164,7 +164,7 @@ void Listener::dumpTaoMessageArgs(unsigned char eventId, TaoString& args)
 void Listener::insertEntry(UtlString& rKey,
                            CallObject* newObject)
 {
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Listener::insertEntry - Putting %p into the call pool for callId %s\n",
+   Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Listener::insertEntry - Putting %p into the call pool for callId %s\n",
                  newObject, rKey.data());
 
    OsWriteLock lock(mRWMutex);
@@ -175,14 +175,14 @@ void Listener::insertEntry(UtlString& rKey,
    if (i != UTL_NOT_FOUND)
    {                             // we already have an entry with this key
       pOldEntry = (ActiveCall *)mCalls.at(i);
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING, "Listener::insertEntry - FOUND %s\n", rKey.data());
+      Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_WARNING, "Listener::insertEntry - FOUND %s\n", rKey.data());
    }
    else
    {
       ActiveCall* pNewEntry = new ActiveCall(rKey, newObject);
       mCalls.insert(pNewEntry);
 
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Listener::insertEntry - inserted %s\n", rKey.data());
+      Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Listener::insertEntry - inserted %s\n", rKey.data());
 
       mTotalCalls++;
    }
@@ -206,7 +206,7 @@ CallObject* Listener::removeEntry(UtlString& rKey)
       mCalls.removeAt(i);
       delete pEntryToRemove;
 
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Listener::remove - removed CallObject %p\n", pObject);
+      Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Listener::remove - removed CallObject %p\n", pObject);
 
       return pObject;
    }

@@ -21,7 +21,7 @@
 #include "os/OsStatus.h"
 #include "os/OsUtil.h"
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConfigEncryption.h"
 #include "utl/UtlSortedListIterator.h"
 #include "utl/UtlSList.h"
@@ -210,7 +210,7 @@ void OsConfigDb::insertEntry(const char* fileLine)
          else
          {
             // The colon was not found.
-            OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                           "Invalid config line format in file '%s', "
                           "no colon found: '%s'",
                           mIdentityLabel.data(),
@@ -220,7 +220,7 @@ void OsConfigDb::insertEntry(const char* fileLine)
       else
       {
          // The colon was not found.
-         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                        "Invalid config line format in file '%s', "
                        "name is missing: '%s'",
                        mIdentityLabel.data(),
@@ -497,7 +497,7 @@ UtlBoolean OsConfigDb::getBoolean(const UtlString& rKey,
          break;
       default:
          // All other values are an error.  Return the default.
-         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                        "Invalid config line boolean value '%s' for key '%s' in file '%s'",
                        temp.data(), rKey.data(), mIdentityLabel.data());
          break;
@@ -661,7 +661,7 @@ int OsConfigDb::getPort(const char* szKey) const
               if (!portIsValid(port))
               {
                  port = PORT_NONE;
-                 OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                 Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                                "Invalid port number value '%s' for config variable '%s' in file '%s'.",
                                value.data(), szKey, mIdentityLabel.data());
               }
@@ -851,7 +851,7 @@ OsStatus OsConfigDb::loadFromEncryptedFile(const char *file)
         retval = osfile.read(buff, buffLen, bytesRead);
         if (bytesRead != buffLen || retval != OS_SUCCESS)
         {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error reading config file or \
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "Error reading config file or \
 mismatch in expected size  %s\n", getIdentityLabel());
             retval = OS_FAILED;
         }

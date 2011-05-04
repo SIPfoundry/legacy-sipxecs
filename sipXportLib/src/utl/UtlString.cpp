@@ -19,7 +19,7 @@
 #include "utl/UtlString.h"
 #include "os/OsDefs.h"
 #include "utl/UtlRegex.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -1143,7 +1143,7 @@ UtlBoolean UtlString::findToken(const char* token,
     //      '( ^|,) SWS \Q token \E SWS (,|$)'
 
 #ifdef TEST_FINDTOKEN
-    OsSysLog::add( FAC_LOG, PRI_DEBUG
+    Os::Logger::instance().log( FAC_LOG, PRI_DEBUG
                   ,"UtlString::findToken: "
                    "built regexp '%s' to find '%s' with delimiter '%s' "
                    "suffix '%s'"
@@ -1158,7 +1158,7 @@ UtlBoolean UtlString::findToken(const char* token,
     }
     catch(const char* compileError)
     {
-        OsSysLog::add( FAC_LOG, PRI_ERR
+        Os::Logger::instance().log( FAC_LOG, PRI_ERR
                       ,"UtlString::findToken: "
                        "Invalid regexp '%s' for '%s': "
                        "compile error '%s'"
@@ -1175,7 +1175,7 @@ UtlBoolean UtlString::findToken(const char* token,
     }
 
 #ifdef TEST_FINDTOKEN
-    OsSysLog::add( FAC_LOG, PRI_DEBUG
+    Os::Logger::instance().log( FAC_LOG, PRI_DEBUG
                   ,"UtlString::findToken: "
                    "'%s' with delimiter '%s' %sfound in '%s': "
                   ,token

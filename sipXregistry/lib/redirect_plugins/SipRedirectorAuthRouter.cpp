@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "net/SignedUrl.h"
@@ -65,7 +65,7 @@ void SipRedirectorAuthRouter::readConfig(OsConfigDb& configDb)
 
          authUrl.toString(mAuthUrl);
 
-         OsSysLog::add(FAC_SIP,
+         Os::Logger::instance().log(FAC_SIP,
                        (authProxyConfig.compareTo(mAuthUrl, UtlString::ignoreCase)
                         ? PRI_INFO : PRI_NOTICE),
                        "%s::readConfig authorization proxy route '%s'",
@@ -74,13 +74,13 @@ void SipRedirectorAuthRouter::readConfig(OsConfigDb& configDb)
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "%s::readConfig "
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR, "%s::readConfig "
                        "invalid route '%s'", mLogName.data(), authProxyConfig.data());
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "%s::readConfig "
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "%s::readConfig "
                     "No authorization proxy specified", mLogName.data());
    }
 }
@@ -145,7 +145,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
          {
             Url contactUri(contact);
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contact %d '%s'",
                           mLogName.data(), contactNumber, contact.data()
                           );
@@ -161,7 +161,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
 
             if ( contactUri.getHeaderParameter(SIP_ROUTE_FIELD, routeValue) )
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "%s::lookUp contact %d Route value is '%s'",
                              mLogName.data(), contactNumber, routeValue.data() );
 
@@ -172,7 +172,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
                Url routeUrl( routeValue );
                if( SignedUrl::isUrlSigned(  routeUrl ) )
                {
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                 "%s::lookUp contact %d Route not properly signed - no new route added",
                                 mLogName.data(), contactNumber );
                   bAddRouteToSipXProxy = false;
@@ -204,7 +204,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
       else
       {
          // request is not an INVITE or SUBSCRIBE, or the contact list is empty
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "%s::lookUp "
                        "'%s' request is neither an INVITE or SUBSCRIBE or ContactList has no contacts (%d) - ignored.",
                        mLogName.data(), method.data(), contacts
@@ -213,7 +213,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookup No authproxy configured",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookup No authproxy configured",
                     mLogName.data());
    }
 

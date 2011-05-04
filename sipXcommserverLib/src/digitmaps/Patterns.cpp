@@ -16,7 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "digitmaps/Patterns.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlRegex.h"
 #include "utl/UtlString.h"
 
@@ -60,7 +60,7 @@ bool Patterns::IPv4subnet(const UtlString ipv4, const UtlString cidr) const
    slash = cidr.index('/') ;
    if (slash == UTL_NOT_FOUND)
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING, "Pattern:::IPv4subnet - pattern not in CIDR (dotted quad/Size) format.  (pattern=%s)", cidr.data());
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "Pattern:::IPv4subnet - pattern not in CIDR (dotted quad/Size) format.  (pattern=%s)", cidr.data());
       return false ; // pattern wasn't in CIDR format
    }
 
@@ -93,14 +93,14 @@ bool Patterns::IPv4subnet(const UtlString ipv4, const UtlString cidr) const
 
    if (inet_pton(AF_INET, xmlNet.data(), &in_network) <= 0)
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING, "Patterns::IPv4subnet - pattern not valid IPv4.  (pattern=%s, IPv4=%s)", cidr.data(), xmlNet.data());
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "Patterns::IPv4subnet - pattern not valid IPv4.  (pattern=%s, IPv4=%s)", cidr.data(), xmlNet.data());
       return false ; // element not valid IPv4
    }
 
    mask_size = atoi(cidr(slash+1, UtlString::UTLSTRING_TO_END)) ;
    if (mask_size <= 0 || mask_size > 32)
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING, "Patterns::IPv4subnet - mask size is not 1->32.  (pattern=%s)", cidr.data());
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "Patterns::IPv4subnet - mask size is not 1->32.  (pattern=%s)", cidr.data());
       return false ; // bad size
    }
 
@@ -117,7 +117,7 @@ bool Patterns::IPv4subnet(const UtlString ipv4, const UtlString cidr) const
       return false ;
    }
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "Patterns::IPv4subnet - %s matches subnet %s/%d (mask=%08x in_network=%08x in_address=%08x", 
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Patterns::IPv4subnet - %s matches subnet %s/%d (mask=%08x in_network=%08x in_address=%08x", 
       ipv4.data(), 
       xmlNet.data(), mask_size,
       mask, in_network.s_addr, in_address.s_addr);
@@ -141,7 +141,7 @@ bool Patterns::DnsWildcard(const UtlString fqdn, const UtlString wildcard)
    if (wildcard.index("*.") != 0) 
    {
       // wildcard MUST start with *.
-      OsSysLog::add(FAC_SIP, PRI_WARNING, "Patterns::DnsWildcard - wildcard must start with '*.'.  (wildcard=%s)", wildcard.data());
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "Patterns::DnsWildcard - wildcard must start with '*.'.  (wildcard=%s)", wildcard.data());
       return false;
    }
 
@@ -173,7 +173,7 @@ bool Patterns::DnsWildcard(const UtlString fqdn, const UtlString wildcard)
       // the same pattern later)
       mPatterns.insertKeyAndValue(new UtlString(wildcard), re) ;
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "Patterns::DnsWildcard - wildcard=%s created regex=%s", wildcard.data(), exp.data());
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Patterns::DnsWildcard - wildcard=%s created regex=%s", wildcard.data(), exp.data());
    }
 
    // check if fqdn matches
@@ -182,7 +182,7 @@ bool Patterns::DnsWildcard(const UtlString fqdn, const UtlString wildcard)
       return false;
    }
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "Patterns::DnsWildcard - %s matches domain %s",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Patterns::DnsWildcard - %s matches domain %s",
                     fqdn.data(),
                     wildcard.data()) ;
 

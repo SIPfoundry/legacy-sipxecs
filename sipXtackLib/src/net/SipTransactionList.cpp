@@ -157,7 +157,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                 UtlString bytes;
                 ssize_t len;
                 message.getBytes(&bytes, &len);
-                OsSysLog::add(FAC_SIP, PRI_DEBUG
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                               ,"SipTransactionList::findTransactionFor"
                               " more than one 2xx match for message %p(%p) %s "
                               " previous match (%p) %s"
@@ -181,7 +181,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                 UtlString bytes;
                 ssize_t len;
                 message.getBytes(&bytes, &len);
-                OsSysLog::add(FAC_SIP, PRI_DEBUG
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                               ,"SipTransactionList::findTransactionFor"
                               " 2xx match for message %p(%p) %s "
                               " current match (%p) %s"
@@ -199,7 +199,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                 UtlString bytes;
                 ssize_t len;
                 message.getBytes(&bytes, &len);
-                OsSysLog::add(FAC_SIP, PRI_DEBUG
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                               ,"SipTransactionList::findTransactionFor"
                               " ACK match for message %p(%p) %s "
                               " current match (%p) %s"
@@ -268,9 +268,9 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
         // If we cannot lock it, it does not exist
         if(!waitUntilAvailable(transactionFound, callId))
         {
-            if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
+            if (Os::Logger::instance().willLog(FAC_SIP, PRI_WARNING))
             {
-                OsSysLog::add(FAC_SIP, PRI_WARNING,
+                Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                               "SipTransactionList::findTransactionFor"
                               " %p not available relation: %s",
                               transactionFound, SipTransaction::relationshipString(relationship));
@@ -292,7 +292,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     UtlString bytes;
     ssize_t len;
     message.getBytes(&bytes, &len);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                   ,"SipTransactionList::findTransactionFor %p(%p) %s %s(%p) %s"
 #                 ifdef TIME_LOG
                   "\n\tTime Log %s"
@@ -356,7 +356,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
                 )
             {
 #ifdef TRANSACTION_MATCH_DEBUG
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipTransactionList::removeOldTransactions "
                               " removing %p",  transactionFound );
 #endif
@@ -395,7 +395,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
 
     if ( deleteCount || busyCount ) // do not log 'doing nothing when nothing to do', even at debug
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipTransactionList::removeOldTransactions"
                      " deleting %d of %d transactions (%d busy)",
                      deleteCount , numTransactions, busyCount
@@ -424,7 +424,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
 #   ifdef TIME_LOG
     UtlString timeString;
     gcTimes.getLogString(timeString);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::removeOldTransactions "
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipTransactionList::removeOldTransactions "
                   "%s", timeString.data()
                   );
 #   endif
@@ -433,7 +433,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
 void SipTransactionList::stopTransactionTimers()
 {
 #ifdef TIME_LOG
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipTransactionList::stopTransactionTimers entered");
 #endif
 
@@ -485,7 +485,7 @@ void SipTransactionList::stopTransactionTimers()
    delete[] transactionsToBeProcessed;
 
 #ifdef TIME_LOG
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipTransactionList::stopTransactionTimers exited %d entries",
                  numTransactions);
 #endif
@@ -494,7 +494,7 @@ void SipTransactionList::stopTransactionTimers()
 void SipTransactionList::deleteTransactionTimers()
 {
 #ifdef TIME_LOG
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipTransactionList::deleteTransactionTimers entered");
 #endif
 
@@ -546,7 +546,7 @@ void SipTransactionList::deleteTransactionTimers()
    delete[] transactionsToBeProcessed;
 
 #ifdef TIME_LOG
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipTransactionList::deleteTransactionTimers exited %d entries",
                  numTransactions);
 #endif
@@ -633,7 +633,7 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
             {
                 transaction->markBusy();
                 unlock();
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::waitUntilAvailable"
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipTransactionList::waitUntilAvailable"
                               " %p locked after %d tries",
                               transaction, numTries);
             }
@@ -647,7 +647,7 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
                 // Must unlock while we wait or there is a deadlock
                 unlock();
 
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::waitUntilAvailable"
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipTransactionList::waitUntilAvailable"
                               " %p waiting on: %p after %d tries",
                               transaction, waitEvent, numTries);
 
@@ -657,7 +657,7 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
                 do
                 {
                     if(waitTime > 0)
-                         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                        "SipTransactionList::waitUntilAvailable"
                                        " %p still waiting: %d",
                                        transaction, waitTime);
@@ -685,14 +685,14 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
 
                 if(waitTime > 1)
                 {
-                    if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
+                    if (Os::Logger::instance().willLog(FAC_SIP, PRI_WARNING))
                     {
                         UtlString transTree;
                         UtlString waitingTaskName;
                         OsTask* waitingTask = OsTask::getCurrentTask();
                         if(waitingTask) waitingTaskName = waitingTask->getName();
                         transaction->dumpTransactionTree(transTree, FALSE);
-                        OsSysLog::add(FAC_SIP, PRI_WARNING,
+                        Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                       "SipTransactionList::waitUntilAvailable"
                                       " status: %d wait time: %d transaction: %p "
                                       " task: %s transaction tree: %s",
@@ -702,7 +702,7 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
                     }
                 }
 
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::waitUntilAvailable"
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipTransactionList::waitUntilAvailable"
                               " %p done waiting after %d tries",
                               transaction, numTries);
             }
@@ -710,7 +710,7 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
         else
         {
             unlock();
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::waitUntilAvailable"
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipTransactionList::waitUntilAvailable"
                           " %p gone after %d tries",
                           transaction, numTries);
         }
@@ -728,7 +728,7 @@ void SipTransactionList::markAvailable(SipTransaction& transaction)
     {
         UtlString transactionString;
         transaction.toString(transactionString, FALSE);
-        OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransactionList::markAvailable"
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipTransactionList::markAvailable"
                       " transaction not locked: %s",
             transactionString.data());
     }
@@ -763,7 +763,7 @@ UtlBoolean SipTransactionList::transactionExists(const SipTransaction* transacti
 
     if(!foundTransaction)
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::transactionExists"
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipTransactionList::transactionExists"
                       " transaction: %p hash: %s not found",
                       transaction, hash.data());
     }

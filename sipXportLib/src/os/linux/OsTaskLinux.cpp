@@ -61,7 +61,7 @@ void OsTaskLinux::ackShutdown()
    // the task thread is done - we can now get rid of it.
    mDataGuard.acquire();
    UtlString taskName = getName();
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::ackShutdown '%s' %s",
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::ackShutdown '%s' %s",
                  taskName.data(), TaskStateName(mState));
 
    switch (mState)
@@ -71,9 +71,9 @@ void OsTaskLinux::ackShutdown()
    case SHUTTING_DOWN:
       mState = TERMINATED;
 
-      if (OsSysLog::willLog(FAC_KERNEL, PRI_DEBUG))
+      if (Os::Logger::instance().willLog(FAC_KERNEL, PRI_DEBUG))
       {
-          OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "OsTaskLinux::ackShutdown '%s' shut down",
                         taskName.data());
       }
@@ -100,14 +100,14 @@ void OsTaskLinux::ackShutdown()
 
          if (res != OS_SUCCESS)
          {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                           "OsTaskLinux::ackShutdown '%s' unregister failed"
                           " mTaskId = 0x%08lx, key '%s', returns %d",
                           mName.data(), mTaskId, idString, res);
          }
          else
          {
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                           "OsTaskLinux::ackShutdown unregistered '%s'",
                           mName.data());
          }
@@ -132,7 +132,7 @@ void OsTaskLinux::ackShutdown()
       break;
 
    default:
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                     "OsTaskLinux::ackShutdown '%s' invalid mState %d",
                     taskName.data(), mState);
       assert(false);
@@ -186,7 +186,7 @@ UtlBoolean OsTaskLinux::start(void)
       linuxRes = pthread_attr_init(&attributes);
       if (linuxRes != POSIX_OK)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "OsTaskLinux::start pthread_attr_init failed %d %s",
                        linuxRes, strerror(linuxRes));
       }
@@ -196,7 +196,7 @@ UtlBoolean OsTaskLinux::start(void)
       linuxRes = pthread_attr_getstacksize(&attributes, &stacksize);
       if (linuxRes != POSIX_OK)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "OsTaskLinux:start pthread_attr_getstacksize error %d %s",
                        linuxRes, strerror(linuxRes));
       }
@@ -205,7 +205,7 @@ UtlBoolean OsTaskLinux::start(void)
          linuxRes = pthread_attr_setstacksize(&attributes, OSTASK_STACK_SIZE_1M);
          if (linuxRes != POSIX_OK)
          {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                           "OsTaskLinux:start pthread_attr_setstacksize error %d %s",
                           linuxRes, strerror(linuxRes));
          }
@@ -215,13 +215,13 @@ UtlBoolean OsTaskLinux::start(void)
       linuxRes = pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_DETACHED);
       if (linuxRes != POSIX_OK)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "OsTaskLinux:start pthread_attr_setdetachstate error %d %s",
                        linuxRes, strerror(linuxRes));
       }
 
       linuxRes = pthread_create(&mTaskId, &attributes, taskEntry, (void *)this);
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "OsTaskLinux::start '%s' this = %p, mTaskId = %ld",
                     mName.data(), this, mTaskId);
       pthread_attr_destroy(&attributes);
@@ -237,7 +237,7 @@ UtlBoolean OsTaskLinux::start(void)
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "OsTaskLinux:start '%s' pthread_create failed %d %s",
                        mName.data(), linuxRes, strerror(linuxRes));
       }
@@ -247,7 +247,7 @@ UtlBoolean OsTaskLinux::start(void)
       // There are various tasks that start in the constructors and then are also
       // explicitly started; that causes this to be logged, but it's not really a
       // problem.
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "OsTaskLinux:start '%s' attempting to start but not in UNINITIALIZED or TERMINATED state (%d)",
                     mName.data(), mState
                     );
@@ -386,10 +386,10 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
    mDataGuard.acquire();
    UtlString taskName = mName; // make a stable copy for any logging below
 
-   if (OsSysLog::willLog(FAC_KERNEL, PRI_DEBUG))
+   if (Os::Logger::instance().willLog(FAC_KERNEL, PRI_DEBUG))
    {
       OsTask* current = getCurrentTask();
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::waitUntilShutDown '%s' for '%s' %s",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::waitUntilShutDown '%s' for '%s' %s",
                     current ? current->mName.data() : "<UNKNOWN>", taskName.data(),
                     TaskStateName(mState));
    }
@@ -420,7 +420,7 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
       if (OS_WAIT_TIMEOUT == mDeleteGuard.acquire(milliSecToWait))
       {
          // the task we're waiting for is unresponsive - destroy the process.
-         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                        "OsTaskLinux::waitUntilShutDown "
                        "'%s' failed to terminate after %d.%03d seconds - aborting process",
                        taskName.data(), milliSecToWait / OsTime::MSECS_PER_SEC,
@@ -435,10 +435,10 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
       }
       else
       {
-         if (OsSysLog::willLog(FAC_KERNEL, PRI_DEBUG))
+         if (Os::Logger::instance().willLog(FAC_KERNEL, PRI_DEBUG))
          {
             OsTask* currentTask = getCurrentTask();
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                           "OsTaskLinux::waitUntilShutDown task '%s' done waiting for '%s'",
                           currentTask ? currentTask->mName.data() : "<UNKNOWN>",
                           taskName.data()
@@ -452,9 +452,9 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
       // no need to wait - the task is gone.
       mDataGuard.release();
 
-      if (OsSysLog::willLog(FAC_KERNEL, PRI_DEBUG))
+      if (Os::Logger::instance().willLog(FAC_KERNEL, PRI_DEBUG))
       {
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                        "OsTaskLinux::waitUntilShutDown task '%s' already shut down",
                        taskName.data()
                        );
@@ -653,7 +653,7 @@ void * OsTaskLinux::taskEntry(void* arg)
    linuxRes = pthread_attr_init(&attributes);
    if (linuxRes != 0)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsTaskLinux::taskEntry: pthread_attr_init failed %d %s",
                     linuxRes, strerror(linuxRes));
    }
@@ -667,13 +667,13 @@ void * OsTaskLinux::taskEntry(void* arg)
       linuxRes = sched_setscheduler(0, SCHED_FIFO, &param);
       if (linuxRes == POSIX_OK)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_INFO,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                        "OsTaskLinux::taskEntry: starting '%s' at RT linux priority: %d",
                        pTask->mName.data(), linuxPriority);
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "OsTaskLinux::taskEntry '%s' failed to set RT linux priority %d",
                        pTask->mName.data(), linuxPriority);
       }
@@ -684,7 +684,7 @@ void * OsTaskLinux::taskEntry(void* arg)
          linuxRes = mlockall(MCL_CURRENT|MCL_FUTURE);
          if (linuxRes != POSIX_OK)
          {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                           "OsTaskLinux::taskEntry '%s' failed to lock memory",
                           pTask->mName.data());
          }

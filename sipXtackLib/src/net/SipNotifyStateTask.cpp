@@ -25,7 +25,7 @@
 #include "os/OsTimer.h"
 #include "os/OsQueuedEvent.h"
 #include "os/OsEventMsg.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 #ifdef _VXWORKS
 #include "pingerjni/JXAPI.h"

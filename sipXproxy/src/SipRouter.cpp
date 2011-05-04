@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsEventMsg.h"
 #include "utl/UtlRandom.h"
 #include "net/NameValueTokenizer.h"
@@ -80,19 +80,19 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    OsConfigDb domainConfig;
    domainConfig.loadFromFile(SipXecsService::domainConfigPath());
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter domain config has %d entries", domainConfig.numEntries());
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter domain config has %d entries", domainConfig.numEntries());
 
    // get SIP_DOMAIN_NAME from domain-config
    domainConfig.get(SipXecsService::DomainDbKey::SIP_DOMAIN_NAME, mDomainName);
    if (!mDomainName.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
                     "SIP_DOMAIN_NAME: %s", mDomainName.data());
       mpSipUserAgent->setHostAliases(mDomainName);
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "SipRouter::SipRouter "
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "SipRouter::SipRouter "
                     "SIP_DOMAIN_NAME not found.");
    }
 
@@ -100,12 +100,12 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    domainConfig.get(SipXecsService::DomainDbKey::SIP_DOMAIN_ALIASES, mDomainAliases);
    if (!mDomainAliases.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
                     "SIP_DOMAIN_ALIASES : %s", mDomainAliases.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
                     "SIP_DOMAIN_ALIASES not found.");
    }
    // Using IP-address-based domain aliases in HA configurations creates
@@ -125,7 +125,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipRouter::SipRouter "
+         Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "SipRouter::SipRouter "
                        "Skipping IP address-based domain alias '%s'", aliasString.data() );
       }
       aliasIndex++;
@@ -135,13 +135,13 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    domainConfig.get(SipXecsService::DomainDbKey::SIP_REALM, mRealm);
    if (!mRealm.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
                     "SIP_REALM : %s", mRealm.data());
    }
    else
    {
       mRealm = mDomainName;
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
                     "SIP_REALM not found: defaulted to domain name '%s'",
                     mRealm.data());
    }
@@ -176,7 +176,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    _pBridgeRouter = new SipBridgeRouter(this);
    if (!_pBridgeRouter->initialize())
    {
-     OsSysLog::add(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
+     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
                     "Unable to initialize SipBridgeRouter.");
       delete _pBridgeRouter;
       _pBridgeRouter = 0;
@@ -193,7 +193,7 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    if(authScheme.compareTo("none", UtlString::ignoreCase) == 0)
    {
       mAuthenticationEnabled = false;
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SIPX_PROXY_AUTHENTICATE_SCHEME : NONE\n"
                     "  Authentication is disabled: there is NO permissions enforcement"
                     );
@@ -203,7 +203,7 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
       UtlString algorithm;
       if (OS_SUCCESS != configDb.get("SIPX_PROXY_AUTHENTICATE_ALGORITHM", algorithm))
       {
-         OsSysLog::add(FAC_SIP, PRI_INFO,
+         Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                        "SipRouter::readConfig "
                        "SIPX_PROXY_AUTHENTICATE_ALGORITHM not configured: using MD5"
                        );
@@ -212,21 +212,21 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
 
       if(algorithm.compareTo("MD5", UtlString::ignoreCase) == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_INFO,
+         Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                        "SipRouter::readConfig "
                        "SIPX_PROXY_AUTHENTICATE_ALGORITHM : %s",
                        algorithm.data());
       }
       else if (algorithm.isNull())
       {
-         OsSysLog::add(FAC_SIP, PRI_INFO,
+         Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                        "SipRouter::readConfig "
                        "SIPX_PROXY_AUTHENTICATE_ALGORITHM not set: using MD5"
                        );
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipRouter::readConfig "
                        "Unknown authentication algorithm:\n"
                        "SIPX_PROXY_AUTHENTICATE_ALGORITHM : %s\n"
@@ -243,19 +243,19 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
       // it wins in any selection based on random weighting.
       SipSrvLookup::setOwnHostname(hostname);
    }
-   OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_HOST_NAME : %s", hostname.data());
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIPX_PROXY_HOST_NAME : %s", hostname.data());
     
    configDb.get("SIPX_PROXY_HOSTPORT", mRouteHostPort);
    if(mRouteHostPort.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipRouter::readConfig "
                     "SIPX_PROXY_HOSTPORT not specified\n"
                     "   This may cause some peers to make a non-optimal routing decision."
                     );
       defaultUri.toString(mRouteHostPort);
    }
-   OsSysLog::add(FAC_SIP, PRI_INFO,
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                  "SipRouter::readConfig "
                  "SIPX_PROXY_HOSTPORT : %s", mRouteHostPort.data());
       
@@ -314,7 +314,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
       int messageType = sipMsgEvent->getMessageStatus();
       if ( messageType == SipMessageEvent::TRANSPORT_ERROR )
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "SipRouter::handleMessage received transport error message") ;
       }
       else
@@ -324,7 +324,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
          {
              if ( sipRequest->isResponse() )
              {
-                OsSysLog::add(FAC_AUTH, PRI_CRIT, "SipRouter::handleMessage received response");
+                Os::Logger::instance().log(FAC_AUTH, PRI_CRIT, "SipRouter::handleMessage received response");
                 /*
                  * Responses have already been proxied by the stack,
                  * so we don't need to do anything with them.
@@ -365,7 +365,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
 											break;
 
 										default:
-											OsSysLog::add(FAC_SIP, PRI_CRIT,
+											Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
 												"SipBridgeRouter::proxyMessage returned invalid action");
 											assert(false);
 									}
@@ -394,7 +394,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
 		                 break;
 
 		              default:
-		                 OsSysLog::add(FAC_SIP, PRI_CRIT,
+		                 Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
 		                               "SipRouter::proxyMessage returned invalid action");
 		                 assert(false);
 		              }
@@ -404,7 +404,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
          else 
          {
             // not a SIP message - should never happen
-            OsSysLog::add(FAC_SIP, PRI_CRIT,
+            Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                           "SipRouter::handleMessage is not a sip message");
          }
       }
@@ -518,7 +518,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                      // challenge the originator
                      authenticationChallenge(sipRequest, sipResponse);
 
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                    "SipRouter::proxyMessage "
                                    " From '%s' is unauthenticated local user - challenge for PAI",
                                    fromUrl.toString().data());
@@ -550,7 +550,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                }
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::proxyMessage "
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::proxyMessage "
                                 " From '%s' not local to realm '%s' - do not challenge",
                                 fromUrl.toString().data(), mRealm.data());
                }
@@ -584,7 +584,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                // final target is in our own domain and URI is GRUU.  We
                // have to evaluate the forwarding rules so that request will
                // be routed to the redirect server where the GRUU can be resolved.
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipRouter::proxyMessage domain is us");
                bRequestShouldBeAuthorized         = true;
                bForwardingRulesShouldBeEvaluated  = true;
@@ -605,7 +605,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          bForwardingRulesShouldBeEvaluated = true;
       }
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipRouter::proxyMessage A "
                     "bRequestShouldBeAuthorized = %d, "
                     "bForwardingRulesShouldBeEvaluated = %d, "
@@ -661,7 +661,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                   nextHopUrl.toString(routeString);
                   sipRequest.addRouteUri(routeString.data());
          
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipRouter::proxyMessage fowardingrules added route type '%s' to: '%s'",
                              routeType.data(), routeString.data());
     
@@ -689,7 +689,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          }
       }
       
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipRouter::proxyMessage B "
                     "bRequestShouldBeAuthorized = %d, "
                     "bMessageWillSpiral = %d",
@@ -724,7 +724,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          if ((requestIsAuthenticated = sipxIdentity.getIdentity(authUser)))
          {
             // found identity in request
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRouter::proxyMessage "
+            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SipRouter::proxyMessage "
                           " found valid sipXauthIdentity '%s' for callId %s",
                           authUser.data(), callId.data() 
                           );
@@ -771,7 +771,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                                                           rejectReason
                                                           );
 
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                           "SipProxy::proxyMessage plugin %s returned %s for %s",
                           authPluginName.data(),
                           AuthPlugin::AuthResultStr(pluginResult),
@@ -783,7 +783,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             {
                authStatus   = pluginResult;
                authDecision = pluginResult;
-               OsSysLog::add(FAC_AUTH, PRI_INFO,
+               Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                              "SipProxy::proxyMessage authoritative authorization decision is %s by %s for %s",
                              AuthPlugin::AuthResultStr(authDecision),
                              authPluginName.data(),
@@ -829,7 +829,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          break;
 
          default:
-            OsSysLog::add(FAC_SIP, PRI_CRIT,
+            Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                           "SipRouter::proxyMessage plugin returned invalid result %d",
                           authDecision);
             break;
@@ -1153,7 +1153,7 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
 
       if (mRealm.compareTo(requestRealm) ) // case sensitive check that realm is correct
       {
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                        "SipRouter:isAuthenticated::isAuthenticated "
                        "Realm does not match");
       }
@@ -1161,7 +1161,7 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
       // validate the nonce
       else if (!mNonceDb.isNonceValid(requestNonce, callId, fromTag, mRealm, nonceExpires))
       {
-          OsSysLog::add(FAC_AUTH, PRI_INFO,
+          Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                         "SipRouter::isAuthenticated() "
                         "Invalid NONCE: '%s' found "
                         "call-id: '%s' from tag: '%s' uri: '%s' realm: '%s' "
@@ -1180,7 +1180,7 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
                                                qopType)
                >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
       {
-          OsSysLog::add(FAC_AUTH, PRI_INFO,
+          Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                         "SipRouter:isAuthenticated -"
                         "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
                         requestQop.data(), requestCNonce.data(), requestNonceCount.data());
@@ -1202,7 +1202,7 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
 #ifdef TEST_PRINT
              // THIS SHOULD NOT BE LOGGED IN PRODUCTION
              // For security reasons we do not want to put passtokens into the log.
-             OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+             Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                            "SipRouter::isAuthenticated "
                            "found credential "
                            "user: \"%s\" passToken: \"%s\"",
@@ -1221,14 +1221,14 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
              if ( authenticated )
              {
                 userUrl.getIdentity(authUser);
-                OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                               "SipRouter::isAuthenticated(): "
                               "authenticated as '%s'",
                               authUser.data());
              }
              else
              {
-                OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                               "SipRouter::isAuthenticated() "
                               "authentication failed as '%s'",
                               requestUser.data());
@@ -1237,7 +1237,7 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
           // Did not find credentials in DB
           else
           {
-             OsSysLog::add(FAC_AUTH, PRI_INFO,
+             Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                            "SipRouter::isAuthenticated() "
                            "No credentials found for user: '%s'",
                            requestUser.data());
@@ -1336,7 +1336,7 @@ bool SipRouter::getCredential (
     if (!_pEntities)
         return false;
 
-    SYSLOG_INFO("SipRouter::getCredential - EntityDB::findByIdentity");
+    OS_LOG_INFO(FAC_SIP, "SipRouter::getCredential - EntityDB::findByIdentity");
 
     EntityRecord entity;
     if (!_pEntities->collection().findByIdentity(identity.str(), entity))

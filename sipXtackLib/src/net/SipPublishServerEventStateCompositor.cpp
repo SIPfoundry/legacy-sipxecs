@@ -10,9 +10,9 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlString.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/SipPublishServerEventStateCompositor.h>
 #include <net/SipMessage.h>
 #include <net/Url.h>

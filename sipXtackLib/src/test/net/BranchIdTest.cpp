@@ -8,7 +8,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 #include <net/BranchId.h>
 #include <net/SipMessage.h>
@@ -114,13 +114,13 @@ public:
          UtlString output[CASES];
 
          // Generate some BranchIds.
-         OsSysLog::add(FAC_SIP,PRI_DEBUG,"BranchIdTest::testBranchIdUniqueness unique cases");
+         Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,"BranchIdTest::testBranchIdUniqueness unique cases");
          for (int i = 0; i < CASES; i++)
          {
             BranchId branchId(sipMsg);
             output[i].append(branchId.data());
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "case %d initial: %s\n", i, output[i].data());
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "case %d initial: %s\n", i, output[i].data());
          }
 
          // Compare that they're different enough.
@@ -152,7 +152,7 @@ public:
          }
 
          // Now regenerate those as child ids without forks
-         OsSysLog::add(FAC_SIP,PRI_DEBUG,"BranchIdTest::testBranchIdUniqueness child cases");
+         Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,"BranchIdTest::testBranchIdUniqueness child cases");
          for (int i = 0; i < CASES; i++)
          {
             BranchId parentBranchId(output[i]);
@@ -161,7 +161,7 @@ public:
             output[i].remove(0);
             output[i].append(branchId.data());
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "case %d child  : %s\n", i, output[i].data());
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "case %d child  : %s\n", i, output[i].data());
          }
 
          // Compare that they're different enough.
@@ -193,7 +193,7 @@ public:
          }
 
          // And then add a fork to each to see if the forks are different
-         OsSysLog::add(FAC_SIP,PRI_DEBUG,"BranchIdTest::testBranchIdUniqueness forked cases");
+         Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,"BranchIdTest::testBranchIdUniqueness forked cases");
          for (int i = 0; i < CASES; i++)
          {
             BranchId parentBranchId(output[i]);
@@ -208,7 +208,7 @@ public:
             output[i].remove(0);
             output[i].append(branchId.data());
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "case %d forked : %s\n", i, output[i].data());
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "case %d forked : %s\n", i, output[i].data());
          }
 
          // Compare that they're different enough.
@@ -278,7 +278,7 @@ public:
          sipMsg1.addVia("example.com",PORT_NONE,"TCP",branchId1.data());
          sipMsg1.getBytes(&msgBytes, &msgLength);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %d: \n%s\n----\n", 1, msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %d: \n%s\n----\n", 1, msgBytes.data());
 
          // forward once - just one target
 
@@ -296,7 +296,7 @@ public:
          sipMsg2.addVia("example.com",PORT_NONE,"TCP",branchId2c1.data());
          sipMsg2.getBytes(&msgBytes, &msgLength);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "2c1", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "2c1", msgBytes.data());
 
          // forward twice
 
@@ -315,7 +315,7 @@ public:
          sipMsg3c1.addVia("example.com",PORT_NONE,"TCP",branchId3c1.data());
 
          sipMsg3c1.getBytes(&msgBytes, &msgLength);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "3c1", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "3c1", msgBytes.data());
 
          SipMessage sipMsg3c2(sipMsg3);
          sipMsg3c2.changeUri("sip:someone@example.com");
@@ -324,7 +324,7 @@ public:
          sipMsg3c2.addVia("example.com",PORT_NONE,"TCP",branchId3c2.data());
 
          sipMsg3c2.getBytes(&msgBytes, &msgLength);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "3c2", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "3c2", msgBytes.data());
 
          SipMessage sipMsg4s1(sipMsg3c1);  // construct server transaction copy
          BranchId branchId4s1(sipMsg4s1);  // construct parent branch id
@@ -340,7 +340,7 @@ public:
          sipMsg4c1.addVia("example.com",PORT_NONE,"TCP",branchId4c1.data());
 
          sipMsg4c1.getBytes(&msgBytes, &msgLength);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "4c1", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "4c1", msgBytes.data());
 
          SipMessage sipMsg4s2(sipMsg3c2);  // construct server transaction copy
          BranchId branchId4s2(sipMsg4s2);  // construct parent branch id
@@ -348,7 +348,7 @@ public:
          branchId4s2.addFork("sip:someone-else@example.com"); // loop
 
          sipMsg4s2.getBytes(&msgBytes, &msgLength);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "4s2", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "4s2", msgBytes.data());
 
          CPPUNIT_ASSERT_EQUAL(2U,branchId4s2.loopDetected(sipMsg4s2));
       }
@@ -378,7 +378,7 @@ public:
          sipMsg1.addVia("example.com",PORT_NONE,"TCP",branchId1.data());
          sipMsg1.getBytes(&msgBytes, &msgLength);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %d: \n%s\n----\n", 1, msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %d: \n%s\n----\n", 1, msgBytes.data());
 
          // forward once - just one target
 
@@ -405,7 +405,7 @@ public:
          sipMsg2.addVia("example.com",PORT_NONE,"TCP",branchId2c1.data());
          sipMsg2.getBytes(&msgBytes, &msgLength);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "2c1", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "2c1", msgBytes.data());
 
          // forward twice
 
@@ -424,7 +424,7 @@ public:
          sipMsg3c1.addVia("example.com",PORT_NONE,"TCP",branchId3c1.data());
 
          sipMsg3c1.getBytes(&msgBytes, &msgLength);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "3c1", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "3c1", msgBytes.data());
 
          SipMessage sipMsg3c2(sipMsg3);
          sipMsg3c2.changeUri("sip:someone@example.com");
@@ -433,7 +433,7 @@ public:
          sipMsg3c2.addVia("example.com",PORT_NONE,"TCP",branchId3c2.data());
 
          sipMsg3c2.getBytes(&msgBytes, &msgLength);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "3c2", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "3c2", msgBytes.data());
 
          SipMessage sipMsg4s1(sipMsg3c1);  // construct server transaction copy
          BranchId branchId4s1(sipMsg4s1);  // construct parent branch id
@@ -449,7 +449,7 @@ public:
          sipMsg4c1.addVia("example.com",PORT_NONE,"TCP",branchId4c1.data());
 
          sipMsg4c1.getBytes(&msgBytes, &msgLength);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "4c1", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "4c1", msgBytes.data());
 
          SipMessage sipMsg4s2(sipMsg3c2);  // construct server transaction copy
          BranchId branchId4s2(sipMsg4s2);  // construct parent branch id
@@ -466,7 +466,7 @@ public:
          branchId4s2.addFork(url4s2); // loop
 
          sipMsg4s2.getBytes(&msgBytes, &msgLength);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "4s2", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "4s2", msgBytes.data());
 
          CPPUNIT_ASSERT_EQUAL(2U,branchId4s2.loopDetected(sipMsg4s2));
       }

@@ -13,7 +13,7 @@
 #include <net/SipDialog.h>
 #include <net/SipMessage.h>
 #include <utl/UtlHashMapIterator.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -366,7 +366,7 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     // If the remote contact is empty, use the remote request uri
     if (remoteContact.compareTo("sip:") == 0)
     {
-         OsSysLog::add(FAC_ACD, PRI_DEBUG, "SipDialog::setRequestData - using remote request uri %s",
+         Os::Logger::instance().log(FAC_ACD, PRI_DEBUG, "SipDialog::setRequestData - using remote request uri %s",
                        msRemoteRequestUri.data());
          request.setSipRequestFirstHeaderLine(methodString, msRemoteRequestUri);
     }

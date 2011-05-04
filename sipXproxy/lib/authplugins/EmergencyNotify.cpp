@@ -10,7 +10,7 @@
 #include "os/OsFS.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipXecsService/SipXecsService.h"
 
 // APPLICATION INCLUDES
@@ -39,7 +39,7 @@ EmergencyNotify::EmergencyNotify(const UtlString& pluginName ///< the name for t
    , mRulesLock(OsRWMutex::Q_FIFO)
    , mpEmergencyRules(NULL)
 {
-   OsSysLog::add(FAC_SIP,PRI_INFO,"EmergencyNotify plugin instantiated '%s'",
+   Os::Logger::instance().log(FAC_SIP,PRI_INFO,"EmergencyNotify plugin instantiated '%s'",
                  mInstanceName.data());
 };
 
@@ -58,7 +58,7 @@ EmergencyNotify::readConfig( OsConfigDb& configDb /**< a subhash of the individu
     * is used to identify the plugin (see PluginHooks) has been removed (see the
     * examples in PluginHooks::readConfig).
     */
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "EmergencyNotify[%s]::readConfig",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "EmergencyNotify[%s]::readConfig",
                  mInstanceName.data()
                  );
 
@@ -79,7 +79,7 @@ EmergencyNotify::readConfig( OsConfigDb& configDb /**< a subhash of the individu
 
       fileName = SipXecsService::Path(SipXecsService::ConfigurationDirType, DEFAULT_EMERG_RULES_FILENAME);
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "EmergencyNotify[%s]::readConfig "
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "EmergencyNotify[%s]::readConfig "
                     " no rules file configured; trying '%s'",
                     mInstanceName.data(), fileName.data()
                     );
@@ -87,14 +87,14 @@ EmergencyNotify::readConfig( OsConfigDb& configDb /**< a subhash of the individu
 
    if (OS_SUCCESS == mpEmergencyRules->loadMappings(fileName))
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "EmergencyNotify[%s]::readConfig "
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "EmergencyNotify[%s]::readConfig "
                     " successfully loaded rules file '%s'.",
                     mInstanceName.data(), fileName.data()
                     );
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "EmergencyNotify[%s]::readConfig "
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "EmergencyNotify[%s]::readConfig "
                     " error loading rules file '%s'.",
                     mInstanceName.data(), fileName.data()
                     );
@@ -143,7 +143,7 @@ EmergencyNotify::authorizeAndModify(const UtlString& id, /**< The authenticated 
          alarmParams.append(&fromField);
          alarmParams.append(&contactField);
 
-         OsSysLog::add(FAC_ALARM, PRI_EMERG,
+         Os::Logger::instance().log(FAC_ALARM, PRI_EMERG,
                "Emergency dial rule '%s (%s)' was invoked by '%s<%s>' Contact: %s",
                nameStr.data(), descriptionStr.data(), fromLabel.data(), fromField.data(),
                contactField.data());

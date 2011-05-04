@@ -128,7 +128,7 @@ int VoiceEngineNetTask::getWriteFD()
     {
         // we are in a different thread already, go do it ourselves.
         osPrintf("Not VoiceEngineNetTask: opening connection directly\n");
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "Not VoiceEngineNetTask: opening connection directly\n");
+        Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "Not VoiceEngineNetTask: opening connection directly\n");
         openWriteFD();
     }
     sLock.releaseRead();
@@ -186,7 +186,7 @@ OsStatus VoiceEngineNetTask::addInputSource(VoiceEngineDatagramSocket* pSocket)
         wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
         if (wrote != NET_TASK_MAX_MSG_LEN)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "addNetInputSources - writeSocket error: 0x%p,%d wrote %d",
                     writeSocket, writeSocket->getSocketDescriptor(), wrote);
         }
@@ -216,7 +216,7 @@ OsStatus VoiceEngineNetTask::removeInputSource(VoiceEngineDatagramSocket* pSocke
         wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
         if (wrote != NET_TASK_MAX_MSG_LEN)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "addNetInputSources - writeSocket error: 0x%p,%d wrote %d",
                     writeSocket, writeSocket->getSocketDescriptor(), wrote);
         }
@@ -326,13 +326,13 @@ int XXfindPoisonFds(int pipeFD)
         VoiceEngineNetTaskMsgPtr ppr;
 
         if (XXisFdPoison(pipeFD)) {
-            OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: pipeFd socketDescriptor=%d busted!\n", pipeFD);
+            Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: pipeFd socketDescriptor=%d busted!\n", pipeFD);
             return -1;
         }
         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             if (ppr->pSocket && // not NULL socket and
                 XXisFdPoison(ppr->pSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: Removing fdRtp[%d], socket=0x%p, socketDescriptor=%d\n", ppr-pairs,ppr->pSocket, (int)ppr->pSocket->getSocketDescriptor());
+                Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: Removing fdRtp[%d], socket=0x%p, socketDescriptor=%d\n", ppr-pairs,ppr->pSocket, (int)ppr->pSocket->getSocketDescriptor());
                 n++;
                 ppr->pSocket = NULL;
             }
@@ -351,13 +351,13 @@ int VoiceEngineNetTask::processControlSocket(int last)
     memset((void*)&msg, 0, sizeof(VoiceEngineNetTaskMsg));
     if (NET_TASK_MAX_MSG_LEN != mpReadSocket->read((char *) &msg, NET_TASK_MAX_MSG_LEN))
     {
-        OsSysLog::add(FAC_MP, PRI_ERR, "VoiceEngineNetTask::run: Invalid request!") ;
+        Os::Logger::instance().log(FAC_MP, PRI_ERR, "VoiceEngineNetTask::run: Invalid request!") ;
     }
     else if (-2 == (int) msg.pSocket)
     {
         // Request to exit
 
-        OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: closing pipeFd (%d)\n",
+        Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: closing pipeFd (%d)\n",
             mpReadSocket->getSocketDescriptor());
 
         sLock.acquireWrite();
@@ -378,7 +378,7 @@ int VoiceEngineNetTask::processControlSocket(int last)
                 // Insert into the pairs list
                 newFd  = (msg.pSocket) ? msg.pSocket->getSocketDescriptor() : -1;
 
-                OsSysLog::add(FAC_MP, PRI_DEBUG, " *** VoiceEngineNetTask: Adding new sockets (socket: %p,%d)\n",
+                Os::Logger::instance().log(FAC_MP, PRI_DEBUG, " *** VoiceEngineNetTask: Adding new sockets (socket: %p,%d)\n",
                           msg.pSocket, newFd);
 
                 // Look for duplicate file descriptors; remove if found
@@ -391,7 +391,7 @@ int VoiceEngineNetTask::processControlSocket(int last)
 
                         if ((existingFd >= 0) && (existingFd == newFd))
                         {
-                            OsSysLog::add(FAC_MP, PRI_ERR,
+                            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                                     " *** VoiceEngineNetTask: Using a dup descriptor (New:%p,%d, Old:%p,%d)\n",
                                     msg.pSocket, newFd, ppr->pSocket, existingFd) ;
                             ppr->pSocket = NULL;
@@ -408,7 +408,7 @@ int VoiceEngineNetTask::processControlSocket(int last)
                     {
                         ppr->pSocket = msg.pSocket;
                         numPairs++;
-                        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                        Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                                 " *** VoiceEngineNetTask: Add socket Fds: (New=%p,%d)\n",
                                 msg.pSocket, newFd);
                         break ;
@@ -425,7 +425,7 @@ int VoiceEngineNetTask::processControlSocket(int last)
                 {
                     if (msg.pSocket == ppr->pSocket)
                     {
-                        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                        Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                                 " *** VoiceEngineNetTask: Remove socket Fds: (Old=%p,%d)\n",
                                 ppr->pSocket, ppr->pSocket->getSocketDescriptor()) ;
                         ppr->pSocket = NULL ;
@@ -440,7 +440,7 @@ int VoiceEngineNetTask::processControlSocket(int last)
                 }
                 else
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                                 " *** VoiceEngineNetTask: VoiceEngineNetTaskMsg::REMOVE: already signaled\n") ;
                 }
                 break ;
@@ -527,12 +527,12 @@ int VoiceEngineNetTask::run(void *pNotUsed)
         numReady = select(last+1, fds, NULL, NULL, NULL);
         if (numReady < 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: select returned %d, errno=%d=0x%X\n",
+            Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: select returned %d, errno=%d=0x%X\n",
                 numReady, errno, errno);
             i = XXfindPoisonFds(mpReadSocket->getSocketDescriptor());
             if (i < 0)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: My comm socket failed! Quitting!\n");
+                Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: My comm socket failed! Quitting!\n");
                 mpReadSocket->close();
             }
             else if (i > 0)

@@ -17,7 +17,7 @@
 #include "os/OsBSem.h"
 #include "os/OsFS.h"
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/PluginHooks.h"
 #include "net/HttpServer.h"
 #include "net/Url.h"
@@ -72,7 +72,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    mRegisterEventServer(NULL),
    mRegistrarPersist(NULL)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar constructed.");
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar constructed.");
 
 
    // Some phones insist (incorrectly) on putting the proxy port number on urls;
@@ -88,7 +88,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    if ( mDefaultDomain.isNull() )
    {
       OsSocket::getHostIp(&mDefaultDomain);
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "SIP_REGISTRAR_DOMAIN_NAME not configured using IP '%s'",
                     mDefaultDomain.data()
                     );
@@ -112,12 +112,12 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
 
    if (!domainAliases.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar "
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar "
                     "SIP_DOMAIN_ALIASES : %s", domainAliases.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipRegistrar::SipRegistrar "
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipRegistrar::SipRegistrar "
                     "SIP_DOMAIN_ALIASES not found.");
    }
 
@@ -169,7 +169,7 @@ int SipRegistrar::run(void* pArg)
    }
    else
    {
-       OsSysLog::add(FAC_SIP, PRI_EMERG, "Unable to startup Rpc server (port in use?)\n");
+       Os::Logger::instance().log(FAC_SIP, PRI_EMERG, "Unable to startup Rpc server (port in use?)\n");
    }
 
    return taskResult;
@@ -178,7 +178,7 @@ int SipRegistrar::run(void* pArg)
 /// Launch all Startup Phase threads.
 void SipRegistrar::startupPhase()
 {
-   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar entering startup phase");
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SipRegistrar entering startup phase");
 
    // Create and start the persist thread, before making any changes
    // to the registration DB.
@@ -198,7 +198,7 @@ void SipRegistrar::createAndStartPersist()
 /// Launch all Operational Phase threads.
 UtlBoolean SipRegistrar::operationalPhase()
 {
-   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar entering operational phase");
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SipRegistrar entering operational phase");
 
    // Start the SIP stack.
    int tcpPort = PORT_DEFAULT;
@@ -271,9 +271,9 @@ UtlBoolean SipRegistrar::operationalPhase()
 
    if (!mSipUserAgent->isOk())
    {
-      OsSysLog::add(FAC_SIP, PRI_EMERG,
+      Os::Logger::instance().log(FAC_SIP, PRI_EMERG,
             "SipUserAgent reported a problem while starting up (port in use?)");
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "tcpPort = %d, udpPort = %d, tlsPort = %d, mBindIp = '%s'",
                     tcpPort, udpPort, tlsPort, mBindIp.data());
    }
@@ -305,7 +305,7 @@ OsConfigDb* SipRegistrar::getConfigDB()
 void SipRegistrar::requestShutdown(void)
 {
    // This is called from the SipRegistrar task destructor below in the main routine thread.
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::requestShutdown");
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::requestShutdown");
 
    // Set the low level task flag and wake up the SipRegistrar task
 
@@ -322,12 +322,12 @@ void SipRegistrar::requestShutdown(void)
 SipRegistrar::~SipRegistrar()
 {
    // this is called from the main routine
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ waiting for task exit");
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ waiting for task exit");
 
    waitUntilShutDown(); // wait for the thread to exit
 
    // all other threads have been shut down
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ task shut down - complete destructor");
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ task shut down - complete destructor");
 
 
    mValidDomains.destroyAll();
@@ -358,7 +358,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
         && (msgSubType == SipMessage::NET_SIP_MESSAGE)
         )
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::handleMessage()"
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::handleMessage()"
                       " Start processing SIP message") ;
 
         const SipMessage* message =
@@ -458,7 +458,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
         }
         else
         {
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                          "SipRegistrar::handleMessage no message."
                          ) ;
         }
@@ -467,7 +467,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
     }
     else if ( OsMsg::OS_SHUTDOWN == msgType )
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipRegistrar::handleMessage shutting down all tasks");
 
        // Do an orderly shutdown of all the various threads.
@@ -475,7 +475,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 
        if ( mSipUserAgent )
        {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipRegistrar::handleMessage shutting down SipUserAgent");
           mSipUserAgent->shutdown();
           delete mSipUserAgent ;
@@ -485,7 +485,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 
        if ( mRegistrarPersist )
        {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipRegistrar::handleMessage shutting down RegistrarPersist");
           mRegistrarPersist->requestShutdown();
           delete mRegistrarPersist;
@@ -494,7 +494,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 
        if ( mRedirectServer )
        {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipRegistrar::handleMessage shutting down RedirectServer");
           mRedirectServer->requestShutdown();
           delete mRedirectServer;
@@ -504,7 +504,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 
        if ( mRegistrarServer )
        {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipRegistrar::handleMessage shutting down RegistrarServer");
           mRegistrarServer->requestShutdown();
           delete mRegistrarServer;
@@ -514,7 +514,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 
        if ( mRegisterEventServer )
        {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipRegistrar::handleMessage shutting down RegisterEventServer");
           delete mRegisterEventServer;
           mRegisterEventServer = NULL;
@@ -525,7 +525,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipRegistrar::handleMessage unhandled type %d/%d",
                      msgType, msgSubType
                      ) ;
@@ -541,7 +541,7 @@ SipRegistrar::getInstance(OsConfigDb* configDb)
 
     if ( spInstance == NULL )
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::getInstance(%p)",
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::getInstance(%p)",
                      configDb);
 
        spInstance = new SipRegistrar(configDb);
@@ -603,7 +603,7 @@ SipRegistrar::sendToRedirectServer(OsMsg& eventMessage)
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_CRIT, "sendToRedirectServer - queue not initialized.");
+       Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "sendToRedirectServer - queue not initialized.");
     }
 }
 
@@ -616,7 +616,7 @@ SipRegistrar::sendToRegistrarServer(OsMsg& eventMessage)
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_CRIT, "sendToRegistrarServer - queue not initialized.");
+       Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "sendToRegistrarServer - queue not initialized.");
     }
 }
 
@@ -645,7 +645,7 @@ SipRegistrar::isValidDomain(const Url& uri) const
    if ( mValidDomains.contains(&domain) )
    {
       isValid = true;
-      OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                     "SipRegistrar::isValidDomain(%s) VALID",
                     domain.data()) ;
    }
@@ -662,7 +662,7 @@ SipRegistrar::addValidDomain(const UtlString& host, int port)
    sprintf(explicitPort,":%d", PORT_NONE==port ? SIP_PORT : port );
    valid->append(explicitPort);
 
-   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrar::addValidDomain(%s)",valid->data()) ;
+   Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SipRegistrar::addValidDomain(%s)",valid->data()) ;
 
    mValidDomains.insert(valid);
 }

@@ -6,7 +6,7 @@
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsDateTime.h"
 #include "net/SipMessage.h"
 #include "net/HttpRequestContext.h"
@@ -103,7 +103,7 @@ MwiPlugin::handleSubscribeRequest (
         mailboxUrl.setHostAddress( domain );
     }
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "MwiPlugin::handleSubscribeRequest() -"
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "MwiPlugin::handleSubscribeRequest() -"
         " Subscription for %s successfully added", mailboxUrl.toString().data());
 
     Url voicemailCGIUrl ( mVoicemailCGIUrl );
@@ -126,12 +126,12 @@ MwiPlugin::handleSubscribeRequest (
     int httpStatus = httpResponse.get( voicemailCGIUrl, 3*1000 /* 3 sec */, true /* persistent */);
     if ( HTTP_OK_CODE == httpStatus )
       {
-        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+        if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
           {
             UtlString rspMsg;
             ssize_t rspLength;
             httpResponse.getBytes( &rspMsg, &rspLength );
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "MwiPlugin::handleSubscribeRequest() - voicemailCGI response:\n%s"
                           ,rspMsg.data()
                           );
@@ -199,7 +199,7 @@ MwiPlugin::handleSubscribeRequest (
                   }
                 else
                   {
-                    OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                   "MwiPlugin::handleSubscribeRequest() - voicemailCGI response not valid: %s"
                                   ,buffer.data()
                                   );
@@ -207,21 +207,21 @@ MwiPlugin::handleSubscribeRequest (
               }
             else
               {
-                OsSysLog::add(FAC_SIP, PRI_WARNING,
+                Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                               "MwiPlugin::handleSubscribeRequest() - voicemailCGI response has no body"
                               );
               }
           }
         else
           {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "MwiPlugin::handleSubscribeRequest() - voicemailCGI response wrong type"
                           );
           }
       }
     else
       {
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                       "MwiPlugin::handleSubscribeRequest() - voicemailCGI GET failed with %d."
                       ,httpStatus
                       );
@@ -246,7 +246,7 @@ MwiPlugin::handleEvent (
 
     if( !identityUrlStr.isNull())
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "MwiPlugin::handleEvent notice for '%s'", identityUrlStr.data());
 
         // Extract just the identity part from the IDENTITY
@@ -299,7 +299,7 @@ MwiPlugin::handleEvent (
               }
               else
               {
-                 OsSysLog::add(FAC_SIP, PRI_ERR,
+                 Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                "MwiPlugin::handleEvent request body is not a valid notice\n"
                                "======\n%s\n======",
                                buffer.data()
@@ -308,7 +308,7 @@ MwiPlugin::handleEvent (
            }
            else
            {
-              OsSysLog::add(FAC_SIP, PRI_ERR,
+              Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                             "MwiPlugin::handleEvent request body is not type '"
                             CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY "'\n"
                             "Content-Type: '%s'",
@@ -318,13 +318,13 @@ MwiPlugin::handleEvent (
         }
         else
         {
-           OsSysLog::add(FAC_SIP, PRI_ERR,
+           Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                          "MwiPlugin::handleEvent request has no body");
         }
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "MwiPlugin::handleEvent no identity found in http request");
     }
     return result;

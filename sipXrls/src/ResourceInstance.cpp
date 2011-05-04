@@ -14,7 +14,7 @@
 
 #include "ResourceListServer.h"
 #include "ResourceInstance.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/XmlContent.h>
 #include <utl/UtlHashMapIterator.h>
 #include <xmlparser/tinystr.h>
@@ -49,7 +49,7 @@ ResourceInstance::ResourceInstance(SubscriptionSet* parent,
    mSubscriptionState(subscriptionState),
    mContentPresent(FALSE)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance:: mInstanceName = '%s', mSubscriptionSet = '%s', subscriptionState = '%s'",
                  mInstanceName.data(), mSubscriptionSet->getUri()->data(),
                  subscriptionState);
@@ -64,7 +64,7 @@ ResourceInstance::ResourceInstance(SubscriptionSet* parent,
 // Destructor
 ResourceInstance::~ResourceInstance()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance::~ mInstanceName = '%s'",
                  mInstanceName.data());
 
@@ -75,7 +75,7 @@ ResourceInstance::~ResourceInstance()
    UtlBoolean ret;
    ret = getResourceListServer()->getSubscribeClient().
       endSubscriptionGroup(mInstanceName.data());
-   OsSysLog::add(FAC_RLS,
+   Os::Logger::instance().log(FAC_RLS,
                  ret ? PRI_DEBUG : PRI_WARNING,
                  "ResourceInstance::~ endSubscriptionGroup %s mInstanceName = '%s'",
                  ret ? "succeeded" : "failed",
@@ -100,7 +100,7 @@ UtlBoolean ResourceInstance::isSubscriptionStateTerminated()
    // starts with "terminated";
    UtlBoolean ret = strncmp(mSubscriptionState.data(),
                             "terminated", sizeof ("terminated") - 1) == 0;
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance::isSubscriptionStateTerminated mInstanceName = '%s', mSubscriptionState = '%s', ret = %d",
                  mInstanceName.data(), mSubscriptionState.data(), ret);
    return ret;
@@ -110,7 +110,7 @@ UtlBoolean ResourceInstance::isSubscriptionStateTerminated()
 void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
                                            const UtlString* content)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance::notifyEventCallback mInstanceName = '%s', content = '%s'",
                  mInstanceName.data(), content->data());
    // Set to true if we find publishable data.
@@ -145,7 +145,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
          // If the state is "full", terminate all non-terminated dialogs.  (XECS-1668)
          terminateXmlDialogs();
          publish = true;
-         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                        "ResourceInstance::notifyEventCallback terminated all non-terminated dialogs");
       }
 
@@ -243,7 +243,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
                   // Replace the old XML with new XML.
                   delete static_cast <TiXmlElement*> (p->getValue());
                   p->setValue(alloc_xml);
-                  OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                                 "ResourceInstance::notifyEventCallback replaced dialog with id '%s'",
                                 id.data());
                }
@@ -255,7 +255,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
                   {
                      mXmlDialogs.insertKeyAndValue(new UtlString(id),
                                                    new UtlVoidPtr(alloc_xml));
-                     OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                     Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                                    "ResourceInstance::notifyEventCallback added dialog with id '%s'",
                                    id.data());
                   }
@@ -263,7 +263,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
                   {
                      // Free alloc_xml, because we aren't saving a pointer to it.
                      delete alloc_xml;
-                     OsSysLog::add(FAC_RLS, PRI_ERR,
+                     Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                                    "ResourceInstance::notifyEventCallback cannot add dialog with id '%s', already %zu in ResourceInstance '%s'",                                id.data(), mXmlDialogs.entries(),
                                    mInstanceName.data());
                   }
@@ -275,7 +275,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
                // a NAT Maintainer OPTIONS message.
                // We log this at DEBUG level because if these appear,
                // there is likely to be one every 20 seconds.
-               OsSysLog::add(FAC_RLS, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                              "ResourceInstance::notifyEventCallback "
                              "ignored <dialog> reporting a NAT Keepalive message "
                              "in subscription dialog handle '%s' - "
@@ -288,11 +288,11 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
    else
    {
       // Report error parsing XML.
-      OsSysLog::add(FAC_RLS, PRI_ERR,
+      Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                     "ResourceInstance::notifyEventCallback "
                     "Dialog event from '%s' not parsable.",
                     getResourceCached()->getUri()->data());
-      OsSysLog::add(FAC_RLS, PRI_INFO,
+      Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                     "ResourceInstance::notifyEventCallback "
                     "Dialog event content is '%s'",
                     content->data());
@@ -313,7 +313,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
 // Process a termination of the subscription of this ResourceInstance.
 void ResourceInstance::terminateContent(const char* subscriptionState)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance::terminateContent mInstanceName = '%s', subscriptionState = '%s'",
                  mInstanceName.data(), subscriptionState);
 
@@ -337,7 +337,7 @@ void ResourceInstance::terminateContent(const char* subscriptionState)
 // in the events it sends.
 void ResourceInstance::purgeTerminatedDialogs()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance::purgeTerminatedDialogs mInstanceName = '%s'",
                  mInstanceName.data());
 
@@ -372,7 +372,7 @@ void ResourceInstance::generateBody(UtlString& rlmi,
                                     UtlBoolean consolidated,
                                     const UtlString& displayName) const
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance::generateBody mInstanceName = '%s', consolidated = %d, displayName = '%s', mContentPresent = %d",
                  mInstanceName.data(), consolidated, displayName.data(),
                  mContentPresent);
@@ -471,7 +471,7 @@ void ResourceInstance::dumpState() const
 {
    // indented 12
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t            ResourceInstance %p mInstanceName = '%s', "
                  "mSubscriptionState = '%s', mContentPresent = %d, mContent = '%s'",
                  this, mInstanceName.data(), mSubscriptionState.data(),
@@ -489,7 +489,7 @@ void ResourceInstance::dumpState() const
       TiXmlUtlStringWriter writer(&s);
       writer <<*dialog_element;
 
-      OsSysLog::add(FAC_RLS, PRI_INFO,
+      Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                     "\t              mXmlDialogs{'%s'} = '%s'",
                     dialog_id->data(), s.data());
    }
@@ -526,7 +526,7 @@ void ResourceInstance::destroyXmlDialogs()
 //! Terminate the non-Terminated contents of mXmlDialogs.
 void ResourceInstance::terminateXmlDialogs()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance::terminateXmlDialogs mInstanceName = '%s'",
                  mInstanceName.data());
 

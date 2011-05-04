@@ -10,7 +10,8 @@
 
 #include "TestOsSysLogListener.h"
 #include <cppunit/Test.h>
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
+#include "os/OsLoggerHelper.h"
 
 /// constructor
 TestOsSysLogListener::TestOsSysLogListener()
@@ -27,20 +28,20 @@ void TestOsSysLogListener::startTest( CPPUNIT_NS::Test *test )
       testName.replace(colon_pos, 1, "_");
    }
 
-   OsSysLog::initialize(0,"UnitTest");
-   OsSysLog::setLoggingPriority(PRI_DEBUG);
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    std::string testLogFile = testName + ".log";
+   Os::LoggerHelper::instance().processName = "UnitTest";
+   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::LoggerHelper::instance().initialize(PRI_DEBUG, testLogFile.c_str());
+
 
    unlink(testLogFile.c_str());
 
-   OsSysLog::setOutputFile(0,testLogFile.c_str());
 }
 
 void TestOsSysLogListener::endTest( CPPUNIT_NS::Test *test )
 {
-   OsSysLog::flush();
+   Os::Logger::instance().flush();
 }
 
 /// destructor

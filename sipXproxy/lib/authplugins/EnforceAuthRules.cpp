@@ -13,7 +13,7 @@
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsFS.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
@@ -48,7 +48,7 @@ EnforceAuthRules::EnforceAuthRules(const UtlString& pluginName ///< the name for
     mpSipRouter(0),
     _pEntities(0)
 {
-    OsSysLog::add(FAC_SIP,PRI_INFO,"EnforceAuthRules plugin instantiated '%s'",
+    Os::Logger::instance().log(FAC_SIP,PRI_INFO,"EnforceAuthRules plugin instantiated '%s'",
                  mInstanceName.data());
 };
 
@@ -67,7 +67,7 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
     * is used to identify the plugin (see PluginHooks) has been removed (see the
     * examples in PluginHooks::readConfig).
     */
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "EnforceAuthRules[%s]::readConfig",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "EnforceAuthRules[%s]::readConfig",
                  mInstanceName.data()
                  );
    OsWriteLock writeLock(mRulesLock);
@@ -77,14 +77,14 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
    if (OS_NOT_FOUND==configDb.get(IDENTITY_VALIDITY_CONFIG_NAME, validitySeconds))
    {
       validitySeconds = DefaultSignatureValiditySeconds;
-      OsSysLog::add(FAC_SIP, PRI_INFO, "EnforceAuthRules[%s]::readConfig "
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "EnforceAuthRules[%s]::readConfig "
                     "no value found for %s: defauted to '%d' seconds",
                     mInstanceName.data(), IDENTITY_VALIDITY_CONFIG_NAME, validitySeconds
                     );
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "EnforceAuthRules[%s]::readConfig "
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "EnforceAuthRules[%s]::readConfig "
                     "set SipXauthIdentity validity interval to '%d' seconds",
                     mInstanceName.data(), validitySeconds
                     );
@@ -108,7 +108,7 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
 
       fileName = defaultPath;
       
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "EnforceAuthRules[%s]::readConfig "
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "EnforceAuthRules[%s]::readConfig "
                     " no rules file configured; trying '%s'",
                     mInstanceName.data(), fileName.data()
                     );
@@ -116,14 +116,14 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
 
    if (OS_SUCCESS == mpAuthorizationRules->loadMappings(fileName))
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "EnforceAuthRules[%s]::readConfig "
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "EnforceAuthRules[%s]::readConfig "
                     " successfully loaded rules file '%s'.",
                     mInstanceName.data(), fileName.data()
                     );
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "EnforceAuthRules[%s]::readConfig "
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "EnforceAuthRules[%s]::readConfig "
                     " error loading rules file '%s': enforcement disabled.",
                     mInstanceName.data(), fileName.data()
                     );
@@ -186,7 +186,7 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
          if (requiredPermissions.isEmpty())
          {
             result = ALLOW;
-            OsSysLog::add(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
+            Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
                           " no permission required for call %s",
                           mInstanceName.data(), callId.data()
                           );
@@ -200,7 +200,7 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
              * supply any information about what is needed, so do not set the reason.
              */
             result = DENY;
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
+            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
                           " request not authenticated but requires some permission. Call-Id = '%s'",
                           mInstanceName.data(), callId.data() 
                           );
@@ -218,7 +218,7 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
                 )
             {
                result = ALLOW;
-               OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
+               Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
                              " id '%s' authorized by '%s'",
                              mInstanceName.data(), id.data(), matchedPermission.data()
                              );
@@ -226,7 +226,7 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
             else
             {
                result = DENY;
-               OsSysLog::add(FAC_AUTH, PRI_WARNING,
+               Os::Logger::instance().log(FAC_AUTH, PRI_WARNING,
                              "EnforceAuthRules[%s]::authorizeAndModify "
                              " call '%s' requires '%s'",
                              mInstanceName.data(), callId.data(), unmatchedPermissions.data()
@@ -248,7 +248,7 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
    {
       // another plug-in already provided an authoritative result for this request so
       // don't waste time figuring it out.
-      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
+      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
                     "prior authorization result %s for call %s - rules skipped",
                     mInstanceName.data(), AuthResultStr(priorResult), callId.data()
                     );
@@ -271,7 +271,7 @@ bool EnforceAuthRules::isAuthorized(const UtlString& id,
     matchedPermission.remove(0);
     unmatchedPermissions.remove(0);
 
-    SYSLOG_INFO("EnforceAuthRules::isAuthorized - EntityDB::findByIdentity");
+    OS_LOG_INFO(FAC_SIP, "EnforceAuthRules::isAuthorized - EntityDB::findByIdentity");
 
     EntityRecord entity;
     std::string identity = id.str();

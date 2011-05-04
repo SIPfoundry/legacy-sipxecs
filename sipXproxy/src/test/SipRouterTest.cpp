@@ -14,7 +14,7 @@
 
 #include <os/OsDefs.h>
 #include <os/OsConfigDb.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
 #include "net/SipXauthIdentity.h"
@@ -276,7 +276,7 @@ public:
          ssize_t msgLen;
          testMsg.getBytes(&proxiedMsg, &msgLen);
 
-         OsSysLog::add(FAC_SIP, PRI_INFO, "Proxied Message:\n%s", proxiedMsg.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_INFO, "Proxied Message:\n%s", proxiedMsg.data());
 
          UtlString requestUri;
          testMsg.getRequestUri(&requestUri);
@@ -995,7 +995,7 @@ public:
          ssize_t msgSize;
          UtlString challenge;
          testRsp.getBytes(&challenge, &msgSize);
-         OsSysLog::add(FAC_SIP, PRI_INFO, "Returned Challenge:\n%s", challenge.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_INFO, "Returned Challenge:\n%s", challenge.data());
 
          CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
       }
@@ -1072,7 +1072,7 @@ public:
          ssize_t msgSize;
          UtlString challenge;
          testRsp.getBytes(&challenge, &msgSize);
-         OsSysLog::add(FAC_SIP, PRI_INFO, "Returned Challenge:\n%s", challenge.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_INFO, "Returned Challenge:\n%s", challenge.data());
 
          CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
       }
@@ -1128,7 +1128,7 @@ public:
          ssize_t msgSize;
          UtlString challenge;
          testRsp.getBytes(&challenge, &msgSize);
-         OsSysLog::add(FAC_SIP, PRI_INFO, "Returned Challenge:\n%s", challenge.data());
+         Os::Logger::instance().log(FAC_SIP, PRI_INFO, "Returned Challenge:\n%s", challenge.data());
 
          CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
       }

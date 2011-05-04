@@ -10,8 +10,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "os/OsDateTime.h"
-#include "os/OsSysLogMsg.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "LogNotifier.h"
 
 // EXTERNAL FUNCTIONS
@@ -25,7 +24,6 @@
 
 // Constructor
 LogNotifier::LogNotifier() :
-   mpOsSysLogTask(0),
    mEventCount(0)
 {
 }
@@ -39,11 +37,7 @@ LogNotifier::LogNotifier(const LogNotifier& rLogNotifier) :
 // Destructor
 LogNotifier::~LogNotifier()
 {
-   if (mpOsSysLogTask != 0)
-   {
-      delete mpOsSysLogTask;
-      mpOsSysLogTask = 0;
-   }
+   _alarmLogger.flush();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -65,32 +59,14 @@ OsStatus LogNotifier::handleAlarm(
       const cAlarmData* alarmData,
       const UtlString& alarmMsg)
 {
-   OsStatus retval = OS_SUCCESS;
-   OsSysLog::add(alarmData->getComponent().data(), 0, FAC_ALARM, alarmData->getSeverity(),
-         "%s: %s", alarmData->getCode().data(), alarmMsg.data());
-
-   OsDateTime logTime(alarmTime);
-   UtlString   strTime ;
-   logTime.getIsoTimeStringZus(strTime);
-
-   char tempMsg[500 + alarmMsg.length()];
-   snprintf(tempMsg, sizeof(tempMsg), "\"%s\":%zd:%s:%s:%s:%s::%s:\"%s\"",
-             strTime.data(),
-             ++mEventCount,
-             OsSysLog::sFacilityNames[FAC_ALARM],
-             OsSysLog::priorityName(alarmData->getSeverity()),
-             callingHost.data(),
-             alarmData->getComponent().data(),
-             alarmData->getCode().data(),
-             escape(alarmMsg).data());
-   tempMsg[sizeof(tempMsg)-2]='"';
-   tempMsg[sizeof(tempMsg)-1]=0;
-
-   char* szPtr = strdup(tempMsg);
-   OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr);
-   mpOsSysLogTask->postMessage(msg);
-
-   return retval;
+   std::ostringstream message;
+   message << callingHost.data() << ":"
+     << alarmData->getComponent().data() << ":"
+     << alarmData->getCode().data() << ":"
+     << alarmMsg;
+   Os::Logger::instance().log_(FAC_ALARM, PRI_ALERT, message.str().c_str());
+   _alarmLogger.log_(FAC_ALARM, PRI_ALERT, message.str().c_str());
+   return OS_SUCCESS;
 }
 
 OsStatus LogNotifier::init(TiXmlElement* element, TiXmlElement* dummy)
@@ -103,28 +79,13 @@ OsStatus LogNotifier::init(TiXmlElement* element, TiXmlElement* dummy)
 
 OsStatus LogNotifier::initLogfile(UtlString &alarmFile)
 {
-   OsStatus retval = OS_FAILED;
-
-   if (mpOsSysLogTask == 0)
-   {
-      mpOsSysLogTask = new OsSysLogTask(0, OsSysLog::OPT_NONE, "alarmLog");
-   }
-   if (!mpOsSysLogTask)
-   {
-      OsSysLog::add(FAC_ALARM, PRI_CRIT, "Failed to create alarm log task");
-      return retval;
-   }
-
-   retval = OS_SUCCESS;
    if (alarmFile)
    {
-      OsSysLogMsg msgSetFile(OsSysLogMsg::SET_FILE, strdup(alarmFile.data()));
-      mpOsSysLogTask->postMessage(msgSetFile);
-      OsSysLog::add(FAC_ALARM, PRI_NOTICE,
+      _alarmLogger.initialize<Os::LoggerHelper>(PRI_DEBUG, alarmFile.data(), Os::LoggerHelper::instance());
+      Os::Logger::instance().log(FAC_ALARM, PRI_NOTICE,
             "Initializing alarm log file to %s", alarmFile.data());
    }
-
-   return retval;
+   return OS_SUCCESS;
 }
 
 /* ============================ INQUIRY =================================== */

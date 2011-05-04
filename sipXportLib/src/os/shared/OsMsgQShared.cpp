@@ -16,7 +16,7 @@
 #include "os/OsLock.h"
 #include "os/shared/OsMsgQShared.h"
 #include "os/OsDateTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -275,7 +275,7 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
       // infinite recursion.
       if (mName != "syslog")
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "OsMsgQShared::doSendCore message send failed for queue '%s' - no room, ret = %d",
                        mName.data(), ret);
       }
@@ -297,7 +297,7 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
       // infinite recursion.
       if (mReportFull && 2 * count > max && mName != "syslog")
       {
-         OsSysLog::add(FAC_KERNEL, PRI_NOTICE,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_NOTICE,
                        "OsMsgQShared::doSendCore message queue '%s' is over half full - count = %d, max = %d",
                        mName.data(), count, max);
       }
@@ -324,7 +324,7 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
 
       if (insResult == NULL)
       {                                 // queue insert failed
-         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                        "OsMsgQShared::doSendCore message send failed - insert failed");
          assert(FALSE);
 
@@ -380,13 +380,13 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
 	     pri = PRI_WARNING;
 	  }
 
-          OsSysLog::add(FAC_KERNEL, pri,
+          Os::Logger::instance().log(FAC_KERNEL, pri,
                         "OsMsgQShared::doSendCore Message queue %p increased to %d msgs (max=%d)\n",
                         this, curCount, mMaxMsgs);
       }
       else if (decreasedLevel)
       {
-          OsSysLog::add(FAC_KERNEL, PRI_INFO,
+          Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                         "OsMsgQShared::doSendCore Message queue %p decreased to %d msgs (max=%d)\n",
                         this, curCount, mMaxMsgs);
       }

@@ -81,7 +81,7 @@ bool AlarmRpcMethod::validCaller(const HttpRequestContext& requestContext,
       {
          // sipXsupervisor says it is one of the allowed peers.
          result = true;
-         OsSysLog::add(FAC_ALARM, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG,
                        "AlarmRpcMethod::validCaller '%s' peer authenticated for %s",
                        peerName.data(), callingMethod
                        );
@@ -95,7 +95,7 @@ bool AlarmRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append("'");
          response.setFault(AlarmRpcMethod::UnconfiguredPeer, faultMsg.data());
 
-         OsSysLog::add(FAC_ALARM, PRI_ERR,
+         Os::Logger::instance().log(FAC_ALARM, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
                        );
@@ -106,7 +106,7 @@ bool AlarmRpcMethod::validCaller(const HttpRequestContext& requestContext,
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
 
-      OsSysLog::add(FAC_ALARM, PRI_ERR,
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
                     );
@@ -127,7 +127,7 @@ void AlarmRpcMethod::handleMissingExecuteParam(const char* methodName,
    faultMsg += "' parameter is missing or invalid type";
    status = XmlRpcMethod::FAILED;
    response.setFault(AlarmRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_ALARM, PRI_ERR, faultMsg);
+   Os::Logger::instance().log(FAC_ALARM, PRI_ERR, faultMsg);
 }
 
 void AlarmRpcMethod::handleExtraExecuteParam(const char* methodName,
@@ -139,7 +139,7 @@ void AlarmRpcMethod::handleExtraExecuteParam(const char* methodName,
    faultMsg += " has incorrect number of parameters";
    status = XmlRpcMethod::FAILED;
    response.setFault(AlarmRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_ALARM, PRI_ERR, faultMsg);
+   Os::Logger::instance().log(FAC_ALARM, PRI_ERR, faultMsg);
 }
 
 
@@ -213,7 +213,7 @@ bool AlarmRpcRaiseAlarm::execute(const HttpRequestContext& requestContext,
 
                if (validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
                {
-                  OsSysLog::add(FAC_ALARM, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG,
                         "AlarmRpc::raiseAlarm: host %s requested alarm '%s'",
                         pCallingHostname->data(), pAlarmId->data() );
 
@@ -285,7 +285,7 @@ bool AlarmRpcGetAlarmCount::execute(const HttpRequestContext& requestContext,
 
          if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
-            OsSysLog::add(FAC_ALARM, PRI_INFO,
+            Os::Logger::instance().log(FAC_ALARM, PRI_INFO,
                           "AlarmRpc::getAlarmCount: host %s requested alarm count",
                           pCallingHostname->data()
                           );
@@ -358,7 +358,7 @@ bool AlarmRpcReloadAlarms::execute(const HttpRequestContext& requestContext,
 
          if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
-            OsSysLog::add(FAC_ALARM, PRI_INFO,
+            Os::Logger::instance().log(FAC_ALARM, PRI_INFO,
                           "AlarmRpc::reloadAlarms:  host %s requested reload alarms",
                           pCallingHostname->data()
                           );

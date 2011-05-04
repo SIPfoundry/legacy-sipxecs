@@ -15,7 +15,7 @@
 // APPLICATION INCLUDES
 #include "os/OsMsgPool.h"
 #include "utl/UtlString.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -147,7 +147,7 @@ OsMsg* OsMsgPool::findFreeMsg()
       {
          if (mSoftLimit <= mHardLimit)
          {
-            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                           "OsMsgPool::FindFreeMsg '%s' queue size (%d) exceeds soft limit (%d)\n",
                           mpName->data(), mCurrentCount, mSoftLimit);
          }
@@ -191,7 +191,7 @@ OsMsg* OsMsgPool::findFreeMsg()
       {
          if (mSoftLimit <= mHardLimit)
          {
-            OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                           "OsMsgPool::FindFreeMsg '%s' queue size (%d) exceeds hard limit (%d)\n",
                           mpName->data(), mCurrentCount, mHardLimit);
          }

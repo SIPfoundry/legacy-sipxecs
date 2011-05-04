@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "mp/MprRecorder.h"
 
 // SYSTEM INCLUDES
@@ -86,7 +86,7 @@ OsStatus MprRecorder::setup(int file, RecordFileFormat recFormat, int timeMS, in
 
    mRecFormat = recFormat;
    if (isEnabled()) {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::setup"
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::setup"
          " -- attempt to setup while enabled!!\n");
       return OS_INVALID;
    }
@@ -96,7 +96,7 @@ OsStatus MprRecorder::setup(int file, RecordFileFormat recFormat, int timeMS, in
 OsStatus MprRecorder::begin(void)
 {
    if (isEnabled()) {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::begin"
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::begin"
          " -- attempt to begin while enabled!!\n");
       return OS_INVALID;
    }
@@ -109,7 +109,7 @@ OsStatus MprRecorder::stop(void)
    MpFlowGraphMsg msg(STOP, this, NULL, NULL, 0, 0);
 
    if (!isEnabled()) {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::stop"
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::stop"
          " -- attempt to stop while disabled!!\n");
       return OS_INVALID;
    }
@@ -120,10 +120,10 @@ UtlBoolean MprRecorder::enable(void)
 {
    if (mFileDescriptor > -1) {
       mStatus = RECORDING;
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::enable\n");
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::enable\n");
       return MpResource::enable();
    } else {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::enable (No file designated!)\n");
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::enable (No file designated!)\n");
    }
    return FALSE;
 }
@@ -145,20 +145,20 @@ UtlBoolean MprRecorder::disable(Completion code)
    }
    if (mStatus != code)
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::disable to report progress mState(%d) code(%d), mFileDescriptor(0x%08x)",
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::disable to report progress mState(%d) code(%d), mFileDescriptor(0x%08x)",
                      mStatus, code, mFileDescriptor);
       progressReport(code);
    }
 
    if (RECORDING == mStatus) {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::disable -- stopping recorder\n");
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::disable -- stopping recorder\n");
       progressReport(RECORD_STOPPED);
    } else {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::disable (not already recording)\n");
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::disable (not already recording)\n");
    }
    mConsecutiveInactive = 0;
 
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::disable setting mpEvent (0x%p) to NULL", mpEvent);
+   Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::disable setting mpEvent (0x%p) to NULL", mpEvent);
 
    {
       if (mpEvent != NULL)
@@ -181,12 +181,12 @@ UtlBoolean MprRecorder::closeRecorder()
 {
   UtlBoolean ret = TRUE;
 
-  OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::closeRecorder entering - mFileDescriptor=%d, mStatus=%d",
+  Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::closeRecorder entering - mFileDescriptor=%d, mStatus=%d",
          mFileDescriptor, mStatus);
   if (isEnabled())
     ret = disable(RECORD_STOPPED);
 
-  OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::closeRecorder leaving - mFileDescriptor=%d, mStatus=%d",
+  Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::closeRecorder leaving - mFileDescriptor=%d, mStatus=%d",
          mFileDescriptor, mStatus);
   return ret;
 }
@@ -203,7 +203,7 @@ UtlBoolean MprRecorder::termDtmf(int currentToneKey)
 	 //  -  Or we may want to modify the VXI engine to hanfle grammar
 	 //     inside a record field.
 
-		OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::termDtmf entering - key=%d, mFileDescriptor=%d, mStatus=%d",
+		Os::Logger::instance().log(FAC_MP, PRI_INFO, "MprRecorder::termDtmf entering - key=%d, mFileDescriptor=%d, mStatus=%d",
          currentToneKey, mFileDescriptor, mStatus);
 
 		mTermKey = currentToneKey;
@@ -304,7 +304,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 
    if (mFileDescriptor < 0)
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::doProcessFrame to disable recording because mFileDescriptor=%d, mStatus=%d",
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::doProcessFrame to disable recording because mFileDescriptor=%d, mStatus=%d",
             mFileDescriptor, mStatus);
       disable(RECORD_STOPPED); // just in case...
    }
@@ -320,7 +320,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       // Get previous MinVoiceEnergy for debug printouts, and reset it to MIN_SPEECH_ENERGY_THRESHOLD.
       unsigned long prevValue = MpBuf_setMVE(MIN_SPEECH_ENERGY_THRESHOLD);
 
-      OsSysLog::add(FAC_MP, PRI_INFO,
+      Os::Logger::instance().log(FAC_MP, PRI_INFO,
          "MprRecorder::doProcessFrame to disable recording because"
          " mFramesToRecord=%d, mStatus=%d mSilenceLength=%d,"
          " mConsecutiveInactive=%d, MinVoiceEnergy=%lu", mFramesToRecord,
@@ -392,7 +392,7 @@ void MprRecorder::progressReport(Completion code)
       if (NULL != mpEvent)
       {
          mpEvent->getUserData(ud);
-         OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::progressReport(%d), event=0x%p, &data=0x%p\n",
+         Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::progressReport(%d), event=0x%p, &data=0x%p\n",
             code, mpEvent, ud);
          if (0 != ud)
          {
@@ -405,18 +405,18 @@ void MprRecorder::progressReport(Completion code)
             int sps = getSamplesPerSec();
             rs->mDuration = (1000 * mTotalSamplesWritten) / sps;
             rs->mDtmfTerm = mTermKey;
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::progressReport mTotalSamplesWritten(%d), sample per second(%d) duration (%d)\n", (int)mTotalSamplesWritten, (int)sps, (int)rs->mDuration);
+            Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::progressReport mTotalSamplesWritten(%d), sample per second(%d) duration (%d)\n", (int)mTotalSamplesWritten, (int)sps, (int)rs->mDuration);
 
             //now trigger the event...and pass back our struct
             OsStatus ret;
             if (OS_SUCCESS != (ret = mpEvent->signal(code)))
             {
-               OsSysLog::add(FAC_MP, PRI_WARNING, "MprRecorder::progressReport signal failed, returned %d, try again", (int)ret);
+               Os::Logger::instance().log(FAC_MP, PRI_WARNING, "MprRecorder::progressReport signal failed, returned %d, try again", (int)ret);
                // the event was probably just reset, try again after waiting for 10 ms.
                OsTask::delay(10);
                void* userdata;
                mpEvent->getUserData(userdata);
-               OsSysLog::add(FAC_MP, PRI_WARNING, "user data - old (0x%p), new (0x%p), event (0x%p) ",
+               Os::Logger::instance().log(FAC_MP, PRI_WARNING, "user data - old (0x%p), new (0x%p), event (0x%p) ",
                               ud, userdata, mpEvent);
 
 // Comment out the assert for production system
@@ -424,18 +424,18 @@ void MprRecorder::progressReport(Completion code)
                if (userdata)
                {
                   ret = mpEvent->signal(code);
-                  OsSysLog::add(FAC_MP, PRI_WARNING, "MprRecorder::progressReport signal again, returned %d ", (int)ret);
+                  Os::Logger::instance().log(FAC_MP, PRI_WARNING, "MprRecorder::progressReport signal again, returned %d ", (int)ret);
                }
             }
          }
          else
          {
-               OsSysLog::add(FAC_MP, PRI_WARNING, "MprRecorder::progressReport did not signal user data is 0 for event 0x%p", mpEvent);
+               Os::Logger::instance().log(FAC_MP, PRI_WARNING, "MprRecorder::progressReport did not signal user data is 0 for event 0x%p", mpEvent);
          }
       }
       else
       {
-         OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::progressReport(%d) (No event)\n", code);
+         Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::progressReport(%d) (No event)\n", code);
       }
    }
 }
@@ -446,7 +446,7 @@ UtlBoolean MprRecorder::handleSetup(int file, int timeMS, int silenceLength, OsP
    int iMsPerFrame = (1000 * getSamplesPerFrame()) / getSamplesPerSec();
 
    if (isEnabled()) {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::handleSetup"
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::handleSetup"
          " -- attempt to setup while enabled!!\n");
       return TRUE;
    }
@@ -464,7 +464,7 @@ UtlBoolean MprRecorder::handleSetup(int file, int timeMS, int silenceLength, OsP
    }
 
    unsigned long prevValue = MpBuf_setMVE(MIN_SPEECH_ENERGY_THRESHOLD); // any energy lower than this will be regarded as silence
-   OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::handleSetup, set MinVoiceEnergy to %d, was %lu\n", MIN_SPEECH_ENERGY_THRESHOLD, prevValue);
+   Os::Logger::instance().log(FAC_MP, PRI_INFO, "MprRecorder::handleSetup, set MinVoiceEnergy to %d, was %lu\n", MIN_SPEECH_ENERGY_THRESHOLD, prevValue);
 
    {
       OsLock lock(mMutex);
@@ -473,7 +473,7 @@ UtlBoolean MprRecorder::handleSetup(int file, int timeMS, int silenceLength, OsP
    }
 
    mStatus = RECORD_IDLE;
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::handleSetup(%d, %d, 0x%p)... #frames=%d\n",
+   Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::handleSetup(%d, %d, 0x%p)... #frames=%d\n",
       file, timeMS, event, mFramesToRecord);
    return TRUE;
 }
@@ -495,7 +495,7 @@ UtlBoolean MprRecorder::handleStop()
 
 UtlBoolean MprRecorder::handleMessage(MpFlowGraphMsg& rMsg)
 {
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::handleMessage(%d)\n", rMsg.getMsg());
+   Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprRecorder::handleMessage(%d)\n", rMsg.getMsg());
    switch (rMsg.getMsg())
    {
    case SETUP:

@@ -11,7 +11,7 @@
 
 #include "SubscriptionSet.h"
 #include "ResourceInstance.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlSListIterator.h>
 #include <net/SipMessage.h>
 
@@ -34,7 +34,7 @@ SubscriptionSet::SubscriptionSet(ResourceCached* resource,
    mResource(resource),
    mUri(uri)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet:: this = %p, resource = %p, mUri = '%s'",
                  this, mResource, mUri.data());
 
@@ -55,7 +55,7 @@ SubscriptionSet::SubscriptionSet(ResourceCached* resource,
                       mSubscriptionEarlyDialogHandle);
    if (ret)
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "SubscriptionSet:: addSubscription for '%s' succeeded",
                     mUri.data());
       // Add this SubscriptionSet to mSubscribeMap.
@@ -64,7 +64,7 @@ SubscriptionSet::SubscriptionSet(ResourceCached* resource,
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "SubscriptionSet:: addSubscription for '%s' failed",
                     mUri.data());
    }
@@ -73,7 +73,7 @@ SubscriptionSet::SubscriptionSet(ResourceCached* resource,
 // Destructor
 SubscriptionSet::~SubscriptionSet()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet::~ mUri = '%s'",
                  mUri.data());
 
@@ -84,7 +84,7 @@ SubscriptionSet::~SubscriptionSet()
    UtlBoolean ret;
    ret = getResourceListServer()->getSubscribeClient().
       endSubscriptionGroup(mSubscriptionEarlyDialogHandle.data());
-   OsSysLog::add(FAC_RLS,
+   Os::Logger::instance().log(FAC_RLS,
                  ret ? PRI_DEBUG : PRI_WARNING,
                  "SubscriptionSet::~ endSubscriptionGroup %s mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  ret ? "succeeded" : "failed",
@@ -124,7 +124,7 @@ void SubscriptionSet::subscriptionEventCallback(
    SipSubscribeClient::SubscriptionState newState,
    const UtlString* subscriptionState)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet::subscriptionEventCallback newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', subscriptionState = '%s'",
                  newState, mSubscriptionEarlyDialogHandle.data(),
                  dialogHandle->data(), subscriptionState->data());
@@ -158,7 +158,7 @@ void SubscriptionSet::subscriptionEventCallback(
 void SubscriptionSet::addInstance(const char* instanceName,
                                   const char* subscriptionState)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet::addInstance instanceName = '%s', subscriptionState = '%s'",
                  instanceName, subscriptionState);
 
@@ -173,7 +173,7 @@ void SubscriptionSet::addInstance(const char* instanceName,
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_ERR,
+      Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                     "SubscriptionSet::addInstance cannot add ResourceInstance with name '%s', already %zu in SubscriptionSet '%s'",
                     instanceName, mSubscriptions.entries(),
                     mUri.data());
@@ -183,7 +183,7 @@ void SubscriptionSet::addInstance(const char* instanceName,
 // Find a subscription in the set.
 ResourceInstance* SubscriptionSet::getInstance(const char* instanceName)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet::getInstance instanceName = '%s'",
                  instanceName);
 
@@ -207,7 +207,7 @@ void SubscriptionSet::deleteInstance(const char* instanceName,
                                      const char* subscriptionState,
                                      const char* resourceSubscriptionState)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet::deleteInstance instanceName = '%s', subscriptionState = '%s'",
                  instanceName, subscriptionState);
 
@@ -230,7 +230,7 @@ void SubscriptionSet::deleteInstance(const char* instanceName,
    }
    if (!found)
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "SubscriptionSet::deleteInstance instanceName = '%s' not found",
                     instanceName);
    }
@@ -239,7 +239,7 @@ void SubscriptionSet::deleteInstance(const char* instanceName,
 // Remove dialogs in terminated state and terminated resource instances.
 void SubscriptionSet::purgeTerminated()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet::purgeTerminated mUri = '%s'",
                  mUri.data());
 
@@ -289,7 +289,7 @@ void SubscriptionSet::dumpState() const
 {
    // indented 10
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t          SubscriptionSet %p mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  this, mUri.data(), mSubscriptionEarlyDialogHandle.data());
 

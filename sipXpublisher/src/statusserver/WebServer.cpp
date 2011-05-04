@@ -10,7 +10,7 @@
 // SYSTEM INCLUDES
 #include "os/OsUtil.h"
 #include "statusserver/WebServer.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 
 
@@ -80,7 +80,7 @@ WebServer::ProcessEvent(
     SubscribeServerPluginBase* plugin = NULL;
 
     request.getBytes(&httpString , &len);
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                   "WebServer::ProcessEvent HttpEvent \n%s",
                   httpString.data());
 
@@ -107,7 +107,7 @@ WebServer::ProcessEvent(
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "WebServer::ProcessEvent no plugin in container for event type '%s'",
                              event.data()
                              );
@@ -115,7 +115,7 @@ WebServer::ProcessEvent(
         }
         else
         {
-           OsSysLog::add(FAC_SIP, PRI_WARNING,
+           Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                          "WebServer::ProcessEvent no plugin found for event type '%s'",
                          event.data()
                          );
@@ -123,7 +123,7 @@ WebServer::ProcessEvent(
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_WARNING,
+       Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                      "WebServer::ProcessEvent no '" EVENTTYPE "' variable found"
                      );
     }
@@ -137,7 +137,7 @@ WebServer::ProcessEvent(
             HTTP_FILE_NOT_FOUND_CODE,
             HTTP_FILE_NOT_FOUND_TEXT );
     }
-    OsSysLog::flush();
+    Os::Logger::instance().flush();
 
 }
 
@@ -153,17 +153,17 @@ WebServer::WebServer()
 
 void WebServer::initWebServer( HttpServer* pHttpServer )
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "WebServer::initWebServer") ;
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "WebServer::initWebServer") ;
     if( pHttpServer )
     {
         // New user interface
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "WebServer::add requests to web server") ;
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "WebServer::add requests to web server") ;
 
         pHttpServer->addRequestProcessor("/cgi/StatusEvent.cgi", ProcessEvent);
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_CRIT,
+        Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                       "WebServer::initWebServer no http server passed - requests not added"
                       ) ;
     }

@@ -44,7 +44,7 @@ OsStatus CallObject::playAudio()
    OsStatus result = OS_SUCCESS;
    char szUrl[128] ;
 
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "CallId %s is requesting for playing the wavefile ...\n", mCallId.data());
+   Os::Logger::instance().log(FAC_MEDIASERVER_VXI, PRI_DEBUG, "CallId %s is requesting for playing the wavefile ...\n", mCallId.data());
 
    mpCallManager->createPlayer(mCallId, &mpPlayer) ;
 

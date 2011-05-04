@@ -12,7 +12,7 @@
 #include "utl/UtlHashBagIterator.h"
 #include "utl/UtlHashMapIterator.h"
 #include "utl/UtlSListIterator.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "net/XmlRpcDispatch.h"
 #include "net/XmlRpcMethod.h"
 #include "net/XmlRpcRequest.h"
@@ -94,7 +94,7 @@ bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
       {
          // SipxRpc says it is one of the allowed peers.
          result = true;
-         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                        "ProcMgmtRpcMethod::validCaller '%s' peer authenticated for %s",
                        peerName.data(), callingMethod
                        );
@@ -108,7 +108,7 @@ bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append("'");
          response.setFault(ProcMgmtRpcMethod::UnconfiguredPeer, faultMsg.data());
 
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
                        );
@@ -119,7 +119,7 @@ bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
 
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
                     );
@@ -140,7 +140,7 @@ void ProcMgmtRpcMethod::handleMissingExecuteParam(const char* methodName,
    faultMsg += "' parameter is missing or invalid type";
    status = XmlRpcMethod::FAILED;
    response.setFault(ProcMgmtRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 void ProcMgmtRpcMethod::handleExtraExecuteParam(const char* methodName,
@@ -152,7 +152,7 @@ void ProcMgmtRpcMethod::handleExtraExecuteParam(const char* methodName,
    faultMsg += " has too many parameters";
    status = XmlRpcMethod::FAILED;
    response.setFault(ProcMgmtRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& requestContext,
@@ -229,14 +229,14 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                            break;
 
                         default:
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
+                           Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT,
                                          "ProcMgmtRpcMethod::executeSetUserRequestState"
                                          "invalid request_state %u", request_state);
                         }
                      }
                      else
                      {
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                        Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                                       "could not find process %s", pAlias->data());
                      }
                      tmp_alias = new UtlString(*pAlias);
@@ -313,7 +313,7 @@ bool ProcMgmtRpcGetStateAll::execute(const HttpRequestContext& requestContext,
 
          if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO,
                           "ProcMgmtRpc::getUserRequestStateAll"
                           " host %s requested process states",
                           pCallingHostname->data()
@@ -519,7 +519,7 @@ bool ProcMgmtRpcGetStatusMessage::execute(const HttpRequestContext& requestConte
                }
                else
                {
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "could not find process %s",
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "could not find process %s",
                         pAlias->data());
                   handleMissingExecuteParam(name(), PARAM_NAME_ALIAS, response, status);
                }
@@ -608,7 +608,7 @@ bool ProcMgmtRpcRunConfigtest::execute(const HttpRequestContext& requestContext,
                   UtlString msg("could not find process '");
                   msg.append(*pAlias);
                   msg.append("'");
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
                   status = XmlRpcMethod::FAILED;
                   response.setFault(ProcMgmtRpcMethod::InvalidParameter, msg);
                }
@@ -699,7 +699,7 @@ bool ProcMgmtRpcGetConfigtestMessages::execute(const HttpRequestContext& request
                   UtlString msg("could not find process '");
                   msg.append(*pAlias);
                   msg.append("'");
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
                   response.setFault(ProcMgmtRpcMethod::InvalidParameter, msg);
                   status = XmlRpcMethod::FAILED;
                }
@@ -770,7 +770,7 @@ bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestConte
 
             if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
             {
-                OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
+                Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO,
                               "ProcMgmtRpc::getConfigVersion"
                               " host %s requested service configuration version",
                               pCallingHostname->data()
@@ -795,7 +795,7 @@ bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestConte
                    UtlString msg("could not find process '");
                    msg.append(*pserviceName);
                    msg.append("'");
-                   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
+                   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
                    response.setFault(ProcMgmtRpcMethod::InvalidParameter, msg);
                    status = XmlRpcMethod::FAILED;
                 }
@@ -878,7 +878,7 @@ bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestConte
 
                if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
                {
-                   OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
+                   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO,
                                  "ProcMgmtRpc::setConfigVersion"
                                  " host %s setting service '%s' configuration version to '%s'",
                                  pCallingHostname->data(), pserviceName->data(),
@@ -902,7 +902,7 @@ bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestConte
                       UtlString msg("could not find process '");
                       msg.append(*pserviceName);
                       msg.append("'");
-                      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
+                      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
                       response.setFault(ProcMgmtRpcMethod::InvalidParameter, msg);
                       status = XmlRpcMethod::FAILED;
                    }

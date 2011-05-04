@@ -14,7 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipxunit/TestUtilities.h"
 #include "testlib/FileTestContext.h"
@@ -72,7 +72,7 @@ void FileTestContext::inputFile(const char* filename)
                                 OsFileSystem::copy(input, working)
                                 );
 
-   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::inputFile '%s' -> '%s'",
+   Os::Logger::instance().log(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::inputFile '%s' -> '%s'",
                  inputPath.data(), workingPath.data());
 
 }
@@ -91,7 +91,7 @@ void FileTestContext::setSipxDir(DirectoryType dirType, const char* subDir)
       contextDir.strip(UtlString::trailing, OsPath::separator(0));
    }
 
-   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::setSipxDir( '%s', '%s' )",
+   Os::Logger::instance().log(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::setSipxDir( '%s', '%s' )",
                  dirType, contextDir.data() );
    setenv(dirType, contextDir.data(), 1);
 }
@@ -134,7 +134,7 @@ void FileTestContext::workingFileFromTemplate(
 
    CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, workingFile.flush());
 
-   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::workingFileFromTemplate '%s' -> '%s'",
+   Os::Logger::instance().log(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::workingFileFromTemplate '%s' -> '%s'",
                  templateName, workingPath.data());
 
    inputFile.close();
@@ -160,7 +160,7 @@ void FileTestContext::removeWorkingFile(const char* filename)
       msg.append("'");
       CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(),OS_SUCCESS,removeStatus);
 
-      OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::removeWorkingFile '%s'",
+      Os::Logger::instance().log(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::removeWorkingFile '%s'",
                     filename);
    }
 }
@@ -187,14 +187,14 @@ void FileTestContext::makeCleanWorkingDir()
 void FileTestContext::workingFilePath(const char* filename, UtlString& path)
 {
    path = mTestWorkingDir+OsPath::separator+filename;
-   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::workingFilePath '%s' -> '%s'",
+   Os::Logger::instance().log(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::workingFilePath '%s' -> '%s'",
                  filename, path.data());
 }
 
 void FileTestContext::inputFilePath(const char* filename, UtlString& path)
 {
    path = mTestInputDir+OsPath::separator+filename;
-   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::inputFilePath '%s' -> '%s'",
+   Os::Logger::instance().log(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::inputFilePath '%s' -> '%s'",
                  filename, path.data());
 }
 

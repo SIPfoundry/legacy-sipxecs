@@ -369,7 +369,7 @@ void MpConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
    // Check that payloadType is valid.
    if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
    {
-      OsSysLog::add(FAC_MP, PRI_ERR,
+      Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "MpConnection::addPayloadType Attempting to add an invalid payload type %d", payloadType);
    }
    // Check to see if we already have a decoder for this paylod type.
@@ -377,7 +377,7 @@ void MpConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
    {
       // This condition probably indicates that the sender of SDP specified
       // two decoders for the same payload type number.
-      OsSysLog::add(FAC_MP, PRI_ERR,
+      Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "MpConnection::addPayloadType Attempting to add a second decoder for payload type %d",
                     payloadType);
    }
@@ -394,7 +394,7 @@ void MpConnection::deletePayloadType(int payloadType)
    // Check that payloadType is valid.
    if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
    {
-      OsSysLog::add(FAC_MP, PRI_ERR,
+      Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "MpConnection::deletePayloadType Attempting to delete an invalid payload type %d", payloadType);
    }
    // Check to see if this entry has already been deleted.
@@ -402,10 +402,10 @@ void MpConnection::deletePayloadType(int payloadType)
    {
       // Either this payload type was doubly-added (and reported by
       // addPayloadType) or we've hit the race condtion in XMR-29.
-      OsSysLog::add(FAC_MP, PRI_ERR,
+      Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "MpConnection::deletePayloadType Attempting to delete again payload type %d",
                     payloadType);
-      OsSysLog::add(FAC_MP, PRI_ERR,
+      Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "MpConnection::deletePayloadType If there is no message from MpConnection::addPayloadType above, see XMR-29");
    }
    else
@@ -501,7 +501,7 @@ MpDecoderBase* MpConnection::mapPayloadType(int payloadType)
 
    if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
    {
-      OsSysLog::add(FAC_MP, PRI_ERR,
+      Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "MpConnection::mapPayloadType Attempting to map an invalid payload type %d", payloadType);
       return NULL;
    }

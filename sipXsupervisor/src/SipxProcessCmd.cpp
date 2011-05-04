@@ -8,7 +8,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlSListIterator.h"
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
@@ -58,7 +58,7 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
          {
             definitionValid = false;
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                           "'defaultDir' element is empty"
                           " - if present, it must be a pathname %s",
                           errorMsg.data()
@@ -94,7 +94,7 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
          {
             definitionValid = false;
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                           "'user' element is empty"
                           " - if present, it must be a valid username %s",
                           errorMsg.data()
@@ -128,7 +128,7 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
          {
             definitionValid = false;
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                           "'execute' element is empty"
                           " - it must be a valid executable %s",
                           errorMsg.data()
@@ -140,7 +140,7 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
       {
          definitionValid = false;
          XmlErrorMsg(processDefinitionDoc,errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                        "'execute' element is missing %s",
                        errorMsg.data()
                        );
@@ -171,7 +171,7 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
 
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                                 "'parameter' element is empty"
                                 " - if present, it must have text content %s",
                                 errorMsg.data()
@@ -182,7 +182,7 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
             {
                definitionValid = false;
                XmlErrorMsg(processDefinitionDoc,errorMsg);
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                              "'%s' element is invalid here: expected 'parameter'",
                              commandChildElement->Value()
                              );
@@ -197,7 +197,7 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
       }
       else
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessCmd::parseCommandDefinition "
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessCmd::parseCommandDefinition "
                        "unable to allocate SipxProcessCmd'"
                        );
       }
@@ -211,7 +211,7 @@ void SipxProcessCmd::execute(SipxProcessCmdOwner* owner)
 {
    if ( isRunning() )
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessCmd::execute %s: process is already running ",
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessCmd::execute %s: process is already running ",
                  data());
       // kill the previous one?
    }
@@ -256,7 +256,7 @@ UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
          handled = TRUE;
          break;
       default:
-         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT,
                        "SipxProcessCmd::handleMessage: '%s' unhandled message subtype %d.%d",
                        mName.data(), rMsg.getMsgType(), rMsg.getMsgSubType());
          break;
@@ -265,7 +265,7 @@ UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
    }
 
    default:
-      OsSysLog::add(FAC_ALARM, PRI_CRIT,
+      Os::Logger::instance().log(FAC_ALARM, PRI_CRIT,
                     "SipxProcessCmd::handleMessage: '%s' unhandled message type %d.%d",
                     mName.data(), rMsg.getMsgType(), rMsg.getMsgSubType());
       break;
@@ -289,7 +289,7 @@ void SipxProcessCmd::executeInTask(SipxProcessCmdOwner* owner)
       argString.append(*pParameter);
    }
    args[i] = NULL;
-   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessCmd::execute %s %s",
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessCmd::execute %s %s",
                  mExecutable.data(), argString.data());
 
    int rc;
@@ -300,7 +300,7 @@ void SipxProcessCmd::executeInTask(SipxProcessCmdOwner* owner)
        == OS_SUCCESS )
    {
       owner->evCommandStarted(this);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process running, pid %ld",
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process running, pid %ld",
                     mExecutable.data(), (long)mProcess.getPID());
 
       //now wait around for the thing to finish
@@ -324,7 +324,7 @@ void SipxProcessCmd::executeInTask(SipxProcessCmdOwner* owner)
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessCmd::execute %s %s failed",
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessCmd::execute %s %s failed",
                     mExecutable.data(), argString.data());
       owner->evCommandStopped(this, rc);
    }

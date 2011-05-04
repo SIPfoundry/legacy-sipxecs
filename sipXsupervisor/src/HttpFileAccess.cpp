@@ -12,7 +12,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsFS.h"
 #include "utl/UtlDefs.h"
 #include "net/HttpMessage.h"
@@ -70,7 +70,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
                message.append(" does not allow write access to '");
                message.append(path);
                message.append("'");
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
                              peerName.data(), message.data());
 
                response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
@@ -86,7 +86,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
             message.append("File resource '");
             message.append(path);
             message.append("' not known to sipXsupervisor.");
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
                           peerName.data(), message.data());
 
             response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
@@ -116,7 +116,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
                      message.append("File '");
                      message.append(path);
                      message.append("' deleted");
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "HttpFileAccess::processRequest from %s %s",
+                     Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "HttpFileAccess::processRequest from %s %s",
                                    peerName.data(), message.data());
                   
                      response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION_1_1,
@@ -155,7 +155,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
                      strerror_r(errno, errnoMsg, sizeof(errnoMsg));
                      message.append(errnoMsg);
 
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
+                     Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
                                    peerName.data(), message.data());
 
                      response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
@@ -171,7 +171,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
                   message.append("File to be deleted '");
                   message.append(path);
                   message.append("' does not exist");
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "HttpFileAccess::processRequest from %s %s",
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "HttpFileAccess::processRequest from %s %s",
                                 peerName.data(), message.data());
                   
                   response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION_1_1,
@@ -186,7 +186,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
                message.append(" does not allow write access to '");
                message.append(path);
                message.append("'");
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
                              peerName.data(), message.data());
 
                response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
@@ -202,7 +202,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
             message.append("File resource '");
             message.append(path);
             message.append("' not known to sipXsupervisor.");
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
                           peerName.data(), message.data());
 
             response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
@@ -215,7 +215,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
       }
       else
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest %s from %s",
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest %s from %s",
                        HTTP_UNSUPPORTED_METHOD_TEXT, peerName.data());
 
          response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
@@ -226,7 +226,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
    else
    {
       message.append("Request not supported from untrusted peer.");
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest %s",
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest %s",
                     message.data());
 
       response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
@@ -293,7 +293,7 @@ void HttpFileAccess::sendFile(const UtlString& path,
                totalBytes += bytes;
                chunks++;
             }
-            OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                           "file block %"FORMAT_INTLL"d %zd %s", chunks, bytes,
                           writtenOk ? "ok" : "failed");
          }
@@ -309,7 +309,7 @@ void HttpFileAccess::sendFile(const UtlString& path,
             message.appendNumber(chunks,"%"FORMAT_INTLL"d");
             message.append(" chunks) to peer ");
             message.append(peerName);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "HttpFileAccess::processRequest %s",
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "HttpFileAccess::processRequest %s",
                           message.data());
          }
          else
@@ -320,7 +320,7 @@ void HttpFileAccess::sendFile(const UtlString& path,
             message.appendNumber(chunks,"%"FORMAT_INTLL"d");
             message.append(" chunks) to peer ");
             message.append(peerName);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest %s",
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest %s",
                           message.data());
          }
 
@@ -342,7 +342,7 @@ void HttpFileAccess::sendFile(const UtlString& path,
          response->setBody(new HttpBody(message.data(),message.length()));
          response->setContentLength(message.length());
 
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                        "HttpFileAccess::processRequest from %s %s",
                        peerName.data(), message.data());
       }
@@ -380,7 +380,7 @@ void HttpFileAccess::sendFile(const UtlString& path,
       strerror_r(errno, errnoMsg, sizeof(errnoMsg));
       message.append(errnoMsg);
 
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
                     peerName.data(), message.data());
 
       response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,

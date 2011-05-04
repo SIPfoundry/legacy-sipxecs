@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "AppearanceAgent.h"
 
 // EXTERNAL FUNCTIONS
@@ -92,11 +92,11 @@ AppearanceAgent::AppearanceAgent(const UtlString& domainName,
    // SIP tasks set up.
    mAppearanceGroupFileReader(UtlString(""), &mAppearanceGroupSet)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceAgent::_ this = %p, mDomainName = '%s', "
                  "mRefreshInterval = %d, mResubscribeInterval = %d",
                  this, mDomainName.data(), mRefreshInterval, mResubscribeInterval);
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceAgent::_ this = %p, mPublishingDelay = %d, mMaxRegSubscInGroup = %zu",
                  this, publishingDelay, mMaxRegSubscInGroup);
 
@@ -116,7 +116,7 @@ AppearanceAgent::AppearanceAgent(const UtlString& domainName,
                                               serverDefaultExpiration,
                                               serverMaxExpiration))
    {
-      OsSysLog::add(FAC_SAA, PRI_ERR,
+      Os::Logger::instance().log(FAC_SAA, PRI_ERR,
                     "AppearanceAgent given unacceptable server subscription times: min = %d, default = %d, max = %d.  Using the default subscription times.",
                     serverMinExpiration,
                     serverDefaultExpiration,
@@ -155,7 +155,7 @@ void AppearanceAgent::start()
    if (!mSubscribeServer.enableEventType(DIALOG_EVENT_TYPE, NULL, NULL, NULL,
          SipSubscribeServer::standardVersionCallback, FALSE))
    {
-      OsSysLog::add(FAC_SAA, PRI_CRIT, "AppearanceAgent:: enableEventType failed");
+      Os::Logger::instance().log(FAC_SAA, PRI_CRIT, "AppearanceAgent:: enableEventType failed");
    }
    mSubscribeServer.start();
 
@@ -168,7 +168,7 @@ void AppearanceAgent::start()
          FALSE // outgoing
    );
 
-   OsSysLog::add(FAC_SAA, PRI_DEBUG, "AppearanceAgent::_ Initialization done.");
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG, "AppearanceAgent::_ Initialization done.");
 }
 
 // Shut down the server.
@@ -176,34 +176,34 @@ void AppearanceAgent::shutdown()
 {
    // Close down the call processing objects.
 
-   OsSysLog::add(FAC_SAA, PRI_INFO,
+   Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                  "AppearanceAgent::shutdown this = %p",
                  this);
 
    mAppearanceGroupSet.deleteAllAppearanceGroups();
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceAgent::shutdown back from deleteAllAppearanceGroups"
                  );
 
    // Stop all the subscriptions so callbacks are no longer activated.
    mSubscribeClient.endAllSubscriptions();
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceAgent::shutdown back from mSubscribeClient.endAllSubscriptions"
                  );
 
    // Stop the SIP subscribe client.
    mSubscribeClient.requestShutdown();
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceAgent::shutdown back from mSubscribeClient.requestShutdown"
                  );
    // Stop the refresh manager.
    mRefreshMgr.requestShutdown();
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceAgent::shutdown back from mRefreshMgr.requestShutdown"
                  );
    // Stop the subscribe server.
    mSubscribeServer.requestShutdown();
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceAgent::shutdown back from mSubscribeServer.requestShutdown"
                  );
 
@@ -235,7 +235,7 @@ void AppearanceAgent::dumpState()
 {
    // indented 0
 
-   OsSysLog::add(FAC_SAA, PRI_INFO,
+   Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                  "\tAppearanceAgent %p", this);
    mSubscribeServer.dumpState();
    mSubscribeClient.dumpState();

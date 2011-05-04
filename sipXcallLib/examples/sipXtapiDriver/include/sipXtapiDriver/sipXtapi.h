@@ -1157,17 +1157,6 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetLogLevel(SIPX_LOG_LEVEL logLevel) ;
 SIPXTAPI_API SIPX_RESULT sipxConfigSetLogFile(const char *szFilename) ;
 
 
-/**
- * Set a callback function to collect logging information. This function
- * directs logging output to the specfied function.
- *
- * @param pCallback is a pointer to a callback function. This callback function
- *        gets passed three strings, first string is the priority level,
- *        second string is the source id of the subsystem that generated
- *        the message, and the third string is the message itself.
- */
-SIPXTAPI_API SIPX_RESULT sipxConfigSetLogCallback(sipxLogCallback pCallback);
-
 
 /**
  * Designate a callback routine as a microphone replacement or supplement.

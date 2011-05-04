@@ -9,7 +9,7 @@
 // APPLICATION INCLUDES
 #include "alarm/AlarmRequestTask.h"
 #include "net/XmlRpcRequest.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/XmlContent.h"
 #include "sipXecsService/SipXecsService.h"
@@ -68,7 +68,7 @@ AlarmRequestTask* AlarmRequestTask::getInstance()
 
 void AlarmRequestTask::raiseAlarm(const UtlString& alarmId, const UtlSList& alarmParams )
 {
-   OsSysLog::add(FAC_ALARM, PRI_INFO,
+   Os::Logger::instance().log(FAC_ALARM, PRI_INFO,
                  "AlarmRequestTask::raiseAlarm( %s, %s )", mLocalHostname.data(), alarmId.data() );
    AsynchAlarmMsg message( AsynchAlarmMsg::RAISE_ALARM, mLocalHostname, alarmId, alarmParams );
    postMessage( message );
@@ -82,7 +82,7 @@ OsStatus AlarmRequestTask::initXMLRPCsettings()
 {
    OsStatus retval = OS_FAILED;
 
-   int supervisorPort;
+   int supervisorPort = 0;
 
    OsConfigDb domainConfiguration;
    OsPath     domainConfigPath = SipXecsService::domainConfigPath();
@@ -97,14 +97,14 @@ OsStatus AlarmRequestTask::initXMLRPCsettings()
       else if ( PORT_NONE == supervisorPort )
       {
          supervisorPort = DEFAULT_SUPERVISOR_PORT;
-         OsSysLog::add(FAC_ALARM, PRI_NOTICE,
+         Os::Logger::instance().log(FAC_ALARM, PRI_NOTICE,
                        "Alarm::initXMLRPCsettings: '%s' not configured, defaulting to %d",
                        SipXecsService::DomainDbKey::SUPERVISOR_PORT, supervisorPort);
       }
    }
    else
    {
-      OsSysLog::add(FAC_ALARM, PRI_WARNING,
+      Os::Logger::instance().log(FAC_ALARM, PRI_WARNING,
             "Alarm::initXMLRPCsettings: failed to load domain configuration from '%s'",
             domainConfigPath.data() );
    }
@@ -119,7 +119,7 @@ OsStatus AlarmRequestTask::initXMLRPCsettings()
    }
    else
    {
-      OsSysLog::add(FAC_ALARM, PRI_WARNING,
+      Os::Logger::instance().log(FAC_ALARM, PRI_WARNING,
             "Alarm::initXMLRPCsettings: failed to load supervisor configuration from '%s'",
             supervisorConfigPath.data() );
    }
@@ -129,7 +129,7 @@ OsStatus AlarmRequestTask::initXMLRPCsettings()
       // getHostName does not always return the proper fully qualified hostname,
       // but it is worth trying rather than giving up entirely
       OsSocket::getHostName(&mLocalHostname);
-      OsSysLog::add(FAC_ALARM, PRI_WARNING,
+      Os::Logger::instance().log(FAC_ALARM, PRI_WARNING,
             "Alarm::initXMLRPCsettings: failed to find Supervisor host in '%s'; "
                     "defaulting to local host '%s'",
             supervisorConfigPath.data(), mLocalHostname.data() );
@@ -139,7 +139,7 @@ OsStatus AlarmRequestTask::initXMLRPCsettings()
    mAlarmServerUrl.fromString(mLocalHostname, Url::AddrSpec);
    if (mAlarmServerUrl.getScheme() == Url::UnknownUrlScheme)
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR,
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR,
             "Alarm::initXMLRPCsettings: badly formed Supervisor host '%s' in '%s'",
             mLocalHostname.data(), supervisorConfigPath.data() );
    }
@@ -151,7 +151,7 @@ OsStatus AlarmRequestTask::initXMLRPCsettings()
 
       UtlString logUrl;
       mAlarmServerUrl.toString(logUrl);
-      OsSysLog::add(FAC_ALARM, PRI_NOTICE,
+      Os::Logger::instance().log(FAC_ALARM, PRI_NOTICE,
                     "Alarm::initXMLRPCsettings: Alarm Server URL: '%s'",
                     logUrl.data());
 
@@ -221,7 +221,7 @@ UtlBoolean AlarmRequestTask::handleMessage( OsMsg& rMsg )
          break;
          
       default:
-         OsSysLog::add(FAC_ALARM, PRI_CRIT,
+         Os::Logger::instance().log(FAC_ALARM, PRI_CRIT,
                        "AlarmRequestTask::handleMessage: received unknown sub-type: %d",
                        rMsg.getMsgSubType() );
          break;
@@ -230,7 +230,7 @@ UtlBoolean AlarmRequestTask::handleMessage( OsMsg& rMsg )
       break;
       
    default:
-      OsSysLog::add(FAC_ALARM, PRI_CRIT,
+      Os::Logger::instance().log(FAC_ALARM, PRI_CRIT,
                     "AlarmRequestTask::handleMessage: '%s' unhandled message type %d.%d",
                     mName.data(), rMsg.getMsgType(), rMsg.getMsgSubType());
       break;
@@ -245,7 +245,7 @@ UtlBoolean AlarmRequestTask::handleMessage( OsMsg& rMsg )
          int faultCode;
          UtlString faultString;
          response1.getFault(&faultCode, faultString);         
-         OsSysLog::add(FAC_ALARM, PRI_CRIT, "Alarm.raiseAlarm failed, fault %d : %s",
+         Os::Logger::instance().log(FAC_ALARM, PRI_CRIT, "Alarm.raiseAlarm failed, fault %d : %s",
                        faultCode, faultString.data());
          // since we could not send the alarm, log it here
          faultString = "Failed to report alarm ";
@@ -256,7 +256,7 @@ UtlBoolean AlarmRequestTask::handleMessage( OsMsg& rMsg )
             faultString.append(" ");
             faultString.append(*pObject);
          }
-         OsSysLog::add(FAC_ALARM, PRI_CRIT, faultString);
+         Os::Logger::instance().log(FAC_ALARM, PRI_CRIT, faultString);
       }
    }
    delete pXmlRpcRequestToSend;
