@@ -7,6 +7,7 @@ package org.sipfoundry.voicemail;
 
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.sipxivr.IvrChoice;
+import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 /**
  * Customize sipxivr.Menu with VoiceMail specific options
@@ -35,6 +36,17 @@ public class VmMenu extends org.sipfoundry.sipxivr.Menu {
         setExtraDigitTimeout(0);
         
         return checkChoice(super.collectDigit(menuPl, validDigits+"0"));
+    }
+
+    public IvrChoice collectDigitIgnoreFailureOrTimeout(PromptList menuPl, String validDigits) {
+        setInterDigitTimeout(0);
+        setExtraDigitTimeout(0);
+        IvrChoice choice = super.collectDigit(menuPl, validDigits+"0");
+        if (choice.getIvrChoiceReason().equals(IvrChoiceReason.TIMEOUT) ||
+                choice.getIvrChoiceReason().equals(IvrChoiceReason.FAILURE)) {
+            return choice;
+        }
+        return checkChoice(choice);
     }
 
 
