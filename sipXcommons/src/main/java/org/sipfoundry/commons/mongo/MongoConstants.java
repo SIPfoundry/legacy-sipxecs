@@ -88,4 +88,5 @@ public interface MongoConstants {
     static final String FROM_URI = "from";
     static final String TO_URI = "to";
     static final String CALLID = "cid";
+    static final String VMONDND = "vmondnd";
 }

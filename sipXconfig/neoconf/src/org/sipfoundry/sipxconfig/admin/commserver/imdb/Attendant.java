@@ -72,6 +72,8 @@ public class Attendant extends DataSetGenerator {
         ImAccount imAccount = new ImAccount(user);
         top.put(IM_ID, imAccount.getImId());
         top.put(IM_DISPLAY_NAME, imAccount.getImDisplayName());
+        //and this one in presencerouting-prefs.xml
+        top.put(VMONDND, imAccount.isForwardOnDnd());
         AddressBookEntry abe = user.getAddressBookEntry();
         if (abe != null) {
             top.put(ALT_IM_ID, abe.getAlternateImId());
