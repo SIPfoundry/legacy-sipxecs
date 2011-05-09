@@ -9,9 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
+import java.io.File;
+
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
+import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.context.ApplicationContext;
 
 public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
@@ -45,13 +50,13 @@ public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("acd/migrate_queues.db.xml");
 
         assertEquals(1, getConnection().getRowCount("setting_value"));
-        assertEquals(0, getConnection().getRowCount("acd_queue",
-                "where acd_queue_id = 2001 AND overflow_queue_id = 2002"));
+        assertEquals(0,
+                getConnection().getRowCount("acd_queue", "where acd_queue_id = 2001 AND overflow_queue_id = 2002"));
         InitializationTask task = new InitializationTask("acd_migrate_overflow_queues");
         m_applicationContext.publishEvent(task);
 
-        assertEquals(1, getConnection().getRowCount("acd_queue",
-                "where acd_queue_id = 2001 AND overflow_queue_id = 2002"));
+        assertEquals(1,
+                getConnection().getRowCount("acd_queue", "where acd_queue_id = 2001 AND overflow_queue_id = 2002"));
         assertEquals(0, getConnection().getRowCount("setting_value"));
     }
 
@@ -59,8 +64,8 @@ public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("acd/migrate_acd_servers.db.xml");
 
         // test below rely on the fact that 14 is service ID of ACD service
-        assertEquals(1, getConnection().getRowCount("sipx_service",
-                "where bean_id='sipxAcdService' AND sipx_service_id=13"));
+        assertEquals(1,
+                getConnection().getRowCount("sipx_service", "where bean_id='sipxAcdService' AND sipx_service_id=13"));
 
         assertEquals(3, getConnection().getRowCount("acd_server"));
         assertEquals(1, getConnection().getRowCount("location"));
@@ -76,5 +81,15 @@ public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
         assertEquals(1, getConnection().getRowCount("acd_server", "where location_id=1001"));
 
         m_context.clear();
+
+        // some config files are left behind here, we need to delete them manually
+        SipxServiceManager serviceManager = (SipxServiceManager) TestHelper.getApplicationContext().getBean(
+                SipxServiceManager.CONTEXT_BEAN_NAME);
+        SipxCallResolverService service = (SipxCallResolverService) serviceManager
+                .getServiceByBeanId(SipxCallResolverService.BEAN_ID);
+        for (ConfigurationFile config : service.getConfigurations()) {
+            File f = new File(config.getPath());
+            f.delete();
+        }
     }
 }

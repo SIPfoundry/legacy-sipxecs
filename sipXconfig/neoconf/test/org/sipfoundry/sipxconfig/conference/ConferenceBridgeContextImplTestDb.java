@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.dbunit.database.IDatabaseConnection;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -33,7 +33,6 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
     private SipxServiceManager m_sipxServiceManager;
-    private SipxProcessContext m_sipxProcessContext;
 
     @Override
     protected void setUp() throws Exception {
@@ -88,6 +87,11 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     public void testRemoveConferences() throws Exception {
         IDatabaseConnection db = TestHelper.getConnection();
         TestHelper.insertFlat("conference/participants.db.xml");
+
+        ConferenceBridgeProvisioning mockProvisioning = EasyMock.createMock(ConferenceBridgeProvisioning.class);
+        mockProvisioning.deploy(m_context.loadConference(new Integer(3002)).getBridge());
+        EasyMock.expectLastCall().anyTimes();
+        m_context.setProvisioning(mockProvisioning);
 
         assertEquals(2, db.getRowCount("meetme_bridge"));
         assertEquals(5, db.getRowCount("meetme_conference"));
