@@ -30,7 +30,6 @@ import org.acegisecurity.providers.ldap.LdapAuthoritiesPopulator;
 import org.acegisecurity.providers.ldap.authenticator.BindAuthenticator;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
@@ -168,20 +167,28 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
             super(authenticator);
         }
 
+        /**
+         * When the user id introduced in the login form is user's alias, we need to tell LDAP the true user ID
+         * otherwise cannot get authenticated against LDAP using user alias
+         */
         @Override
-        protected UserDetails createUserDetails(LdapUserDetails ldapUser, String username, String password) {
-            UserDetails loadedUser;
+        protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) {
+            UserDetailsImpl user = null;
             try {
-                loadedUser = m_userDetailsService.loadUserByUsername(username);
+                user = (UserDetailsImpl) m_userDetailsService.loadUserByUsername(username);
+                if (user == null) {
+                    throw new AuthenticationServiceException("UserDetailsService returned null, which "
+                        + "is an interface contract violation");
+                }
+                UsernamePasswordAuthenticationToken myAuthentication = new UsernamePasswordAuthenticationToken(
+                        user.getCanonicalUserName(), authentication.getCredentials());
+                //we call the super method to verifiy true username/password ldap authentication
+                //we don't return default LDAP retrieved user, but our sipX user, authenticated against LDAP
+                super.retrieveUser(user.getCanonicalUserName(), myAuthentication);
             } catch (DataAccessException repositoryProblem) {
                 throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
             }
-
-            if (loadedUser == null) {
-                throw new AuthenticationServiceException("UserDetailsService returned null, which "
-                        + "is an interface contract violation");
-            }
-            return loadedUser;
+            return user;
         }
 
         @Override
