@@ -83,6 +83,7 @@ public abstract class UserConferencesPanel extends BaseComponent {
     private IPage activateEditConferencePage(Integer conferenceId, String tab) {
         EditConference editConferencePage = getEditConferencePage();
         editConferencePage.setTab(tab);
+        editConferencePage.setAutoReload(true);
         editConferencePage.setConferenceId(conferenceId);
         editConferencePage.setReturnPage(getPage());
         return editConferencePage;

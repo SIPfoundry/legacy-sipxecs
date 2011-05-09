@@ -61,6 +61,8 @@ public interface SipxProcessContext {
      */
     void manageServices(Map<Location, List<SipxService>> servicesMap, Command command);
 
+    void manageServices(Collection< ? extends SipxService> processes, Command command);
+
     /**
      * Retrieve the list of the services that should be started and stopped on the location to
      * make it to conform to bundle list.
