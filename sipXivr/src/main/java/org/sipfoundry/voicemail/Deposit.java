@@ -35,7 +35,6 @@ import org.sipfoundry.sipxivr.Menu;
 import org.sipfoundry.sipxivr.PersonalAttendant;
 import org.sipfoundry.sipxivr.PhonePresence;
 import org.sipfoundry.sipxivr.RemoteRequest;
-import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 public class Deposit {
@@ -526,19 +525,13 @@ public class Deposit {
                 // To play this message, press 1. To send this message, press 2. 
                 // To delete this message and try again, press 3. To cancel, press *."
                 pl = m_loc.getPromptList("deposit_options");
-                IvrChoice choice = ((VmMenu) menu).collectDigitIgnoreFailureOrTimeout(pl, "123");
+                IvrChoice choice = menu.collectDigit(pl, "123");
         
                 // bad entry, timeout, canceled
                 if (!menu.isOkay()) {
-                    if (choice.getIvrChoiceReason().equals(IvrChoiceReason.TIMEOUT)
-                            || choice.getIvrChoiceReason().equals(IvrChoiceReason.FAILURE)) {
-                        m_message.setIsToBeStored(true);
-                        break;
-                    } else {
-                        m_message.setIsToBeStored(false);
-                        m_vm.goodbye();
-                        return null;
-                    }
+                    m_message.setIsToBeStored(false);
+                    m_vm.goodbye();
+                    return null;
                 }
                             
                 String digit = choice.getDigits();
