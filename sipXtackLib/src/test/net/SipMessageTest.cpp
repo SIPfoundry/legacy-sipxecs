@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-//
+// 
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -31,15 +31,12 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testGetNoBranchVia);
       CPPUNIT_TEST(testGetViaPort);
       CPPUNIT_TEST(testGetViaFieldSubField);
-      CPPUNIT_TEST(testGetAllowEventField);
-      CPPUNIT_TEST(testSetAllowEventField);
       CPPUNIT_TEST(testGetEventField);
       CPPUNIT_TEST(testGetEventFieldId);
       CPPUNIT_TEST(testGetEventFieldWithIdSpace);
       CPPUNIT_TEST(testGetEventFieldWithEqualSpace);
       CPPUNIT_TEST(testGetEventFieldWithTrailingSpace);
       CPPUNIT_TEST(testGetEventFieldWithParams);
-      CPPUNIT_TEST(testGetEventFieldWithParamButNoValue);
       CPPUNIT_TEST(testGetToAddress);
       CPPUNIT_TEST(testGetFromAddress);
       CPPUNIT_TEST(testGetResponseSendAddress);
@@ -72,6 +69,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testDialogMatching);
       CPPUNIT_TEST(testGetReferencesField);
       CPPUNIT_TEST(testGetCSeqField);
+      CPPUNIT_TEST(testHeadersWithTabAndLineFeeds);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -101,11 +99,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL(SimpleMessage, msgBytes.data());
 
          SipMessage copiedMsg(testMsg);
-
+         
          copiedMsg.getBytes(&msgBytes, &msgLength);
          ASSERT_STR_EQUAL(SimpleMessage, msgBytes.data());
       }
-
+   
    void testGetVia()
       {
          const char* SimpleMessage =
@@ -131,7 +129,7 @@ class SipMessageTest : public CppUnit::TestCase
          UtlBoolean receivedSet;
          UtlBoolean maddrSet;
          UtlBoolean receivePortSet;
-
+         
          testMsg.getTopVia(&viaAddress,
                            &viaPort,
                            &protocol,
@@ -172,7 +170,7 @@ class SipMessageTest : public CppUnit::TestCase
          UtlBoolean receivedSet;
          UtlBoolean maddrSet;
          UtlBoolean receivePortSet;
-
+         
          testMsg.removeTopVia();
 
          testMsg.getTopVia(&viaAddress,
@@ -215,7 +213,7 @@ class SipMessageTest : public CppUnit::TestCase
          UtlBoolean receivedSet;
          UtlBoolean maddrSet;
          UtlBoolean receivePortSet;
-
+         
          testMsg.getTopVia(&viaAddress,
                            &viaPort,
                            &protocol,
@@ -255,7 +253,7 @@ class SipMessageTest : public CppUnit::TestCase
          UtlBoolean receivedSet;
          UtlBoolean maddrSet;
          UtlBoolean receivePortSet;
-
+         
          testMsg.getTopVia(&viaAddress,
                            &viaPort,
                            &protocol,
@@ -278,7 +276,7 @@ class SipMessageTest : public CppUnit::TestCase
 	   int rportSet;	// Expected returned receivedPortSet.
 	   int rport;		// Expected returned receivedPort.
          };
-
+            
 	 struct test tests[] = {
 	   { "sip:foo@bar", PORT_NONE, 0, PORT_NONE },
 	   { "sip:foo@bar:5060", 5060, 0, PORT_NONE },
@@ -431,19 +429,18 @@ class SipMessageTest : public CppUnit::TestCase
             "a=fmtp:98 0-16\r\n"
             "a=ptime:20\r\n"
             ;
-
+         
          SipMessage testMsg( MultipartBodyMessage, strlen( MultipartBodyMessage ) );
 
          const SdpBody* sdpBody = testMsg.getSdpBody();
-	 KNOWN_BUG("No support for multipart SDP", "XX-9198");
          CPPUNIT_ASSERT(sdpBody);
-
+         
          UtlString theBody;
          ssize_t theLength;
-
+         
          sdpBody->getBytes(&theBody, &theLength);
          sdpBody->findMediaType("audio", 0);
-
+         
          ASSERT_STR_EQUAL(correctBody,theBody.data());
          delete sdpBody;
       };
@@ -454,7 +451,7 @@ class SipMessageTest : public CppUnit::TestCase
          // Test that the getViaFieldSubField method returns the right results,
          // especially when Via values are combined in one header.
 
-         const char* message1 =
+         const char* message1 = 
             "SIP/2.0 481 Call Leg/Transaction Does Not Exist\r\n"
             "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37,"
             "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37,"
@@ -470,7 +467,7 @@ class SipMessageTest : public CppUnit::TestCase
             "\r\n";
 
          // Same as message1, but with each Via value in a separate header.
-         const char* message2 =
+         const char* message2 = 
             "SIP/2.0 481 Call Leg/Transaction Does Not Exist\r\n"
             "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37\r\n"
             "Via: SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37\r\n"
@@ -529,78 +526,6 @@ class SipMessageTest : public CppUnit::TestCase
       };
 
 
-   void testGetAllowEventField()
-      {
-         UtlString allowEventField;
-         UtlString package;
-         UtlString id;
-         UtlHashMap params;
-
-         const char* SubscribeMessage =
-            "SUBSCRIBE sip:sipx.local SIP/2.0\r\n"
-            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
-            "To: sip:sipx.local\r\n"
-            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
-            "Cseq: 1 SUBSCRIBE\r\n"
-            "Max-Forwards: 20\r\n"
-            "Allow-Events: abc\r\n"
-            "Allow-Events: def\r\n"
-            "Allow-Events: \r\n"
-            "User-Agent: sipsend/0.01\r\n"
-            "Contact: me@127.0.0.1\r\n"
-            "Expires: 300\r\n"
-            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
-            "Event: the-package\r\n"
-            "Content-Length: 0\r\n"
-            "\r\n";
-         SipMessage testMsg( SubscribeMessage, strlen( SubscribeMessage ) );
-
-         CPPUNIT_ASSERT(testMsg.getAllowEventsField(allowEventField));
-         ASSERT_STR_EQUAL("abc, def", allowEventField.data());
-      };
-
-   void testSetAllowEventField()
-   {
-      const char* SimpleMessage =
-         "REGISTER sip:sipx.local SIP/2.0\r\n"
-         "Via: SIP/2.0/UDP sipx.local2:3355;branch=z9hG4bK-10cb6f93ea3d;test=2\r\n"
-         "To: sip:sipx.local\r\n"
-         "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
-         "Cseq: 1 REGISTER\r\n"
-         "User-Agent: sipsend/0.01\r\n"
-         "Contact: me@127.0.0.1\r\n"
-         "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
-         "Content-Length: 0\r\n"
-         "\r\n";
-      SipMessage testMsg( SimpleMessage, strlen( SimpleMessage ) );
-
-      testMsg.setAllowEventsField( "abc" );
-
-      const char* ReferenceMessage =
-         "REGISTER sip:sipx.local SIP/2.0\r\n"
-         "Via: SIP/2.0/UDP sipx.local2:3355;branch=z9hG4bK-10cb6f93ea3d;test=2\r\n"
-         "To: sip:sipx.local\r\n"
-         "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
-         "Cseq: 1 REGISTER\r\n"
-         "User-Agent: sipsend/0.01\r\n"
-         "Contact: me@127.0.0.1\r\n"
-         "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
-         "Content-Length: 0\r\n"
-         "Allow-Events: abc\r\n"
-         "\r\n";
-      SipMessage refMsg( ReferenceMessage, strlen( ReferenceMessage ) );
-
-      UtlString modifiedMsgString, referenceMsgString;
-      ssize_t msgLen;
-      testMsg.getBytes(&modifiedMsgString, &msgLen);
-      refMsg.getBytes(&referenceMsgString, &msgLen);
-
-      ASSERT_STR_EQUAL(referenceMsgString.data(), modifiedMsgString.data());
-   }
-
    void testGetEventField()
       {
          UtlString fullEventField;
@@ -630,11 +555,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsg.getEventFieldParts(&package));
+         CPPUNIT_ASSERT(testMsg.getEventField(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsg.getEventFieldParts(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsg.getEventField(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          CPPUNIT_ASSERT(id.isNull());
          CPPUNIT_ASSERT(params.isEmpty());
@@ -669,11 +594,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package;id=45wwrt2",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithId.getEventFieldParts(&package));
+         CPPUNIT_ASSERT(testMsgWithId.getEventField(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsgWithId.getEventFieldParts(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithId.getEventField(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          CPPUNIT_ASSERT(params.isEmpty());
@@ -708,11 +633,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package; id=45wwrt2",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithIdSpace.getEventFieldParts(&package));
+         CPPUNIT_ASSERT(testMsgWithIdSpace.getEventField(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsgWithIdSpace.getEventFieldParts(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithIdSpace.getEventField(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          CPPUNIT_ASSERT(params.isEmpty());
@@ -747,11 +672,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package; id = 45wwrt2",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithEqualSpace.getEventFieldParts(&package));
+         CPPUNIT_ASSERT(testMsgWithEqualSpace.getEventField(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsgWithEqualSpace.getEventFieldParts(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithEqualSpace.getEventField(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          CPPUNIT_ASSERT(params.isEmpty());
@@ -786,11 +711,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package;id=45wwrt2 ;foo=bar",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithTrailingSpace.getEventFieldParts(&package));
+         CPPUNIT_ASSERT(testMsgWithTrailingSpace.getEventField(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsgWithTrailingSpace.getEventFieldParts(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithTrailingSpace.getEventField(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          // There is one other parameter in this test, so !params.isEmpty().
@@ -827,11 +752,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package;p1=one;id=45wwrt2;p2=two",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithParams.getEventFieldParts(&package));
+         CPPUNIT_ASSERT(testMsgWithParams.getEventField(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should have values)
-         CPPUNIT_ASSERT(testMsgWithParams.getEventFieldParts(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithParams.getEventField(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          CPPUNIT_ASSERT(params.entries()==2);
@@ -845,57 +770,13 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("two",paramValue->data());
       }
 
-      void testGetEventFieldWithParamButNoValue()
-      {
-         UtlString fullEventField;
-         UtlString package;
-         UtlString id;
-         UtlHashMap params;
-         UtlString* paramValue;
-
-         const char* SubscribeMessageWithParams =
-            "SUBSCRIBE sip:sipx.local SIP/2.0\r\n"
-            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
-            "To: sip:sipx.local\r\n"
-            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
-            "Cseq: 1 SUBSCRIBE\r\n"
-            "Max-Forwards: 20\r\n"
-            "User-Agent: sipsend/0.01\r\n"
-            "Contact: me@127.0.0.1\r\n"
-            "Expires: 300\r\n"
-            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
-            "Event: the-package;sla\r\n"
-            "Content-Length: 0\r\n"
-            "\r\n";
-         SipMessage testMsgWithParams( SubscribeMessageWithParams, strlen( SubscribeMessageWithParams ) );
-
-         // use the raw interface to get the full field value
-         CPPUNIT_ASSERT(testMsgWithParams.getEventField(fullEventField));
-         ASSERT_STR_EQUAL("the-package;sla",fullEventField.data());
-
-         // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithParams.getEventFieldParts(&package));
-         ASSERT_STR_EQUAL("the-package",package.data());
-
-         // use the parsing interface and get the parameters (which might not have values)
-         CPPUNIT_ASSERT(testMsgWithParams.getEventFieldParts(&package, &id, &params));
-         ASSERT_STR_EQUAL("the-package",package.data());
-         CPPUNIT_ASSERT(id.isNull());
-         CPPUNIT_ASSERT(params.entries()==1);
-
-         UtlString paramName1("sla");
-         CPPUNIT_ASSERT(NULL != (paramValue = dynamic_cast<UtlString*>(params.findValue(&paramName1))));
-         ASSERT_STR_EQUAL("",paramValue->data());
-      }
-
    void testGetToAddress()
       {
          struct test {
 	   const char* string;	// Input string.
 	   int port;		// Expected returned to-address port.
          };
-
+            
 	 struct test tests[] = {
 	   { "sip:foo@bar", PORT_NONE },
 	   { "sip:foo@bar:5060", 5060 },
@@ -947,7 +828,7 @@ class SipMessageTest : public CppUnit::TestCase
 	   const char* string;	// Input string.
 	   int port;		// Expected returned from-address port.
          };
-
+            
 	 struct test tests[] = {
 	   { "sip:foo@bar", PORT_NONE },
 	   { "sip:foo@bar:5060", 5060 },
@@ -1028,7 +909,7 @@ class SipMessageTest : public CppUnit::TestCase
             const char* address;
             int port;
          };
-
+            
          struct test tests[] = {
             { message_template0, "sip:foo@bar", PORT_NONE },
             { message_template0, "sip:foo@bar:0", 0 },
@@ -1076,7 +957,7 @@ class SipMessageTest : public CppUnit::TestCase
 	   const char* string;	// Input string.
 	   int port;		// Expected returned port.
          };
-
+            
 	 struct test tests[] = {
 	   { "sip:foo@bar", PORT_NONE },
 	   { "sip:foo@bar:5060", 5060 },
@@ -1112,7 +993,7 @@ class SipMessageTest : public CppUnit::TestCase
          UtlString user;
          UtlString userLabel;
          UtlString tag;
-
+            
          SipMessage::parseAddressFromUri(szUrl,
                                          &address,
                                          &port,
@@ -1120,7 +1001,7 @@ class SipMessageTest : public CppUnit::TestCase
                                          &user,
                                          &userLabel,
                                          &tag);
-
+         
          CPPUNIT_ASSERT_EQUAL(PORT_NONE, port);
 
          ASSERT_STR_EQUAL("username", user);
@@ -1157,6 +1038,7 @@ class SipMessageTest : public CppUnit::TestCase
          SipUserAgent user_agent(0,
                                  0,
                                  -1,
+                                 NULL,
                                  NULL,
                                  NULL,
                                  NULL,
@@ -1226,7 +1108,7 @@ class SipMessageTest : public CppUnit::TestCase
         int mediaCount = sdp->getMediaSetCount();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect media count", 1, mediaCount);
 
-        const char* referenceSdp =
+        const char* referenceSdp = 
             "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
         const char* sdpBytes = NULL;
         ssize_t sdpByteLength = 0;
@@ -1325,14 +1207,14 @@ class SipMessageTest : public CppUnit::TestCase
 
          // Create an empty SIP message.
          SipMessage *msg = new SipMessage();
-
+         
          // Create a To URI containing the header.
          char to_URI[100];
          sprintf(to_URI, "<sip:to@example.com?%s=value1>", header_name);
 
          // Create the SIP message.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField
+         msg->setInviteData("sip:from@example.com", // fromField 
                             to_URI, // toField,
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
@@ -1367,7 +1249,7 @@ class SipMessageTest : public CppUnit::TestCase
 
          // Update the SIP message, creating a second value for the header.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField
+         msg->setInviteData("sip:from@example.com", // fromField 
                             to_URI, // toField,
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
@@ -1424,14 +1306,14 @@ class SipMessageTest : public CppUnit::TestCase
 
          // Create an empty SIP message.
          SipMessage *msg = new SipMessage();
-
+         
          // Create a To URI containing the header.
          char to_URI[100];
          sprintf(to_URI, "<sip:to@example.com?%s=value1>", header_name);
 
          // Create the SIP message.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField
+         msg->setInviteData("sip:from@example.com", // fromField 
                             to_URI, // toField,
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
@@ -1466,7 +1348,7 @@ class SipMessageTest : public CppUnit::TestCase
 
          // Update the SIP message, creating a second value for the header.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField
+         msg->setInviteData("sip:from@example.com", // fromField 
                             to_URI, // toField,
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
@@ -1526,14 +1408,14 @@ class SipMessageTest : public CppUnit::TestCase
 
          // Create an empty SIP message.
          SipMessage *msg = new SipMessage();
-
+         
          // Create a To URI containing the header.
          char to_URI[100];
          sprintf(to_URI, "<sip:to@example.com?%s=value1>", header_name);
 
          // Create the SIP message.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
-         msg->setInviteData("sip:from@example.com", // fromField
+         msg->setInviteData("sip:from@example.com", // fromField 
                             to_URI, // toField,
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
@@ -1575,7 +1457,7 @@ class SipMessageTest : public CppUnit::TestCase
 
          dumpLength = 0;
          dumpLength = dumpLength; // suppress compiler warnings about unused variables
-
+         
          {
             // add an arbitrary unknown header
             const char* rawmsg =
@@ -1591,15 +1473,15 @@ class SipMessageTest : public CppUnit::TestCase
 
             SipMessage sipmsg(rawmsg, strlen(rawmsg));
             sipmsg.applyTargetUriHeaderParams();
-
+         
             // sipmsg.getBytes(&dumpStr, &dumpLength);
             // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
-
+         
             CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("arbitrary-header"));
             ASSERT_STR_EQUAL("foobar", sipmsg.getHeaderValue(0, "arbitrary-header"));
             ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
          }
-
+         
          {
             // add 2 of an arbitrary unknown header
             const char* rawmsg =
@@ -1618,13 +1500,13 @@ class SipMessageTest : public CppUnit::TestCase
 
             // sipmsg.getBytes(&dumpStr, &dumpLength);
             // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
-
+         
             CPPUNIT_ASSERT_EQUAL(2, sipmsg.getCountHeaderFields("arbitrary-header"));
             ASSERT_STR_EQUAL("foobar", sipmsg.getHeaderValue(0, "arbitrary-header"));
             ASSERT_STR_EQUAL("again", sipmsg.getHeaderValue(1, "arbitrary-header"));
             ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
          }
-
+         
          {
             // add an expires header
             const char* rawmsg =
@@ -1643,12 +1525,12 @@ class SipMessageTest : public CppUnit::TestCase
 
             // sipmsg.getBytes(&dumpStr, &dumpLength);
             // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
-
+         
             CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("expires"));
             ASSERT_STR_EQUAL("10", sipmsg.getHeaderValue(0, "expires"));
             ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
          }
-
+         
          {
             // try to add 2 expires headers
             const char* rawmsg =
@@ -1667,7 +1549,7 @@ class SipMessageTest : public CppUnit::TestCase
 
             // sipmsg.getBytes(&dumpStr, &dumpLength);
             // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
-
+         
             CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("expires"));
             ASSERT_STR_EQUAL("20", sipmsg.getHeaderValue(0, "expires"));
             ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
@@ -1693,14 +1575,14 @@ class SipMessageTest : public CppUnit::TestCase
 
             sipmsg.getBytes(&dumpStr, &dumpLength);
             printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
-
+         
             CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
             ASSERT_STR_EQUAL("Foo Bar<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
 
             CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
             ASSERT_STR_EQUAL("From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
                              sipmsg.getHeaderValue(0, "x-original-from"));
-
+            
             ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
          }
 
@@ -1722,14 +1604,14 @@ class SipMessageTest : public CppUnit::TestCase
 
             sipmsg.getBytes(&dumpStr, &dumpLength);
             printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
-
+         
             CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
             ASSERT_STR_EQUAL("Foo Bar<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
 
             CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
             ASSERT_STR_EQUAL("From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
                              sipmsg.getHeaderValue(0, "x-original-from"));
-
+            
             ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
          }
 #        endif
@@ -1752,7 +1634,7 @@ class SipMessageTest : public CppUnit::TestCase
 
             // sipmsg.getBytes(&dumpStr, &dumpLength);
             // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
-
+         
             CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("route"));
             ASSERT_STR_EQUAL("<sip:foo@bar;lr>", sipmsg.getHeaderValue(0, "route"));
             ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
@@ -1777,7 +1659,7 @@ class SipMessageTest : public CppUnit::TestCase
 
             // sipmsg.getBytes(&dumpStr, &dumpLength);
             // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
-
+         
             CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("route"));
             ASSERT_STR_EQUAL("<sip:foo@bar;lr>,<sip:original@route;lr>", sipmsg.getHeaderValue(0, "route"));
             ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
@@ -1835,11 +1717,11 @@ class SipMessageTest : public CppUnit::TestCase
 
          UtlString translated;
          ssize_t length;
-
+         
          testMsg.getBytes(&translated, &length);
-
+         
          ASSERT_STR_EQUAL(LongForm, translated.data());
-
+         
       };
 
    void testGetContactUri()
@@ -1883,7 +1765,7 @@ class SipMessageTest : public CppUnit::TestCase
             // Assemble test message.
             char msg[100];
             sprintf(msg, "Test %d, Contact '%s'", i, tests[i].contact_field);
-
+            
             // Compose a SipMessage with the right Contact field value.
             char buffer[1000];
             sprintf(buffer, message_skeleton, tests[i].contact_field);
@@ -2208,11 +2090,11 @@ class SipMessageTest : public CppUnit::TestCase
          UtlString toAddress("\"SomeBody\" <somebody@somewhere;param=a?header=b>;xy=abc;tag=good");
          UtlString fromAddress("<nobody@nowhere;param=f?header=g>;xy=def;tag=better");
          UtlString targetCallId("target@callid");
-
+         
          SipMessage::buildReplacesField(replacesField, targetCallId,
                                         fromAddress.data(), toAddress.data());
          buildMsg.addHeaderField(SIP_REPLACES_FIELD, replacesField.data());
-
+         
          CPPUNIT_ASSERT(buildMsg.getReplacesData(callId, toTag, fromTag));
          ASSERT_STR_EQUAL("target@callid", callId.data());
          ASSERT_STR_EQUAL("good", toTag.data());
@@ -2269,7 +2151,7 @@ class SipMessageTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT(strict.isClientMsgStrictRouted());
       }
-
+         
    void testRecordRoutesAccepted()
       {
       const char* inviteMessage =
@@ -2286,7 +2168,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage inviteSipMsg(inviteMessage, strlen(inviteMessage));
       CPPUNIT_ASSERT( inviteSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* ackMessage =
           "ACK sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2301,7 +2183,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage ackSipMsg(ackMessage, strlen(ackMessage));
       CPPUNIT_ASSERT( ackSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* byeMessage =
           "BYE sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2316,7 +2198,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage byeSipMsg(byeMessage, strlen(byeMessage));
       CPPUNIT_ASSERT( byeSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* cancelMessage =
           "CANCEL sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2331,7 +2213,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage cancelSipMsg(cancelMessage, strlen(cancelMessage));
       CPPUNIT_ASSERT( cancelSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* optionsMessage =
           "OPTIONS sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2347,7 +2229,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage optionsSipMsg(optionsMessage, strlen(optionsMessage));
       CPPUNIT_ASSERT( optionsSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* registerMessage =
           "REGISTER sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2362,7 +2244,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage registerSipMsg(registerMessage, strlen(registerMessage));
       CPPUNIT_ASSERT( registerSipMsg.isRecordRouteAccepted() == FALSE );
-
+      
       const char* infoMessage =
           "INFO sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2382,7 +2264,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage infoSipMsg(infoMessage, strlen(infoMessage));
       CPPUNIT_ASSERT( infoSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* prackMessage =
           "PRACK sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2398,7 +2280,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage prackSipMsg(prackMessage, strlen(prackMessage));
       CPPUNIT_ASSERT( prackSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* subscribeMessage =
           "SUBSCRIBE sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2418,7 +2300,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage subscribeSipMsg(subscribeMessage, strlen(subscribeMessage));
       CPPUNIT_ASSERT( subscribeSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* notifyMessage =
           "NOTIFY sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2435,10 +2317,10 @@ class SipMessageTest : public CppUnit::TestCase
           "Messages-Waiting: no\r\n"
           "Voice-Message: 0/0 (0/0)\r\n"
           "\r\n";
-
+      
       SipMessage notifySipMsg(notifyMessage, strlen(notifyMessage));
       CPPUNIT_ASSERT( notifySipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* updateMessage =
           "UPDATE sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2453,7 +2335,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage updateSipMsg(updateMessage, strlen(updateMessage));
       CPPUNIT_ASSERT( updateSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* messageMessage =
           "MESSAGE sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2468,7 +2350,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage messageSipMsg(messageMessage, strlen(messageMessage));
       CPPUNIT_ASSERT( messageSipMsg.isRecordRouteAccepted() == FALSE );
-
+      
       const char* referMessage =
           "REFER sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2483,7 +2365,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage referSipMsg(referMessage, strlen(referMessage));
       CPPUNIT_ASSERT( referSipMsg.isRecordRouteAccepted() == TRUE );
-
+      
       const char* publishMessage =
           "PUBLISH sip:sipx.local SIP/2.0\r\n"
           "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2498,9 +2380,9 @@ class SipMessageTest : public CppUnit::TestCase
 
       SipMessage publishSipMsg(publishMessage, strlen(publishMessage));
       CPPUNIT_ASSERT( publishSipMsg.isRecordRouteAccepted() == FALSE );
-
+      
       }
-
+    
    void testPathFieldManipulations()
    {
       // try to add a Route header when there is already one present
@@ -2522,27 +2404,27 @@ class SipMessageTest : public CppUnit::TestCase
       sipmsg.addPathUri("sip:homeproxy.com");
       sipmsg.addLastPathUri("sip:last.com");
       CPPUNIT_ASSERT_EQUAL(3, sipmsg.getCountHeaderFields("Path"));
-
+      
       UtlString tmpString;
       CPPUNIT_ASSERT(sipmsg.getPathUri(0, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:homeproxy.com>", tmpString.data() );
-
+ 
       CPPUNIT_ASSERT(sipmsg.getPathUri(1, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:anothermiddleproxy.com>", tmpString.data() );
-
+      
       CPPUNIT_ASSERT(sipmsg.getPathUri(2, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:middleproxy.com>", tmpString.data() );
-
+ 
       CPPUNIT_ASSERT(sipmsg.getPathUri(3, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:outboundproxy.com>", tmpString.data() );
-
+       
       CPPUNIT_ASSERT(sipmsg.getPathUri(4, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:last.com>", tmpString.data() );
-
+ 
       CPPUNIT_ASSERT(sipmsg.getPathUri(5, &tmpString)==FALSE);
 
    }
-
+ 
    void testRouteFieldManipulations()
    {
       // try to add a Route header when there is already one present
@@ -2558,35 +2440,35 @@ class SipMessageTest : public CppUnit::TestCase
          "Contact: me@127.0.0.1\r\n"
          "Content-Length: 0\r\n"
          "\r\n";
-
+ 
       SipMessage sipmsg(rawmsg, strlen(rawmsg));
       sipmsg.addRouteUri("sip:homeproxy.com");
       sipmsg.addLastRouteUri("sip:last.com");
       CPPUNIT_ASSERT_EQUAL(3, sipmsg.getCountHeaderFields("Route"));
-
+       
       UtlString tmpString;
       CPPUNIT_ASSERT(sipmsg.getRouteUri(0, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:homeproxy.com>", tmpString.data() );
-
+ 
       CPPUNIT_ASSERT(sipmsg.getRouteUri(1, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:anothermiddleproxy.com>", tmpString.data() );
-
+     
       CPPUNIT_ASSERT(sipmsg.getRouteUri(2, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:middleproxy.com>", tmpString.data() );
-
+ 
       CPPUNIT_ASSERT(sipmsg.getRouteUri(3, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:outboundproxy.com>", tmpString.data() );
-
+       
       CPPUNIT_ASSERT(sipmsg.getRouteUri(4, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:last.com>", tmpString.data() );
-
+ 
       CPPUNIT_ASSERT(sipmsg.getRouteUri(5, &tmpString)==FALSE);
    }
-
+    
    void test200ResponseToRequestWithPath()
    {
       SipMessage finalResponse;
-
+ 
       const char* badReferMsg =
          "REFER sip:sipx.local SIP/2.0\r\n"
          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -2600,15 +2482,15 @@ class SipMessageTest : public CppUnit::TestCase
          "Contact: me@127.0.0.1\r\n"
          "Content-Length: 0\r\n"
          "\r\n";
-
-      // Only REGISTER requests should be allowed to contain path headers.
-      // Verify that 200 OK to non-REGISTER request does not contain a copy
+ 
+      // Only REGISTER requests should be allowed to contain path headers.  
+      // Verify that 200 OK to non-REGISTER request does not contain a copy 
       // of the Path headers
-
+ 
       SipMessage badReferSipMsg(badReferMsg, strlen(badReferMsg));
       finalResponse.setOkResponseData(&badReferSipMsg);
       CPPUNIT_ASSERT_EQUAL(0, finalResponse.getCountHeaderFields("Path"));
-
+ 
       // try to add a Route header when there is already one present
       const char* goodRegisterMsg =
          "REGISTER sip:sipx.local SIP/2.0\r\n"
@@ -2623,24 +2505,24 @@ class SipMessageTest : public CppUnit::TestCase
           "Contact: test@127.0.0.1\r\n"
           "Content-Length: 0\r\n"
           "\r\n";
-
+ 
       SipMessage goodRegisterSipMsg(goodRegisterMsg, strlen(goodRegisterMsg));
       finalResponse.setOkResponseData(&goodRegisterSipMsg);
       CPPUNIT_ASSERT_EQUAL(2, finalResponse.getCountHeaderFields("Path"));
-
+ 
       UtlString tmpString;
       CPPUNIT_ASSERT(finalResponse.getPathUri(0, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:anothermiddleproxy.com>", tmpString.data() );
-
+ 
       CPPUNIT_ASSERT(finalResponse.getPathUri(1, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:middleproxy.com>", tmpString.data() );
-
+        
       CPPUNIT_ASSERT(finalResponse.getPathUri(2, &tmpString)==TRUE);
       ASSERT_STR_EQUAL("<sip:outboundproxy.com>", tmpString.data() );
-
+ 
       CPPUNIT_ASSERT(finalResponse.getPathUri(3, &tmpString)==FALSE);
    }
-
+   
    void testSipXNatRoute()
    {
        const char* InviteMsg =
@@ -2653,25 +2535,25 @@ class SipMessageTest : public CppUnit::TestCase
           "Contact: me@127.0.0.1\r\n"
           "Content-Length: 0\r\n"
           "\r\n";
-
+  
        SipMessage sipmsg( InviteMsg, strlen( InviteMsg ) );
        const UtlString temporaryRoute( "47.135.162.145:10491;transport=udp" );
        UtlString getResult;
-
-       // message does not contain a SipX NAT Route - attempt to get it must fail
+       
+       // message does not contain a SipX NAT Route - attempt to get it must fail  
        CPPUNIT_ASSERT( sipmsg.getSipXNatRoute( &getResult ) == false );
-       CPPUNIT_ASSERT( getResult.isNull() );
+       CPPUNIT_ASSERT( getResult.isNull() );      
 
        // set the SipX NAT Route and try to read it back
        sipmsg.setSipXNatRoute( temporaryRoute );
        CPPUNIT_ASSERT( sipmsg.getSipXNatRoute( &getResult ) == true );
        CPPUNIT_ASSERT( !getResult.isNull() );
        CPPUNIT_ASSERT( getResult.compareTo( temporaryRoute ) == 0 );
-
-       // remove the SipX NAT Route - attempt to get it must fail
+       
+       // remove the SipX NAT Route - attempt to get it must fail 
        sipmsg.removeSipXNatRoute();
        CPPUNIT_ASSERT( sipmsg.getSipXNatRoute( &getResult ) == false );
-       CPPUNIT_ASSERT( getResult.isNull() );
+       CPPUNIT_ASSERT( getResult.isNull() );      
    }
 
    void testGetFieldSubfield()
@@ -2697,7 +2579,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_ASSERT(msg.getFieldSubfield(SIP_SUPPORTED_FIELD, BOTTOM_SUBFIELD, &value));
       ASSERT_STR_EQUAL("c", value.data());
    }
-
+   
    void testSetFieldSubfield_SingleSubfields()
    {
       const char* InviteMsg =
@@ -2718,7 +2600,7 @@ class SipMessageTest : public CppUnit::TestCase
          "Content-Length: 0\r\n"
          "DummyHeader: subfield 7\r\n"
          "\r\n";
-
+ 
       SipMessage sipmsg( InviteMsg, strlen( InviteMsg ) );
 
       CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 0, "How About This Value") );
@@ -2730,7 +2612,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 6, "Im Asking") );
       CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 7, "Never Mind") );
       CPPUNIT_ASSERT(!sipmsg.setFieldSubfield( "DummyHeader", 8, "Forget About It") );
-
+      
       const char* ReferenceMsg =
          "INVITE sip:sipx.local SIP/2.0\r\n"
          "DummyHeader: How About This Value\r\n"
@@ -2749,7 +2631,7 @@ class SipMessageTest : public CppUnit::TestCase
          "Content-Length: 0\r\n"
          "DummyHeader: Never Mind\r\n"
          "\r\n";
-
+ 
       SipMessage refsipmsg( ReferenceMsg, strlen( ReferenceMsg ) );
 
       UtlString modifiedMsgString, referenceMsgString;
@@ -2761,7 +2643,7 @@ class SipMessageTest : public CppUnit::TestCase
    }
    void testSetFieldSubfield_Mixed()
    {
-
+      
       const char* InviteMsg =
          "INVITE sip:sipx.local SIP/2.0\r\n"
          "DummyHeader: subfield 0,   subfield 1, subfield 2\r\n"
@@ -2780,7 +2662,7 @@ class SipMessageTest : public CppUnit::TestCase
          "Content-Length: 0\r\n"
          "DummyHeader: subfield 15\r\n"
          "\r\n";
-
+ 
       SipMessage sipmsg( InviteMsg, strlen( InviteMsg ) );
 
       CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 0, "etre") );
@@ -2800,7 +2682,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 14, "question") );
       CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 15, "Charlemagne") );
       CPPUNIT_ASSERT(!sipmsg.setFieldSubfield( "DummyHeader", 16, "Charlemagne") );
-
+      
       const char* ReferenceMsg =
          "INVITE sip:sipx.local SIP/2.0\r\n"
          "DummyHeader: etre,paraitre,sembler\r\n"
@@ -2819,7 +2701,7 @@ class SipMessageTest : public CppUnit::TestCase
          "Content-Length: 0\r\n"
          "DummyHeader: Charlemagne\r\n"
          "\r\n";
-
+ 
       SipMessage refsipmsg( ReferenceMsg, strlen( ReferenceMsg ) );
 
       UtlString modifiedMsgString, referenceMsgString;
@@ -2829,7 +2711,7 @@ class SipMessageTest : public CppUnit::TestCase
 
       ASSERT_STR_EQUAL(referenceMsgString.data(), modifiedMsgString.data());
    }
-
+   
    void testSetViaTag()
    {
       const char* SimpleMessage =
@@ -2852,7 +2734,7 @@ class SipMessageTest : public CppUnit::TestCase
          "Content-Length: 0\r\n"
          "\r\n";
       SipMessage testMsg( SimpleMessage, strlen( SimpleMessage ) );
-
+      
       CPPUNIT_ASSERT( testMsg.setViaTag( "new1", "test", 0 ) );
       CPPUNIT_ASSERT( testMsg.setViaTag( "12", "test2", 0 ) );
       CPPUNIT_ASSERT( testMsg.setViaTag( "new2", "test", 1 ) );
@@ -2896,9 +2778,9 @@ class SipMessageTest : public CppUnit::TestCase
       testMsg.getBytes(&modifiedMsgString, &msgLen);
       refMsg.getBytes(&referenceMsgString, &msgLen);
 
-      ASSERT_STR_EQUAL(referenceMsgString.data(), modifiedMsgString.data());
+      ASSERT_STR_EQUAL(referenceMsgString.data(), modifiedMsgString.data());  
    }
-
+   
    void testRecordRouteEchoing()
    {
       const char* message1 =
@@ -2993,7 +2875,7 @@ class SipMessageTest : public CppUnit::TestCase
       sipRequestEight.setRawToField("Callee <sip:user@somewhere.com>; tag=30543f3483e1cb11ecb40866edd3295b");
       sipRequestEight.setRawFromField("Caller <sip:caller@ext.example.org>");
 
-      // Test two in-dialog requests from the same dialog, with
+      // Test two in-dialog requests from the same dialog, with 
       // differing from and to fields
       CPPUNIT_ASSERT_MESSAGE("Failed matching in-dialog requests from the same dialog, "
                              "with differing from and to fields",
@@ -3003,7 +2885,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_ASSERT_MESSAGE("Failed not matching in-dialog requests from different dialogs",
                              !sipRequestOne.isSameSession(&sipRequestThree));
 
-      // Test an in-dialog and dialog-forming request from the
+      // Test an in-dialog and dialog-forming request from the 
       // same dialog
       CPPUNIT_ASSERT_MESSAGE("Failed matching an in-dialog request and a dialog-forming request from the "
                              "same dialog", sipRequestOne.isSameSession(&sipRequestFour));
@@ -3020,6 +2902,8 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_ASSERT_MESSAGE("Failed backward compatibility with RFC 2543 - different dialogs",
                              !sipRequestFive.isSameSession(&sipRequestEight));
    }
+};
+
 
    void testGetReferencesField()
       {
@@ -3138,6 +3022,29 @@ class SipMessageTest : public CppUnit::TestCase
          }
       };
 
+
+      void testHeadersWithTabAndLineFeeds()
+      {
+        const char* testMsg0 =
+            "INVITE sip:someone@example.com SIP/2.0\r\n"
+            "To: sip:someone@example.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Via:\r\n"
+            "\tSIP/2.0/UDP 10.112.5.93:5060;branch=z9hG4bK-10ca3d\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n";
+
+        SipMessage message(testMsg0);
+
+        UtlString viaField;
+        UtlString msgBranch;
+        CPPUNIT_ASSERT(message.getViaFieldSubField(&viaField, 0));
+        CPPUNIT_ASSERT(SipMessage::getViaTag(viaField.data(), "branch", msgBranch));
+        CPPUNIT_ASSERT(msgBranch == "z9hG4bK-10ca3d");
+      }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipMessageTest);

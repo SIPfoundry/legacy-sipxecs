@@ -133,7 +133,8 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
                                            const char* subFieldSeparators,
                                            const char*& subFieldPtr,
                                            ssize_t& subFieldLength,
-                                           ssize_t* lastCharIndex)
+                                           ssize_t* lastCharIndex,
+                                           bool validateChars)
 {
     UtlBoolean found = FALSE;
     if(textField)
@@ -158,6 +159,14 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
         subFieldBegin = separatorIndex + 1;
         separatorIndex = charIndex;
         break;
+        }
+        else if (validateChars && !isPrintableChar(textField[charIndex]))
+        {
+          subFieldPtr = NULL;
+          subFieldLength = 0;
+          if(lastCharIndex)
+            *lastCharIndex = 0;
+          return FALSE;
         }
 
         // If we found a separator character
@@ -193,6 +202,7 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
         //subfieldText->remove(separatorIndex - subfieldBegin);
         subFieldPtr = &(textField[subFieldBegin]);
         subFieldLength = separatorIndex - subFieldBegin;
+        
 #if 0
         printf("NameValueTokenizer::getSubField subField = '%.*s'\n",
                subFieldLength, subFieldPtr);
@@ -217,20 +227,31 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
                                            ssize_t subFieldIndex,
                                            const char* subFieldSeparators,
                                            UtlString* subFieldText,
-                                           ssize_t* lastCharIndex)
+                                           ssize_t* lastCharIndex,
+                                           bool validateChars)
 {
     ssize_t subFieldLength = 0;
     const char* subFieldPtr = NULL;
 
+    ssize_t fieldLen = ::strlen(textField);
+    
+    //
+    // Maximum size of sip packets is 65536.  
+    // Anything greater than this value is definitely garbage and none parseable
+    //
+    if (fieldLen > 65536)
+      return FALSE;
+
     UtlBoolean found = getSubField(textField,
-                                   -1, // stop at null (i.e. '\0')
+                                   fieldLen,
                                    subFieldIndex,
                                    subFieldSeparators,
                                    subFieldPtr,
                                    subFieldLength,
-                                   lastCharIndex);
+                                   lastCharIndex,
+                                   validateChars);
 
-    if(subFieldPtr && subFieldLength > 0)
+    if(found && subFieldPtr && subFieldLength > 0)
     {
     subFieldText->replace(0, subFieldLength, subFieldPtr, subFieldLength);
     subFieldText->remove(subFieldLength);
