@@ -67,6 +67,9 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testSetViaTag);
       CPPUNIT_TEST(testRecordRouteEchoing);
       CPPUNIT_TEST(testDialogMatching);
+      CPPUNIT_TEST(testGetReferencesField);
+      CPPUNIT_TEST(testGetCSeqField);
+      CPPUNIT_TEST(testHeadersWithTabAndLineFeeds);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -2899,6 +2902,148 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_ASSERT_MESSAGE("Failed backward compatibility with RFC 2543 - different dialogs",
                              !sipRequestFive.isSameSession(&sipRequestEight));
    }
+
+
+   void testGetReferencesField()
+      {
+         const char* SimpleMessage =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:nouser@nowhere.ca; tag=30543asdkfkasjdklfjkledd3295b\r\n"
+         "From: Anon <sip:nobody@nowhere.ca>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 13 INVITE\r\n"
+         "Record-Route: <sip:myhost.example.com;lr>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: nobody@example.com\r\n"
+         "References: abcdef-ghijk-lmnop@example.com;rel=xfer\r\n"
+         "Record-Route: <sip:myhost4.example.com;lr>\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+         SipMessage sipRequest(SimpleMessage, strlen(SimpleMessage));
+
+         UtlString references;
+
+         sipRequest.getReferencesField(&references);
+
+         ASSERT_STR_EQUAL("abcdef-ghijk-lmnop@example.com;rel=xfer",references.data());
+      };
+
+   void testGetCSeqField()
+      {
+         // A single test.
+         struct test
+         {
+            // The value to be inserted into the CSeq field.
+            const char* field;
+            // Sequence number, or -1 if it cannot be extracted.
+            int seq_no;
+            // Method, or "*" if it cannot be extracted.
+            const char* method;
+         };
+
+#define LONG_STRING \
+         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+         // The tests
+         struct test tests[] =
+         {
+            { "1234 REGISTER", 1234, "REGISTER" },
+            { LONG_STRING, -1, "*" }, // XX-7979
+            { "REGISTER", -1, "*" },
+            { "  1234 REGISTER  ", 1234, "REGISTER" },
+            { "X REGISTER", -1, "REGISTER" },
+            { "123412341234 REGISTER", -1, "REGISTER" },
+            { "1234", -1, "*" }, // Whitespace after seq. no. must be present.
+            { "1234 ", -1, "*" }, // SipMessage::getHeaderValue trims trailing whitespace.
+            { "", -1, "*" },
+            { "-1 REGISTER", -1, "REGISTER" },
+            { "-2 REGISTER", -1, "REGISTER" },
+         };
+
+         const char* message_skeleton =
+            "REGISTER sip:pingtel.com;transport=udp SIP/2.0\r\n"
+            "%s: %s\r\n"
+            "Call-Id: 3c26700a99cf-n3b3x9avtv3l@snom320-00041324190C\r\n"
+            "Cseq: 264 REGISTER\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         char message_buffer[1000];
+         char msg[100];
+         int ret;
+         int seqNum;
+         UtlString method;
+         int should_succeed;
+
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+         {
+            sprintf(msg, "Test %d using field value '%s'", i, tests[i].field);
+
+            // Create the message text.
+            sprintf(message_buffer, message_skeleton, "CSeq", tests[i].field);
+            // Create a SipMessage.
+            SipMessage message(message_buffer);
+
+            // Get only the sequence part.
+            ret = message.getCSeqField(&seqNum, NULL);
+            should_succeed = tests[i].seq_no != -1;
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, should_succeed, ret);
+            if (should_succeed)
+            {
+               CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, tests[i].seq_no, seqNum);
+            }
+
+            // Get only the method part.
+            ret = message.getCSeqField(NULL, &method);
+            should_succeed = strcmp(tests[i].method, "*") != 0;
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg,
+                                         should_succeed,
+                                         ret);
+            if (should_succeed)
+            {
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].method, method);
+            }
+
+            // Get both parts.
+            ret = message.getCSeqField(&seqNum, &method);
+            should_succeed =
+               tests[i].seq_no != -1 &&
+               strcmp(tests[i].method, "*") != 0;
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, should_succeed, ret);
+            if (should_succeed)
+            {
+               CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, tests[i].seq_no, seqNum);
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].method, method);
+            }
+         }
+      };
+
+
+      void testHeadersWithTabAndLineFeeds()
+      {
+        const char* testMsg0 =
+            "INVITE sip:someone@example.com SIP/2.0\r\n"
+            "To: sip:someone@example.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Via:\r\n"
+            "\tSIP/2.0/UDP 10.112.5.93:5060;branch=z9hG4bK-10ca3d\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n";
+
+        SipMessage message(testMsg0);
+
+        UtlString viaField;
+        UtlString msgBranch;
+        CPPUNIT_ASSERT(message.getViaFieldSubField(&viaField, 0));
+        CPPUNIT_ASSERT(SipMessage::getViaTag(viaField.data(), "branch", msgBranch));
+        CPPUNIT_ASSERT(msgBranch == "z9hG4bK-10ca3d");
+      }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipMessageTest);

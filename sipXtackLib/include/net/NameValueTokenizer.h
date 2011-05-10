@@ -67,7 +67,8 @@ public:
                                  ssize_t subfieldIndex,
                                  const char* subfieldSeparator,
                                  UtlString* subfieldText,
-                                 ssize_t* lastCharIndex = NULL);
+                                 ssize_t* lastCharIndex = NULL,
+                                 bool validateChars = false);
 
    static UtlBoolean getSubField(const char* textField,
                                  ssize_t textFieldLength,
@@ -75,7 +76,8 @@ public:
                                  const char* subfieldSeparators,
                                  const char*& subfieldPtr,
                                  ssize_t& subFieldLength,
-                                 ssize_t* lastCharIndex);
+                                 ssize_t* lastCharIndex,
+                                 bool validateChars = false);
 
    /**
     * Split the string (up to the point found by findNextLineTerminator)
@@ -107,8 +109,30 @@ private:
     NameValueTokenizer& operator=(const NameValueTokenizer& rhs);
     //: disable Assignment operator
 
+    //
+    // Sanity checkers
+    //
+    static bool isChar(int c);
+    static bool isCtl(int c);
+    static bool isPrintableChar(int c);
+
+
 };
 
 /* ============================ INLINE METHODS ============================ */
 
+inline bool NameValueTokenizer::isChar(int c) 
+{
+  return c >= 0 && c <= 127;
+}
+
+inline bool NameValueTokenizer::isPrintableChar(int c) 
+{
+  return !isCtl(c) && isChar(c);
+}
+
+inline bool NameValueTokenizer::isCtl(int c) 
+{
+  return (c >= 0 && c <= 8) || (c >= 14 && c <= 31) ||c == 127;
+}
 #endif  // _NameValueTokenizer_h_

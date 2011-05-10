@@ -4986,7 +4986,8 @@ SipTransaction::whatRelation(const SipMessage& message,
         UtlString viaField;
         UtlString msgBranch;
         UtlBoolean msgHasVia = message.getViaFieldSubField(&viaField, 0);
-        SipMessage::getViaTag(viaField.data(), "branch", msgBranch);
+        if (msgHasVia)
+          SipMessage::getViaTag(viaField.data(), "branch", msgBranch);
 
 #       ifdef LOG_FORKING
         OsSysLog::add(FAC_SIP, PRI_DEBUG,

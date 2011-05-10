@@ -46,6 +46,7 @@ class BranchIdTest : public CppUnit::TestCase
    CPPUNIT_TEST(testBranchCopy);
    CPPUNIT_TEST(testLoopDetection);
    CPPUNIT_TEST(testLoopDetectionWithExclusions);
+   CPPUNIT_TEST(testCorruptedViaHeader);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -470,6 +471,27 @@ public:
 
          CPPUNIT_ASSERT_EQUAL(2U,branchId4s2.loopDetected(sipMsg4s2));
       }
+
+   void testCorruptedViaHeader()
+   {
+     const char* testMsg0 =
+            "INVITE sip:someone@example.com SIP/2.0\r\n"
+            "To: sip:someone@example.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Via: SIP/2.0/UDP 10.112.5.93:506���M��##6###6#####�#�####Z#D##E##(6�@#@#�e�##0\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n";
+
+     SipMessage message(testMsg0);
+
+    UtlString viaField;
+    UtlString msgBranch;
+    CPPUNIT_ASSERT(!message.getViaFieldSubField(&viaField, 0));
+    CPPUNIT_ASSERT(!SipMessage::getViaTag(viaField.data(), "branch", msgBranch));
+   }
 
 };
 
