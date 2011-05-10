@@ -3215,7 +3215,7 @@ UtlBoolean SipMessage::getViaFieldSubField(UtlString* viaSubField, int subFieldI
 {
    UtlBoolean retVal = FALSE;
    UtlString Via;
-   if (getFieldSubfield(SIP_VIA_FIELD, subFieldIndex, &Via) )
+   if (getFieldSubfield(SIP_VIA_FIELD, subFieldIndex, &Via, true) )
    {
       viaSubField->remove(0);
       if(!Via.isNull())
@@ -4210,7 +4210,7 @@ void SipMessage::buildReplacesField(UtlString& replacesField,
     replacesField.append(fromTag);
 }
 
-UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex, UtlString* uri) const
+UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex, UtlString* uri, bool validateChars) const
 {
    UtlBoolean uriFound = FALSE;
    UtlString url, urlBackup;
@@ -4224,7 +4224,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
    while(value && index <= addressIndex)
    {
       subFieldIndex = 0;
-      NameValueTokenizer::getSubField(value, subFieldIndex, SIP_MULTIFIELD_SEPARATOR, &url);
+      NameValueTokenizer::getSubField(value, subFieldIndex, SIP_MULTIFIELD_SEPARATOR, &url, NULL, validateChars);
 #ifdef TEST
       osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName, fieldIndex, url.data());
 #endif
@@ -4235,7 +4235,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
          subFieldIndex++;
          index++;
          NameValueTokenizer::getSubField(value, subFieldIndex,
-                                         SIP_MULTIFIELD_SEPARATOR, &url);
+                                         SIP_MULTIFIELD_SEPARATOR, &url, NULL, validateChars);
 #ifdef TEST
          osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName, fieldIndex, url.data());
 #endif
