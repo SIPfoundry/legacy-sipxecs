@@ -645,6 +645,23 @@ int SipClient::run(void* runArg)
          int res = msg->read(mClientSocket,
                              HTTP_DEFAULT_SOCKET_BUFFER_SIZE,
                              &readBuffer);
+
+         if (res >= 65536)
+         {
+           //
+           // This is more than the allowable size of a SIP message.  Discard!
+           //
+            UtlString remoteHostAddress;
+            int remoteHostPort;
+            msg->getSendAddress(&remoteHostAddress, &remoteHostPort);
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+            "Received a SIP Message (%d bytes) beyond the maximum allowable size from host %s:%d",
+            res, remoteHostAddress.data(), remoteHostPort);
+            delete msg;
+            readBuffer.remove(0);
+            continue;
+         }
+
          // Use readBuffer to hold any unparsed data after the message
          // we read.
          // Note that if a message was successfully parsed, readBuffer
