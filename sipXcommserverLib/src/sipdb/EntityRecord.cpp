@@ -48,9 +48,12 @@ const char* EntityRecord::staticUserLocFromUri_fld(){ static std::string fld = "
 const char* EntityRecord::staticUserLocToUri_fld(){ static std::string fld = "to"; return fld.c_str(); }
 const char* EntityRecord::staticUserLocCallId_fld(){ static std::string fld = "cid"; return fld.c_str(); }
 
+const char* EntityRecord::vmOnDnd_fld(){ static std::string fld = "vmondnd"; return fld.c_str(); };
+
 EntityRecord::EntityRecord()
 {
     _callForwardTime = 0;
+    _vmOnDnd = false;
 }
 
 EntityRecord::EntityRecord(const EntityRecord& entity)
@@ -67,6 +70,7 @@ EntityRecord::EntityRecord(const EntityRecord& entity)
     _aliases = entity._aliases;
     _callForwardTime = entity._callForwardTime;
     _staticUserLoc = entity._staticUserLoc;
+    _vmOnDnd = entity._vmOnDnd;
 }
 
 EntityRecord::~EntityRecord()
@@ -95,9 +99,10 @@ void EntityRecord::swap(EntityRecord& entity)
     std::swap(_aliases, entity._aliases);
     std::swap(_callForwardTime, entity._callForwardTime);
     std::swap(_staticUserLoc, entity._staticUserLoc);
+    std::swap(_vmOnDnd, entity._vmOnDnd);
 }
 
-EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
+EntityRecord& EntityRecord::operator = (const MongoDB::BSONObj& bsonObj)
 {
     try
     {
@@ -141,6 +146,11 @@ EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
         if (bsonObj.hasField(EntityRecord::callForwardTime_fld()))
         {
             _callForwardTime = bsonObj.getIntField(EntityRecord::callForwardTime_fld());
+        }
+
+        if (bsonObj.hasField(EntityRecord::vmOnDnd_fld()))
+        {
+            _vmOnDnd = bsonObj.getBoolField(EntityRecord::vmOnDnd_fld());
         }
 
         if (bsonObj.hasField(EntityRecord::callerId_fld()))

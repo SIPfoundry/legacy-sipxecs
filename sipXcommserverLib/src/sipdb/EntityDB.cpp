@@ -197,3 +197,21 @@ void EntityDB::getAliasContacts (
          isUserIdentity = !entity.realm().empty() && !entity.password().empty();
      }
 }
+
+void EntityDB::getAllEntities(Entities& entities) const
+{
+    MongoDB::BSONObj query;
+
+    std::string error;
+    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+
+    if (!error.empty())
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (EntityDB::getAllEntities)" << error);
+
+    while (pCursor->more())
+    {
+        EntityRecord entity;
+        entity = pCursor->next();
+        entities.push_back(entity);
+    }
+}

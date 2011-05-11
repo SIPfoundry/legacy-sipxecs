@@ -26,6 +26,7 @@
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorPresenceRouting.h"
 #include "registry/SipRedirectServer.h"
+#include "sipdb/EntityDB.h"
 
 // DEFINES
 #define CONFIG_SETTING_REALM "REALM"
@@ -751,11 +752,12 @@ OsStatus PresenceRoutingUserPreferences::initialize()
    }
    else
    {
-      currentStatus = parseDocument( pDoc );
+      currentStatus = parseDocument();
    }
    return currentStatus;
 }
 
+#if 0
 OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
 {
    OsStatus rc = OS_SUCCESS;
@@ -797,6 +799,25 @@ OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
       rc = OS_FAILED;
    }
    return rc;
+}
+#endif
+
+OsStatus PresenceRoutingUserPreferences::parseDocument()
+{
+  EntityDB::Entities entities;
+  EntityDB::defaultCollection().collection().getAllEntities(entities);
+  for(EntityDB::Entities::iterator iter = entities.begin(); iter != entities.end(); iter++)
+  {
+      if( !iter->userId().empty() )
+      {
+          UtlString* pUsername = new UtlString(iter->userId().c_str());
+          UtlBool* pbVmOnDnd = new UtlBool( FALSE );
+          if (iter->vmOnDnd())
+              pbVmOnDnd->setValue(TRUE);
+          mUserVmOnDndPreferences.insertKeyAndValue( pUsername, pbVmOnDnd );
+      }
+  }
+  return OS_SUCCESS;
 }
 
 bool PresenceRoutingUserPreferences::forwardToVoicemailOnDnd(const UtlString& sipUsername )
