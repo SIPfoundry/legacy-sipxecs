@@ -15,6 +15,8 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -57,6 +59,12 @@ public abstract class EditOpenAcdQueueGroupPage extends PageWithCallback impleme
     public void editQueueGroup(Integer groupId, String returnPage) {
         setGroupId(groupId);
         setReturnPage(returnPage);
+    }
+
+    public IPage addSkills(IRequestCycle cycle) {
+        OpenAcdServerPage page = (OpenAcdServerPage) cycle.getPage(OpenAcdServerPage.PAGE);
+        page.setTab("skills");
+        return page;
     }
 
     @Override

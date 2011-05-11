@@ -25,7 +25,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills {
     private String m_name;
-    private int m_sort = 10;
     private String m_description;
     private Set<OpenAcdQueue> m_queues = new LinkedHashSet<OpenAcdQueue>();
     private String m_oldName;
@@ -36,14 +35,6 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills {
 
     public void setName(String name) {
         m_name = name;
-    }
-
-    public int getSort() {
-        return m_sort;
-    }
-
-    public void setSort(int sort) {
-        m_sort = sort;
     }
 
     public String getDescription() {
@@ -99,7 +90,6 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills {
         props.add("name");
         props.add("skillsAtoms");
         props.add("profiles");
-        props.add("sort");
         props.add("oldName");
         return props;
     }

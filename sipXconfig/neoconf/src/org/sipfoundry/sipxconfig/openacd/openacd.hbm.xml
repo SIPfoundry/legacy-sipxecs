@@ -62,7 +62,6 @@
       </generator>
     </id>
     <property name="name"/>
-	<property name="sort" />
     <property name="description"/>
     <set name="queues" table="openacd_queue" inverse="true" cascade="all,delete-orphan" order-by="openacd_queue_id">
       <key column="openacd_queue_group_id"/>

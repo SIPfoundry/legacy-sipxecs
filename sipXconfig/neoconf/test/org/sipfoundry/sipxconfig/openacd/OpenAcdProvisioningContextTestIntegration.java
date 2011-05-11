@@ -81,7 +81,6 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         qGroup.addSkill(skill);
         qGroup.addSkill(skill1);
         qGroup.addAgentGroup(group);
-        qGroup.setSort(10);
         m_openAcdContextImpl.saveQueueGroup(qGroup);
 
         List<BasicDBObject> commands = provContext.getCommands();
@@ -157,7 +156,6 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         assertEquals("QGroup", objects.get(0).get("name"));
         assertEquals("_java, _c", objects.get(0).get("skillsAtoms"));
         assertEquals("Group", objects.get(0).get("profiles"));
-        assertEquals("10", objects.get(0).get("sort"));
     }
 
     public void testOpenAcdConfigureCommands() {
