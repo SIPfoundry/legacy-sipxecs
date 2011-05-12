@@ -125,4 +125,5 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
     List<String> removeQueues(Collection<Integer> queueIds);
     public OpenAcdLine newOpenAcdLine();
     public OpenAcdCommand newOpenAcdCommand();
+    public void replicateConfig();
 }

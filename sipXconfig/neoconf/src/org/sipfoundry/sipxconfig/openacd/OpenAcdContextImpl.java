@@ -174,10 +174,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         } else {
             getHibernateTemplate().merge(extension);
         }
-        replicateConfig();
     }
 
-    private void replicateConfig() {
+    public void replicateConfig() {
         SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
                 .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         for (Location location : m_locationsManager.getLocations()) {
