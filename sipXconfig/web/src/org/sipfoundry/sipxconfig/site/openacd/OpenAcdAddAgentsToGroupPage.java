@@ -105,6 +105,12 @@ public abstract class OpenAcdAddAgentsToGroupPage extends PageWithCallback imple
         setReturnPage(returnPage);
     }
 
+    public IPage addSkills(IRequestCycle cycle) {
+        OpenAcdServerPage page = (OpenAcdServerPage) cycle.getPage(OpenAcdServerPage.PAGE);
+        page.setTab("skills");
+        return page;
+    }
+
     @Override
     public void pageBeginRender(PageEvent event) {
         if (!TapestryUtils.isValid(this)) {
