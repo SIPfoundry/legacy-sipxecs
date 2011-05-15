@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (C) 2011 eZuce, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -21,14 +21,14 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroup;
 
-public abstract class EditOpenAcdSkillPage extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "openacd/EditOpenAcdSkillPage";
+public abstract class EditOpenAcdSkillGroupPage extends PageWithCallback implements PageBeginRenderListener {
+    public static final String PAGE = "openacd/EditOpenAcdSkillGroupPage";
 
     @InjectObject("spring:openAcdContext")
     public abstract OpenAcdContext getOpenAcdContext();
@@ -36,46 +36,40 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    @Persist
-    public abstract Integer getSkillId();
-
-    public abstract void setSkillId(Integer skillId);
+    @Bean
+    public abstract SelectMap getSelections();
 
     @Persist
-    public abstract OpenAcdSkill getSkill();
+    public abstract Integer getGroupId();
 
-    public abstract void setSkill(OpenAcdSkill skill);
+    public abstract void setGroupId(Integer groupId);
 
-    public abstract void setSelectedSkillGroup(OpenAcdSkillGroup selectedSkillGroup);
+    public abstract OpenAcdSkillGroup getSkillGroup();
 
-    public abstract OpenAcdSkillGroup getSelectedSkillGroup();
+    public abstract void setSkillGroup(OpenAcdSkillGroup skillGroup);
 
-    public void addSkill(String returnPage) {
-        setSkillId(null);
-        setSkill(null);
+    public void addSkillGroup(String returnPage) {
+        setGroupId(null);
+        setSkillGroup(null);
         setReturnPage(returnPage);
     }
 
-    public void editSkill(Integer skillId, String returnPage) {
-        setSkillId(skillId);
+    public void editSkillGroup(Integer groupId, String returnPage) {
+        setGroupId(groupId);
         setReturnPage(returnPage);
     }
 
     @Override
-    public void pageBeginRender(PageEvent event_) {
+    public void pageBeginRender(PageEvent event) {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
 
-        if (getSkillId() == null) {
-            setSkill(new OpenAcdSkill());
+        if (getGroupId() == null) {
+            setSkillGroup(new OpenAcdSkillGroup());
         } else {
-            OpenAcdSkill skill = getOpenAcdContext().getSkillById(getSkillId());
-            setSkill(skill);
-            OpenAcdSkillGroup skillGroup = skill.getGroup();
-            if (skillGroup != null) {
-                setSelectedSkillGroup(skillGroup);
-            }
+            OpenAcdSkillGroup skillGroup = getOpenAcdContext().getSkillGroupById(getGroupId());
+            setSkillGroup(skillGroup);
         }
     }
 
@@ -84,9 +78,8 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
             return;
         }
 
-        OpenAcdSkill skill = getSkill();
-        skill.setGroup(getSelectedSkillGroup());
-        getOpenAcdContext().saveSkill(skill);
-        setSkillId(getSkill().getId());
+        OpenAcdSkillGroup group = getSkillGroup();
+        getOpenAcdContext().saveSkillGroup(group);
+        setGroupId(getSkillGroup().getId());
     }
 }

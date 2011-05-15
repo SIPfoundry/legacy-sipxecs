@@ -1,6 +1,6 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <span jwcid="@common/TabNavigation"
-    tabNames="ognl:{'clients','lines','queueGroups','queues','agentGroups','agents','skills','commands', 'settings'}"
+    tabNames="ognl:{'clients','lines','queueGroups','queues','agentGroups','agents','skillGroups','skills','commands', 'settings'}"
     selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
@@ -28,7 +28,11 @@
 	<span jwcid="@common/QuickHelp" value="message:quick.help.agents"/>
 	<span jwcid="@openacd/OpenAcdAgentsPanel" />
   </span>
+  <span jwcid="skillGroupsTab@Block">
+	<span jwcid="@openacd/OpenAcdSkillGroupsPanel" />
+  </span>
   <span jwcid="skillsTab@Block">
+	<span jwcid="@common/QuickHelp" value="message:quick.help.skills"/>
 	<span jwcid="@openacd/OpenAcdSkillsPanel" />
   </span>
   <span jwcid="commandsTab@Block">

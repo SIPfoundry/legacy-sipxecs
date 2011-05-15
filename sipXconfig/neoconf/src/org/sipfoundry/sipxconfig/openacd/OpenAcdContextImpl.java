@@ -56,6 +56,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private static final String LOCATION = "location";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
     private static final String OPEN_ACD_AGENT_GROUP_WITH_NAME = "openAcdAgentGroupWithName";
+    private static final String OPEN_ACD_SKILL_GROUPWITH_NAME = "openAcdSkillGroupWithName";
     private static final String OPEN_ACD_SKILL_WITH_NAME = "openAcdSkillWithName";
     private static final String OPEN_ACD_SKILL_WITH_ATOM = "openAcdSkillWithAtom";
     private static final String OPEN_ACD_CLIENT_WITH_NAME = "openAcdClientWithName";
@@ -63,6 +64,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private static final String DEFAULT_OPEN_ACD_SKILLS = "defaultOpenAcdSkills";
     private static final String OPEN_ACD_AGENT_BY_USERID = "openAcdAgentByUserId";
     private static final String GROUP_NAME_DEFAULT = "Default";
+    private static final String MAGIC_SKILL_GROUP_NAME = "Magic";
     private static final String LINE_NAME = "line";
     private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
@@ -414,6 +416,95 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     @Override
+    public List<OpenAcdSkillGroup> getSkillGroups() {
+        return getHibernateTemplate().loadAll(OpenAcdSkillGroup.class);
+    }
+
+    @Override
+    public OpenAcdSkillGroup getSkillGroupById(Integer skillGroupId) {
+        return getHibernateTemplate().load(OpenAcdSkillGroup.class, skillGroupId);
+    }
+
+    @Override
+    public OpenAcdSkillGroup getSkillGroupByName(String skillGroupName) {
+        List<OpenAcdSkillGroup> skillGroups = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                OPEN_ACD_SKILL_GROUPWITH_NAME, VALUE, skillGroupName);
+        return DataAccessUtils.singleResult(skillGroups);
+    }
+
+    @Override
+    public void saveSkillGroup(OpenAcdSkillGroup skillGroup) {
+        if (StringUtils.isBlank(skillGroup.getName())) {
+            throw new UserException("&blank.skillGroupName.error");
+        }
+        if (skillGroup.isNew() || (!skillGroup.isNew() && isNameChanged(skillGroup))) {
+            checkForDuplicateName(skillGroup);
+        }
+
+        if (!skillGroup.isNew()) {
+            if (isNameChanged(skillGroup)) {
+                // don't rename the Magic skill group
+                OpenAcdSkillGroup magicSkillGroup = getSkillGroupByName(MAGIC_SKILL_GROUP_NAME);
+                if (magicSkillGroup != null && magicSkillGroup.getId().equals(skillGroup.getId())) {
+                    throw new UserException("&msg.err.magicSkillGroupRename");
+                }
+
+                List<OpenAcdSkill> skills = new LinkedList<OpenAcdSkill>();
+                for (OpenAcdSkill skill : skillGroup.getSkills()) {
+                    skills.add(skill);
+                }
+                m_provisioningContext.updateObjects(skills);
+            }
+            getHibernateTemplate().merge(skillGroup);
+        } else {
+            getHibernateTemplate().save(skillGroup);
+        }
+    }
+
+    private boolean isNameChanged(OpenAcdSkillGroup skillGroup) {
+        String oldName = getSkillGroupById(skillGroup.getId()).getName();
+        skillGroup.setOldName(oldName);
+        return !oldName.equals(skillGroup.getName());
+    }
+
+    private void checkForDuplicateName(OpenAcdSkillGroup skillGroup) {
+        String skillGroupName = skillGroup.getName();
+        OpenAcdSkillGroup existingSkillGroup = getSkillGroupByName(skillGroupName);
+        if (existingSkillGroup != null) {
+            throw new UserException("&duplicate.skillGroupName.error", skillGroupName);
+        }
+    }
+
+    @Override
+    public List<String> removeSkillGroups(Collection<Integer> skillGroupIds) {
+        List<OpenAcdSkillGroup> groups = new LinkedList<OpenAcdSkillGroup>();
+        List<OpenAcdSkill> skills = new LinkedList<OpenAcdSkill>();
+        List<String> usedSkillGroups = new ArrayList<String>();
+        for (Integer id : skillGroupIds) {
+            OpenAcdSkillGroup group = getSkillGroupById(id);
+            if (group.getName().equals(MAGIC_SKILL_GROUP_NAME) || containsUsedSkills(group)) {
+                usedSkillGroups.add(group.getName());
+            } else {
+                skills.addAll(group.getSkills());
+                groups.add(group);
+            }
+        }
+        getHibernateTemplate().deleteAll(groups);
+        m_provisioningContext.deleteObjects(skills);
+
+        return usedSkillGroups;
+    }
+
+    private boolean containsUsedSkills(OpenAcdSkillGroup skillGroup) {
+        for (OpenAcdSkill skill : skillGroup.getSkills()) {
+            if (skill.isDefaultSkill() || isSkillInUse(skill)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public List<OpenAcdSkill> getSkills() {
         return getHibernateTemplate().loadAll(OpenAcdSkill.class);
     }
@@ -452,9 +543,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         if (StringUtils.isBlank(skill.getAtom())) {
             throw new UserException("&blank.skillAtom.error");
         }
-        // Check if skill group name is empty
-        if (StringUtils.isBlank(skill.getGroupName())) {
-            throw new UserException("&blank.skillGroupName.error");
+        // Check if skill group is empty
+        if (skill.getGroup() == null) {
+            throw new UserException("&error.requiredSkillGroup");
         }
         // Check for duplicate names before saving the skill
         if (skill.isNew() || (!skill.isNew() && isNameChanged(skill))) {
@@ -482,6 +573,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
             if (skill.isDefaultSkill() || isSkillInUse(skill)) {
                 usedSkills.add(skill.getName());
             } else {
+                OpenAcdSkillGroup group = skill.getGroup();
+                group.removeSkill(skill);
+                getHibernateTemplate().saveOrUpdate(group);
                 skills.add(skill);
             }
         }

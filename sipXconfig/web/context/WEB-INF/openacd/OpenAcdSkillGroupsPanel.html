@@ -1,30 +1,30 @@
-<form jwcid="skills@Form" id="skillsForm" delegate="bean:validator">
+<form jwcid="skillGroups@Form" id="skillGroupsForm" delegate="bean:validator">
   <ul class="component-links">
 	<li>
-	  <a jwcid="addSkill@DirectLink"  id="link.addSkill" listener="listener:addSkill">
-		<span key="link.addSkill">Add new Skill</span>
+	  <a jwcid="addSkillGroup@DirectLink"  id="link.addSkillGroup" listener="listener:addSkillGroup">
+		<span key="link.addSkillGroup">Add New Skill Group</span>
 	  </a>
 	</li>
   </ul>
-  <table jwcid="@common/Table" id="skills:list"
-		columns="* name,atom,!skillGroup,description"
-		source="ognl:skills"
+  <table jwcid="@common/Table" id="skillGroups:list"
+		columns="* name,!skillCount,description"
+		source="ognl:skillGroups"
 		row="ognl:currentRow"
 		selections="bean:selections">
 	<tr jwcid="nameColumnValue@Block">
 	  <td jwcid="editRowLink@DirectLink"
-		  listener="listener:editSkill"
+		  listener="listener:editSkillGroup"
 		  parameters="ognl:currentRow.id">
           <span jwcid="@Insert" value="ognl:currentRow.name"/>
 	  </td>
 	</tr>
-	<tr jwcid="skillGroupColumnValue@Block">
-	  <td jwcid="@Insert" value="ognl:currentRow.group.name"/>
+	<tr jwcid="skillCountColumnValue@Block">
+	  <td jwcid="@Insert" value="ognl:currentRow.skills.size()"/>
 	</tr>
   </table>
   <ul class="component-submit">
 	<li>
-	  <input jwcid="delete@Submit" id="agentGroups:delete"
+	  <input jwcid="delete@Submit" id="skillGroups:delete"
 			listener="listener:delete"
 			selected="ognl:selectedRows"
 			tag="ognl:allSelected"

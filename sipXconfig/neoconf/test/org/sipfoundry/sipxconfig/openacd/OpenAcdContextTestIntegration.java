@@ -48,6 +48,12 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
     private OpenAcdContextImpl m_openAcdContextImpl;
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
+    private OpenAcdSkillGroupMigrationContext m_migrationContext;
+
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        m_migrationContext.migrateSkillGroup();
+    }
 
     public void testOpenAcdLineCrud() throws Exception {
         loadDataSetXml("admin/commserver/seedLocations.xml");
@@ -449,6 +455,55 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(1, m_openAcdContextImpl.getAgentGroups().size());
     }
 
+    public void testOpenAcdSkillGroupCrud() throws Exception {
+        // test existing 'Language' and 'Magic' skill groups
+        assertEquals(2, m_openAcdContextImpl.getSkillGroups().size());
+
+        // test get skill group by name
+        OpenAcdSkillGroup magicSkillGroup = m_openAcdContextImpl.getSkillGroupByName("Magic");
+        assertNotNull(magicSkillGroup);
+        assertEquals("Magic", magicSkillGroup.getName());
+        OpenAcdSkillGroup languageSkillGroup = m_openAcdContextImpl.getSkillGroupByName("Language");
+        assertNotNull(languageSkillGroup);
+        assertEquals("Language", languageSkillGroup.getName());
+
+        // test save skill group without name
+        OpenAcdSkillGroup group = new OpenAcdSkillGroup();
+        try {
+            m_openAcdContextImpl.saveSkillGroup(group);
+            fail();
+        } catch (UserException ex) {
+        }
+
+        // test save skill group
+        assertEquals(2, m_openAcdContextImpl.getSkillGroups().size());
+        group.setName("MySkillGroup");
+        m_openAcdContextImpl.saveSkillGroup(group);
+        assertEquals(3, m_openAcdContextImpl.getSkillGroups().size());
+
+        // test save queue group with the same name
+        OpenAcdSkillGroup anotherGroup = new OpenAcdSkillGroup();
+        anotherGroup.setName("MySkillGroup");
+        try {
+            m_openAcdContextImpl.saveSkillGroup(anotherGroup);
+            fail();
+        } catch (UserException ex) {
+        }
+
+        // test get skill group by id
+        OpenAcdSkillGroup existingSkillGroup = m_openAcdContextImpl.getSkillGroupById(group.getId());
+        assertNotNull(existingSkillGroup);
+        assertEquals("MySkillGroup", existingSkillGroup.getName());
+
+        // test remove skill group but prevent 'Magic' skill group deletion
+        assertEquals(3, m_openAcdContextImpl.getSkillGroups().size());
+        Collection<Integer> ids = new ArrayList<Integer>();
+        ids.add(magicSkillGroup.getId());
+        ids.add(languageSkillGroup.getId());
+        ids.add(group.getId());
+        m_openAcdContextImpl.removeSkillGroups(ids);
+    }
+
     public void testOpenAcdSkillCrud() throws Exception {
         // test existing skills in 'Language' and 'Magic' skill groups
         assertEquals(8, m_openAcdContextImpl.getSkills().size());
@@ -521,13 +576,18 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             fail();
         } catch (UserException ex) {
         }
+
         // test save skill
-        newSkill.setGroupName("Group");
+        OpenAcdSkillGroup skillGroup = new OpenAcdSkillGroup();
+        skillGroup.setName("Group");
+        m_openAcdContextImpl.saveSkillGroup(skillGroup);
+        newSkill.setGroup(skillGroup);
+
         assertEquals(8, m_openAcdContextImpl.getSkills().size());
         m_openAcdContextImpl.saveSkill(newSkill);
         assertEquals(9, m_openAcdContextImpl.getSkills().size());
 
-        // test remove agent groups but prevent default skills deletion
+        // test remove skills but prevent 'magic' skills deletion
         assertEquals(9, m_openAcdContextImpl.getSkills().size());
         Collection<Integer> skillIds = new ArrayList<Integer>();
         skillIds.add(allSkill.getId());
@@ -642,30 +702,38 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetGroupedSkills() {
+        OpenAcdSkillGroup skillGroup = new OpenAcdSkillGroup();
+        skillGroup.setName("NewGroup");
+        m_openAcdContextImpl.saveSkillGroup(skillGroup);
+
         OpenAcdSkill newSkill = new OpenAcdSkill();
         newSkill.setName("NewSkill");
         newSkill.setAtom("_new");
-        newSkill.setGroupName("NewGroup");
+        newSkill.setGroup(skillGroup);
         m_openAcdContextImpl.saveSkill(newSkill);
 
         OpenAcdSkill anotherSkill = new OpenAcdSkill();
         anotherSkill.setName("AnotherSkill");
         anotherSkill.setAtom("_another");
-        anotherSkill.setGroupName("NewGroup");
+        anotherSkill.setGroup(skillGroup);
         m_openAcdContextImpl.saveSkill(anotherSkill);
+
+        OpenAcdSkillGroup anotherSkillGroup = new OpenAcdSkillGroup();
+        anotherSkillGroup.setName("AnotherSkillGroup");
+        m_openAcdContextImpl.saveSkillGroup(anotherSkillGroup);
 
         OpenAcdSkill thirdSkill = new OpenAcdSkill();
         thirdSkill.setName("ThirdSkill");
         thirdSkill.setAtom("_third");
-        thirdSkill.setGroupName("ThirdGroup");
+        thirdSkill.setGroup(anotherSkillGroup);
         m_openAcdContextImpl.saveSkill(thirdSkill);
 
         Map<String, List<OpenAcdSkill>> skills = m_openAcdContextImpl.getGroupedSkills();
         assertEquals(2, skills.get("NewGroup").size());
         assertTrue(skills.get("NewGroup").contains(m_openAcdContextImpl.getSkillByAtom("_new")));
         assertTrue(skills.get("NewGroup").contains(m_openAcdContextImpl.getSkillByAtom("_another")));
-        assertEquals(1, skills.get("ThirdGroup").size());
-        assertTrue(skills.get("ThirdGroup").contains(m_openAcdContextImpl.getSkillByAtom("_third")));
+        assertEquals(1, skills.get("AnotherSkillGroup").size());
+        assertTrue(skills.get("AnotherSkillGroup").contains(m_openAcdContextImpl.getSkillByAtom("_third")));
         assertEquals(2, skills.get("Language").size());
         assertEquals(6, skills.get("Magic").size());
     }
@@ -878,6 +946,10 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    public void setOpenAcdSkillGroupMigrationContext(OpenAcdSkillGroupMigrationContext migrationContext) {
+        m_migrationContext = migrationContext;
     }
 
     private class MockSipxFreeswitchService extends SipxFreeswitchService {
