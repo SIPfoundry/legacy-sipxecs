@@ -48,24 +48,14 @@ public enum ValidUsers {
     private static int MONGO_PORT = 27017;
     private Mongo m_mongoInstance;
 
-    public List<User> getUsers() {
+    public List<User> getUsersWithImEnabled() {
         List<User> users = new ArrayList<User>();
         try {
-            DBCursor cursor = getEntityCollection().find(QueryBuilder.start(VALID_USER).is(Boolean.TRUE).get());
+            DBCursor cursor = getEntityCollection().find(QueryBuilder.start(IM_ENABLED).is(Boolean.TRUE).get());
             Iterator<DBObject> objects = cursor.iterator();
             while (objects.hasNext()) {
-                DBObject validUser = objects.next();
-                if (!validUser.get(ID).toString().startsWith("User")) {
-                    BasicDBList aliasesObj = (BasicDBList) validUser.get(ALIASES);
-                    if (aliasesObj != null) {
-                        for (int i = 0; i < aliasesObj.size(); i++) {
-                            DBObject aliasObj = (DBObject) aliasesObj.get(i);
-                            users.add(extractValidUserFromAlias(aliasObj));
-                        }
-                    }
-                } else {
-                    users.add(extractValidUser(validUser));
-                }
+                DBObject user = objects.next();
+                users.add(extractUser(user));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -217,6 +207,13 @@ public enum ValidUsers {
         if (!Boolean.valueOf(obj.get(VALID_USER).toString())) {
             return null;
         }
+        return extractUser(obj);
+    }
+
+    private static User extractUser(DBObject obj) {
+        if (obj == null) {
+            return null;
+        }
 
         User user = new User();
         user.setIdentity(getStringValue(obj, IDENTITY));
@@ -290,6 +287,8 @@ public enum ValidUsers {
         user.setVMExitIM(getStringValue(obj, LEAVE_MESSAGE_END_IM));
         user.setJid(getStringValue(obj, IM_ID));
         user.setAltJid(getStringValue(obj, ALT_IM_ID));
+        user.setImPassword(getStringValue(obj, IM_PASSWORD));
+        user.setOnthePhoneMessage(getStringValue(obj, IM_ON_THE_PHONE_MESSAGE));
 
         if (user.isInDirectory()) {
             buildDialPatterns(user);

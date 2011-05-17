@@ -47,6 +47,11 @@ public class User {
     private boolean m_sendConfExitIM;
     private boolean m_sendVMEntryIM;
     private boolean m_sendVMExitIM;
+    private String m_onthePhoneMessage;
+    private boolean m_advertiseOnCallStatus;
+    private boolean m_showOnCallDetails;
+    private String m_imDisplayName;
+    private String m_imPassword;
 
 	public enum EmailFormats {
 		FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF(
@@ -366,12 +371,44 @@ public class User {
         return m_sendVMExitIM;
     }
 
-	/*
-	 * public void addDistributionList(String digits, DistributionList dl) {
-	 * m_distributionLists.put(digits, dl); }
-	 * 
-	 * public DistributionList getDistributionList(String digits) { return
-	 * m_distributionLists.get(digits); }
-	 */
+    public String getOnthePhoneMessage() {
+        return m_onthePhoneMessage;
+    }
+
+    public void setOnthePhoneMessage(String onthePhoneMessage) {
+        m_onthePhoneMessage = onthePhoneMessage;
+    }
+
+    public boolean isAdvertiseOnCallStatus() {
+        return m_advertiseOnCallStatus;
+    }
+
+    public void setAdvertiseOnCallStatus(boolean advertiseOnCallStatus) {
+        m_advertiseOnCallStatus = advertiseOnCallStatus;
+    }
+
+    public boolean isShowOnCallDetails() {
+        return m_showOnCallDetails;
+    }
+
+    public void setShowOnCallDetails(boolean showOnCallDetails) {
+        m_showOnCallDetails = showOnCallDetails;
+    }
+
+    public String getImPassword() {
+        return m_imPassword;
+    }
+
+    public void setImPassword(String imPassword) {
+        m_imPassword = imPassword;
+    }
+
+    public String getImDisplayName() {
+        return m_imDisplayName;
+    }
+
+    public void setImDisplayName(String imDisplayName) {
+        m_imDisplayName = imDisplayName;
+    }
 
 }
