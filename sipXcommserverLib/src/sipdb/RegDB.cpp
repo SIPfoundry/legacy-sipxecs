@@ -40,8 +40,6 @@ RegDB::~RegDB()
 
 void RegDB::updateBinding(RegBinding& binding)
 {
-    mutex_lock lock(_mutex);
-
     if (binding.getTimestamp() == 0)
         binding.setTimestamp((int) OsDateTime::getSecsSinceEpoch());
 
@@ -98,7 +96,6 @@ void RegDB::expireOldBindings(
     unsigned int cseq,
     unsigned int timeNow)
 {
-    mutex_lock lock(_mutex);
     unsigned int expirationTime = timeNow-1;
     MongoDB::BSONObj query = BSON(
             "identity" << identity <<
@@ -126,7 +123,6 @@ void RegDB::expireAllBindings(
     unsigned int cseq,
     unsigned int timeNow)
 {
-    mutex_lock lock(_mutex);
     unsigned int expirationTime = timeNow-1;
     MongoDB::BSONObj query = BSON(
             "identity" << identity <<
@@ -152,7 +148,6 @@ bool RegDB::isOutOfSequence(
     const std::string& callId,
     unsigned int cseq) const
 {
-    mutex_lock lock(_mutex);
     MongoDB::BSONObj query = BSON(
             "identity" << identity <<
             "callId" << callId);
@@ -177,7 +172,6 @@ bool RegDB::getUnexpiredContactsUser (
     int timeNow,
     Bindings& bindings) const
 {
-    mutex_lock lock(_mutex);
     static std::string gruuPrefix = GRUU_PREFIX;
 
     bool isGruu = identity.substr(0, gruuPrefix.size()) == gruuPrefix;
@@ -217,7 +211,6 @@ bool RegDB::getUnexpiredContactsUserContaining(
         int timeNow,
         Bindings& bindings) const
 {
-    mutex_lock lock(_mutex);
     MongoDB::BSONObj query = BSON("expirationTime" << BSON_GREATER_THAN(timeNow) <<
         "expired" << false);
 
@@ -243,8 +236,6 @@ bool RegDB::getUnexpiredContactsUserInstrument(
         int timeNow,
         Bindings& bindings) const
 {
-    mutex_lock lock(_mutex);
-
     MongoDB::BSONObj query = BSON(
         "identity" << identity <<
         "instrument" << instrument <<
@@ -268,7 +259,6 @@ bool RegDB::getUnexpiredContactsInstrument(
         int timeNow,
         Bindings& bindings) const
 {
-    mutex_lock lock(_mutex);
     MongoDB::BSONObj query = BSON(
         "instrument" << instrument <<
         "expirationTime" << BSON_GREATER_THAN(timeNow) <<
@@ -288,7 +278,6 @@ bool RegDB::getUnexpiredContactsInstrument(
 
 bool RegDB::getAllOldBindings(int timeNow, Bindings& bindings)
 {
-    mutex_lock lock(_mutex);
     MongoDB::BSONObj query = BSON(
         "expirationTime" << BSON_LESS_THAN(timeNow));
 
@@ -383,9 +372,7 @@ void RegDB::replicate()
 
 bool RegDB::cleanAndPersist(int currentExpireTime)
 {
-    mutex_lock lock(_mutex);
-
-    if (!_firstIncrement)
+     if (!_firstIncrement)
         updateReplicationTimeStamp();
     else
         fetchNodes();
