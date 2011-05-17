@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (C) 2011 eZuce, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,25 +15,20 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
-import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroup;
 
-public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "openacd/EditOpenAcdAgentGroupPage";
-
-    @InjectObject("spring:coreContext")
-    public abstract CoreContext getCoreContext();
+public abstract class EditOpenAcdSkillGroupPage extends PageWithCallback implements PageBeginRenderListener {
+    public static final String PAGE = "openacd/EditOpenAcdSkillGroupPage";
 
     @InjectObject("spring:openAcdContext")
     public abstract OpenAcdContext getOpenAcdContext();
@@ -41,30 +36,27 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
+    @Bean
+    public abstract SelectMap getSelections();
+
     @Persist
     public abstract Integer getGroupId();
 
     public abstract void setGroupId(Integer groupId);
 
-    public abstract OpenAcdAgentGroup getAgentGroup();
+    public abstract OpenAcdSkillGroup getSkillGroup();
 
-    public abstract void setAgentGroup(OpenAcdAgentGroup agentGroup);
+    public abstract void setSkillGroup(OpenAcdSkillGroup skillGroup);
 
-    public void addAgentGroup(String returnPage) {
+    public void addSkillGroup(String returnPage) {
         setGroupId(null);
-        setAgentGroup(null);
+        setSkillGroup(null);
         setReturnPage(returnPage);
     }
 
-    public void editAgentGroup(Integer groupId, String returnPage) {
+    public void editSkillGroup(Integer groupId, String returnPage) {
         setGroupId(groupId);
         setReturnPage(returnPage);
-    }
-
-    public IPage addSkills(IRequestCycle cycle) {
-        OpenAcdServerPage page = (OpenAcdServerPage) cycle.getPage(OpenAcdServerPage.PAGE);
-        page.setTab("skills");
-        return page;
     }
 
     @Override
@@ -74,9 +66,10 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
         }
 
         if (getGroupId() == null) {
-            setAgentGroup(new OpenAcdAgentGroup());
+            setSkillGroup(new OpenAcdSkillGroup());
         } else {
-            setAgentGroup(getOpenAcdContext().getAgentGroupById(getGroupId()));
+            OpenAcdSkillGroup skillGroup = getOpenAcdContext().getSkillGroupById(getGroupId());
+            setSkillGroup(skillGroup);
         }
     }
 
@@ -85,7 +78,8 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
             return;
         }
 
-        getOpenAcdContext().saveAgentGroup(getAgentGroup());
-        setGroupId(getAgentGroup().getId());
+        OpenAcdSkillGroup group = getSkillGroup();
+        getOpenAcdContext().saveSkillGroup(group);
+        setGroupId(getSkillGroup().getId());
     }
 }

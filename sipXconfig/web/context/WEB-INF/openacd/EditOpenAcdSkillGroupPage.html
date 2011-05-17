@@ -1,6 +1,5 @@
 <div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
   <span jwcid="@common/ErrorMsg"></span>
-  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <form jwcid="@Form" delegate="bean:validator">
     <fieldset>
       <table>
@@ -8,28 +7,13 @@
           <tr jwcid="@common/FieldPanel" for="name" field="component:name"
 				label="message:label.name">
             <span jwcid="name@TextField" id="name"
-				value="ognl:skill.name"
-				disabled="ognl:skill.defaultSkill"
+				value="ognl:skillGroup.name"
 				displayName="message:label.name"/>
           </tr>
-          <tr jwcid="@common/FieldPanel" for="atom" field="component:atom"
-				label="message:label.atom">
-            <span jwcid="atom@TextField" id="atom"
-				value="ognl:skill.atom"
-				disabled="ognl:(skill.defaultSkill || !skill.isNew())"
-				displayName="message:label.atom"/>
-          </tr>
-		  <tr jwcid="@common/FieldPanel" for="skillGroup" field="ognl:null"
-			  label="message:label.group">
-			<span jwcid="skillGroup@openacd/OpenAcdSkillGroupSelect"
-			  selectedSkillGroup="ognl:selectedSkillGroup"
-			  disabled="ognl:skill.defaultSkill"/>
-		  </tr>
           <tr jwcid="@common/FieldPanel" for="description" field="component:description"
 				label="message:label.description">
             <span jwcid="description@TextArea" id="description"
-				value="ognl:skill.description"
-				disabled="ognl:skill.defaultSkill"
+				value="ognl:skillGroup.description"
 				cols="45" rows="5"
 				validators="spring-validators:validFieldSize"/>
           </tr>

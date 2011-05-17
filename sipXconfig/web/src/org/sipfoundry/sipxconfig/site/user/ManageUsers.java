@@ -15,12 +15,14 @@ import java.util.Iterator;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
@@ -36,6 +38,9 @@ public abstract class ManageUsers extends SipxBasePage {
     public abstract Integer getGroupId();
 
     public abstract void setGroupId(Integer groupId);
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public IPage addUser(IRequestCycle cycle) {
         NewUser page = (NewUser) cycle.getPage(NewUser.PAGE);

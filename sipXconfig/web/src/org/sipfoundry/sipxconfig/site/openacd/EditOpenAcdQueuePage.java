@@ -15,10 +15,10 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -29,11 +29,9 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
 
 public abstract class EditOpenAcdQueuePage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "openacd/EditOpenAcdQueuePage";
@@ -60,9 +58,13 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
 
     public abstract OpenAcdQueueGroup getSelectedQueueGroup();
 
-    public abstract String getInheritedSkills();
+    public abstract List<String> getInheritedSkills();
 
-    public abstract void setInheritedSkills(String skills);
+    public abstract void setInheritedSkills(List<String> skills);
+
+    public abstract String getSkill();
+
+    public abstract void setSkill(String skill);
 
     public void addQueue(String returnPage) {
         setQueueId(null);
@@ -73,6 +75,12 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
     public void editQueue(Integer queueId, String returnPage) {
         setQueueId(queueId);
         setReturnPage(returnPage);
+    }
+
+    public IPage addSkills(IRequestCycle cycle) {
+        OpenAcdServerPage page = (OpenAcdServerPage) cycle.getPage(OpenAcdServerPage.PAGE);
+        page.setTab("skills");
+        return page;
     }
 
     @Override
@@ -89,16 +97,8 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
             OpenAcdQueueGroup queueGroup = queue.getGroup();
             if (queueGroup != null) {
                 setSelectedQueueGroup(queueGroup);
+                setInheritedSkills(queueGroup.getAllSkillNames());
             }
-            OpenAcdQueueGroup group = getQueue().getGroup();
-            List<String> skills = new ArrayList<String>();
-            for (OpenAcdSkill skill : group.getSkills()) {
-                skills.add(skill.getName());
-            }
-            for (OpenAcdAgentGroup profile : group.getAgentGroups()) {
-                skills.add(profile.getName());
-            }
-            setInheritedSkills(StringUtils.join(skills, ", "));
         }
     }
 

@@ -160,8 +160,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             user.getAddressBookEntry().setBranchAddress(null);
         }
         if (origUserName != null) {
-            UserChangeEvent userChangeEvent = new UserChangeEvent(this, user.getId(),
-                    origUserName, user.getUserName(), user.getFirstName(), user.getLastName());
+            UserChangeEvent userChangeEvent = new UserChangeEvent(this, user.getId(), origUserName,
+                    user.getUserName(), user.getFirstName(), user.getLastName());
             getHibernateTemplate().update(user);
             m_applicationContext.publishEvent(userChangeEvent);
         } else {
@@ -300,6 +300,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     /**
      * Checks if the inherited branch is the same with the actual branch when they are not null
+     *
      * @param user
      */
     private void checkBranch(User user) {
@@ -312,8 +313,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     public Collection<User> getUsersForBranch(Branch branch) {
-        Collection<User> users = getHibernateTemplate().findByNamedQueryAndNamedParam("usersForBranch",
-                "branch", branch);
+        Collection<User> users = getHibernateTemplate().findByNamedQueryAndNamedParam("usersForBranch", "branch",
+                branch);
         return users;
     }
 
@@ -679,6 +680,14 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     public void addToGroup(Integer groupId, Collection<Integer> ids) {
+        Group group = (Group) getHibernateTemplate().load(Group.class, groupId);
+        for (Integer id : ids) {
+            User user = loadUser(id);
+            if (!user.isGroupAvailable(group)) {
+                throw new UserException("&branch.validity.error", user.getUserName(), user.getBranch().getName(),
+                        group.getBranch().getName());
+            }
+        }
         DaoUtils.addToGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, User.class, ids);
     }
 
@@ -769,8 +778,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     /*
-     * Here take account only of the special users.
-     * In ReplicationManagerImpl.generateAll all usersare replicated separately
+     * Here take account only of the special users. In ReplicationManagerImpl.generateAll all
+     * usersare replicated separately
+     *
      * @see org.sipfoundry.sipxconfig.common.ReplicableProvider#getReplicables()
      */
     public List<Replicable> getReplicables() {

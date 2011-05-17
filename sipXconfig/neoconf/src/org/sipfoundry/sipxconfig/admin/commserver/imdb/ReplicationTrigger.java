@@ -21,6 +21,8 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -30,6 +32,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     private CoreContext m_coreContext;
     private ReplicationManager m_replicationManager;
+    private OpenAcdContext m_openAcdContext;
 
     /** no replication at start-up by default */
     private boolean m_replicateOnStartup;
@@ -45,6 +48,9 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     public void onSave(Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.replicateEntity((Replicable) entity);
+            if (entity instanceof OpenAcdExtension) {
+                m_openAcdContext.replicateConfig();
+            }
         } else if (entity instanceof Group) {
             generateGroup((Group) entity);
         } else if (entity instanceof Branch) {
@@ -105,5 +111,9 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     public void setReplicationManager(ReplicationManager replicationManager) {
         m_replicationManager = replicationManager;
+    }
+
+    public void setOpenAcdContext(OpenAcdContext openAcdContext) {
+        m_openAcdContext = openAcdContext;
     }
 }

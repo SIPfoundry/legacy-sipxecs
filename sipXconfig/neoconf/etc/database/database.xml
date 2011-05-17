@@ -388,6 +388,7 @@
 	<antcall target="migrate-regionid-to-beanid" />
     <antcall target="migrate-gw-calleralias-info" />
 	<antcall target="openacd-queue-remove-sort" />
+	<antcall target="openacd-add-skill-groups" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1223,6 +1224,9 @@
   </target>
   <target name="openacd-queue-remove-sort" unless="openacd-queue-remove-sort">
 	<db-patch patch="openacd-queue-remove-sort" />
+  </target>
+  <target name="openacd-add-skill-groups" unless="openacd-add-skill-groups">
+	<db-patch patch="openacd-add-skill-groups" />
   </target>
 
   <!--

@@ -76,4 +76,15 @@ public abstract class OpenAcdQueueWithSkills extends OpenAcdConfigObject {
         return StringUtils.join(profiles, DELIM);
     }
 
+    public List<String> getAllSkillNames() {
+        List<String> skills = new ArrayList<String>();
+        for (OpenAcdSkill skill : getSkills()) {
+            skills.add(skill.getName());
+        }
+        for (OpenAcdAgentGroup profile : getAgentGroups()) {
+            skills.add(profile.getName());
+        }
+
+        return skills;
+    }
 }
