@@ -11,7 +11,7 @@
 // SYSTEM INCLUDES
 #include "os/OsLock.h"
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsFS.h"
 #include "net/Url.h"
 
@@ -42,7 +42,7 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "CallerAlias[%s]: "
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "CallerAlias[%s]: "
                     "it is invalid to configure more than one instance of the CallerAlias plugin.",
                     pluginName.data());
       assert(false);
@@ -76,7 +76,7 @@ CallerAlias::readConfig( OsConfigDb& configDb /**< a subhash of the individual c
     * is used to identify the plugin (see PluginHooks) has been removed (see the
     * examples in PluginHooks::readConfig).
     */
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "CallerAlias[%s]::readConfig",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "CallerAlias[%s]::readConfig",
                  mInstanceName.data()
                  );
 }
@@ -158,7 +158,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
 
             default:
                // for all other schemes, treat identity as null
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                              "CallerAlias[%s]::check4andApplyAlias From uses unsupported scheme '%s'"
                              " - using null identity",
                              mInstanceName.data(),
@@ -174,7 +174,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
             bool identityIsLocal = mpSipRouter->isLocalDomain(fromUrl);
             
             // now we have callerIdentity set; use for looking up each contact.
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "CallerAlias[%s]::check4andApplyAlias "
                           "\n  caller '%s' %s",
                           mInstanceName.data(),
@@ -190,7 +190,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
             UtlString sipxecsLineIdField;
             requestUri.getUrlParameter(SIPX_SIPXECS_LINEID_URI_PARAM, sipxecsLineIdField);
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "getUrlParameter: sipxecsLineid[%s]"
                              " in CallerAlias",
                              sipxecsLineIdField.data()
@@ -204,7 +204,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
                 targetDomain.append(";").append(SIPX_SIPXECS_LINEID_URI_PARAM).append("=").append(sipxecsLineIdField.data());
             }
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "CallerAlias::targetDomain [%s]",
                           targetDomain.data()
                           );
@@ -230,7 +230,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
                newFromUrl.toString(newFromFieldValue);
                    
                // log the change we are making before stripping the tag from the field values
-               OsSysLog::add( FAC_SIP, PRI_INFO,
+               Os::Logger::instance().log( FAC_SIP, PRI_INFO,
                              "CallerAlias[%s]::check4andApplyAlias call %s set caller alias\n"
                              "  Original-From: %s\n"
                              "  Aliased-From:  %s",
@@ -275,7 +275,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
             }
             else
             {
-               OsSysLog::add( FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                              "CallerAlias[%s]::check4andApplyAlias call %s found no alias",
                              mInstanceName.data(), callId.data()
                              );
@@ -283,7 +283,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "CallerAlias[%s]::authorizeAndModify "
                           "not mutable - no rewrite",
                           mInstanceName.data()                          
@@ -308,7 +308,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
 
                // put the aliased header into the message
                request.setRawFromField(aliasFrom);
-               OsSysLog::add(FAC_AUTH, PRI_DEBUG, "CallerAlias[%s]::authorizeAndModify "
+               Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "CallerAlias[%s]::authorizeAndModify "
                              "call %s reset From",
                              mInstanceName.data(), callId.data()
                              );
@@ -320,7 +320,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
                callerFrom.insert(tagOffset, originalFromTag);
 
                request.setRawToField(callerFrom.data());
-               OsSysLog::add(FAC_AUTH, PRI_DEBUG, "CallerAlias[%s]::authorizeAndModify "
+               Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "CallerAlias[%s]::authorizeAndModify "
                              "call %s reset To",
                              mInstanceName.data(), callId.data()
                              );
@@ -371,7 +371,7 @@ bool CallerAlias::getCallerAlias (
     bool hasUserEntity = false;
     bool hasGatewayEntity = false;
     std::string callerAlias;
-    SYSLOG_INFO("CallerAlias::getCallerAlias - EntityDB::findByIdentity for identity=" << identity.str() << " domain=" << domain.str());
+    OS_LOG_INFO(FAC_SIP, "CallerAlias::getCallerAlias - EntityDB::findByIdentity for identity=" << identity.str() << " domain=" << domain.str());
 
     hasUserEntity = _pEntities->collection().findByIdentity(identity.str(), userEntity);
     hasGatewayEntity = _pEntities->collection().findByIdentity(domain.str(), gatewayEntity);
@@ -427,7 +427,7 @@ bool CallerAlias::getCallerAlias (
     if (!callerAlias.empty())
         callerAlias_ = callerAlias.c_str();
     else
-        SYSLOG_WARNING("CallerAlias::getCallerAlias - No caller alias configured for identity=" << identity.str() << " domain=" << domain.str());
+        OS_LOG_WARNING(FAC_SIP, "CallerAlias::getCallerAlias - No caller alias configured for identity=" << identity.str() << " domain=" << domain.str());
     
     return !callerAlias.empty();
 }

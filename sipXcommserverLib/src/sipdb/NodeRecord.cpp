@@ -69,7 +69,7 @@ NodeRecord::NodeRecord(const MongoDB::BSONObj& bsonObj)
     }
     catch(const std::exception& e)
     {
-        SYSLOG_ERROR("MongoDB Exception: (Entity::operator =(const MongoDB::BSONObj& bsonObj))" << e.what());
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (Entity::operator =(const MongoDB::BSONObj& bsonObj))" << e.what());
     }
 }
 
@@ -96,7 +96,7 @@ NodeRecord& NodeRecord::operator =(const MongoDB::BSONObj& bsonObj)
     }
     catch(const std::exception& e)
     {
-        SYSLOG_ERROR("MongoDB Exception: (Entity::operator =(const MongoDB::BSONObj& bsonObj))" << e.what());
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (Entity::operator =(const MongoDB::BSONObj& bsonObj))" << e.what());
     }
     return *this;
 }

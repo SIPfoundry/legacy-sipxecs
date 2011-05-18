@@ -207,7 +207,7 @@ ACDAgent::~ACDAgent()
 
 void ACDAgent::updateState(ePresenceStateType type, bool state)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::updateState - type: %d, state: %d", mUriString.data(), type, state);
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::updateState - type: %d, state: %d", mUriString.data(), type, state);
    osPrintf("ACDAgent(%s)::updateState - type: %d, state: %d\n", mUriString.data(), type, state);
 
    ACDAgentMsg updateStateMsg(ACDAgentMsg::UPDATE_STATE, type, state);
@@ -243,7 +243,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    // Create the outbound call to the agent URI
    if (sipxCallCreate(mhAcdCallManagerHandle, hLine, &mhCallHandle) != SIPX_RESULT_SUCCESS) 
    {
-      OsSysLog::add(FAC_ACD, PRI_ERR,
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                     "ACDAgent::connect - "
                     "ACDAgent(%s) failed to create outbound call",
                     mUriString.data());
@@ -251,7 +251,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
       return 0;
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                  "ACDAgent::connect - "
                  "ACDAgent(%s) succeeded to create outbound call with call handle %d.  mBounceCount=%d",
                  mUriString.data(), mhCallHandle, mBounceCount);
@@ -313,7 +313,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
       tempFromUrl.toString(displayUserAndQueue);
 
 #ifdef TEST_PRINT
-      OsSysLog::add(FAC_ACD, PRI_DEBUG, 
+      Os::Logger::instance().log(FAC_ACD, PRI_DEBUG, 
                     "ACDAgent::connect - "
                     "fromDisp '%s' fromUser '%s' "
                     "From '%s' pAcdLineAor '%s' qName '%s' "
@@ -333,7 +333,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
       mNonResponsiveTime = acdQueue->getAgentsNonResponsiveTime();
       // Update mMaxBounceCount from the queue
       mMaxBounceCount = acdQueue->getMaxBounceCount();
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                     "ACDAgent::connect - ACDAgent(%s) "
                     "mWrapupTime=%d mNonResponsiveTime=%d mMaxBounceCount=%d",
                     mUriString.data(),mWrapupTime, mNonResponsiveTime, mMaxBounceCount);
@@ -355,7 +355,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
                        displayUserAndQueue.data(), 
                        TRUE) != SIPX_RESULT_SUCCESS)    //CpCallManager::AddPaiHdr
    {
-      OsSysLog::add(FAC_ACD, PRI_ERR,
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                     "ACDAgent::connect - "
                     "ACDAgent(%s) failed to initiate outbound call",
                     mUriString.data());
@@ -384,7 +384,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
 
 void ACDAgent::drop(bool rna)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::drop Agent(%s)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::drop Agent(%s)",
                     getUriString()->data());
 
    // Remove the association 'tween Call and Agent right away, as
@@ -526,7 +526,7 @@ void ACDAgent::setAttributes(ProvisioningAttrList& rRequestAttributes)
    mLock.acquire();
 
    // Set the individual attributes
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::setAttributes",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::setAttributes",
                  mUriString.data());
 
    // name
@@ -538,7 +538,7 @@ void ACDAgent::setAttributes(ProvisioningAttrList& rRequestAttributes)
    // monitor-presence
    // take action only if adminstrative state is STANDBY
    if (((mpAcdAgentManager->getAcdServer())->getAdministrativeState()) == ACDServer::STANDBY) {
-   	OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::setAttributes - monitor-presence",
+   	Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::setAttributes - monitor-presence",
                  mUriString.data());
    	rRequestAttributes.getAttribute(AGENT_MONITOR_PRESENCE_TAG, mMonitorPresence);
       	// FUTURE: Inteligently subscribe/unsubscribe to LinePresenceMonitor and PresenceServer
@@ -547,7 +547,7 @@ void ACDAgent::setAttributes(ProvisioningAttrList& rRequestAttributes)
    // always-available
    // take action only if adminstrative state is STANDBY
    if ((mpAcdAgentManager->getAcdServer())->getAdministrativeState() == ACDServer::STANDBY) {
-   	OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::setAttributes - always-available",
+   	Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::setAttributes - always-available",
                  mUriString.data());
       if (rRequestAttributes.getAttribute(AGENT_ALWAYS_AVAILABLE_TAG, mAlwaysAvailable)) {
       	 // FUTURE: Inteligently subscribe/unsubscribe to LinePresenceMonitor and PresenceServer
@@ -980,7 +980,7 @@ bool ACDAgent::isAvailable(bool markBusy)
       }
       break ;
    }
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::isAvailable - ACDAgent(%s) is %s %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::isAvailable - ACDAgent(%s) is %s %s",
                  mUriString.data(), mAvailable == available ? "still":"now", reason);
 
    if (available && markBusy)
@@ -1106,7 +1106,7 @@ void ACDAgent::notifyAvailability()
    UtlSListIterator listIterator(mAcdQueueList);
    while ((pQueue = dynamic_cast<ACDQueue*>(listIterator())) != NULL)
    {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::notifyAvailability - informing the queue(%s) that agent(%s) is available",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::notifyAvailability - informing the queue(%s) that agent(%s) is available",
          pQueue->getUriString()->data(),
          mUriString.data());
       pQueue->agentAvailable(this);
@@ -1142,7 +1142,7 @@ void ACDAgent::setAvailable()
       {
          // This agent is now available
          mAvailable = true;
-         OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgent::setAvailable - ACDAgent(%s) is now AVAILABLE",
+         Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDAgent::setAvailable - ACDAgent(%s) is now AVAILABLE",
                        mUriString.data());
          // Let others know the good news.
          notifyAvailability();
@@ -1155,7 +1155,7 @@ void ACDAgent::setAvailable()
       {
          // Mark this agent as unavailable for calls
          mAvailable = false;
-         OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgent::setAvailable - ACDAgent(%s) is now UNAVAILABLE",
+         Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDAgent::setAvailable - ACDAgent(%s) is now UNAVAILABLE",
                        mUriString.data());
       }
    }
@@ -1319,7 +1319,7 @@ UtlBoolean ACDAgent::handleMessage(OsMsg& rMessage)
 
          default:
             // Bad message
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgent::handleMessage - Received bad message");
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDAgent::handleMessage - Received bad message");
             break;
       }
 
@@ -1332,13 +1332,13 @@ UtlBoolean ACDAgent::handleMessage(OsMsg& rMessage)
       ((OsEventMsg&)rMessage).getUserData((void*&)timerSource);
       switch (timerSource) {
          case WRAP_UP_TIMER:
-            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                  "ACDAgent::handleMessage - Agent(%s) WRAP_UP_TIMER expired", getUriString()->data());
             handleWrapupTimeout();
             break;
          default:
             // Bad message
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgent::handleMessage - Received bad message");
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDAgent::handleMessage - Received bad message");
             break;
       }
       return true;
@@ -1376,7 +1376,7 @@ UtlBoolean ACDAgent::handleMessage(OsMsg& rMessage)
 
 void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool recordIdle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::updateStateMessage - type: %d, state: %d",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent(%s)::updateStateMessage - type: %d, state: %d",
                  mUriString.data(), type, state);
 
    mLock.acquire();
@@ -1409,25 +1409,25 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
              OsDateTime nowTime;
              OsDateTime::getCurTime(nowTime);
              nowTime.cvtToTimeSinceEpoch(mIdleTimeStart);
-             OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::updateStateMessage ON_HOOK Agent(%s), idleTime (%d)",
+             Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::updateStateMessage ON_HOOK Agent(%s), idleTime (%d)",
                            getUriString()->data(), mIdleTimeStart.seconds());
           }
           else
           {
-             OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::updateStateMessage ON_HOOK Agent(%s)",
+             Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::updateStateMessage ON_HOOK Agent(%s)",
                            getUriString()->data());
           }
           setOnHook(true);
           break;
 
        case OFF_HOOK:
-          OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::updateStateMessage OFF_HOOK Agent(%s)",
+          Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::updateStateMessage OFF_HOOK Agent(%s)",
                         getUriString()->data());
           setOnHook(false);
           break;
 
        case SIGNED_IN:
-          OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgent::updateStateMessage - ACDAgent(%s) SIGNED IN",
+          Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDAgent::updateStateMessage - ACDAgent(%s) SIGNED IN",
              mUriString.data());
           if (mMonitorPresence)
           {
@@ -1437,7 +1437,7 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
          break;
 
        case SIGNED_OUT:
-          OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgent::updateStateMessage - ACDAgent(%s) SIGNED OUT",
+          Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDAgent::updateStateMessage - ACDAgent(%s) SIGNED OUT",
                         mUriString.data());
           if (mMonitorPresence)
           {
@@ -1483,7 +1483,7 @@ void ACDAgent::dropCallMessage(bool rna)
    OsDateTime::getCurTime(nowTime);
    nowTime.cvtToTimeSinceEpoch(mIdleTimeStart);
    // Debug
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), idleTime (%d) rna=%s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), idleTime (%d) rna=%s",
                     getUriString()->data(), mIdleTimeStart.seconds(),
                     rna?"true":"false");
 
@@ -1496,7 +1496,7 @@ void ACDAgent::dropCallMessage(bool rna)
       // answered a call in that many tries, then sign him out if possible.
       if (mMaxBounceCount != 0 && mBounceCount>= mMaxBounceCount)
       {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage ACDAgent(%s) is being signed Out. mBounceCount=%d",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage ACDAgent(%s) is being signed Out. mBounceCount=%d",
             getUriString()->data(), mBounceCount);
 
          signOut();
@@ -1538,7 +1538,7 @@ void ACDAgent::dropCallMessage(bool rna)
    if(wrapUpDelay != 0)
    {
       // Wait the for the Wrapup timer to fire before marking the agent free
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), wrapUpDelay=%d",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), wrapUpDelay=%d",
                        getUriString()->data(),wrapUpDelay);
 
       mpWrapupTimer->oneshotAfter(OsTime(wrapUpDelay,0));
@@ -1573,7 +1573,7 @@ void ACDAgent::dropCallMessage(bool rna)
 
 void ACDAgent::handleWrapupTimeout()
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::handleWrapupTimeout  Agent(%s), wrapupTime = %d ", getUriString()->data(), mWrapupTime);
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::handleWrapupTimeout  Agent(%s), wrapupTime = %d ", getUriString()->data(), mWrapupTime);
 
    mLock.acquire();
    setFree();
@@ -1599,11 +1599,11 @@ void ACDAgent::handleWrapupTimeout()
 
 void ACDAgent::signOut()
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut Agent(%s) is to be bounced out.",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut Agent(%s) is to be bounced out.",
       mUriString.data());
 
    if (mAlwaysAvailable) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut but Agent(%s) is always available",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut but Agent(%s) is always available",
          mUriString.data());
       return ;
    }
@@ -1636,5 +1636,5 @@ void ACDAgent::signOut()
       result = request.execute(response) ? OS_SUCCESS : OS_FAILED;
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut PresenceServiceUrl = %s  agent(%s) signOut result is %d ", url.data(), mUriString.data(),result);
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut PresenceServiceUrl = %s  agent(%s) signOut result is %d ", url.data(), mUriString.data(),result);
 }

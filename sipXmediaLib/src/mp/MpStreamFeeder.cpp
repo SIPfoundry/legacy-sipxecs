@@ -16,7 +16,6 @@
 // APPLICATION INCLUDES
 #include "mp/StreamDefs.h"
 #include "mp/MpStreamFeeder.h"
-#include "os/OsSysLogMsg.h"
 #include "os/OsLock.h"
 
 #include "os/OsFS.h"

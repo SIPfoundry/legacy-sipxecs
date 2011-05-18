@@ -9,7 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
@@ -70,7 +70,7 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
                                                              attribute, currentProcess)
                   ))
             {
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileResource::parse "
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "FileResource::parse "
                              "invalid attribute '%s'",
                              attribute->Name());
             }
@@ -95,7 +95,7 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
       {
          resourceIsValid = false;
          XmlErrorMsg(fileDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileResource::parse "
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "FileResource::parse "
                        "file element is empty %s",
                        errorMsg.data());
       }
@@ -103,7 +103,7 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
    else
    {
       XmlErrorMsg(fileDefinitionDoc, errorMsg);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileResource::parse "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "FileResource::parse "
                     "invalid content in file element %s",
                     errorMsg.data());
    }
@@ -151,7 +151,7 @@ void FileResource::appendDescription(UtlString&  description /**< returned descr
 bool FileResource::isReadyToStart(UtlString& missingResource)
 {
    OsPath filePath(*this);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                  "FileResource::isReadyToStart checking for existence of %s",
                  data());
    bool bReady = OsFileSystem::exists(filePath);

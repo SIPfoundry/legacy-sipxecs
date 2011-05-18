@@ -221,7 +221,7 @@ OsStatus MpMediaTask::signalFrameStart(void)
          if (spInstance->mSignalTime.tally(now - sSignalTicks) >= 1000)
          {
             UtlString* print = spInstance->mSignalTime.show();
-            OsSysLog::add(FAC_MP, PRI_NOTICE,
+            Os::Logger::instance().log(FAC_MP, PRI_NOTICE,
                           "MpMediaTask::signalFrameStart %-18s %d%s",
                           "mSignalTime",
                           spInstance->mSignalTime.getBinSize(),
@@ -251,10 +251,10 @@ OsStatus MpMediaTask::startFlowGraph(MpFlowGraphBase& rFlowGraph)
    res = postMessage(msg, OsTime::NO_WAIT);
    if (res != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, " MpMediaTask::startFlowGraph - post"
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, " MpMediaTask::startFlowGraph - post"
          " returned %d, try again, will block", res);
          res = postMessage(msg);
-      OsSysLog::add(FAC_MP, PRI_DEBUG, " MpMediaTask::startFlowGraph -"
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, " MpMediaTask::startFlowGraph -"
          " re-post returned %d", res);
    }
    assert(res == OS_SUCCESS);
@@ -452,7 +452,7 @@ void MpMediaTask::getQueueUsage(int& numMsgs, int& softLimit, int& hardLimit)
    numMsgs = mIncomingQ.numMsgs();
    softLimit = mpSignalMsgPool->getSoftLimit();
    hardLimit = mpSignalMsgPool->getHardLimit();
-   OsSysLog::add(FAC_MP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                  "MpMediaTask::getQueueUsage "
                  "numMsgs = %d, softLimit = %d, hardLimit = %d",
                  numMsgs, softLimit, hardLimit);
@@ -570,7 +570,7 @@ UtlBoolean MpMediaTask::handleMessage(OsMsg& rMsg)
 
    if (getMessageQueue()->numMsgs() > 100)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "MpMediaTask::handleMessage msgType = %d, "
                     "queue length = %d",
                     pMsg->getMsg(), getMessageQueue()->numMsgs());
@@ -863,7 +863,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
          UtlString* print;
          // Print mSignalToStartTime.
          print = mSignalToStartTime.show();
-         OsSysLog::add(FAC_MP, PRI_NOTICE,
+         Os::Logger::instance().log(FAC_MP, PRI_NOTICE,
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mSignalToStartTime",
                        mSignalToStartTime.getBinSize(),
@@ -872,7 +872,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
          mSignalToStartTime.clear();
          // Print mStartToEndTime.
          print = mStartToEndTime.show();
-         OsSysLog::add(FAC_MP, PRI_NOTICE,
+         Os::Logger::instance().log(FAC_MP, PRI_NOTICE,
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mStartToEndTime",
                        mStartToEndTime.getBinSize(),
@@ -881,7 +881,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
          mStartToEndTime.clear();
          // Print mStartToStartTime.
          print = mStartToStartTime.show();
-         OsSysLog::add(FAC_MP, PRI_NOTICE,
+         Os::Logger::instance().log(FAC_MP, PRI_NOTICE,
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mStartToStartTime",
                        mStartToStartTime.getBinSize(),
@@ -890,7 +890,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
          mStartToStartTime.clear();
          // Print mEndToStartTime.
          print = mEndToStartTime.show();
-         OsSysLog::add(FAC_MP, PRI_NOTICE,
+         Os::Logger::instance().log(FAC_MP, PRI_NOTICE,
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mEndToStartTime",
                        mEndToStartTime.getBinSize(),
@@ -899,7 +899,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
          mEndToStartTime.clear();
          // Print mOtherMessages.
          print = mOtherMessages.show();
-         OsSysLog::add(FAC_MP, PRI_NOTICE,
+         Os::Logger::instance().log(FAC_MP, PRI_NOTICE,
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mOtherMessages",
                        mOtherMessages.getBinSize(),

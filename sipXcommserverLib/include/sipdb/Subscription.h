@@ -18,6 +18,7 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include "utl/UtlString.h"
 #include "sipdb/MongoDB.h"
 
 

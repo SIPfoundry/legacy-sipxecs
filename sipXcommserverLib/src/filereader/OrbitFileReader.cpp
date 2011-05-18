@@ -13,7 +13,7 @@
 
 // APPLICATION INCLUDES
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include <os/OsFS.h>
 #include <os/OsDateTime.h>
 #include "xmlparser/tinyxml.h"
@@ -69,7 +69,7 @@ OrbitData* OrbitFileReader::findInOrbitList(const UtlString& user)
    // data.
    ret = dynamic_cast <OrbitData*> (mOrbitList.findValue(&user));
 
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                  "OrbitFileReader::findInOrbitList "
                  "user = '%s', ret = %p",
                  user.data(), ret);
@@ -85,7 +85,7 @@ void OrbitFileReader::getMusicOnHoldFile(UtlString& file)
    // Get the value.
    file = mMusicOnHoldFile;
 
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                  "OrbitFileReader::getMusicOnHoldFile "
                  "file = '%s'",
                  file.data());
@@ -131,7 +131,7 @@ OsStatus OrbitFileReader::initialize()
             if (extension.isNull())
             {
                // Extension had zero length
-               OsSysLog::add(FAC_PARK, PRI_ERR,
+               Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                              "OrbitFileReader::parseOrbitFile "
                              "<extension> was null.");
                orbit_valid = false;
@@ -140,7 +140,7 @@ OsStatus OrbitFileReader::initialize()
          else
          {
             // Extension was missing.
-            OsSysLog::add(FAC_PARK, PRI_ERR,
+            Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                           "OrbitFileReader::parseOrbitFile "
                           "<extension> was missing in an <orbit> element.");
             orbit_valid = false;
@@ -156,7 +156,7 @@ OsStatus OrbitFileReader::initialize()
             if (audio.isNull())
             {
                // Extension had zero length
-               OsSysLog::add(FAC_PARK, PRI_ERR,
+               Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                              "OrbitFileReader::parseOrbitFile "
                              "<background-audio> was null for extension '%s'",
                              extension.data());
@@ -166,7 +166,7 @@ OsStatus OrbitFileReader::initialize()
          else
          {
             // Background-audio was missing.
-            OsSysLog::add(FAC_PARK, PRI_ERR,
+            Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                           "OrbitFileReader::parseOrbitFile "
                           "<background-audio> was missing for extension '%s'",
                           extension.data());
@@ -188,7 +188,7 @@ OsStatus OrbitFileReader::initialize()
                 timeout < 5)
             {
                // Timeout was null or unparsable.
-               OsSysLog::add(FAC_PARK, PRI_ERR,
+               Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                              "OrbitFileReader::parseOrbitFile "
                              "<time-out> '%s' was null, unparsable, or less than 5 for extension '%s'",
                              temp.data(), extension.data());
@@ -213,7 +213,7 @@ OsStatus OrbitFileReader::initialize()
             else
             {
                // Keycode was null or unparsable.
-               OsSysLog::add(FAC_PARK, PRI_ERR,
+               Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                              "OrbitFileReader::parseOrbitFile "
                              "<transfer-key> '%s' was invalid for extension '%s'",
                              temp.data(), extension.data());
@@ -236,7 +236,7 @@ OsStatus OrbitFileReader::initialize()
                 capacity < 0)
             {
                // Capacity was null or unparsable.
-               OsSysLog::add(FAC_PARK, PRI_ERR,
+               Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                              "OrbitFileReader::parseOrbitFile "
                              "<capacity> '%s' was null, unparsable, or negative for extension '%s'",
                              temp.data(), extension.data());
@@ -268,7 +268,7 @@ OsStatus OrbitFileReader::initialize()
             {
                // Insertion failed, presumably because the extension was
                // already in there.
-               OsSysLog::add(FAC_PARK, PRI_ERR,
+               Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                              "OrbitFileReader::parseOrbitFile "
                              "Inserting extension '%s' failed -- specified as an orbit twice?",
                              extension_heap->data());
@@ -279,10 +279,10 @@ OsStatus OrbitFileReader::initialize()
          }
       }
 
-      if (OsSysLog::willLog(FAC_PARK, PRI_DEBUG))
+      if (Os::Logger::instance().willLog(FAC_PARK, PRI_DEBUG))
       {
          // Output the list of orbits.
-         OsSysLog::add(FAC_PARK, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                        "OrbitFileReader::parseOrbitFile "
                        "Valid orbits are:");
          UtlHashMapIterator itor(mOrbitList);
@@ -290,7 +290,7 @@ OsStatus OrbitFileReader::initialize()
          {
             UtlString* key = dynamic_cast<UtlString*> (itor.key());
             OrbitData* value = dynamic_cast<OrbitData*> (itor.value());
-            OsSysLog::add(FAC_PARK, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                           "OrbitFileReader::parseOrbitFile "
                           "Orbit '%s', mTimeout = %d, mAudio = '%s', "
                           "mKeycode = %d, mCapacity = %d",
@@ -300,7 +300,7 @@ OsStatus OrbitFileReader::initialize()
                           value->mKeycode,
                           value->mCapacity);
          }
-         OsSysLog::add(FAC_PARK, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                        "OrbitFileReader::parseOrbitFile "
                        "End of list");
       }
@@ -316,7 +316,7 @@ OsStatus OrbitFileReader::initialize()
             mMusicOnHoldFile = (audioNode->FirstChild())->Value();
          }
       }
-      OsSysLog::add(FAC_PARK, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                     "OrbitFileReader::parseOrbitFile "
                     "mMusicOnHoldFile = '%s'",
                     mMusicOnHoldFile.data());
@@ -327,7 +327,7 @@ OsStatus OrbitFileReader::initialize()
    else
    {
       // Report error parsing file.
-      OsSysLog::add(FAC_PARK, PRI_CRIT,
+      Os::Logger::instance().log(FAC_PARK, PRI_CRIT,
                     "OrbitFileReader::parseOrbitFile "
                     "Orbit file '%s' could not be parsed.", mFileName.data());
       // No hope of doing call retrieval.

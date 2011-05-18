@@ -12,7 +12,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorMPT.h"
 #include "utl/UtlHashMapIterator.h"
@@ -71,11 +71,11 @@ SipRedirectorMPT::initialize(OsConfigDb& configDb,
                              const UtlString& localDomainHost)
 {
    mDomainName = localDomainHost;
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::SipRedirectorMPT domainName = '%s'", mLogName.data(),
                  mDomainName.data());
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::SipRedirectorMPT Loading mappings from '%s'", mLogName.data(),
                  mMappingFileName.data());
    loadMappings(&mMappingFileName, &mMapUserToContacts, &mMapContactsToUser);
@@ -115,7 +115,7 @@ SipRedirectorMPT::lookUp(
 {
    UtlString userId;
    requestUri.getUserId(userId);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp "
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp "
                  "userId = '%s'", mLogName.data(),
                  userId.data());
 
@@ -178,7 +178,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
              TiXmlNode* c1 = mapNode->FirstChild("user");
              if (!c1)
              {
-                OsSysLog::add(FAC_SIP, PRI_ERR,
+                Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                               "%s::loadMappings cannot find <user> child", mLogName.data());
              }
              else
@@ -186,7 +186,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                 TiXmlNode* c2 = c1->FirstChild();
                 if (!c2)
                 {
-                   OsSysLog::add(FAC_SIP, PRI_ERR,
+                   Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                  "%s::loadMappings cannot find text child of <user>", mLogName.data());
                 }
                 else
@@ -194,7 +194,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                    const char* user = c2->Value();
                    if (user == NULL || *user == '\0')
                    {
-                      OsSysLog::add(FAC_SIP, PRI_ERR,
+                      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                     "%s::loadMappings text of <user> is null", mLogName.data());
                    }
                    else
@@ -202,7 +202,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                       TiXmlNode* c3 = mapNode->FirstChild("contacts");
                       if (!c3)
                       {
-                         OsSysLog::add(FAC_SIP, PRI_ERR,
+                         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                        "%s::loadMappings cannot find <contacts> child", mLogName.data());
                       }
                       else
@@ -210,7 +210,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                          TiXmlNode* c4 = c3->FirstChild();
                          if (!c4)
                          {
-                            OsSysLog::add(FAC_SIP, PRI_ERR,
+                            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                           "%s::loadMappings cannot find text child of <contacts>", mLogName.data());
                          }
                          else
@@ -218,13 +218,13 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                             const char* contact = c4->Value();
                             if (contact == NULL || *contact == '\0')
                             {
-                               OsSysLog::add(FAC_SIP, PRI_ERR,
+                               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                              "%s::loadMappings text of <contacts> is null", mLogName.data());
                             }
                             else
                             {
                                // Load the mapping into the maps.
-                               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                              "%s::loadMappings added '%s' -> '%s'", mLogName.data(),
                                              user, contact);
                                UtlString* user_string = new UtlString(user);
@@ -245,19 +245,19 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
 
           mMapLock.release();
 
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "%s::loadMappings done loading mappings", mLogName.data());
        }
        else
        {
-          OsSysLog::add(FAC_SIP, PRI_CRIT,
+          Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                         "%s::loadMappings unable to extract MPT element", mLogName.data());
        }
 
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_CRIT,
+       Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                      "%s::loadMappings LoadFile() failed", mLogName.data());
     }
 }
@@ -273,7 +273,7 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
    f = fopen(temp_file_name.data(), "w");
    if (f == NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "%s::writeMappings fopen('%s') failed, errno = %d '%s'",
                     mLogName.data(), temp_file_name.data(),
                     errno, strerror(errno));
@@ -306,7 +306,7 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
 
       if (rename(temp_file_name.data(), file_name->data()) != 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_CRIT,
+         Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                        "%s::writeMappings rename('%s', '%s') failed, errno = %d '%s'",
                        mLogName.data(), temp_file_name.data(), file_name->data(),
                        errno, strerror(errno));
@@ -319,7 +319,7 @@ UtlString* SipRedirectorMPT::addMapping(const char* contacts,
 {
    // Make the contact UtlString.
    UtlString* contactString = new UtlString(contacts, length);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::addMapping inserting '%s'", mLogName.data(),
                  contactString->data());
    // Get its hash.
@@ -347,7 +347,7 @@ UtlString* SipRedirectorMPT::addMapping(const char* contacts,
          char buffer[20];
          sprintf(buffer, "=MPT=%03x-%03x", (hash >> 12) & 0xFFF, hash & 0xFFF);
          userString = new UtlString(buffer);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "%s::addMapping trying '%s'", mLogName.data(),
                        buffer);
          if (mMapUserToContacts.findValue(userString) == NULL)
@@ -367,7 +367,7 @@ UtlString* SipRedirectorMPT::addMapping(const char* contacts,
 
    mMapLock.release();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::addMapping using '%s'", mLogName.data(),
                  userString->data());
 
@@ -397,7 +397,7 @@ SipRedirectorMPT::displayForm(const HttpRequestContext& requestContext,
                               const HttpMessage& request,
                               HttpMessage*& response)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::displayForm entered", mLogName.data());
 
    UtlString method;
@@ -429,7 +429,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
                               const HttpMessage& request,
                               HttpMessage*& response)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::processForm entered", mLogName.data());
    UtlString* user;
 
@@ -446,7 +446,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
    int length;
    request_body->getMultipartBytes(0, &value, &length);
 #if 0
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::processForm A *** seeing '%.*s'", mLogName.data(), length, value);
 #endif
    // Advance 'value' over the first \r\n\r\n, which ends the headers.
@@ -457,7 +457,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
       length -= s - value;
       value = s;
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::processForm B *** seeing '%.*s'", mLogName.data(), length, value);
 #if 0
    // Search backward for the last \r, excepting the one in the second-to-last
@@ -472,7 +472,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
       }
       length = s - value;
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::processForm seeing '%.*s'", mLogName.data(), length, value);
 #endif
 
@@ -494,13 +494,13 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
    // Construct the HTML.
    char buffer1[100];
 #if 0
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::processForm *** domain '%s'", mLogName.data(),
                  MPTredirector->mDomainName.data());
 #endif
    if (success)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::processForm success user '%s'", mLogName.data(),
                     user->data());
       sprintf(buffer1, "<code>sip:<font size=\"+1\">%s</font>@%s:65070</code> redirects to:<br />",
@@ -508,7 +508,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::processForm failure error_msg '%s', error_location %d", mLogName.data(),
                     error_msg, error_location);
       strcpy(buffer1, "<i>Error:</i>");

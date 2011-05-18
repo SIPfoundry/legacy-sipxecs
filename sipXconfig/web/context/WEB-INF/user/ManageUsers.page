@@ -13,7 +13,6 @@
 	  - B E A N S
 	  -->
   <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <!--
 	  - C O M P O N E N T S
 	  -->

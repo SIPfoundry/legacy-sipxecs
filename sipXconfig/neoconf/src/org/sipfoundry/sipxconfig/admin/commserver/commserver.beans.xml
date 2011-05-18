@@ -11,6 +11,7 @@
   <bean id="locationsManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <lookup-method name="getNatTraversalManager" bean="natTraversalManager" />
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -217,6 +218,7 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="coreContext" ref="coreContext" />
+    <property name="openAcdContext" ref="openAcdContextImpl" />
   </bean>
 
   <bean id="registrationContext"

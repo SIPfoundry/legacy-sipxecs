@@ -15,11 +15,6 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -30,6 +25,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroup;
 
 public abstract class EditOpenAcdSkillPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "openacd/EditOpenAcdSkillPage";
@@ -50,13 +46,9 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
 
     public abstract void setSkill(OpenAcdSkill skill);
 
-    public abstract int getIndex();
+    public abstract void setSelectedSkillGroup(OpenAcdSkillGroup selectedSkillGroup);
 
-    public abstract void setIndex(int i);
-
-    public abstract String getFilter();
-
-    public abstract void setFilter(String filter);
+    public abstract OpenAcdSkillGroup getSelectedSkillGroup();
 
     public void addSkill(String returnPage) {
         setSkillId(null);
@@ -66,7 +58,6 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
 
     public void editSkill(Integer skillId, String returnPage) {
         setSkillId(skillId);
-        setSkill(getOpenAcdContext().getSkillById(skillId));
         setReturnPage(returnPage);
     }
 
@@ -76,34 +67,16 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
             return;
         }
 
-        if (getSkill() == null && getSkillId() == null) {
+        if (getSkillId() == null) {
             setSkill(new OpenAcdSkill());
-        }
-    }
-
-    public String[] getSkillGroupNames() {
-        String filter = getFilter();
-        List<OpenAcdSkill> skills = getOpenAcdContext().getSkills();
-        Set<String> groupNames = new HashSet<String>();
-        for (OpenAcdSkill skill : skills) {
-            groupNames.add(skill.getGroupName());
-        }
-        String[] names = groupNames.toArray(new String[0]);
-
-        if (filter == null || filter.length() < 1) {
-            return names;
-        }
-        List<String> temp = new ArrayList<String>();
-        for (String app : names) {
-            if (app.startsWith(filter)) {
-                temp.add(app);
+        } else {
+            OpenAcdSkill skill = getOpenAcdContext().getSkillById(getSkillId());
+            setSkill(skill);
+            OpenAcdSkillGroup skillGroup = skill.getGroup();
+            if (skillGroup != null) {
+                setSelectedSkillGroup(skillGroup);
             }
         }
-        return temp.toArray(new String[0]);
-    }
-
-    public void filterList(String filter) {
-        setFilter(filter);
     }
 
     public void commit() {
@@ -111,6 +84,9 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
             return;
         }
 
-        getOpenAcdContext().saveSkill(getSkill());
+        OpenAcdSkill skill = getSkill();
+        skill.setGroup(getSelectedSkillGroup());
+        getOpenAcdContext().saveSkill(skill);
+        setSkillId(getSkill().getId());
     }
 }

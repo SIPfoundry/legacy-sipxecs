@@ -24,7 +24,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 public class OpenAcdSkill extends OpenAcdConfigObject {
     private String m_name;
     private String m_atom;
-    private String m_groupName;
+    private OpenAcdSkillGroup m_group;
     private String m_description;
     private boolean m_defaultSkill;
 
@@ -44,12 +44,19 @@ public class OpenAcdSkill extends OpenAcdConfigObject {
         m_atom = atom;
     }
 
-    public String getGroupName() {
-        return m_groupName;
+    public OpenAcdSkillGroup getGroup() {
+        return m_group;
     }
 
-    public void setGroupName(String groupName) {
-        m_groupName = groupName;
+    public void setGroup(OpenAcdSkillGroup group) {
+        m_group = group;
+    }
+
+    public String getGroupName() {
+        if (getGroup() != null) {
+            return getGroup().getName();
+        }
+        return null;
     }
 
     public String getDescription() {

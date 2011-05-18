@@ -121,7 +121,7 @@ SipRegistrarServer::initialize(
         mNormalExpiryIntervals.mMinExpiresTime = atoi(tempExpiresString.data());
         if ( mNormalExpiryIntervals.mMinExpiresTime < HARD_MINIMUM_EXPIRATION )
         {
-           OsSysLog::add(FAC_SIP, PRI_WARNING,
+           Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                          "SipRegistrarServer "
                          "configured minimum for SIP_REGISTRAR_MIN_EXPIRES_NORMAL (%d) < hard minimum (%d); set to hard minimum",
                          mNormalExpiryIntervals.mMinExpiresTime, HARD_MINIMUM_EXPIRATION);
@@ -140,7 +140,7 @@ SipRegistrarServer::initialize(
        mNormalExpiryIntervals.mMaxExpiresTime = atoi(tempExpiresString.data());
        if ( mNormalExpiryIntervals.mMaxExpiresTime < mNormalExpiryIntervals.mMinExpiresTime )
        {
-          OsSysLog::add(FAC_SIP, PRI_WARNING,
+          Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                         "SipRegistrarServer "
                         "configured maximum for SIP_REGISTRAR_MAX_EXPIRES_NORMAL (%d) < minimum (%d); set to minimum",
                         mNormalExpiryIntervals.mMaxExpiresTime, mNormalExpiryIntervals.mMinExpiresTime
@@ -161,7 +161,7 @@ SipRegistrarServer::initialize(
         mNatedExpiryIntervals.mMinExpiresTime = atoi(tempExpiresString.data());
         if ( mNatedExpiryIntervals.mMinExpiresTime < HARD_MINIMUM_EXPIRATION )
         {
-           OsSysLog::add(FAC_SIP, PRI_WARNING,
+           Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                          "SipRegistrarServer "
                          "configured minimum for SIP_REGISTRAR_MIN_EXPIRES_NATED (%d) < hard minimum (%d); set to hard minimum",
                          mNatedExpiryIntervals.mMinExpiresTime, HARD_MINIMUM_EXPIRATION);
@@ -180,7 +180,7 @@ SipRegistrarServer::initialize(
        mNatedExpiryIntervals.mMaxExpiresTime = atoi(tempExpiresString.data());
        if ( mNatedExpiryIntervals.mMaxExpiresTime < mNatedExpiryIntervals.mMinExpiresTime )
        {
-          OsSysLog::add(FAC_SIP, PRI_WARNING,
+          Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                         "SipRegistrarServer "
                         "configured maximum for SIP_REGISTRAR_MAX_EXPIRES_NATED (%d) < minimum (%d); set to minimum",
                         mNatedExpiryIntervals.mMaxExpiresTime, mNatedExpiryIntervals.mMinExpiresTime
@@ -208,7 +208,7 @@ SipRegistrarServer::initialize(
 
     if(!hostAliases.isNull())
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_DOMAIN_ALIASES : %s",
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIP_DOMAIN_ALIASES : %s",
                       hostAliases.data());
         mSipUserAgent->setHostAliases(hostAliases);
     }
@@ -229,13 +229,13 @@ SipRegistrarServer::initialize(
            && strspn(param.data(), "0123456789") == param.length()
            && atoi(param.data()) >= 1)
        {
-          OsSysLog::add(FAC_SIP, PRI_INFO,
+          Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                         "SipRegistrarServer::initialize adding SIP_REGISTRAR_ADDITIONAL_CONTACT: '%s'",
                         mAdditionalContact.data());
        }
        else
        {
-          OsSysLog::add(FAC_SIP, PRI_ERR,
+          Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                         "SipRegistrarServer::initialize Invalid value for SIP_REGISTRAR_ADDITIONAL_CONTACT: '%s', ignoring",
                         mAdditionalContact.data());
           // If value is invalid, make it null.
@@ -246,7 +246,7 @@ SipRegistrarServer::initialize(
     // This is a developer-only configuration parameter
     // to prevent sending an Expires header in REGISTER responses
     mSendExpiresInResponse = pOsConfigDb->getBoolean("SIP_REGISTRAR_EXP_HDR_RSP", TRUE);
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                   "SipRegistrarServer::initialize SIP_REGISTRAR_EXP_HDR_RSP is %s",
                   mSendExpiresInResponse ? "Enabled" : "Disabled");
 
@@ -359,7 +359,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
               contactIndexCount++
              )
         {
-           OsSysLog::add( FAC_SIP, PRI_DEBUG,
+           Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                           "SipRegistrarServer::applyRegisterToDirectory - processing '%s'",
                           registerContactStr.data()
                                );
@@ -376,7 +376,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                 {
                 case Url::UnknownUrlScheme:
                    // Unknown scheme or parse failed.
-                   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                   Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                  "Attempt to register Contact '%s' that is not a valid URI or has an unknown scheme",
                                  registerContactStr.data());
                    break;
@@ -384,7 +384,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                 default:
                 {
                    // Not sip: or sips:.
-                   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                   Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                  "Attempt to register Contact '%s' with a scheme '%s' that is not 'sip' or 'sips'",
                                  registerContactStr.data(),
                                  Url::schemeName(scheme));
@@ -414,7 +414,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                       {
                          // expires value not a valid base 10 number
                          returnStatus = REGISTER_INVALID_REQUEST;
-                         OsSysLog::add( FAC_SIP, PRI_WARNING,
+                         Os::Logger::instance().log( FAC_SIP, PRI_WARNING,
                                         "SipRegistrarServer::applyRegisterToDirectory"
                                         " invalid expires parameter value '%s'",
                                         expireStr.data()
@@ -476,7 +476,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             }
                          }
 
-                         OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                         Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                                         "SipRegistrarServer::applyRegisterToDirectory"
                                         " instance ID = '%s', instrument ID = '%s'",
                                         instanceId.data(), contactInstrument.data());
@@ -558,7 +558,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             gruuValue->append('@');
                             gruuValue->append(mRegistrar.defaultDomain());
                             gruuValue->append(";" SIP_GRUU_URI_PARAM);
-                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                           "SipRegistrarServer::applyRegisterToDirectory "
                                           "gruu = '%s'",
                                           gruuValue->data());
@@ -682,7 +682,7 @@ RegBinding::Ptr pRegBinding(new RegBinding());
                              
                                 expirationTime = 0;
 
-                                OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                                Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                                               "SipRegistrarServer::applyRegisterToDirectory "
                                               "- Expiring map '%s'->'%s'",
                                               registerToStr.data(), pRecord->getContact().c_str()
@@ -696,7 +696,7 @@ RegBinding::Ptr pRegBinding(new RegBinding());
                                                   : spreadExpirationTime
                                                   ) + timeNow;
 
-                                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                               "SipRegistrarServer::applyRegisterToDirectory - "
                                               "Adding map '%s'->'%s' "
                                               "expires %d (now+%d)",
@@ -720,7 +720,7 @@ RegBinding::Ptr pRegBinding(new RegBinding());
                     }
                     else
                     {
-                        OsSysLog::add( FAC_SIP, PRI_ERR
+                        Os::Logger::instance().log( FAC_SIP, PRI_ERR
                                       ,"SipRegistrarServer::applyRegisterToDirectory "
                                       "contact count mismatch %d != %d"
                                       ,contactIndexCount, (int)numRegistrations
@@ -761,7 +761,7 @@ RegBinding::Ptr pRegBinding(new RegBinding());
     }
     else
     {
-        OsSysLog::add( FAC_SIP, PRI_WARNING,
+        Os::Logger::instance().log( FAC_SIP, PRI_WARNING,
                       "SipRegistrarServer::applyRegisterToDirectory request out of order"
                       "  To: '%s'\n"
                       "  Call-Id: '%s'\n"
@@ -791,7 +791,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
        && msgSubType == OsEventMsg::NOTIFY
        )
     {
-       OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
+       Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
                      "unknown timer expiration" );
 
         handled = TRUE;
@@ -799,7 +799,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     // SIP message event
     else if (msgType == OsMsg::PHONE_APP)
     {
-        OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
+        Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
                 "Start processing REGISTER Message" );
 
         const SipMessage& message = *((SipMessageEvent&)eventMessage).getMessage();
@@ -846,11 +846,11 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
             */
            if (mSipUserAgent->isMyHostAlias(toUri))
            {
-              if (OsSysLog::willLog(FAC_SIP, PRI_INFO))
+              if (Os::Logger::instance().willLog(FAC_SIP, PRI_INFO))
               {
                  UtlString alias;
                  toUri.getHostWithPort(alias);
-                 OsSysLog::add( FAC_SIP, PRI_INFO, "SipRegistrarServer::handleMessage() "
+                 Os::Logger::instance().log( FAC_SIP, PRI_INFO, "SipRegistrarServer::handleMessage() "
                                "Allowing use of domain alias; To domain '%s' -> '%s'",
                                alias.data(), mRegistrar.defaultDomain());
               }
@@ -878,7 +878,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                     case REGISTER_SUCCESS:
                     case REGISTER_QUERY:
                     {
-                        OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
+                        Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
                                "contact successfully added");
 
                         //create response - 200 ok reseponse
@@ -939,7 +939,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             unsigned int expires = record.getExpirationTime();
                             expires = expires - timeNow;
 
-                            OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                            Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                                           "SipRegistrarServer::handleMessage - "
                                           "processing contact '%s'", record.getContact().c_str());
                             Url contactUri( record.getContact().c_str() );
@@ -962,7 +962,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
                             if ( !record.getQvalue().empty() )
                             {
-                               OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                               Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                                              "SipRegistrarServer::handleMessage - "
                                              "adding q '%s'", record.getQvalue().c_str());
 
@@ -978,14 +978,14 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             // parameters if an instance ID is recorded.
 
 
-                            OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                            Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                                           "SipRegistrarServer::handleMessage"
                                           " - instanceIdKey = '%s'",
                                            record.getInstanceId().c_str());
 
                             if (!record.getInstanceId().empty())
                             {
-                               OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                               Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                                              "SipRegistrarServer::handleMessage"
                                              " - add instance '%s'",
                                              record.getInstanceId().c_str());
@@ -1108,7 +1108,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         break;
 
                     default:
-                       OsSysLog::add( FAC_SIP, PRI_ERR,
+                       Os::Logger::instance().log( FAC_SIP, PRI_ERR,
                                      "Invalid result %d from applyRegisterToDirectory",
                                      applyStatus
                                      );
@@ -1138,7 +1138,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
            UtlString requestedDomain;
            reqUri.getHostAddress(requestedDomain);
 
-           OsSysLog::add(FAC_AUTH, PRI_WARNING,
+           Os::Logger::instance().log(FAC_AUTH, PRI_WARNING,
                          "SipRegistrarServer::handleMessage('%s' == '%s') Invalid",
                          requestedDomain.data(), lookupDomain.data()) ;
 
@@ -1151,12 +1151,12 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
         mSipUserAgent->setUserAgentHeader(finalResponse);
 
-        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+        if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
         {
            UtlString finalMessageStr;
            ssize_t finalMessageLen;
            finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
-           OsSysLog::add( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
+           Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
                          "Sending final response\n%s", finalMessageStr.data());
         }
 
@@ -1166,7 +1166,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     }
     else if ( msgType == OsMsg::OS_SHUTDOWN )
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipRegistrarServer::handleMessage received shutdown request"
                      );
        OsTask::requestShutdown(); // tell OsServerTask::run to exit
@@ -1174,7 +1174,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipRegistrarServer::handleMessage unexpected message type %d/%d",
                      msgType, msgSubType
                      ) ;
@@ -1200,7 +1200,7 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
 
     if ( !mUseCredentialDB )
     {
-        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized "
+        Os::Logger::instance().log( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized "
                       "No Credential DB - request is always AUTHORIZED" );
         isAuthorized = TRUE;
     }
@@ -1209,7 +1209,7 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
         // Realm and auth type should be default for server.
         // check if we requested authentication and this is the req with
         // authorization,validate the authorization
-        OsSysLog::add( FAC_AUTH, PRI_DEBUG,
+        Os::Logger::instance().log( FAC_AUTH, PRI_DEBUG,
                       "SipRegistrarServer::isAuthorized "
                       "fromNameAddr='%s', toUri='%s', realm='%s' ",
                        fromNameAddr.toString().data(), toUri.toString().data(),
@@ -1246,7 +1246,7 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
                                                      &instrument)
                )
         {
-           OsSysLog::add( FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
+           Os::Logger::instance().log( FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
                     "reqRealm='%s', reqUser='%s', reqUserBase='%s', instrument='%s'",
                           requestRealm.data() , requestUser.data(),
                           requestUserBase.data(), instrument.data());
@@ -1255,7 +1255,7 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
 
            if (mRealm.compareTo(requestRealm) ) // case sensitive check that realm is correct
            {
-              OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+              Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                             "SipRegistrarServer::isAuthorized "
                             "Realm does not match");
            }
@@ -1263,7 +1263,7 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
            // validate the nonce
            else if (!mNonceDb.isNonceValid(requestNonce, callId, fromTag, mRealm, mNonceExpiration))
            {
-               OsSysLog::add(FAC_AUTH, PRI_INFO,
+               Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                              "SipRegistrarServer::isAuthorized "
                              "Invalid nonce for '%s', nonce='%s', callId='%s'",
                              identity.data(), requestNonce.data(), callId.data());
@@ -1276,7 +1276,7 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
                                                  qopType)
                     >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
            {
-               OsSysLog::add(FAC_AUTH, PRI_INFO,
+               Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                              "SipRegistrarServer::isAuthorized "
                              "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
                              requestQop.data(), requestCnonce.data(), requestNonceCount.data());
@@ -1310,13 +1310,13 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
                                                                      uriParam)
                        ))
                     {
-                      OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                                     "SipRegistrarServer::isAuthorized "
                                     "response auth hash matches");
                     }
                   else
                     {
-                      OsSysLog::add(FAC_AUTH, PRI_ERR,
+                      Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                                     "Response auth hash does not match (bad password?)"
                                     " toUri='%s' requestUser='%s' requestNonce='%s' uriParam='%s'"
                                     " passTokenDB='%s' authTypeDB='%s'",
@@ -1330,7 +1330,7 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
                 }
                 else // failed to get credentials
                 {
-                    OsSysLog::add(FAC_AUTH, PRI_ERR,
+                    Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                                   "Unable to get credentials for '%s', realm='%s', user='%s'",
                                   identity.data(), mRealm.data(), requestUser.data());
                 }
@@ -1443,7 +1443,7 @@ void RegisterPlugin::takeAction( const SipMessage&   registerMessage
 {
    assert(false);
 
-   OsSysLog::add(FAC_SIP, PRI_ERR,
+   Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                  "RegisterPlugin::takeAction not resolved by configured hook"
                  );
 }

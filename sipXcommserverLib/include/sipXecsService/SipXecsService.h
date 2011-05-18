@@ -13,7 +13,7 @@
 #include "utl/UtlString.h"
 #include "os/OsFS.h"
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // DEFINES
 // TYPEDEFS

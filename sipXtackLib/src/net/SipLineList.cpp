@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 #include "net/SipLineList.h"
 
@@ -273,7 +273,7 @@ SipLine* SipLineList::findLine(const char* lineId,
    SipLine* pLineMatchingUser    = NULL ;
    SipLine* pLineMatchingDefault = NULL ;
 
-   OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_LINE_MGR, PRI_DEBUG,
                  "SipLineList::findLine "
                  "searching for lineId '%s' realm '%s' toFromUrl '%s' userId '%s' defaultLine '%s'",
                  lineId, realm, toFromUrl.toString().data(),
@@ -289,7 +289,7 @@ SipLine* SipLineList::findLine(const char* lineId,
    {
 #     ifdef TEST_PRINT
       Url tmpLineUrl = nextLine->getIdentity();
-      OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_LINE_MGR, PRI_DEBUG,
                     "SipLineList::findLine checking tmpLineUrl='%s'",
                     tmpLineUrl.toString().data());
 #     endif
@@ -307,16 +307,16 @@ SipLine* SipLineList::findLine(const char* lineId,
             // We have match for the given lineId
             pLineMatchingLineID = nextLine ;
             // since this is the best possible match, it will exit the loop.
-            OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_LINE_MGR, PRI_DEBUG,
                           "SipLineList::findLine matched line id '%s'",
                           lineId);
          }
          else
          {
-            if (OsSysLog::willLog(FAC_LINE_MGR, PRI_DEBUG))
+            if (Os::Logger::instance().willLog(FAC_LINE_MGR, PRI_DEBUG))
             {
                Url nextLineIdentity = nextLine->getIdentity();
-               OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_LINE_MGR, PRI_DEBUG,
                      "SipLineList::findLine checking nextLineIdentity='%s'",
                      nextLineIdentity.toString().data());
             }
@@ -368,7 +368,7 @@ SipLine* SipLineList::findLine(const char* lineId,
            : pLineMatchingDefault ? pLineMatchingDefault
            : NULL );
 
-   OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_LINE_MGR, PRI_DEBUG,
                  "SipLineList::findLine %s",
                  foundLine ? "found" : "NOT found");
 

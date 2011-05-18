@@ -14,7 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsProtectEventMgr.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -140,7 +140,7 @@ OsProtectedEvent* OsProtectEventMgr::alloc(void* userData)
         {
           if (mCurrentCount >= mSoftLimit)
           {
-             OsSysLog::add(FAC_KERNEL, PRI_ERR,
+             Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                            "OsProtectEventMgr::alloc OsProtectedEvent pool exceeds soft limit (%d>%d) ***",
                            mCurrentCount + 1, mSoftLimit);
           }
@@ -172,7 +172,7 @@ OsProtectedEvent* OsProtectEventMgr::alloc(void* userData)
           }
           else
           {
-        OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+        Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                         "*** OsProtectEventMgr: pool exceeds hard limit (%d) *** ", mHardLimit);
           }
         }
@@ -183,7 +183,7 @@ OsProtectedEvent* OsProtectEventMgr::alloc(void* userData)
     // If the number of outstanding events is a multiple of 10
     if(((mAllocs - mFrees) % (mIncrement/5)) == 0)
     {
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsProtectEventMgr::alloc in use: %d pool size: %d num. allocs:%d",
+        Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsProtectEventMgr::alloc in use: %d pool size: %d num. allocs:%d",
             mAllocs - mFrees, mCurrentCount, mAllocs);
     }
 

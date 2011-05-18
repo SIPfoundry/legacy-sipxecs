@@ -18,7 +18,7 @@
 #include "os/OsMsgQ.h"
 #include "os/OsMutex.h"
 #include "os/OsStatus.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // DEFINES
 #define OSTASK_STACK_SIZE_1M 1024*1024
@@ -165,7 +165,7 @@ public:
 #                          endif
                            ;
    /**<
-    * @deprecated please use OsSysLog::add
+    * @deprecated please use Os::Logger::instance().log
     */
 
    /// Block all signals from the calling thread

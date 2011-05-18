@@ -59,7 +59,7 @@
 
 // APPLICATION INCLUDES
 #include <os/OsSocket.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 // EXTERNAL FUNCTIONS
 #ifdef _VXWORKS
@@ -116,7 +116,7 @@ OsSocket::~OsSocket()
    {
       // Now it is safe to give this descriptor back to the OS
       ::close(mActual_socketDescriptor);
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::~ close socket %d",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::~ close socket %d",
                     mActual_socketDescriptor);
    }
 }
@@ -141,7 +141,7 @@ int OsSocket::write(const char* buffer, int bufferLength)
       closesocket(socketDescriptor);
 #else
       ::close(socketDescriptor);
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::write close socket %d",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::write close socket %d",
                     socketDescriptor);
 #endif
       return 0;
@@ -166,7 +166,7 @@ int OsSocket::write(const char* buffer, int bufferLength)
    bytesSent = send(socketDescriptor, buffer, bufferLength, flags);
    if (bytesSent != bufferLength)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsSocket::write %d (%s:%d %s:%d) send returned %zd, errno=%d '%s'",
                     socketDescriptor,
                     remoteHostName.data(), remoteHostPort,
@@ -212,7 +212,7 @@ int OsSocket::read(char* buffer, int bufferLength)
       closesocket(socketDescriptor);
 #else
       ::close(socketDescriptor);
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::read[2] close socket %d",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::read[2] close socket %d",
                     socketDescriptor);
 #endif
       return 0;
@@ -260,7 +260,7 @@ int OsSocket::read(char* buffer, int bufferLength,
       closesocket(socketDescriptor);
 #else
       ::close(socketDescriptor);
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::read[4in_addr] close socket %d",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::read[4in_addr] close socket %d",
                     socketDescriptor);
 #endif
       return 0;
@@ -307,7 +307,7 @@ int OsSocket::read(char* buffer, int bufferLength,
 
          // Others should not.
          default:
-            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                           "OsSocket::read %d (%s:%d %s:%d) recvfrom returned %d '%s'",
                           socketDescriptor,
                           remoteHostName.data(), remoteHostPort,
@@ -351,7 +351,7 @@ int OsSocket::read(char* buffer, int bufferLength,
                 closesocket(socketDescriptor);
 #else
                 ::close(socketDescriptor);
-                OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::read[4UtlString] close socket %d",
+                Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::read[4UtlString] close socket %d",
                               socketDescriptor);
 #endif
       return 0;
@@ -408,7 +408,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
                 closesocket(socketDescriptor);
 #else
                 ::close(socketDescriptor);
-                OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToReadEx close socket %d",
+                Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToReadEx close socket %d",
                               socketDescriptor);
 #endif
       rSocketError = TRUE;
@@ -446,7 +446,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         {
             rSocketError = TRUE;
             numReady = -1;
-            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                           "OsSocket::isReadyToRead %d (%s:%d %s:%d) poll returned %d (errno=%d '%s') in socket: %x %p",
                           socketDescriptor,
                           remoteHostName.data(), remoteHostPort,
@@ -456,7 +456,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         else if(resCode > 0 &&  pollState.revents != 0 && !POLLSET(POLLIN))
         {
             numReady = -1;
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                           "OsSocket::isReadyToRead polllState.revents = %d: "
                           "POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d",
                           pollState.revents,
@@ -465,7 +465,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         else if(resCode > 0 && POLLSET(POLLIN))
         {
 #          if 0 // turn on to debug socket polling problems
-           OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                          "OsSocket::isReadyToRead socket: %x READY POLLIN", tempSocketDescr);
 #          endif
            numReady = 1;
@@ -476,7 +476,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
             if(waitMilliseconds < 0)
             {
 #              if 0 // turn on to debug socket polling problems
-               OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                              "OsSocket::isReadyToRead poll returned %d in socket: %d %p",
                              resCode, tempSocketDescr, this);
 #              endif
@@ -484,7 +484,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         }
         else
         {
-           OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                          "OsSocket::isReadyToRead socket: %x READY %d", tempSocketDescr, resCode);
             numReady = resCode;
         }
@@ -524,7 +524,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
            if(numReady < 0 || numReady > 1 || (numReady == 0 && waitMilliseconds < 0))
            {
                // perror("OsSocket::isReadyToRead()");
-               OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToRead poll returned %d in socket: %d %p",
+               Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToRead poll returned %d in socket: %d %p",
                    resCode, tempSocketDescr, this);
            }
         } //if tempSocketDescr if ok
@@ -562,7 +562,7 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
                 closesocket(socketDescriptor);
 #else
                 ::close(socketDescriptor);
-                OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite close socket %d",
+                Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite close socket %d",
                               socketDescriptor);
 #endif
       return FALSE;
@@ -600,7 +600,7 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
 
        if(resCode < 0)
        {
-          OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+          Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                         "OsSocket::isReadyToWrite %d (%s:%d %s:%d) poll returned %d (errno=%d '%s') in socket: %d %p",
                         socketDescriptor,
                         remoteHostName.data(), remoteHostPort,
@@ -624,7 +624,7 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
        if(numReady < 0 || numReady > 1 || (numReady == 0 && waitMilliseconds < 0))
        {
           // perror("OsSocket::isReadyToWrite()");
-          OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite poll returned %d in socket: %d %p",
+          Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite poll returned %d in socket: %d %p",
                         resCode, tempSocketDescr, this);
        }
 
@@ -691,7 +691,7 @@ const char* OsSocket::ipProtocolString(OsSocket::IpProtocolSocketType type)
 
 void OsSocket::makeNonblocking()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::makeNonblocking %d", socketDescriptor);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::makeNonblocking %d", socketDescriptor);
 #if defined(_WIN32)
     unsigned long c_ONDELAY=1;
     ioctlsocket(socketDescriptor, FIONBIO, &c_ONDELAY);
@@ -707,7 +707,7 @@ void OsSocket::makeNonblocking()
 
 void OsSocket::makeBlocking()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::makeBlocking %d", socketDescriptor);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::makeBlocking %d", socketDescriptor);
 #if defined(_WIN32)
     unsigned long c_ONDELAY=0;
     ioctlsocket(socketDescriptor, FIONBIO, &c_ONDELAY);
@@ -954,7 +954,7 @@ void OsSocket::getRemoteHostIp(struct in_addr* remoteHostAddress,
     {
         UtlString output_address;
         inet_ntoa_pt(remoteAddr.sin_addr, output_address);
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "OsSocket::getRemoteHostIp Remote name '%s'",
                       output_address.data());
     }

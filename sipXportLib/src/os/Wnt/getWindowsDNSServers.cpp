@@ -19,7 +19,8 @@
 // APPLICATION INCLUDES
 #include <os/wnt/getWindowsDNSServers.h>
 #include <os/HostAdapterAddress.h>
-#include <os/OsSysLog.h>
+#include <os/OsSocket.h>
+#include <os/OsLogger.h>
 
 // DEFINES
 #define MAXNUM_DNS_ENTRIES 40
@@ -107,7 +108,7 @@ static HMODULE loadIPHelperAPI()
         //ok, I give up...where the heck did they put the iphlpapi.dll???????
       if (!hRetModule)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Cannot find iphlpapi.dll!\n");
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "Cannot find iphlpapi.dll!\n");
       }
     }
 
@@ -117,7 +118,7 @@ static HMODULE loadIPHelperAPI()
        *(FARPROC*)&GetNetworkParams = GetProcAddress(hRetModule,"GetNetworkParams");
        if (GetNetworkParams == NULL)
        {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetNetworkParams!\n");
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetNetworkParams!\n");
          FreeLibrary(hRetModule);
          hRetModule = NULL;
        }
@@ -125,7 +126,7 @@ static HMODULE loadIPHelperAPI()
        *(FARPROC*)&sipxGetAdaptersInfo = GetProcAddress(hRetModule,"GetAdaptersInfo");
        if (sipxGetAdaptersInfo == NULL)
        {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to sipxGetAdaptersInfo!\n");
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "Could not get the proc address to sipxGetAdaptersInfo!\n");
          FreeLibrary(hRetModule);
          hRetModule = NULL;
        }
@@ -187,17 +188,17 @@ static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max)
                }
                else
                {
-                   OsSysLog::add(FAC_KERNEL, PRI_ERR,  "DNS ERROR: GetNetworkParams failed with error %d\n", retErr );
+                   Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,  "DNS ERROR: GetNetworkParams failed with error %d\n", retErr );
                    GlobalFree(pNetworkInfo);   // handle to global memory object
                 }
             }
             else
             {
-                OsSysLog::add(FAC_KERNEL, PRI_ERR,  "DNS ERROR: Memory allocation error\n" );
+                Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,  "DNS ERROR: Memory allocation error\n" );
              }
          }
          else
-                OsSysLog::add(FAC_KERNEL, PRI_ERR,  "DNS ERROR: GetNetworkParams sizing failed with error %d\n", retErr );
+                Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,  "DNS ERROR: GetNetworkParams sizing failed with error %d\n", retErr );
 
          FreeLibrary(hModule);
          hModule = NULL;
@@ -278,7 +279,7 @@ static int getDNSEntriesFromRegistry(char regDNSServers[][MAXIPLEN], int max)
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error reading values from registry in func: getDNSEntriesFromRegistry\n");
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "Error reading values from registry in func: getDNSEntriesFromRegistry\n");
    }
 
    return retRegDNSServerCount;

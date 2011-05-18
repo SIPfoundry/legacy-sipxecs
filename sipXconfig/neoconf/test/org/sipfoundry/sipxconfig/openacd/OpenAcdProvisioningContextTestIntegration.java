@@ -25,6 +25,12 @@ import com.mongodb.BasicDBObject;
 
 public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCase {
     private OpenAcdContextImpl m_openAcdContextImpl;
+    private OpenAcdSkillGroupMigrationContext m_migrationContext;
+
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        m_migrationContext.migrateSkillGroup();
+    }
 
     public void testOpenAcdCommands() {
         MockOpenAcdProvisioningContext provContext = new MockOpenAcdProvisioningContext();
@@ -40,10 +46,14 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         m_openAcdContextImpl.saveClient(client);
 
         // test openacd skill creation
+        OpenAcdSkillGroup skillGroup = new OpenAcdSkillGroup();
+        skillGroup.setName("Programming");
+        m_openAcdContextImpl.saveSkillGroup(skillGroup);
+
         OpenAcdSkill skill = new OpenAcdSkill();
         skill.setName("Java");
         skill.setAtom("_java");
-        skill.setGroupName("Programming");
+        skill.setGroup(skillGroup);
         skill.setDescription("Java Skill");
         m_openAcdContextImpl.saveSkill(skill);
         // test skill update
@@ -53,7 +63,7 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         OpenAcdSkill skill1 = new OpenAcdSkill();
         skill1.setName("C");
         skill1.setAtom("_c");
-        skill1.setGroupName("Programming");
+        skill1.setGroup(skillGroup);
         skill1.setDescription("C Skill");
         m_openAcdContextImpl.saveSkill(skill1);
 
@@ -81,7 +91,6 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         qGroup.addSkill(skill);
         qGroup.addSkill(skill1);
         qGroup.addAgentGroup(group);
-        qGroup.setSort(10);
         m_openAcdContextImpl.saveQueueGroup(qGroup);
 
         List<BasicDBObject> commands = provContext.getCommands();
@@ -157,7 +166,6 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         assertEquals("QGroup", objects.get(0).get("name"));
         assertEquals("_java, _c", objects.get(0).get("skillsAtoms"));
         assertEquals("Group", objects.get(0).get("profiles"));
-        assertEquals("10", objects.get(0).get("sort"));
     }
 
     public void testOpenAcdConfigureCommands() {
@@ -198,6 +206,10 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
 
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {
         m_openAcdContextImpl = openAcdContext;
+    }
+
+    public void setOpenAcdSkillGroupMigrationContext(OpenAcdSkillGroupMigrationContext migrationContext) {
+        m_migrationContext = migrationContext;
     }
 
     private class MockOpenAcdProvisioningContext extends OpenAcdProvisioningContextImpl {

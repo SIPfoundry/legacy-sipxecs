@@ -14,7 +14,7 @@
 #include <regex.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsDefs.h"
 #include "SipRedirectorISN.h"
 #include "net/SipSrvLookup.h"
@@ -100,14 +100,14 @@ void SipRedirectorISN::readConfig(OsConfigDb& configDb)
    if (configDb.get("BASE_DOMAIN", mBaseDomain) != OS_SUCCESS ||
        mBaseDomain.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "%s::readConfig "
                     "BASE_DOMAIN parameter missing or empty",
                     mLogName.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "%s::readConfig "
                     "BASE_DOMAIN is '%s'", mLogName.data(), mBaseDomain.data());
    }
@@ -115,13 +115,13 @@ void SipRedirectorISN::readConfig(OsConfigDb& configDb)
    if (configDb.get("PREFIX", mPrefix) != OS_SUCCESS ||
        mPrefix.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "%s::readConfig "
                     "dialing prefix is empty", mLogName.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "%s::readConfig "
                     "dialing prefix is '%s'", mLogName.data(), mPrefix.data());
    }
@@ -207,7 +207,7 @@ SipRedirectorISN::lookUp(
          // Append the ITAD root domain.
          strcat(p, mBaseDomain.data());
       }
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::lookUp user '%s' has ISN format, domain is '%s'",
                     mLogName.data(), user, domain);
 
@@ -233,7 +233,7 @@ SipRedirectorISN::lookUp(
                 strcasecmp(canonical_name, dns_response->answer[i]->name) == 0)
             {
                // A NAPTR record has been found.
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "%s::LookUp "
                              "NAPTR record found '%s' %d %d %d %d '%s' '%s' '%s' '%s'",
                              mLogName.data(),
@@ -269,7 +269,7 @@ SipRedirectorISN::lookUp(
          if (best_response != -1)
          {
             char* p = dns_response->answer[best_response]->rdata.naptr.regexp;
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "%s::LookUp Using NAPTR rewrite '%s' for '%s'",
                           mLogName.data(), p, domain);
             // Enough space for the 'match' part of the regexp field.
@@ -280,7 +280,7 @@ SipRedirectorISN::lookUp(
             int i_flag;
             if (res_naptr_split_regexp(p, &delim, match, &replace, &i_flag))
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "%s::LookUp match = '%s', replace = '%s', i_flag = %d",
                              mLogName.data(), match, replace, i_flag);
                // Split operation was successful.  Try to match.
@@ -299,7 +299,7 @@ SipRedirectorISN::lookUp(
                      // Current usage is that the replacement string is the resulting URI,
                      // not the replacement into the original application-string.
                      char* result = res_naptr_replace(replace, delim, pmatch, user, 0);
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                    "%s::LookUp result = '%s'",
                                    mLogName.data(), result);
                      // Note that the replacement string is not
@@ -321,7 +321,7 @@ SipRedirectorISN::lookUp(
                      }
                      else
                      {
-                        OsSysLog::add(FAC_SIP, PRI_ERR,
+                        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                       "%s::LookUp Bad result string '%s' - "
                                       "could not identify URI scheme and/or host name is null - "
                                       "for ISN translation of '%s'",
@@ -332,7 +332,7 @@ SipRedirectorISN::lookUp(
                   }
                   else
                   {
-                     OsSysLog::add(FAC_SIP, PRI_WARNING,
+                     Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                    "%s::LookUp NAPTR regexp '%s' does not match "
                                    "for ISN translation of '%s' - no contact generated",
                                    mLogName.data(), match, requestString.data());
@@ -342,7 +342,7 @@ SipRedirectorISN::lookUp(
                }
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING,
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                 "%s::LookUp NAPTR regexp '%s' is syntactially invalid "
                                    "for ISN translation of '%s'",
                                 mLogName.data(), match, requestString.data());
@@ -350,7 +350,7 @@ SipRedirectorISN::lookUp(
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "%s::LookUp cannot parse NAPTR regexp field '%s' "
                              "for ISN translation of '%s'",
                              mLogName.data(), p, requestString.data());
@@ -358,7 +358,7 @@ SipRedirectorISN::lookUp(
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "%s::LookUp No usable NAPTR found for '%s'"
                           "for ISN translation of '%s'",
                           mLogName.data(), domain, requestString.data());
@@ -366,7 +366,7 @@ SipRedirectorISN::lookUp(
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "%s::LookUp no NAPTR record found for domain '%s' "
                        "for ISN translation of '%s'",
                        mLogName.data(), domain, requestString.data());

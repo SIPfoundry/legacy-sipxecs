@@ -108,7 +108,7 @@ ACDQueue_LongestIdle::ACDQueue_LongestIdle(ACDQueueManager* pAcdQueueManager,
                    pAcdLineList)
 {
    mAcdSchemeString = "ACDQueue_LongestIdle";
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue_LongestIdle::ACDQueue_LongestIdle[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue_LongestIdle::ACDQueue_LongestIdle[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
                  mUriString.data(), mMaxRingDelay, mMaxWaitTime, mOverflowQueue.data());
 }
 
@@ -187,7 +187,7 @@ bool ACDQueue_LongestIdle::buildTargetAgentList(UtlSList& rTargetAgentList, ACDC
       // If he is still available, use him.  Otherwise start again.
       if (pLongestIdleAgent->isAvailable(true)) {
          rTargetAgentList.append(pLongestIdleAgent);
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::buildTargetAgentList - agent(%s) is added to the target list.  Idle time was %lu seconds",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::buildTargetAgentList - agent(%s) is added to the target list.  Idle time was %lu seconds",
                  mAcdSchemeString, pLongestIdleAgent->getUriString()->data(),
                  maxIdleTime);
          return true ;

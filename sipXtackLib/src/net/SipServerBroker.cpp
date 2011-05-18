@@ -17,7 +17,7 @@
 #include "os/OsDefs.h"
 #include "os/OsTask.h"
 #include "os/OsServerTask.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConnectionSocket.h"
 #include "os/OsEvent.h"
 #include "os/OsNotification.h"
@@ -58,7 +58,7 @@ int SipServerBroker::run(void *pNotUsed)
             mpOwnerTask->postMessage(ptrMsg);
         }
     }
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipServerBroker::run '%s' terminating %s OsSocket %p status %s",
                   mName.data(),
                   isShuttingDown() ? "task shutdown" : "socket problem",
@@ -71,7 +71,7 @@ int SipServerBroker::run(void *pNotUsed)
 // Destructor
 SipServerBroker::~SipServerBroker()
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipServerBroker::~ OsSocket %p status %s",
                   mpSocket,
                   mpSocket ? ( mpSocket->isOk() ? "ok" : "not ok" ) : "deleted"

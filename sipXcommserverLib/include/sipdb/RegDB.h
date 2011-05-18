@@ -108,7 +108,6 @@ protected:
     void fetchNodes();
     bool addReplicationNode(const std::string& nodeAddress);
 private:
-    mutable Mutex _mutex;
     MongoDB::DBInterfaceSet _replicationNodes;
     std::string _localAddress;
     std::map<std::string, int> _nodeTimeStamps;

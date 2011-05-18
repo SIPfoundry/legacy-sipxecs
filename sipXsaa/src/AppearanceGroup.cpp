@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "net/SipMessage.h"
 #include "net/HttpBody.h"
 #include "net/SipDialogEvent.h"
@@ -46,7 +46,7 @@ AppearanceGroup::AppearanceGroup(AppearanceGroupSet* appearanceGroupSet,
    mAppearanceGroupSet(appearanceGroupSet),
    mSharedUser(user)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroup:: this = %p, mSharedUser = '%s'",
                  this, mSharedUser.data());
 
@@ -94,7 +94,7 @@ void AppearanceGroup::startSubscription()
                       mSubscriptionEarlyDialogHandle);
    if (ret)
    {
-      OsSysLog::add(FAC_SAA, PRI_INFO,
+      Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                     "AppearanceGroup:: startSubscription succeeded mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mSharedUser.data(),
                     mSubscriptionEarlyDialogHandle.data());
@@ -104,7 +104,7 @@ void AppearanceGroup::startSubscription()
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
                     "AppearanceGroup:: startSubscription failed mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mSharedUser.data(),
                     mSubscriptionEarlyDialogHandle.data());
@@ -114,7 +114,7 @@ void AppearanceGroup::startSubscription()
 // Destructor
 AppearanceGroup::~AppearanceGroup()
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroup::~ this = %p, mSharedUser = '%s'",
                  this, mSharedUser.data());
    // Delete this AppearanceGroup from mSubscribeMap (for the "reg" subscription).
@@ -124,7 +124,7 @@ AppearanceGroup::~AppearanceGroup()
    UtlBoolean ret;
    ret = getAppearanceAgent()->getSubscribeClient().
       endSubscriptionGroup(mSubscriptionEarlyDialogHandle);
-   OsSysLog::add(FAC_SAA,
+   Os::Logger::instance().log(FAC_SAA,
                  ret ? PRI_INFO : PRI_WARNING,
                  "AppearanceGroup::~ endSubscriptionGroup %s mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  ret ? "succeeded" : "failed",
@@ -193,7 +193,7 @@ void AppearanceGroup::subscriptionEventCallback(
    SipSubscribeClient::SubscriptionState newState,
    const UtlString* subscriptionState)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroup::subscriptionEventCallback mUri = '%s', newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', subscriptionState = '%s'",
                  mSharedUser.data(),
                  newState, mSubscriptionEarlyDialogHandle.data(),
@@ -215,14 +215,14 @@ void AppearanceGroup::subscriptionEventCallback(
          if (!mSubscriptions.find(dialogHandle))
          {
             mSubscriptions.insertKeyAndValue(new UtlString(*dialogHandle), new UtlHashMap);
-            OsSysLog::add(FAC_SAA, PRI_INFO,
+            Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                           "AppearanceGroup::subscriptionEventCallback "
                           "subscription setup for AppearanceGroup = '%s', dialogHandle = '%s'",
                           mSharedUser.data(), dialogHandle->data());
          }
          else
          {
-            OsSysLog::add(FAC_SAA, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                           "AppearanceGroup::subscriptionEventCallback "
                           "mSubscriptions element already exists for this dialog handle mUri = '%s', dialogHandle = '%s'",
                           mSharedUser.data(),
@@ -231,7 +231,7 @@ void AppearanceGroup::subscriptionEventCallback(
       }
       else
       {
-         OsSysLog::add(FAC_SAA, PRI_ERR,
+         Os::Logger::instance().log(FAC_SAA, PRI_ERR,
                        "AppearanceGroup::subscriptionEventCallback "
                        "cannot add reg subscription with dialog handle '%s', already %zu in AppearanceGroup '%s'",
                        dialogHandle->data(), mSubscriptions.entries(),
@@ -255,7 +255,7 @@ void AppearanceGroup::subscriptionEventCallback(
       UtlBoolean ret;
       ret = getAppearanceAgent()->getSubscribeClient().
          endSubscriptionGroup(mSubscriptionEarlyDialogHandle);
-      OsSysLog::add(FAC_SAA,
+      Os::Logger::instance().log(FAC_SAA,
                     ret ? PRI_INFO : PRI_WARNING,
                     "AppearanceGroup::subscriptionEventCallback "
                     "endSubscriptionGroup %s mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
@@ -267,7 +267,7 @@ void AppearanceGroup::subscriptionEventCallback(
       // Check to see if there is supposed to be a group with this name.
       if (mAppearanceGroupSet->findAppearanceGroup(mSharedUser))
       {
-         OsSysLog::add(FAC_SAA, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
                        "AppearanceGroup::subscriptionEventCallback "
                        "subscription terminated for AppearanceGroup '%s', but should exist. Retrying subscription",
                        mSharedUser.data());
@@ -275,7 +275,7 @@ void AppearanceGroup::subscriptionEventCallback(
       }
       else
       {
-         OsSysLog::add(FAC_SAA, PRI_INFO,
+         Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                        "AppearanceGroup::subscriptionEventCallback "
                        "subscription terminated for AppearanceGroup = '%s', dialogHandle = '%s'",
                        mSharedUser.data(), dialogHandle->data());
@@ -313,7 +313,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
       l = 0;
    }
 
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroup::notifyEventCallback mSharedUser = '%s', dialogHandle = '%s', content = '%s'",
                  mSharedUser.data(), dialogHandle->data(), content);
 
@@ -328,7 +328,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
    if (!state_from_this_subscr)
    {
       // No state for this dialogHandle, so we need to add one.
-      OsSysLog::add(FAC_SAA, PRI_INFO,
+      Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                     "AppearanceGroup::notifyEventCallback mSubscriptions element does not exist for this dialog handle mUri = '%s', dialogHandle = '%s'",
                     mSharedUser.data(),
                     dialogHandle->data());
@@ -343,7 +343,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
       }
       else
       {
-         OsSysLog::add(FAC_SAA, PRI_ERR,
+         Os::Logger::instance().log(FAC_SAA, PRI_ERR,
                        "AppearanceGroup::notifyEventCallback cannot add reg subscription with dialog handle '%s', already %zu in AppearanceGroup '%s'",
                        dialogHandle->data(), mSubscriptions.entries(),
                        mSharedUser.data());
@@ -371,7 +371,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
          {
             // If the state is "full", delete the current state.
             state_from_this_subscr->destroyAll();
-            OsSysLog::add(FAC_SAA, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                           "AppearanceGroup::notifyEventCallback clearing state");
          }
 
@@ -494,7 +494,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
 
                         // Insert the registration record.
                         state_from_this_subscr->insertKeyAndValue(id_allocated, uri_allocated);
-                        OsSysLog::add( FAC_SAA, PRI_DEBUG,
+                        Os::Logger::instance().log( FAC_SAA, PRI_DEBUG,
                               "AppearanceGroup::notifyEventCallback adding id = '%s' Call-Id;URI = '%s'",
                               id, uri_allocated->data());
                         id_allocated = NULL;
@@ -505,7 +505,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
                   {
                      // Delete it from the contact state.
                      state_from_this_subscr->destroy(id_allocated);
-                     OsSysLog::add(FAC_SAA, PRI_DEBUG,
+                     Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                                    "AppearanceGroup::notifyEventCallback deleting id = '%s'",
                                    id);
                   }
@@ -519,7 +519,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
                else
                {
                   delete uri_allocated;
-                  OsSysLog::add(FAC_SAA, PRI_ERR,
+                  Os::Logger::instance().log(FAC_SAA, PRI_ERR,
                                 "AppearanceGroup::notifyEventCallback <contact> element with id = '%s' is missing id, state, and/or URI",
                                 id ? id : "(missing)");
                }
@@ -535,7 +535,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
       else
       {
          // Error parsing the contents.
-         OsSysLog::add(FAC_SAA, PRI_ERR,
+         Os::Logger::instance().log(FAC_SAA, PRI_ERR,
                        "AppearanceGroup::notifyEventCallback malformed reg event content for mSharedUser = '%s'",
                        mSharedUser.data());
       }
@@ -547,7 +547,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
 
 void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, SipDialogEvent* lContent)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
          "AppearanceGroup::publish sending NOTIFY for: '%s'", mSharedUser.data());
    if (bSendFullContent)
    {
@@ -613,7 +613,7 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
       if ( !pThisAppearance )
       {
          // should never happen, since the NOTIFY was sent straight to the Appearance
-         OsSysLog::add(FAC_SAA, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
                "AppearanceGroup::handleNotifyRequest: ignoring NOTIFY from unknown subscription, dialogHandle %s",
                dialogHandle->data());
          response.setInterfaceIpPort(msg->getInterfaceIp(), msg->getInterfacePort());
@@ -629,7 +629,7 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
    msg->getEventField(eventType);
    if (eventType != SLA_EVENT_TYPE)
    {
-      OsSysLog::add(FAC_SAA, PRI_INFO,
+      Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                     "AppearanceGroup::handleNotifyRequest: ignoring NOTIFY(%s): not an SLA event", eventType.data());
       response.setOkResponseData(msg, NULL);
       getAppearanceAgent()->getServerUserAgent().send(response);
@@ -646,7 +646,7 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
             "AppearanceGroup::handleNotifyRequest: could not get NOTIFY content, dialogHandle %s",
             dialogHandle->data());
       response.setInterfaceIpPort(msg->getInterfaceIp(), msg->getInterfacePort());
@@ -670,13 +670,13 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
    {
       // probably not needed now that SipSubscribeClient checks for NOTIFY with terminated state
       // our subscription to this Appearance has terminated.
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroup::handleNotifyRequest: subscription to %s has been terminated",
                     contactUri.data());
       // terminate any non-held dialogs? or all dialogs?
    }
 
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroup::handleNotifyRequest: %s update from %s",
                  state.data(), contactUri.data());
 
@@ -698,7 +698,7 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
       // These dialogs are not forwarded on to other sets in either partial or full updates.
       if ( appearanceId == "" )
       {
-         OsSysLog::add(FAC_SAA, PRI_DEBUG, "AppearanceGroup::handleNotifyRequest skipping call with no appearance info");
+         Os::Logger::instance().log(FAC_SAA, PRI_DEBUG, "AppearanceGroup::handleNotifyRequest skipping call with no appearance info");
          delete lContent->removeDialog(pDialog);
          continue;
       }
@@ -718,7 +718,7 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
          uniqueDialogId.append(dialogId);
          pDialog->setDialogId(uniqueDialogId);
       }
-      OsSysLog::add(FAC_SAA, PRI_INFO,
+      Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                     "AppearanceGroup::handleNotifyRequest: "
                     "%s update from %s: dialogId %s, x-line-id %s, state %s(%s)",
                     state.data(), contactUri.data(), uniqueDialogId.data(),
@@ -749,7 +749,7 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroup::handleNotifyRequest '%s' appearanceId %s is busy",
                     entity.data(), appearanceId.data());
       response.setInterfaceIpPort(msg->getInterfaceIp(), msg->getInterfacePort());
@@ -798,7 +798,7 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
 // Update the subscriptions we maintain to agree with the current contact state
 void AppearanceGroup::updateSubscriptions()
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroup::updateSubscriptions mUri = '%s'",
                  mSharedUser.data());
 
@@ -818,15 +818,15 @@ void AppearanceGroup::updateSubscriptions()
    UtlHashMapIterator subs_itor(mSubscriptions);
    while (subs_itor())
    {
-      if (OsSysLog::willLog(FAC_SAA, PRI_DEBUG))
+      if (Os::Logger::instance().willLog(FAC_SAA, PRI_DEBUG))
       {
-         OsSysLog::add(FAC_SAA, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                        "AppearanceGroup::updateSubscriptions subscription '%s'",
                        (dynamic_cast <UtlString*> (subs_itor.key()))->data());
       }
       UtlHashMap* contact_state =
          dynamic_cast <UtlHashMap*> (subs_itor.value());
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroup::updateSubscriptions contact_state = %p",
                     contact_state);
       UtlHashMapIterator contact_itor(*contact_state);
@@ -834,9 +834,9 @@ void AppearanceGroup::updateSubscriptions()
       {
          UtlString* contact =
             dynamic_cast <UtlString*> (contact_itor.value());
-         if (OsSysLog::willLog(FAC_SAA, PRI_DEBUG))
+         if (Os::Logger::instance().willLog(FAC_SAA, PRI_DEBUG))
          {
-            OsSysLog::add(FAC_SAA, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                           "AppearanceGroup::updateSubscriptions contact id '%s', Call-Id/URI '%s'",
                           (dynamic_cast <UtlString*> (contact_itor.key()))->data(),
                           contact->data());
@@ -847,7 +847,7 @@ void AppearanceGroup::updateSubscriptions()
             // If not, add it.
             UtlString* c = new UtlString(*contact);
             callid_contacts.insert(c);
-            OsSysLog::add(FAC_SAA, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                           "AppearanceGroup::updateSubscriptions contact '%s' added", c->data());
          }
       }
@@ -876,7 +876,7 @@ void AppearanceGroup::updateSubscriptions()
       {
          if (!callid_contacts.find(ss))
          {
-            OsSysLog::add(FAC_SAA, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                           "AppearanceGroup::updateSubscriptions deleting subscription for '%s' in mUri = '%s'",
                           ss->data(), mSharedUser.data());
             // Terminate all dialogs for this Appearance, then publish - before we delete it
@@ -896,7 +896,7 @@ void AppearanceGroup::updateSubscriptions()
          }
          else
          {
-            OsSysLog::add(FAC_SAA, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                           "AppearanceGroup::updateSubscriptions found subscription for '%s' in mUri = '%s'",
                           ss->data(), mSharedUser.data());
          }
@@ -920,7 +920,7 @@ void AppearanceGroup::updateSubscriptions()
             {
                if (subscription_ended_but_no_wait_done_yet)
                {
-                  OsSysLog::add(FAC_SAA, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                                 "AppearanceGroup::updateSubscriptions waiting for %d msec",
                                 SUBSCRIPTION_WAIT);
                   OsTask::delay(SUBSCRIPTION_WAIT);
@@ -928,7 +928,7 @@ void AppearanceGroup::updateSubscriptions()
                }
             }
 
-            OsSysLog::add(FAC_SAA, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                           "AppearanceGroup::updateSubscriptions adding subscription for '%s' in mUri = '%s'",
                           callid_contact->data(), mSharedUser.data());
             // Get the contact URI into a UtlString.
@@ -941,7 +941,7 @@ void AppearanceGroup::updateSubscriptions()
          }
          else
          {
-            OsSysLog::add(FAC_SAA, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                           "AppearanceGroup::updateSubscriptions using existing subscription for '%s' in mUri = '%s'",
                           callid_contact->data(), mSharedUser.data());
          }
@@ -961,7 +961,7 @@ void AppearanceGroup::updateSubscriptions()
 
 Appearance* AppearanceGroup::findAppearance(UtlString app)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroup::findAppearance mSharedUser = '%s', looking for '%s'",
                  mSharedUser.data(), app.data());
    Appearance *pApp = NULL;
@@ -977,7 +977,7 @@ Appearance* AppearanceGroup::findAppearance(UtlString app)
    }
    if (pApp == NULL)
    {
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroup::findAppearance mSharedUser = '%s', looking for '%s': not found",
                     mSharedUser.data(), app.data());
    }
@@ -988,7 +988,7 @@ Appearance* AppearanceGroup::findAppearance(UtlString app)
 void AppearanceGroup::dumpState()
 {
    // indented 4
-   OsSysLog::add(FAC_SAA, PRI_INFO,
+   Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                  "\t    AppearanceGroup %p mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  this, mSharedUser.data(), mSubscriptionEarlyDialogHandle.data());
 

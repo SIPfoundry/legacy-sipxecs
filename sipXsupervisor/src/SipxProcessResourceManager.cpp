@@ -9,7 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlString.h"
 
 #include "SipxProcessResource.h"
@@ -61,13 +61,13 @@ void SipxProcessResourceManager::save(SipxProcessResource* processResource)
 
    if (!mProcessResourceTable.find(processResource))
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcessResourceManager::save"
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "SipxProcessResourceManager::save"
                     " SipxProcessResource('%s')", processResource->data());
       mProcessResourceTable.insert(processResource);
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessResourceManager::save"
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessResourceManager::save"
                     " duplicate SipxProcessResource('%s')", processResource->data());
    }
 }
@@ -78,7 +78,7 @@ SipxProcessResourceManager::~SipxProcessResourceManager()
 {
    OsLock tableMutex(mProcessResourceTableLock);
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessResourceManager::~ "
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessResourceManager::~ "
                  "delete %zu SipxProcessResources", mProcessResourceTable.entries());
 
    mProcessResourceTable.destroyAll();

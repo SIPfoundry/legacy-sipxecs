@@ -111,11 +111,11 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
     SipClient* client = getClientForDestination(hostAddress, hostPort, localIp);
     if (client)
     {
-       if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+       if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
        {
           UtlString clientNames;
           client->getClientNames(clientNames);
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipProtocolServerBase[%s]::send %s (%p), %s",
                         getName().data(), client->getName().data(), client, clientNames.data());
        }
@@ -155,7 +155,7 @@ UtlBoolean SipProtocolServerBase::startListener()
               pServer->start();
               UtlString localName;
               pSocket->getLocalHostIp(&localName);
-              OsSysLog::add(FAC_SIP, PRI_INFO,
+              Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                             "SipProtocolServerBase[%s]::startListener "
                             "started server %s for address %s protocol %s",
                             getName().data(), pServer->getName().data(),
@@ -165,7 +165,7 @@ UtlBoolean SipProtocolServerBase::startListener()
            {
               UtlString localName;
               pSocket->getLocalHostIp(&localName);
-              OsSysLog::add(FAC_SIP, PRI_CRIT,
+              Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                             "SipProtocolServerBase[%s]::startListener "
                             "unable to start server for address %s protocol %s",
                             getName().data(),
@@ -188,7 +188,7 @@ SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddres
    if (!client)
    {
 #ifdef TEST_CLIENT_CREATION
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipProtocolServerBase[%s]::getClientForDestination('%s', %d, '%s')",
                     getName().data(), hostAddress, hostPort, localIp);
 #endif
@@ -197,7 +197,7 @@ SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddres
       {
          hostPort = mDefaultPort;
 #ifdef TEST_CLIENT_CREATION
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipProtocolServerBase[%s]::getClientForDestination port defaulting to %d",
                        getName().data(), hostPort);
 #endif
@@ -217,7 +217,7 @@ SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddres
          long afterSecs = time.seconds();
          if(afterSecs - beforeSecs > 1)
          {
-            OsSysLog::add(FAC_SIP, PRI_WARNING, "SIP %s socket create for '%s':%d local '%s' took %d seconds",
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "SIP %s socket create for '%s':%d local '%s' took %d seconds",
                           mProtocolString.data(), hostAddress, hostPort, localIp,
                           (int)(afterSecs - beforeSecs));
          }
@@ -234,7 +234,7 @@ SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddres
             static_cast <SipClient*> (new SipClientTls(clientSocket, this, mSipUserAgent, isClientSocketReused)):
             NULL;
 #ifdef TEST_CLIENT_CREATION
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipProtocolServerBase[%s]::getClientForDestination created client %s",
                        getName().data(), client->getName().data());
 #endif
@@ -245,13 +245,13 @@ SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddres
          {
             // Start the client's thread.
             clientStarted = client->start();
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipProtocolServerBase[%s]::getClientForDestination client: %s(%p) '%s':%d local '%s'",
                           getName().data(), client->getName().data(),
                           client, hostAddress, hostPort, localIp);
             if (!clientStarted)
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "SipProtocolServerBase[%s]::getClientForDestination start() failed",
                              getName().data());
                delete client;
@@ -260,7 +260,7 @@ SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddres
          }
          else
          {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "SipProtocolServerBase[%s]::getClientForDestination creating %s client failed",
                              getName().data(), mProtocolString.data());
                delete client;
@@ -269,7 +269,7 @@ SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddres
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "Unable to create %s socket for '%s':%d local '%s'",
                        mProtocolString.data(), hostAddress, hostPort, localIp);
          // 'client' is already NULL.
@@ -316,7 +316,7 @@ SipClient* SipProtocolServerBase::findExistingClientForDestination(const char* h
    SipClient* client = NULL;
 
    #ifdef TEST_CLIENT_CREATION
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipProtocolServerBase[%s]::findExistingClientForDestination('%s', %d, '%s')",
                     getName().data(), hostAddress, hostPort, localIp);
    #endif
@@ -325,7 +325,7 @@ SipClient* SipProtocolServerBase::findExistingClientForDestination(const char* h
    while ((client = dynamic_cast <SipClient*> (iter())))
    {
       #ifdef TEST_CLIENT_CREATION
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipProtocolServerBase[%s]::findExistingClientForDestination examining '%s'",
                        getName().data(), client->getName().data());
       #endif
@@ -339,14 +339,14 @@ SipClient* SipProtocolServerBase::findExistingClientForDestination(const char* h
    #ifdef TEST_CLIENT_CREATION
       if (client)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipProtocolServerBase[%s]::findExistingClientForDestination('%s', %d, '%s') found %s",
                        getName().data(), hostAddress, hostPort, localIp,
                        client->getName().data());
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipProtocolServerBase[%s]::findExistingClientForDestination('%s', %d, '%s') not found",
                        getName().data(), hostAddress, hostPort, localIp);
       }
@@ -358,7 +358,7 @@ SipClient* SipProtocolServerBase::findExistingClientForDestination(const char* h
 void SipProtocolServerBase::deleteClient(SipClient* sipClient)
 {
    #ifdef TEST_PRINT
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipProtocolServerBase[%s]::deleteClient(%p)",
                     getName().data(), sipClient);
    #endif
@@ -371,7 +371,7 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
  #ifdef TEST_PRINT
       UtlString clientNames;
       client->getClientNames(clientNames);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipProtocolServerBase[%s]::deleteClient Removing %s client %s %p names: %s",
                     getName().data(),
                     sipClient->mProtocolString.data(),
@@ -382,7 +382,7 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
    }
 
  #ifdef TEST_PRINT
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipProtocolServerBase[%s]::deleteClient(%p) done",
                  getName().data(), sipClient);
  #endif
@@ -419,7 +419,7 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
          {
             UtlString clientNames;
             client->getClientNames(clientNames);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipProtocolServerBase[%s]::removeOldClients Removing old client %s(%p): %s",
                           getName().data(), client->getName().data(),
                           client, clientNames.data());
@@ -439,7 +439,7 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
             #ifdef TEST_PRINT
             UtlString names;
             client->getClientNames(names);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipProtocolServerBase[%s]::removeOldClients leaving client %s(%p): %s",
                           getName().data(), client->getName().data(),
                           client, clientNames.data());
@@ -450,7 +450,7 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
 
    if (numDelete > 0) // get rid of lots of 'doing nothing when nothing to do' messages in the log
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipProtocolServerBase[%s]::removeOldClients deleting %d of %d SipClients",
                     getName().data(), numDelete, numClients);
    }
@@ -511,7 +511,7 @@ void SipProtocolServerBase::printStatus()
 {
    int numClients = mClientList.entries();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipProtocolServerBase[%s]::printStatus %d clients in list at time %ld",
                  getName().data(), numClients, OsDateTime::getSecsSinceEpoch());
 
@@ -524,7 +524,7 @@ void SipProtocolServerBase::printStatus()
       UtlString clientNames;
       client->getClientNames(clientNames);
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipProtocolServerBase[%s]::printStatus client %s %p last used: %ld, ok: %d, names: %s",
                     getName().data(),
                     client->getName().data(), client,

@@ -206,9 +206,9 @@ public:
       mLogFile = "alarmTest.log";
       mAlarmFile = "sipXalarms.log";
 //      OsSysLog::setOutputFile(0, mLogFile);
-      OsSysLog::setLoggingPriority(PRI_DEBUG);
+      Os::Logger::instance().setLogPriority(PRI_DEBUG);
 
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::setUp");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::setUp");
 
       // set up parallel directory structure to match actual
       mAlarmTestContext = new FileTestContext(TEST_DATA_DIR "/alarm-server",
@@ -238,7 +238,7 @@ public:
 
    void tearDown()
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::tearDown");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::tearDown");
       cAlarmServer::getInstance()->cleanup();
       delete mAlarmTestContext;
       delete mAlarmTestContext2;
@@ -277,7 +277,7 @@ public:
 
    void testLoadAlarms()
    {
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServerTest::testLoadAlarms");
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "AlarmServerTest::testLoadAlarms");
 
       cAlarmData* alarmData;
       for (size_t i=0; i<sizeof(expectedResult)/sizeof(alarmRowData); i++)
@@ -303,7 +303,7 @@ public:
    }
    void testHandleAlarm()
    {
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServerTest::testHandleAlarm");
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "AlarmServerTest::testHandleAlarm");
 
       UtlString localhost("localhost");
       UtlString alarmId("NO_LOG");
@@ -312,20 +312,20 @@ public:
       alarmParams.append(&alarmParam);
       UtlString oldLastString;
       tail(mAlarmFile, oldLastString);
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, "oldLastString %s", oldLastString.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "oldLastString %s", oldLastString.data());
       bool rc=cAlarmServer::getInstance()->handleAlarm(localhost, alarmId, alarmParams);
       OsTask::delay(500);
       CPPUNIT_ASSERT_MESSAGE("handleAlarm('NO_LOG') failed", rc==true);
       UtlString newLastString;
       tail(mAlarmFile, newLastString);
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, "newLastString %s", newLastString.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "newLastString %s", newLastString.data());
       CPPUNIT_ASSERT_MESSAGE("alarm with 'NO_LOG' was logged", !oldLastString.compareTo(newLastString));
 
       alarmId = "TEST_LOG";
       alarmParam = "single parameter";
       alarmParams.removeAll();
       alarmParams.append(&alarmParam);
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Test TEST_LOG");
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "Test TEST_LOG");
       cAlarmServer::getInstance()->handleAlarm(localhost, alarmId, alarmParams);
       OsTask::delay(DELAY);
       UtlString actualString;
@@ -346,11 +346,11 @@ public:
       alarmParams.removeAll();
       alarmParams.append(&alarmParam);
       tail(mAlarmFile, oldLastString);
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, "oldLastString %s", oldLastString.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "oldLastString %s", oldLastString.data());
       cAlarmServer::getInstance()->handleAlarm(localhost, alarmId, alarmParams);
       OsTask::delay(DELAY);
       tail(mAlarmFile, newLastString);
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, "newLastString %s", newLastString.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "newLastString %s", newLastString.data());
       CPPUNIT_ASSERT_MESSAGE("first instance of alarm with 'min_threshold' was logged", !oldLastString.compareTo(newLastString));
       alarmParam = "two";
       alarmParams.append(&alarmParam);
@@ -365,14 +365,14 @@ public:
 
    void testReloadAlarms()
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testReloadAlarms");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testReloadAlarms");
       bool rc=cAlarmServer::getInstance()->reloadAlarms();
       CPPUNIT_ASSERT_EQUAL((int)true, (int)rc);
    }
 
    void testParameterSubstitution()
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testParameterSubstitution");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testParameterSubstitution");
       UtlString localhost("localhost");
       UtlString alarmId("PARAMETER_SUBSTITUTION");
       UtlSList alarmParams;
@@ -392,7 +392,7 @@ public:
 
    void testNewlinesInStrings()
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testNewlinesInStrings");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testNewlinesInStrings");
       UtlString localhost("localhost");
       UtlString alarmId("MESSAGE_WITH_NEWLINES");
       UtlSList alarmParams;
@@ -412,7 +412,7 @@ public:
 
    void testReservedCharsInParameters()
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testReservedCharsInParameters");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testReservedCharsInParameters");
       UtlString localhost("localhost");
       UtlString alarmId("PARAMETER_WITH_RESERVED_CHARS");
       UtlSList alarmParams;

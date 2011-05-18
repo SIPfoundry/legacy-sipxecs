@@ -110,7 +110,7 @@ ACDQueue_Circular::ACDQueue_Circular(ACDQueueManager* pAcdQueueManager,
    mAcdSchemeString = "ACDQueue_Circular" ;
    mpLastAttemptedAgent     = NULL;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue_Circular::ACDQueue_Circular[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue_Circular::ACDQueue_Circular[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
                  mUriString.data(), mMaxRingDelay, mMaxWaitTime, mOverflowQueue.data());
 }
 
@@ -198,7 +198,7 @@ bool ACDQueue_Circular::buildTargetAgentList(UtlSList& rTargetAgentList, ACDCall
          rTargetAgentList.append(pAgent);
          // Remember the agent chosen
          mpLastAttemptedAgent  = pAgent;
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::buildTargetAgentList - agent(%s) is added to the target list",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::buildTargetAgentList - agent(%s) is added to the target list",
                        mAcdSchemeString, pAgent->getUriString()->data());
          return true;
       }

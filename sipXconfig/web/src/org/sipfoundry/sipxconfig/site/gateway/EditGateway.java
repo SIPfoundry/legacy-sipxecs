@@ -136,6 +136,9 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         GatewayContext gatewayContext = getGatewayContext();
         if (null != id) {
             gateway = getGatewayContext().getGateway(id);
+            if (gateway instanceof SipTrunk && gateway.getUseSipXBridge()) {
+                setSelectedSbcDevice(gateway.getSbcDevice());
+            }
         } else {
             gateway = gatewayContext.newGateway(getGatewayModel());
         }

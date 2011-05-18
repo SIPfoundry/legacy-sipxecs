@@ -16,7 +16,8 @@
 #include "net/SipLineMgr.h"
 #include "net/HttpMessage.h"
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
+#include "os/OsLoggerHelper.h"
 #include "sipdb/EntityDB.h"
 #include "sipXecsService/SipXecsService.h"
 #include "utl/UtlString.h"
@@ -104,16 +105,16 @@ public:
        {
           if (SIGTERM == sig_num)
           {
-             OsSysLog::add( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
+             Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
           }
           else
           {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
+            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
           }
        }
        else
        {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
+            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
        }
        // set the global shutdown flag
        gShutdownFlag = TRUE ;
@@ -129,8 +130,7 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-   OsSysLog::initialize(0, "sipxsaa");
-
+   Os::LoggerHelper::instance().processName = "sipxsaa";
 
    //
    // Get/Apply Log Filename
@@ -150,7 +150,7 @@ void initSysLog(OsConfigDb* pConfig)
          OsPath path(fileTarget);
          path.getNativePath(workingDirectory);
 
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s",
                        CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
       else
@@ -159,7 +159,7 @@ void initSysLog(OsConfigDb* pConfig)
          OsFileSystem::getWorkingDirectory(path);
          path.getNativePath(workingDirectory);
 
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s",
                        CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
 
@@ -170,21 +170,21 @@ void initSysLog(OsConfigDb* pConfig)
    else
    {
       bSpecifiedDirError = false;
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s",
                     CONFIG_SETTING_LOG_DIR, fileTarget.data());
 
       fileTarget = fileTarget +
          OsPathBase::separator +
          CONFIG_LOG_FILE;
    }
-   OsSysLog::setOutputFile(0, fileTarget);
 
 
    //
    // Get/Apply Log Level
    //
    SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX);
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::LoggerHelper::instance().initialize(fileTarget);
 
    //
    // Get/Apply console logging
@@ -195,17 +195,17 @@ void initSysLog(OsConfigDb* pConfig)
       consoleLogging.toUpper();
       if (consoleLogging == "ENABLE")
       {
-         OsSysLog::enableConsoleOutput(true);
+         Os::Logger::instance().enableConsoleOutput(true);
          bConsoleLoggingEnabled = true;
       }
    }
 
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE,
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE,
                  bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                     "Cannot access %s directory; please check configuration.",
                     CONFIG_SETTING_LOG_DIR);
    }
@@ -250,14 +250,14 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
                      lineMgr->setDefaultOutboundLine(identity);
                      bSuccess = true;
 
-                     OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                     Os::Logger::instance().log(LOG_FACILITY, PRI_INFO,
                                    "Added identity '%s': user='%s' realm='%s'"
                                    ,identity.toString().data(), user.data(), realm.data()
                                    );
                   }
                   else
                   {
-                     OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                     Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                                    "Error adding identity '%s': user='%s' realm='%s'\n",
                                    identity.toString().data(), user.data(), realm.data()
                                    );
@@ -265,24 +265,24 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
                }
                else
                {
-                  OsSysLog::add(LOG_FACILITY, PRI_CRIT, "addLine failed" );
+                  Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT, "addLine failed" );
                }
             }
             else
             {
-               OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+               Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                              "Constructing SipLineMgr failed" );
             }
          }
          else
          {
-            OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+            Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                           "Constructing SipLine failed" );
          }
       }
       else
       {
-         OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+         Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                        "No credential found for '%s' in realm '%s'"
                        ,identity.toString().data(), realm.data()
                        );
@@ -389,7 +389,7 @@ int main(int argc, char* argv[])
         OS_SUCCESS) ||
        appearanceGroupFile.isNull())
    {
-      OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                     "Appearance group file name is not configured");
       return 1;
    }
@@ -399,7 +399,7 @@ int main(int argc, char* argv[])
         OS_SUCCESS) ||
        domainName.isNull())
    {
-      OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                     "Resource domain name is not configured");
       return 1;
    }
@@ -409,7 +409,7 @@ int main(int argc, char* argv[])
         OS_SUCCESS) ||
        realm.isNull())
    {
-      OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                     "Resource realm is not configured");
       return 1;
    }
@@ -493,7 +493,7 @@ int main(int argc, char* argv[])
    }
 
    // Flush the log file
-   OsSysLog::flush();
+   Os::Logger::instance().flush();
 
    // Delete the LineMgr Object
    delete lineMgr;

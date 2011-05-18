@@ -43,7 +43,10 @@ protected:
 private:
    UtlHashMap mUserVmOnDndPreferences;
    OsMutex    mMutex;
+#if 0
    OsStatus parseDocument( TiXmlDocument* pDoc );
+#endif
+   OsStatus parseDocument();
 };
 
 class UnifiedPresence : public UtlString

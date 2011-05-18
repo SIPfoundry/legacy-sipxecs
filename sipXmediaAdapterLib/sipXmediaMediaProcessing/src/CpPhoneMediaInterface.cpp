@@ -74,7 +74,7 @@ public:
         {
 
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                 "~CpPhoneMediaConnection deleting RTP socket: %p descriptor: %d",
                 mpRtpSocket, mpRtpSocket->getSocketDescriptor());
 #endif
@@ -85,7 +85,7 @@ public:
         if(mpRtcpSocket)
         {
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                 "~CpPhoneMediaConnection deleting RTCP socket: %p descriptor: %d",
                 mpRtcpSocket, mpRtcpSocket->getSocketDescriptor());
 #endif
@@ -95,7 +95,7 @@ public:
 
         if(mpCodecFactory)
         {
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                 "~CpPhoneMediaConnection deleting SdpCodecFactory %p",
                 mpCodecFactory);
             delete mpCodecFactory;
@@ -140,11 +140,11 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              int iStunKeepAlivePeriodSecs)
     : CpMediaInterface(pFactoryImpl)
 {
-   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",
+   Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",
                  this);
 
    mpFlowGraph = new MpCallFlowGraph(locale);
-   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new MpCallFlowGraph %p",
+   Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new MpCallFlowGraph %p",
                  mpFlowGraph);
 
    mStunServer = szStunServer ;
@@ -189,7 +189,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
              break;
 #endif /* HAVE_GIPS */
           default:
-              OsSysLog::add(FAC_CP, PRI_WARNING,
+              Os::Logger::instance().log(FAC_CP, PRI_WARNING,
                             "CpPhoneMediaInterface::CpPhoneMediaInterface dropping codec type %d as not supported",
                             cType);
               break;
@@ -197,7 +197,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
        }
        mSupportedCodecs.buildSdpCodecFactory(codecList);
 
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                      "CpPhoneMediaInterface::CpPhoneMediaInterface creating codec factory with %s",
                      codecList.data());
 
@@ -214,7 +214,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
        //mapCodecs[2] = new SdpCodec(SdpCodec::SDP_CODEC_L16_MONO);
 
        UtlString codecs = "PCMU PCMA TELEPHONE-EVENT";
-       OsSysLog::add(FAC_CP, PRI_WARNING, "CpPhoneMediaInterface::CpPhoneMediaInterface hard-coded codec factory %s ...",
+       Os::Logger::instance().log(FAC_CP, PRI_WARNING, "CpPhoneMediaInterface::CpPhoneMediaInterface hard-coded codec factory %s ...",
                      codecs.data());
        mSupportedCodecs.buildSdpCodecFactory(codecs);
    }
@@ -226,7 +226,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
 // Destructor
 CpPhoneMediaInterface::~CpPhoneMediaInterface()
 {
-   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::~CpPhoneMediaInterface deleting the CpMediaInterface %p",
+   Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::~CpPhoneMediaInterface deleting the CpMediaInterface %p",
                  this);
 
     CpPhoneMediaConnection* mediaConnection = NULL;
@@ -254,7 +254,7 @@ CpPhoneMediaInterface::~CpPhoneMediaInterface()
             mediaTask->setFocus(NULL);
         }
 
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::~CpPhoneMediaInterface deleting the MpCallFlowGraph %p",
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::~CpPhoneMediaInterface deleting the MpCallFlowGraph %p",
                       mpFlowGraph);
         delete mpFlowGraph;
         mpFlowGraph = NULL;
@@ -295,7 +295,7 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
         int iNextRtpPort = localPort ;
 
         CpPhoneMediaConnection* mediaConnection = new CpPhoneMediaConnection();
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::createConnection creating a new connection %p",
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::createConnection creating a new connection %p",
                       mediaConnection);
         *mediaConnection = connectionId;
         mMediaConnections.append(mediaConnection);
@@ -328,7 +328,7 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
                 // is set correctly in all of the products.
                 if(localPort > iNextRtpPort + MAX_RTP_PORTS)
                 {
-                    OsSysLog::add(FAC_CP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_CP, PRI_ERR,
                         "No available ports for RTP and RTCP in range %d - %d",
                         iNextRtpPort, iNextRtpPort + MAX_RTP_PORTS);
                     break;  // time to give up
@@ -377,13 +377,13 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
         mediaConnection->mpCodecFactory = new SdpCodecFactory(mSupportedCodecs);
         mediaConnection->mpCodecFactory->bindPayloadTypes();
 
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                 "CpPhoneMediaInterface::createConnection creating a new RTP socket: %p descriptor: %d",
                 mediaConnection->mpRtpSocket, mediaConnection->mpRtpSocket->getSocketDescriptor());
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                 "CpPhoneMediaInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
                 mediaConnection->mpRtcpSocket, mediaConnection->mpRtcpSocket->getSocketDescriptor());
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                 "CpPhoneMediaInterface::createConnection creating a new copy of SdpCodecFactory %p",
                 mediaConnection->mpCodecFactory);
 
@@ -470,7 +470,7 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
           mediaConnection->mpRtpSocket->doConnect(remoteAudioRtpPort, remoteRtpHostAddress, TRUE);
           returnCode = OS_SUCCESS;
 #ifdef TEST_PRINT
-          OsSysLog::add(FAC_CP, PRI_DEBUG, "Setting RTP socket destination id: %d address: %s port:"
+          Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Setting RTP socket destination id: %d address: %s port:"
              " %d socket: %p descriptor: %d\n",
              connectionId, remoteRtpHostAddress, remoteAudioRtpPort,
              mediaConnection->mpRtpSocket, mediaConnection->mpRtpSocket->getSocketDescriptor());
@@ -482,7 +482,7 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
        {
           mediaConnection->mpRtcpSocket->doConnect(remoteAudioRtcpPort, remoteRtpHostAddress, TRUE);
 #ifdef TEST_PRINT
-          OsSysLog::add(FAC_CP, PRI_DEBUG, "Setting RTCP socket destination id: %d address: %s port:"
+          Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Setting RTCP socket destination id: %d address: %s port:"
              " %d socket: %p descriptor: %d\n",
              connectionId, remoteRtpHostAddress, remoteAudioRtpPort,
              mediaConnection->mpRtcpSocket, mediaConnection->mpRtcpSocket->getSocketDescriptor());
@@ -491,12 +491,12 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
        }
        else
        {
-           OsSysLog::add(FAC_CP, PRI_ERR, "ERROR: no rtp socket in setConnectionDestination\n");
+           Os::Logger::instance().log(FAC_CP, PRI_ERR, "ERROR: no rtp socket in setConnectionDestination\n");
        }
    }
    else
    {
-       OsSysLog::add(FAC_CP, PRI_ERR, "CpPhoneMediaInterface::setConnectionDestination with"
+       Os::Logger::instance().log(FAC_CP, PRI_ERR, "CpPhoneMediaInterface::setConnectionDestination with"
                    " zero length host address\n");
    }
 
@@ -573,7 +573,7 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
    if(mpFlowGraph && mediaConnection)
    {
 #ifdef TEST_PRINT
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Sending RTP/RTCP codec: %d sockets: %p/%p descriptors: %d/%d\n",
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Start Sending RTP/RTCP codec: %d sockets: %p/%p descriptors: %d/%d\n",
            primaryCodec ? primaryCodec->getCodecType() : -2,
            (mediaConnection->mpRtpSocket), (mediaConnection->mpRtcpSocket),
            mediaConnection->mpRtpSocket->getSocketDescriptor(),
@@ -609,7 +609,7 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
 #ifdef TEST_PRINT
       UtlString dtmfCodecString;
       if(dtmfCodec) dtmfCodec->toString(dtmfCodecString);
-      OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::startRtpSend %s using DTMF codec: %s\n",
+      Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::startRtpSend %s using DTMF codec: %s\n",
          dtmfCodec ? "" : "NOT ",
          dtmfCodecString.data());
 #endif
@@ -646,7 +646,7 @@ OsStatus CpPhoneMediaInterface::startRtpReceive(int connectionId,
 #ifdef TEST_PRINT
       int i;
 
-      OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Receiving RTP/RTCP, %d codec%s; sockets: %p/%p descriptors: %d/%d\n",
+      Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Start Receiving RTP/RTCP, %d codec%s; sockets: %p/%p descriptors: %d/%d\n",
            numCodecs, ((1==numCodecs)?"":"s"),
            (mediaConnection->mpRtpSocket),
            (mediaConnection->mpRtcpSocket),
@@ -739,25 +739,25 @@ OsStatus CpPhoneMediaInterface::doDeleteConnection(CpPhoneMediaConnection* media
    OsStatus returnCode = OS_NOT_FOUND;
    if(mediaConnection)
    {
-      OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::deleteConnection deleting the connection %p",
+      Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::deleteConnection deleting the connection %p",
                     mediaConnection);
 
       returnCode = OS_SUCCESS;
       mediaConnection->mDestinationSet = FALSE;
 #ifdef TEST_PRINT
       if (mediaConnection && mediaConnection->mpRtpSocket && mediaConnection->mpRtcpSocket)
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                 "stopping RTP/RTCP send & receive sockets %p/%p descriptors: %d/%d",
                 mediaConnection->mpRtpSocket,
                 mediaConnection->mpRtcpSocket,
                 mediaConnection->mpRtpSocket->getSocketDescriptor(),
                 mediaConnection->mpRtcpSocket->getSocketDescriptor());
      else if (!mediaConnection)
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                 "CpPhoneMediaInterface::doDeleteConnection "
                 "mediaConnection is NULL!");
      else
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                 "CpPhoneMediaInterface::doDeleteConnection "
                 "NULL socket: mpRtpSocket=0x%p, mpRtpSocket=0x%p",
                 mediaConnection->mpRtpSocket,
@@ -780,7 +780,7 @@ OsStatus CpPhoneMediaInterface::doDeleteConnection(CpPhoneMediaConnection* media
       {
 #ifdef TEST_PRINT
 #endif
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::doDeleteConnection deleting RTP socket: %p descriptor: %d",
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::doDeleteConnection deleting RTP socket: %p descriptor: %d",
                 mediaConnection->mpRtpSocket,
                 mediaConnection->mpRtpSocket->getSocketDescriptor());
 
@@ -791,7 +791,7 @@ OsStatus CpPhoneMediaInterface::doDeleteConnection(CpPhoneMediaConnection* media
       {
 #ifdef TEST_PRINT
 #endif
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::doDeleteConnection deleting RTCP socket: %p descriptor: %d",
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::doDeleteConnection deleting RTCP socket: %p descriptor: %d",
                 mediaConnection->mpRtcpSocket,
                 mediaConnection->mpRtcpSocket->getSocketDescriptor());
 
@@ -1061,7 +1061,7 @@ OsStatus CpPhoneMediaInterface::stopRecording()
    {
 #ifdef TEST_PRINT
      osPrintf("CpPhoneMediaInterface::stopRecording() : calling flowgraph::stoprecorders\n");
-     OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::stopRecording() : calling flowgraph::stoprecorders");
+     Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::stopRecording() : calling flowgraph::stoprecorders");
 #endif
      mpFlowGraph->closeRecorders();
      ret = OS_SUCCESS;

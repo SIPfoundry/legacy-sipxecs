@@ -18,7 +18,8 @@
 
 // APPLICATION INCLUDES
 #include <os/HostAdapterAddress.h>
-#include <os/OsSysLog.h>
+#include <os/OsSocket.h>
+#include <os/OsLogger.h>
 
 /* Get the addresses associated with all of the IP interfaces.
  * The core work is done by the SIOCGIFCONF ioctl, documented in the
@@ -42,7 +43,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
    int sock = socket(PF_INET, SOCK_DGRAM, 0);
    if (sock < 0)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "getAllLocalHostIps unable to open socket, errno = %d '%s'",
                     errno, strerror(errno));
       rc = FALSE;
@@ -54,7 +55,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
 
       if (ret < 0)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "getAllLocalHostIps %d error performing SIOCGIFCONF, errno = %d '%s'",
                        sock, errno, strerror(errno));
          rc = FALSE;
@@ -79,7 +80,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
             {
                // Put the interface name and address into a HostAdapterAddress.
                localHostAddresses[j] = new HostAdapterAddress(ifreq_array[i].ifr_name, s);
-               OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                              "getAllLocalHostIps entry %d, interface '%s', address '%s'",
                              j, ifreq_array[i].ifr_name, s);
                j++;
@@ -106,7 +107,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
                if (address.compareTo("127.0.0.1") != 0 && address.compareTo("0.0.0.0") != 0)
                {
                   localHostAddresses[numAddresses] = new HostAdapterAddress(ifr->ifr_name, s);
-                  OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                                 "getAllLocalHostIps entry %d, interface '%s', address '%s'",
                                 numAddresses, ifr->ifr_name, s);
                   numAddresses++;
@@ -135,7 +136,7 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
       if (ipAddress.compareTo(adapterAddresses[i]->mAddress.data()) == 0)
       {
          strcpy(szAdapter, adapterAddresses[i]->mAdapter.data());
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                        "getContactAdapterName found name %s for ip %s",
                        szAdapter, szIp);
          found = true;

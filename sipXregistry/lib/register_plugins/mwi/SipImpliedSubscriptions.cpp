@@ -29,7 +29,7 @@
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
 #include "os/OsDateTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConfigDb.h"
 #include "utl/UtlString.h"
 #include "utl/UtlRegex.h"
@@ -59,7 +59,7 @@ extern "C" RegisterPlugin* getRegisterPlugin(const UtlString& name)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "SipImpliedSubscriptions plugin may not be configured twice.\n"
                     "   First configured instance is %s.\n"
                     "   Second instance [%s] not created.",
@@ -98,7 +98,7 @@ public:
      }
      catch(const char* compileError)
      {
-        OsSysLog::add( FAC_SIP, PRI_ERR
+        Os::Logger::instance().log( FAC_SIP, PRI_ERR
                       ,"%s: Invalid recognizer expression '%s' for '%s%s': %s"
                       ,logName.data()
                       ,recognizer.data()
@@ -123,7 +123,7 @@ public:
     if (mUserAgentRegEx) // NULL if recognizer did not compile
     {
 #      if 1 // :TODO: DEBUG
-       OsSysLog::add( FAC_SIP, PRI_DEBUG
+       Os::Logger::instance().log( FAC_SIP, PRI_DEBUG
                      ,"%s checking %s: %s"
                      ,logName.data(), data(), rcvdUA.data()
                      );
@@ -238,7 +238,7 @@ void SipImpliedSubscriptions::readConfig( OsConfigDb& configDb )
                                                               )
        )
     {
-      OsSysLog::add( FAC_SIP, PRI_INFO
+      Os::Logger::instance().log( FAC_SIP, PRI_INFO
                     ,"%s::readConfig name=\"%s\" recognizer=\"%s\""
                     ,mLogName.data(), name.data(), recognizer.data()
                     );
@@ -267,7 +267,7 @@ void SipImpliedSubscriptions::takeAction(
 
    if ( needsImpliedSubscription( registerMessage ) )
    {
-      OsSysLog::add( FAC_SIP, PRI_DEBUG
+      Os::Logger::instance().log( FAC_SIP, PRI_DEBUG
                     ,"%s requesting mwi subscription duration=%d"
                     ,mLogName.data(), registrationDuration
                     );
@@ -300,7 +300,7 @@ bool SipImpliedSubscriptions::needsImpliedSubscription( const SipMessage& regist
 
    registerMessage.getUserAgentField( &userAgent );
 
-   OsSysLog::add( FAC_SIP, PRI_DEBUG
+   Os::Logger::instance().log( FAC_SIP, PRI_DEBUG
                  ,"%s checking User-Agent \"%s\""
                  ,mLogName.data(), userAgent.data()
                  );
@@ -310,7 +310,7 @@ bool SipImpliedSubscriptions::needsImpliedSubscription( const SipMessage& regist
    if ( configured ) // ? did we find a configuration name whose recognizer matched ?
    {
       configuredForSubscription = true;
-      OsSysLog::add( FAC_SIP, PRI_INFO
+      Os::Logger::instance().log( FAC_SIP, PRI_INFO
                     ,"%s User-Agent \"%s\" matched rule \"%s%s\""
                     ,mLogName.data()
                     ,userAgent.data()
@@ -490,7 +490,7 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
       }
       else
       {
-         OsSysLog::add( FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log( FAC_SIP, PRI_WARNING,
                        "%s implied subscription request not authenticated:\n"
                        "   no credentials found for \"%s\"",
                        mLogName.data(), userBase.data());
@@ -498,7 +498,7 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
    }
    else
    {
-      OsSysLog::add( FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log( FAC_SIP, PRI_WARNING,
                     "%s implied subscription request not authenticated:\n"
                     "   no credentials in registration",
                     mLogName.data()

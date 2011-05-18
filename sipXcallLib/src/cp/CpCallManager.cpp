@@ -21,7 +21,7 @@
 #include <os/OsLock.h>
 #include <os/OsDateTime.h>
 #include <os/OsSocket.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
 #include <os/OsProcess.h>

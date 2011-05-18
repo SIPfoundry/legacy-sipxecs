@@ -29,7 +29,7 @@
 #include "os/OsNameDb.h"
 #include "os/OsUtil.h"
 #include "os/OsSocket.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -103,12 +103,12 @@ OsStatus OsUtil::insertKeyValue(const UtlString& rPrefix,
          case OS_SUCCESS:
             break;          // success, do nothing
          case OS_NAME_IN_USE:
-            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                                "OsUtil::insertKeyValue - "
                                "name already in use: " + rPrefix + rName);
             break;
          default:
-            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                                "OsUtil::insertKeyValue - "
                                "OsStatus = %d", res);
             break;

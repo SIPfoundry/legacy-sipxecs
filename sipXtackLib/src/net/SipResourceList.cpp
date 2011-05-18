@@ -11,7 +11,7 @@
 #include <net/NameValueTokenizer.h>
 #include <net/SipResourceList.h>
 #include <net/SipSubscribeServer.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
 #include <xmlparser/tinyxml.h>
@@ -177,7 +177,7 @@ void SipResourceList::parseBody(const char* bodyBytes)
 {
    if(bodyBytes)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::parseBody incoming package = %s\n",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipResourceList::parseBody incoming package = %s\n",
                     bodyBytes);
 
       TiXmlDocument doc("ResourceList.xml");
@@ -206,12 +206,12 @@ void SipResourceList::insertResource(Resource* resource)
    mLock.acquire();
    if (mResources.insert(resource) != NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::insertResource Resource = %p",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipResourceList::insertResource Resource = %p",
                     resource);
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipResourceList::insertResource Resource = %p failed",
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipResourceList::insertResource Resource = %p failed",
                     resource);
    }
    mLock.release();
@@ -224,7 +224,7 @@ Resource* SipResourceList::removeResource(Resource* resource)
    UtlContainable *foundValue;
    foundValue = mResources.remove(resource);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::removeResource Resource = %p",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipResourceList::removeResource Resource = %p",
                  foundValue);
 
    mLock.release();
@@ -244,7 +244,7 @@ Resource* SipResourceList::getResource(UtlString& resourceUri)
 
       if (foundValue.compareTo(resourceUri) == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getResource found Resource = %p for resourceUri %s",
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipResourceList::getResource found Resource = %p for resourceUri %s",
                        pResource, resourceUri.data());
 
          mLock.release();
@@ -252,7 +252,7 @@ Resource* SipResourceList::getResource(UtlString& resourceUri)
       }
    }
 
-   OsSysLog::add(FAC_SIP, PRI_WARNING, "SipResourceList::getResource could not found the Resource for resourceUri = %s",
+   Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "SipResourceList::getResource could not found the Resource for resourceUri = %s",
                  resourceUri.data());
 
    mLock.release();
@@ -269,12 +269,12 @@ void SipResourceList::insertEvent(UtlContainable* event)
    mLock.acquire();
    if (mEvents.insert(event) != NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::insertEvent Event = %p",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipResourceList::insertEvent Event = %p",
                     event);
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipResourceList::insertEvent Event = %p failed",
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipResourceList::insertEvent Event = %p failed",
                     event);
    }
    mLock.release();
@@ -287,7 +287,7 @@ UtlContainable* SipResourceList::removeEvent(UtlContainable* event)
    UtlContainable *foundValue;
    foundValue = mEvents.remove(event);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::removeEvent Event = %p",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipResourceList::removeEvent Event = %p",
                  foundValue);
 
    mLock.release();
@@ -401,7 +401,7 @@ void SipResourceList::buildBody(int* version) const
    ((SipResourceList*)this)->mBody = resourceList;
    ((SipResourceList*)this)->bodyLength = resourceList.length();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getBytes Resource list content = \n%s",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipResourceList::getBytes Resource list content = \n%s",
                  resourceList.data());
    // mVersion is not updated, as that is used only to record
    // the version of parsed events.

@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/Url.h>
 #include <net/SipMessage.h>
 #include <sipdb/ResultSet.h>
@@ -92,7 +92,7 @@ RedirectPlugin::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
    // Check if we should return an error.
    if (mPtr[0] == '*')
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorPrivateStorageTest::actOnString Returning "
                     "ERROR, from string '%s', remaining '%s'",
                     mString, mPtr);
@@ -105,7 +105,7 @@ RedirectPlugin::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
    {
       mPtr++;
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorPrivateStorageTest::actOnString Wait time %d, from string '%s', remaining '%s'",
                  wait, mString, mPtr);
    // 0 is not a valid wait time.
@@ -134,7 +134,7 @@ SipRedirectorTest::lookUp(
 {
    UtlString parameter;
 
-   //OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   //Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
    //              "%s::LookUp redirectorNo %d, mParameterName '%s'",
    //              mLogName.data(), redirectorNo, mParameterName);
 
@@ -145,7 +145,7 @@ SipRedirectorTest::lookUp(
 
    if (!privateStorage)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::LookUp Creating storage for parameter '%s', requestSeqNo %d, redirectorNo %d",
                     mLogName.data(),
                     parameter.data(), requestSeqNo, redirectorNo);
@@ -198,7 +198,7 @@ SipRedirectorTestNotification::SipRedirectorTestNotification(
 
 OsStatus SipRedirectorTestNotification::signal(const intptr_t eventData)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorTestNotification::signal Fired mRequestSeqNo %d, mRedirectorNo %d",
                  mRequestSeqNo, mRedirectorNo);
    SipRedirectServer::getInstance()->

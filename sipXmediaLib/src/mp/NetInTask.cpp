@@ -146,7 +146,7 @@ int NetInTaskHelper::run(void* pInst)
        trying--;
     }
     mpNotify->signal(0);
-    OsSysLog::add(FAC_MP, PRI_INFO,
+    Os::Logger::instance().log(FAC_MP, PRI_INFO,
        "NetInTaskHelper::run()... returning 0, after %d tries\n", (1001 - trying));
 
     return 0;
@@ -187,7 +187,7 @@ int NetInTask::getWriteFD()
     } else {
         // we are in a different thread already, go do it ourselves.
         osPrintf("Not NetInTask: opening connection directly\n");
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "Not NetInTask: opening connection directly\n");
+        Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "Not NetInTask: opening connection directly\n");
         openWriteFD();
     }
     sLock.release();
@@ -345,20 +345,20 @@ int findPoisonFds(int pipeFD)
         netInTaskMsgPtr ppr;
 
         if (isFdPoison(pipeFD)) {
-            OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: pipeFd socketDescriptor=%d busted!\n", pipeFD);
+            Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** NetInTask: pipeFd socketDescriptor=%d busted!\n", pipeFD);
             return -1;
         }
         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             if (ppr->pRtpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%ld], socket=0x%p, socketDescriptor=%d\n", (long)(ppr-pairs), ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
+                Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%ld], socket=0x%p, socketDescriptor=%d\n", (long)(ppr-pairs), ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtpSocket = NULL;
                 if (NULL == ppr->pRtcpSocket) ppr->fwdTo = NULL;
             }
             if (ppr->pRtcpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtcpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%ld], socket=0x%p, socketDescriptor=%d\n", (long)(ppr-pairs), ppr->pRtcpSocket, (int)ppr->pRtcpSocket->getSocketDescriptor());
+                Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%ld], socket=0x%p, socketDescriptor=%d\n", (long)(ppr-pairs), ppr->pRtcpSocket, (int)ppr->pRtcpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtcpSocket = NULL;
                 if (NULL == ppr->pRtpSocket) ppr->fwdTo = NULL;
@@ -506,19 +506,19 @@ int NetInTask::run(void *pNotUsed)
             ostc = *pOsTC;
             selectCounter++;
             if (0 > numReady) {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                               " *** NetInTask: select returned %d, errno=%d '%s'",
                               numReady, errno, strerror(errno));
                 i = findPoisonFds(mpReadSocket->getSocketDescriptor());
                 if (i < 0) {
-                    OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: My comm socket failed! Quitting!\n");
+                    Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** NetInTask: My comm socket failed! Quitting!\n");
                     mpReadSocket->close();
                 } else if (0 < i) {
                     last = OS_INVALID_SOCKET_DESCRIPTOR;
                 }
 /*
                 if (selectErrors++ > 10) {
-                    OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Quitting!\n");
+                    Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** NetInTask: Quitting!\n");
                     mpReadSocket->close();
                 }
 */
@@ -544,7 +544,7 @@ int NetInTask::run(void *pNotUsed)
                     /* request to exit... */
                     Nprintf(" *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor(), 0,0,0,0,0);
-                    OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: closing pipeFd (%d)\n",
+                    Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor());
                     sLock.acquire();
                     if (mpReadSocket)
@@ -564,7 +564,7 @@ int NetInTask::run(void *pNotUsed)
                         int newRtpFd  = (msg.pRtpSocket)  ? msg.pRtpSocket->getSocketDescriptor()  : -1;
                         int newRtcpFd = (msg.pRtcpSocket) ? msg.pRtcpSocket->getSocketDescriptor() : -1;
 
-                        OsSysLog::add(FAC_MP, PRI_DEBUG, " *** NetInTask: Adding new RTP/RTCP sockets (RTP:%p,%d, RTCP:%p,%d)\n",
+                        Os::Logger::instance().log(FAC_MP, PRI_DEBUG, " *** NetInTask: Adding new RTP/RTCP sockets (RTP:%p,%d, RTCP:%p,%d)\n",
                                       msg.pRtpSocket, newRtpFd, msg.pRtcpSocket, newRtcpFd);
 
                         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
@@ -588,7 +588,7 @@ int NetInTask::run(void *pNotUsed)
 
                                 if (foundDupRtpFd || foundDupRtcpFd)
                                 {
-                                    OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Using a dup descriptor (New RTP:%p,%d, New RTCP:%p,%d, Old RTP:%p,%d, Old RTCP:%p,%d)\n",
+                                    Os::Logger::instance().log(FAC_MP, PRI_ERR, " *** NetInTask: Using a dup descriptor (New RTP:%p,%d, New RTCP:%p,%d, Old RTP:%p,%d, Old RTCP:%p,%d)\n",
                                                   msg.pRtpSocket, newRtpFd, msg.pRtcpSocket, newRtcpFd, ppr->pRtpSocket, existingRtpFd, ppr->pRtcpSocket, existingRtcpFd);
 
                                     if (foundDupRtpFd)
@@ -622,7 +622,7 @@ int NetInTask::run(void *pNotUsed)
                                 ppr->fwdTo   = msg.fwdTo;
                                 i = NET_TASK_MAX_FD_PAIRS;
                                 numPairs++;
-                                OsSysLog::add(FAC_MP, PRI_DEBUG, " *** NetInTask: Add socket Fds: RTP=%p, RTCP=%p, Q=%p\n",
+                                Os::Logger::instance().log(FAC_MP, PRI_DEBUG, " *** NetInTask: Add socket Fds: RTP=%p, RTCP=%p, Q=%p\n",
                                               msg.pRtpSocket, msg.pRtcpSocket, msg.fwdTo);
                             }
                             ppr++;
@@ -634,7 +634,7 @@ int NetInTask::run(void *pNotUsed)
                         /* remove a pair of file descriptors */
                         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
                             if (msg.fwdTo == ppr->fwdTo) {
-                                OsSysLog::add(FAC_MP, PRI_DEBUG, " *** NetInTask: Remove socket Fds: RTP=%p, RTCP=%p, Q=%p\n",
+                                Os::Logger::instance().log(FAC_MP, PRI_DEBUG, " *** NetInTask: Remove socket Fds: RTP=%p, RTCP=%p, Q=%p\n",
                                               ppr->pRtpSocket, ppr->pRtcpSocket, ppr->fwdTo);
                                 ppr->pRtpSocket = NULL;
                                 ppr->pRtcpSocket = NULL;
@@ -805,7 +805,7 @@ OsStatus addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSocket,
             wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
             if (wrote != NET_TASK_MAX_MSG_LEN)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "addNetInputSources - writeSocket error: 0x%p,%d wrote %d",
                 writeSocket, writeSocket->getSocketDescriptor(), wrote);
             }
@@ -831,7 +831,7 @@ OsStatus removeNetInputSources(MprFromNet* fwdTo, OsNotification* notify)
             wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
             if (wrote != NET_TASK_MAX_MSG_LEN)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                     "removeNetInputSources - writeSocket error: 0x%p,%d wrote %d",
                     writeSocket, writeSocket->getSocketDescriptor(), wrote);
             }

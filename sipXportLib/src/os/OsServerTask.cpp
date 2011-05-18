@@ -44,7 +44,7 @@ OsServerTask::OsServerTask(const char* name,
               maxRequestQMsgs, OsMsgQ::DEF_MAX_MSG_LEN, OsMsgQ::Q_PRIORITY)
    // Other than initialization, no work is required.
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                  "OsServerTask::_ '%s' queue: %p queue limit: %d",
                  mName.data(), &mIncomingQ, maxRequestQMsgs);
 }
@@ -54,7 +54,7 @@ OsServerTask::OsServerTask(const char* name,
 // OsMsgQ.
 OsServerTask::~OsServerTask()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsServerTask::~ '%s' %s",
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsServerTask::~ '%s' %s",
                  mName.data(), TaskStateName(mState));
 
    waitUntilShutDown(20 * OsTime::MSECS_PER_SEC);
@@ -78,12 +78,12 @@ UtlBoolean OsServerTask::handleMessage(OsMsg& rMsg)
    case OsMsg::OS_SHUTDOWN:
       OsTask::requestShutdown();
       handled = TRUE;
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "OsServerTask::handleMessage: "
                     "OS_SHUTDOWN processed");
       break;
    default:
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                     "OsServerTask::handleMessage: "
                     "'%s' unhandled message type %d.%d",
                     mName.data(), rMsg.getMsgType(), rMsg.getMsgSubType());

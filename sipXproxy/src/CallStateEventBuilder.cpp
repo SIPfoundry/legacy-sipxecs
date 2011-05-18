@@ -11,7 +11,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "CallStateEventBuilder.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // DEFINES
 // MACROS

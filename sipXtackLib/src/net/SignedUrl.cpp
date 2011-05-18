@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "net/NetMd5Codec.h"
 
 // APPLICATION INCLUDES
@@ -23,7 +23,7 @@ void SignedUrl::setSecret(const char* secret )
 {
    if (!sSignatureSecret.isNull() && sSignatureSecret.compareTo(secret))
    {
-      OsSysLog::add(FAC_SIP,PRI_NOTICE,
+      Os::Logger::instance().log(FAC_SIP,PRI_NOTICE,
                     "SignedUrl::setSecret called more than once;\n"
                     " previously signed URLs will now fail signature checks"
                     );
@@ -42,7 +42,7 @@ void SignedUrl::sign( Url& urlToSign )
    urlToSign.toString( urlString );
    if( urlToSign.getUrlParameter( SignatureUrlParamName, existingUrlSignature ) == TRUE )
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SignedUrl::sign URL '%s' already signed - updating signature",
                     urlString.data() );
    }
@@ -56,7 +56,7 @@ void SignedUrl::sign( Url& urlToSign )
    computeSignature( userInfo, hostPort, strSignature );
    urlToSign.setUrlParameter( SignatureUrlParamName, strSignature.data() );
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SignedUrl::sign URL signed: '%s' with signature '%s'",
                  urlString.data(), strSignature.data() );
 }
@@ -71,7 +71,7 @@ UtlBoolean SignedUrl::isUrlSigned( Url& signedUrl )
    if( signedUrl.getUrlParameter( SignatureUrlParamName, existingUrlSignature ) == FALSE )
    {
       bUrlProperlySigned = FALSE;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SignedUrl::isUrlSigned URL '%s' not signed",
                     urlString.data() );
    }
@@ -88,14 +88,14 @@ UtlBoolean SignedUrl::isUrlSigned( Url& signedUrl )
       if( strReferenceSignature.compareTo( existingUrlSignature ) == 0 )
       {
          bUrlProperlySigned = TRUE;
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SignedUrl::isUrlSigned URL '%s' is properly signed",
                         urlString.data() );
       }
       else
       {
          bUrlProperlySigned = FALSE;
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SignedUrl::isUrlSigned URL '%s' does not have a valid signature. "
                         "Expected signature: '%s'", urlString.data(), strReferenceSignature.data() );
       }

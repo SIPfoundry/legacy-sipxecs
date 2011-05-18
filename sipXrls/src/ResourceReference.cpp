@@ -15,7 +15,7 @@
 #include "ResourceReference.h"
 #include "ContactSet.h"
 #include "SubscriptionSet.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsLock.h>
 #include <utl/XmlContent.h>
 #include <utl/UtlSListIterator.h>
@@ -78,7 +78,7 @@ void ResourceReference::dumpState() const
 {
    // indented 6
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t      ResourceReference %p mResourceCached = %p ('%s'), mDisplayName = '%s', mNameXml = '%s'",
                  this, mResourceCached, mResourceCached->data(),
                  mDisplayName.data(), mNameXml.data());

@@ -29,6 +29,8 @@
 #include <listener.h>
 #include <net/NameValueTokenizer.h>
 #include <os/OsConfigDb.h>
+#include <os/OsLogger.h>
+#include <os/OsLoggerHelper.h>
 
 // CONSTANTS
 #define UDP_PORT                5060    // Default UDP port
@@ -60,21 +62,26 @@ void initLogger(char* argv[])
 {
     OsSysLog::initialize(0, // do not cache any log messages in memory
                          argv[0]); // name for messages from this program
-    OsSysLog::setOutputFile(0, // no cache period
-                            LogFile); // log file name
+
+    Os::LoggerHelper::instance().processName = argv[0];
+
+    
     switch (Feedback)
     {
        case Quiet:
-          OsSysLog::setLoggingPriority(PRI_WARNING);
+          Os::Logger::instance().setLogPriority(PRI_WARNING);
           break;
        case Normal:
-          OsSysLog::setLoggingPriority(PRI_INFO);
+          Os::Logger::instance().setLogPriority(PRI_INFO);
           break;
        case Verbose:
-          OsSysLog::setLoggingPriority(PRI_DEBUG);
+          Os::Logger::instance().setLogPriority(PRI_DEBUG);
           break;
     }
-    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+    Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+
+
+    Os::LoggerHelper::instance().initialize(LogFile);
 
 }
 

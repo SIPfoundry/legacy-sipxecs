@@ -12,7 +12,7 @@
 // APPLICATION INCLUDES
 #include <tapi/sipXtapi.h>
 #include <utl/UtlInt.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlHashMapIterator.h>
 #include <xmlparser/tinyxml.h>
 #include <net/Url.h>
@@ -88,7 +88,7 @@ ACDLineManager::~ACDLineManager()
       SIPX_LINE lineHandle = (SIPX_LINE) line->getValue();
       sipxLineRemove(lineHandle);
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::~ACDLineManager - Line(%d): removed",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDLineManager::~ACDLineManager - Line(%d): removed",
                     lineHandle);
    }
 }
@@ -176,7 +176,7 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
    ACDLine*  pLineRef = NULL;
    SIPX_LINE lineHandle;
 
-   OsSysLog::add(FAC_ACD, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, PRI_DEBUG,
                  "ACDLineManager::createACDLine"
                  "LineUriString '%s' Name '%s' Extension '%s' %s mode %s Queue '%s'",
                  pLineUriString, pName, pExtension,
@@ -236,7 +236,7 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
          mAcdLineNameList.insertKeyAndValue(new UtlString(pName), pLineRef);
       }
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                     "ACDLineManager::createACDLine"
                     " Line(%d) '%s' added",
                     lineHandle, lineUriString.data());
@@ -258,7 +258,7 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
          // Create a mapping between the ACDLine Extension and the ACDLine instance.
          mAcdLineExtensionList.insertKeyAndValue(new UtlString(contactUrlString), pLineRef);
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG,
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                        "ACDLineManager::createACDLine"
                        " Line(%d) alias '%s' added",
                        lineHandle, contactUrlString.data());
@@ -268,7 +268,7 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
    else
    {
       //Error
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLineManager::createACDLine - Failed to create line '%s'",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDLineManager::createACDLine - Failed to create line '%s'",
                     lineUriString.data());
    }
 
@@ -321,7 +321,7 @@ void ACDLineManager::deleteACDLine(const char* pLineUriString, const char* pName
    pKey = mAcdLineList.removeKeyAndValue(&searchUriKey, pLineRef);
    if (pKey == NULL) {
       // Error. Did not find a matching ACDLine object.
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLineManager::deleteACDLine - Failed to find reference to line: %s",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDLineManager::deleteACDLine - Failed to find reference to line: %s",
                     pLineUriString);
       mLock.release();
       return;
@@ -336,14 +336,14 @@ void ACDLineManager::deleteACDLine(const char* pLineUriString, const char* pName
 
    // Call sipXtapi to remove the line presence.
    if (sipxLineRemove(lineHandle) != SIPX_RESULT_SUCCESS) {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLineManager::deleteACDLine - Failed to delete line: %s,",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDLineManager::deleteACDLine - Failed to delete line: %s,",
                     pLineUriString);
    }
 
    // Finally delete the ACDLine object.
    delete pLineRef;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::deleteACDLine - Line(%d): %s deleted",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDLineManager::deleteACDLine - Line(%d): %s deleted",
                  lineHandle, pLineUriString);
 
    mLock.release();
@@ -475,7 +475,7 @@ ProvisioningAttrList* ACDLineManager::Create(ProvisioningAttrList& rRequestAttri
    }
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDLineManager::Create - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDLineManager::Create - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();
@@ -547,7 +547,7 @@ ProvisioningAttrList* ACDLineManager::Delete(ProvisioningAttrList& rRequestAttri
    deletePSInstance(ACD_LINE_TAG, LINE_URI_TAG, lineUriString);
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDLineManager::Delete - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDLineManager::Delete - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();
@@ -683,7 +683,7 @@ ProvisioningAttrList* ACDLineManager::Set(ProvisioningAttrList& rRequestAttribut
    }
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDLineManager::Set - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDLineManager::Set - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();

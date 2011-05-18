@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsLock.h"
 #include "utl/UtlSListIterator.h"
 #include "AppearanceGroupSet.h"
@@ -37,7 +37,7 @@ AppearanceGroupSet::AppearanceGroupSet(AppearanceAgent* appearanceAgent) :
    mSemaphore(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mVersion(0)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet:: this = %p",
                  this);
 }
@@ -45,7 +45,7 @@ AppearanceGroupSet::AppearanceGroupSet(AppearanceAgent* appearanceAgent) :
 // Destructor
 AppearanceGroupSet::~AppearanceGroupSet()
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::~ this = %p",
                  this);
 }
@@ -56,7 +56,7 @@ AppearanceGroupSet::~AppearanceGroupSet()
 // Create and add an Appearance Group.
 void AppearanceGroupSet::addAppearanceGroup(const char* user)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::addAppearanceGroup this = %p, user = '%s'",
                  this, user);
 
@@ -72,13 +72,13 @@ void AppearanceGroupSet::addAppearanceGroup(const char* user)
       // Add the appearance group to the set.
       mAppearanceGroups.append(appearanceGroup);
 
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::addAppearanceGroup added AppearanceGroup '%s', mVersion = %d",
                     user, mVersion);
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::addAppearanceGroup AppearanceGroup '%s' already exists",
                     user);
    }
@@ -87,7 +87,7 @@ void AppearanceGroupSet::addAppearanceGroup(const char* user)
 // Remove an Appearance Group.
 void AppearanceGroupSet::removeAppearanceGroup(const char* user)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::removeAppearanceGroup this = %p, user = '%s'",
                  this, user);
 
@@ -98,7 +98,7 @@ void AppearanceGroupSet::removeAppearanceGroup(const char* user)
    AppearanceGroup* ag;
    if (!(ag = findAppearanceGroup(user)))
    {
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::removeAppearanceGroup  AppearanceGroup '%s' does not exist",
                     user);
    }
@@ -106,7 +106,7 @@ void AppearanceGroupSet::removeAppearanceGroup(const char* user)
    {
       mAppearanceGroups.removeReference(ag);
       delete ag;
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::removeAppearanceGroup removed AppearanceGroup '%s'",
                     user);
       // Now unpublish to terminate subscriptions to this no-longer-shared line.
@@ -124,7 +124,7 @@ void AppearanceGroupSet::removeAppearanceGroup(const char* user)
 // Delete all Appearance Groups.
 void AppearanceGroupSet::deleteAllAppearanceGroups()
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::deleteAllAppearanceGroups this = %p",
                  this);
 
@@ -153,7 +153,7 @@ void AppearanceGroupSet::deleteAllAppearanceGroups()
 // Get a list of all Appearance Groups.
 void AppearanceGroupSet::getAllAppearanceGroups(UtlSList& list)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::getAllAppearanceGroups this = %p",
                  this);
 
@@ -192,7 +192,7 @@ void AppearanceGroupSet::subscriptionEventCallbackAsync(
    {
       dialogHandle = "";
    }
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::subscriptionEventCallbackAsync newState = %d, applicationData = %p, earlyDialogHandle = '%s', dialogHandle = '%s'",
                  newState, applicationData, earlyDialogHandle, dialogHandle);
 
@@ -231,7 +231,7 @@ void AppearanceGroupSet::subscriptionEventCallbackSync(
    const UtlString* subscriptionState
    )
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::subscriptionEventCallbackSync earlyDialogHandle = '%s', dialogHandle = '%s', newState = %d, subscriptionState = '%s'",
                  earlyDialogHandle->data(), dialogHandle->data(), newState,
                  subscriptionState->data());
@@ -262,7 +262,7 @@ void AppearanceGroupSet::subscriptionEventCallbackSync(
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::subscriptionEventCallbackSync this = %p, no ResourceSubscriptionReceiver found for earlyDialogHandle '%s'",
                     this, earlyDialogHandle->data());
    }
@@ -275,7 +275,7 @@ bool AppearanceGroupSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
                                                void* applicationData,
                                                const SipMessage* notifyRequest)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::notifyEventCallbackAsync "
                  "applicationData = %p, earlyDialogHandle = '%s', dialogHandle = '%s'",
                  applicationData, earlyDialogHandle, dialogHandle);
@@ -303,7 +303,7 @@ bool AppearanceGroupSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
 void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
                                               const SipMessage* msg)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::notifyEventCallbackSync dialogHandle = '%s'",
                  dialogHandle->data());
 
@@ -330,7 +330,7 @@ void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::notifyEventCallbackSync this = %p, no ResourceNotifyReceiver found for dialogHandle '%s'",
                     this, dialogHandle->data());
       // Acknowledge the NOTIFY, even though we won't process it.
@@ -347,7 +347,7 @@ void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
 void AppearanceGroupSet::addSubscribeMapping(UtlString* earlyDialogHandle,
                                           UtlContainable* handler)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::addSubscribeMapping this = %p, earlyDialogHandle = '%s', handler = %p",
                  this, earlyDialogHandle->data(), handler);
 
@@ -358,7 +358,7 @@ void AppearanceGroupSet::addSubscribeMapping(UtlString* earlyDialogHandle,
  */
 void AppearanceGroupSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::deleteSubscribeMapping this = %p, earlyDialogHandle = '%s'",
                  this, earlyDialogHandle->data());
 
@@ -390,7 +390,7 @@ void AppearanceGroupSet::addNotifyMapping(const UtlString* d,
     */
    if ( mNotifyMap.findValue(d) )
    {
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::addNotifyMapping already exists for this = %p, dialogHandle = '%s', handler = %p",
                     this, d->data(),
                     handler);
@@ -402,7 +402,7 @@ void AppearanceGroupSet::addNotifyMapping(const UtlString* d,
    UtlString* swappedDialogHandleP = new UtlString;
    swapTags(*dialogHandle, *swappedDialogHandleP);
 
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::addNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s', handler = %p",
                  this, dialogHandle->data(), swappedDialogHandleP->data(),
                  handler);
@@ -422,7 +422,7 @@ void AppearanceGroupSet::deleteNotifyMapping(const UtlString* dialogHandle)
    UtlString swappedDialogHandle;
    swapTags(*dialogHandle, swappedDialogHandle);
 
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::deleteNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s'",
                  this, dialogHandle->data(), swappedDialogHandle.data());
 
@@ -463,7 +463,7 @@ UtlContainableType AppearanceGroupSet::getContainableType() const
 void AppearanceGroupSet::dumpState()
 {
    // indented 2
-   OsSysLog::add(FAC_SAA, PRI_INFO,
+   Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                  "\t  AppearanceGroupSet %p", this);
    UtlSListIterator appearanceGroupItor(mAppearanceGroups);
    AppearanceGroup* appearanceGroup;

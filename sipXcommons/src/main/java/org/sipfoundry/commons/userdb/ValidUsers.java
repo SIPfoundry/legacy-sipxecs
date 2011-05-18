@@ -89,7 +89,7 @@ public enum ValidUsers {
 
         // check aliases
         BasicDBObject elemMatch = new BasicDBObject();
-        elemMatch.put(ID, userName);
+        elemMatch.put(ALIAS_ID, userName);
         BasicDBObject alias = new BasicDBObject();
         alias.put("$elemMatch", elemMatch);
         BasicDBObject queryAls = new BasicDBObject();
@@ -103,7 +103,7 @@ public enum ValidUsers {
             BasicDBList aliases = (BasicDBList) aliasResult.get(ALIASES);
             for (int i = 0; i < aliases.size(); i++) {
                 DBObject aliasObj = (DBObject) aliases.get(i);
-                if (getStringValue(aliasObj, ID).equals(userName)) {
+                if (getStringValue(aliasObj, ALIAS_ID).equals(userName)) {
                     return extractValidUserFromAlias(aliasObj);
                 }
             }
@@ -202,7 +202,7 @@ public enum ValidUsers {
             return null;
         }
         User user = new User();
-        String id = getStringValue(aliasObj, ID);
+        String id = getStringValue(aliasObj, ALIAS_ID);
         user.setIdentity(id);
         user.setUserName(id);
         user.setUri(getStringValue(aliasObj, CONTACT));
@@ -254,7 +254,7 @@ public enum ValidUsers {
             for (int i = 0; i < aliasesObj.size(); i++) {
                 DBObject aliasObj = (DBObject) aliasesObj.get(i);
                 if (aliasObj.get(RELATION).toString().equals(ALIAS)) {
-                    aliases.add(aliasObj.get(ID).toString());
+                    aliases.add(aliasObj.get(ALIAS_ID).toString());
                 }
             }
             user.setAliases(aliases);

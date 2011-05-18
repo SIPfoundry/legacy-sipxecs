@@ -11,7 +11,7 @@
 #include <sipxunit/TestUtilities.h>
 #include <string>
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 #include "utl/UtlSList.h"
 #include "RouteState.h"

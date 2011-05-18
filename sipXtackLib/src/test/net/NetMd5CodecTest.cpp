@@ -12,7 +12,7 @@
 #include <sipxunit/TestUtilities.h>
 
 #include <os/OsDefs.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/NetMd5Codec.h>
 
 /**
@@ -160,14 +160,14 @@ public:
           if (encodedString.compareTo(tests[i].hexoutput) != 0)
           {
              allPassed=false;
-             OsSysLog::add(FAC_SIP, PRI_ERR, "md5 encode hex test %d, string: %s\n  expected: %s\n  returned: %s",
+             Os::Logger::instance().log(FAC_SIP, PRI_ERR, "md5 encode hex test %d, string: %s\n  expected: %s\n  returned: %s",
                            i, tests[i].input, tests[i].hexoutput, encodedString.data());
           }
 
           NetMd5Codec::encodeBase64Sig(tests[i].input, encodedString);
           if (encodedString.compareTo(tests[i].b64output) != 0)
           {
-             OsSysLog::add(FAC_SIP, PRI_ERR, "md5 encode b64 test %d, string: %s\n  expected: %s\n  returned: %s",
+             Os::Logger::instance().log(FAC_SIP, PRI_ERR, "md5 encode b64 test %d, string: %s\n  expected: %s\n  returned: %s",
                            i, tests[i].input, tests[i].b64output, encodedString.data());
              allPassed=false;
           }
@@ -287,7 +287,7 @@ public:
             if (actualOutputSegmented.compareTo(prefixedOutputConcatenated) != 0)
             {
                allPassed=false;
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "md5 multiple input test %d, segmented: %s\n  concatenated: %s",
                              testcase, actualOutputSegmented.data(), prefixedOutputConcatenated.data());
             }
@@ -303,7 +303,7 @@ public:
             if (sigOutputSegmented.compareTo(sigPrefixedOutputConcatenated) != 0)
             {
                allPassed=false;
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "md5 multiple input test %d, segmented: %s\n  concatenated: %s",
                              testcase, sigOutputSegmented.data(), sigPrefixedOutputConcatenated.data());
             }
@@ -314,7 +314,7 @@ public:
             if (actualOutputSegmented.compareTo(expectedOutput) != 0)
             {
                allPassed=false;
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "md5 multiple input test %d, expected: %s\n  received: %s",
                              testcase, actualOutputSegmented.data(), expectedOutput.data());
             }

@@ -24,6 +24,9 @@
 #include "sipXecsService/SipXecsService.h"    // now deregister this process's database references from the IMDB
 #include "statusserver/StatusServer.h"
 
+#include <os/OsLogger.h>
+#include <os/OsLoggerHelper.h>
+
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -66,16 +69,16 @@ public:
        {
           if (SIGTERM == sig_num)
           {
-             OsSysLog::add( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
+             Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
           }
           else
           {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
+            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
           }
        }
        else
        {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
+            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
        }
        // set the global shutdown flag
        gShutdownFlag = TRUE ;
@@ -92,7 +95,7 @@ void initSysLog(OsConfigDb* pConfig)
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
 
-   OsSysLog::initialize(0, "SipStatus");
+   Os::LoggerHelper::instance().processName = "SipStatus";
 
    //
    // Get/Apply Log Filename
@@ -112,7 +115,7 @@ void initSysLog(OsConfigDb* pConfig)
          OsPath path(fileTarget);
          path.getNativePath(workingDirectory);
 
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
       }
       else
       {
@@ -120,7 +123,7 @@ void initSysLog(OsConfigDb* pConfig)
          OsFileSystem::getWorkingDirectory(path);
          path.getNativePath(workingDirectory);
 
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
       }
 
       fileTarget = workingDirectory +
@@ -130,21 +133,20 @@ void initSysLog(OsConfigDb* pConfig)
    else
    {
       bSpecifiedDirError = false ;
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
 
       fileTarget = fileTarget +
          OsPathBase::separator +
          CONFIG_LOG_FILE;
    }
-   OsSysLog::setOutputFile(0, fileTarget) ;
 
 
    //
    // Get/Apply Log Level
    //
    SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX);
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
-
+   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::LoggerHelper::instance().initialize(fileTarget);
    //
    // Get/Apply console logging
    //
@@ -155,16 +157,16 @@ void initSysLog(OsConfigDb* pConfig)
       consoleLogging.toUpper();
       if (consoleLogging == "ENABLE")
       {
-         OsSysLog::enableConsoleOutput(true);
+         Os::Logger::instance().enableConsoleOutput(true);
          bConsoleLoggingEnabled = true ;
       }
    }
 
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(LOG_FACILITY, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
    }
 }
 
@@ -190,22 +192,22 @@ main(int argc, char* argv[] )
    UtlString argString;
    for(int argIndex = 1; argIndex < argc; argIndex++)
    {
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "arg[%d]: %s\n", argIndex, argv[argIndex]) ;
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "arg[%d]: %s\n", argIndex, argv[argIndex]) ;
       argString = argv[argIndex];
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if(argString.compareTo("-v") == 0)
       {
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "Version: %s %s\n", VERSION, PACKAGE_REVISION);
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "Version: %s %s\n", VERSION, PACKAGE_REVISION);
          return(1);
       }
       else if( argString.compareTo("-i") == 0)
       {
          interactiveSet = true;
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "Entering Interactive Mode\n");
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "Entering Interactive Mode\n");
       }
       else
       {
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "usage: %s [-v] [-i]\nwhere:\n -v provides the software version\n"
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "usage: %s [-v] [-i]\nwhere:\n -v provides the software version\n"
             " -i start the server in an interactive made\n",
          argv[0]);
          return(1);
@@ -255,10 +257,10 @@ main(int argc, char* argv[] )
             {
                 if( charCode == 'e')
                 {
-                    OsSysLog::enableConsoleOutput(TRUE);
+                    Os::Logger::instance().enableConsoleOutput(true);
                 } else if( charCode == 'd')
                 {
-                    OsSysLog::enableConsoleOutput(FALSE);
+                    Os::Logger::instance().enableConsoleOutput(false);
                 } else
                 {
                     // pStatusServer->printMessageLog();
@@ -288,7 +290,7 @@ main(int argc, char* argv[] )
 
 
     // Flush the log file
-    OsSysLog::flush();
+    Os::Logger::instance().flush();
 
     cout << "Cleanup...Finished" << endl;
 

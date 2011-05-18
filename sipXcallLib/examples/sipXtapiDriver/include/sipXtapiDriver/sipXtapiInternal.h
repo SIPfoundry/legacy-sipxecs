@@ -22,7 +22,7 @@
 #include "os/OsRWMutex.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // DEFINES
 /**< sipXtapi can be configured to expire after a certain date */
@@ -295,7 +295,7 @@ void sipxInfoReleaseLock(SIPX_INFO_DATA* pData, SIPX_LOCK_TYPE type);
  * @param logLevel priority of the log entry
  * @param format a format string for the following variable argument list
  */
-SIPXTAPI_API void sipxLogEntryAdd(OsSysLogPriority logLevel,
+SIPXTAPI_API void sipxLogEntryAdd(int logLevel,
                      const char *format,
                      ...);
 

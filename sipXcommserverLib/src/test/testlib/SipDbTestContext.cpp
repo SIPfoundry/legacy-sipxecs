@@ -14,7 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipxunit/TestUtilities.h"
@@ -41,7 +41,7 @@ void SipDbTestContext::setFastDbEnvironment()
    // Locate the registration DB in a test directory so that
    // we don't collide with the production DB.
 
-   OsSysLog::add(FAC_UNIT_TEST, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_UNIT_TEST, PRI_DEBUG,
                  "SipDbTestContext::setFastDbEnvironment '%s'",
                  mTestWorkingDir.data());
    setSipxDir(SipXecsService::DatabaseDirType);

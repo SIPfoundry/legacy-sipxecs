@@ -52,7 +52,7 @@ SipTlsServer::SipTlsServer(int port,
                 NULL,
                 SIP_TRANSPORT_TLS)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipTlsServer[%s]::_  '%s' %s port %d szBindAddr = '%s'",
                  getName().data(), mName.data(),
                  bUseNextAvailablePort ? "use next available" : "specific",
@@ -63,7 +63,7 @@ SipTlsServer::SipTlsServer(int port,
    mpServerBrokerListener = new SipServerBrokerListener(this);
    mIsSecureTransport = true;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipTlsServer[%s]::_ port %d",
                  getName().data(), mServerPort);
 

@@ -20,7 +20,7 @@
 #include <os/OsTimer.h>
 #include <os/OsProcess.h>
 #include <os/OsSocket.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/NetMd5Codec.h>
 
 // EXTERNAL FUNCTIONS
@@ -143,7 +143,7 @@ void CallId::initialize()
    OsSocket::getHostIp(&thisHost);
    encoder.hash(thisHost);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "CallId::initialize sChainValue");
 
    // Save the initial hash used to seed the sequence

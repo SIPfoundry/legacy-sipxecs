@@ -11,7 +11,7 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "odbc/OdbcWrapper.h"
 
 #ifdef TESTDATABASE
@@ -42,7 +42,7 @@ public:
 #ifdef ODBC_LOGGING
          OsSysLog::initialize(0, "odbc");
          OsSysLog::setOutputFile(0, "odbcTest.log");
-         OsSysLog::setLoggingPriority(PRI_DEBUG);
+         Os::Logger::instance().setLogPriority(PRI_DEBUG);
 #endif
       }
 

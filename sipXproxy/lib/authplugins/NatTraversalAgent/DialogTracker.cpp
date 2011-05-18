@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // APPLICATION INCLUDES
 #include "DialogTracker.h"
@@ -88,7 +88,7 @@ DialogTracker::DialogTracker( const DialogTracker& referenceDialogTracker,
       MediaDescriptor* pMediaDescriptor = new MediaDescriptor( *(*pos) );
       appendMediaDescriptor( pMediaDescriptor );
    }
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "+DialogTracker tracker %p created; Handle=%s+",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "+DialogTracker tracker %p created; Handle=%s+",
                                        this,
                                        mHandle.data() );
 }
@@ -112,7 +112,7 @@ DialogTracker::DialogTracker( const UtlString& handle,
    const DialogTrackerState* pState = pWaitingForInvite;
    StateAlg::StartStateMachine( *this, pState );
 
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "+DialogTracker tracker %p created; Handle=%s+",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "+DialogTracker tracker %p created; Handle=%s+",
                                        this,
                                        mHandle.data() );
 }
@@ -125,7 +125,7 @@ DialogTracker::~DialogTracker()
    {
       delete *pos;
    }
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "-DialogTracker tracker %p deleted; Handle=%s-",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "-DialogTracker tracker %p deleted; Handle=%s-",
                                        this,
                                        mHandle.data() );
 }
@@ -141,7 +141,7 @@ bool DialogTracker::handleRequest( SipMessage& message, const char* address, int
    // remove all the elements in the message that may impair NAT traversal
    removeUnwantedElements( message );
 
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::handleRequest: received request: %s; Caller->Callee?: %d",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::handleRequest: received request: %s; Caller->Callee?: %d",
                                      mHandle.data(), method.data(), bFromCallerToCallee );
 
    if( method.compareTo(SIP_INVITE_METHOD) == 0 )
@@ -171,7 +171,7 @@ bool DialogTracker::handleRequest( SipMessage& message, const char* address, int
    }
    else
    {
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::DialogTracker: received unhandled request: %s",
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::DialogTracker: received unhandled request: %s",
                                         mHandle.data(), method.data() );
    }
    return bTrackRequestResponse;
@@ -184,7 +184,7 @@ void DialogTracker::handleResponse( SipMessage& message, const char* address, in
    // remove all the elements in the message that may impair NAT traversal
    removeUnwantedElements( message );
 
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::handleResponse: received response: %d",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::handleResponse: received response: %d",
                                      mHandle.data(), responseCode );
 
    if ( responseCode < SIP_2XX_CLASS_CODE )
@@ -665,7 +665,7 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                // session.  This sort of scenario can happen in 3PCC call scenarios such as the one used to provide
                // music-on-hold.  In such a case, do not allocate a new media relay session and reuse the one we
                // just learned about.
-               OsSysLog::add(FAC_NAT,PRI_INFO,"DialogTracker[%s]::ProcessMediaOffer:  Possible 3PCC scenario detected in offer while in state '%s'; media relay handle=%d",
+               Os::Logger::instance().log(FAC_NAT,PRI_INFO,"DialogTracker[%s]::ProcessMediaOffer:  Possible 3PCC scenario detected in offer while in state '%s'; media relay handle=%d",
                      name(), GetCurrentState()->name(), (int)preExistingMediaRelayHandle );
 
                // verify which port this SDP is using
@@ -685,7 +685,7 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                {
                   tentativeRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle();
 
-                  OsSysLog::add(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaOffer:  3PCC is not using any of the media relay ports.  Handle=%d; port=%d",
+                  Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaOffer:  3PCC is not using any of the media relay ports.  Handle=%d; port=%d",
                         name(), (int)preExistingMediaRelayHandle, ourRelayRtpPort );
                }
             }
@@ -703,7 +703,7 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                   }
                   else
                   {
-                     OsSysLog::add(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaOffer:  Failed to allocateMediaRelaySession while in state '%s'",
+                     Os::Logger::instance().log(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaOffer:  Failed to allocateMediaRelaySession while in state '%s'",
                            name(), GetCurrentState()->name() );
                      bDoPatchSdp = false;
                   }
@@ -776,7 +776,7 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                }
                else
                {
-                  OsSysLog::add(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaOffer:  Received unknown Offer/Answer pattern type:%d while in state '%s'",
+                  Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaOffer:  Received unknown Offer/Answer pattern type:%d while in state '%s'",
                         name(), offerAnswerPattern, GetCurrentState()->name() );
 
                }
@@ -809,7 +809,7 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
    }
    else
    {
-      OsSysLog::add(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaOffer:  Failed to obtain SDP body while in state '%s'",
+      Os::Logger::instance().log(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaOffer:  Failed to obtain SDP body while in state '%s'",
             name(), GetCurrentState()->name() );
    }
 }
@@ -851,7 +851,7 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
             }
             else
             {
-               OsSysLog::add(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaAnswer:  Received unknown Offer/Answer pattern type:%d while in state '%s'",
+               Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaAnswer:  Received unknown Offer/Answer pattern type:%d while in state '%s'",
                      name(), offerAnswerPattern, GetCurrentState()->name() );
             }
 
@@ -984,7 +984,7 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
                      }
                      else
                      {
-                        OsSysLog::add(FAC_NAT,PRI_ERR, "DialogTracker[%s]::ProcessMediaAnswer:  Failed to getRtpRelayPortForMediaRelaySession for "
+                        Os::Logger::instance().log(FAC_NAT,PRI_ERR, "DialogTracker[%s]::ProcessMediaAnswer:  Failed to getRtpRelayPortForMediaRelaySession for "
                                                       "Media Relay Handle %d", name(), (int)tentativeMediaRelayHandle );
                      }
                   }
@@ -1023,7 +1023,7 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
    else
    {
       // response does not contain an SDP answer as we expected...  Error!
-      OsSysLog::add(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaAnswer:  Failed to obtain SDP body while in state '%s'",
+      Os::Logger::instance().log(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaAnswer:  Failed to obtain SDP body while in state '%s'",
                                    name(), GetCurrentState()->name() );
    }
 }

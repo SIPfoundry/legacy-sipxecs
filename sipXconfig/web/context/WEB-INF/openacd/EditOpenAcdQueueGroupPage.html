@@ -1,5 +1,15 @@
 <div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="@DirectLink" id="link:skillsPage" listener="listener:addSkills">
+          <span key="link.skillsPage">Skills</span>
+        </a>
+      </li>
+    </ul>
+  </div>
   <span jwcid="@common/ErrorMsg"></span>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <form jwcid="@Form" delegate="bean:validator">
     <fieldset>
       <table>
@@ -9,14 +19,6 @@
             <span jwcid="name@TextField" id="name"
 				value="ognl:queueGroup.name"
 				displayName="message:label.name"/>
-          </tr>
-          <tr jwcid="@common/FieldPanel" for="sort" field="component:sort"
-				label="message:label.sort">
-            <span jwcid="sort@TextField" id="sort"
-				value="ognl:queueGroup.sort"
-				translator="translator:integer" 
-				validators="spring-validators:required,min=0,max=1000"
-				displayName="message:label.sort"/>
           </tr>
           <tr jwcid="@common/FieldPanel" for="description" field="component:description"
 				label="message:label.description">

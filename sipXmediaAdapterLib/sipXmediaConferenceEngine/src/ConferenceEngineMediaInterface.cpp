@@ -127,9 +127,9 @@ ConferenceEngineMediaInterface::ConferenceEngineMediaInterface(ConferenceEngineF
     , CpMediaInterface(pFactoryImpl)
     , mSupportedCodecs(numCodecs, sdpCodecArray)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                   "ConferenceEngineMediaInterface::ConferenceEngineMediaInterface creating a new ConferenceEngineMediaInterface ...");
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                   "ConferenceEngineMediaInterface::ConferenceEngineMediaInterface public addr = %s, local addr = %s, numCodecs = %d",
                   publicAddress, localAddress, numCodecs);
 
@@ -139,7 +139,7 @@ ConferenceEngineMediaInterface::ConferenceEngineMediaInterface(ConferenceEngineF
     int rc = mpConferenceEngine->GIPSConf_Init() ;
     if (rc != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::ConferenceEngineMediaInterface GIPS ConferenceEngine failed to initialize. error = %d.",
                       mpConferenceEngine->GIPSConf_GetLastError());
     }
@@ -149,7 +149,7 @@ ConferenceEngineMediaInterface::ConferenceEngineMediaInterface(ConferenceEngineF
     rc = mpConferenceEngine->GIPSConf_SetEventHandler(this, mEventHandler) ;
     if (rc != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::ConferenceEngineMediaInterface GIPSConf_SetEventHandler failed with error = %d.",
                       mpConferenceEngine->GIPSConf_GetLastError());
     }
@@ -228,7 +228,7 @@ OsStatus ConferenceEngineMediaInterface::createConnection(int& connectionId, voi
     connectionId = mpConferenceEngine->GIPSConf_CreateChannel();
     if (connectionId < 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::createConnection CreateChannel failed. error = %d.",
                       mpConferenceEngine->GIPSConf_GetLastError());
     }
@@ -244,7 +244,7 @@ OsStatus ConferenceEngineMediaInterface::createConnection(int& connectionId, voi
     }
     else
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::createConnection MediaConnection %d has already existed",
                       connectionId);
 
@@ -276,7 +276,7 @@ OsStatus ConferenceEngineMediaInterface::createConnection(int& connectionId, voi
     int rc = mpConferenceEngine->GIPSConf_SetSendTransport(connectionId, *pMediaConnection->mpSocketAdapter) ;
     if (rc != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::createConnection GIPSConf_SetSendTransport failed with error = %d.",
                       mpConferenceEngine->GIPSConf_GetLastError());
     }
@@ -295,12 +295,12 @@ OsStatus ConferenceEngineMediaInterface::createConnection(int& connectionId, voi
 
     if (rc != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::createConnection GIPSConf_SetAGCStatus failed with error = %d.",
                       mpConferenceEngine->GIPSConf_GetLastError());
     }
 
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                   "ConferenceEngineMediaInterface::createConnection a new connection is created with id = %d on port %d",
                   connectionId, localPort);
 
@@ -408,7 +408,7 @@ OsStatus ConferenceEngineMediaInterface::setConnectionDestination(int connection
 
         if (rc != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::setConnectionDestination GIPSConf_EnableRTCP failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -477,7 +477,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
         rc = mpConferenceEngine->GIPSConf_SetSendPort(connectionId, pMediaConnection->mRtpSendHostPort) ;
         if (rc != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::startRtpSend GIPSConf_SetSendPort failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -486,7 +486,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
         rc = mpConferenceEngine->GIPSConf_SetSendIP(connectionId, (char*) pMediaConnection->mRtpSendHostAddress.data()) ;
         if (rc != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::startRtpSend GIPSConf_SetSendIP failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -500,7 +500,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
 
             if (primaryCodec && getConferenceEngineCodec(*primaryCodec, codecInfo))
             {
-                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                               "ConferenceEngineMediaInterface::startRtpSend: using GIPS codec %s for id %d, payload %d",
                               codecInfo.plname, primaryCodec->getCodecType(),
                               primaryCodec->getCodecPayloadFormat());
@@ -512,7 +512,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
                 rc = mpConferenceEngine->GIPSConf_SetSendCodec(connectionId, &codecInfo);
                 if (rc != 0)
                 {
-                    OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                                   "ConferenceEngineMediaInterface::startRtpSend: GIPSConf_SetSendCodec failed with error %d",
                                    mpConferenceEngine->GIPSConf_GetLastError());
                 }
@@ -529,7 +529,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
             rc = mpConferenceEngine->GIPSConf_StartSendToParticipant(connectionId) ;
             if (rc != 0)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                               "ConferenceEngineMediaInterface::startRtpSend GIPSConf_StartSendToParticipant failed with error = %d.",
                               mpConferenceEngine->GIPSConf_GetLastError());
             }
@@ -539,7 +539,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
             rc = mpConferenceEngine->GIPSConf_StartPlayoutToMeeting(connectionId) ;
             if (rc != 0)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                               "ConferenceEngineMediaInterface::startRtpSend GIPSConf_StartPlayoutToMeeting failed with error = %d.",
                               mpConferenceEngine->GIPSConf_GetLastError());
             }
@@ -549,7 +549,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
         }
         else
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::startRtpSend No match codec is found.");
         }
     }
@@ -593,7 +593,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpReceive(int connectionId,
                     rc = mpConferenceEngine->GIPSConf_StopPlayoutToMeeting(connectionId);
                     if (rc != 0)
                     {
-                        OsSysLog::add(FAC_MP, PRI_ERR,
+                        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                                       "ConferenceEngineMediaInterface::startRtpReceive GIPSConf_StopPlayoutToMeeting failed with error = %d.",
                                       mpConferenceEngine->GIPSConf_GetLastError());
                     }
@@ -607,7 +607,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpReceive(int connectionId,
                     rc = mpConferenceEngine->GIPSConf_SetRecPayloadType(connectionId, &codecInfo) ;
                     if (rc != 0)
                     {
-                        OsSysLog::add(FAC_MP, PRI_ERR,
+                        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                                       "ConferenceEngineMediaInterface::startRtpReceive GIPSConf_SetRecPayloadType failed with error = %d.",
                                       mpConferenceEngine->GIPSConf_GetLastError());
                     }
@@ -630,7 +630,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpReceive(int connectionId,
         rc = mpConferenceEngine->GIPSConf_SetRecPort(connectionId, pMediaConnection->mRtpReceivePort + 10);
         if (rc != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::startRtpReceive GIPSConf_SetRecPort failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -641,7 +641,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpReceive(int connectionId,
         rc = mpConferenceEngine->GIPSConf_StartListenToParticipant(connectionId) ;
         if (rc != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::startRtpReceive GIPSConf_StartListenToParticipant failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -650,7 +650,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpReceive(int connectionId,
         rc = mpConferenceEngine->GIPSConf_StartPlayoutToMeeting(connectionId) ;
         if (rc != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::startRtpReceive GIPSConf_StartPlayoutToMeeting failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -676,7 +676,7 @@ OsStatus ConferenceEngineMediaInterface::stopRtpSend(int connectionId)
         iRC = mpConferenceEngine->GIPSConf_StopPlayoutToMeeting(connectionId) ;
         if (iRC != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::stopRtpSend GIPSConf_StopPlayoutToMeeting failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -685,7 +685,7 @@ OsStatus ConferenceEngineMediaInterface::stopRtpSend(int connectionId)
         iRC = mpConferenceEngine->GIPSConf_StopSendToParticipant(connectionId) ;
         if (iRC != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::stopRtpSend GIPSConf_StopSendToParticipant failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -709,7 +709,7 @@ OsStatus ConferenceEngineMediaInterface::stopRtpReceive(int connectionId)
         iRC = mpConferenceEngine->GIPSConf_StopPlayoutToMeeting(connectionId) ;
         if (iRC != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::stopRtpReceive GIPSConf_StopPlayoutToMeeting failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -718,7 +718,7 @@ OsStatus ConferenceEngineMediaInterface::stopRtpReceive(int connectionId)
         iRC = mpConferenceEngine->GIPSConf_StopListenToParticipant(connectionId) ;
         if (iRC != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::stopRtpReceive GIPSConf_StopListenToParticipant failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -800,7 +800,7 @@ OsStatus ConferenceEngineMediaInterface::playAudio(const char* url,
     int iRC = mpConferenceEngine->GIPSConf_StartPlayFileToMeeting(url, true);
     if (iRC != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::playAudio GIPSConf_StartPlayFileToMeeting('%s', true) failed with error = %d.",
                       url,
                       mpConferenceEngine->GIPSConf_GetLastError());
@@ -831,7 +831,7 @@ OsStatus ConferenceEngineMediaInterface::playAudioForIndividual(int connectionId
         iRC = mpConferenceEngine->GIPSConf_StartPlayFileToChannel(connectionId, url);
         if (iRC != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::playAudioForIndividual GIPSConf_StartPlayFileToChannel failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -851,7 +851,7 @@ OsStatus ConferenceEngineMediaInterface::playBuffer(char* buf,
                                                     UtlBoolean remote,
                                                     OsNotification* event)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::stopDtmf is not supported.");
 
     return OS_NOT_SUPPORTED ;
@@ -860,7 +860,7 @@ OsStatus ConferenceEngineMediaInterface::playBuffer(char* buf,
 
 OsStatus ConferenceEngineMediaInterface::pauseAudio()
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::stopDtmf is not supported.");
 
     return OS_NOT_SUPPORTED ;
@@ -881,7 +881,7 @@ OsStatus ConferenceEngineMediaInterface::stopAudio()
     int iRC = mpConferenceEngine->GIPSConf_StopPlayFileToMeeting();
     if (iRC != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::stopAudio GIPSConf_StopPlayFileToMeeting failed with error = %d.",
                       mpConferenceEngine->GIPSConf_GetLastError());
     }
@@ -907,7 +907,7 @@ OsStatus ConferenceEngineMediaInterface::stopAudioForIndividual(int connectionId
         iRC = mpConferenceEngine->GIPSConf_StopPlayFileToChannel(connectionId);
         if (iRC != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::stopAudioForIndividual GIPSConf_StopPlayFileToChannel failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -925,7 +925,7 @@ OsStatus ConferenceEngineMediaInterface::createPlayer(MpStreamPlayer** ppPlayer,
                                                       OsMsgQ *pMsgQ,
                                                       const char* szTarget)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::createPlayer is not supported.");
 
     return OS_NOT_SUPPORTED ;
@@ -934,7 +934,7 @@ OsStatus ConferenceEngineMediaInterface::createPlayer(MpStreamPlayer** ppPlayer,
 
 OsStatus ConferenceEngineMediaInterface::destroyPlayer(MpStreamPlayer* pPlayer)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::destroyPlayer is not supported.");
 
     return OS_NOT_SUPPORTED ;
@@ -945,7 +945,7 @@ OsStatus ConferenceEngineMediaInterface::createPlaylistPlayer(MpStreamPlaylistPl
                                                               OsMsgQ *pMsgQ,
                                                               const char* szTarget)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::createPlaylistPlayer is not supported.");
 
     return OS_NOT_SUPPORTED ;
@@ -954,7 +954,7 @@ OsStatus ConferenceEngineMediaInterface::createPlaylistPlayer(MpStreamPlaylistPl
 
 OsStatus ConferenceEngineMediaInterface::destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPlayer)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::destroyPlaylistPlayer is not supported.");
 
     return OS_NOT_SUPPORTED ;
@@ -965,7 +965,7 @@ OsStatus ConferenceEngineMediaInterface::createQueuePlayer(MpStreamQueuePlayer**
                                                            OsMsgQ *pMsgQ,
                                                            const char* szTarget)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::createQueuePlayer is not supported.");
 
     return OS_NOT_SUPPORTED ;
@@ -974,7 +974,7 @@ OsStatus ConferenceEngineMediaInterface::createQueuePlayer(MpStreamQueuePlayer**
 
 OsStatus ConferenceEngineMediaInterface::destroyQueuePlayer(MpStreamQueuePlayer* pPlayer)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::destroyQueuePlayer is not supported.");
 
     return OS_NOT_SUPPORTED ;
@@ -985,7 +985,7 @@ OsStatus ConferenceEngineMediaInterface::startTone(int toneId,
                                                    UtlBoolean local,
                                                    UtlBoolean remote)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::startTone is not supported.");
 
     return OS_NOT_SUPPORTED;
@@ -994,7 +994,7 @@ OsStatus ConferenceEngineMediaInterface::startTone(int toneId,
 
 OsStatus ConferenceEngineMediaInterface::stopTone()
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::stopTone is not supported.");
 
     return OS_NOT_SUPPORTED ;
@@ -1020,7 +1020,7 @@ OsStatus ConferenceEngineMediaInterface::defocus()
 
 void ConferenceEngineMediaInterface::setCodecCPULimit(int iLimit)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::setCodecCPULimit to %d", iLimit);
 
     ConferenceEngineMediaConnection* mediaConnection = NULL;
@@ -1037,7 +1037,7 @@ OsStatus ConferenceEngineMediaInterface::stopRecording()
     int rc = mpConferenceEngine->GIPSConf_StopRecordingMeeting();
     if (rc != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::stopRecording: GIPSConf_StopRecordingMeeting failed with error %d",
                        mpConferenceEngine->GIPSConf_GetLastError());
     }
@@ -1057,7 +1057,7 @@ OsStatus ConferenceEngineMediaInterface::ezRecord(int ms,
     int rc = mpConferenceEngine->GIPSConf_StartRecordingMeeting(fileName);
     if (rc != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::ezRecord: GIPSConf_StartRecordingMeeting failed with error %d",
                        mpConferenceEngine->GIPSConf_GetLastError());
     }
@@ -1110,7 +1110,7 @@ void  ConferenceEngineMediaInterface::setContactType(int connectionId, ContactTy
 
 void ConferenceEngineMediaInterface::setPremiumSound(UtlBoolean enabled)
 {
-    OsSysLog::add(FAC_MP, PRI_ERR,
+    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::setPremiumSound is not supported.");
 }
 
@@ -1270,7 +1270,7 @@ UtlBoolean ConferenceEngineMediaInterface::getCodecNameByType(SdpCodec::SdpCodec
         codecName = GIPS_CODEC_ID_ISAC;
         break;
     default:
-        OsSysLog::add(FAC_MP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_MP, PRI_WARNING,
                       "ConferenceEngineMediaInterface::getCodecNameByType unsupported type %d.",
                       codecType);
 
@@ -1385,7 +1385,7 @@ OsStatus ConferenceEngineMediaInterface::mute(int connectionId)
         iRC = mpConferenceEngine->GIPSConf_StopPlayoutToMeeting(connectionId);
         if (iRC != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::mute GIPSConf_StopPlayoutToMeeting failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -1409,7 +1409,7 @@ OsStatus ConferenceEngineMediaInterface::unmute(int connectionId)
         iRC = mpConferenceEngine->GIPSConf_StartPlayoutToMeeting(connectionId);
         if (iRC != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::unmute GIPSConf_StartPlayoutToMeeting failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -1431,7 +1431,7 @@ OsStatus ConferenceEngineMediaInterface::setDTMF(int connectionId)
         rc = mpConferenceEngine->GIPSConf_OutbandDTMFdetection(connectionId, true);
         if (rc != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::setDTMF GIPSConf_OutbandDTMFdetection failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -1441,7 +1441,7 @@ OsStatus ConferenceEngineMediaInterface::setDTMF(int connectionId)
         rc = mpConferenceEngine->GIPSConf_InbandDTMFdetection(connectionId, true);
         if (rc != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::setDTMF GIPSConf_InbandDTMFdetection failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
@@ -1466,7 +1466,7 @@ OsStatus ConferenceEngineMediaInterface::setVolume(int connectionId)
         iRC = mpConferenceEngine->GIPSConf_SetVolume(connectionId, mDefaultVolume);
         if (iRC != 0)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
+            Os::Logger::instance().log(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::setVolume GIPSConf_SetVolume failed with error = %d.",
                           mpConferenceEngine->GIPSConf_GetLastError());
         }

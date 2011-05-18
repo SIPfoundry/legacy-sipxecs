@@ -13,7 +13,7 @@
 #include "testlib/SipDbTestContext.h"
 
 #include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/PluginHooks.h"
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"

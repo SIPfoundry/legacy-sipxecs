@@ -15,7 +15,7 @@
 #include "ResourceNotifyReceiver.h"
 #include "ResourceSubscriptionReceiver.h"
 #include "ResourceListMsg.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsLock.h>
 #include <os/OsEventMsg.h>
 #include <utl/XmlContent.h>
@@ -67,7 +67,7 @@ ResourceListSet::ResourceListSet(ResourceListServer* resourceListServer) :
    mPublishOnTimeout(FALSE),
    mVersion(0)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet:: this = %p",
                  this);
 }
@@ -75,7 +75,7 @@ ResourceListSet::ResourceListSet(ResourceListServer* resourceListServer) :
 // Destructor
 ResourceListSet::~ResourceListSet()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::~ this = %p",
                  this);
 }
@@ -91,7 +91,7 @@ void ResourceListSet::startGapTimeout()
 {
    // After publishing create a 1 second delay before publishing again.
    mPublishingTimer.oneshotAfter(sGapTimeout);
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::startGapTimeout "
                  "mPublishingTimer.oneshotAfter(ResourceListSet::sGapTimeout = 1 sec)");
 
@@ -102,7 +102,7 @@ void ResourceListSet::startGapTimeout()
 // Delete all ResourceList's and stop the publishing timer.
 void ResourceListSet::finalize()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::finalize this = %p",
                  this);
 
@@ -114,7 +114,7 @@ void ResourceListSet::finalize()
    // Make sure the publishing timer is stopped before the ResourceListTask
    // is destroyed, because the timer posts messages to ResourceListTask.
    mPublishingTimer.stop();
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::finalize mPublishingTimer.stop()");
 }
 
@@ -125,7 +125,7 @@ bool ResourceListSet::addResourceList(const char* user,
                                       const char* userCons,
                                       const char* nameXml)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addResourceList this = %p, user = '%s', userCons = '%s', nameXml = '%s'",
                  this, user, userCons, nameXml);
 
@@ -152,13 +152,13 @@ bool ResourceListSet::addResourceList(const char* user,
       // Add the resource list to the set.
       mResourceLists.append(resourceList);
 
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::addResourceList added ResourceList, mVersion = %d",
                     mVersion);
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::addResourceList ResourceList '%s' already exists",
                     user);
    }
@@ -184,7 +184,7 @@ void ResourceListSet::getResourceInfoAt(const char* user,
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::getResourceInfoAt ResourceList '%s' not found",
                     user);
    }
@@ -193,7 +193,7 @@ void ResourceListSet::getResourceInfoAt(const char* user,
 // Delete all resource lists.
 void ResourceListSet::deleteAllResourceLists(bool abortOnShutdown)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteAllResourceLists "
                  "this = %p, abortOnShutdown = %d",
                  this, abortOnShutdown);
@@ -235,7 +235,7 @@ void ResourceListSet::deleteAllResourceLists(bool abortOnShutdown)
 // Delete a resource list.
 void ResourceListSet::deleteResourceList(const char* user)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteResourceList this = %p, user = '%s'",
                  this, user);
 
@@ -278,7 +278,7 @@ void ResourceListSet::deleteResourceList(const char* user)
 void ResourceListSet::deleteResourceAt(const char* user,
                                        size_t at)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteResourceAt this = %p, user = '%s', at = %d",
                  this, user, (int) at);
 
@@ -296,12 +296,12 @@ void ResourceListSet::deleteResourceAt(const char* user,
          OsTask::delay(getResourceListServer()->getChangeDelay());
       }
 
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::deleteResourceAt done");
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::deleteResourceAt ResourceList '%s' not found",
                     user);
    }
@@ -310,7 +310,7 @@ void ResourceListSet::deleteResourceAt(const char* user,
 // Get a list of the user-parts of all resource lists.
 void ResourceListSet::getAllResourceLists(UtlSList& list)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::getAllResourceLists this = %p",
                  this);
 
@@ -334,7 +334,7 @@ bool ResourceListSet::addResource(const char* user,
                                   ssize_t no_check_start,
                                   ssize_t no_check_end)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addResource this = %p, user = '%s', uri = '%s', nameXml = '%s', display_name = '%s', no_check_start = %d, no_check_end = %d",
                  this, user, uri, nameXml, display_name,
                  (int) no_check_start, (int) no_check_end);
@@ -357,12 +357,12 @@ bool ResourceListSet::addResource(const char* user,
          OsTask::delay(getResourceListServer()->getChangeDelay());
       }
 
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::addResource resource added");
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::addResource ResourceList '%s' not found",
                     user);
    }
@@ -385,7 +385,7 @@ size_t ResourceListSet::getResourceListEntries(const char* user)
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "ResourceListSet::getResourceListEntries "
                     "user = '%s' could not be found",
                     user);
@@ -417,7 +417,7 @@ void ResourceListSet::subscriptionEventCallbackAsync(
    {
       dialogHandle = "";
    }
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::subscriptionEventCallbackAsync newState = %d, applicationData = %p, earlyDialogHandle = '%s', dialogHandle = '%s'",
                  newState, applicationData, earlyDialogHandle, dialogHandle);
 
@@ -456,7 +456,7 @@ void ResourceListSet::subscriptionEventCallbackSync(
    const UtlString* subscriptionState
    )
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::subscriptionEventCallbackSync earlyDialogHandle = '%s', dialogHandle = '%s', newState = %d, subscriptionState = '%s'",
                  earlyDialogHandle->data(), dialogHandle->data(), newState,
                  subscriptionState->data());
@@ -487,7 +487,7 @@ void ResourceListSet::subscriptionEventCallbackSync(
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "ResourceListSet::subscriptionEventCallbackSync this = %p, no ResourceSubscriptionReceiver found for earlyDialogHandle '%s'",
                     this, earlyDialogHandle->data());
    }
@@ -500,7 +500,7 @@ bool ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
                                                void* applicationData,
                                                const SipMessage* notifyRequest)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::notifyEventCallbackAsync applicationData = %p, earlyDialogHandle = '%s', dialogHandle = '%s'",
                  applicationData, earlyDialogHandle, dialogHandle);
 
@@ -533,7 +533,7 @@ bool ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
 void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
                                               const UtlString* content)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::notifyEventCallbackSync dialogHandle = '%s'",
                  dialogHandle->data());
 
@@ -559,7 +559,7 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "ResourceListSet::notifyEventCallbackSync this = %p, no ResourceNotifyReceiver found for dialogHandle '%s'",
                     this, dialogHandle->data());
    }
@@ -571,7 +571,7 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
 void ResourceListSet::addSubscribeMapping(UtlString* earlyDialogHandle,
                                           UtlContainable* handler)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addSubscribeMapping this = %p, earlyDialogHandle = '%s', handler = %p",
                  this, earlyDialogHandle->data(), handler);
 
@@ -582,7 +582,7 @@ void ResourceListSet::addSubscribeMapping(UtlString* earlyDialogHandle,
  */
 void ResourceListSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteSubscribeMapping this = %p, earlyDialogHandle = '%s'",
                  this, earlyDialogHandle->data());
 
@@ -614,7 +614,7 @@ void ResourceListSet::addNotifyMapping(const UtlString& dialogHandle,
    {
       if (current_handler != handler)
       {
-      OsSysLog::add(FAC_RLS, PRI_ERR,
+      Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                     "ResourceListSet::addNotifyMapping Adding a different handler for an existing mapping: dialogHandle = '%s', current handler = %p, new handler = %p",
                     dialogHandle.data(), current_handler, handler);
       }
@@ -627,7 +627,7 @@ void ResourceListSet::addNotifyMapping(const UtlString& dialogHandle,
    UtlString* swappedDialogHandleP = new UtlString;
    swapTags(dialogHandle, *swappedDialogHandleP);
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s', handler = %p",
                  this,
                  dialogHandleP->data(), swappedDialogHandleP->data(),
@@ -647,7 +647,7 @@ void ResourceListSet::deleteNotifyMapping(const UtlString* dialogHandle)
    UtlString swappedDialogHandle;
    swapTags(*dialogHandle, swappedDialogHandle);
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s'",
                  this, dialogHandle->data(), swappedDialogHandle.data());
 
@@ -701,10 +701,10 @@ void ResourceListSet::suspendPublishing()
    // so that when publishing is resumed, the publishing timer will be
    // started and eventually fire.
    mPublishingTimer.stop(FALSE);
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::suspendPublishing mPublishingTimer.stop()");
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::suspendPublishing mSuspendPublishingCount now = %d",
                  mSuspendPublishingCount);
 }
@@ -720,7 +720,7 @@ void ResourceListSet::resumePublishing()
    {
       mSuspendPublishingCount--;
 
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::resumePublishing mSuspendPublishingCount now = %d",
                     mSuspendPublishingCount);
 
@@ -732,7 +732,7 @@ void ResourceListSet::resumePublishing()
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_ERR,
+      Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                     "ResourceListSet::resumePublishing called when mSuspendPublishingCount = 0");
    }
 }
@@ -740,7 +740,7 @@ void ResourceListSet::resumePublishing()
 // Declare that some content has changed and needs to be published.
 void ResourceListSet::schedulePublishing()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::schedulePublishing this = %p",
                  this);
 
@@ -772,7 +772,7 @@ void ResourceListSet::schedulePublishing()
             {
                // Cancel the current gap timeout so that oneshotAfter can restart the timer.
                mPublishingTimer.stop();
-               OsSysLog::add(FAC_RLS, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                              "ResourceListSet::schedulePublishing mPublishingTimer.stop()");
             }
          }
@@ -781,7 +781,7 @@ void ResourceListSet::schedulePublishing()
       // Start the timer with the publishing timeout if the timer is not already started.
       // If it is already started, OsTimer::oneshotAfter() does nothing.
       mPublishingTimer.oneshotAfter(pubDelay);
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::schedulePublishing mPublishingTimer.oneshotAfter(%d.%06d)",
                     pubDelay.seconds(), pubDelay.usecs());
 
@@ -793,7 +793,7 @@ void ResourceListSet::schedulePublishing()
 // Publish all ResourceList's that have changes.
 void ResourceListSet::publish()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::publish this = %p",
                  this);
 
@@ -856,14 +856,14 @@ UtlContainable* ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping(int seqNo
 
    if (key)
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping seqNo = %d, value = %p",
                     seqNo, value);
       delete key;
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping seqNo = %d not found",
                     seqNo);
    }
@@ -875,7 +875,7 @@ UtlContainable* ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping(int seqNo
 void ResourceListSet::addResourceSeqNoMapping(int seqNo,
                                               ResourceCached* resource)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addResourceSeqNoMappping seqNo = %d, instanceName = '%s'",
                  seqNo, resource->getUri()->data());
 
@@ -896,7 +896,7 @@ void ResourceListSet::deleteResourceSeqNoMapping(int seqNo)
 
    if (key)
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::deleteResourceSeqNoMapping seqNo = %d, instanceName = '%s'",
                     seqNo,
                     (dynamic_cast <ResourceCached*> (value))->getUri()->data());
@@ -904,7 +904,7 @@ void ResourceListSet::deleteResourceSeqNoMapping(int seqNo)
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "ResourceListSet::deleteResourceSeqNoMapping seqNo = %d not found",
                     seqNo);
    }
@@ -918,7 +918,7 @@ void ResourceListSet::dumpState()
 
    // indented 2
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t  ResourceListSet %p mSuspendPublishingCount = %d",
                  this, mSuspendPublishingCount);
 

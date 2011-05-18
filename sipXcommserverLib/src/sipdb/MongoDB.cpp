@@ -113,6 +113,7 @@ MongoDB::Cursor MongoDB::find(
     const BSONObj& query,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         MongoDB::PooledConnection pConnection(*this);
@@ -134,6 +135,7 @@ bool MongoDB::insert(
     const mongo::BSONObj& obj,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         MongoDB::PooledConnection pConnection(*this);
@@ -156,6 +158,7 @@ bool MongoDB::insertUnique(
     const BSONObj& obj,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         MongoDB::PooledConnection pConnection(*this);
@@ -186,6 +189,7 @@ bool MongoDB::update(
     bool allowInsert,
     bool allowMultiple)
 {
+    mutex_lock lock(_mutex);
     try
     {
         Query updateQuery(query);
@@ -209,6 +213,7 @@ bool MongoDB::updateUnique(
     const BSONObj& obj,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         Query updateQuery(query);
@@ -237,6 +242,7 @@ bool MongoDB::remove(
     const BSONObj& query,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         MongoDB::PooledConnection pConnection(*this);

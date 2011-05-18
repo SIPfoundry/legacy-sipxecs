@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsDateTime.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlLongLongInt.h>
@@ -160,7 +160,7 @@ bool XmlRpcBody::addValue(const UtlContainable* value)
    }
    else
    {
-      OsSysLog::add(FAC_XMLRPC, PRI_CRIT, "XmlRpcBody::addValue unsupported type");
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_CRIT, "XmlRpcBody::addValue unsupported type");
       assert(false);
    }
 
@@ -231,7 +231,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
          }
          else
          {
-            OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+            Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
                           " 'i4' element is empty");
             errorTxt.append("'i4' element is empty");
          }
@@ -248,7 +248,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
             }
             else
             {
-               OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+               Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
                              " 'int' element is empty");
                errorTxt.append("'int' element is empty");
             }
@@ -269,7 +269,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
                }
                else
                {
-                  OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                  Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
                                 " 'i8' element is empty");
                   errorTxt.append("'i8' element is empty");
                }
@@ -286,7 +286,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
                   }
                   else
                   {
-                     OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                     Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
                                    " 'boolean' element is empty");
                      errorTxt.append("'boolean' element is empty");
                   }
@@ -321,7 +321,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
                         }
                         else
                         {
-                           OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                           Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
                                          " 'dateTime.iso8601' element is empty");
                            errorTxt.append("'dateTime.iso8601' element is empty");
                         }
@@ -334,7 +334,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
                         {
                            if (!(value=parseStruct(typeNode, nestDepth, errorTxt)))
                            {
-                              OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                              Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
                                             " error parsing 'struct' content");
                               errorTxt.append(" in 'struct' element");
                            }
@@ -347,7 +347,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
                            {
                               if (!(value=parseArray(typeNode, nestDepth, errorTxt)))
                               {
-                                 OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                                 Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
                                                " error parsing 'array' content");
                               }
                            }
@@ -378,7 +378,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
       sprintf(errMsg, "parameter nesting depth exceeds maximum allowed (%d)",
               MAX_VALUE_NESTING_DEPTH);
       errorTxt.append(errMsg);
-      OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue %s",
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue %s",
                     errMsg
                     );
    }
@@ -424,7 +424,7 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
                   }
                   else
                   {
-                     OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
+                     Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
                                    " error parsing member/value"
                                    );
                      errorTxt.append(" in member '");
@@ -435,7 +435,7 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
                }
                else
                {
-                  OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
+                  Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
                                 " 'member' element does not have a 'value' child"
                                 );
                   errorTxt.append(" 'member' element name '");
@@ -446,7 +446,7 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
             }
             else
             {
-               OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
+               Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
                              " 'name' element is empty"
                              );
                errorTxt.append( "'name' element is empty");
@@ -455,7 +455,7 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
          }
          else
          {
-            OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
+            Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
                           " 'member' element does not have a 'name' child"
                           );
             errorTxt.append("'member' element does not have a 'name' child");
@@ -476,7 +476,7 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
       sprintf(errMsg, "parameter nesting depth exceeds maximum allowed (%d)",
               MAX_VALUE_NESTING_DEPTH);
       errorTxt.append(errMsg);
-      OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct %s",
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct %s",
                     errMsg
                     );
    }
@@ -516,7 +516,7 @@ UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <arra
             {
                char errMsg[200];
                sprintf(errMsg, " in value %d of array", index);
-               OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseArray %s",
+               Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseArray %s",
                              errMsg
                              );
                errorTxt.append(errMsg);
@@ -526,7 +526,7 @@ UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <arra
       }
       else
       {
-         OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseArray"
+         Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseArray"
                        " 'array' element does not have 'data' child");
          errorTxt.append("'array' element does not have 'data' child");
          arrayIsOk=false;
@@ -545,7 +545,7 @@ UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <arra
       sprintf(errMsg, "parameter nesting depth exceeds maximum allowed (%d)",
               MAX_VALUE_NESTING_DEPTH);
       errorTxt.append(errMsg);
-      OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseArray %s",
+      Os::Logger::instance().log(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseArray %s",
                     errMsg
                     );
    }

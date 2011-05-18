@@ -149,9 +149,9 @@ SipConnection::~SipConnection()
 #ifdef TEST_PRINT
     if (mpCall) {
         mpCall->getCallId(callId);
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: %s\n", callId.data());
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: %s\n", callId.data());
     } else
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: call is Null\n");
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: call is Null\n");
 #endif
 
     if(mInviteMsg)
@@ -172,9 +172,9 @@ SipConnection::~SipConnection()
     mProvisionalToTags.destroyAll();
 #ifdef TEST_PRINT
     if (!callId.isNull())
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: %s\n", callId.data());
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: %s\n", callId.data());
     else
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: call is Null\n");
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: call is Null\n");
 #endif
 }
 
@@ -531,7 +531,7 @@ void SipConnection::buildLocalContact(Url fromUrl,
         && pLineMgr->getLine(fromUrl.toString(), localContact, requestURI, line)
         && line.getPreferredContactUri(preferredContact))
     {
-        // OsSysLog::add(FAC_CP, PRI_DEBUG, "Found line definition: %s", preferredContact.toString().data()) ;
+        // Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Found line definition: %s", preferredContact.toString().data()) ;
     }
     else
     {
@@ -637,7 +637,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
         // The local address is always set
         mFromUrl.toString(fromAddress);
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::dial "
                       "Using To address: '%s'",
                       goodToAddress.data());
@@ -652,7 +652,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
 #ifdef TEST_PRINT
             UtlString codecsString;
             supportedCodecs.toString(codecsString);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipConnection::dial "
                           "codecs:\n%s\n",
                           codecsString.data());
@@ -749,7 +749,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
         {
             setState(CONNECTION_INITIATED, CONNECTION_REMOTE, cause);
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipConnection::dial "
                           "INVITE sent successfully");
 #endif
@@ -760,7 +760,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
         else
         {
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipConnection::dial "
                           "INVITE send failed");
 #endif
@@ -778,7 +778,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
                     NULL, NULL, NULL,
                     CONNECTION_FAILED, SIP_REQUEST_TIMEOUT_CODE);
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "Entering SipConnection::dial "
                               "posting CP_TRANSFEREE_CONNECTION_STATUS to call: '%s'",
                               originalCallId.data());
@@ -841,7 +841,7 @@ UtlBoolean SipConnection::sendInfo(UtlString contentType, UtlString sContent)
 UtlBoolean SipConnection::answer(const void* pDisplay)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
         "Entering SipConnection::answer mInviteMsg=%p", mInviteMsg);
 #endif
 
@@ -926,7 +926,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                 rtpAddress = "0.0.0.0";  // hold address
             }
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::answer");
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipConnection::answer");
             // Tweak Contact given request URI / settings
             setContactType(selectCompatibleContactType(*mInviteMsg)) ;
 
@@ -954,10 +954,10 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
             // Send a INVITE OK response
             if(!send(sipResponse))
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "SipConnection::answer: INVITE OK failed: %s",
                     remoteRtpAddress.data());
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "SipConnection::answer: CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL");
                 //phoneSet->setStatusDisplay(displayMsg);
                 setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL);
@@ -1044,7 +1044,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
     }
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
         "Leaving SipConnection::answer mInviteMsg=%p ", mInviteMsg);
 #endif
 
@@ -1509,7 +1509,7 @@ UtlBoolean SipConnection::originalCallTransfer(UtlString& dialString,
     getRemoteAddress(&remoteAddr);
     UtlString conState;
     getStateString(getState(), &conState);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
         "SipConnection::originalCallTransfer "
         "on %s %p %p:\"%s\" state: %s",
                   remoteAddr.data(),
@@ -1724,7 +1724,7 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
             const UtlString* metaEventCallIds = NULL;
             if(mpCall)
             {
-               OsSysLog::add(FAC_CP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                              "SipConnection::transfereeStatus "
                              "META_CALL_TRANSFERRING end");
                mpCall->getMetaEvent(metaEventId, metaEventType,
@@ -1733,7 +1733,7 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
                   && metaEventType == PtEvent::META_CALL_TRANSFERRING)
                {
 #ifdef TEST_PRINT
-                   OsSysLog::add(FAC_CP, PRI_DEBUG,
+                   Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                  "SipConnection::transfereeStatus "
                                  "stopMetaEvent 1");
 #endif
@@ -1913,7 +1913,7 @@ UtlBoolean SipConnection::doHangUp(const char* dialString,
                 // the connection.  So we have to generate it here, as we cannot
                 // allow the inability to send a BYE to make it impossible to
                 // disconnect a call.
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "SipConnection::doHangUp: Sending BYE failed.  "
                     "Terminating connection.");
                 setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
@@ -1967,7 +1967,7 @@ void SipConnection::buildFromToAddresses(const char* dialString,
     int toPort;
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
         "SipConnection::buildFromToAddresses "
         "got dial string: '%s'",
         dialString);
@@ -1984,7 +1984,7 @@ void SipConnection::buildFromToAddresses(const char* dialString,
         sipUserAgent->getDirectoryServer(0, &toAddress,
             &toPort, &toProtocol);
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
             "SipConnection::buildFromToAddresses "
             "Got directory server: '%s'",
             toAddress.data());
@@ -2001,7 +2001,7 @@ void SipConnection::buildFromToAddresses(const char* dialString,
     //              toUserLabel.data());
     toUrl.toString(goodToAddress);
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
             "SipConnection::buildFromToAddresses "
             "goodToAddress: '%s'",
             goodToAddress.data());
@@ -2026,7 +2026,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
         sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
         messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "SipConnection::processMessage "
                           "messageType: %d", messageType);
 #endif
@@ -2041,7 +2041,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
         if(messageType == SipMessageEvent::TRANSPORT_ERROR)
         {
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "SipConnection::processMessage "
                           "transport error method: %s",
                           messageIsResponse ? method.data() : "response");
@@ -2049,7 +2049,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
             if(!mInviteMsg)
             {
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "SipConnection::processMessage "
                               "failed response");
 #endif
@@ -2065,7 +2065,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                 getState() == CONNECTION_OFFERING)
             {
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "SipConnection::processMessage "
                               "No response to INVITE");
 #endif
@@ -2073,7 +2073,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                 fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BADADDRESS) ;
 
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "SipConnection::processMessage "
                               "originalConnectionAddress: %s "
                               "connection state: CONNECTION_FAILED transport failed",
@@ -2091,7 +2091,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                         NULL, NULL, NULL,
                         CONNECTION_FAILED, SIP_REQUEST_TIMEOUT_CODE);
 #ifdef TEST_PRINT
-                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                   "SipConnection::processMessage "
                                   "posting CP_TRANSFEREE_CONNECTION_STATUS to call: %s",
                         originalCallId.data());
@@ -2110,7 +2110,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                 mSessionReinviteTimer > 0)
             {
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "SipConnection::processMessage "
                               "failed session timer request\n");
 #endif
@@ -2123,7 +2123,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                 method.compareTo(SIP_CANCEL_METHOD) == 0))
             {
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "SipConnection::processMessage "
                               "failed BYE");
 #endif
@@ -2135,7 +2135,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                 if (reinviteState == REINVITING)
                     reinviteState = ACCEPT_INVITE;
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "SipConnection::processMessage "
                               "unhandled failed message");
 #endif
@@ -2175,12 +2175,12 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
 #ifdef TEST_PRINT
                 else
                 {
-                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                   "SipConnection::processMessage "
                                   "Authentication failure does not match last invite");
                 }
 
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "SipConnection::processMessage "
                               "incrementing lastSequeneceNumber");
 #endif
@@ -2191,7 +2191,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
 #ifdef TEST_PRINT
             else
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "SipConnection::processMessage "
                               "request with AUTHENTICATION_RETRY");
             }
@@ -2294,7 +2294,7 @@ UtlBoolean SipConnection::processRequest(const SipMessage* request,
     UtlString requestSeqMethod;
     request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "SipConnection::processRequest "
                   "mInviteMsg: %p requestSequenceNum: %d "
                   "lastRemoteSequenceNumber: %d "
@@ -2378,7 +2378,7 @@ UtlBoolean SipConnection::processRequest(const SipMessage* request,
 void SipConnection::processInviteRequest(const SipMessage* request)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "Entering "
                  "SipConnection::processInviteRequest "
                  "mInviteMsg=%p ",
@@ -2442,7 +2442,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                                                 replaceToTag,
                                                 replaceFromTag);
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
         "SipConnection::processInviteRequest "
         "hasReplaceHeader %d replaceCallId %s replaceToTag %s replaceFromTag %s",
         hasReplaceHeader,
@@ -2502,7 +2502,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         else // same branch, ignore
         {
             // no-op, ignore duplicate INVITE
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "SipConnection::processInviteRequest "
                           "received duplicate request");
         }
@@ -2524,7 +2524,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL);
         fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processInviteRequest "
                       "CONNECTION_DISCONNECTED, replace call leg does not match\n");
 #endif
@@ -2565,7 +2565,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
         UtlString requestString;
         mInviteMsg->getRequestUri(&requestString);
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "SipConnection::processInviteRequest - "
                       "mInviteMsg request URI '%s'",
                       requestString.data());
@@ -2581,7 +2581,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
            Url parsedUri(uri, TRUE);
            // Store into mLocalContact, which is in name-addr format.
            parsedUri.toString(mLocalContact);
-           OsSysLog::add(FAC_CP, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                          "SipConnection::processInviteRequest - "
                          "parsedURI to string '%s'",
                          mLocalContact.data());
@@ -2624,7 +2624,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_TRANSFERRED, (void*) replaceCallId.data()) ;
 
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "SipConnection::processInviteRequest - "
                           "replaceCallId: %s, toTag: %s, fromTag: %s",
                           replaceCallId.data(),
@@ -2684,7 +2684,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Get the route for subsequent requests
         request->buildRouteField(&mRouteField);
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processInviteRequest "
                       "mset mRouteField: %s\n",
                       mRouteField.data());
@@ -2698,7 +2698,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             mInviteMsg->getToUrl(mFromUrl);
         }
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processInviteRequest "
                       "Offering delay: %d\n",
                       mOfferingDelay);
@@ -2712,7 +2712,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             // the new call leg and the call leg being replaced share
             // the same instance of mpCall -- if callId is not
             // updated, the call will be linked to the dying leg.
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipConnection::processInviteRequest "
                           "mInviteMsg=%p",
                           mInviteMsg);
@@ -2791,7 +2791,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Do not allow other Requests until the ReINVITE is complete
         reinviteState = REINVITED;
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processInviteRequest "
                       "reinviteState: %d\n",
                       reinviteState);
@@ -2964,7 +2964,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         else
         {
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipConnection::processInviteRequest "
                           "No SDP in reINVITE "
                           "REINVITE: using RTP address: %s\n",
@@ -3029,7 +3029,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         lastRemoteSequenceNumber = requestSequenceNum;
 
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processInviteRequest "
                       "Busy, queuing call");
 #endif
@@ -3058,7 +3058,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Get the route for subsequent requests
         request->buildRouteField(&mRouteField);
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processInviteRequest "
                       "queuedINVITE set mRouteField: %s",
                       mRouteField.data());
@@ -3127,7 +3127,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         !mForwardOnBusy.isNull())
     {
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processInviteRequest "
                       "Busy, forwarding call to \"%s\"",
             mForwardOnBusy.data());
@@ -3143,7 +3143,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         send(sipResponse);
 
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processInviteRequest "
                       " - CONNECTION_FAILED, cause BUSY : 2390");
 #endif
@@ -3154,7 +3154,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     else
     {
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processInviteRequest "
                       "busy returning response "
                       "Busy behavior: %d infocus: %d forward on busy URL: %s",
@@ -3190,7 +3190,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             if (reinviteState != REINVITING)
             {
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipConnection::processInviteRequest "
                               "- busy, not HELD state, setting state to CONNECTION_FAILED\n");
 #endif
@@ -3201,7 +3201,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     }
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
         "Leaving "
         "SipConnection::processInviteRequest "
         "mInviteMsg=%p ",
@@ -3269,7 +3269,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
         //SipMessage::parseParameterFromUri(referTo.data(), "Call-ID",
         //    &targetCallId);
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processReferRequest "
                       "REFER refer-to: %s callid: %s\n",
                       referTo.data(), targetCallId.data());
@@ -3321,7 +3321,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
                                                thisCallId.data(),
                                                remoteAddress.data());
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processReferRequest "
                       "from ESTAB posting CP_TRANSFEREE_CONNECTION\n");
 #endif
@@ -3358,7 +3358,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
             callId.data(),
             fromField.data());
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processReferRequest "
                       "from IDLE posting CP_TRANSFEREE_CONNECTION\n");
 #endif
@@ -3379,7 +3379,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
         setState(CONNECTION_UNKNOWN, CONNECTION_REMOTE);
         /** SIPXTAPI: TBD **/
     }
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Leaving "
                   "SipConnection::processReferRequest ");
 } // end of processReferRequest
@@ -3422,11 +3422,11 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
             int responseCode = response.getResponseStatusCode();
             mResponseCode = responseCode;
             response.getResponseStatusText(&mResponseText);
-            if (OsSysLog::willLog(FAC_CP, PRI_DEBUG))
+            if (Os::Logger::instance().willLog(FAC_CP, PRI_DEBUG))
             {
                UtlString callId;
                getCallId(&callId);
-               OsSysLog::add(FAC_CP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                              "SipConnection::processNotifyRequest "
                              "response %d '%s' for call '%s'",
                              responseCode, mResponseText.data(),
@@ -3530,7 +3530,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
             {
             case PENDING:
                /* Do nothing. */
-               OsSysLog::add(FAC_CP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                              "SipConnection::processNotifyRequest "
                              "transfer pending");
                break;
@@ -3548,7 +3548,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                   targetCallId.data(), toField.data(),
                   NULL, NULL, NULL,
                   state, cause);
-               OsSysLog::add(FAC_CP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                              "SipConnection::processNotifyRequest "
                              "transfer succeeded, posting "
                              "CP_TRANSFER_CONNECTION_STATUS to call '%s', "
@@ -3576,7 +3576,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                   targetCallId.data(), toField.data(),
                   NULL, NULL, NULL,
                   state, cause);
-               OsSysLog::add(FAC_CP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                              "SipConnection::processNotifyRequest "
                              "transfer failed, posting "
                              "CP_TRANSFER_CONNECTION_STATUS to call '%s', "
@@ -3614,7 +3614,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
 void SipConnection::processAckRequest(const SipMessage* request)
 {
 #ifdef TEST_
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "SipConnection::processAckRequest "
                   "entering");
 #endif
@@ -3748,7 +3748,7 @@ void SipConnection::processAckRequest(const SipMessage* request)
         {
             mpCall->setCallType(CpCall::CP_NORMAL_CALL);
 #ifdef TEST_PRINT
-             OsSysLog::add(FAC_CP, PRI_DEBUG,
+             Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "SipConnection::processAckRequest "
                           "stopMetaEvent 10");
 #endif
@@ -3782,7 +3782,7 @@ void SipConnection::processAckRequest(const SipMessage* request)
 void SipConnection::processByeRequest(const SipMessage* request)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Entering SipConnection::processByeRequest "
                   "mInviteMsg=%p ",
                   mInviteMsg);
@@ -3824,7 +3824,7 @@ void SipConnection::processByeRequest(const SipMessage* request)
         UtlString thereAreAnyAlsoUri;
         if(request->getAlsoUri(0, &thereAreAnyAlsoUri))
         {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipConnection::processByeRequest "
                           "getAlsoUri non-zero ");
 
@@ -3872,7 +3872,7 @@ void SipConnection::processByeRequest(const SipMessage* request)
                     remoteAddress.data(), TRUE /* Use BYE Also style INVITE*/ );
 
 #   ifdef TEST_PRINT
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipConnection::processByeRequest "
                               "posting CP_TRANSFEREE_CONNECTION\n");
 #   endif
@@ -3916,7 +3916,7 @@ void SipConnection::processByeRequest(const SipMessage* request)
         }
     }
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Leaving SipConnection::processByeRequest "
                   "mInviteMsg=%p ",
                   mInviteMsg);
@@ -3995,7 +3995,7 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
     if(sdpBody)
     {
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::getInitialSdpCodecs "
                       "SDP body in INVITE, finding best codec");
 #endif
@@ -4022,7 +4022,7 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
 #ifdef TEST_PRINT
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::getInitialSdpCodecs "
                       "No SDP in message");
     }
@@ -4193,7 +4193,7 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
                     && lastLocalSequenceNumber == sequenceNum
                     && (strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0))
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "SipConnection::processResponse: "
                     "Response %d received for BYE", responseCode);
                 setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
@@ -4214,7 +4214,7 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
                            || metaEventType == PtEvent::META_CALL_REPLACING))
                     {
 #ifdef TEST_PRINT
-                         OsSysLog::add(FAC_CP, PRI_DEBUG,
+                         Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                       "SipConnection::processResponse: "
                                       "stopMetaEvent 2 eventType= %x",
                                       metaEventType);
@@ -4354,7 +4354,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                     else
                     {
                         // ERROR: We should never really see this happen
-                        OsSysLog::add(FAC_CP, PRI_ERR,
+                        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                              "SipConnection::processInviteResponse "
                              "provisional response without to-tag ");
 						delete tmpToTag;
@@ -4366,7 +4366,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
     }
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "SipConnection::processInviteResponse "
                   "responseCode %d reinviteState %d "
                   "sequenceNum %d lastLocalSequenceNumber%d",
@@ -4783,7 +4783,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
             if (mTerminalConnState == PtTerminalConnection::HELD)  // just set this two lines above???
             {
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipConnection::processInviteResponse, "
                               "CONNECTED_INACTIVE response for HOLD");
                 fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE);
@@ -5286,7 +5286,7 @@ void SipConnection::processReferResponse(const SipMessage* response)
         UtlString toField;
         mToUrl.toString(toField);
         mpCall->getTargetCallId(targetCallId);
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processReferResponse "
                       "callId %s, state %d, cause %d",
                       targetCallId.data(), state, cause);
@@ -5297,7 +5297,7 @@ void SipConnection::processReferResponse(const SipMessage* response)
                                      NULL, NULL, NULL,
                                      state, cause);
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processReferResponse "
                       "posting CP_TRANSFER_CONNECTION_STATUS "
                       "to target call: %s",
@@ -5641,7 +5641,7 @@ void SipConnection::setContactType(ContactType eType)
     buildLocalContact(mFromUrl, localContact);
     mLocalContact = localContact ;
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipConnection::setContactType "
                   "contact type %d contactUrl '%s'",
                   eType, localContact.data());
@@ -5794,12 +5794,12 @@ OsStatus SipConnection::getInvite(SipMessage* message)
     // Copy mInviteMsg to the destination.
     *message = *mInviteMsg;
 
-    if (OsSysLog::willLog(FAC_CP, PRI_DEBUG))
+    if (Os::Logger::instance().willLog(FAC_CP, PRI_DEBUG))
     {
        UtlString text;
        ssize_t length;
        mInviteMsg->getBytes(&text, &length);
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                      "SipConnection::getInvite this = %p, mInviteMsg = %p, message = '%s'",
                      this, mInviteMsg, text.data());
     }
@@ -5973,7 +5973,7 @@ UtlBoolean SipConnection::send(SipMessage& message,
                     void* responseListenerData)
 {
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipConnection::send ");
 #endif
     // If we don't know the proper interface, use the stack default

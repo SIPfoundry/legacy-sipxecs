@@ -20,10 +20,12 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
+import org.sipfoundry.sipxconfig.site.user.ManageUsers;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class GroupActions extends BaseComponent {
@@ -49,7 +51,13 @@ public abstract class GroupActions extends BaseComponent {
         setSelectedAction(null);
         super.renderComponent(writer, cycle);
         if (TapestryUtils.isRewinding(cycle, this) && TapestryUtils.isValid(this)) {
-            triggerAction(cycle);
+            try {
+                triggerAction(cycle);
+            } catch (UserException e) {
+                ((ManageUsers) this.getPage()).getValidator().record(
+                        new UserException("&branch.validity.error", e.getRawParams()[0], e.getRawParams()[1],
+                                e.getRawParams()[2]), getMessages());
+            }
         }
     }
 

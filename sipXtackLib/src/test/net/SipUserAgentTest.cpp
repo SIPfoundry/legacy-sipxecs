@@ -18,7 +18,7 @@
 #include <os/OsTimerTask.h>
 #include <os/OsProcess.h>
 #include <os/OsStunAgentTask.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
 #include <net/SipLineMgr.h>
@@ -164,7 +164,7 @@ public:
          // get properly shut down.
          int numThreads = getNumThreads(myPID);
 
-         OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipUserAgentTest::testShutdownBlocking "
+         Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "SipUserAgentTest::testShutdownBlocking "
                        "numThreads=%d startingThreads=%d",
                        numThreads, startingThreads);
 
@@ -241,7 +241,7 @@ public:
          // get properly shut down.
          int numThreads = getNumThreads(myPID);
 
-         OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipUserAgentTest::testShutdownBlocking "
+         Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "SipUserAgentTest::testShutdownBlocking "
                        "numThreads=%d startingThreads=%d",
                        numThreads, startingThreads);
 

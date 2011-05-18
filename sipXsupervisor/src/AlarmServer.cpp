@@ -16,7 +16,7 @@
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlSList.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlHashMap.h"
@@ -94,9 +94,9 @@ void cAlarmServer::cleanup()
 
 OsSysLogPriority sevToSyslogPri(const char* sev)
 {
-   OsSysLogPriority logging_level;
+   int logging_level;
 
-   if (! OsSysLog::priority(sev, logging_level))
+   if (! Os::Logger::instance().priority(sev, logging_level))
    {
       // allow full spelling of "error" - the only difference from OsSysLog
       if ( strcasecmp("error", sev) == 0)
@@ -106,12 +106,12 @@ OsSysLogPriority sevToSyslogPri(const char* sev)
       else
       {
          logging_level = PRI_WARNING;
-         OsSysLog::add(FAC_ALARM, PRI_ERR,
+         Os::Logger::instance().log(FAC_ALARM, PRI_ERR,
                        "Incomprehensible logging level string '%s'!",
                        sev);
       }
    }
-   return logging_level;
+   return (OsSysLogPriority)logging_level;
 }
 
 bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
@@ -134,14 +134,14 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
       idStr = element->Attribute("id");
       if (idStr.isNull())
       {
-         OsSysLog::add(FAC_ALARM, PRI_ERR,"code=%s: alarm ID is required", codeStr.data());
+         Os::Logger::instance().log(FAC_ALARM, PRI_ERR,"code=%s: alarm ID is required", codeStr.data());
          return false;
       }
 
       TiXmlElement* codeElement = element->FirstChildElement("code");
       if ( !codeElement )
       {
-         OsSysLog::add(FAC_ALARM, PRI_ERR,
+         Os::Logger::instance().log(FAC_ALARM, PRI_ERR,
                "id=%s: alarm code is required", element->Attribute("id"));
          return false;
       }
@@ -154,7 +154,7 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
       }
       else
       {
-         OsSysLog::add(FAC_ALARM, PRI_WARNING,
+         Os::Logger::instance().log(FAC_ALARM, PRI_WARNING,
                "id=%s: no severity; assuming %s", idStr.data(), sevStr.data());
       }
 
@@ -165,7 +165,7 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
       }
       else
       {
-         OsSysLog::add(FAC_ALARM, PRI_WARNING,"id=%s: no component; set to null", idStr.data());
+         Os::Logger::instance().log(FAC_ALARM, PRI_WARNING,"id=%s: no component; set to null", idStr.data());
       }
 
       codeElement = element->FirstChildElement("action");
@@ -231,7 +231,7 @@ bool cAlarmServer::loadAlarmStrings(const UtlString& stringsFile)
       }
       else
       {
-         OsSysLog::add(FAC_ALARM, PRI_NOTICE,
+         Os::Logger::instance().log(FAC_ALARM, PRI_NOTICE,
                "stringsFile %s is not .xml, not loading local language", stringsFile.data());
          loadResult = false;
       }
@@ -242,7 +242,7 @@ bool cAlarmServer::loadAlarmStrings(const UtlString& stringsFile)
 
 bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
 {
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, " load alarm strings file %s", stringsFile.data());
+   Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, " load alarm strings file %s", stringsFile.data());
 
    TiXmlDocument doc(stringsFile);
    TiXmlHandle docHandle( &doc );
@@ -250,7 +250,7 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
    {
       UtlString errorMsg;
       XmlErrorMsg( doc, errorMsg );
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "failed to load alarm strings file: %s", errorMsg.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "failed to load alarm strings file: %s", errorMsg.data());
       return false;
    }
 
@@ -292,7 +292,7 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
    }
    else
    {
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG,
                     "no <settings> element in alarm config file '%s'",
                     stringsFile.data());
    }
@@ -312,14 +312,14 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
          idStr = element->Attribute("id");
          if (idStr.isNull())
          {
-            OsSysLog::add(FAC_ALARM, PRI_ERR,"Parsing alarm strings file %s: alarm ID is required", stringsFile.data());
+            Os::Logger::instance().log(FAC_ALARM, PRI_ERR,"Parsing alarm strings file %s: alarm ID is required", stringsFile.data());
             continue;
          }
 
          cAlarmData* alarmData = lookupAlarm(idStr);
          if (!alarmData)
          {
-            OsSysLog::add(FAC_ALARM, PRI_ERR,"unknown alarm ID %s", idStr.data());
+            Os::Logger::instance().log(FAC_ALARM, PRI_ERR,"unknown alarm ID %s", idStr.data());
             continue;
          }
 
@@ -374,7 +374,7 @@ cAlarmData* cAlarmServer::lookupAlarm(const UtlString& id)
 bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& groupFile)
 {
    // load global alarm config from alarm-config.xml
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Loading alarm config files '%s' '%s'",
+   Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "Loading alarm config files '%s' '%s'",
                  alarmFile.data(), groupFile.data());
 
    // Load the alarm configuration file
@@ -384,7 +384,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
    {
       UtlString errorMsg;
       XmlErrorMsg( alarmDoc, errorMsg );
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "Failed to load alarm config file: %s", errorMsg.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "Failed to load alarm config file: %s", errorMsg.data());
       return false;
    }
    TiXmlHandle alarmDocH( &alarmDoc );
@@ -397,7 +397,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
    {
       UtlString errorMsg;
       XmlErrorMsg( groupDoc, errorMsg );
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "Failed to load alarm group config file: %s", errorMsg.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "Failed to load alarm group config file: %s", errorMsg.data());
       return false;
    }
    TiXmlHandle groupDocH( &groupDoc );
@@ -407,7 +407,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
    TiXmlElement* settingsElement = alarmServerHandle.FirstChildElement("settings").Element();
    if (!settingsElement)
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR,
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR,
                     "No <settings> element in alarm config file '%s'",
                     alarmFile.data());
       return false;
@@ -417,7 +417,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
    if (langElement)
    {
       textContentShallow(mLanguage, langElement);
-      OsSysLog::add(FAC_ALARM, PRI_INFO, "Language for alarm notifications: %s", mLanguage.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_INFO, "Language for alarm notifications: %s", mLanguage.data());
    }
 
    //load alarm action settings
@@ -509,7 +509,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
 
 bool cAlarmServer::loadAlarmDefinitions(const UtlString& alarmFile)
 {
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Loading alarm def file '%s'", alarmFile.data());
+   Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "Loading alarm def file '%s'", alarmFile.data());
 
    TiXmlDocument doc(alarmFile);
    TiXmlHandle docHandle( &doc );
@@ -517,7 +517,7 @@ bool cAlarmServer::loadAlarmDefinitions(const UtlString& alarmFile)
    {
       UtlString errorMsg;
       XmlErrorMsg( doc, errorMsg );
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "Failed to load alarm file: %s", errorMsg.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "Failed to load alarm file: %s", errorMsg.data());
       return false;
    }
 
@@ -538,14 +538,14 @@ bool cAlarmServer::loadAlarmDefinitions(const UtlString& alarmFile)
             UtlString* idStr = new UtlString(pAlarmData->getId());
             if (!mAlarmMap.insertKeyAndValue(idStr, pAlarmData))
             {
-               OsSysLog::add(FAC_ALARM, PRI_ERR, "Alarm id '%s' is already defined",
+               Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "Alarm id '%s' is already defined",
                              pAlarmData->getId().data());
                delete pAlarmData;
             }
          }
          else
          {
-            OsSysLog::add(FAC_ALARM, PRI_ERR, "Alarm element '%s' is incorrectly defined",
+            Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "Alarm element '%s' is incorrectly defined",
                   (char *)element->ToText());
             delete pAlarmData;
          }
@@ -567,7 +567,7 @@ bool cAlarmServer::loadAlarms()
    // load specific alarm definitions from ${confdir}/alarms/*.xml
    UtlString alarmDefDir = SipXecsService::Path(SipXecsService::ConfigurationDirType);
    alarmDefDir.append("/alarms/");
-   OsSysLog::add(FAC_ALARM, PRI_INFO, "Looking for alarm def files in '%s'", alarmDefDir.data());
+   Os::Logger::instance().log(FAC_ALARM, PRI_INFO, "Looking for alarm def files in '%s'", alarmDefDir.data());
    OsFileIterator files(alarmDefDir);
    OsPath entry;
 
@@ -584,7 +584,7 @@ bool cAlarmServer::loadAlarms()
    // load alarm strings and local language version from ${datadir}/alarms/*.xml
    UtlString alarmStringsDir = SipXecsService::Path(SipXecsService::DataDirType);
    alarmStringsDir.append("/alarms/");
-   OsSysLog::add(FAC_ALARM, PRI_INFO, "Looking for alarm string files in '%s'",
+   Os::Logger::instance().log(FAC_ALARM, PRI_INFO, "Looking for alarm string files in '%s'",
                  alarmStringsDir.data());
    OsFileIterator stringFiles(alarmStringsDir);
 
@@ -604,16 +604,16 @@ bool cAlarmServer::loadAlarms()
    while ((alarmKey = dynamic_cast<UtlString*>(alarmIter())))
    {
       cAlarmData* alarm = dynamic_cast<cAlarmData*>(alarmIter.value());
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG,
             "alarm[%d]: %s %s: %s, Log:%d, Email:%d",
             count, alarmKey->data(), alarm->getCode().data(),
-            OsSysLog::priorityName(alarm->getSeverity()),
+            Os::Logger::instance().priorityName(alarm->getSeverity()),
             alarm->actions[cAlarmData::eActionLog], alarm->actions[cAlarmData::eActionEmail]);
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG,
             "           Title:%s", alarm->getShortTitle().data());
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG,
             "           Description:%s", alarm->getDescription().data());
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG,
             "           Resolution:%s", alarm->getResolution().data());
       count++;
    }
@@ -644,7 +644,7 @@ bool cAlarmServer::handleAlarm(UtlString& callingHost, UtlString& alarmId, UtlSL
       if (alarmData->applyThresholds())
       {
          // alarm has been filtered out due to thresholds
-         OsSysLog::add(FAC_ALARM, PRI_INFO,
+         Os::Logger::instance().log(FAC_ALARM, PRI_INFO,
                        "Alarm '%s' not logged due to thresholds",
                        alarmId.data());
          return true;
@@ -667,7 +667,7 @@ bool cAlarmServer::handleAlarm(UtlString& callingHost, UtlString& alarmId, UtlSL
    }
    else
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "Lookup of alarm '%s' failed",
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "Lookup of alarm '%s' failed",
                     alarmId.data());
       return false;
    }

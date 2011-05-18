@@ -176,7 +176,7 @@ Subscription& Subscription::operator=(const MongoDB::BSONObj& bsonObj)
     }
     catch(std::exception e)
     {
-        SYSLOG_ERROR("MongoDB Exception: (Subscription::operator=)" << e.what());
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (Subscription::operator=)" << e.what());
     }
 
     return *this;

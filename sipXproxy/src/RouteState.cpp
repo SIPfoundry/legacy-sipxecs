@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlRegex.h"
 #include "utl/UtlSortedListIterator.h"
 #include "net/NameValuePair.h"
@@ -89,7 +89,7 @@ public:
          }
          else
          {
-            OsSysLog::add(FAC_SIP,PRI_CRIT,
+            Os::Logger::instance().log(FAC_SIP,PRI_CRIT,
                           "RouteState RouteParameterName invalid name\n"
                           "instance '%s' parameter '%s'",
                           pluginInstance?pluginInstance:"(null)", 
@@ -298,7 +298,7 @@ bool RouteState::originalCallerFromTagValue( const char* instanceName ///< used 
           * for direction but did not ask on the original request
           * (if they had, we'd have saved the original from).
           */
-         OsSysLog::add(FAC_SIP,PRI_CRIT,
+         Os::Logger::instance().log(FAC_SIP,PRI_CRIT,
                        "RouteState::originalCallerFromTagValue plugin '%s': "
                        "no original from in state for nonmutable request; probable plugin error",
                        instanceName?instanceName:"(null)"
@@ -447,7 +447,7 @@ bool RouteState::decode(const UtlString& stateToken)
                }
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                  Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                 "RouteState::decode value decode failed for '%s' in '%s'",
                                 encodedValue.data(), stateToken.data()
                                 );
@@ -457,7 +457,7 @@ bool RouteState::decode(const UtlString& stateToken)
             {
                // wrong number of '*' in the name
                decodedOk = false;
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "RouteState::decode invalid name '%s' in '%s'",
                              names.data(), stateToken.data()
                              );
@@ -467,7 +467,7 @@ bool RouteState::decode(const UtlString& stateToken)
          if (!decodedOk)
          {
             // something was bad in the name/value pairs; clear out any partial data
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "RouteState::decode nvpairs failed '%s'", stateToken.data()
                           );
             mValues.destroyAll();
@@ -475,14 +475,14 @@ bool RouteState::decode(const UtlString& stateToken)
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "RouteState::decode signature failed '%s'", stateToken.data()
                        );
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "RouteState::decode invalid state token '%s'", stateToken.data()
                     );
    }
@@ -514,7 +514,7 @@ bool RouteState::getParameter(const char* pluginInstance,
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "RouteState::getParameter called with invalid names '%s' '%s'",
                     pluginInstance?pluginInstance:"(null)", 
                     parameterName?parameterName:"(null)"
@@ -557,7 +557,7 @@ void RouteState::setParameter(const char*       pluginInstance,
             mValues.insert(new NameValuePair(name,parameterValue));
          }
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "RouteState::setParameter plugin '%s' parameter '%s'",
                        pluginInstance?pluginInstance:"(null)", 
                        parameterName?parameterName:"(null)"
@@ -567,7 +567,7 @@ void RouteState::setParameter(const char*       pluginInstance,
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_CRIT,
+         Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                        "RouteState::setParameter called with invalid names '%s' '%s'",
                        pluginInstance?pluginInstance:"(null)", 
                        parameterName?parameterName:"(null)"
@@ -576,7 +576,7 @@ void RouteState::setParameter(const char*       pluginInstance,
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "RouteState::setParameter called on non-mutable message\n"
                     "plugin '%s' parameter '%s' value '%s'",
                     pluginInstance, parameterName, parameterValue.data()
@@ -604,7 +604,7 @@ void RouteState::unsetParameter(const char* pluginInstance,
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_CRIT,
+         Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                        "RouteState::unsetParameter called with invalid names '%s' '%s'",
                        pluginInstance?pluginInstance:"(null)", 
                        parameterName?parameterName:"(null)"
@@ -613,7 +613,7 @@ void RouteState::unsetParameter(const char* pluginInstance,
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "RouteState::unsetParameter called on non-mutable message\n"
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "RouteState::unsetParameter called on non-mutable message\n"
                     "plugin '%s' parameter '%s'",
                     pluginInstance, parameterName
                     );
@@ -649,7 +649,7 @@ void RouteState::update(SipMessage* request )
             // we did not have our own Record-Route in the header, so push ours on top
 
             request->addRecordRouteUri(routeValue.data());
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "RouteState::update adding new route state");
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "RouteState::update adding new route state");
          }
          else
          {
@@ -664,7 +664,7 @@ void RouteState::update(SipMessage* request )
                recordRouteUrl.setUrlParameter( UrlParameterName, newRouteStateToken.data() );
                recordRouteUrl.toString( routeValue );
                request->setRecordRouteField( routeValue.data(), *pos );
-               OsSysLog::add( FAC_SIP, PRI_DEBUG, "RouteState::update rewriting route state for RR index %zu", *pos );
+               Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "RouteState::update rewriting route state for RR index %zu", *pos );
             }
          }
          
@@ -675,20 +675,20 @@ void RouteState::update(SipMessage* request )
             if( mRecordRouteIndices.empty() || mRecordRouteIndices[0] != 0 )
             {
                request->addRecordRouteUri(routeValue.data());
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "RouteState::update adding a copy of the route state");
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "RouteState::update adding a copy of the route state");
             }
          }
       }
       else
       {
          // no changes made, so don't bother rewriting.
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "RouteState::update no state changes");
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "RouteState::update no state changes");
       }
       
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "RouteState::record called on non-mutable state");
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "RouteState::record called on non-mutable state");
    }
 }
 
@@ -712,7 +712,7 @@ void RouteState::setSecret(const char* secret /**< a null terminated string used
     */
    if (!mSignatureSecret.isNull() && mSignatureSecret.compareTo(secret))
    {
-      OsSysLog::add(FAC_SIP,PRI_NOTICE,
+      Os::Logger::instance().log(FAC_SIP,PRI_NOTICE,
                     "RouteState::setSecret called more than once;\n"
                     " value changed from '%s' to '%s'\n"
                     " previously signed state will now fail signature checks",

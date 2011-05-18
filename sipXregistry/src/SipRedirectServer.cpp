@@ -131,13 +131,13 @@ SipRedirectServer::initialize(OsConfigDb& configDb
          {
             mpConfiguredRedirectors[i].authorityLevel = LOWEST_AUTHORITY_LEVEL;
          }
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::initialize "
                        "Initialized redirector %s (authority level = %zd)", redirectorName.data(), mpConfiguredRedirectors[i].authorityLevel );
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::initialize "
                        "Redirector %s is inactive ", redirectorName.data() );
       }
@@ -159,7 +159,7 @@ void SipRedirectServer::cancelRedirect(UtlInt& containableSeqNo,
 {
    RedirectPlugin::RequestSeqNo seqNo = containableSeqNo.getValue();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipRedirectServer::cancelRedirect "
                  "Canceling suspense of request %d", seqNo);
    // Call cancel for redirectors that need it.
@@ -172,7 +172,7 @@ void SipRedirectServer::cancelRedirect(UtlInt& containableSeqNo,
       if (mpConfiguredRedirectors[i].bActive &&
           suspendObject->mRedirectors[i].needsCancel)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::cancelRedirect "
                        "Calling cancel(%d) for redirector %d", seqNo, i);
          redirector->cancel(seqNo);
@@ -234,7 +234,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
    pMessage->getRequestUri(&stringUri);
    // The requestUri is an addr-spec, not a name-addr.
    Url requestUri(stringUri, TRUE);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipRedirectServer::processRedirect "
                  "Starting to process request URI '%s'",
                  stringUri.data());
@@ -342,7 +342,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                // Processing detected an error.  Log it and set the 'error' flag.
                errorDescriptor.getStatusLineData( statusCode, reasonPhrase );
 
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "SipRedirectServer::processRedirect "
                              "ERROR returned by redirector "
                              "'%s' while processing method '%s' URI '%s': "
@@ -352,7 +352,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                break;
 
             case RedirectPlugin::SEARCH_PENDING:
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipRedirectServer::processRedirect "
                              "SEARCH_PENDING returned by redirector "
                              "'%s' while processing method '%s' URI '%s'",
@@ -365,7 +365,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                break;
 
             default:
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "SipRedirectServer::processRedirect "
                              "Invalid status value %d returned by redirector "
                              "'%s' while processing method '%s' URI '%s'",
@@ -392,7 +392,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
           // to forward or just drop the ACK here.
            if (!willError && ((numContacts = contactList.entries()) == 1))
            {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipRedirectServer::processRedirect "
                              "Forwarding ACK for URI '%s': ",
                              stringUri.data());
@@ -452,7 +452,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                SipMessage::convertProtocolStringToEnum(lastViaProtocol.data(), viaProtocol);
 
 
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipRedirectServer::processRedirect "
                              "sending ACK to '%s':%d using '%s' "
                              "location service returned '%s', "
@@ -471,7 +471,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
            }
            else  // locater must return EXACTLY one value to forward
            {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "SipRedirectServer::processRedirect "
                              "Cannot redirect ACK for URI '%s', dropping: "
                              "number of contacts=%d  ",
@@ -496,7 +496,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
              if (contactList.entries() > 0)
              {
                 // There are contacts, so send a 302 Moved Temporarily.
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipRedirectServer::processRedirect "
                               "Contacts added, sending 302 response");
                 response.setResponseData(pMessage,
@@ -516,7 +516,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                    }
                    else
                    {
-                      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                                     "SipRedirectServer::processRedirect "
                                     "Failed to retrieve contact index %zu", index );
                    }
@@ -525,7 +525,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
              else
              {
                 // There are no contacts, send back a 404 Not Found.
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipRedirectServer::processRedirect "
                               "No contacts added, sending 404 response");
                 response.setResponseData(pMessage,
@@ -546,7 +546,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
        // and delete it.
        if (suspendObject)
        {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipRedirectServer::processRedirect "
                         "Cleaning up suspense of request %d", seqNo);
           UtlInt containableSeqNo(seqNo);
@@ -556,7 +556,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
    else
    {
       // Request is suspended.
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipRedirectServer::processRedirect "
                     "Suspending request %d", seqNo);
    }
@@ -582,12 +582,12 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       UtlString method;
       message->getRequestMethod(&method);
 
-      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
       {
          UtlString stringUri;
          message->getRequestUri(&stringUri);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
                        "Start processing redirect message %d: '%s' '%s'",
                        mNextSeqNo, method.data(), stringUri.data());
       }
@@ -670,7 +670,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
          dynamic_cast<RedirectResumeMsg*> (&eventMessage);
       RedirectPlugin::RequestSeqNo seqNo = msg->getRequestSeqNo();
       int redirectorNo = msg->getRedirectorNo();
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
                     "Resume for redirector %d request %d",
                     redirectorNo, seqNo);
 
@@ -683,7 +683,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       // If there is no request with this sequence number, ignore the message.
       if (!suspendObject)
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipRedirectServer::handleMessage No suspended request "
                        "with seqNo %d",
                        seqNo);
@@ -693,7 +693,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       // Check that this redirector is suspended.
       if (redirectorNo < 0 || redirectorNo >= mRedirectorCount)
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "SipRedirectServer::handleMessage "
                        "Invalid redirector %d",
                        redirectorNo);
@@ -701,7 +701,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       }
       if (!suspendObject->mRedirectors[redirectorNo].suspended)
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipRedirectServer::handleMessage Redirector %d is "
                        "not suspended for seqNo %d",
                        redirectorNo, seqNo);
@@ -714,7 +714,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       // If no more redirectors want suspension, reprocess the request.
       if (suspendObject->mSuspendCount == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
                        "Start reprocessing request %d", seqNo);
 
          // Get a pointer to the message.
@@ -732,7 +732,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
 
    case OsMsg::OS_SHUTDOWN:
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipRedirectServer::handleMessage received shutdown request"
                     );
 
@@ -764,7 +764,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
 
    default:
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "SipRedirectServer::handleMessage unhandled msg type %d",
                     msgType
                     );
@@ -785,7 +785,7 @@ SipRedirectServer::resumeRequest(RedirectPlugin::RequestSeqNo requestSeqNo,
    // Note that send() copies its argument.
    getMessageQueue()->send(message);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectServer::resumeRequest "
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::resumeRequest "
                  "Redirector %d sent message to resume request %d",
                  redirectorNo, requestSeqNo);
 }

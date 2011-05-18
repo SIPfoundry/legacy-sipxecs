@@ -21,7 +21,7 @@
 #include "os/OsMsg.h"
 #include "os/OsMsgQ.h"
 #include "os/OsUtil.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

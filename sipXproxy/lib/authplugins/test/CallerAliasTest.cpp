@@ -13,7 +13,7 @@
 #include "testlib/SipDbTestContext.h"
 
 #include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/PluginHooks.h"
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
@@ -173,7 +173,7 @@ public:
             "\r\n";
          SipMessage testMsg(message, strlen(message));
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "testUserAlias: testMsg\n%s",
                        message
                        );
@@ -235,7 +235,7 @@ public:
          UtlSList removedRoutes;
          removedRoutes.insert(&recordRoute);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "testUserAlias: ackMsg\n%s",
                        ackMessage
                        );
@@ -278,7 +278,7 @@ public:
             "\r\n";
          SipMessage reverseMsg(reverseMessage, strlen(reverseMessage));
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "testUserAlias: reverseMsg\n%s",
                        reverseMessage
                        );
@@ -332,7 +332,7 @@ public:
             "\r\n";
          SipMessage testMsg(message, strlen(message));
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "testDomainAlias: testMsg\n%s",
                        message
                        );
@@ -394,7 +394,7 @@ public:
          UtlSList removedRoutes;
          removedRoutes.insert(&recordRoute);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "testDomainAlias: ackMsg\n%s",
                        ackMessage
                        );
@@ -437,7 +437,7 @@ public:
             "\r\n";
          SipMessage reverseMsg(reverseMessage, strlen(reverseMessage));
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "testDomainAlias: reverseMsg\n%s",
                        reverseMessage
                        );
@@ -489,7 +489,7 @@ public:
             "\r\n";
          SipMessage testMsg(message, strlen(message));
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "testUserAlias: testMsg\n%s",
                        message
                        );
@@ -551,7 +551,7 @@ public:
          UtlSList removedRoutes;
          removedRoutes.insert(&recordRoute);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "testUserAlias: ackMsg\n%s",
                        ackMessage
                        );
@@ -594,7 +594,7 @@ public:
             "\r\n";
          SipMessage reverseMsg(reverseMessage, strlen(reverseMessage));
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "testUserAlias: reverseMsg\n%s",
                        reverseMessage
                        );

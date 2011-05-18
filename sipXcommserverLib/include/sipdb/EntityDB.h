@@ -65,6 +65,11 @@ public:
         Aliases& aliases,
         bool& isUserIdentity) const;
 
+    //
+    // Return all entity records in a single vector
+    //
+    void getAllEntities(Entities& entities) const;
+
     static MongoDB::Collection<EntityDB>& defaultCollection();
     static std::string _defaultNamespace;
 

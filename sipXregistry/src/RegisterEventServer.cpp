@@ -14,7 +14,7 @@
 // APPLICATION INCLUDES
 
 #include "RegisterEventServer.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/XmlContent.h>
 #include <sipdb/ResultSet.h>
 #include <net/SipRegEvent.h>
@@ -86,7 +86,7 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
                                                         const char* eventTypeKey,
                                                         const char* eventType)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "RegEventDefaultConstructor::generateDefaultContent resourceId = '%s', eventTypeKey = '%s', eventType = '%s'",
                  resourceId, eventTypeKey, eventType);
 
@@ -201,7 +201,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
                     mUserAgent, mEventPublisher, mSubscriptionMgr,
                     mPolicyHolder)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "RegisterEventServer:: mDomainName = '%s', tcpPort = %d, udpPort = %d, tlsPort = %d",
                  mDomainName.data(), tcpPort, udpPort, tlsPort);
 
@@ -240,7 +240,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
 // Destructor
 RegisterEventServer::~RegisterEventServer()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "RegisterEventServer::~ this = %p",
                  this);
 
@@ -261,7 +261,7 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
                                                     const Url& aorUri,
                                                     const UtlString& instrument)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "RegisterEventServer::generateAndPublishContent aorString = '%s', instrument = '%s'",
                  aorString.data(), instrument.data());
 
@@ -313,7 +313,7 @@ void RegisterEventServer::generateContentUser(const char* entity,
                                               const Url& aorUri,
                                               HttpBody*& body)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "RegisterEventServer::generateContentUser aorString = '%s'",
                  aorString.data());
 
@@ -335,7 +335,7 @@ void RegisterEventServer::generateContentInstrument(const char* entity,
                                                     const UtlString& instrument,
                                                     HttpBody*& body)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "RegisterEventServer::generateContentInstrument instrument = '%s'",
                  instrument.data());
 
@@ -355,7 +355,7 @@ void RegisterEventServer::generateContentUserInstrument(const char* entity,
                                                         const UtlString& instrument,
                                                         HttpBody*& body)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "RegisterEventServer::generateContentUserInstrument aorString = '%s', instrument = '%s'",
                  aorString.data(), instrument.data());
 

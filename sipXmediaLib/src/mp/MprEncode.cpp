@@ -271,42 +271,42 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
 
    handleDeselectCodecs();  // cleanup the old ones, if any
 
-   if (OsSysLog::willLog(FAC_MP, PRI_DEBUG))
+   if (Os::Logger::instance().willLog(FAC_MP, PRI_DEBUG))
    {
       if (NULL != pPrimary) {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "pPrimary->getCodecType() = %d, "
                        "pPrimary->getCodecPayloadFormat() = %d",
                        pPrimary->getCodecType(),
                        pPrimary->getCodecPayloadFormat());
       } else {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "pPrimary == NULL");
       }
       if (sbAllowAvtCodec && NULL != pDtmf) {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "pDtmf->getCodecType() = %d, "
                        "pDtmf->getCodecPayloadFormat() = %d",
                        pDtmf->getCodecType(),
                        pDtmf->getCodecPayloadFormat());
       } else {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "sbAllowAvtCodec = %d, pDtmf = %p",
                        sbAllowAvtCodec, pDtmf);
       }
       if (NULL != pSecondary) {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "pSecondary->getCodecType() = %d, "
                        "pSecondary->getCodecPayloadFormat() = %d",
                        pSecondary->getCodecType(),
                        pSecondary->getCodecPayloadFormat());
       } else {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "pSecondary == NULL");
       }
@@ -546,7 +546,7 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
       mDtmfSampleInterval = samplesPerFrame * 2;
       mNumToneStops = -1;
 #ifdef _VXWORKS /* [ */
-      OsSysLog::add(FAC_MP, PRI_INFO, "MprEncode::doDtmfCodec - key down,"
+      Os::Logger::instance().log(FAC_MP, PRI_INFO, "MprEncode::doDtmfCodec - key down,"
          " key=%d, TS=0x%X, OsTC=0x%X\n", mNewTone, startTs, *pOsTC);
 #endif /* _VXWORKS ] */
    }
@@ -591,7 +591,7 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
       if (numSampleTimes > ((1<<16) - 1)) numSampleTimes = ((1<<16) - 1);
 
 #ifdef _VXWORKS /* [ */
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprEncode::doDtmfCodec - key up (%d),"
+      Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MprEncode::doDtmfCodec - key up (%d),"
          " key=%d, TS=0x%X, OsTC=0x%X\n",
          mNumToneStops, mNewTone, startTs, *pOsTC);
 #endif /* _VXWORKS ] */

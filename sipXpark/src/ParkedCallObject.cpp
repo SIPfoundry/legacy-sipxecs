@@ -153,7 +153,7 @@ OsStatus ParkedCallObject::playAudio()
 {
    OsStatus result = OS_SUCCESS;
 
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::playAudio "
                  "CallId %s is requesting to play the audio file",
                  mCurrentCallId.data());
@@ -167,7 +167,7 @@ OsStatus ParkedCallObject::playAudio()
 
    if (mpPlayer == NULL)
    {
-      OsSysLog::add(FAC_PARK, PRI_ERR,
+      Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                     "ParkedCallObject::playAudio "
                     "CallId %s: Failed to create player for '%s'",
                     mCurrentCallId.data(), mFile.data());
@@ -178,7 +178,7 @@ OsStatus ParkedCallObject::playAudio()
 
    if (mpPlayer->realize(TRUE) != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_PARK, PRI_ERR,
+      Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                     "ParkedCallObject::playAudio - CallId %s: Failed to realize player for '%s'",
                     mCurrentCallId.data(), mFile.data());
       return OS_FAILED;
@@ -186,7 +186,7 @@ OsStatus ParkedCallObject::playAudio()
 
    if (mpPlayer->prefetch(TRUE) != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_PARK, PRI_ERR,
+      Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                     "ParkedCallObject::playAudio - CallId %s: Failed to prefetch player",
                     mCurrentCallId.data());
       return OS_FAILED;
@@ -194,12 +194,12 @@ OsStatus ParkedCallObject::playAudio()
 
    if (mpPlayer->play(FALSE) != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_PARK, PRI_ERR,
+      Os::Logger::instance().log(FAC_PARK, PRI_ERR,
                     "ParkedCallObject::playAudio - CallId %s: Failed to play",
                     mCurrentCallId.data());
       return OS_FAILED;
    }
-   OsSysLog::add(FAC_PARK, PRI_DEBUG, "ParkedCallObject::playAudio - Successful");
+   Os::Logger::instance().log(FAC_PARK, PRI_DEBUG, "ParkedCallObject::playAudio - Successful");
 
    return result;
 }
@@ -216,7 +216,7 @@ void ParkedCallObject::startEscapeTimer(UtlString& parker,
                                         int timeout,
                                         int keycode)
 {
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::startEscapeTimer callId = '%s', "
                  "parker = '%s', timeout = %d, keycode = %d",
                  mCurrentCallId.data(), parker.data(), timeout, keycode);
@@ -257,7 +257,7 @@ void ParkedCallObject::startEscapeTimer(UtlString& parker,
 // Stop the parking escape mechanisms.
 void ParkedCallObject::stopEscapeTimer()
 {
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::stopEscapeTimer callId = '%s'",
                  mCurrentCallId.data());
    mTimeoutTimer.stop();
@@ -277,7 +277,7 @@ void ParkedCallObject::startBlindTransfer()
 {
    if (!mTransferInProgress)
    {
-      OsSysLog::add(FAC_PARK, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                     "ParkedCallObject::startBlindTransfer "
                     "starting transfer "
                     "callId = '%s', parker = '%s'",
@@ -296,7 +296,7 @@ void ParkedCallObject::startBlindTransfer()
    }
    else
    {
-      OsSysLog::add(FAC_PARK, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                     "ParkedCallObject::startBlindTransfer "
                     "transfer already in progress "
                     "callId = '%s', parker = '%s'",
@@ -313,7 +313,7 @@ void ParkedCallObject::markTransfer(const OsTime &timeOut)
    mTransferInProgress = TRUE;
    // Start the timer to detect failed transfer attempts.
    mTransferTimer.oneshotAfter(timeOut);
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::markTransfer "
                  "transfer timer started "
                  "callId = '%s', time = %d.%06d",
@@ -331,7 +331,7 @@ void ParkedCallObject::clearTransfer()
    // Stop the deadman timer.
    mTransferTimer.stop();
    mTransferInProgress = FALSE;
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::clearTransfer transfer cleared "
                  "callId = '%s'",
                  mCurrentCallId.data());
@@ -357,7 +357,7 @@ void ParkedCallObject::sendKeepAlive(const char * mohUserPart)
 // Process a DTMF keycode for this call.
 void ParkedCallObject::keypress(int keycode)
 {
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::keypress "
                  "callId = '%s', parker = '%s', keycode = %d",
                  mCurrentCallId.data(), mParker.data(), keycode);

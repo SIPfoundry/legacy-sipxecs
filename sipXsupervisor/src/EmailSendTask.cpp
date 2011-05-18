@@ -8,7 +8,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "EmailSendTask.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlSListIterator.h"
 #include "sipXecsService/SipXecsService.h"
 
@@ -83,7 +83,7 @@ UtlBoolean EmailSendTask::handleMessage( OsMsg& rMsg )
       {
          if (response.length() > 0)
          {
-            OsSysLog::add(FAC_ALARM, PRI_ERR, "EmailSendTask: "
+            Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "EmailSendTask: "
                   " Error sending e-mail: response %s", response.data());
          }
       }
@@ -92,7 +92,7 @@ UtlBoolean EmailSendTask::handleMessage( OsMsg& rMsg )
    }
 
    default:
-      OsSysLog::add(FAC_ALARM, PRI_CRIT,
+      Os::Logger::instance().log(FAC_ALARM, PRI_CRIT,
                     "EmailSendTask::handleMessage: '%s' unhandled message type %d.%d",
                     mName.data(), rMsg.getMsgType(), rMsg.getMsgSubType());
       break;

@@ -8,7 +8,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "SipRouter.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "net/SipXauthIdentity.h"
 #include "CallDestination.h"
 
@@ -29,7 +29,7 @@ CallDestination::CallDestination(const UtlString& pluginName ///< the name for t
    : AuthPlugin(pluginName),
      mpSipRouter( 0 )
 {
-   OsSysLog::add(FAC_SIP,PRI_INFO,"CallDestination plugin instantiated '%s'",
+   Os::Logger::instance().log(FAC_SIP,PRI_INFO,"CallDestination plugin instantiated '%s'",
                  mInstanceName.data());
 };
 

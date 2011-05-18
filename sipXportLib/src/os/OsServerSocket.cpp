@@ -38,7 +38,7 @@
 
 // APPLICATION INCLUDES
 #include <os/OsServerSocket.h>
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -77,7 +77,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
 
    localHostPort = serverPort;
 
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                  "OsServerSocket::_ queue=%d port=%d bindaddr=%s",
                  connectionQueueSize, serverPort, szBindAddr
                  );
@@ -87,7 +87,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    if(socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
    {
       error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsServerSocket: socket call failed with error: %d=0x%x",
                     error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
@@ -96,7 +96,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
 
 #ifndef WIN32
    if(setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&one, sizeof(one)))
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: setsockopt(SO_REUSEADDR) failed!");
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsServerSocket: setsockopt(SO_REUSEADDR) failed!");
 #endif
 /*
     Don't know why we don't want to route...we do support subnets, do we not?
@@ -110,7 +110,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    {
       error = OsSocketGetERRNO();
       close();
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "setsockopt call failed with error: 0x%x in OsServerSocket::OsServerSocket",
                     error);
       goto EXIT;
@@ -144,7 +144,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    if (error == OS_INVALID_SOCKET_DESCRIPTOR)
    {
       error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsServerSocket:  bind to port %s:%d failed with error: %d = 0x%x",
                     inet_ntoa(localAddr.sin_addr),
                     ((PORT_DEFAULT == serverPort) ? 0 : serverPort), error, error);
@@ -157,7 +157,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
                        (struct sockaddr*) &localAddr, &addrSize);
    if (error) {
       error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: getsockname call failed with error: %d=0x%x",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsServerSocket: getsockname call failed with error: %d=0x%x",
          error, error);
    } else {
       localHostPort = htons(localAddr.sin_port);
@@ -168,7 +168,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    if (error)
    {
       error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: listen call failed with error: %d=0x%x",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsServerSocket: listen call failed with error: %d=0x%x",
          error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
    }
@@ -212,7 +212,7 @@ OsConnectionSocket* OsServerSocket::accept()
    if (clientSocket < 0)
    {
       int error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: accept(%d) error: %d=%s",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsServerSocket: accept(%d) error: %d=%s",
                     s, error, strerror(error));
       // Flag the socket as invalid.
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
@@ -267,7 +267,7 @@ OsConnectionSocket* OsServerSocket::accept(long waitMilliseconds)
 
     if (pRC == NULL)
     {
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsServerSocket: accept(%d, %ld ms) error: %d=%s",
+        Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsServerSocket: accept(%d, %ld ms) error: %d=%s",
                         socketDescriptor, waitMilliseconds, error, strerror(error));
     }
 

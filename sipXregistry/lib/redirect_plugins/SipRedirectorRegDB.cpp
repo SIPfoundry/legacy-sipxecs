@@ -14,7 +14,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
 
 
@@ -90,11 +90,11 @@ SipRedirectorRegDB::lookUp(
    {
       requestUriCopy.removeUrlParameter("grid");
    }
-   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+   if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
    {
       UtlString temp;
       requestUriCopy.getUri(temp);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::lookUp gridPresent = %d, gridParameter = '%s', "
                     "requestUriCopy after removing grid = '%s'",
                     mLogName.data(), gridPresent, gridParameter.data(),
@@ -151,7 +151,7 @@ SipRedirectorRegDB::lookUp(
 
    int numUnexpiredContacts = registrations.size();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::lookUp got %d unexpired contacts",
                  mLogName.data(), numUnexpiredContacts);
 
@@ -185,7 +185,7 @@ SipRedirectorRegDB::lookUp(
    {
       // Query the Registration DB for the contact, expires and qvalue columns.
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::lookUp contact = '%s', qvalue = '%s', path = '%s'",
                     mLogName.data(), iter->getContact().c_str(), iter->getQvalue().c_str(), iter->getPath().c_str() );
       Url contactUri(iter->getContact().c_str());

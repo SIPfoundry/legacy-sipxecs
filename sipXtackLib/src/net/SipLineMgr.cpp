@@ -544,14 +544,14 @@ SipLineMgr::getLineforAuthentication(
 
             response->getCallIdField(&callId);
             response->getCSeqField(&sequenceNum, &method);
-            OsSysLog::add(FAC_LINE_MGR, PRI_ERR,
+            Os::Logger::instance().log(FAC_LINE_MGR, PRI_ERR,
                           "SipLineMgr::getLineforAuthentication "
                           "unable get auth data for message:\ncallid='%s' cseq='%d' method='%s'",
                           callId.data(), sequenceNum, method.data()) ;
          }
          else // found WWW-Authenticate header with realm and nonce
          {
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                           "SipLineMgr::getLineforAuthentication "
                           "SERVER auth request:\n"
                           "scheme='%s' realm='%s' nonce='%s' algorithm='%s' qop='%s'"
@@ -562,7 +562,7 @@ SipLineMgr::getLineforAuthentication(
       }
       else // found Proxy-Authenticate header with realm and nonce
       {
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                        "SipLineMgr::getLineforAuthentication "
                        "PROXY auth request:\n"
                        "scheme='%s' realm='%s' nonce='%s' algorithm='%s' qop='%s'"
@@ -616,7 +616,7 @@ SipLineMgr::getLineforAuthentication(
 
    if (line == NULL)
    {
-      OsSysLog::add(FAC_LINE_MGR, PRI_ERR,
+      Os::Logger::instance().log(FAC_LINE_MGR, PRI_ERR,
                     "SipLineMgr::getLineforAuthentication "
                     "unable to find auth credentials for From: '%s'",
                     toFromUrl.toString().data()) ;
@@ -643,7 +643,7 @@ SipLineMgr::getLineforAuthentication(
    if (line == NULL)
    {
       // Log the failure
-      OsSysLog::add(FAC_AUTH, PRI_ERR,
+      Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                     "SipLineMgr::getLineforAuthentication "
                     "unable to find auth credentials: user='%s' realm='%s' To: '%s'",
                     userId.data(), realm.data(), toFromUrl.toString().data()) ;
@@ -651,7 +651,7 @@ SipLineMgr::getLineforAuthentication(
    else
    {
       // Log the SUCCESS
-      OsSysLog::add(FAC_AUTH, PRI_INFO,
+      Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                     "SipLineMgr::getLineforAuthentication "
                     "found matching auth credentials user='%s'",
                     line->getUser().data());
@@ -732,7 +732,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
         alreadyTriedOnce = TRUE; //so that we never send request with basic authentication
 
         // Log error
-        OsSysLog::add(FAC_AUTH, PRI_ERR,
+        Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                       "SipLineMgr::buildAuthorizationRequest "
                       " unable to handle basic auth: callid='%s' method='%s' cseq=%d realm='%s'",
                       callId.data(), method.data(), sequenceNum, realm.data()) ;
@@ -753,7 +753,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
             if (realm.compareTo(requestRealm) == 0)
             {
                 alreadyTriedOnce = TRUE;
-                OsSysLog::add(FAC_AUTH, PRI_ERR,
+                Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                               "SipLineMgr::buildAuthorizationRequest "
                               "authentication has been sent but it was not accepted: "
                               "callid='%s', realm='%s', user='%s'",
@@ -816,7 +816,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
     {
         if ( credentialFound )
         {
-            OsSysLog::add(FAC_AUTH, PRI_INFO,
+            Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                           "SipLineMgr::buildAuthorizationRequest"
                           "found auth credentials for callid='%s': userid='%s' realm='%s'",
                           callId.data(), userID.data(), realm.data()) ;
@@ -832,7 +832,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
             int timesSent = newAuthRequest->getTimesSent();
             int transportProtocol = newAuthRequest->getSendProtocol(); //OsSocket::UNKNOWN;
             int mFirstSent = newAuthRequest->isFirstSend();
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                           "SipLineMgr::buildAuthorizationRequest "
                           "transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d",
                           transportTimeStamp, lastResendDuration, timesSent,
@@ -847,7 +847,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
             timesSent = newAuthRequest->getTimesSent();
             transportProtocol = newAuthRequest->getSendProtocol(); //OsSocket::UNKNOWN;
             mFirstSent = newAuthRequest->isFirstSend();
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                           "SipLineMgr::buildAuthorizationRequest "
                           "transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d",
                           transportTimeStamp, lastResendDuration, timesSent,
@@ -952,7 +952,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
             {
                 UtlString requestUri;
                 newAuthRequest->getRequestUri(&requestUri);
-                OsSysLog::add(FAC_AUTH, PRI_ERR,
+                Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                               "SipLineMgr::buildAuthorizationRequest "
                               "adding strict route callid='%s' route='%s'",
                               callId.data(), requestUri.data()) ;
@@ -962,7 +962,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
         }
         else
         {
-            OsSysLog::add(FAC_AUTH, PRI_ERR,
+            Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                           "SipLineMgr::buildAuthorizationRequest "
                           "could not find auth credentials for callid='%s' "
                           "lineId='%s' realm='%s'",
@@ -975,7 +975,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
     // Let this error message through to the application
     else
     {
-       OsSysLog::add(FAC_AUTH, PRI_ERR,
+       Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                      "SipLineMgr::buildAuthorizationRequest "
                      "previous authentication failed for callid='%s'",
                      callId.data());
@@ -1121,7 +1121,7 @@ SipLineMgr::addCredentialForLine(
     SipLine *line = NULL;
     if (! (line = sLineList.getLine(identity)) )
     {
-       OsSysLog::add(FAC_LINE_MGR, PRI_ERR,
+       Os::Logger::instance().log(FAC_LINE_MGR, PRI_ERR,
                      "SipLineMgr::addCredentialForLine no line for identity '%s'",
                      identity.toString().data()
                      );
@@ -1141,7 +1141,7 @@ SipLineMgr::addCredentialForLine(
     if (!line->addCredentials(strRealm, strUserID, encodedA1, type))
     {
         line = NULL;
-        OsSysLog::add(FAC_LINE_MGR, PRI_ERR,
+        Os::Logger::instance().log(FAC_LINE_MGR, PRI_ERR,
                       "SipLineMgr::addCredentialForLine addCredentials failed for"
                       " identity '%s' user '%s' realm '%s'",
                       identity.toString().data(), strUserID.data(), strRealm.data()
@@ -1157,7 +1157,7 @@ SipLineMgr::deleteCredentialForLine(const Url& identity, const UtlString strReal
     SipLine *line = NULL;
     if (! (line = sLineList.getLine(identity)) )
     {
-       OsSysLog::add(FAC_LINE_MGR, PRI_ERR,
+       Os::Logger::instance().log(FAC_LINE_MGR, PRI_ERR,
                      "SipLineMgr::deleteCredentialForLine no line for identity '%s'",
                      identity.toString().data()
                      );
@@ -1175,7 +1175,7 @@ SipLineMgr::getNumOfCredentialsForLine( const Url& identity ) const
     SipLine *line = NULL;
     if (! (line = sLineList.getLine( identity )) )
     {
-       OsSysLog::add(FAC_LINE_MGR, PRI_ERR,
+       Os::Logger::instance().log(FAC_LINE_MGR, PRI_ERR,
                      "SipLineMgr::getNumOfCredentialsForLine no line for identity '%s'",
                      identity.toString().data()
                      );
@@ -1200,7 +1200,7 @@ SipLineMgr::getCredentialListForLine(
     SipLine *line = NULL;
     if (! (line = sLineList.getLine(identity)) )
     {
-       OsSysLog::add(FAC_LINE_MGR, PRI_ERR,
+       Os::Logger::instance().log(FAC_LINE_MGR, PRI_ERR,
                      "SipLineMgr::getCredentialListForLine no line for identity '%s'",
                      identity.toString().data()
                      );
@@ -1738,7 +1738,7 @@ SipLine* SipLineMgr::findLineByURL(const Url& url, const char* szType) const
             assert(pLine != NULL) ;
             if (pLine != NULL)
             {
-                OsSysLog::add(FAC_LINE_MGR, PRI_WARNING,
+                Os::Logger::instance().log(FAC_LINE_MGR, PRI_WARNING,
                         "Multiple lines (%d) defined for userId %s, %s=%s selected=%s",
                         userIdmatches, userId.data(),
                         szType,

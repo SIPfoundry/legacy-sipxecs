@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "AlarmUtils.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/XmlContent.h"
 
@@ -45,7 +45,7 @@ void assembleMsg(const UtlString& formatStr,   //< input string with placeholder
       }
       else
       {
-         OsSysLog::add(FAC_ALARM, PRI_DEBUG, "placeholder not found for parameter %d; appending", paramNum);
+         Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "placeholder not found for parameter %d; appending", paramNum);
          outMsg += separator;
          outMsg += tempStr;
       }
@@ -70,7 +70,7 @@ void assembleMsg(const UtlString& formatStr, //< input string containing one pla
    }
    else
    {
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, "placeholder not found for parameter; appending");
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "placeholder not found for parameter; appending");
       outMsg += separator;
       outMsg += param;
    }

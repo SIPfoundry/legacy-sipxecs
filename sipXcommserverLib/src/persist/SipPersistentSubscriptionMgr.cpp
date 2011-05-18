@@ -17,7 +17,7 @@
 #include <utl/UtlHashMapIterator.h>
 #include <utl/UtlSListIterator.h>
 #include <utl/XmlContent.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsTimer.h>
 #include <os/OsDateTime.h>
 #include <os/OsEventMsg.h>
@@ -46,7 +46,7 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
    mPersistTask(SubscribeDBPtr(new MongoDB::Collection<SubscribeDB>(SubscribeDB::defaultNamespace())))
    
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr:: "
                  "mComponent = '%s', mDomain = '%s', fileName = '%s'",
                  mComponent.data(), mDomain.data(), fileName.data());
@@ -56,7 +56,7 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
 // Destructor
 SipPersistentSubscriptionMgr::~SipPersistentSubscriptionMgr()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::~");
 
    // Save the IMDB to disk if it is dirty.
@@ -97,7 +97,7 @@ void SipPersistentSubscriptionMgr::initialize(OsMsgQ* pMsgQ)
 
       if (row.key() == mComponent.str() && row.expires() - now >= 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipPersistentSubscriptionMgr:: "
                        "loading row");
 
@@ -106,7 +106,7 @@ void SipPersistentSubscriptionMgr::initialize(OsMsgQ* pMsgQ)
          // Construct a fake SUBSCRIBE request to carry most of the data
          // that updateDialogInfo needs.
          SipMessage subscribeRequest;
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipPersistentSubscriptionMgr:: expires = %d, now = %d",
                        row.expires(), (int) now);
          
@@ -136,12 +136,12 @@ void SipPersistentSubscriptionMgr::initialize(OsMsgQ* pMsgQ)
             route_url.toString(route_url_string);
             subscribeRequest.setRecordRouteField(route_url_string.data(), route_index);
          }
-         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+         if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
          {
             UtlString m, d;
             ssize_t l;
             subscribeRequest.getBytes(&m, &l, FALSE);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipPersistentSubscriptionMgr:: subscribeRequest = '%s'",
                           m.data());
          }
@@ -163,7 +163,7 @@ void SipPersistentSubscriptionMgr::initialize(OsMsgQ* pMsgQ)
                                                  isNew);
          if (!ret)
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SipPersistentSubscriptionMgr:: "
                           "SipSubscriptionMgr::insertDialogInfo failed keyp = '%s', eventtypekeyp = '%s', eventtypep = '%s', subscribeDialogHandle = '%s'",
                           row.key().c_str(),
@@ -234,7 +234,7 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
       UtlString subscribeCseqMethod;
       subscribeRequest.getCSeqField(&subscribeCseq, &subscribeCseqMethod);
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipPersistentSubscriptionMgr::updateDialogInfo "
                     "mComponent = '%s', requestUri = '%s', callId = '%s', contactEntry = '%s', expires = %d, "
                     "to = '%s', from = '%s', eventTypeKey = '%s', eventType = '%s', key = '%s', route = '%s', accept = '%s'",
@@ -265,7 +265,7 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
 
          if (!ret)
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SipPersistantSubscriptionMgr::addSubscription "
                           "Could not update or insert record in database");
          }
@@ -275,7 +275,7 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
       mPersistenceTimer.oneshotAfter(sPersistInterval);
    }
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::updateDialogInfo "
                  "subscribeDialogHandle = '%s', "
                  "ret = %d, isNew = %d, isSubscriptionExpired = %d, "
@@ -341,7 +341,7 @@ UtlBoolean SipPersistentSubscriptionMgr::getNotifyDialogInfo(
                              callId, localTag, remoteTag);
       // It's not clear why the localTag is the from-tag of the original SUBSCRIBE,
       // but it is, and that's what we need to feed to updateFromAndTo.
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipPersistentSubscriptionMgr::getNotifyDialogInfo "
                     "subscribeDialogHandle = '%s', localTag = '%s', from = '%s', to = '%s'",
                     subscribeDialogHandle.data(), localTag.data(),
@@ -370,7 +370,7 @@ UtlBoolean SipPersistentSubscriptionMgr::getNotifyDialogInfo(
 UtlBoolean SipPersistentSubscriptionMgr::endSubscription(const UtlString& dialogHandle,
                                                          enum SipSubscriptionMgr::subscriptionChange change)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::endSubscription "
                  "dialogHandle = '%s', change = %d",
                  dialogHandle.data(), change);
@@ -388,7 +388,7 @@ UtlBoolean SipPersistentSubscriptionMgr::endSubscription(const UtlString& dialog
       SipDialog::parseHandle(dialogHandle.data(),
                              callId, localTag, remoteTag);
       UtlString from, to;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipPersistentSubscriptionMgr::endSubscription callId = '%s', localTag = '%s', remoteTag = '%s'",
                     callId.data(), localTag.data(), remoteTag.data());
 
@@ -409,7 +409,7 @@ UtlBoolean SipPersistentSubscriptionMgr::endSubscription(const UtlString& dialog
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipPersistentSubscriptionMgr::endSubscription "
                        "Cannot find subscription for dialog handle '%s'",
                        dialogHandle.data());
@@ -421,7 +421,7 @@ UtlBoolean SipPersistentSubscriptionMgr::endSubscription(const UtlString& dialog
 
 void SipPersistentSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::removeOldSubscriptions "
                  "oldEpochTimeSeconds = %ld",
                  oldEpochTimeSeconds);
@@ -442,7 +442,7 @@ void SipPersistentSubscriptionMgr::setNextNotifyCSeq(
    int nextLocalCseq,
    int version)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::setNextNotifyCSeq dialogHandleString = '%s', nextLocalCseq = %d, version = %d",
                  dialogHandleString.data(), nextLocalCseq, version);
 
@@ -489,7 +489,7 @@ void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
    notifyRequest.getEventFieldParts(&eventHeader, &eventId);
    now = (int) OsDateTime::getSecsSinceEpoch();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::updateVersion "
                  "callId = '%s', to = '%s', from = '%s', eventHeader = '%s', eventTypeKey = '%s', eventId = '%s', cseq = %d, version = %d",
                  callId.data(), to.data(), from.data(), eventHeader.data(), eventTypeKey.data(), eventId.data(), cseq, version);
@@ -534,7 +534,7 @@ SipPersistentSubscriptionMgrTask::SipPersistentSubscriptionMgrTask(
    OsServerTask("SipPersistentSubscriptionMgrTask-%d")
 {
     _pSubscriptions = subscriptionDBInstance;
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgrTask:: "
                  "mSubscriptionDBInstance = %p",
                  _pSubscriptions.get());
@@ -544,7 +544,7 @@ SipPersistentSubscriptionMgrTask::SipPersistentSubscriptionMgrTask(
 // Destructor
 SipPersistentSubscriptionMgrTask::~SipPersistentSubscriptionMgrTask()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgrTask::~");
 }
 
@@ -554,7 +554,7 @@ UtlBoolean SipPersistentSubscriptionMgrTask::handleMessage(OsMsg& rMsg)
 {
    UtlBoolean handled = FALSE;
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SipPersistentSubscriptionMgrTask::handleMessage message type %d subtype %d",
                  rMsg.getMsgType(), rMsg.getMsgSubType());
 
@@ -571,7 +571,7 @@ UtlBoolean SipPersistentSubscriptionMgrTask::handleMessage(OsMsg& rMsg)
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_ERR,
+      Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                     "SipPersistentSubscriptionMgrTask::handleMessage unknown msg type %d",
                     rMsg.getMsgType());
    }

@@ -10,7 +10,7 @@
 // APPLICATION INCLUDES
 
 #include "net/SipDialogEvent.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlHashMapIterator.h"
 #include "Appearance.h"
 #include "AppearanceGroup.h"
@@ -36,7 +36,7 @@ Appearance::Appearance( AppearanceAgent* appAgent,
    mUri(uri),
    mbShortTimeout(false)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "Appearance:: this = %p, mUri = '%s'",
                  this, mUri.data());
 
@@ -57,7 +57,7 @@ Appearance::Appearance( AppearanceAgent* appAgent,
                       mSubscriptionEarlyDialogHandle);
    if (ret)
    {
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "Appearance:: addSubscription for '%s' succeeded",
                     mUri.data());
       // Add this Appearance to mSubscribeMap.
@@ -67,7 +67,7 @@ Appearance::Appearance( AppearanceAgent* appAgent,
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
                     "Appearance:: addSubscription for '%s' failed",
                     mUri.data());
    }
@@ -76,7 +76,7 @@ Appearance::Appearance( AppearanceAgent* appAgent,
 // Destructor
 Appearance::~Appearance()
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "Appearance::~ this = %p, mUri = '%s'",
                  this, mUri.data());
 
@@ -93,7 +93,7 @@ Appearance::~Appearance()
    // Stick around a bit to allow these messages to be handled somewhat gracefully
    // (i.e. acknowledged).
    OsTask::delay(100);
-   OsSysLog::add(FAC_SAA,
+   Os::Logger::instance().log(FAC_SAA,
                  ret ? PRI_DEBUG : PRI_WARNING,
                  "Appearance::~ endSubscriptionGroup %s: mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  ret ? "succeeded" : "failed",
@@ -109,7 +109,7 @@ void Appearance::subscriptionEventCallback(
    SipSubscribeClient::SubscriptionState newState,
    const UtlString* subscriptionState)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "Appearance::subscriptionEventCallback this = %p, "
                  "uri = '%s', newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', subscriptionState = '%s'",
                  this, mUri.data(), newState, mSubscriptionEarlyDialogHandle.data(),
@@ -121,7 +121,7 @@ void Appearance::subscriptionEventCallback(
       break;
    case SipSubscribeClient::SUBSCRIPTION_SETUP:
    {
-      OsSysLog::add(FAC_SAA, PRI_INFO,
+      Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                     "Appearance::subscriptionEventCallback "
                     "subscription setup for uri = '%s', dialogHandle = '%s'",
                     mUri.data(), dialogHandle->data());
@@ -138,7 +138,7 @@ void Appearance::subscriptionEventCallback(
       bool bContentChanged = terminateDialogs(false); // terminate only non-held dialogs
       if ( bContentChanged)
       {
-         OsSysLog::add(FAC_SAA, PRI_INFO,
+         Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                     "Appearance::subscriptionEventCallback "
                     "terminated dialogs held by uri = '%s'",
                     mUri.data());
@@ -152,7 +152,7 @@ void Appearance::subscriptionEventCallback(
       // so reset to default
       mbShortTimeout = false;
 
-      OsSysLog::add(FAC_SAA, PRI_INFO,
+      Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                     "Appearance::subscriptionEventCallback "
                     "subscription terminated for uri = '%s', dialogHandle = '%s'",
                     mUri.data(), dialogHandle->data());
@@ -171,7 +171,7 @@ void Appearance::notifyEventCallback(const UtlString* dialogHandle,
 
 void Appearance::getDialogs(SipDialogEvent *content)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "Appearance::getDialogs mUri = '%s': adding %zu dialogs",
                  mUri.data(), mDialogs.entries());
    UtlHashMapIterator itor(mDialogs);
@@ -186,7 +186,7 @@ void Appearance::getDialogs(SipDialogEvent *content)
 
 bool Appearance::terminateDialogs(bool terminateHeldDialogs)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "Appearance::terminateDialogs this = %p, mUri = '%s': terminating %zu dialogs",
                  this, mUri.data(), mDialogs.entries());
    UtlHashMapIterator itor(mDialogs);
@@ -207,7 +207,7 @@ bool Appearance::terminateDialogs(bool terminateHeldDialogs)
             !((dialogState == STATE_CONFIRMED) && (rendering == "no"))
          )
       {
-         OsSysLog::add(FAC_SAA, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                        "Appearance::terminateDialogs dialog '%s'",
                        handle->data());
          pDialog->setState(STATE_TERMINATED, event, code);
@@ -242,7 +242,7 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
          pNewDialog->getLocalParameter("x-line-id", appearanceId);
          pNewDialog->getLocalParameter("+sip.rendering", rendering);
          pNewDialog->getState(dialogState, event, code);
-         OsSysLog::add(FAC_SAA, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                "Appearance::updateState this = %p received %s update for '%s', appearance '%s', state '%s', rendering '%s'",
                this, state.data(), mUri.data(), appearanceId.data(), dialogState.data(), rendering.data());
 
@@ -259,7 +259,7 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
             if ( dialogState == STATE_TERMINATED )
             {
                mDialogs.destroy(&uniqueDialogId);
-               OsSysLog::add(FAC_SAA, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                      "Appearance::updateState removed dialog: '%s', %zu now in list",
                      uniqueDialogId.data(), mDialogs.entries());
                bSendPartialUpdate = true;
@@ -276,7 +276,7 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
                   // replace the old dialog with this new one
                   mDialogs.destroy(&uniqueDialogId);
                   mDialogs.insertKeyAndValue(new UtlString(uniqueDialogId), new Dialog(*pNewDialog));
-                  OsSysLog::add(FAC_SAA, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                         "Appearance::updateState updated dialog: '%s', %zu in list",
                         uniqueDialogId.data(), mDialogs.entries());
                   bSendPartialUpdate = true;
@@ -288,20 +288,20 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
          {
             if ( dialogState == STATE_TERMINATED )
             {
-               OsSysLog::add(FAC_SAA, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                      "Appearance::updateState ignoring terminated dialog: '%s', %zu in list",
                      uniqueDialogId.data(), mDialogs.entries());
                if (state == STATE_PARTIAL)
                {
                   delete notifyDialogs->removeDialog(pNewDialog);
-                  OsSysLog::add(FAC_SAA, PRI_DEBUG, "deleting new terminated dialog!");
+                  Os::Logger::instance().log(FAC_SAA, PRI_DEBUG, "deleting new terminated dialog!");
                }
             }
             else
             {
                // this is a new dialog, so add it to our list
                mDialogs.insertKeyAndValue(new UtlString(uniqueDialogId), new Dialog(*pNewDialog));
-               OsSysLog::add(FAC_SAA, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                      "Appearance::updateState added dialog: '%s', %zu now in list",
                      uniqueDialogId.data(), mDialogs.entries());
                bFullContentChanged = true;
@@ -322,7 +322,7 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
             pDialog->getDialogId(uniqueDialogId);
             if (!notifyDialogs->getDialogByDialogId(uniqueDialogId))
             {
-               OsSysLog::add(FAC_SAA, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                      "Appearance::updateState removed unreferenced dialog: '%s', %zu now in list",
                      uniqueDialogId.data(), mDialogs.entries());
                mDialogs.destroy(&uniqueDialogId);
@@ -343,7 +343,7 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
          delete itor;
          if (!bSendPartialUpdate)
          {
-            OsSysLog::add(FAC_SAA, PRI_DEBUG, "not sending empty partial update!");
+            Os::Logger::instance().log(FAC_SAA, PRI_DEBUG, "not sending empty partial update!");
          }
       }
    }
@@ -372,7 +372,7 @@ bool Appearance::appearanceIsBusy()
       {
          ret = true;
       }
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "Appearance::appearanceIsBusy mUri = '%s', state %s(%s) returns %d",
                     mUri.data(), dialogState.data(), rendering.data(), ret);
    }
@@ -381,7 +381,7 @@ bool Appearance::appearanceIsBusy()
 
 bool Appearance::appearanceIdIsSeized(const UtlString& appearanceId)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "Appearance::appearanceIdIsSeized mUri = '%s', appearance = '%s'",
                  mUri.data(), appearanceId.data());
    bool ret = false;
@@ -404,7 +404,7 @@ bool Appearance::appearanceIdIsSeized(const UtlString& appearanceId)
            // not even sure I need any other conditions for TRYING contention...
          )
       {
-         OsSysLog::add(FAC_SAA, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                        "Appearance::appearanceIdIsSeized mUri = '%s', appearance = '%s' "
                        "is in state '%s': seized",
                        mUri.data(), appearanceId.data(), dialogState.data());
@@ -427,7 +427,7 @@ void Appearance::setResubscribeInterval(bool bShortTimeout)
       {
          subscriptionPeriodSeconds = getAppearanceAgent()->getResubscribeInterval();
       }
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
             "Appearance::setResubscribeInterval changing resubscribe interval for '%s' "
                     "(earlyDialogHandle %s) to %d",
             mUri.data(), mSubscriptionEarlyDialogHandle.data(), subscriptionPeriodSeconds);
@@ -438,14 +438,14 @@ void Appearance::setResubscribeInterval(bool bShortTimeout)
 
       if (ret)
       {
-         OsSysLog::add(FAC_SAA, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                "Appearance::setResubscribeInterval changeSubscriptionTimer for '%s' succeeded",
                mUri.data());
          mbShortTimeout = bShortTimeout;
       }
       else
       {
-         OsSysLog::add(FAC_SAA, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
                "Appearance::setResubscribeInterval changeSubscriptionTimer for '%s' failed",
                mUri.data());
       }
@@ -463,7 +463,7 @@ void Appearance::setResubscribeInterval(bool bShortTimeout)
 void Appearance::dumpState()
 {
    // indented 6 and 8
-   OsSysLog::add(FAC_SAA, PRI_INFO,
+   Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                  "\t      Appearance %p mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  this, mUri.data(), mSubscriptionEarlyDialogHandle.data());
 
@@ -476,7 +476,7 @@ void Appearance::dumpState()
    {
       pDialog = dynamic_cast <Dialog*> (itor.value());
       pDialog->getBytes(b, l);
-      OsSysLog::add(FAC_SAA, PRI_INFO,
+      Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                     "\t        dialog %p '%s'",
                     pDialog, b.data());
    }

@@ -14,7 +14,7 @@
 #include "utl/UtlHistogram.h"
 #include "os/OsTime.h"
 #include "os/OsDateTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -32,7 +32,7 @@ UtlHistogram::UtlHistogram(unsigned int bins, int base, unsigned int size,
 {
    if (bins == 0)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                     "UtlHistogram::UtlHistogram bins must be at least 1");
       bins = 1;
    }
@@ -42,7 +42,7 @@ UtlHistogram::UtlHistogram(unsigned int bins, int base, unsigned int size,
 
    if (size == 0)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                     "UtlHistogram::UtlHistogram size must be at least 1");
       size = 1;
    }
@@ -156,7 +156,7 @@ UtlString* UtlHistogram::show()
       width = sprintf(&buffer[j], mOutputFormat, mpBins[i]);
       if (width > mOutputWidth)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
                        "UtlHistogram::show output from format '%s' "
                        "had width %d != declared width %d",
                        mOutputFormat, width, mOutputWidth);

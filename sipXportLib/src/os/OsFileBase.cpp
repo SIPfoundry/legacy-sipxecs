@@ -80,7 +80,7 @@ OsFileBase::OsFileBase(const OsFileBase& rOsFileBase)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::OsFileBase ENTER threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::OsFileBase ENTER threadid=%ld\n", (long)nTaskId);
 #endif
     OsPathBase path;
     rOsFileBase.getFileName(path);
@@ -88,7 +88,7 @@ OsFileBase::OsFileBase(const OsFileBase& rOsFileBase)
     mOsFileHandle = rOsFileBase.mOsFileHandle;
     mLocalLockThreadId = rOsFileBase.mLocalLockThreadId;
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::OsFileBase EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::OsFileBase EXIT threadid=%ld\n", (long)nTaskId);
 #endif
 }
 
@@ -99,12 +99,12 @@ OsFileBase::~OsFileBase()
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::~OsFileBase ENTER threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::~OsFileBase ENTER threadid=%ld\n", (long)nTaskId);
 #endif
     if (mOsFileHandle)
         close(); //call our close
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::~OsFileBase EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::~OsFileBase EXIT threadid=%ld\n", (long)nTaskId);
 #endif
 }
 
@@ -116,13 +116,13 @@ OsStatus OsFileBase::setReadOnly(UtlBoolean isReadOnly)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setReadOnly ENTER threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setReadOnly ENTER threadid=%ld\n", (long)nTaskId);
 #endif
 
    OsStatus status = OsFileSystem::setReadOnly(mFilename,isReadOnly);
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setReadOnly EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setReadOnly EXIT threadid=%ld\n", (long)nTaskId);
 #endif
     return status;
 }
@@ -133,12 +133,12 @@ OsStatus OsFileBase::fileunlock()
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::fileunlock ENTER threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::fileunlock ENTER threadid=%ld\n", (long)nTaskId);
 #endif
     OsStatus retval = OS_SUCCESS;
     //no file locking on the base class (yet) (I'm doing linux and windows first)
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::fileunlock EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::fileunlock EXIT threadid=%ld\n", (long)nTaskId);
 #endif
     return retval;
 }
@@ -149,14 +149,14 @@ OsStatus OsFileBase::filelock(const int mode)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::filelock ENTER threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::filelock ENTER threadid=%ld\n", (long)nTaskId);
 #endif
 
    OsStatus retval = OS_SUCCESS;
     //no file locking on the base class (yet) (I'm doing linux and windows first)
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::filelock EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::filelock EXIT threadid=%ld\n", (long)nTaskId);
 #endif
 
    return retval;
@@ -168,7 +168,7 @@ OsStatus OsFileBase::open(const int mode)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open ENTER threadid=%ld, filename=%s\n", (long)nTaskId, mFilename.data());
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open ENTER threadid=%ld, filename=%s\n", (long)nTaskId, mFilename.data());
 #endif
     //get a lock for the open call
          sOpenLock.acquire();
@@ -199,7 +199,7 @@ OsStatus OsFileBase::open(const int mode)
     if (mOsFileHandle)
     {
 #ifdef DEBUG_FS
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open fopen returned mOsFileHandle=0x%08x, fd=%d, threadid=%d, filename=%s\n", mOsFileHandle, fileno(mOsFileHandle), nTaskId, mFilename.data());
+        Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open fopen returned mOsFileHandle=0x%08x, fd=%d, threadid=%d, filename=%s\n", mOsFileHandle, fileno(mOsFileHandle), nTaskId, mFilename.data());
 #endif
         //first test to see if we have a local file lock on that file
         //get the thread id for local locking
@@ -291,7 +291,7 @@ OsStatus OsFileBase::open(const int mode)
          sOpenLock.release();
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open EXIT threadid=%ld\n", nTaskId);
 #endif
 
     return stat;
@@ -305,7 +305,7 @@ OsStatus OsFileBase::flush()
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::flush EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::flush EXIT threadid=%ld\n", nTaskId);
 #endif
     OsStatus stat = OS_INVALID;
 
@@ -316,7 +316,7 @@ OsStatus OsFileBase::flush()
     }
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::flush EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::flush EXIT threadid=%ld\n", nTaskId);
 #endif
     return stat;
 }
@@ -330,7 +330,7 @@ OsStatus OsFileBase::write(const void* buf, size_t buflen, size_t& bytesWritten)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::write ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::write ENTER threadid=%ld\n", nTaskId);
 #endif
     OsStatus stat = OS_INVALID;
 
@@ -341,7 +341,7 @@ OsStatus OsFileBase::write(const void* buf, size_t buflen, size_t& bytesWritten)
         stat = OS_SUCCESS;
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::write EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::write EXIT threadid=%ld\n", nTaskId);
 #endif
     return stat;
 }
@@ -353,12 +353,12 @@ OsStatus OsFileBase::setLength(unsigned long newLength)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setLength ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setLength ENTER threadid=%ld\n", nTaskId);
 #endif
     OsStatus stat = OS_SUCCESS;
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setLength EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setLength EXIT threadid=%ld\n", nTaskId);
 #endif
     return stat;
 }
@@ -371,7 +371,7 @@ OsStatus OsFileBase::setPosition(ssize_t pos, FilePositionOrigin origin)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setPosition ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setPosition ENTER threadid=%ld\n", nTaskId);
 #endif
    OsStatus stat = OS_INVALID;
 
@@ -393,7 +393,7 @@ OsStatus OsFileBase::setPosition(ssize_t pos, FilePositionOrigin origin)
    }
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setPosition EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::setPosition EXIT threadid=%ld\n", nTaskId);
 #endif
    return stat;
 }
@@ -408,7 +408,7 @@ OsStatus OsFileBase::getPosition(size_t &pos)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getPosition ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getPosition ENTER threadid=%ld\n", nTaskId);
 #endif
 
     OsStatus stat = OS_INVALID;
@@ -423,7 +423,7 @@ OsStatus OsFileBase::getPosition(size_t &pos)
     }
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getPosition EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getPosition EXIT threadid=%ld\n", nTaskId);
 #endif
 
     return stat;
@@ -436,7 +436,7 @@ OsStatus OsFileBase::remove(UtlBoolean bForce)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::remove ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::remove ENTER threadid=%ld\n", nTaskId);
 #endif
     OsStatus ret = OS_INVALID;
     //if it's open then close it
@@ -445,7 +445,7 @@ OsStatus OsFileBase::remove(UtlBoolean bForce)
     ret = OsFileSystem::remove(mFilename.data(),FALSE,bForce);
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::remove EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::remove EXIT threadid=%ld\n", nTaskId);
 #endif
 
     return ret;
@@ -459,7 +459,7 @@ OsStatus OsFileBase::rename(const OsPathBase& rNewFilename)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::rename ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::rename ENTER threadid=%ld\n", nTaskId);
 #endif
     OsStatus ret = OS_INVALID;
 
@@ -489,7 +489,7 @@ OsStatus OsFileBase::rename(const OsPathBase& rNewFilename)
         }
     }
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::rename EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::rename EXIT threadid=%ld\n", nTaskId);
 #endif
     return ret;
 }
@@ -501,7 +501,7 @@ OsStatus OsFileBase::copy(const OsPathBase& newFilename)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::copy ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::copy ENTER threadid=%ld\n", nTaskId);
 #endif
     OsStatus ret = OS_FILE_WRITE_FAILED;
     size_t copySize = 0;
@@ -563,7 +563,7 @@ OsStatus OsFileBase::copy(const OsPathBase& newFilename)
     }
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::copy EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::copy EXIT threadid=%ld\n", nTaskId);
 #endif
     return ret;
 }
@@ -575,7 +575,7 @@ OsStatus OsFileBase::touch()
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::touch ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::touch ENTER threadid=%ld\n", nTaskId);
 #endif
     OsStatus stat = OS_INVALID;
     char buf[5];
@@ -602,7 +602,7 @@ OsStatus OsFileBase::touch()
     }
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::touch EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::touch EXIT threadid=%ld\n", nTaskId);
 #endif
     return stat;
 }
@@ -616,13 +616,13 @@ void OsFileBase::getFileName(OsPathBase& rOsPath) const
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getFileName ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getFileName ENTER threadid=%ld\n", nTaskId);
 #endif
 
    rOsPath = mFilename;
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getFileName EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getFileName EXIT threadid=%ld\n", nTaskId);
 #endif
 }
 
@@ -634,7 +634,7 @@ OsStatus OsFileBase::read(void* buf, size_t buflen, size_t& bytesRead)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::read ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::read ENTER threadid=%ld\n", nTaskId);
 #endif
     OsStatus stat = OS_INVALID;
 
@@ -655,7 +655,7 @@ OsStatus OsFileBase::read(void* buf, size_t buflen, size_t& bytesRead)
 
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::read EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::read EXIT threadid=%ld\n", nTaskId);
 #endif
     return stat;
 }
@@ -667,7 +667,7 @@ OsStatus OsFileBase::readLine(UtlString &str)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::readLine ENTER threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::readLine ENTER threadid=%ld\n", nTaskId);
 #endif
     char buf[2];
     size_t bytesRead;
@@ -688,7 +688,7 @@ OsStatus OsFileBase::readLine(UtlString &str)
 
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::readLine EXIT threadid=%ld\n", nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::readLine EXIT threadid=%ld\n", nTaskId);
 #endif
 
    return retstat;
@@ -704,7 +704,7 @@ UtlBoolean OsFileBase::close()
    if (pTask) pTask->id(nTaskId);
    int fd = -1;
    if (mOsFileHandle) fd = fileno(mOsFileHandle);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::close ENTER mOsFileHandle=0x%08x, fd=%d, threadid=%ld, filename=%s\n", mOsFileHandle, fd, (long)nTaskId, mFilename.data());
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::close ENTER mOsFileHandle=0x%08x, fd=%d, threadid=%ld, filename=%s\n", mOsFileHandle, fd, (long)nTaskId, mFilename.data());
 #endif
     UtlBoolean retval = TRUE;
 
@@ -724,7 +724,7 @@ UtlBoolean OsFileBase::close()
         if (::fclose(mOsFileHandle) != 0)
         {
             retval = FALSE;
-            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                           "OsFileBase::close failed, mOsFileHandle=%p, errno=%d '%s'",
                           mOsFileHandle, errno, strerror(errno));
         }
@@ -736,7 +736,7 @@ UtlBoolean OsFileBase::close()
 
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::close EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::close EXIT threadid=%ld\n", (long)nTaskId);
 #endif
 
     return retval;
@@ -751,7 +751,7 @@ UtlBoolean OsFileBase::isEOF()
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::isEOF ENTER threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::isEOF ENTER threadid=%ld\n", (long)nTaskId);
 #endif
    UtlBoolean retval = FALSE;
 
@@ -762,7 +762,7 @@ UtlBoolean OsFileBase::isEOF()
    }
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::isEOF EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::isEOF EXIT threadid=%ld\n", (long)nTaskId);
 #endif
 
    return retval;
@@ -774,14 +774,14 @@ UtlBoolean OsFileBase::isReadonly() const
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::isReadonly ENTER threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::isReadonly ENTER threadid=%ld\n", (long)nTaskId);
 #endif
 
     OsFileInfoBase info;
     getFileInfo(info);
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::isReadonly EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::isReadonly EXIT threadid=%ld\n", (long)nTaskId);
 #endif
 
     return info.mbIsReadOnly;
@@ -793,7 +793,7 @@ OsStatus OsFileBase::getLength(size_t& flength)
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getLength ENTER threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getLength ENTER threadid=%ld\n", (long)nTaskId);
 #endif
     OsStatus ret = OS_INVALID;
     size_t saved_pos;
@@ -813,7 +813,7 @@ OsStatus OsFileBase::getLength(size_t& flength)
     }
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getLength EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getLength EXIT threadid=%ld\n", (long)nTaskId);
 #endif
 
    return ret;
@@ -825,7 +825,7 @@ UtlBoolean OsFileBase::exists()
    pthread_t nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::exists ENTER threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::exists ENTER threadid=%ld\n", (long)nTaskId);
 #endif
     UtlBoolean stat = FALSE;
 
@@ -835,7 +835,7 @@ UtlBoolean OsFileBase::exists()
         stat = TRUE;
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::exists EXIT threadid=%ld\n", (long)nTaskId);
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsFileBase::exists EXIT threadid=%ld\n", (long)nTaskId);
 #endif
 
    return stat;

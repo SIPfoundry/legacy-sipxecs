@@ -11,7 +11,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
 #include "os/OsWriteLock.h"
@@ -72,12 +72,12 @@ PluginXmlParser::loadPlugins (
 
     if( mDoc->LoadFile() )
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "PluginXmlParser::loadMappings "
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "PluginXmlParser::loadMappings "
             "- Loaded %s", configFileName.data() );
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
             "- Unable to Open XML file %s", configFileName.data() );
 
         return OS_NOT_FOUND;
@@ -91,7 +91,7 @@ PluginXmlParser::loadPlugins (
 
     if ( !mMainPluginsNode )
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
             "- No child Node for subscribe-server-plugins");
 
         return OS_FILE_READ_FAILED;
@@ -167,7 +167,7 @@ PluginXmlParser::loadPlugins (
                 }
 		else
                 {
-                    OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
+                    Os::Logger::instance().log(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
                         "- No Plugin for Node number %d event type: %s",
                         index, eventType.data());
                 }
@@ -222,7 +222,7 @@ PluginXmlParser::loadPlugin (
 	*plugin = PluginFactoryProc(pluginElement, notifier);
 	if (*plugin == NULL)
 	{
-		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadPlugin return null "
+		Os::Logger::instance().log(FAC_SIP, PRI_ERR, "PluginXmlParser::loadPlugin return null "
 	        "SubscribeServerPluginBasemissing %s ", entryTxt->Value());
 		return OS_FAILED;
 	}
@@ -240,7 +240,7 @@ PluginXmlParser::requireElement (
 	TiXmlNode* n = (TiXmlNode*)parent.FirstChild(tagName.data());
 	if (!n)
 	{
-		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode missing %s ",
+		Os::Logger::instance().log(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode missing %s ",
                         tagName.data());
 		*err = OS_FAILED;
 	}
@@ -248,7 +248,7 @@ PluginXmlParser::requireElement (
 	TiXmlElement* e = n->ToElement();
 	if (!e)
 	{
-		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode is not an element %s ",
+		Os::Logger::instance().log(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode is not an element %s ",
                         tagName.data());
 		*err = OS_FAILED;
 	}
@@ -271,7 +271,7 @@ PluginXmlParser::requireText (
 		}
 	}
 
-	OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredText "
+	Os::Logger::instance().log(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredText "
 		 "missing element text body %s ", elem.Value());
 	*err = OS_FAILED;
 
@@ -297,7 +297,7 @@ PluginXmlParser::getPlugin( const UtlString& eventType )
 
     if (!pluginContainer)
     {
-        OsSysLog::add(FAC_SIP, PRI_WARNING, "PluginXmlParser::getPlugin "
+        Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "PluginXmlParser::getPlugin "
             "eventType '%s' not found", eventType.data() );
     }
 

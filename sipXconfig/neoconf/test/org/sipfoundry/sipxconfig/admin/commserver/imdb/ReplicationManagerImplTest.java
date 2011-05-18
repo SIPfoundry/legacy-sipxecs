@@ -14,22 +14,18 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
 
 import org.apache.commons.codec.binary.Base64;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-import org.springframework.beans.factory.BeanFactory;
 
 public class ReplicationManagerImplTest extends MongoTestCase {
 
@@ -54,8 +50,8 @@ public class ReplicationManagerImplTest extends MongoTestCase {
         final FileApi fileApi = createMock(FileApi.class);
 
         String content = "1234";
-        fileApi.replace("sipx.example.org", "/etc/sipxecs/domain-config", 0644, encode(content));
-        expectLastCall().andReturn(true).times(LOCATIONS.length);
+        fileApi.replace("sipx.example.org", TestHelper.getTestDirectory() + "/domain-config", 0644, encode(content));
+        expectLastCall().andReturn(true).times(LOCATIONS.length - 1);
 
         replay(fileApi);
 
@@ -67,14 +63,19 @@ public class ReplicationManagerImplTest extends MongoTestCase {
 
         m_out.setFileApiProvider(provider);
 
-        ConfigurationFile file = new InMemoryConfiguration("/etc/sipxecs", "domain-config", content);
+        ConfigurationFile file = new InMemoryConfiguration(TestHelper.getTestDirectory(), "domain-config", content);
 
         for (int i = 0; i < LOCATIONS.length; i++) {
             LOCATIONS[i].setRegistered(true);
         }
+        LOCATIONS[0].setPrimary(true);
         m_out.replicateFile(LOCATIONS, file);
 
         verify(fileApi);
+        File f = new File(TestHelper.getTestDirectory() + "/domain-config");
+        assertTrue(f.exists());
+        f.delete();
+        assertFalse(f.exists());
     }
 
     /*public void testReplicateData() {

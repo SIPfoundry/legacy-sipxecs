@@ -69,11 +69,11 @@ Connection::Connection(CpCallManager* callMgr,
 
     if (call) {
        call->getCallId(callId);
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                      "Connection::Connection- %s\n",
                      callId.data());
     } else
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                      "Connection::Connection- call is Null\n");
 #endif
 
@@ -123,11 +123,11 @@ Connection::Connection(CpCallManager* callMgr,
 
 #ifdef TEST_PRINT
     if (!callId.isNull())
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                      "Connection::Connection -leaving: %s\n",
                      callId.data());
     else
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                      "Connection::Connection -leaving: call is Null\n");
 #endif
 }
@@ -148,11 +148,11 @@ Connection::~Connection()
     UtlString callId;
     if (mpCall) {
        mpCall->getCallId(callId);
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                      "Connection destructed: %s\n",
                      callId.data());
     } else
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                      "Connection destructed: call is Null\n");
 #endif
 
@@ -171,9 +171,9 @@ Connection::~Connection()
 
 #ifdef TEST_PRINT
     if (!callId.isNull())
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection destructed: %s\n", callId.data());
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Leaving Connection destructed: %s\n", callId.data());
     else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection destructed: call is Null\n");
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Leaving Connection destructed: call is Null\n");
 #endif
 }
 
@@ -247,7 +247,7 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
       {
          if (newState == currentState)
          {
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "Connection::setState: "
                           "Questionable connection state change - isLocal %d, for call "
                           "'%s' with callid '%s' from %s to %s, cause %d",
@@ -256,7 +256,7 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
          }
          else
          {
-            OsSysLog::add(FAC_CP, PRI_ERR,
+            Os::Logger::instance().log(FAC_CP, PRI_ERR,
                           "Connection::setState: "
                           "Invalid connection state change - isLocal %d, for call "
                           "'%s' with callid '%s' from %s to %s, cause %d",
@@ -291,7 +291,7 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
       }
    }
 
-   OsSysLog::add(FAC_CP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                  "Connection::setState "
                  "Call %s %s state isLocal %d\n"
                  "change\n"
@@ -470,7 +470,7 @@ void Connection::setLocalAddress(const char* address)
 
 void Connection::unimplemented(const char* methodName) const
 {
-    OsSysLog::add(FAC_CP, PRI_WARNING,
+    Os::Logger::instance().log(FAC_CP, PRI_WARNING,
         "%s NOT IMPLEMENTED\n",methodName);
 }
 
@@ -484,7 +484,7 @@ void Connection::markForDeletion()
 
    mDeleteAfter = timeNow + deleteAfterSecs ;
 
-   OsSysLog::add(FAC_CP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
        "Connection::markForDeletion connection %p in %d secs (now:%ld then: %ld)",
            this, deleteAfterSecs.seconds(), timeNow.seconds(),
            mDeleteAfter.seconds());
@@ -676,7 +676,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
     causeStr.remove(0);
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
                   "Enter- %s state %d cause %d "
                   "eventid-  %d termeventid %d",
                   (isLocal?"LOCAL":"REMOTE"),
@@ -824,7 +824,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
         {
             mpCall->getCallId(callId);
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
                           "Connection call id not found, "
                           "Using CpCall Id = %s ",
                           callId.data());
@@ -942,7 +942,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
         remoteAddress.remove(0);
     }
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
                   "Leave- %s state %d cause %d "
                   "eventid-  %d termeventid %d",
                   (isLocal?"LOCAL":"REMOTE"),
@@ -1019,7 +1019,7 @@ UtlBoolean Connection::isStateTransitionAllowed(int newState, int oldState)
     UtlBoolean isAllowed = TRUE;
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "Connection::isStateTransitionAllowed: "
                   "state- new %d old %d ",
                   newState, oldState);

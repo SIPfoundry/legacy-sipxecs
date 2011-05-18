@@ -24,7 +24,7 @@
 #include "SipBridgeRouter.h"
 #include "os/OsFS.h"
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsEventMsg.h"
 #include "utl/UtlRandom.h"
 #include "net/NameValueTokenizer.h"
@@ -51,17 +51,6 @@ const char* ITSP_FLAG = "x-itsp-flag";
 //
 // Utilities
 //
-
-#define LOG_ANY(log, priority) \
-{ \
-  std::ostringstream strm; \
-  strm << log; \
-  OsSysLog::add(FAC_SIP, priority, strm.str().c_str()); \
-}
-#define LOG_DEBUG(log) LOG_ANY(log, PRI_DEBUG)
-#define LOG_INFO(log) LOG_ANY(log, PRI_INFO)
-#define LOG_ERROR(log) LOG_ANY(log, PRI_ERR)
-#define LOG_CRITICAL(log) LOG_ANY(log, PRI_CRIT)
 
 template <typename T>
 std::string string_from_number(T var)
@@ -256,7 +245,7 @@ bool SipBridgeRouter::initialize()
       std::string itspProxyDomain = itspProxyDomainNode->FirstChild()->Value();
       if (!itspProxyDomain.empty())
       {
-	LOG_DEBUG("SipBridgeRouter::initialize - " << "Adding " << itspProxyDomain << " to known domain list");
+	OS_LOG_DEBUG(FAC_SIP, "SipBridgeRouter::initialize - " << "Adding " << itspProxyDomain << " to known domain list");
 	addItspProxyDomain(itspProxyDomain);
       }
     }
@@ -267,7 +256,7 @@ bool SipBridgeRouter::initialize()
       std::string itspProxyAddress = itspProxyAddressNode->FirstChild()->Value();
       if (!itspProxyAddress.empty())
       {
-	LOG_DEBUG("SipBridgeRouter::initialize - " << "Adding " << itspProxyAddress << " to known address list");
+	OS_LOG_DEBUG(FAC_SIP, "SipBridgeRouter::initialize - " << "Adding " << itspProxyAddress << " to known address list");
 	addItspProxyAddress(itspProxyAddress);
       }
     }
@@ -296,7 +285,7 @@ bool SipBridgeRouter::isLocalDomain(SipMessage& sipRequest)
   {
     if (host == _localDomain)
     {
-      LOG_DEBUG("SipBridgeRouter::isLocalDomain() - local:" 
+      OS_LOG_DEBUG(FAC_SIP, "SipBridgeRouter::isLocalDomain() - local:"
 	<< host << "==request-uri:" << host );
       return true;
     }
@@ -307,7 +296,7 @@ bool SipBridgeRouter::isLocalDomain(SipMessage& sipRequest)
   {
     if (host == _localDomain)
     {
-       LOG_DEBUG("SipBridgeRouter::isLocalDomain() - local:" 
+       OS_LOG_DEBUG(FAC_SIP, "SipBridgeRouter::isLocalDomain() - local:"
 	<< host << "==from-uri:" << host );
       return true;
     }
@@ -327,7 +316,7 @@ bool SipBridgeRouter::isFromItspToBridge(SipMessage& sipRequest)
   
   if (!SipBridgeRouter::getTopViaAddressInfo(sipRequest, proto, host, port))
   {
-    LOG_ERROR("SipBridgeRouter::isFromItspToBridge - Unable to retrieve via address information");
+    OS_LOG_ERROR(FAC_SIP, "SipBridgeRouter::isFromItspToBridge - Unable to retrieve via address information");
     return false;
   }
   
@@ -356,7 +345,7 @@ bool SipBridgeRouter::isFromBridgeToItsp(SipMessage& sipRequest)
   
   if (!SipBridgeRouter::getTopViaAddressInfo(sipRequest, proto, host, port))
   {
-    LOG_ERROR("SipBridgeRouter::isFromBridgeToItsp - Unable to retrieve via address information");
+    OS_LOG_ERROR(FAC_SIP, "SipBridgeRouter::isFromBridgeToItsp - Unable to retrieve via address information");
     return false;
   }
   
@@ -365,7 +354,7 @@ bool SipBridgeRouter::isFromBridgeToItsp(SipMessage& sipRequest)
   //
   if (host == _bridgeLanAddress && port == _bridgeWanPort)
   {
-    //LOG_DEBUG("SipBridgeRouter::isFromBridgeToItsp - " << host << ":" << port << " matches the bridge" );
+    //OS_LOG_DEBUG(FAC_SIP, "SipBridgeRouter::isFromBridgeToItsp - " << host << ":" << port << " matches the bridge" );
     return !SipBridgeRouter::isLocalDomain(sipRequest);
   }
   
@@ -393,12 +382,12 @@ SipBridgeRouter::ProxyAction
   //}
   if (isFromItspToBridge(sipRequest))
   {
-    LOG_INFO("SipBridgeRouter::proxyMessage - " << startLine << " Request is bound for the bridge."); 
+    OS_LOG_INFO(FAC_SIP, "SipBridgeRouter::proxyMessage - " << startLine << " Request is bound for the bridge.");
     return proxyToBridge(sipRequest, sipResponse);
   }
   else if (isFromBridgeToItsp(sipRequest))
   {
-    LOG_INFO("SipBridgeRouter::proxyMessage - " << startLine << " Request is bound for an ITSP.");
+    OS_LOG_INFO(FAC_SIP, "SipBridgeRouter::proxyMessage - " << startLine << " Request is bound for an ITSP.");
     return proxyToItsp(sipRequest, sipResponse);
   }
   return SipBridgeRouter::DoNothing;
@@ -412,7 +401,7 @@ bool SipBridgeRouter::isFromKnownItsp(SipMessage& sipRequest)
   
   if (!SipBridgeRouter::getTopViaAddressInfo(sipRequest, proto, host, port))
   {
-    LOG_ERROR("SipBridgeRouter::isFromKnownItsp - Unable to retrieve via address information");
+    OS_LOG_ERROR(FAC_SIP, "SipBridgeRouter::isFromKnownItsp - Unable to retrieve via address information");
     return false;
   }
   
@@ -421,7 +410,7 @@ bool SipBridgeRouter::isFromKnownItsp(SipMessage& sipRequest)
   {
     if (*iter == host)
     {
-      LOG_DEBUG("SipBridgeRouter::isFromKnownItsp - " 
+      OS_LOG_DEBUG(FAC_SIP, "SipBridgeRouter::isFromKnownItsp - "
 	<< host << " came from a known ITSP");
       return true;
     }
@@ -438,7 +427,7 @@ bool SipBridgeRouter::isFromKnownItsp(SipMessage& sipRequest)
     {
       if (*iter == fromHost)
       {
-	LOG_DEBUG("SipBridgeRouter::isFromKnownItsp - " 
+	OS_LOG_DEBUG(FAC_SIP, "SipBridgeRouter::isFromKnownItsp - "
 	<< host << "/" << fromHost << " came from a known ITSP");
 	return true;
       }
@@ -453,12 +442,12 @@ bool SipBridgeRouter::isFromKnownItsp(SipMessage& sipRequest)
   
   if (route.getUrlParameter(ITSP_FLAG, isItsp, 0) && isItsp == "yes")
   {
-    LOG_DEBUG("SipBridgeRouter::isFromKnownItsp - " 
+    OS_LOG_DEBUG(FAC_SIP, "SipBridgeRouter::isFromKnownItsp - "
 	<< host << "/" << fromHost << " came from a known ITSP.  ITSP flag is set.");
     return true;
   }
 	
-   //LOG_INFO("SipBridgeRouter::isFromKnownItsp - Unable to match " 
+   //OS_LOG_INFO(FAC_SIP, "SipBridgeRouter::isFromKnownItsp - Unable to match "
    // << host << "/" << fromHost << " to a known ITSP");
    
   return false;
@@ -585,7 +574,7 @@ bool SipBridgeRouter::handleAck(SipMessage& sipRequest)
     UtlString requestString;
     ssize_t len;
     sipRequest.getBytes(&requestString, &len, true);
-    LOG_DEBUG("SipBridgeRouter::handleAck - " << requestString.data());
+    OS_LOG_DEBUG(FAC_SIP, "SipBridgeRouter::handleAck - " << requestString.data());
     // This ACK has no matching INVITE, special case
     _pRouter->mpSipUserAgent->sendStatelessAck(sipRequest,            // this will add via
       address,

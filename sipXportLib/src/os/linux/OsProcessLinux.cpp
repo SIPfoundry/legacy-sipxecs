@@ -254,7 +254,7 @@ OsStatus OsProcessLinux::kill()
     {
         int trycount = 0;
 
-        OsSysLog::add(FAC_PROCESS, PRI_INFO,"Attempting kill on  %s",mProcessName.data());
+        Os::Logger::instance().log(FAC_PROCESS, PRI_INFO,"Attempting kill on  %s",mProcessName.data());
 
         while (isRunning() && trycount++ < 3)
         {
@@ -272,13 +272,13 @@ OsStatus OsProcessLinux::kill()
 
         if (isRunning())
         {
-           OsSysLog::add(FAC_PROCESS, PRI_ERR,"Kill of '%s' FAILED",mProcessName.data());
+           Os::Logger::instance().log(FAC_PROCESS, PRI_ERR,"Kill of '%s' FAILED",mProcessName.data());
             retval = OS_FAILED;  //not good.  the thing just won't go away
         }
         else
         {
             retval = OS_SUCCESS; //hurray! it's gone
-            OsSysLog::add(FAC_PROCESS, PRI_NOTICE,"Killed '%s'",mProcessName.data());
+            Os::Logger::instance().log(FAC_PROCESS, PRI_NOTICE,"Killed '%s'",mProcessName.data());
         }
     }
 
@@ -328,14 +328,14 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName,
     // create pipes between the parent and child for stdout and stderr
     if ( pipe(m_fdout) < 0 )
     {
-       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d",
+       Os::Logger::instance().log(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d",
                      rAppName.data(), errno);
        m_fdout[0] = -1;
        m_fdout[1] = -1;
     }
     if ( pipe(m_fderr) < 0 )
     {
-       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d",
+       Os::Logger::instance().log(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d",
                      rAppName.data(), errno);
        m_fderr[0] = -1;
        m_fderr[1] = -1;

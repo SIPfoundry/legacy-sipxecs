@@ -12,7 +12,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include "include/ConferenceEngineEventHandler.h"
 #include "include/ConferenceEngineMediaInterface.h"
 
@@ -57,7 +57,7 @@ ConferenceEngineEventHandler::~ConferenceEngineEventHandler()
 
 void ConferenceEngineEventHandler::ReceivedOutbandDTMF(void* anyPtr, int channel, int value)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                   "ConferenceEngineEventHandler::ReceivedOutbandDTMF receiving a DTMF event %d on channel %d",
                   value, channel);
 
@@ -76,13 +76,13 @@ void ConferenceEngineEventHandler::ReceivedOutbandDTMF(void* anyPtr, int channel
         {
             if (OS_ALREADY_SIGNALED == ret)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                               "ConferenceEngineEventHandler::ReceivedOutbandDTMF Signal Stop returned OS_ALREADY_SIGNALED");
 
             }
             else
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                               "ConferenceEngineEventHandler::ReceivedOutbandDTMF Signal Stop returned %d", ret);
             }
         }
@@ -91,7 +91,7 @@ void ConferenceEngineEventHandler::ReceivedOutbandDTMF(void* anyPtr, int channel
 
 void ConferenceEngineEventHandler::ReceivedInbandDTMF(void* anyPtr, int channel, int tone)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                   "ConferenceEngineEventHandler::ReceivedInbandDTMF receiving a DTMF event %d on channel %d",
                   tone, channel);
 
@@ -110,13 +110,13 @@ void ConferenceEngineEventHandler::ReceivedInbandDTMF(void* anyPtr, int channel,
         {
             if (OS_ALREADY_SIGNALED == ret)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                               "ConferenceEngineEventHandler::ReceivedInbandDTMF Signal Stop returned OS_ALREADY_SIGNALED");
 
             }
             else
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                               "ConferenceEngineEventHandler::ReceivedInbandDTMF Signal Stop returned %d", ret);
             }
         }
@@ -125,7 +125,7 @@ void ConferenceEngineEventHandler::ReceivedInbandDTMF(void* anyPtr, int channel,
 
 void ConferenceEngineEventHandler::PlayedFileEnded(void* anyPtr, int channel, const char* fileName)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                   "ConferenceEngineEventHandler::PlayedFileEnded playFile %s done on channel %d",
                   fileName, channel);
 
@@ -145,22 +145,22 @@ void ConferenceEngineEventHandler::EventMessage(void* anyPtr, GIPS_EVENT_MESSAGE
     switch (type)
     {
     case GIPS_INFORMATION:
-        OsSysLog::add(FAC_MP, PRI_INFO,
+        Os::Logger::instance().log(FAC_MP, PRI_INFO,
                       "ConferenceEngineEventHandler::EventMessage receiving event message %s",
                       str);
         break;
     case GIPS_WARNING:
-        OsSysLog::add(FAC_MP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_MP, PRI_WARNING,
                       "ConferenceEngineEventHandler::EventMessage receiving event message %s",
                       str);
         break;
     case GIPS_ERROR:
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        Os::Logger::instance().log(FAC_MP, PRI_ERR,
                       "ConferenceEngineEventHandler::EventMessage receiving event message %s",
                       str);
         break;
     case GIPS_DEBUG:
-        OsSysLog::add(FAC_MP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                       "ConferenceEngineEventHandler::EventMessage receiving event message %s",
                       str);
         break;

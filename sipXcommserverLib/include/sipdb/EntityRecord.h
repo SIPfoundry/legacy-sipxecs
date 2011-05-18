@@ -182,6 +182,12 @@ public:
     static const char* staticUserLocToUri_fld();
     static const char* staticUserLocCallId_fld();
 
+    //
+    // Presence routing
+    //
+    static const char* vmOnDnd_fld();
+    bool& vmOnDnd();
+
 private:
     std::string _oid;
     std::string _userId;
@@ -198,6 +204,7 @@ private:
     std::set<std::string> _permissions;
     std::vector<Alias> _aliases;
     std::vector<StaticUserLoc> _staticUserLoc;
+    bool _vmOnDnd;
 };
 
 //
@@ -268,6 +275,11 @@ inline std::vector<EntityRecord::Alias>& EntityRecord::aliases()
 inline std::vector<EntityRecord::StaticUserLoc>& EntityRecord::staticUserLoc()
 {
     return _staticUserLoc;
+}
+
+inline bool& EntityRecord::vmOnDnd()
+{
+  return _vmOnDnd;
 }
 
 #endif	/* ENTITYRECORD_H */

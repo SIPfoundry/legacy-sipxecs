@@ -14,7 +14,7 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlDListIterator.h"
 #include "utl/UtlRegex.h"
 #include "net/Url.h"
@@ -441,7 +441,7 @@ void Url::setUrlType(const char* urlProtocol)
 
       if ( UnknownUrlScheme == mScheme )
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "Url::setUrlType unsupported Url scheme '%s'",
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR, "Url::setUrlType unsupported Url scheme '%s'",
                        urlProtocol
                        );
       }
@@ -449,7 +449,7 @@ void Url::setUrlType(const char* urlProtocol)
    else
    {
       // no urlProtocol value passed
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "Url::setUrlType Url scheme NULL");
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "Url::setUrlType Url scheme NULL");
       mScheme = UnknownUrlScheme;
    }
 }
@@ -476,7 +476,7 @@ void Url::setDisplayName(const char* displayName)
        }
        else
        {
-          OsSysLog::add(FAC_SIP, PRI_CRIT, "Url::setDisplayName '%s' invalid", displayName);
+          Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "Url::setDisplayName '%s' invalid", displayName);
        }
    }
 }
@@ -1125,7 +1125,7 @@ void Url::setFieldParameter(const char* name, const char* value)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "Url::setFieldParameter passed a null name");
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "Url::setFieldParameter passed a null name");
       assert(false);
    }
 }
@@ -1321,66 +1321,66 @@ void Url::kedump()
 {
     UtlString proto;
     getUrlType(proto);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Url type: '%s'", proto.data());
 
     UtlString disp;
     getDisplayName(disp);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump DisplayName: '%s'", disp.data());
 
     UtlString user;
     getUserId(user);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump UserId: '%s'", user.data());
 
     UtlString pwd;
     getPassword(pwd);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Password: '%s'", pwd.data());
 
     UtlString server;
     getHostAddress(server);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Address: '%s'", server.data());
 
     int port = getHostPort();
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Port: %d", port);
 
     UtlString callId;
     getHeaderParameter("call-id", callId);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Call-Id: '%s'", callId.data());
 
     UtlString name;
     UtlString value;
     int index = 0;
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Header Parameters:");
     while(getHeaderParameter(index, name, value))
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "Url::kedump '%s'='%s'", name.data(), value.data());
         index++;
     }
 
     index = 0;
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Field Parameters:");
     while(getFieldParameter(index, name, value))
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "Url::kedump '%s'='%s'", name.data(), value.data());
         index++;
     }
 
     index = 0;
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "Url::kedump URL Parameters:");
     while(getUrlParameter(index, name, value))
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "Url::kedump '%s'='%s'", name.data(), value.data());
         index++;
     }
@@ -1438,7 +1438,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    // addr-spec's (or any URI) cannot.
    if (AddrSpec == uriForm && (urlString[0] == '<' || urlString[0] == '"'))
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "Url::parseString "
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "Url::parseString "
                     "Invalid addr-spec found (probably name-addr format): '%s'",
                     urlString);
    }
@@ -1476,7 +1476,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
             break;
 
          default:
-            OsSysLog::add(FAC_SIP, PRI_ERR, "Url::parseString display name invalid (matches: %d)\n"
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR, "Url::parseString display name invalid (matches: %d)\n"
                           "   %s value: '%s'",
                           displayName.Matches(),
                           uriForm == NameAddr ? "NameAddr" :
@@ -1650,7 +1650,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
           * we just log an error and set the scheme to the unknown url type and
           * clear any components that might have been set.
           */
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "Url::parseString no valid host found at char %d in '%s', "
                        "uriForm = %s",
                        workingOffset, urlString,
@@ -1833,7 +1833,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "Url::parseString error "
                              "- expected end of url or field parameter ';name=' "
                              "at offset %d in '%s'",
@@ -2167,7 +2167,7 @@ void Url::setGRUU(const UtlString& uniqueId)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "Url::setGRUU called for an invalid URL scheme (%s)",
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "Url::setGRUU called for an invalid URL scheme (%s)",
                     schemeName(mScheme)
                     );
       assert(false);

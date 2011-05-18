@@ -39,7 +39,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDatagramSocket.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // DEFINES
 #define SOCKET_LEN_TYPE
@@ -71,7 +71,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
    mSimulatedConnect(FALSE)     // Simulated connection is off until
                                 // activated in doConnect.
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "OsDatagramSocket::_ attempt %s:%d"
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "OsDatagramSocket::_ attempt %s:%d"
                   ,remoteHost != NULL ? remoteHost : "[null]", remoteHostPortNum);
 
     int                error = 0;
@@ -108,7 +108,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         error = OsSocketGetERRNO();
         close();
 
-        OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+        Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                       "OsDatagramSocket::_ socket(%d, %d, %d) failed w/ errno %d '%s')",
                       AF_INET, SOCK_DGRAM, IPPROTO_UDP,
                       error, strerror(error));
@@ -129,7 +129,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         if (!bReported)
         {
             bReported = true ;
-            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                     "OsDatagramSocket::_ socket %d failed to set IP_MTU_DISCOVER (rc=%d, errno=%d)",
                     socketDescriptor, error,  OsSocketGetERRNO());
         }
@@ -173,7 +173,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         // Extract the address and port we were trying to bind() to.
         const char *addr = inet_ntoa(localAddr.sin_addr);
         int port = ntohs(localAddr.sin_port);
-        OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+        Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                       "OsDatagramSocket::_ %d (%s:%d %s:%d) bind(%d, %s:%d) failed w/ errno %d '%s')",
                       socketDescriptor,
                       remoteHost, remoteHostPortNum, localHost, localHostPortNum,
@@ -190,7 +190,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         localHostPort = htons(addr.sin_port);
     }
 
-    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                   "OsDatagramSocket::_ %d (%s:%d %s:%d) socket and bind succeeded",
                   socketDescriptor,
                   remoteHost, remoteHostPortNum, localHost, localHostPortNum);
@@ -268,7 +268,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum,
             {
                 int error = OsSocketGetERRNO();
                 close();
-                OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                               "OsDatagramSocket::doConnect %d (%s:%d %s:%d) failed w/ errno %d '%s')",
                               socketDescriptor,
                               remoteHost, remoteHostPortNum,
@@ -278,7 +278,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum,
             else
             {
                 mIsConnected = TRUE;
-                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                               "OsDatagramSocket::doConnect %d (%s:%d %s:%d) succeeded)",
                               socketDescriptor,
                               remoteHost, remoteHostPortNum,
@@ -288,7 +288,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum,
         else
         {
             close();
-            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                     "OsDatagramSocket::doConnect( %s:%d ) failed host lookup)",
                     remoteHost, remoteHostPortNum);
 
@@ -299,7 +299,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum,
     {
         mIsConnected = TRUE;
         mSimulatedConnect = TRUE;
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                       "OsDatagramSocket::doConnect %d (%s:%d %s:%d) simulated connect)",
                       socketDescriptor,
                       remoteHost, remoteHostPortNum,
@@ -355,7 +355,7 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
 
         if(bytesSent != bufferLength)
         {
-           OsSysLog::add(FAC_SIP, PRI_ERR,
+           Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                          "OsDatagramSocket::write(4) %d ipAddress = '%s', "
                          "port = %d, bytesSent = %d, "
                          "bufferLength = %d, errno = %d '%s'",

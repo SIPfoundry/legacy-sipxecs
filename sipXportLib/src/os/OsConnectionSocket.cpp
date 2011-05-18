@@ -34,7 +34,7 @@
 #include <os/OsConnectionSocket.h>
 #include "os/OsUtil.h"
 #include "utl/UtlSList.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -54,7 +54,7 @@ const UtlContainableType OsConnectionSocket::TYPE = "OsConnectionSocket";
 // Constructor
 OsConnectionSocket::OsConnectionSocket(int connectedSocketDescriptor)
 {
-   OsSysLog::add(FAC_KERNEL, PRI_INFO,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                  "OsConnectionSocket::_[1] (%d)",
                  connectedSocketDescriptor
                  );
@@ -63,7 +63,7 @@ OsConnectionSocket::OsConnectionSocket(int connectedSocketDescriptor)
 
 OsConnectionSocket::OsConnectionSocket(const char* szLocalIp, int connectedSocketDescriptor)
 {
-   OsSysLog::add(FAC_KERNEL, PRI_INFO,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                  "OsConnectionSocket::_[2] (%s, %d)",
                  szLocalIp, connectedSocketDescriptor
                  );
@@ -97,7 +97,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    struct sockaddr_in serverSockAddr;
    UtlString temp_output_address;
 
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ attempt %s:%d %s timeout %d"
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ attempt %s:%d %s timeout %d"
                  ,serverName, serverPort,
                  blockingConnect ? "BLOCKING" : "NON-BLOCKING", timeoutInMilliseconds );
 
@@ -184,7 +184,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    {
       error = OsSocketGetERRNO();
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsConnectionSocket::_ 'socket' failed: %x", error);
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsConnectionSocket::_ 'socket' failed: %x", error);
       goto EXIT;
    }
 
@@ -218,7 +218,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       if (!server)
       {
          close();
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "DNS failed to look up host: '%s'",
                        serverName);
          goto EXIT;
@@ -228,7 +228,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    if (!isIp)
    {
       inet_ntoa_pt(*((in_addr*) (server->h_addr)),temp_output_address);
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "OsConnectionSocket::_: connecting to host at: %s:%d",
                     temp_output_address.data(), serverPort);
       serverAddr = (in_addr*) (server->h_addr);
@@ -246,7 +246,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    inet_ntoa_pt(serverSockAddr.sin_addr, mRemoteIpAddress);
 
    // Ask the TCP layer to connect
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ connect %d",
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ connect %d",
                  socketDescriptor);
 
    int connectReturn;
@@ -272,7 +272,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
          // do a poll() to block for the right amount of time.
          if (timeoutInMilliseconds > 0 )
          {
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ poll %d timeout %d msec",
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ poll %d timeout %d msec",
                           socketDescriptor, timeoutInMilliseconds);
 
             struct pollfd pset[1];
@@ -294,7 +294,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
                }
                else
                {
-                  OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                  Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                                 "OsConnectionSocket::_ unexpected return from poll(): pollResult = %d, pset[0].revents = %d",
                                 pollResult, pset[0].revents);
                   // Need to set error to some non-0 value.
@@ -312,7 +312,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
                error = OsSocketGetERRNO();
             }
 
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                           "OsConnectionSocket::_ after poll(), error = %d",
                           error);
          }
@@ -354,14 +354,14 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       close();
 
       msgBuf = strerror(error);
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsConnectionSocket(%s:%d): call to connect() failed "
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "OsConnectionSocket(%s:%d): call to connect() failed "
                     "with error: %d '%s'",
                     serverName, serverPort, error, msgBuf);
       // mIsConnected (set in OsSocket::_) remains FALSE.
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_INFO,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                     "OsConnectionSocket::_[5] connected %d to %s:%d",
                     socketDescriptor, serverName, serverPort
                     );
@@ -406,7 +406,7 @@ bool OsConnectionSocket::peerIdentity( UtlSList* altNames
 // Destructor
 OsConnectionSocket::~OsConnectionSocket()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_INFO, "OsConnectionSocket::~");
+   Os::Logger::instance().log(FAC_KERNEL, PRI_INFO, "OsConnectionSocket::~");
    remoteHostName = OsUtil::NULL_OS_STRING;
    close();
 }
@@ -425,7 +425,7 @@ OsConnectionSocket::operator=(const OsConnectionSocket& rhs)
 
 UtlBoolean OsConnectionSocket::reconnect()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_WARNING, "reconnect not implemented");
+   Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING, "reconnect not implemented");
    return FALSE;
 }
 
@@ -444,7 +444,7 @@ int OsConnectionSocket::read(char* buffer, int bufferLength)
           char* msgBuf;
           msgBuf = strerror(error);
 
-          OsSysLog::add(FAC_KERNEL, PRI_INFO,
+          Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                         "OsConnectionSocket::read[2] error or EOF on fd %d, "
                         "errno = %d %s",
                         socketDescriptor, error, msgBuf
@@ -478,7 +478,7 @@ int OsConnectionSocket::read(char* buffer,
           char* msgBuf;
           msgBuf = strerror(error);
 
-          OsSysLog::add(FAC_KERNEL, PRI_INFO,
+          Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                         "OsConnectionSocket::read[4] error or EOF on fd %d, "
                         "errno = %d %s",
                         socketDescriptor, error, msgBuf
@@ -507,7 +507,7 @@ int OsConnectionSocket::read(char* buffer,
           char* msgBuf;
           msgBuf = strerror(error);
 
-          OsSysLog::add(FAC_KERNEL, PRI_INFO,
+          Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                         "OsConnectionSocket::read[3] error or EOF on fd %d, "
                         "errno = %d %s",
                         socketDescriptor, error, msgBuf

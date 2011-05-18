@@ -28,7 +28,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsLock.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
@@ -365,11 +365,11 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    osPrintf("MprDecode::handleSelectCodecs(%d codec%s):\n",
       numCodecs, ((1 == numCodecs) ? "" : "s"));
 #endif
-   if (OsSysLog::willLog(FAC_MP, PRI_DEBUG))
+   if (Os::Logger::instance().willLog(FAC_MP, PRI_DEBUG))
    {
       for (i=0; i<numCodecs; i++) {
          pCodec = pCodecs[i];
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                        "MprDecode::handleSelectCodecs "
                        "pCodecs[%d]->getCodecType() = %d, "
                        "pCodecs[%d]->getCodecPayloadFormat() = %d",

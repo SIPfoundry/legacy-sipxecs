@@ -5,11 +5,16 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
+import java.io.File;
+
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
+import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRelayService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -77,6 +82,10 @@ public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase 
         m_sipxProcessContext.clear();
         natTraversal.activateOnLocation(m_locationsManager.getLocation(101), m_serviceConfiguratorImpl);
         assertEquals(3, m_sipxProcessContext.getRestartNeededServices().size());
+
+        // some config files are left behind here, we need to delete them manually
+        File f = new File(TestUtil.getProjectDirectory()+"/etc/nattraversalrules.xml");
+        f.delete();
     }
 
     public void testOneNatTraversalRecord() throws Exception {

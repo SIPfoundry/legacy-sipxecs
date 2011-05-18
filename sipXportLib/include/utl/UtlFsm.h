@@ -13,7 +13,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // DEFINES
 //#define LOG_STATE_CHANGES
@@ -306,7 +306,7 @@
                                StateType* transitionTarget )
       {
 #ifdef LOG_STATE_CHANGES
-         OsSysLog::add(FAC_FSM, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_FSM, PRI_DEBUG,
                        "ChangeState( FSM = %s, current state = %s. new state = %s )",
                        sm.name(),
                        transitionSource->name(),

@@ -13,7 +13,7 @@
 #include <limits.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
 #include "os/OsProcess.h"
 #include "net/NetMd5Codec.h"
@@ -96,7 +96,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
 
    // One-second subscriptions.
    mOneSecondSubscription = configDb.getBoolean(CONFIG_SETTING_1_SEC, TRUE);
-   OsSysLog::add(FAC_SIP, PRI_INFO,
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                  "%s::readConfig mOneSecondSubscription = %d",
                  mLogName.data(), mOneSecondSubscription);
 
@@ -106,7 +106,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
         OS_SUCCESS) ||
        mCallJoinCode.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "%s::readConfig No call join feature code specified",
                     mLogName.data());
    }
@@ -114,7 +114,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
    {
       // Call join feature code is configured.
       // Initialize the system.
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                     "%s::readConfig Call join feature code is '%s'",
                     mLogName.data(), mCallJoinCode.data());
       mRedirectorActive = OS_SUCCESS;
@@ -131,7 +131,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
    // value.
    mWaitSecs = DEFAULT_WAIT_TIME_SECS;
    mWaitUSecs = DEFAULT_WAIT_TIME_USECS;
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::readConfig Default wait time is %d.%06d",
                  mLogName.data(), mWaitSecs, mWaitUSecs);
    // Fetch the parameter value.
@@ -139,7 +139,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
    float waitf;
    if (configDb.get(CONFIG_SETTING_WAIT, waitUS) == OS_SUCCESS)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::readConfig " CONFIG_SETTING_WAIT " is '%s'",
                     mLogName.data(), waitUS.data());
       // Parse the value, checking for errors.
@@ -147,7 +147,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
       sscanf(waitUS.data(), " %f %n", &waitf, &char_count);
       if (char_count != waitUS.length())
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "%s::readConfig Invalid format for "
                        CONFIG_SETTING_WAIT " '%s'",
                        mLogName.data(), waitUS.data());
@@ -156,7 +156,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
          // Check that the value is in range.
          !(waitf >= MIN_WAIT_TIME && waitf <= MAX_WAIT_TIME))
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "%s::readConfig " CONFIG_SETTING_WAIT
                        " (%f) outside allowed range (%f to %f)",
                        mLogName.data(), waitf, MIN_WAIT_TIME, MAX_WAIT_TIME);
@@ -170,7 +170,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
          int usecs = (int)((waitf * 1000000) + 0.0000005);
          mWaitSecs = usecs / 1000000;
          mWaitUSecs = usecs % 1000000;
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "%s::readConfig Wait time is %d.%06d",
                        mLogName.data(), mWaitSecs, mWaitUSecs);
       }
@@ -249,7 +249,7 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
 void
 SipRedirectorJoin::finalize()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::finalize entered", mLogName.data());
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::finalize entered", mLogName.data());
 
    // Close down the SipUserAgent.
    if (mpSipUserAgent)
@@ -323,7 +323,7 @@ SipRedirectorJoin::lookUpDialog(
    const char* subscribeUser,
    State stateFilter)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::lookUpDialog requestString = '%s', "
                  "requestSeqNo = %d, redirectorNo = %d, privateStorage = %p, "
                  "subscribeUser = '%s', stateFilter = %d",
@@ -390,7 +390,7 @@ SipRedirectorJoin::lookUpDialog(
       UtlString userId;
       Url requestUri(requestString);
       requestUri.getUserId(userId);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::lookUpDialog userId '%s'",
                     mLogName.data(), userId.data());
 
@@ -477,7 +477,7 @@ SipRedirectorJoin::lookUpDialog(
 
       // If we are printing debug messages, record when the SUBSCRIBE
       // was sent, so we can report how long it took to get the NOTIFYs.
-      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
       {
          OsDateTime::getCurTime(storage->mSubscribeSendTime);
       }
@@ -522,7 +522,7 @@ void SipRedirectorPrivateStorageJoin::processNotify(const char* body)
       (dialog_info = document.FirstChild("dialog-info")) != NULL &&
       dialog_info->Type() == TiXmlNode::ELEMENT)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorPrivateStorageJoin::processNotify "
                     "Body parsed, <dialog-info> found");
       // Find all the <dialog> elements.
@@ -536,7 +536,7 @@ void SipRedirectorPrivateStorageJoin::processNotify(const char* body)
    else
    {
       // Report error.
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "SipRedirectorPrivateStorageJoin::processNotify "
                     "NOTIFY body invalid: '%s'", body);
    }
@@ -593,7 +593,7 @@ void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SipRedirectorPrivateStorageJoin::"
                           "processNotifyDialogElement "
                           "Invalid <duration> '%s'",
@@ -640,7 +640,7 @@ void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
       }
    }
    // Report all the information we have on the dialog.
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorPrivateStorageJoin::"
                  "processNotifyDialogElement "
                  "Dialog values: call_id = '%s', "
@@ -667,7 +667,7 @@ void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
          // Must have at least one remote URI, so we can contact the caller.
          (!remote_identity.isNull() || !remote_target.isNull())))
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorPrivateStorageJoin::"
                     "processNotifyDialogElement "
                     "Dialog element unusable");
@@ -684,7 +684,7 @@ void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
           state == mStateFilter) &&
          duration > mTargetDialogDuration))
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorPrivateStorageJoin::"
                     "processNotifyDialogElement "
                     "Dialog does not qualify");
@@ -692,7 +692,7 @@ void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
    }
 
    // Save information about this dialog.
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorPrivateStorageJoin::"
                  "processNotifyDialogElement "
                  "Dialog element saved");
@@ -751,7 +751,7 @@ SipRedirectorJoinNotification::SipRedirectorJoinNotification(
 
 OsStatus SipRedirectorJoinNotification::signal(const intptr_t eventData)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorJoinNotification::signal "
                  "Fired mRequestSeqNo %d, mRedirectorNo %d",
                  mRequestSeqNo, mRedirectorNo);
@@ -802,7 +802,7 @@ SipRedirectorJoinTask::handleMessage(OsMsg& eventMessage)
          // Get the Call-Id.
          UtlString callId;
          message->getCallIdField(&callId);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipRedirectorJoinTask::handleMessage "
                        "Start processing NOTIFY CallID '%s'", callId.data());
 
@@ -831,20 +831,20 @@ SipRedirectorJoinTask::handleMessage(OsMsg& eventMessage)
                   const HttpBody* http_body;
                   if (!(http_body = message->getBody()))
                   {
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                    "SipRedirectorJoinTask::handleMessage "
                                    "getBody returns NULL, ignoring");
                   }
                   else if (http_body->getBytes(&body, &length),
                            !(body && length > 0))
                   {
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                    "SipRedirectorJoinTask::handleMessage "
                                    "getBytes returns no body, ignoring");
                   }
                   else
                   {
-                     if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                     if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
                      {
                         // Calculate the response delay.
                         OsTime now;
@@ -852,7 +852,7 @@ SipRedirectorJoinTask::handleMessage(OsMsg& eventMessage)
                         OsTime delta;
                         delta = now - (pStorage->mSubscribeSendTime);
 
-                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                       "SipRedirectorJoinTask::handleMessage "
                                       "NOTIFY for request %d, delay %d.%06d, "
                                       "body '%s'",
@@ -872,7 +872,7 @@ SipRedirectorJoinTask::handleMessage(OsMsg& eventMessage)
          }
 
          // Return a 200 response.
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::handleMessage "
                        "Sending 200 OK response to NOTIFY");
          SipMessage response;
@@ -984,14 +984,14 @@ SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
                      lineMgr->setDefaultOutboundLine(identity);
                      bSuccess = true;
 
-                     OsSysLog::add(FAC_SIP, PRI_INFO,
+                     Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                                    "Added identity '%s': user='%s' realm='%s'"
                                    ,identity.toString().data(), user.data(), realm.data()
                                    );
                   }
                   else
                   {
-                     OsSysLog::add(FAC_SIP, PRI_ERR,
+                     Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                    "Error adding identity '%s': user='%s' realm='%s'\n"
                                    "Call Join feature will not work!",
                                    identity.toString().data(), user.data(), realm.data()
@@ -1000,24 +1000,24 @@ SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
                }
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR, "addLine failed. Call Join feature will not work!" );
+                  Os::Logger::instance().log(FAC_SIP, PRI_ERR, "addLine failed. Call Join feature will not work!" );
                }
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "Constructing SipLineMgr failed. Call Join feature will not work!" );
             }
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "Constructing SipLine failed. Call Join feature will not work!" );
          }
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "No credential found for '%s' in realm '%s'. "
                        "Call Join feature will not work!"
                        ,identity.toString().data(), realm.data()

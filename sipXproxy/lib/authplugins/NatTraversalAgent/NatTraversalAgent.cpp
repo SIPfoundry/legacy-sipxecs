@@ -27,7 +27,7 @@
 #include "os/OsWriteLock.h"
 #include "os/OsTimer.h"
 #include "os/OsConfigDb.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlRegex.h"
 #include "utl/UtlHashMapIterator.h"
 #include "sipXecsService/SipXecsService.h"
@@ -52,7 +52,7 @@
 { \
   std::ostringstream strm; \
   strm << log; \
-  OsSysLog::add(FAC_SUPERVISOR, priority, strm.str().c_str()); \
+  Os::Logger::instance().log(FAC_SUPERVISOR, priority, strm.str().c_str()); \
 }
 #define LOG_DEBUG(log) LOG_ANY(log, PRI_DEBUG)
 #define LOG_INFO(log) LOG_ANY(log, PRI_INFO)
@@ -83,7 +83,7 @@ NatTraversalAgent::NatTraversalAgent(const UtlString& pluginName ) ///< the name
      mbConnectedToRegistrationDB( false ),
      mNextAvailableCallTrackerHandle( 0 )
 {
-   OsSysLog::add(FAC_NAT,PRI_INFO,"NatTraversalAgent plugin instantiated '%s'",
+   Os::Logger::instance().log(FAC_NAT,PRI_INFO,"NatTraversalAgent plugin instantiated '%s'",
                  mInstanceName.data() );
 };
 
@@ -94,7 +94,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
                              )
 {
    OsWriteLock lock( mMessageProcessingMutex ); // ensures that we are not processing calls while we are setting the config
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::readConfig",
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::readConfig",
                  mInstanceName.data() );
 
    UtlString fileName;
@@ -105,14 +105,14 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
 
       fileName = defaultPath;
 
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::readConfig "
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::readConfig "
                     " no rules file configured; trying '%s'",
                     mInstanceName.data(), fileName.data()
                     );
    }
    else
    {
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::readConfig "
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::readConfig "
                     " did rules file configured; trying '%s'",
                     mInstanceName.data(), fileName.data()
                     );
@@ -121,7 +121,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
 
    if( mNatTraversalRules.isEnabled() )
    {
-      OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig: "
+      Os::Logger::instance().log(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig: "
                     " NAT Traversal feature is ENABLED", mInstanceName.data() );
 
       if( !mpMediaRelay )
@@ -132,7 +132,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
       size_t attemptCounter;
       for( attemptCounter = 0; attemptCounter < MAX_MEDIA_RELAY_INIT_ATTEMPTS; attemptCounter++ )
       {
-         OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig trying to initialize media relay with %d sessions", mInstanceName.data(), mNatTraversalRules.getMaxMediaRelaySessions() );
+         Os::Logger::instance().log(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig trying to initialize media relay with %d sessions", mInstanceName.data(), mNatTraversalRules.getMaxMediaRelaySessions() );
          if( mpMediaRelay->initialize( mNatTraversalRules.getMediaRelayPublicAddress(),
                                        mNatTraversalRules.getMediaRelayNativeAddress(),
                                        mNatTraversalRules.isXmlRpcSecured(),
@@ -151,7 +151,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
       if( attemptCounter >= MAX_MEDIA_RELAY_INIT_ATTEMPTS )
       {
          mbNatTraversalFeatureEnabled = false;
-         OsSysLog::add(FAC_NAT, PRI_CRIT, "NatTraversalAgent[%s]::readConfig failed to initialize media relay - NAT traversal feature will be disabled",
+         Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "NatTraversalAgent[%s]::readConfig failed to initialize media relay - NAT traversal feature will be disabled",
                        mInstanceName.data() );
          Alarm::raiseAlarm( "NAT_TRAVERSAL_FAILED_TO_INITIALIZE_MEDIA_RELAY" );
       }
@@ -172,13 +172,13 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          // start the timer that will be the heartbeat to delete stale session context objects
          OsTime cleanUpTimerPeriod( CLEAN_UP_TIMER_IN_SECS, 0 );
          mCleanupTimer.periodicEvery( cleanUpTimerPeriod, cleanUpTimerPeriod );
-         OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig successfully initialized media relay - NAT traversal feature will be enabled",
+         Os::Logger::instance().log(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig successfully initialized media relay - NAT traversal feature will be enabled",
                        mInstanceName.data() );
       }
    }
    else
    {
-      OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig: "
+      Os::Logger::instance().log(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig: "
                     " NAT Traversal feature is DISABLED", mInstanceName.data() );
   }
 }
@@ -218,7 +218,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
          UtlString msgBytes;
          ssize_t msgLen;
          request.getBytes(&msgBytes, &msgLen);
-         OsSysLog::add(FAC_NAT, PRI_DEBUG, "NTAP considering %s", msgBytes.data() );
+         Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NTAP considering %s", msgBytes.data() );
 
          UtlString callId;
          UtlString method;
@@ -250,13 +250,13 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                   {
                      // We have a dialog-forming INVITE.  Inform the call tracker
                      // so that it can start tracking the media session that will ensue.
-                     OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::authorizeAndModify create new call tracker[%zu] to track call id %s"
+                     Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::authorizeAndModify create new call tracker[%zu] to track call id %s"
                                                         , mInstanceName.data(), mNextAvailableCallTrackerHandle, callId.data() );
                      pCallTracker->notifyIncomingDialogFormingInvite( request, routeState, pCaller, pCallee );
                   }
                   else
                   {
-                     OsSysLog::add(FAC_NAT, PRI_CRIT, "NatTraversalAgent[%s]::authorizeAndModify failed to create call tracker to track call id %s"
+                     Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "NatTraversalAgent[%s]::authorizeAndModify failed to create call tracker to track call id %s"
                                                         , mInstanceName.data(), callId.data() );
                   }
                   mNextAvailableCallTrackerHandle++;
@@ -427,7 +427,7 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
 
    if( mbNatTraversalFeatureEnabled )
    {
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "handleOutputMessage considering %s from %s:%u", message.getFirstHeaderLine(), address, port );
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "handleOutputMessage considering %s from %s:%u", message.getFirstHeaderLine(), address, port );
 
       // Check if the sipXecs is located behind a NAT.  If it is and the message
       // is going to a destination that is not on our local private subnet then
@@ -450,7 +450,7 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
       }
       else
       {
-         OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::handleOutputMessage failed to retrieve CallTracker to handle request"
+         Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::handleOutputMessage failed to retrieve CallTracker to handle request"
                                             , mInstanceName.data() );
       }
    }
@@ -587,7 +587,7 @@ void NatTraversalAgent::adjustViaForNatTraversal( SipMessage& message, const cha
                     newVia += viaParams;
                 }
                 default:
-                    OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                                   "NatTraversalAgent::adjustViaForNatTraversal"
                                   " invalid response send protocol %d", sendProtocol);
             }
@@ -864,7 +864,7 @@ CallTracker* NatTraversalAgent::createCallTrackerAndAddToMap( const UtlString& c
       delete pMapKey;
       delete pCallTracker;
       pCallTracker = 0;
-      OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalAgent[%s]::createCallTrackerAndAddToMap failed to insert "
+      Os::Logger::instance().log(FAC_NAT, PRI_ERR, "NatTraversalAgent[%s]::createCallTrackerAndAddToMap failed to insert "
                                         "new Call Tracker into map.  key : '%s'",
                                         mInstanceName.data(), callId.data() );
    }

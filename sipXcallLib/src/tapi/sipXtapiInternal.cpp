@@ -175,7 +175,7 @@ SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc)
             {
                 hCall = pIndex->getValue() ;
 #ifdef DUMP_CALLS
-                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** LookupHandle ***\nhCall %d\n****callId %s\n***sessionCallId %s\n",
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG, "***************** LookupHandle ***\nhCall %d\n****callId %s\n***sessionCallId %s\n",
                 hCall,
                 pData->callId ? pData->callId->data() : NULL,
                 pData->sessionCallId ? pData->sessionCallId->data() : NULL);
@@ -244,7 +244,7 @@ SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type)
         // TEMP
         if (pRC)
         {
-            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
                           "***************** Lookup***\n"
                           "hCall %d\n****callId %s\n"
                           "***ghostCallId %s\n"
@@ -615,7 +615,7 @@ void sipxSubscribeClientSubCallback(SipSubscribeClient::SubscriptionState newSta
         }
         else
         {
-            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
                 "sipxSubscribeClientSubCallback: invalid SubscriptionState: %s",
                 errorState.data());
         }
@@ -624,7 +624,7 @@ void sipxSubscribeClientSubCallback(SipSubscribeClient::SubscriptionState newSta
     // Cannot find subsription data for this handle
     else
     {
-        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
             "sipxSubscribeClientSubCallback: cannot find subscription data for handle: %p",
             applicationData);
     }
@@ -686,7 +686,7 @@ bool sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
     // No data for the subscription handle
     else
     {
-        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIPXTAPI, PRI_ERR,
             "sipxSubscribeClientNotifyCallback: cannot find subscription data for handle: %p",
             applicationData);
     }
@@ -914,7 +914,7 @@ UtlBoolean sipxRemoveCallHandleFromConf(SIPX_CONF_DATA *pConfData,
     //
 
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipxRemoveCallHandleFromConf pConfData=%p, hCall=%u",
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG, "sipxRemoveCallHandleFromConf pConfData=%p, hCall=%u",
                   pConfData, hCall);
 
     UtlBoolean bFound = false ;
@@ -1107,7 +1107,7 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
     if (contactType == CONTACT_RELAY)
     {
         // Relay is not supported yet -- default to AUTO for now.
-    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
         "sipxGetContactHostPort >>>>> CONTACT_RELAY if");
         contactType = CONTACT_AUTO  ;
     }
@@ -1115,11 +1115,11 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
     // Use configured address first
     if ((contactType == CONTACT_AUTO) || (contactType == CONTACT_CONFIG))
     {
-	OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+	Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
         "sipxGetContactHostPort >>>>> CONTACT_AUTO || CONTACT_CONFIG");
         if (pData->pSipUserAgent->getConfiguredPublicAddress(&useIp, &usePort))
         {
-OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
         "sipxGetContactHostPort >>>>> if (pData->pSipUserAgent->getConfiguredPublicAddress(&useIp, &usePort))");
             uri.setHostAddress(useIp) ;
             uri.setHostPort(usePort) ;
@@ -1130,11 +1130,11 @@ OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
     // Use NAT_MAPPED next
     if (!bSet && ((contactType == CONTACT_AUTO) || (contactType == CONTACT_NAT_MAPPED)))
     {
-OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
         "sipxGetContactHostPort >>>>> Use NAT_MAPPED next");
         if (pData->pSipUserAgent->getNatMappedAddress(&useIp, &usePort))
         {
-OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
         "sipxGetContactHostPort >>>>> pData->pSipUserAgent->getNatMappedAddress(&useIp, &usePort)");
             uri.setHostAddress(useIp) ;
             uri.setHostPort(usePort) ;
@@ -1145,11 +1145,11 @@ OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
     // Lastly, use local
     if (!bSet)
     {
-OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
         "sipxGetContactHostPort >>>>> use local");
         if (pData->pSipUserAgent->getLocalAddress(&useIp, &usePort))
         {
-OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "pData->pSipUserAgent->getLocalAddress(&useIp, &usePort)");
+Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG, "pData->pSipUserAgent->getLocalAddress(&useIp, &usePort)");
             uri.setHostAddress(useIp) ;
             uri.setHostPort(usePort) ;
             bSet = TRUE ;
@@ -1158,18 +1158,31 @@ OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "pData->pSipUserAgent->getLocalAddress(&u
 }
 
 
-SIPXTAPI_API void sipxLogEntryAdd(OsSysLogPriority priority,
-                     const char *format,
-                     ...)
+SIPXTAPI_API void sipxLogEntryAdd(int level, const char* format, ...)
 {
-    va_list ap;
-    va_start(ap, format);
+    int facility = FAC_SIPXTAPI;
+    char* buff;
+      size_t needed = 1024;
 
-    pthread_t threadId;
-    OsTask::getCurrentTaskId(threadId) ;
-    OsSysLog::vadd("sipXtapi", threadId, FAC_SIPXTAPI, priority, format, ap);
+      bool formatted = false;
+      std::string message;
+      for (int i = 0; !formatted && i < 3; i++)
+      {
+        va_list args;
+        va_start(args, format);
+        buff = (char*)::malloc(needed); /// Create a big enough buffer
+        ::memset(buff, '\0', needed);
+        size_t oldSize = needed;
+        needed = vsnprintf(buff, needed, format, args) + 1;
+        formatted = needed <= oldSize;
+        if (formatted)
+          message = buff;
+        ::free(buff);
+        va_end(args);
+      }
 
-    va_end(ap);
+      if (formatted)
+        Os::Logger::instance().log_(facility, level, message.c_str());
 }
 
 SIPXTAPI_API SIPX_RESULT sipxConfigAllowMethod(const SIPX_INST hInst, const char* method, const bool bAllow)
@@ -1369,7 +1382,7 @@ SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hIn
         }
     }
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetVoiceEnginePtr hInst=%x, ptr=%08X",
         hInst, ptr);
     return ptr;
@@ -1397,7 +1410,7 @@ SIPXTAPI_API GipsVideoEngineWindows* sipxConfigGetVideoEnginePtr(const SIPX_INST
         }
     }
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetVideoEnginePtr hInst=%x, ptr=%08X",
         hInst, ptr);
     return ptr;
@@ -1406,7 +1419,7 @@ SIPXTAPI_API GipsVideoEngineWindows* sipxConfigGetVideoEnginePtr(const SIPX_INST
 
 void GIPSVETraceCallback(char *szMsg, int iNum)
 {
-    OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_AUDIO, PRI_DEBUG,
             "%s (%d)",
             szMsg,
             iNum);
@@ -1479,7 +1492,7 @@ SIPXTAPI_API SIPX_RESULT sipxTranslateToneId(const TONE_ID toneId,
 SIPXTAPI_API SIPX_RESULT sipxConfigVoicemailSubscribe(const SIPX_INST hInst,
                                                       const char* szSubscribeURL)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigVoicemailSubscribe hInst=%p URL=%s",
         hInst, szSubscribeURL);
 
@@ -1625,7 +1638,7 @@ void sipxDumpCalls()
             if (pData)
             {
                 hCall = pIndex->getValue() ;
-                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
                               "***************** CallDump***\n"
                               "hCall %d\n"
                               "****callId %s\n"

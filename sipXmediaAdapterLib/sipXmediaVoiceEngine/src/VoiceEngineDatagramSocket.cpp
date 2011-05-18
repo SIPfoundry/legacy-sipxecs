@@ -22,7 +22,7 @@
 #endif
 #include "os/OsLock.h"
 #include "os/OsStunQueryAgent.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

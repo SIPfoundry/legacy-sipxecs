@@ -10,7 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <tapi/sipXtapi.h>
 #include <tapi/sipXtapiEvents.h>
 #include <tapi/sipXtapiInternal.h>
@@ -79,7 +79,7 @@ ACDCallManager::ACDCallManager(ACDServer* pAcdServer, const int udpPort,
 
    // sipXtapi failed to initialize, log the error
    if (rc != SIPX_RESULT_SUCCESS) {
-      OsSysLog::add(FAC_ACD, PRI_CRIT, "ACDCallManager::ACDCallManager"
+      Os::Logger::instance().log(FAC_ACD, PRI_CRIT, "ACDCallManager::ACDCallManager"
                     " sipxInitialize failed with error code: %d", rc);
       osPrintf("ACDCallManager::ACDCallManager - sipxInitialize failed with error code: %d\n", rc);
    }
@@ -291,7 +291,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
    sipxEventToString(category, pInfo, sEvent, sizeof(sEvent)) ;
 
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - SIPXTAPI event hCall=%d %s", pCallInfo->hCall, sEvent) ;
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - SIPXTAPI event hCall=%d %s", pCallInfo->hCall, sEvent) ;
 
    if (category == EVENT_CATEGORY_CALLSTATE) {
       switch (pCallInfo->event) {
@@ -300,7 +300,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
             // An incoming call is being offered. First validate
             // that it is not a call that has been transferred to the ACD line
             if (TRUE == validateTransferToLine(pCallInfo)) {
-               OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::%d to the ACD Line REJECTED",
+               Os::Logger::instance().log(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::%d to the ACD Line REJECTED",
                              pCallInfo->cause);
                sipxCallReject(pCallInfo->hCall, SIP_BAD_REQUEST_CODE,
                               "ACD Transfer Offer Rejected");
@@ -313,7 +313,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
                // Call arrived on an invalid line. Reject it!
                sipxCallReject(pCallInfo->hCall, SIP_NOT_FOUND_CODE, "Invalid ACD Line Offered");
                osPrintf("OFFERING REJECTED - Line: %d, Call: %d\n", pCallInfo->hLine, pCallInfo->hCall);
-               OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback"
+               Os::Logger::instance().log(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback"
                              " - CALLSTATE_OFFERING::%d on LINE:%d INVALID LINE REJECTED",
                              pCallInfo->cause, pCallInfo->hLine);
             }
@@ -323,7 +323,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
                   // The line is busy.  Reject it!
                   sipxCallReject(pCallInfo->hCall, SIP_BUSY_CODE, "ACD Line Busy");
                   osPrintf("OFFERING REJECTED - Line: %d, Call: %d\n", pCallInfo->hLine, pCallInfo->hCall);
-                  OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::%d on LINE:%d BUSY",
+                  Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::%d on LINE:%d BUSY",
                                 pCallInfo->cause, pCallInfo->hLine);
                }
                else {
@@ -336,14 +336,14 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
                      // Accept the call!
                      sipxCallAccept(pCallInfo->hCall);
                      osPrintf("OFFERING ACCEPTED - Line: %d, Call: %d\n", pCallInfo->hLine, pCallInfo->hCall);
-                     OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::%d on LINE:%d ACCEPTED",
+                     Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::%d on LINE:%d ACCEPTED",
                                    pCallInfo->cause, pCallInfo->hLine);
                      }
                      else {
                         // No signed in agent reject the call
                         sipxCallReject(pCallInfo->hCall, SIP_TEMPORARILY_UNAVAILABLE_CODE,
                                        "ACD No Agent");
-                        OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::reject the call %d due to no signed in agent",
+                        Os::Logger::instance().log(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::reject the call %d due to no signed in agent",
                                    pCallInfo->hCall);
                      }
                   }
@@ -351,7 +351,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
                      // We exceed the max allowed, reject the call
                      sipxCallReject(pCallInfo->hCall, SIP_TEMPORARILY_UNAVAILABLE_CODE,
                                     "ACD Maximum Calls Exceeded");
-                     OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::reject the call %d due to exceed the max calls allowed (%zu)",
+                     Os::Logger::instance().log(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::reject the call %d due to exceed the max calls allowed (%zu)",
                                    pCallInfo->hCall, mCallHandleMap.entries());
                   }
                }
@@ -366,7 +366,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
             if (pLineRef == NULL) {
                // Call arrived on an invalid line. Reject it!
                sipxCallReject(pCallInfo->hCall, SIP_NOT_FOUND_CODE, "Invalid ACD Line Alerting");
-               OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_ALERTING::%d on LINE:%d INVALID LINE",
+               Os::Logger::instance().log(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_ALERTING::%d on LINE:%d INVALID LINE",
                              pCallInfo->cause, pCallInfo->hLine);
             }
             else {
@@ -405,7 +405,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
             break;
 
          case CALLSTATE_NEWCALL:
-            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                           "ACDCallManager::eventCallback - "
                           "CALLSTATE_NEWCALL::cause %d, hCallHandle %d hAssociateCallHandle %d remAddr %s",
                           pCallInfo->cause, pCallInfo->hCall, pCallInfo->hAssociatedCall, pCallInfo->remoteAddress);
@@ -413,7 +413,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
                updateTransferCallState(pCallInfo);
             break;
          case CALLSTATE_REMOTE_OFFERING:
-            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                           "ACDCallManager::eventCallback - "
                           "CALLSTATE_REMOTE_OFFERING::cause %d, hCallHandle %d hAssociateCallHandle %d remAddr %s",
                           pCallInfo->cause, pCallInfo->hCall, pCallInfo->hAssociatedCall, pCallInfo->remoteAddress);
@@ -462,7 +462,7 @@ OsStatus ACDCallManager::createACDCall(ACDLine* pLineRef, SIPX_CALL hCallHandle)
 
    // Create a matching ACDCall object.
    pCallRef = new ACDCall(this, pLineRef, hCallHandle);
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::createACDCall - Call(%d), Object(%p) added",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallManager::createACDCall - Call(%d), Object(%p) added",
                  hCallHandle, pCallRef);
 
    // Note the new ACDCalls existance
@@ -478,7 +478,7 @@ OsStatus ACDCallManager::createACDCall(ACDLine* pLineRef, SIPX_CALL hCallHandle)
 
       mTotalCalls++;
 
-      OsSysLog::add(FAC_ACD, PRI_INFO, "ACDCallManager::createACDCall - Total number of calls received since the server started = %d",
+      Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDCallManager::createACDCall - Total number of calls received since the server started = %d",
                     mTotalCalls);
 
       mLock.release();
@@ -489,7 +489,7 @@ OsStatus ACDCallManager::createACDCall(ACDLine* pLineRef, SIPX_CALL hCallHandle)
       // The line rejected the call
       destroyACDCall(pCallRef) ;
 
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallManager::createACDCall - Call(%d), Object(%p) rejected",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallManager::createACDCall - Call(%d), Object(%p) rejected",
                     hCallHandle, pCallRef);
 
       mLock.release();
@@ -531,7 +531,7 @@ OsStatus ACDCallManager::updateCallState(SIPX_CALLSTATE_INFO* pCallInfo)
    callEvent   = pCallInfo->event;
    callCause   = pCallInfo->cause;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::updateCallState hCall=%d  hLine=%d callEvent %d callCause %d associated callHandle %d remoteAddr %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallManager::updateCallState hCall=%d  hLine=%d callEvent %d callCause %d associated callHandle %d remoteAddr %s",
                     hCallHandle, hLineHandle, callEvent, callCause, pCallInfo->hAssociatedCall, pCallInfo->remoteAddress);
 
    // Search for the call handle in the various maps
@@ -568,7 +568,7 @@ OsStatus ACDCallManager::updateCallState(SIPX_CALLSTATE_INFO* pCallInfo)
       if (callEvent == CALLSTATE_DESTROYED) {
          // If event is destroyed, then that is the last we will see of this
          // handle.  Remove it from whatever map we found it in.
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::updateCallState - "
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallManager::updateCallState - "
             "removing hCall=%d from %s", hCallHandle, which) ;
          map->removeReference(&callKey);
       }
@@ -577,14 +577,14 @@ OsStatus ACDCallManager::updateCallState(SIPX_CALLSTATE_INFO* pCallInfo)
          if (map != &mDeadCallHandleMap) {
             // Pass event along to the ACDCall we found
             ACDCall*  pCallRef = dynamic_cast<ACDCall*>(pValue);
-            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                "ACDCallManager::updateCallState - "
                "Found ACDCall Call(%d) hCall=%d Object(%p) using %s",
                   pCallRef->mhCallHandle, hCallHandle,
                   pCallRef, which) ;
             pCallRef->updateState(hCallHandle, callEvent, callCause);
          } else {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
               "ACDCallManager::updateCallState - ignoring dead hCall=%d events",
                  hCallHandle);
             // Kill the darn thing, just to make sure it goes away
@@ -593,7 +593,7 @@ OsStatus ACDCallManager::updateCallState(SIPX_CALLSTATE_INFO* pCallInfo)
       }
       status = OS_SUCCESS ;
    } else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
          "ACDCallManager::updateCallState - did not find hCall=%d hLine=%d",
             hCallHandle, hLineHandle);
    }
@@ -704,7 +704,7 @@ void ACDCallManager::updateTransferCallState(SIPX_CALLSTATE_INFO* pCallInfo)
          // the inability to remove calls from a conference, this just doesn't
          // work.  Hangup on the transfer attempt.  Ths should leave
          // caller and agent connected.
-         OsSysLog::add(FAC_ACD, PRI_WARNING,
+         Os::Logger::instance().log(FAC_ACD, PRI_WARNING,
                        "ACDCallManager::updateTransferCallState - "
                        "CALLSTATE_OFFERING::%d to the ACD Line REJECTED",
                        pCallInfo->cause);
@@ -748,7 +748,7 @@ void ACDCallManager::updateTransferCallState(SIPX_CALLSTATE_INFO* pCallInfo)
                      mpAcdServer->getAcdAgentManager()->getAcdAgentReference(agentUri);
             if (!pAgentRef)
             {
-               OsSysLog::add(FAC_ACD, gACD_DEBUG,
+               Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                              "ACDCallManager::updateTransferCallState - "
                              "Failed to find Agent. This is probably an agent that is not signed in: "
                              "call(%d), TransferAgentCall(%d), agentUri(%s)",
@@ -768,7 +768,7 @@ void ACDCallManager::updateTransferCallState(SIPX_CALLSTATE_INFO* pCallInfo)
             pAgentRef->setCallHandle(pCallInfo->hCall);
             // set the transfer agent object in the call object
             pCallRef->mpTransferAgent = pAgentRef;
-            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                           "ACDCallManager::updateTransferCallState - "
                           "success in finding Agent: call(%d), TransferAgentCall(%d) AgentUri(%s)",
                           pCallRef->getCallHandle(), pCallInfo->hCall, pAgentRef->getUriString()->data());
@@ -818,7 +818,7 @@ void ACDCallManager::removeCallFromMap(ACDCall *pCallRef,
    while ((pTemp = (UtlInt*)mapIterator()) != NULL) {
       pACDCall = (ACDCall*)pMap->findValue(pTemp);
       if(pACDCall == pCallRef ) {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG,
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
             "ACDCallManager::removeCallFromMap(%s) - removed ACDCall(%p) matching hCall=%" PRIdPTR,
                mapName, pACDCall, pTemp->getValue());
          pKey = pMap->removeReference(pTemp);
@@ -869,12 +869,12 @@ bool ACDCallManager::verifyCallInMap(ACDCall *pCallRef,
       }
 
    if (found) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
          "ACDCallManager::verifyCallInMap(%s) - found ACDCall(%p)",
             mapName, pCallRef);
    }
    else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
          "ACDCallManager::verifyCallInMap(%s) - did not find ACDCall(%p)",
             mapName, pCallRef);
    }
@@ -986,7 +986,7 @@ void ACDCallManager::addDeadCallToMap(SIPX_CALL hCall, UtlContainable* pCall)
    UtlContainable* pOld = mDeadCallHandleMap.findValue(&callKey) ;
    if (!pOld) {
       mDeadCallHandleMap.insertKeyAndValue(new UtlInt(hCall), pCall);
-      OsSysLog::add(FAC_ACD, PRI_INFO,
+      Os::Logger::instance().log(FAC_ACD, PRI_INFO,
          "ACDCallManager::addDeadCallToMap added hCall=%d ACDCall(%p)",
             hCall, pCall);
    }
@@ -1019,11 +1019,11 @@ void ACDCallManager::addMapAgentCallHandleToCall(SIPX_CALL hCall, ACDCall* pCall
    ACDCall* pCall = dynamic_cast<ACDCall*>(mAgentCallHandleMap.findValue(&callKey));
    if (!pCall) {
       mAgentCallHandleMap.insertKeyAndValue(new UtlInt(hCall), pCallRef);
-      OsSysLog::add(FAC_ACD, PRI_INFO,
+      Os::Logger::instance().log(FAC_ACD, PRI_INFO,
          "ACDCallManager::addMapAgent added hCall=%d ACDCall(%p)", hCall, pCallRef);
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR,
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR,
          "ACDCallManager::addMapAgent failed because hCall=%d already there.",
             hCall);
    }
@@ -1060,7 +1060,7 @@ void ACDCallManager::removeMapAgentCallHandleToCall(SIPX_CALL hCall)
    const UtlInt searchKey(hCall);
    pKey = mAgentCallHandleMap.removeKeyAndValue(&searchKey, pValue);
    if (pKey != NULL) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
          "ACDCallManager::removeMapAgent - removed hCall=%d ACDCall(%p)",
             hCall, pValue);
       delete pKey ;
@@ -1129,7 +1129,7 @@ void ACDCallManager::removeMapTransferAgentCallHandleToCall(SIPX_CALL hCall)
    pKey = mTransferCallHandleMap.removeReference(&searchKey);
    if (pKey == NULL) {
    // Error. Did not find a matching associated call handle.
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallManager::removeMap - Failed to find associated call handle: %d",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCallManager::removeMap - Failed to find associated call handle: %d",
                  hCall);
       delete pKey ;
    }
@@ -1161,16 +1161,16 @@ ACDCall* ACDCallManager::getAcdCallByCallId(UtlString callId) {
    UtlInt* pTemp = NULL;
 
    while ((pTemp = (UtlInt*)mapIterator()) != NULL) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::getAcdCallByCallId - looking at call handle=%d",pTemp->getValue());
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallManager::getAcdCallByCallId - looking at call handle=%d",pTemp->getValue());
       pACDCall = (ACDCall*)mCallHandleMap.findValue(pTemp);
 
       if(pACDCall && pACDCall->getCallId() == callId ) {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::getAcdCallByCallId - found ACDCall matching callid=%s",callId.data());
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallManager::getAcdCallByCallId - found ACDCall matching callid=%s",callId.data());
          return pACDCall;
       }
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::getAcdCallByCallId - could not find ACDCall matching callid=%s",callId.data());
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCallManager::getAcdCallByCallId - could not find ACDCall matching callid=%s",callId.data());
    return NULL;
 }
 #endif

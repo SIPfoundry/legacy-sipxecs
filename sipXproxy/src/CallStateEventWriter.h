@@ -10,7 +10,7 @@
 
 // SYSTEM INCLUDES
 #include "utl/UtlString.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsDateTime.h"
 
 // DEFINES

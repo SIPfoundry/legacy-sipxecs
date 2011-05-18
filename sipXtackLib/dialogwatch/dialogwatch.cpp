@@ -14,7 +14,8 @@
 
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
+#include <os/OsLoggerHelper.h>
 #include <utl/UtlHashBag.h>
 #include <utl/UtlHashBagIterator.h>
 #include <utl/UtlHashMap.h>
@@ -239,10 +240,9 @@ int main(int argc, char* argv[])
     char* password;
 
    // Initialize logging.
-   OsSysLog::initialize(0, "test");
-   OsSysLog::setOutputFile(0, "log");
-   OsSysLog::setLoggingPriority(PRI_DEBUG);
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::LoggerHelper::instance().processName = "test";
+   Os::LoggerHelper::instance().initialize(PRI_DEBUG, "log");
+   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    if (!parseArgs(argc, argv, &port, &expiration,
                   &targetURI, &eventType, &contentType,

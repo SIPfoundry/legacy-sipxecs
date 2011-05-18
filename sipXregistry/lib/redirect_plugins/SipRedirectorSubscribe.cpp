@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "sipdb/ResultSet.h"
@@ -70,7 +70,7 @@ SipRedirectorSubscribe::lookUp(
    SipRedirectorPrivateStorage*& privateStorage,
    ErrorDescriptor& errorDescriptor)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp uri '%s'",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp uri '%s'",
                  mLogName.data(), requestUri.toString().data());
 
    // This redirector operates only on SUBSCRIBE requests.
@@ -95,7 +95,7 @@ SipRedirectorSubscribe::lookUp(
             UtlString contactUriString(contactUri.toString());
             contactList.set( contactNum, contactUriString, *this );
 
-            OsSysLog::add(FAC_SIP, PRI_NOTICE,
+            Os::Logger::instance().log(FAC_SIP, PRI_NOTICE,
                           "%s::lookUp Remove q value '%s' from '%s'",
                           mLogName.data(), qValue.data(), contactUriString.data());
          }

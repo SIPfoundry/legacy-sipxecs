@@ -81,7 +81,7 @@ ACDAudio::ACDAudio(ACDAudioManager* pAcdAudioManager,
          // Check to see if the file is already there
          if (!OsFileSystem::exists(mAudioPath)) {
             // No, attempt to download it
-            OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAudio::ACDAudio - starting download of: %s", mUriString.data());
+            Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDAudio::ACDAudio - starting download of: %s", mUriString.data());
             start();
          }
       }
@@ -267,7 +267,7 @@ bool ACDAudio::getAudio(char*& prAudio, unsigned long& rLength)
       // Loading failed, clean up
       delete mpAudioBuffer;
       mpAudioBuffer = false;
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAudio::getAudio - failed to load audio: %s", mAudioPath.data());
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDAudio::getAudio - failed to load audio: %s", mAudioPath.data());
       return false;
    }
 
@@ -446,7 +446,7 @@ int ACDAudio::compareTo(UtlContainable const* pInVal) const
 
 int ACDAudio::run(void* pArg)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAudio::run - starting get from: %s", mUriString.data());
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAudio::run - starting get from: %s", mUriString.data());
 
    HttpMessage *pGetRequest = new HttpMessage;
 
@@ -463,7 +463,7 @@ int ACDAudio::run(void* pArg)
       const HttpBody* pResponseBody = pGetRequest->getBody();
       pResponseBody->getBytes(&audioData, &audioLength);
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAudio::run - received %zd bytes from: %s\n",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAudio::run - received %zd bytes from: %s\n",
                     audioLength, mUriString.data());
 
       // Now save the downloaded audio to a local file
@@ -471,7 +471,7 @@ int ACDAudio::run(void* pArg)
 
       OsFile audioFile(mAudioPath);
       if (audioFile.open(OsFile::CREATE) != OS_SUCCESS) {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAudio::run - "
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDAudio::run - "
                        "Unable to create audio file: %s", mAudioPath.data());
       }
       else {
@@ -480,7 +480,7 @@ int ACDAudio::run(void* pArg)
       }
    }
    else {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAudio::run - failed get from: %s", mUriString.data());
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDAudio::run - failed get from: %s", mUriString.data());
    }
 
    delete pGetRequest;

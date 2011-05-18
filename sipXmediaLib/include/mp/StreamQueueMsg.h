@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsMsg.h"
 
 // DEFINES

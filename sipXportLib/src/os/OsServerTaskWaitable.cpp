@@ -57,7 +57,7 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
          // Everything is OK.
          mPipeReadingFd = filedes[0];
          mPipeWritingFd = filedes[1];
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                        "OsServerTaskWaitable::_ pipe() opened %d -> %d",
                        mPipeWritingFd, mPipeReadingFd);
       }
@@ -68,7 +68,7 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
          close(filedes[1]);
          mPipeReadingFd = -1;
          mPipeWritingFd = -1;
-         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "OsServerTaskWaitable::_ "
                        "pipe() returned %d -> %d, which exceeds sFdLimit = %d",
                        filedes[1], filedes[0], sFdLimit);
@@ -78,7 +78,7 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
    {
       mPipeReadingFd = -1;
       mPipeWritingFd = -1;
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsServerTaskWaitable::_ "
                     "pipe() returned %d, errno = %d, getdtablesize() = %d",
                     ret, errno, getdtablesize());
@@ -93,7 +93,7 @@ OsServerTaskWaitable::~OsServerTaskWaitable()
       // Close the pipe.
       close(mPipeReadingFd);
       close(mPipeWritingFd);
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "OsServerTaskWaitable::~ closed %d -> %d",
                     mPipeWritingFd, mPipeReadingFd);
    }

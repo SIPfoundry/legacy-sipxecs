@@ -9,7 +9,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlTokenizer.h"
 #include "AlarmUtils.h"
@@ -71,13 +71,13 @@ OsStatus TrapNotifier::handleAlarm(const OsTime alarmTime,
 
    alarmAttributeValues[ALARM_HOST] = callingHost;
 
-   alarmAttributeValues[ALARM_SEVERITY] = OsSysLog::priorityName(alarmData->getSeverity());
+   alarmAttributeValues[ALARM_SEVERITY] = Os::Logger::instance().priorityName(alarmData->getSeverity());
 
    alarmAttributeValues[ALARM_DESCR] = alarmMsg;
 
    UtlString groupKey(alarmData->getGroupName());
 
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServer: SNMPv2 Trap parameters: AlarmCode = %s, AlarmTime = %s, "
+   Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "AlarmServer: SNMPv2 Trap parameters: AlarmCode = %s, AlarmTime = %s, "
            "AlarmHost = %s, AlarmSeverity = %s, AlarmDescription = %s, Alarm Group name = %s",
            alarmAttributeValues[ALARM_CODE].data(), alarmAttributeValues[ALARM_TIME].data(),
            alarmAttributeValues[ALARM_HOST].data(), alarmAttributeValues[ALARM_SEVERITY].data(),
@@ -107,7 +107,7 @@ OsStatus TrapNotifier::handleAlarm(const OsTime alarmTime,
 
 OsStatus TrapNotifier::init(TiXmlElement* trapElement, TiXmlElement* groupElement)
 {
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Created TrapNotifier");
+   Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "Created TrapNotifier");
    TiXmlElement* element;
 
    // Set the SNMP_PERSISTENT_FILE environment variable.
@@ -158,7 +158,7 @@ OsStatus TrapNotifier::init(TiXmlElement* trapElement, TiXmlElement* groupElemen
 
       if (!groupName.isNull())
       {
-         OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Processing alarm group name: %s", groupName.data());
+         Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "Processing alarm group name: %s", groupName.data());
 
          TiXmlElement* trapElement = element->FirstChildElement("trap");
 
@@ -251,7 +251,7 @@ bool TrapNotifier::sendSnmpv2Trap(
    trapReceiverAddress.append(":");
    trapReceiverAddress.append(portNumber);
 
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG,"Sending SNMPv2 trap to %s using %s as the community string", trapReceiverAddress.data(), communityString.data());
+   Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG,"Sending SNMPv2 trap to %s using %s as the community string", trapReceiverAddress.data(), communityString.data());
 
    // Initialize session to default values
    snmp_sess_init(&session);
@@ -273,7 +273,7 @@ bool TrapNotifier::sendSnmpv2Trap(
    sessionHandle = snmp_open(&session);
    if (sessionHandle == NULL)
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR,"Failed to open a SNMP session. Trap receiver address = %s, Community String =%s", trapReceiverAddress.data(), communityString.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR,"Failed to open a SNMP session. Trap receiver address = %s, Community String =%s", trapReceiverAddress.data(), communityString.data());
       return false;
    }
 
@@ -281,7 +281,7 @@ bool TrapNotifier::sendSnmpv2Trap(
    pdu = snmp_pdu_create(SNMP_MSG_TRAP2);
    if (!pdu)
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR,"Failed to create SNMPv2 Trap PDU");
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR,"Failed to create SNMPv2 Trap PDU");
       snmp_close(sessionHandle);
       return false;
    }
@@ -293,13 +293,13 @@ bool TrapNotifier::sendSnmpv2Trap(
    // Add system up time (sysUpTime.0) to the SNMP PDU
    if (snmp_add_var(pdu, objid_sysuptime, OID_LENGTH(objid_sysuptime), 't', sys_up_time) != 0)
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR,"Failed to add sysUpTime.0 to the SNMP trap PDU");
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR,"Failed to add sysUpTime.0 to the SNMP trap PDU");
       snmp_close(sessionHandle);
       return false;
    }
    if (snmp_add_var(pdu, objid_snmptrap, OID_LENGTH(objid_snmptrap), 'o', sipxecsAlarmNotification_oid) != 0 )
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR,"Failed to add SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmNotification oid to the SNMP trap PDU");
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR,"Failed to add SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmNotification oid to the SNMP trap PDU");
       snmp_close(sessionHandle);
       return false;
    }
@@ -309,7 +309,7 @@ bool TrapNotifier::sendSnmpv2Trap(
       // Read the Alarm attribute's OID from the MIB
       if (!read_objid(alarm_attributes[k].data(), alarm_attribute_oid[k], &alarm_attribute_oid_len[k]))
       {
-         OsSysLog::add(FAC_ALARM, PRI_ERR, "Failed to read the OID of %s from the MIB file", alarm_attributes[k].data());
+         Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "Failed to read the OID of %s from the MIB file", alarm_attributes[k].data());
          snmp_close(sessionHandle);
          return false;
       }
@@ -317,7 +317,7 @@ bool TrapNotifier::sendSnmpv2Trap(
       // Add the Alarm attribute OID and the alarm attribute Value to the SNMPv2 trap PDU
       if (snmp_add_var(pdu, alarm_attribute_oid[k], alarm_attribute_oid_len[k],'s', alarmAttributeValues[k].data()) != 0)
       {
-         OsSysLog::add(FAC_ALARM, PRI_ERR, "Failed to add %s attribute to the SNMPv2 trap PDU", alarm_attributes[k].data());
+         Os::Logger::instance().log(FAC_ALARM, PRI_ERR, "Failed to add %s attribute to the SNMPv2 trap PDU", alarm_attributes[k].data());
          snmp_close(sessionHandle);
          return false;
       }
@@ -327,13 +327,13 @@ bool TrapNotifier::sendSnmpv2Trap(
    if (snmp_send(sessionHandle, pdu) == 0)
    {
       snmp_free_pdu(pdu);
-      OsSysLog::add(FAC_ALARM, PRI_ERR,"Failed to send SNMPv2 trap to %s", trapReceiverAddress.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_ERR,"Failed to send SNMPv2 trap to %s", trapReceiverAddress.data());
       snmp_close(sessionHandle);
       return false;
    }
    else
    {
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG,"SNMPv2 trap has been sent to %s", trapReceiverAddress.data());
+      Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG,"SNMPv2 trap has been sent to %s", trapReceiverAddress.data());
    }
    snmp_close(sessionHandle);
    return true;

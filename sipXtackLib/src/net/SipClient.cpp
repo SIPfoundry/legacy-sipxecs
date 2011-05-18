@@ -24,7 +24,7 @@
 #include <os/OsDateTime.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsStatus.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsEvent.h>
 
 #include <utl/XmlContent.h>
@@ -199,7 +199,7 @@ SipClient::SipClient(OsSocket* socket,
        mClientSocket->getLocalHostIp(&mLocalHostAddress);
        mLocalHostPort = mClientSocket->getLocalHostPort();
 
-       OsSysLog::add(FAC_SIP, PRI_INFO,
+       Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                      "SipClient[%s]::_ created %s %s socket %d: host '%s' '%s' port %d, local IP '%s' port %d",
                      mName.data(),
                      OsSocket::ipProtocolString(mSocketType),
@@ -214,7 +214,7 @@ SipClient::SipClient(OsSocket* socket,
 // Destructor
 SipClient::~SipClient()
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipClient[%s]::~ called",
                   mName.data());
 
@@ -232,7 +232,7 @@ SipClient::~SipClient()
         // cause the run method to exit.
         if (!mbSharedSocket)
         {
-           OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::~ %p socket %p closing %s socket",
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipClient[%s]::~ %p socket %p closing %s socket",
                          mName.data(), this,
                          mClientSocket, OsSocket::ipProtocolString(mSocketType));
            mClientSocket->close();
@@ -318,14 +318,14 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
       sendOk = status == OS_SUCCESS;
       if (!sendOk)
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "SipClient[%s]::sendTo attempt to post message failed",
                        mName.data());
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "SipClient[%s]::sendTo called for client without socket",
                     mName.data()
          );
@@ -363,7 +363,7 @@ void SipClient::touch()
    OsTime time;
    OsDateTime::getCurTimeSinceBoot(time);
    touchedTime = time.seconds();
-   //OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::touch client: %p time: %d\n",
+   //Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipClient[%s]::touch client: %p time: %d\n",
    //             mName.data(), this, touchedTime);
 }
 
@@ -429,7 +429,7 @@ UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int
          int tempHostPort = portIsValid(hostPort) ? hostPort : defaultPort();
 
 #ifdef TEST_SOCKET
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipClient[%s]::isAcceptableForDestination hostName = '%s', tempHostPort = %d, mRemoteHostName = '%s', mRemoteHostPort = %d, mRemoteSocketAddress = '%s', mReceivedAddress = '%s', mRemoteViaAddress = '%s'",
                        mName.data(),
                        hostName.data(), tempHostPort, mRemoteHostName.data(), mRemoteHostPort, mRemoteSocketAddress.data(), mReceivedAddress.data(), mRemoteViaAddress.data());
@@ -454,7 +454,7 @@ UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int
          {
              // Cannot trust what the other side said was their IP address
              // as this is a bad spoofing/denial of service hole
-             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                            "SipClient[%s]::isAcceptableForDestination matches %s:%d but is not trusted",
                            mName.data(),
                            mRemoteViaAddress.data(), mRemoteViaPort);
@@ -465,7 +465,7 @@ UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int
    // Make sure client is okay before declaring it acceptable
    if( isAcceptable && !isOk() )
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipClient[%s]::isAcceptableForDestination('%s', %d, '%s')"
                     " Client matches host/port but is not OK",
                     mName.data(), hostName.data(), hostPort, localIp.data());
@@ -493,7 +493,7 @@ int SipClient::run(void* runArg)
    bool      tcpOnErrWaitForSend = TRUE;
    int       repeatedEOFs = 0;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipClient[%s]::run start  "
                  "tcpOnErrWaitForSend-%d waitingToReportErr-%d mbTcpOnErrWaitForSend-%d repeatedEOFs-%d",
                  mName.data(), tcpOnErrWaitForSend, waitingToReportErr,
@@ -564,7 +564,7 @@ int SipClient::run(void* runArg)
          assert(resPoll >= 0 || (resPoll == -1 && errno == EINTR));
          if (resPoll != 0)
          {
-             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                            "SipClient[%s]::run "
                            "resPoll= %d revents: fd[0]= %x fd[1]= %x",
                            mName.data(),
@@ -584,7 +584,7 @@ int SipClient::run(void* runArg)
 
          // Check to see how many messages are in the queue.
          int numberMsgs = (getMessageQueue())->numMsgs();
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipClient[%s]::run got pipe-select  "
                        "Number of Messages waiting: %d",
                        mName.data(),
@@ -601,7 +601,7 @@ int SipClient::run(void* runArg)
             // here, we are able to report any initial non-blocking connect error.
             mbTcpOnErrWaitForSend = FALSE;
             tcpOnErrWaitForSend = FALSE;
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipClient[%s]::run got pipe-select  "
                           "mbTcpOnErrWaitForSend-%d waitingToReportErr-%d mbTcpOnErrWaitForSend-%d repeatedEOFs-%d",
                           mName.data(), mbTcpOnErrWaitForSend, waitingToReportErr,
@@ -681,7 +681,7 @@ int SipClient::run(void* runArg)
            }
            catch(const std::exception& e)
            {
-             OsSysLog::add(FAC_SIP_INCOMING, PRI_CRIT, 
+             Os::Logger::instance().log(FAC_SIP_INCOMING, PRI_CRIT, 
                "SipClient[%s]::run rate limit exception: %s",  mName.data(), e.what());
            }
          }
@@ -717,7 +717,7 @@ int SipClient::run(void* runArg)
             // Log the message at DEBUG level.
             // Only bother processing if the logs are enabled
             if (   mpSipUserAgent->isMessageLoggingEnabled()
-                   || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_DEBUG)
+                   || Os::Logger::instance().willLog(FAC_SIP_INCOMING, PRI_DEBUG)
                )
             {
                UtlString logMessage;
@@ -743,7 +743,7 @@ int SipClient::run(void* runArg)
                // Don't bother to send the message to the SipUserAgent for its internal log.
 
                // Write the message to the syslog.
-               OsSysLog::add(FAC_SIP_INCOMING, PRI_DEBUG, "%s", logMessage.data());
+               Os::Logger::instance().log(FAC_SIP_INCOMING, PRI_DEBUG, "%s", logMessage.data());
             }
 
             // send the CR-LF response message
@@ -751,7 +751,7 @@ int SipClient::run(void* runArg)
             {
             case OsSocket::TCP:
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipClient[%s]::run send TCP keep-alive CR-LF response, ",
                              mName.data());
                SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
@@ -763,7 +763,7 @@ int SipClient::run(void* runArg)
                break;
             case OsSocket::UDP:
             {
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipClient[%s]::run send UDP keep-alive CR-LF response, ",
                               mName.data());
                (dynamic_cast <OsDatagramSocket*> (mClientSocket))->write(buffer.data(),
@@ -809,12 +809,12 @@ int SipClient::run(void* runArg)
 
             // Delete the SipMessage allocated above, which is no longer needed.
             delete msg;
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipClient[%s]::run SipMessage::read returns %d (error(%d) or EOF), "
                           "readBuffer = '%.1000s'",
                           mName.data(), res, errno, readBuffer.data());
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipClient[%s]::run error wait status  "
                           "tcpOnErrWaitForSend-%d waitingToReportErr-%d "
                           "mbTcpOnErrWaitForSend-%d repeatedEOFs-%d "
@@ -855,14 +855,14 @@ int SipClient::run(void* runArg)
       } // end POLLIN reading socket
       else if ((fds[1].revents & (POLLERR | POLLHUP)) != 0)
       {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipClient[%s]::run "
                         "SipMessage::poll error(%d) ",
                         mName.data(), errno);
 
           if (OsSocket::isFramed(mClientSocket->getIpProtocol()))
           {
-              OsSysLog::add(FAC_SIP, PRI_ERR,
+              Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                             "SipClient[%s]::run "
                             "SipMessage::poll error(%d) got POLLERR | POLLHUP on UDP socket",
                             mName.data(), errno);
@@ -916,7 +916,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
    // Log the message.
    // Only bother processing if the logs are enabled
    if (   mpSipUserAgent->isMessageLoggingEnabled()
-          || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_INFO)
+          || Os::Logger::instance().willLog(FAC_SIP_INCOMING, PRI_INFO)
       )
    {
       UtlString logMessage;
@@ -942,7 +942,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
       // Send the message to the SipUserAgent for its internal log.
       mpSipUserAgent->logMessage(logMessage.data(), logMessage.length());
       // Write the message to the syslog.
-      OsSysLog::add(FAC_SIP_INCOMING, PRI_INFO, "%s", logMessage.data());
+      Os::Logger::instance().log(FAC_SIP_INCOMING, PRI_INFO, "%s", logMessage.data());
    }
 
    // Set the date field if not present
@@ -1033,23 +1033,12 @@ UtlBoolean SipClient::waitForReadyToRead()
 // owning server that it has done so.
 void SipClient::clientStopSelf()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipClient[%s]::clientStopSelf called",
                  mName.data());
 
    // Stop the run loop.
    OsTask::requestShutdown();
-   // Signal the owning SipServer to check for dead clients.
-   if (mpSipServer)
-   {
-      OsMsg message(OsMsg::OS_EVENT,
-                    SipProtocolServerBase::SIP_SERVER_GC);
-      // If the SipServer's queue is full, don't wait, since
-      // that can cause deadlocks.  The SipServer will eventually
-      // garbage-collect terminated clients spontaneously.
-      mpSipServer->postMessage(message,
-                               OsTime::NO_WAIT);
-   }
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -12,7 +12,7 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsLock.h>
 
 #include <utl/UtlSListIterator.h>
@@ -1091,7 +1091,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
             numCodecsInCommon++;
 #ifdef TEST_PRINT
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SdpBody::getCodecsInCommon "
                           "found matching dynamic audio codec %d [%d]",
                           audioPayloadTypes[typeIndex], typeIndex);
@@ -1101,7 +1101,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                 && matchingCodec->getCodecType() == SdpCodec::SDP_CODEC_TONES)
             {
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SdpBody::getCodecsInCommon "
                               "found dtmf telephone-event format %d [%d]",
                           audioPayloadTypes[typeIndex], typeIndex);
@@ -1125,7 +1125,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
             codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
             numCodecsInCommon++;
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SdpBody::getCodecsInCommon "
                           "found matching static audio codec %d [%d]",
                           audioPayloadTypes[typeIndex], typeIndex);
@@ -1142,7 +1142,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
           {
               preferDtmf2833PTused = TRUE;
 #ifdef TEST_PRINT
-              OsSysLog::add(FAC_SIP, PRI_DEBUG,
+              Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                             "SdpBody::getCodecsInCommon "
                             "2833 default audio codec %d [%d]",
                             audioPayloadTypes[typeIndex], typeIndex);
@@ -1196,7 +1196,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                 codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
                 numCodecsInCommon++;
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SdpBody::getCodecsInCommon "
                               "found matching dynamic video codec %d [%d]",
                               videoPayloadTypes[typeIndex], typeIndex);
@@ -1241,7 +1241,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
           {
               preferDtmf2833PTused = TRUE;
 #ifdef TEST_PRINT
-              OsSysLog::add(FAC_SIP, PRI_DEBUG,
+              Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                             "SdpBody::getCodecsInCommon "
                             "2833 default audio codec %d [%d]",
                             videoPayloadTypes[typeIndex], typeIndex);
@@ -1265,7 +1265,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                    if (dynamicPayloadTypes[iInner] == countDynPT)
                    {
 #ifdef TEST_PRINT
-                       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                      "SdpBody::getCodecsInCommon "
                                      "already using %d index [%d]",
                                      ptOuter, iInner);
@@ -1277,7 +1277,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                {
                    useThisPT = ptOuter;
 #ifdef TEST_PRINT
-                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                  "SdpBody::getCodecsInCommon "
                                  "ok to use dyn pt %d index [%d]",
                                  ptOuter, iInner);
@@ -1288,7 +1288,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
            if (useThisPT == SdpCodec::SDP_CODEC_DEFAULT_TONES_CODEC)
            {
                useThisPT = 0;
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                              "SdpBody::getCodecsInCommon "
                              "no free dynamic PT (%d used)",
                              countDynPT);
@@ -1302,7 +1302,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                                                                  MIME_SUBTYPE_DTMF_TONES) ;
 
            numCodecsInCommon++;
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                          "SdpBody::getCodecsInCommon "
                          "add tel-event codec PT %d numCodecs %d",
                          useThisPT, numCodecsInCommon);

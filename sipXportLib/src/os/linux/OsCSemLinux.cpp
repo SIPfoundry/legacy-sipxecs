@@ -11,7 +11,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/linux/OsCSemLinux.h"
 #include "os/linux/OsUtilLinux.h"
 #include "os/linux/pt_csem.h"

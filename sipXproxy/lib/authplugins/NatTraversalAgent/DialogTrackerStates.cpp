@@ -55,7 +55,7 @@ bool DialogTrackerState::InviteRequest( DialogTracker& impl, SipMessage& request
    }
    else
    {
-      OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event InviteRequest while in state '%s'",
+      Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event InviteRequest while in state '%s'",
             impl.name(), impl.GetCurrentState()->name() );
    }
    return true;
@@ -69,7 +69,7 @@ bool DialogTrackerState::AckRequest( DialogTracker& impl, SipMessage& request, T
    }
    else
    {
-      OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event AckRequest while in state '%s'",
+      Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event AckRequest while in state '%s'",
             impl.name(), impl.GetCurrentState()->name() );
    }
    return false;
@@ -90,7 +90,7 @@ bool DialogTrackerState::PrackRequest( DialogTracker& impl, SipMessage& request,
    }
    else
    {
-      OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event PrackRequest while in state '%s'",
+      Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event PrackRequest while in state '%s'",
             impl.name(), impl.GetCurrentState()->name() );
    }
    return true;
@@ -104,7 +104,7 @@ bool DialogTrackerState::UpdateRequest( DialogTracker& impl, SipMessage& request
    }
    else
    {
-      OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event UpdateRequest while in state '%s'",
+      Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event UpdateRequest while in state '%s'",
             impl.name(), impl.GetCurrentState()->name() );
    }
    return true;
@@ -118,7 +118,7 @@ void DialogTrackerState::ProvisionalResponse( DialogTracker& impl, SipMessage& r
    }
    else
    {
-      OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event ProvisionalResponse while in state '%s'",
+      Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event ProvisionalResponse while in state '%s'",
             impl.name(), impl.GetCurrentState()->name() );
    }
 }
@@ -131,26 +131,26 @@ void DialogTrackerState::SuccessfulResponse( DialogTracker& impl, SipMessage& re
    }
    else
    {
-      OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event SuccessfulResponse while in state '%s'",
+      Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event SuccessfulResponse while in state '%s'",
             impl.name(), impl.GetCurrentState()->name() );
    }
 }
 
 void DialogTrackerState::RedirectionResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
 {
-   OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event RedirectionResponse while in state '%s'",
+   Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event RedirectionResponse while in state '%s'",
          impl.name(), impl.GetCurrentState()->name() );
 }
 
 void DialogTrackerState::FailureResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
 {
-   OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event FailureResponse while in state '%s'",
+   Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event FailureResponse while in state '%s'",
          impl.name(), impl.GetCurrentState()->name() );
 }
 
 void DialogTrackerState::CleanUpTimerTick( DialogTracker& impl ) const
 {
-   OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event CleanUpTimerTick while in state '%s'",
+   Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event CleanUpTimerTick while in state '%s'",
          impl.name(), impl.GetCurrentState()->name() );
 }
 
@@ -188,13 +188,13 @@ bool WaitingForInvite::InviteRequest( DialogTracker& impl, SipMessage& request, 
          // location of the two endpoints impose the use of a media relay.
          if( impl.doesEndpointsLocationImposeMediaRelay() )
          {
-            OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Media relay required",
+            Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Media relay required",
                   impl.name(), impl.GetCurrentState()->name() );
             impl.setMediaRelayRequiredFlag();
          }
          else
          {
-            OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Media relay not required",
+            Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Media relay not required",
                   impl.name(), impl.GetCurrentState()->name() );
             impl.clearMediaRelayRequiredFlag();
          }
@@ -227,7 +227,7 @@ void WaitingForInvite::CleanUpTimerTick( DialogTracker& impl ) const
       // we have an established dialog - check it see if the media is still flowing
       if( !impl.wasMediaTrafficSeenInLastNSeconds( IDLE_MEDIA_MAXIMUM_IN_SECONDS ) )
       {
-         OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Terminating dialog tracker due to excessive media inactivity period",
+         Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"'%s': Terminating dialog tracker due to excessive media inactivity period",
                impl.name() );
          ChangeState( impl, impl.pMoribund );
       }
@@ -248,7 +248,7 @@ void TimeBoundState::CleanUpTimerTick( DialogTracker& impl ) const
 {
    if( impl.incrementTimerTickCounter() >= MAX_TIMER_TICK_COUNTS_BEFORE_DIALOG_TRACKER_CLEAN_UP )
    {
-      OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - cleaning up stale dialog tracker",
+      Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - cleaning up stale dialog tracker",
              impl.name(), impl.GetCurrentState()->name() );
       ChangeState( impl, impl.pMoribund );
    }
@@ -294,7 +294,7 @@ void Negotiating::FailureResponse( DialogTracker& impl, SipMessage& response, co
       }
       else
       {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
+         Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
                impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
    }
@@ -333,7 +333,7 @@ void ProcessingPrack::ProvisionalResponse( DialogTracker& impl, SipMessage& resp
       }
       else
       {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected Provisional Response for %s request",
+         Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected Provisional Response for %s request",
                impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
    }
@@ -366,7 +366,7 @@ void ProcessingPrack::SuccessfulResponse( DialogTracker& impl, SipMessage& respo
       }
       else
       {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected Successful Response for %s request",
+         Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected Successful Response for %s request",
                impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
       // We have received a response - although that does
@@ -639,7 +639,7 @@ void WaitingFor200OkForSlowStartPrack::SuccessfulResponse( DialogTracker& impl, 
       }
       else
       {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
+         Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
                impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
    }
@@ -660,7 +660,7 @@ void WaitingFor200OkForSlowStartPrack::FailureResponse( DialogTracker& impl, Sip
       }
       else
       {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected failure response for %s request",
+         Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected failure response for %s request",
                impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
    }
@@ -709,7 +709,7 @@ void WaitingFor200OkForPrack::FailureResponse( DialogTracker& impl, SipMessage& 
       }
       else
       {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
+         Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
                impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
    }
@@ -763,7 +763,7 @@ void WaitingFor200OkWithAnswerForPrack::FailureResponse( DialogTracker& impl, Si
       }
       else
       {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected failure response for %s request",
+         Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected failure response for %s request",
                impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
    }

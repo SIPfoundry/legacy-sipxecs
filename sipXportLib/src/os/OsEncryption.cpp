@@ -43,7 +43,7 @@
 #include "os/OsNameDb.h"
 #include "os/OsEncryption.h"
 #include "os/OsSocket.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -196,7 +196,7 @@ OsStatus OsEncryption::init(Direction direction)
                 mResults = (unsigned char *)OPENSSL_malloc(allocLen);
                 if (mResults == NULL)
                 {
-                    OsSysLog::add(FAC_AUTH, PRI_ERR, "Could not allocate cryption buffer(size=%d)",
+                    Os::Logger::instance().log(FAC_AUTH, PRI_ERR, "Could not allocate cryption buffer(size=%d)",
                                   allocLen);
                 }
                 else
@@ -206,17 +206,17 @@ OsStatus OsEncryption::init(Direction direction)
             }
             else
             {
-                OsSysLog::add(FAC_AUTH, PRI_ERR, "Could not initialize cipher");
+                Os::Logger::instance().log(FAC_AUTH, PRI_ERR, "Could not initialize cipher");
             }
         }
         else
         {
-            OsSysLog::add(FAC_AUTH, PRI_ERR, "Could not initialize cryption algorithm");
+            Os::Logger::instance().log(FAC_AUTH, PRI_ERR, "Could not initialize cryption algorithm");
         }
     }
     else
     {
-        OsSysLog::add(FAC_AUTH, PRI_ERR, "No encryption key(%d) or data(%d) set.\n",
+        Os::Logger::instance().log(FAC_AUTH, PRI_ERR, "No encryption key(%d) or data(%d) set.\n",
             mKeyLen, mDataLen);
     }
 #endif

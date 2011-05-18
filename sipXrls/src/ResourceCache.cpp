@@ -13,7 +13,7 @@
 #include "ResourceListSet.h"
 #include "ResourceList.h"
 #include "ResourceCached.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsLock.h>
 #include <os/OsEventMsg.h>
 #include <utl/XmlContent.h>
@@ -42,7 +42,7 @@ const UtlContainableType ResourceCache::TYPE = "ResourceCache";
 ResourceCache::ResourceCache(ResourceListSet* resourceListSet) :
    mResourceListSet(resourceListSet)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCache:: this = %p",
                  this);
 }
@@ -50,7 +50,7 @@ ResourceCache::ResourceCache(ResourceListSet* resourceListSet) :
 // Destructor
 ResourceCache::~ResourceCache()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCache::~ this = %p",
                  this);
 
@@ -72,7 +72,7 @@ void ResourceCache::createResourceReference(ResourceList* resourceList,
    // Create the ResourceReference.
    rr = new ResourceReference(resourceList, uri, nameXml, display_name);
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCache::createResourceReference "
                  "rr = %p, resourceList = %p, uri = '%s', nameXml = '%s', display_name = '%s'",
                  rr, resourceList, uri, nameXml, display_name);
@@ -93,7 +93,7 @@ void ResourceCache::addReferenceToResource(ResourceReference* rr,
                                            ResourceCached*& rc,
                                            bool& resourceCreated)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCache::addReferenceToResource this = %p, rr = %p, uri = '%s'",
                  this, rr, uri);
 
@@ -107,7 +107,7 @@ void ResourceCache::addReferenceToResource(ResourceReference* rr,
       rc = new ResourceCached(this, uri);
       mResources.insert(rc);
    }
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCache::addReferenceToResource this = %p, uri = '%s', ResourceCached = %p",
                  this, uri, rc);
 
@@ -119,7 +119,7 @@ void ResourceCache::addReferenceToResource(ResourceReference* rr,
 // deleted.
 bool ResourceCache::destroyResourceReference(ResourceReference* rr)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCache::destroyResourceReference "
                  "rr = %p, rr->getUri() = '%s'",
                  rr, rr->getUri()->data());
@@ -159,7 +159,7 @@ bool ResourceCache::deleteReferenceToResource(ResourceReference* resourceReferen
 // Remove dialogs in terminated state and terminated resource instances.
 void ResourceCache::purgeTerminated()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCache::purgeTerminated this = %p",
                  this);
 
@@ -189,7 +189,7 @@ void ResourceCache::dumpState()
 {
    // indented 4
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t    ResourceCache %p", this);
    UtlHashBagIterator i(mResources);
    ResourceCached* resource;

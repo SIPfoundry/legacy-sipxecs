@@ -9,11 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
@@ -296,7 +298,24 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         }
         boolean success = false;
         for (int i = 0; i < locations.length; i++) {
-            if (!locations[i].isRegistered()) {
+            if (!locations[i].isPrimary()) {
+                continue;
+            }
+            LOG.info("Writing " + file.getName() + " to primary location: " + locations[i].getFqdn());
+            File f = new File(file.getPath());
+            try {
+                f.createNewFile();
+                FileWriter writer = new FileWriter(f);
+                file.write(writer, locations[i]);
+                writer.close();
+                success = true;
+            } catch (IOException e) {
+                LOG.error("Error writing: " + f.getAbsolutePath());
+                throw new RuntimeException(e);
+            }
+        }
+        for (int i = 0; i < locations.length; i++) {
+            if (!locations[i].isRegistered() || locations[i].isPrimary()) {
                 continue;
             }
             if (!file.isReplicable(locations[i])) {
@@ -305,12 +324,11 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 continue;
             }
             try {
-                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-                Writer writer = new OutputStreamWriter(outStream, "UTF-8");
-                file.write(writer, locations[i]);
-                writer.close();
-                byte[] payloadBytes = outStream.toByteArray();
-                String content = encodeBase64(payloadBytes);
+                LOG.info("Transferring file " + file.getName() + " to secondary location: " + locations[i].getFqdn());
+                StringWriter stringWriter = new StringWriter();
+                IOUtils.copy(new FileInputStream(new File(file.getPath())), stringWriter);
+
+                String content = encodeBase64(stringWriter.toString().getBytes());
 
                 FileApi api = m_fileApiProvider.getApi(locations[i].getProcessMonitorUrl());
                 success = api.replace(getHostname(), file.getPath(), PERMISSIONS, content);
@@ -323,7 +341,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 LOG.error("UTF-8 encoding should be always supported.");
                 throw new RuntimeException(e);
             } catch (IOException e) {
-                LOG.error("IOException for stream writer", e);
+                LOG.error(e);
                 throw new RuntimeException(e);
             }
         }

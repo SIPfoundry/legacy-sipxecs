@@ -8,7 +8,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlHashBagIterator.h>
 #include <utl/XmlContent.h>
 #include <net/SipPresenceEvent.h>
@@ -152,7 +152,7 @@ void SipPresenceEvent::parseBody(const char* bodyBytes)
 {
    if (bodyBytes)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::parseBody incoming package = '%s'",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::parseBody incoming package = '%s'",
                     bodyBytes);
 
       TiXmlDocument doc("PresenceEvent.xml");
@@ -226,7 +226,7 @@ void SipPresenceEvent::insertTuple(Tuple* tuple)
 
    UtlContainable* result = mTuples.insert(tuple);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPresenceEvent::insertTuple Tuple = %p %s",
                  tuple,
                  result ? "succeeded" : "failed");
@@ -241,7 +241,7 @@ Tuple* SipPresenceEvent::removeTuple(Tuple* tuple)
 
    Tuple *foundValue = dynamic_cast <Tuple*> (mTuples.remove(tuple));
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPresenceEvent::removeTuple Tuple = %p, returned %p",
                  tuple, foundValue);
 
@@ -258,7 +258,7 @@ Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
    // for a Tuple but give a UtlString as the argument.
    Tuple* pTuple = dynamic_cast <Tuple*> (mTuples.find(&tupleId));
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPresenceEvent::getTuple seach for '%s', found %p",
                  tupleId.data(), pTuple);
 
@@ -357,7 +357,7 @@ void SipPresenceEvent::buildBody() const
    // UtlString::length() and should be removed.
    const_cast <ssize_t&> (bodyLength) = mBodyMutable.length();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipTupleEvent::buildBody Tuple mBodyMutable = '%s'",
                  mBodyMutable.data());
 

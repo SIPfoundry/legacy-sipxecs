@@ -117,7 +117,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
                          , mpMediaFactory(NULL)
 {
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_CP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                  "CallManager:: %p defaultCallExtension '%s'",
                  this, defaultCallExtension);
 #endif
@@ -163,7 +163,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
         mSipForwardOnBusy.append(sipForwardOnBusyUrl);
     }
 #ifdef TEST
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "SIP forward on busy URL: %s\nSIP unconditional forward URL: %s\nSIP no answer timeout:%d URL: %s\n",
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "SIP forward on busy URL: %s\nSIP unconditional forward URL: %s\nSIP no answer timeout:%d URL: %s\n",
         mSipForwardOnBusy.data(), mForwardUnconditional.data(),
         forwardOnNoAnswerSeconds, mForwardOnNoAnswer.data());
 #endif
@@ -240,7 +240,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
     {
         mOutboundLine = defaultCallExtension;
 #ifdef TEST_PRINT
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                      "CallManager:: %p setting mOutboundLine to '%s'",
                      this, mOutboundLine.data());
 #endif
@@ -254,7 +254,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
     mLocalAddress = localAddress;
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager: localAddress: %s mLocalAddress: %s publicAddress: %s mPublicAddress %s\n",
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManager: localAddress: %s mLocalAddress: %s publicAddress: %s mPublicAddress %s\n",
         localAddress, mLocalAddress.data(), publicAddress,
         mPublicAddress.data());
 #endif
@@ -275,7 +275,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
 
     if (!mpListeners)
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "Unable to allocate listeners\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "Unable to allocate listeners\n");
         return;
     }
 
@@ -335,7 +335,7 @@ void CallManager::setOutboundLine(const char* lineUrl)
 {
     mOutboundLine = lineUrl ? lineUrl : "";
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CallManager::setOutboundLine "
                   "%p setting mOutboundLine to '%s'",
                   this, mOutboundLine.data());
@@ -450,7 +450,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
     UtlBoolean messageConsumed = FALSE;
     CpMediaInterface* pMediaInterface;
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CallManager::handleMessage  - "
                   "number of current calls (%d) max (%d) msgType %d subType %d",
                   getCallStackSize(), mMaxCalls, msgType, msgSubType);
@@ -507,7 +507,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                               // Otherwise, get the call id from the message.
                               sipMsg->getCallIdField(&callId);
                            }
-                           OsSysLog::add(FAC_CP, PRI_DEBUG,
+                           Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                          "CallManager::handleMessage "
                                          "Message callid: %s\n",
                                          callId.data());
@@ -541,7 +541,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         if( isUserValid && CpPeerCall::shouldCreateCall(
                             *sipUserAgent, eventMessage, *mpCodecFactory))
                         {
-                            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                           "CallManager::handleMessage  "
                                           "- should create call - number of current calls (%d) max (%d) msgType %d",
                                           getCallStackSize(), mMaxCalls, msgType);
@@ -551,7 +551,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                             // send a BUSY_HERE SIP (486) message back to the sender.
                             if(getCallStackSize() >= mMaxCalls)
                             {
-                                OsSysLog::add(FAC_CP, PRI_INFO,
+                                Os::Logger::instance().log(FAC_CP, PRI_INFO,
                                               "CallManager::handleMessage "
                                               "callStack: sending 486 to INVITE, entries = %ld",
                                               (long)mCallStack.entries());
@@ -559,7 +559,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                     (method.compareTo(SIP_ACK_METHOD,UtlString::ignoreCase) != 0) )
 
                                 {
-                                    OsSysLog::add(FAC_CP, PRI_ERR,
+                                    Os::Logger::instance().log(FAC_CP, PRI_ERR,
                                                   "CallManager::handleMessage"
                                                   " number of current calls (%d) >= limit (%d):"
                                                   " sending 486 to INVITE",
@@ -576,7 +576,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                 int numCodecs;
                                 SdpCodec** codecArray = NULL;
                                 getCodecs(numCodecs, codecArray);
-                                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                               "CallManager::handleMessage "
                                               "Creating new call for incoming SIP message- number of current calls (%d) max (%d)",
                                               getCallStackSize(), mMaxCalls);
@@ -671,7 +671,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                     handlingCall->getIdOfOrigCall(origCIDpr);
                     handlingCall->getTargetCallId(targCIDpr);
 
-                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                   "CallManager::handleMessage "
                                   "to CpCall for id='%s' orig='%s' targ='%s'",
                                   callIdPr.data(), origCIDpr.data(), targCIDpr.data());
@@ -689,7 +689,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 ((CpIntMessage&)eventMessage).getIntData(callIntptr);
 				call = (CpCall*)callIntptr;
 
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::handleMessage "
                               "Call EXITING message received: %p "
                               "infofocus: %p - "
@@ -698,7 +698,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                               getCallStackSize());
 
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::handleMessage "
                               "stopMetaEvent 3");
 #endif
@@ -734,7 +734,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 OsWriteLock lock(mCallListMutex);
                 if(infocusCall && dialing)
                 {
-                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                   "CallManager::processMessage "
                                   "posting dial string to infocus call\n");
                     ((CpMultiStringMessage&)eventMessage).getString1Data(mDialString) ;
@@ -752,11 +752,11 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 ((CpIntMessage&)eventMessage).getIntData(callIntptr);
 				call = (CpCall*)callIntptr;
 
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::handleMessage "
                               "Call YIELD FOCUS message received: %p",
                               (void*)call);
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::handleMessage "
                               "infocusCall: %p",
                               infocusCall);
@@ -779,11 +779,11 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 				intptr_t callIntptr;
                 ((CpIntMessage&)eventMessage).getIntData(callIntptr);
 				call = (CpCall*)callIntptr;
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::handleMessage "
                               "Call GET FOCUS message received: %p\r\n",
                               (void*)call);
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::handleMessage "
                               "infocusCall: %p\r\n",
                               infocusCall);
@@ -817,7 +817,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 ((CpMultiStringMessage&)eventMessage).getString4Data(metaCallId2);
                 ((CpMultiStringMessage&)eventMessage).getString5Data(metaCallId3);
 
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::handleMessage "
                               "create call %s - number of current calls (%d)\n",
                               callId.data(), getCallStackSize() );
@@ -902,7 +902,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 void* pDisplay = (void*) ((CpMultiStringMessage&)eventMessage).getInt2Data();
                 sendPAIheader = (bool) ((CpMultiStringMessage&)eventMessage).getInt3Data();
 
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::handleMessage "
                               "sendPAIheader: %d",
                               sendPAIheader);
@@ -1032,7 +1032,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         tooLateToPost = call->getDropState();
                     }
 #ifdef TEST_PRINT
-                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                   "CallManager::handleMessage "
                                   "is %stoo late to post message %d to '%s'",
                                   (tooLateToPost ? "" : "NOT "),
@@ -1044,7 +1044,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                     // The call might have been terminated by asynchronous events.
                     // But output a debugging message, so the programmer can check
                     // to see that the CallId was valid in the past.
-                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                                   "CallManager::handleMessage "
                                   "Cannot find CallId: %s to post message: %d",
                                   callId.data(), msgSubType);
@@ -1081,7 +1081,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                             ((CpMultiStringMessage&)eventMessage).getInt1Data();
                         if (eventWithoutCall)
                         {
-                            OsSysLog::add(FAC_CP, PRI_WARNING,
+                            Os::Logger::instance().log(FAC_CP, PRI_WARNING,
                                           "CallManager::handleMessage "
                                           "Received a message subtype %d "
                                           "request on invalid callId '%s'; "
@@ -1100,7 +1100,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         }
                         else
                         {
-                            OsSysLog::add(FAC_CP, PRI_ERR,
+                            Os::Logger::instance().log(FAC_CP, PRI_ERR,
                                           "CallManager::handleMessage "
                                           "Received a message subtype %d request "
                                           "on invalid callId '%s'; no event to signal\n",
@@ -1138,7 +1138,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
         default:
             {
-                OsSysLog::add(FAC_CP, PRI_ERR,
+                Os::Logger::instance().log(FAC_CP, PRI_ERR,
                               "CallManager::handleMessage "
                               "Unknown PHONE_APP CallManager message subType: %d\n",
                               msgSubType);
@@ -1168,7 +1168,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 #ifdef TEST_PRINT
                 int eventMessageType = timerMsg->getMsgType();
                 int eventMessageSubType = timerMsg->getMsgSubType();
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::handleMessage "
                               "deleting timer for message type: %d %d",
                               eventMessageType, eventMessageSubType);
@@ -1222,7 +1222,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
     default:
         {
-            OsSysLog::add(FAC_CP, PRI_ERR,
+            Os::Logger::instance().log(FAC_CP, PRI_ERR,
                           "CallManager::handleMessage "
                           "Unknown TYPE %d of CallManager message subType: %d\n", msgType, msgSubType);
             messageProcessed = FALSE;
@@ -1233,7 +1233,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
     printCalls(0);
 #endif
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CallManager::handleMessage - "
                   "leaving- number of current calls (%d) max (%d)",
                   getCallStackSize(), mMaxCalls);
@@ -1302,7 +1302,7 @@ void CallManager::createCall(UtlString* callId,
     {
        CallId::getNewCallId(*callId);
     }
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CallManager::createCall "
                   "new Id: %s\n", callId->data());
     CpMultiStringMessage callMessage(CP_CREATE_CALL,
@@ -1358,7 +1358,7 @@ OsStatus CallManager::getCalls(int maxCalls, int& numCalls,
             numCalls = callIndex;
         } // end of iterator scope
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getCalls "
                       "%d calls\n",
                        numCalls);
@@ -1369,7 +1369,7 @@ OsStatus CallManager::getCalls(int maxCalls, int& numCalls,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::getCalls "
                       "TIMED OUT\n");
 
@@ -1386,7 +1386,7 @@ OsStatus CallManager::getCalls(int maxCalls, int& numCalls,
     }
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager:getCalls numCalls = %d\n ", numCalls) ;
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManager:getCalls numCalls = %d\n ", numCalls) ;
 #endif
     return(returnCode);
 }
@@ -1444,7 +1444,7 @@ PtStatus CallManager::consult(const char* idleTargetCallId,
 void CallManager::drop(const char* callId)
 {
     CpMultiStringMessage callMessage(CP_DROP, callId);
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::drop is called for call %s",
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManager::drop is called for call %s",
                   callId);
     postMessage(callMessage);
 }
@@ -1465,7 +1465,7 @@ void CallManager::sendInfo(const char* callId,
 PtStatus CallManager::transfer(const char* targetCallId, const char* originalCallId)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManger::transfer targetCallId=%s, originalCallId=%s\n", targetCallId, originalCallId) ;
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManger::transfer targetCallId=%s, originalCallId=%s\n", targetCallId, originalCallId) ;
 #endif
 
     PtStatus returnCode =  PT_SUCCESS;
@@ -1507,7 +1507,7 @@ PtStatus CallManager::transfer(const char* targetCallId, const char* originalCal
         transferTargetUrl.toString(transferTargetUrlString);
 
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::transfer transferTargetUrlString=%s, targetCallId=%s\n", transferTargetUrlString.data(), targetCallId);
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManager::transfer transferTargetUrlString=%s, targetCallId=%s\n", transferTargetUrlString.data(), targetCallId);
 #endif
 
         // Tell the original call to complete the
@@ -1626,7 +1626,7 @@ PtStatus CallManager::split(const char* szSourceCallId,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::split TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::split TIMED OUT\n");
         // Signal the caller that we are done.  If the event
         // has already been signalled from the other side, clean up.
         if(OS_ALREADY_SIGNALED == splitSuccess->signal(0))
@@ -1664,7 +1664,7 @@ PtStatus CallManager::transfer_blind(const char* callId, const char* transferToU
         }
 
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::transfer "
                       "type: %d transferUrl: \"%s\"\n",
                       mTransferType, transferTargetUrl.data());
@@ -1740,14 +1740,14 @@ void CallManager::bufferPlay(const char* callId, char* audioBuf, int bufSize, in
         if (success)
         {
            // Do something with this success?
-           OsSysLog::add(FAC_CP, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                          "CallManager::bufferPlay event data = %ld\n",
                          (long)success);
         }
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::bufferPlay TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::bufferPlay TIMED OUT\n");
         // If the event has already been signalled, clean up
         if (OS_ALREADY_SIGNALED == pEvent->signal(0))
         {
@@ -1776,7 +1776,7 @@ void CallManager::createPlayer(const char* callId,
                                MpStreamPlaylistPlayer** ppPlayer)
 {
     // TO_BE_REMOVED
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::createPlayer(MpStreamPlaylistPlayer) for call %s",
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManager::createPlayer(MpStreamPlaylistPlayer) for call %s",
                   callId);
     int msgtype = CP_CREATE_PLAYLIST_PLAYER;;
 
@@ -1793,7 +1793,7 @@ void CallManager::createPlayer(const char* callId,
     // Wait until the player is created by CpCall
     if(ev->wait(0, maxEventTime) != OS_SUCCESS)
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::createPlayer(MpStreamPlaylistPlayer) TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::createPlayer(MpStreamPlaylistPlayer) TIMED OUT\n");
 
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == ev->signal(0))
@@ -1842,7 +1842,7 @@ void CallManager::createPlayer(int type,
     // Wait until the player is created by CpCall
     if(ev->wait(0, maxEventTime) != OS_SUCCESS)
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::createPlayer TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::createPlayer TIMED OUT\n");
 
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == ev->signal(0))
@@ -1862,7 +1862,7 @@ void CallManager::createPlayer(int type,
 void CallManager::destroyPlayer(const char* callId, MpStreamPlaylistPlayer* pPlayer)
 {
     // TO_BE_REMOVED
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::destroyPlayer(MpStreamPlaylistPlayer) for call %s",
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManager::destroyPlayer(MpStreamPlaylistPlayer) for call %s",
                   callId);
     int msgtype = CP_DESTROY_PLAYLIST_PLAYER;
 
@@ -1879,7 +1879,7 @@ void CallManager::destroyPlayer(const char* callId, MpStreamPlaylistPlayer* pPla
     // Wait until the media structures are deleted by CpCall
     if(ev->wait(0, maxEventTime) != OS_SUCCESS)
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::destroyPlayer(MpStreamPlaylistPlayer) TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::destroyPlayer(MpStreamPlaylistPlayer) TIMED OUT\n");
 
         // If the event has already been signaled, clean up.
         if(OS_ALREADY_SIGNALED == ev->signal(0))
@@ -1928,7 +1928,7 @@ void CallManager::destroyPlayer(int type, const char* callId, MpStreamPlayer* pP
     // Wait until the player is destroyed by CpCall
     if(ev->wait(0, maxEventTime) != OS_SUCCESS)
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::destroyPlayer TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::destroyPlayer TIMED OUT\n");
 
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == ev->signal(0))
@@ -2027,7 +2027,7 @@ void CallManager::getNumConnections(const char* callId, int& numConnections)
         eventMgr->release(numConnectionsSet);
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getNumConnections "
                       "%d connections\n",
                       numConnections);
@@ -2035,7 +2035,7 @@ void CallManager::getNumConnections(const char* callId, int& numConnections)
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::getNumConnections "
                       "TIMED OUT\n");
         // If the event has already been signalled, clean up
@@ -2086,7 +2086,7 @@ OsStatus CallManager::getConnections(const char* callId, int maxConnections,
         }
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getConnections "
                       "%d connections\n",
                       numConnections);
@@ -2098,7 +2098,7 @@ OsStatus CallManager::getConnections(const char* callId, int maxConnections,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getConnections TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::getConnections TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == numConnectionsSet->signal(0))
         {
@@ -2151,7 +2151,7 @@ OsStatus CallManager::getCalledAddresses(const char* callId, int maxConnections,
             numConnections = addressIndex;
         } // end of interator scope
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getCalledAddresses "
                       "%d addresses\n",
                       numConnections);
@@ -2163,7 +2163,7 @@ OsStatus CallManager::getCalledAddresses(const char* callId, int maxConnections,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCalledAddresses TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::getCalledAddresses TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == numConnectionsSet->signal(0))
         {
@@ -2215,7 +2215,7 @@ OsStatus CallManager::getCallingAddresses(const char* callId, int maxConnections
         numConnections = addressIndex;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getCallingAddresses "
                       "%d addresses\n",
                       numConnections);
@@ -2227,7 +2227,7 @@ OsStatus CallManager::getCallingAddresses(const char* callId, int maxConnections
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCallingAddresses TIMED OUT");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::getCallingAddresses TIMED OUT");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == numConnectionsSet->signal(0))
         {
@@ -2256,7 +2256,7 @@ OsStatus CallManager::getFromField(const char* callId,
         fromUrl.toString(fromField);
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getFromField "
                       "%s\n",
                       fromField.data());
@@ -2275,7 +2275,7 @@ OsStatus CallManager::getSession(const char* callId,
                                  const char* address,
                                  SipSession& session)
 {
-   OsSysLog::add(FAC_CP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                  "CallManager::getSession "
                  "callId = '%s', address = '%s'",
                  callId, address);
@@ -2283,7 +2283,7 @@ OsStatus CallManager::getSession(const char* callId,
    // to sessionPtr space.
     SipSession* sessionPtr = new SipSession;
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CallManager::getSession "
                   "allocated session: 0x%p",
                   sessionPtr);
@@ -2307,7 +2307,7 @@ OsStatus CallManager::getSession(const char* callId,
 
         UtlString tCallId;
         session.getCallId(tCallId);
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getSession "
                       "deleting 'new'ed' session: %p (callId = %s)",
                       sessionPtr,tCallId.data());
@@ -2318,14 +2318,14 @@ OsStatus CallManager::getSession(const char* callId,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::getSession "
                       "TIMED OUT");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == getSessionEvent->signal(0))
         {
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "CallManager::getSession "
                           "deleting timed out session: 0x%p",
                           sessionPtr);
@@ -2392,13 +2392,13 @@ OsStatus CallManager::getInvite(const char* callId,
                                 const char* address,
                                 SipMessage& invite)
 {
-   OsSysLog::add(FAC_CP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                  "CallManager::getInvite "
                  "callId = '%s', address = '%s'",
                  callId, address);
    SipMessage* messagePtr = new SipMessage;
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_CP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                  "CallManager::getInvite "
                  "allocated message: 0x%p",
                  messagePtr);
@@ -2420,7 +2420,7 @@ OsStatus CallManager::getInvite(const char* callId,
 
       invite = *messagePtr;
 
-      OsSysLog::add(FAC_CP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "CallManager::getInvite "
                     "deleting message: %p",
                     messagePtr);
@@ -2431,14 +2431,14 @@ OsStatus CallManager::getInvite(const char* callId,
    }
    else
    {
-      OsSysLog::add(FAC_CP, PRI_ERR,
+      Os::Logger::instance().log(FAC_CP, PRI_ERR,
                     "CallManager::getInvite "
                     "TIMED OUT");
       // If the event has already been signalled, clean up.
       if (OS_ALREADY_SIGNALED == getMessageEvent->signal(0))
       {
 #ifdef TEST_PRINT
-         OsSysLog::add(FAC_CP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                        "CallManager::getInvite "
                        "deleting timed out message: %p",
                        messagePtr);
@@ -2537,7 +2537,7 @@ OsStatus CallManager::getToField(const char* callId,
         toUrl.toString(toField);
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getToField "
                       "%s\n",
                       toField.data());
@@ -2566,7 +2566,7 @@ OsStatus CallManager::getRemoteContactField(const char* callId,
         contactUrl.toString(remoteContactField);
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getRemoteContactField "
                       "'%s'"
                       , remoteContactField.data());
@@ -2599,7 +2599,7 @@ void CallManager::getNumTerminalConnections(const char* callId, const char* addr
         numConnections = (int)numConnectionsIntptr;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getNumTerminalConnections "
                       "%d connections\n",
                       numConnections);
@@ -2609,7 +2609,7 @@ void CallManager::getNumTerminalConnections(const char* callId, const char* addr
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::getNumTerminalConnections "
                       "TIMED OUT");
         // If the event has already been signalled, clean up
@@ -2653,7 +2653,7 @@ OsStatus CallManager::getTerminalConnections(const char* callId, const char* add
             }
 
 #ifdef TEST_PRINT_EVENT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "got terminal: %s\n",
                           terminalNameCollectable->data());
 #endif
@@ -2665,7 +2665,7 @@ OsStatus CallManager::getTerminalConnections(const char* callId, const char* add
         numConnections = terminalIndex;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getTerminalConnections "
                       "%d connections\n",
                       numConnections);
@@ -2685,7 +2685,7 @@ OsStatus CallManager::getTerminalConnections(const char* callId, const char* add
             eventMgr->release(numConnectionsSet);
         }
         numConnections = 0;
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getTerminalConnections TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::getTerminalConnections TIMED OUT\n");
 
     }
 
@@ -2718,7 +2718,7 @@ OsStatus CallManager::getCodecCPUCostCall(const char* callId, int& cost)
     else
     {
         status = OS_BUSY ;
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCodecCPUCostCall TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::getCodecCPUCostCall TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == getCodecCPUCostEvent->signal(0))
         {
@@ -2756,7 +2756,7 @@ OsStatus CallManager::getCodecCPULimitCall(const char* callId, int& cost)
     else
     {
         status = OS_BUSY ;
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCodecCPULimitCall TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::getCodecCPULimitCall TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == getCodecCPULimitEvent->signal(0))
         {
@@ -2891,7 +2891,7 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
         isLocal = tmpIsLocal;  // workaround conversion issue in newer RW library
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::isTerminalConnectionLocal "
                       "%d\n",
                       isLocal);
@@ -2901,7 +2901,7 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::isTerminalConnectionLocal "
                       "TIMED OUT\n");
         // If the event has already been signalled, clean up
@@ -2916,7 +2916,7 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
 
 OsStatus CallManager::stopRecording(const char* callId)
 {
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CallManager::stopRecording "
                   "stopping the recording for call %s",
                   callId);
@@ -2935,7 +2935,7 @@ OsStatus CallManager::stopRecording(const char* callId)
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::stopRecording "
                       "TIMED OUT\n");
         // If the event has already been signalled, clean up
@@ -2957,7 +2957,7 @@ OsStatus CallManager::ezRecord(const char* callId,
                                int& dtmfterm,
                                OsProtectedEvent* recordEvent)
 {
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::ezRecord starting the recording for call %s",
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManager::ezRecord starting the recording for call %s",
                   callId);
     CpMultiStringMessage recordMessage(CP_EZRECORD,
         callId, fileName, NULL, NULL, NULL,
@@ -3022,7 +3022,7 @@ void CallManager::dialString(const char* url)
     if(url && strlen(url) > 0)
     {
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::dialString "
                       "posting dial string\n");
 #endif
@@ -3034,7 +3034,7 @@ void CallManager::dialString(const char* url)
 #ifdef TEST
     else
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "url NULL or empty string\n");
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "url NULL or empty string\n");
     }
 #endif
 
@@ -3086,7 +3086,7 @@ UtlBoolean CallManager::getCallState(const char* callId, int& state)
         state = (int)stateIntptr;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getCallState "
                       "state: %d\n",
                       getConnectionState);
@@ -3097,7 +3097,7 @@ UtlBoolean CallManager::getCallState(const char* callId, int& state)
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::getCallState "
                       "TIMED OUT\n");
         // If the event has already been signalled, clean up
@@ -3128,7 +3128,7 @@ UtlBoolean CallManager::getConnectionState(const char* callId, const char* remot
         state = (int)stateIntptr;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getConnectionState "
                       "state: %d\n",
                       state);
@@ -3139,7 +3139,7 @@ UtlBoolean CallManager::getConnectionState(const char* callId, const char* remot
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getConnectionState TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::getConnectionState TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == connectionState->signal(0))
         {
@@ -3166,7 +3166,7 @@ UtlBoolean CallManager::getNextSipCseq(const char* callId, const char* remoteAdd
         nextCseq = (int)nextCseqIntptr;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getConnectionState "
                       "state: %d\n",
                       state);
@@ -3177,7 +3177,7 @@ UtlBoolean CallManager::getNextSipCseq(const char* callId, const char* remoteAdd
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getConnectionState TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::getConnectionState TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == connectionState->signal(0))
         {
@@ -3209,7 +3209,7 @@ UtlBoolean CallManager::getTermConnectionState(const char* callId,
         state = (int)stateIntptr;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getTermConnectionState state: "
                       "%d\n",
                       state);
@@ -3220,7 +3220,7 @@ UtlBoolean CallManager::getTermConnectionState(const char* callId,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getTermConnectionState TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::getTermConnectionState TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == termConnectionState->signal(0))
         {
@@ -3261,13 +3261,13 @@ void CallManager::pushCall(CpCall* call)
    UtlString callId = "";
    if (call) {
       call->getCallId(callId);
-      OsSysLog::add(FAC_CP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CallManager::pushCall callStack: adding call %p, callId %s, entries = %ld",
                    call, callId.data(), (long)mCallStack.entries());
    }
    mCallStack.insertAt(0, new UtlVoidPtr(call));
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CallManager::pushCall callStack: adding call %p, entries = %ld",
                   call, (long)mCallStack.entries());
 #endif
@@ -3281,7 +3281,7 @@ CpCall* CallManager::popCall()
     {
         call = (CpCall*) callCollectable->getValue();
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_INFO,
+        Os::Logger::instance().log(FAC_CP, PRI_INFO,
                       "CallManager::popCall callStack: removing call %p, entries = %ld",
                       call, (long)mCallStack.entries());
 #endif
@@ -3296,7 +3296,7 @@ CpCall* CallManager::removeCall(CpCall* call)
     UtlString callId = "";
     if (call) {
       call->getCallId(callId);
-      OsSysLog::add(FAC_CP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CallManager::removeCall callStack: removing call %p,callId %s, entries = %ld",
                   call, callId.data(), (long)mCallStack.entries());
     }
@@ -3306,7 +3306,7 @@ CpCall* CallManager::removeCall(CpCall* call)
     {
         call = (CpCall*) callCollectable->getValue();
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::removeCall callStack: removing call %p, entries = %ld",
                       call, (long)mCallStack.entries());
 #endif
@@ -3315,7 +3315,7 @@ CpCall* CallManager::removeCall(CpCall* call)
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Failed to find call to remove from stack\r\n");
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Failed to find call to remove from stack\r\n");
         call = NULL;
     }
     return(call);
@@ -3474,37 +3474,37 @@ void CallManager::printCalls(int showHistory)
 {
     if (showHistory)
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::printCalls "
                       "Call Manager message history:\n");
         for(int historyIndex = 0; historyIndex < CP_CALL_HISTORY_LENGTH; historyIndex++)
         {
             if(mMessageEventCount - historyIndex >= 0)
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                               "CallManager::printCalls"
                               " %d) %s\n", mMessageEventCount - historyIndex,
                     (mCallManagerHistory[(mMessageEventCount - historyIndex) % CP_CALL_HISTORY_LENGTH]).data());
             }
         }
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "============================\n");
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "============================\n");
     }
 
     OsReadLock lock(mCallListMutex);
     if(infocusCall)
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::printCalls "
                       "infocusCall: %p ",
                       infocusCall);
-        //OsSysLog::add(FAC_CP, PRI_DEBUG, "shutting down: %d started: %d suspended: %d\n",
+        //Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "shutting down: %d started: %d suspended: %d\n",
         //    infocusCall->isShuttingDown(),
         //    infocusCall->isStarted(), infocusCall->isSuspended());
         infocusCall->printCall(showHistory);
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::printCalls "
                       "infocusCall: %p\n",
                       infocusCall);
@@ -3527,7 +3527,7 @@ void CallManager::printCalls(int showHistory)
             call->getIdOfOrigCall(origCID);
             call->getTargetCallId(targCID);
 
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "CallManager::printCalls "
                           "callStack[%d] = %p id='%s' orig='%s' targ='%s' time=%lu "
                           "%s - %sstarted - %s",
@@ -3543,7 +3543,7 @@ void CallManager::printCalls(int showHistory)
     }
     if(callIndex == 0)
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "No calls on the stack (max=%d)\n", mMaxCalls);
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "No calls on the stack (max=%d)\n", mMaxCalls);
     }
 
 }
@@ -3557,7 +3557,7 @@ void CallManager::setOutGoingCallType(int callType)
         mOutGoingCallType = callType;
         break;
     default:
-        OsSysLog::add(FAC_CP, PRI_WARNING, "CallManger::setOutGoingCallType invalid call type %d\n",
+        Os::Logger::instance().log(FAC_CP, PRI_WARNING, "CallManger::setOutGoingCallType invalid call type %d\n",
             callType);
         break;
     }
@@ -3568,7 +3568,7 @@ void CallManager::startCallStateLog()
 {
     mCallStateLogEnabled = TRUE;
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "Call State LOGGING ENABLED\n");
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Call State LOGGING ENABLED\n");
 #endif
 }
 
@@ -3576,7 +3576,7 @@ void CallManager::stopCallStateLog()
 {
     mCallStateLogEnabled = FALSE;
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "Call State LOGGING DISABLED\n");
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Call State LOGGING DISABLED\n");
 #endif
 }
 
@@ -3588,7 +3588,7 @@ void CallManager::setCallStateLogAutoWrite(UtlBoolean state)
 void CallManager::flushCallStateLogAutoWrite()
 {
     // Write the previous log messages to the mediaserver log.
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::logCallState: %s",
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManager::logCallState: %s",
         mCallStateLog.data());
     mCallStateLog.remove(0);
 }
@@ -3615,7 +3615,7 @@ void CallManager::logCallState(const char* message,
             {
                 // If auto-write is enabled, write the previous log messages
                 // to the mediaserver log.
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "CallManager::logCallState: %s",
                     mCallStateLog.data());
             }
@@ -3624,7 +3624,7 @@ void CallManager::logCallState(const char* message,
                 // Otherwise, report that information was lost.
                 // (Don't make this conditional, as it can only be printed
                 // if the user has set mCallStateLogEnabled.)
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                     "Call State message cleared because it reached "
                     "max size (%d)", MAXIMUM_CALLSTATE_LOG_SIZE);
             }
@@ -3702,7 +3702,7 @@ void CallManager::logCallState(const char* message,
 #ifdef TEST_PRINT
     else
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Call State LOGGING DISABLED\n");
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "Call State LOGGING DISABLED\n");
     }
 #endif
 }
@@ -3756,7 +3756,7 @@ PtStatus CallManager::validateAddress(UtlString& address)
         else
         {
             address.append("@");
-            //OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::transfer adding @\n");
+            //Os::Logger::instance().log(FAC_CP, PRI_DEBUG, "CallManager::transfer adding @\n");
         }
     }
 
@@ -3819,7 +3819,7 @@ OsStatus CallManager::getLocalContactAddresses(const char* callId,
     if(getLocalContacts->wait(0, maxEventTime) == OS_SUCCESS)
     {
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::getLocalContactAddresses "
                       "state: %d\n",
                       state);
@@ -3829,7 +3829,7 @@ OsStatus CallManager::getLocalContactAddresses(const char* callId,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::getLocalContactAddresses "
                       "TIMED OUT\n");
         // If the event has already been signalled, clean up
@@ -3859,7 +3859,7 @@ int CallManager::getMediaConnectionId(const char* szCallId, const char* szRemote
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::getMediaConnectionId "
                       "TIMED OUT\n");
         // If the event has already been signalled, clean up
@@ -3895,7 +3895,7 @@ UtlBoolean CallManager::canAddConnection(const char* szCallId)
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::canAddConnection TIMED OUT\n");
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "CallManager::canAddConnection TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == getIdEvent->signal(0))
         {
@@ -3929,7 +3929,7 @@ void CallManager::doCreateCall(const char* callId,
     if(call)
     {
         // This is generally bad.  The call should not exist.
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::doCreateCall "
                       "cannot create call. CallId: %s already exists.\n",
                       callId);
@@ -3941,13 +3941,13 @@ void CallManager::doCreateCall(const char* callId,
             int numCodecs;
             SdpCodec** codecArray = NULL;
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "CallManager::doCreateCall "
                           "getting codec array copy\n");
 #endif
             getCodecs(numCodecs, codecArray);
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "CallManager::doCreateCall "
                           "got %d codecs, creating CpPhoneMediaInterface\n",
                           numCodecs);
@@ -3966,7 +3966,7 @@ void CallManager::doCreateCall(const char* callId,
                 numCodecs, codecArray, mLocale.data(), mExpeditedIpTos,
                 mStunServer, mStunOptions, mStunKeepAlivePeriodSecs);
 
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "CallManager::doCreateCall "
                           "Creating new SIP Call, mediaInterface: 0x%p\n",
                           mediaInterface);
@@ -4039,7 +4039,7 @@ void CallManager::doConnect(const char* callId,
     if(!call)
     {
         // This is generally bad.  The call should exist.
-        OsSysLog::add(FAC_CP, PRI_ERR,
+        Os::Logger::instance().log(FAC_CP, PRI_ERR,
                       "CallManager::doConnect "
                       "cannot find CallId: %s\n",
                       callId);
@@ -4066,7 +4066,7 @@ void CallManager::doConnect(const char* callId,
 
             default:
                // for all other schemes, treat identity as null
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                              "CallManager::doConnect "
                              "mOutboundLine uses unsupported scheme '%s'"
                              " - using null identity",
@@ -4075,7 +4075,7 @@ void CallManager::doConnect(const char* callId,
                break;
             }
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                           "CallManager::doConnect "
                           "adressUrl '%s'"
                           "desiredConnectionCallId '%s'"
@@ -4097,7 +4097,7 @@ void CallManager::doConnect(const char* callId,
         call->postMessage(dialStringMessage);
         call->setLocalConnectionState(PtEvent::CONNECTION_ESTABLISHED);
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CallManager::doConnect "
                       "stopMetaEvent 4");
 #endif
@@ -4113,7 +4113,7 @@ void CallManager::doSendInfo(const char* callId,
     if(!call)
     {
         // This is generally bad.  The call should exist.
-        OsSysLog::add(FAC_CP, PRI_ERR, "doSendInfo cannot find CallId: %s\n", callId);
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "doSendInfo cannot find CallId: %s\n", callId);
     }
     else
     {
@@ -4148,7 +4148,7 @@ UtlBoolean CallManager::disconnectConnection(const char* callId, const char* add
     if(!call)
     {
         // This is generally bad.  The call should exist.
-        OsSysLog::add(FAC_CP, PRI_ERR, "disconnectConnect cannot find CallId: %s\n", callId);
+        Os::Logger::instance().log(FAC_CP, PRI_ERR, "disconnectConnect cannot find CallId: %s\n", callId);
         return FALSE;
     }
     else

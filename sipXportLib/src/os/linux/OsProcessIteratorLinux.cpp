@@ -14,7 +14,7 @@
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
 #include "os/linux/OsProcessIteratorLinux.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 
 // EXTERNAL FUNCTIONS

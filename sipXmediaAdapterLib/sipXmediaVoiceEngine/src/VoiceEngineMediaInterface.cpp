@@ -783,7 +783,7 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
 
         if (primaryCodec && getVoiceEngineCodec(*primaryCodec, codecInfo))
         {
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                           "startRtpSend: using GIPS codec %s for id %d, payload %d",
                           codecInfo.plname, primaryCodec->getCodecType(),
                           primaryCodec->getCodecPayloadFormat());
@@ -793,7 +793,7 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
             if ((rc=mpVoiceEngine->GIPSVE_SetSendCodec(connectionId, &codecInfo)) == -1)
             {
                 i = mpVoiceEngine->GIPSVE_GetLastError();
-                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                               "startRtpSend: SetSendCodec failed with code %d", i);
                 assert(0);
             }
@@ -901,7 +901,7 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
                         if ((rc=mpVideoEngine->GIPSVideo_SetSendCodec(&vcodecInfo)) == -1)
                         {
                             i = mpVideoEngine->GIPSVideo_GetLastError();
-                            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                            Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                                             "startRtpSend: SetSendCodec for video failed with code %d", i);
                             assert(0);
                         }
@@ -1292,7 +1292,7 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
             pNetTask->removeInputSource(pMediaConnection->mpRtpAudioSocket, rtpSocketRemoveEvent) ;
             if (rtpSocketRemoveEvent->wait(0, maxEventTime) != OS_SUCCESS)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                         " *** VoiceEngineMediaInterface: failed to wait for audio rtp socket release") ;
             }
             eventMgr->release(rtpSocketRemoveEvent);
@@ -1305,7 +1305,7 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
                 pNetTask->removeInputSource(pMediaConnection->mpRtcpAudioSocket, rtcpSocketRemoveEvent) ;
                 if (rtcpSocketRemoveEvent->wait(0, maxEventTime) != OS_SUCCESS)
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                             " *** VoiceEngineMediaInterface: failed to wait for audio rtpc socket release") ;
                 }
                 eventMgr->release(rtcpSocketRemoveEvent);
@@ -1318,7 +1318,7 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
                 pNetTask->removeInputSource(pMediaConnection->mpRtpVideoSocket, rtpVideoSocketRemoveEvent) ;
                 if (rtpVideoSocketRemoveEvent->wait(0, maxEventTime) != OS_SUCCESS)
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                             " *** VoiceEngineMediaInterface: failed to wait for video rtp socket release") ;
                 }
                 eventMgr->release(rtpVideoSocketRemoveEvent);
@@ -1332,7 +1332,7 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
                 pNetTask->removeInputSource(pMediaConnection->mpRtcpVideoSocket, rtcpVideoSocketRemoveEvent) ;
                 if (rtcpVideoSocketRemoveEvent->wait(0, maxEventTime) != OS_SUCCESS)
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                             " *** VoiceEngineMediaInterface: failed to wait for video rtpc socket release") ;
                 }
                 eventMgr->release(rtcpVideoSocketRemoveEvent);
@@ -1470,7 +1470,7 @@ OsStatus VoiceEngineMediaInterface::stopAudio()
         {
             if (mpVoiceEngine->GIPSVE_StopPlayingFileAsMicrophone(connectionId) == -1)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                Os::Logger::instance().log(FAC_MP, PRI_ERR,
                              "stopAudio: GIPSVE_StopPlayingFileAsMicrophone on channel %d failed with error %d",
                              connectionId,
                              mpVoiceEngine->GIPSVE_GetLastError());
@@ -1572,7 +1572,7 @@ OsStatus VoiceEngineMediaInterface::startTone(int toneId,
                 }
                 else
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                               "startTone: out-of-band SendDTMF with event nr %d returned error %d",
                               toneId, err);
                     assert(0);
@@ -1590,7 +1590,7 @@ OsStatus VoiceEngineMediaInterface::startTone(int toneId,
                 if (toneId != 16)
                 {
                     err = mpVoiceEngine->GIPSVE_GetLastError();
-                    OsSysLog::add(FAC_MP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_MP, PRI_ERR,
                               "startTone: inband SendDTMF with event nr %d returned error %d",
                               toneId, err);
                     assert(0);
@@ -2021,7 +2021,7 @@ UtlBoolean VoiceEngineMediaInterface::getCodecNameByType(SdpCodec::SdpCodecTypes
         codecName = GIPS_CODEC_ID_RGB24_SQCIF;
         break;
     default:
-        OsSysLog::add(FAC_MP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                       "getCodecNameByType: unsupported codec %d",
                       codecType);
     }

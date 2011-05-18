@@ -65,7 +65,7 @@ void SubscribeServerEventData::dumpState()
 {
    // indented 4
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t    SubscribeServerEventData %p UtlString = '%s', mpEventSpecificHandler = %p, mpEventSpecificUserAgent = %p, mpEventSpecificContentMgr = %p",
                  this, data(), mpEventSpecificHandler, mpEventSpecificUserAgent,
                  mpEventSpecificContentMgr);
@@ -128,7 +128,7 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
 /// Terminate all subscriptions and accept no new ones.
 void SipSubscribeServer::shutdown(const char* reason)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeServer::shutdown reason = '%s'",
                  reason ? reason : "[null]");
 
@@ -138,7 +138,7 @@ void SipSubscribeServer::shutdown(const char* reason)
       reason = mDefaultTermination;
    }
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeServer::shutdown reason after defaulting = '%s'",
                  reason ? reason : "[null]");                 
 
@@ -216,7 +216,7 @@ void SipSubscribeServer::shutdown(const char* reason)
                                        eventTypeKeyArray,
                                        fullContentArray);
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipSubscribeServer::shutdown eventType = '%s', numSubscriptions = %d",
                     eventData->data(), numSubscriptions);
 
@@ -332,7 +332,7 @@ SipSubscribeServer::SipSubscribeServer(const char* defaultTermination,
 // Destructor
 SipSubscribeServer::~SipSubscribeServer()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeServer::~");
 
    // Execute the default ::shutdown().
@@ -380,7 +380,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                                                  const char* eventType,
                                                  const char* reason)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeServer::notifySubscribers resourceId '%s', eventTypeKey '%s', eventType '%s', reason '%s'",
                  resourceId, eventTypeKey, eventType,
                  reason ? reason : "[null]");
@@ -447,7 +447,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                                        fullContentArray,
                                        notifyArray);
 
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                          "SipSubscribeServer::notifySubscribers numSubscriptions for '%s' = %d",
                          resourceId, numSubscriptions);
 
@@ -538,7 +538,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
     // event type not enabled
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                       "SipSubscribeServer::notifySubscribers "
                       "event type: %s not enabled - "
                       "Why are we seeing a callback for this?",
@@ -794,7 +794,7 @@ void SipSubscribeServer::dumpState()
 
    // indented 2
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t  SipSubscribeServer %p",
                  this);
 
@@ -985,7 +985,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                        notifyRequest.getDialogHandleReverse(dialogHandle);
                        mpSubscriptionMgr->newNotify(dialogHandle);
 
-                       if (OsSysLog::willLog(FAC_SIP, PRI_INFO))
+                       if (Os::Logger::instance().willLog(FAC_SIP, PRI_INFO))
                        {
                           UtlString requestContact;
                           UtlString callId;
@@ -995,13 +995,13 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                           subscribeResponse.getExpiresField(&expires);
                           if (expires > 0)
                           {
-                             OsSysLog::add(FAC_SIP, PRI_INFO,
+                             Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                                  "SipSubscribeServer::handleSubscribe: %s has set up subscription to %s, eventTypeKey %s, callId %s, expires %d",
                                  requestContact.data(), resourceId.data(), eventTypeKey.data(), callId.data(), expires);
                           }
                           else
                           {
-                             OsSysLog::add(FAC_SIP, PRI_INFO,
+                             Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                                  "SipSubscribeServer::handleSubscribe: %s has terminated subscription to %s, eventTypeKey %s, callId %s",
                                  requestContact.data(), resourceId.data(), eventTypeKey.data(), callId.data());
                           }
@@ -1039,7 +1039,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                  else
                  {
                     // Oops, the subscription was destroyed while we looked.
-                    OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                   "SipSubscribeServer::handleSubscribe "
                                   "subscription '%s' vanished while being processed",
                                   subscribeDialogHandle.data());
@@ -1071,7 +1071,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
     // This event type has not been enabled in this SubscribeServer.
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
             "SipSubscribeServer::handleSubscribe event type: %s not enabled",
             eventName.data());
 
@@ -1127,7 +1127,7 @@ void SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResponse)
           // so 503 is also exempt.
 
           // Log the response.
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipSubscribeServer::handleNotifyResponse "
                         "Not terminating subscription due to %d response. Handle: %s",
                         responseCode, dialogHandle.data());
@@ -1138,7 +1138,7 @@ void SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResponse)
        }
        else if (notifyResponse.getHeaderValue(0, SIP_RETRY_AFTER_FIELD) == NULL)
        {
-          OsSysLog::add(FAC_SIP, PRI_WARNING,
+          Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                         "SipSubscribeServer::handleNotifyResponse "
                         "Terminating subscription due to %d response. Handle: %s",
                         responseCode, dialogHandle.data());
@@ -1151,7 +1151,7 @@ void SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResponse)
        {
           // This was an error response, but because there was a Retry-After
           // header, we should not terminate the subscription.
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipSubscribeServer::handleNotifyResponse "
                         "Not terminating subscription due to Retry-After header. Handle: %s",
                         dialogHandle.data());
@@ -1343,7 +1343,7 @@ UtlBoolean SipSubscribeServer::handleExpiration(UtlString* subscribeDialogHandle
     // needed that the subscribe client gets a final NOTIFY.
     // The client should already know when the expiration is
     // going to occur and that it has not reSUBSCRIBEd.
-    OsSysLog::add(FAC_SIP, PRI_ERR,
+    Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                   "SipSubscribeServer::handleExpiration not implemented");
     return(FALSE);
 }

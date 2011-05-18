@@ -13,7 +13,7 @@
 #include "ResourceCached.h"
 #include "ContactSet.h"
 #include "SubscriptionSet.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/UtlHashBagIterator.h>
 #include <net/SipMessage.h>
@@ -42,7 +42,7 @@ ContactSet::ContactSet(ResourceCached* resource,
    mResource(resource),
    mUri(uri)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ContactSet:: this = %p, resource = %p, mUri = '%s'",
                  this, mResource, mUri.data());
 
@@ -54,7 +54,7 @@ ContactSet::ContactSet(ResourceCached* resource,
    // Start the subscription.
    UtlBoolean ret;
    UtlString mUriNameAddr = "<" + mUri + ">";
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet:: mUri = '%s', mUriNameAddr = '%s'",
                  mUri.data(), mUriNameAddr.data());
    ret = getResourceListServer()->getSubscribeClient().
@@ -71,7 +71,7 @@ ContactSet::ContactSet(ResourceCached* resource,
                       mSubscriptionEarlyDialogHandle);
    if (ret)
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ContactSet:: addSubscription succeeded mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mUri.data(),
                     mSubscriptionEarlyDialogHandle.data());
@@ -81,7 +81,7 @@ ContactSet::ContactSet(ResourceCached* resource,
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "ContactSet:: addSubscription failed mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mUri.data(),
                     mSubscriptionEarlyDialogHandle.data());
@@ -99,7 +99,7 @@ ContactSet::~ContactSet()
    UtlBoolean ret;
    ret = getResourceListServer()->getSubscribeClient().
       endSubscriptionGroup(mSubscriptionEarlyDialogHandle);
-   OsSysLog::add(FAC_RLS,
+   Os::Logger::instance().log(FAC_RLS,
                  ret ? PRI_DEBUG : PRI_WARNING,
                  "ContactSet::~ endSubscriptionGroup %s mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  ret ? "succeeded" : "failed",
@@ -145,7 +145,7 @@ void ContactSet::subscriptionEventCallback(
    SipSubscribeClient::SubscriptionState newState,
    const UtlString* subscriptionState)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ContactSet::subscriptionEventCallback mUri = '%s', newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', subscriptionState = '%s'",
                  mUri.data(),
                  newState, mSubscriptionEarlyDialogHandle.data(),
@@ -174,7 +174,7 @@ void ContactSet::subscriptionEventCallback(
             }
             else
             {
-               OsSysLog::add(FAC_RLS, PRI_ERR,
+               Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                              "ContactSet::subscriptionEventCallback cannot add reg subscription with dialog handle '%s', already %zu in ContactSet '%s'",
                              dialogHandle->data(), mSubscriptions.entries(),
                              mUri.data());
@@ -182,7 +182,7 @@ void ContactSet::subscriptionEventCallback(
          }
          else
          {
-            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                           "ContactSet::subscriptionEventCallback mSubscriptions element already exists for this dialog handle mUri = '%s', dialogHandle = '%s'",
                           mUri.data(),
                           dialogHandle->data());
@@ -211,7 +211,7 @@ void ContactSet::subscriptionEventCallback(
 void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                                      const UtlString* content)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ContactSet::notifyEventCallback mUri = '%s', dialogHandle = '%s', content = '%s'",
                  mUri.data(), dialogHandle->data(), content->data());
 
@@ -223,7 +223,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
    if (!state_from_this_subscr)
    {
       // No state for this dialogHandle, so we need to add one.
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "ContactSet::notifyEventCallback mSubscriptions element does not exist for this dialog handle mUri = '%s', dialogHandle = '%s'",
                     mUri.data(),
                     dialogHandle->data());
@@ -238,7 +238,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
       }
       else
       {
-         OsSysLog::add(FAC_RLS, PRI_ERR,
+         Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                        "ContactSet::notifyEventCallback cannot add reg subscription with dialog handle '%s', already %zu in ContactSet '%s'",
                        dialogHandle->data(), mSubscriptions.entries(),
                        mUri.data());
@@ -265,7 +265,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
          {
             // If the state is "full", delete the current state.
             state_from_this_subscr->destroyAll();
-            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                           "ContactSet::notifyEventCallback clearing state");
          }
 
@@ -394,7 +394,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                            if (state_from_this_subscr->insertKeyAndValue(id_allocated,
                                                                          uri_allocated))
                            {
-                              OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                              Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                                             "ContactSet::notifyEventCallback adding id = '%s' Call-Id;URI = '%s'",
                                             id, uri_allocated->data());
                               id_allocated = NULL;
@@ -402,17 +402,17 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                            }
                            else
                            {
-                              OsSysLog::add(FAC_RLS, PRI_ERR,
+                              Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                                             "ContactSet::notifyEventCallback adding id = '%s' Call-Id;URI = '%s' failed",
                                             id_allocated->data(), uri_allocated->data());
-                              OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                              Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                                             "ContactSet::notifyEventCallback *state_from_this_subscr is:");
                               UtlHashMapIterator itor(*state_from_this_subscr);
                               UtlContainable* k;
                               while ((k = itor()))
                               {
                                  UtlContainable* v = itor.value();
-                                 OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                                 Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                                                "ContactSet::notifyEventCallback (*state_from_this_subscr)['%s'] = '%s'",
                                                (dynamic_cast <UtlString*> (k))->data(),
                                                (dynamic_cast <UtlString*> (v))->data());
@@ -421,7 +421,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                         }
                         else
                         {
-                           OsSysLog::add(FAC_RLS, PRI_ERR,
+                           Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                                          "ContactSet::notifyEventCallback cannot add Call-Id;RUI '%s', already %zu in ContactSet '%s' subscription '%s'",
                                          uri_allocated->data(),
                                          state_from_this_subscr->entries(),
@@ -433,7 +433,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                   {
                      // Delete it from the contact state.
                      state_from_this_subscr->destroy(id_allocated);
-                     OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                     Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                                    "ContactSet::notifyEventCallback deleting id = '%s'",
                                    id);
                   }
@@ -446,7 +446,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                }
                else
                {
-                  OsSysLog::add(FAC_RLS, PRI_ERR,
+                  Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                                 "ContactSet::notifyEventCallback <contact> element with id = '%s' is missing id, state, and/or URI",
                                 id ? id : "(missing)");
                }
@@ -462,7 +462,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
       else
       {
          // Error parsing the contents.
-         OsSysLog::add(FAC_RLS, PRI_ERR,
+         Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                        "ContactSet::notifyEventCallback malformed reg event content for mUri = '%s'",
                        mUri.data());
       }
@@ -475,7 +475,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
 // Update the subscriptions we maintain to agree with the current contact state
 void ContactSet::updateSubscriptions()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ContactSet::updateSubscriptions mUri = '%s'",
                  mUri.data());
 
@@ -495,15 +495,15 @@ void ContactSet::updateSubscriptions()
    UtlHashMapIterator subs_itor(mSubscriptions);
    while (subs_itor())
    {
-      if (OsSysLog::willLog(FAC_RLS, PRI_DEBUG))
+      if (Os::Logger::instance().willLog(FAC_RLS, PRI_DEBUG))
       {
-         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                        "ContactSet::updateSubscriptions subscription '%s'",
                        (dynamic_cast <UtlString*> (subs_itor.key()))->data());
       }
       UtlHashMap* contact_state =
          dynamic_cast <UtlHashMap*> (subs_itor.value());
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ContactSet::updateSubscriptions contact_state = %p",
                     contact_state);
       UtlHashMapIterator contact_itor(*contact_state);
@@ -511,9 +511,9 @@ void ContactSet::updateSubscriptions()
       {
          UtlString* contact =
             dynamic_cast <UtlString*> (contact_itor.value());
-         if (OsSysLog::willLog(FAC_RLS, PRI_DEBUG))
+         if (Os::Logger::instance().willLog(FAC_RLS, PRI_DEBUG))
          {
-            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                           "ContactSet::updateSubscriptions contact id '%s', Call-Id/URI '%s'",
                           (dynamic_cast <UtlString*> (contact_itor.key()))->data(),
                           contact->data());
@@ -524,7 +524,7 @@ void ContactSet::updateSubscriptions()
             // If not, add it.
             UtlString* c = new UtlString(*contact);
             callid_contacts.insert(c);
-            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                           "ContactSet::updateSubscriptions contact added");
          }
       }
@@ -534,7 +534,7 @@ void ContactSet::updateSubscriptions()
    // (with an empty registration Call-Id).
    if (callid_contacts.isEmpty())
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ContactSet::updateSubscriptions adding default contact mUri = '%s'",
                     mUri.data());
       UtlString* c = new UtlString(";");
@@ -565,7 +565,7 @@ void ContactSet::updateSubscriptions()
       {
          if (!callid_contacts.find(ss))
          {
-            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                           "ContactSet::updateSubscriptions deleting subscription for '%s' in mUri = '%s'",
                           ss->data(), mUri.data());
             mSubscriptionSets.destroy(ss);
@@ -597,7 +597,7 @@ void ContactSet::updateSubscriptions()
             {
                if (subscription_ended_but_no_wait_done_yet)
                {
-                  OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                                 "ContactSet::updateSubscriptions waiting for %d msec",
                                 wait);
                   OsTask::delay(wait);
@@ -605,7 +605,7 @@ void ContactSet::updateSubscriptions()
                }
             }
 
-            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                           "ContactSet::updateSubscriptions adding subscription for '%s' in mUri = '%s'",
                           callid_contact->data(), mUri.data());
             // Get the contact URI into a UtlString.
@@ -643,7 +643,7 @@ void ContactSet::generateBody(UtlString& rlmi,
 // Remove dialogs in terminated state and terminated resource instances.
 void ContactSet::purgeTerminated()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ContactSet::purgeTerminated mUri = '%s'",
                  mUri.data());
 
@@ -669,7 +669,7 @@ void ContactSet::dumpState() const
 {
    // indented 8, 10, and 12
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t        ContactSet %p mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  this, mUri.data(), mSubscriptionEarlyDialogHandle.data());
 
@@ -678,7 +678,7 @@ void ContactSet::dumpState() const
    while ((handle = dynamic_cast <UtlString*> (itor())))
    {
       UtlHashMap* h = dynamic_cast <UtlHashMap*> (itor.value());
-      OsSysLog::add(FAC_RLS, PRI_INFO,
+      Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                     "\t          mSubscriptions{'%s'} %p",
                     handle->data(), h);
       UtlHashMapIterator itor2(*h);
@@ -692,7 +692,7 @@ void ContactSet::dumpState() const
             semi = value->length();
          }
          const char* v = value->data();
-         OsSysLog::add(FAC_RLS, PRI_INFO,
+         Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                        "\t            id = '%s', Call-Id = '%.*s', URI = '%s'",
                        id->data(), semi, v, v + semi + 1);
       }
