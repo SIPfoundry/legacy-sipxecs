@@ -48,6 +48,31 @@ public enum ValidUsers {
     private static int MONGO_PORT = 27017;
     private Mongo m_mongoInstance;
 
+    public List<User> getUsers() {
+        List<User> users = new ArrayList<User>();
+        try {
+            DBCursor cursor = getEntityCollection().find(QueryBuilder.start(VALID_USER).is(Boolean.TRUE).get());
+            Iterator<DBObject> objects = cursor.iterator();
+            while (objects.hasNext()) {
+                DBObject validUser = objects.next();
+                if (!validUser.get(ID).toString().startsWith("User")) {
+                    BasicDBList aliasesObj = (BasicDBList) validUser.get(ALIASES);
+                    if (aliasesObj != null) {
+                        for (int i = 0; i < aliasesObj.size(); i++) {
+                            DBObject aliasObj = (DBObject) aliasesObj.get(i);
+                            users.add(extractValidUserFromAlias(aliasObj));
+                        }
+                    }
+                } else {
+                    users.add(extractValidUser(validUser));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
     public List<User> getUsersWithImEnabled() {
         List<User> users = new ArrayList<User>();
         try {
