@@ -145,11 +145,10 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         AttrMap attrMap = m_ldapManager.getAttrMap();
 
         String sbase = StringUtils.defaultString(attrMap.getSearchBase());
-        String additionalFilter = StringUtils.EMPTY;
-        if (StringUtils.isNotBlank(attrMap.getFilter())) {
-            additionalFilter = "," + attrMap.getFilter();
-        }
-        String filter = String.format("(%s={0}%s)", attrMap.getIdentityAttributeName(), additionalFilter);
+        //Any additional LDAP filters (RFC 2254) are removed from authentication search because
+        //here the filter is used to specify what LDAP attribute represents the username and it
+        //does not respect RFC2254 guidelines
+        String filter = String.format("(%s={0})", attrMap.getIdentityAttributeName());
 
         FilterBasedLdapUserSearch search = new FilterBasedLdapUserSearch(sbase, filter, dirFactory);
         search.setSearchSubtree(true);
