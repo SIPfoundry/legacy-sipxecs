@@ -88,6 +88,7 @@ iso-cp-sipx-rpms-% : iso-disc-%
 	  -o -name '*rrdtool-doc*' \
 	  -o -name '*rubygem-rake*' \
 	  -o -name '*scons*' \
+	  -o -name '*sipxlang*' \
         \) \
 	-exec cp {}  $(ISO_DISC)/CentOS \;
 
