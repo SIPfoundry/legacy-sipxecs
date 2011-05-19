@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -27,7 +28,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-public class ReplicationTrigger implements ApplicationListener, DaoEventListener {
+public class ReplicationTrigger  extends SipxHibernateDaoSupport implements ApplicationListener, DaoEventListener {
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
 
     private CoreContext m_coreContext;
@@ -49,6 +50,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
         if (entity instanceof Replicable) {
             m_replicationManager.replicateEntity((Replicable) entity);
             if (entity instanceof OpenAcdExtension) {
+                getHibernateTemplate().flush();
                 m_openAcdContext.replicateConfig();
             }
         } else if (entity instanceof Group) {
