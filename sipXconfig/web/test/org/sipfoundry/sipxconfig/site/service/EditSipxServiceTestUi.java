@@ -62,6 +62,20 @@ public class EditSipxServiceTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
     }
 
+    public void testEditSipxImbotServiceDisplay() {
+        initService("seedImbotService");
+        assertLinkPresent("setting:toggle");
+        clickLink("setting:toggle");
+        assertElementPresent("setting:imId");
+        //assertElementPresent("setting:imPassword");
+        setTextField("setting:imId", "myImbotBuddy");
+        //setTextField("setting:imPassword", "myImbotPassword");
+        clickButton("form:apply");
+        assertTextFieldEquals("setting:imId", "myImbotBuddy");
+        //assertTextFieldEquals("setting:imPassword", "myImbotPassword");
+        SiteTestHelper.assertNoUserError(tester);
+    }
+
     public void testEditRelayServiceDisplay() {
         initService("seedRelayService");
         SiteTestHelper.assertNoUserError(tester);
