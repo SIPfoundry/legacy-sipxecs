@@ -547,11 +547,11 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         }
 
         if (!skill.isNew()) {
-            getHibernateTemplate().merge(skill);
             m_provisioningContext.updateObjects(Collections.singletonList(skill));
+            getHibernateTemplate().merge(skill);
         } else {
-            getHibernateTemplate().save(skill);
             m_provisioningContext.addObjects(Collections.singletonList(skill));
+            getHibernateTemplate().save(skill);
         }
     }
 
@@ -646,8 +646,8 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         }
 
         if (client.isNew()) {
-            getHibernateTemplate().save(client);
             m_provisioningContext.addObjects(Collections.singletonList(client));
+            getHibernateTemplate().save(client);
         } else {
             if (isNameChanged(client)) {
                 // don't rename the default client
@@ -657,8 +657,8 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 }
             }
 
-            getHibernateTemplate().merge(client);
             m_provisioningContext.updateObjects(Collections.singletonList(client));
+            getHibernateTemplate().merge(client);
         }
     }
 

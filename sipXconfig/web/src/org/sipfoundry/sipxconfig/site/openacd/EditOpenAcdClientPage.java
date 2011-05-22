@@ -40,7 +40,6 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
 
     public abstract void setOpenAcdClientId(Integer id);
 
-    @Persist
     public abstract OpenAcdClient getOpenAcdClient();
 
     public abstract void setOpenAcdClient(OpenAcdClient client);
@@ -50,14 +49,12 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
     public abstract void setIndex(int i);
 
     public void addClient(String returnPage) {
-        setOpenAcdClient(null);
         setOpenAcdClientId(null);
         setReturnPage(returnPage);
     }
 
     public void editClient(Integer clientId, String returnPage) {
         setOpenAcdClientId(clientId);
-        setOpenAcdClient(getOpenAcdContext().getClientById(getOpenAcdClientId()));
         setReturnPage(returnPage);
     }
 
@@ -67,7 +64,9 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
             return;
         }
 
-        if (getOpenAcdClient() == null && getOpenAcdClientId() == null) {
+        if (getOpenAcdClientId() != null) {
+            setOpenAcdClient(getOpenAcdContext().getClientById(getOpenAcdClientId()));
+        } else {
             setOpenAcdClient(new OpenAcdClient());
         }
     }

@@ -41,7 +41,6 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
 
     public abstract void setSkillId(Integer skillId);
 
-    @Persist
     public abstract OpenAcdSkill getSkill();
 
     public abstract void setSkill(OpenAcdSkill skill);
@@ -52,7 +51,6 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
 
     public void addSkill(String returnPage) {
         setSkillId(null);
-        setSkill(null);
         setReturnPage(returnPage);
     }
 
