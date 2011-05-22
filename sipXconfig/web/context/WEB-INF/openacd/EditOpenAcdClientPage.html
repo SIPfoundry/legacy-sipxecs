@@ -16,7 +16,7 @@
             <span jwcid="identity@TextField" id="identity"
 				value="ognl:openAcdClient.identity"
 				displayName="message:label.identity"
-				disabled="ognl:(!openAcdClient.isNew())"
+				disabled="ognl:disabled"
 				validators="spring-validators:required"/>
           </tr>
           <tr jwcid="@common/FieldPanel" for="description" field="component:description"

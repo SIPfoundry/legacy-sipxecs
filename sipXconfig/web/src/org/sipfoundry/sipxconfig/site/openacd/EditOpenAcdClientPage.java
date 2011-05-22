@@ -44,9 +44,9 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
 
     public abstract void setOpenAcdClient(OpenAcdClient client);
 
-    public abstract int getIndex();
+    public abstract boolean isDisabled();
 
-    public abstract void setIndex(int i);
+    public abstract void setDisabled(boolean disabled);
 
     public void addClient(String returnPage) {
         setOpenAcdClientId(null);
@@ -66,6 +66,7 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
 
         if (getOpenAcdClientId() != null) {
             setOpenAcdClient(getOpenAcdContext().getClientById(getOpenAcdClientId()));
+            setDisabled(true);
         } else {
             setOpenAcdClient(new OpenAcdClient());
         }

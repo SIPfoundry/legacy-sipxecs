@@ -49,6 +49,10 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
 
     public abstract OpenAcdSkillGroup getSelectedSkillGroup();
 
+    public abstract boolean isDisabled();
+
+    public abstract void setDisabled(boolean disabled);
+
     public void addSkill(String returnPage) {
         setSkillId(null);
         setReturnPage(returnPage);
@@ -70,6 +74,7 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
         } else {
             OpenAcdSkill skill = getOpenAcdContext().getSkillById(getSkillId());
             setSkill(skill);
+            setDisabled(true);
             OpenAcdSkillGroup skillGroup = skill.getGroup();
             if (skillGroup != null) {
                 setSelectedSkillGroup(skillGroup);
