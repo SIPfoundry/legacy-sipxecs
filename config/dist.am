@@ -33,7 +33,7 @@ list-rpm :
 .PHONY : rpm
 rpm : dist additional-package-files $(SRPM) $(RPMS)
 
-RELEASE=$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@)
+RELEASE=$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@).$(RPM_REL)
 
 .PHONY: build-rpm
 build-rpm :
