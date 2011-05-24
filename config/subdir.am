@@ -6,7 +6,7 @@ INSTALL=@INSTALL@
 
 # Added and manually incremented for each build. This is because OBS isn't used anymore
 # and we have to create an incrementing sequence
-RPM_REL := 20.0
+RPM_REL := 21.0
 
 SIPX_VERSION:=@VERSION@-$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@).$(RPM_REL)
 ## SIPX_BUILDSTAMP records the subversion revision, date/time, which builder built
