@@ -1,58 +1,48 @@
-sipx-servtest(1)
-================
+.TH "SIPX-SERVTEST" "" "1" "Andy Spitzer and Scott Lawrence" ""
+.SH "NAME"
+sipx\-servtest \- Monitors the reachability and functionality of a sipXecs system.
+.SH "SYNOPSIS"
+   sipx\-servtest [\-\-test\-id <label>]
+                 [\-\-domain <domain>]
+                 [\-\-commserver <server>]...  
 
+                 [\-\-proxy <proxy\-server>]...  
+                 [\-\-redirect <redirect\-server>]...  
 
-NAME
-----
-sipx-servtest - Monitors the reachability and functionality of a sipXecs system.
+                 [\-\-aor <aor>]...  
+                 [\-\-alarm <alarm\-address>]...  
 
-SYNOPSIS
---------
+                 [\-\-delay <delay\-seconds>]
+                 [\-\-timeout <timeout\-seconds>]
+                 [\-\-symmetric]
+                 [\-\-local <port>]
 
-   sipx-servtest [--test-id <label>]
-                 [--domain <domain>]
-                 [--commserver <server>]...  
-
-                 [--proxy <proxy-server>]...  
-                 [--redirect <redirect-server>]...  
-
-                 [--aor <aor>]...  
-                 [--alarm <alarm-address>]...  
-
-                 [--delay <delay-seconds>]
-                 [--timeout <timeout-seconds>]
-                 [--symmetric]
-                 [--local <port>]
-
-   sipx-servtest --test-alarm
-                 [--test-id <label>]
-                 [--alarm <alarm-address>]...  
+   sipx\-servtest \-\-test\-alarm
+                 [\-\-test\-id <label>]
+                 [\-\-alarm <alarm\-address>]...  
                  
-   sipx-servtest --help
-
-DESCRIPTION
------------
-
+   sipx\-servtest \-\-help
+.SH "DESCRIPTION"
    Monitors the reachability and functionality of a sipXecs system.
 
-   sipx-servtest executes the following tests:
+   sipx\-servtest executes the following tests:
 
    Connect:
       For each server (of any type), the tester checks that it can create 
       a connection to the specified address (it uses TCP to the standard 'echo' 
-      port - no data is sent or expected); the test fails if there is no
+      port \- no data is sent or expected); the test fails if there is no
       response or if an error response is received.
 
    Proxy Forwarding:
-      Sends an 'OPTIONS <tester>' request to each <proxy-server> (the
-      <tester> address is a dynamic port opened by sipx-servtest for its own
+      Sends an 'OPTIONS <tester>' request to each <proxy\-server> (the
+      <tester> address is a dynamic port opened by sipx\-servtest for its own
       use), and responds to it with a 200 response; this passes if both the
       request and response are delivered by the proxies.  
 
       This tests that the proxy is routing requests correctly.
 
    Redirect: 
-      Sends a 'PING <aor>' request to each <aor> at each <redirect-server>;
+      Sends a 'PING <aor>' request to each <aor> at each <redirect\-server>;
       this passes if it gets back any 302 response.
      
       This tests that the redirect service is operating correctly.  If the
@@ -66,7 +56,7 @@ DESCRIPTION
       to the voicemail server even if the registration has failed).
 
    Domain Response:
-      Sends an 'OPTIONS <domain>' request to each <proxy-server>; this
+      Sends an 'OPTIONS <domain>' request to each <proxy\-server>; this
       passes if it gets back a 200 response.  
 
       This test confirms that the proxy is communicating with the redirect 
@@ -74,25 +64,22 @@ DESCRIPTION
       server through the proxy).
 
    End Point:
-      Sends an 'OPTIONS <aor>' request to each <proxy-server>, which should
+      Sends an 'OPTIONS <aor>' request to each <proxy\-server>, which should
       be forwarded to the user agent; this passes if it gets back a 200
       response.
 
-      This is an end-to-end test of the target address; in order to pass, all
+      This is an end\-to\-end test of the target address; in order to pass, all
       the SIP services must be operating correctly and the target user agent
       must be reachable.  It can be used to verify that any of the user 
       agent services in the system, such as the voicemail service and park
       service are operating.
-
-OPTIONS
--------
-
+.SH "OPTIONS"
    Important Options:
 
-      --domain <domain>
+      \-\-domain <domain>
          Specifies the URI of your sip domain.
 
-      --aor <aor>
+      \-\-aor <aor>
          Specifies the SIP URL of a User Agent that MUST be valid;
          that is, that the registry/redirect service will translate to a
          Contact address, and which will respond to an OPTIONS request
@@ -105,19 +92,19 @@ OPTIONS
             sip:woof@pingtel.com
             sip:100@myserver.example.com
 
-      --commserver <server>
+      \-\-commserver <server>
          Specifies a server name or address for a server in the
          domain; this specifies that the server runs a proxy
          and a registrar, so it is equivalent to specifying:
-           --proxy server --redirect server
+           \-\-proxy server \-\-redirect server
          (may be specified more than once) 
       
-      --proxy <proxy-server>
+      \-\-proxy <proxy\-server>
          Specifies a server name or address and port for a proxy in the
          domain (if not specified, the port defaults to 5060).  (may be
          specified more than once) 
  
-      --redirect <redirect-server>
+      \-\-redirect <redirect\-server>
          Specifies a server name or address and port for a
          registry/redirect server (sipregistrar) in the domain (if not
          specified, the port defaults to 5070).  (may be specified more
@@ -131,74 +118,62 @@ OPTIONS
             myserver.example.com:5000
             127.0.0.1:12000
 
-      --alarm <alarm-address>
+      \-\-alarm <alarm\-address>
          An email address where mail messages are sent when errors are
          detected.    (may be specified more than once)
 
          If at least one alarm address is provided,  the entire of cycle of
-         tests is run sequentially.  The sipx-servtest program then waits
-         <delay-seconds> and repeats the tests in an infinite loop. 
+         tests is run sequentially.  The sipx\-servtest program then waits
+         <delay\-seconds> and repeats the tests in an infinite loop. 
 
          If any test fails, an email is sent describing each failure to
-         each <alarm-address>.  After any cycle in which at least one test
+         each <alarm\-address>.  After any cycle in which at least one test
          has failed, subsequent iterations will not repeat alarms for the
          same test, but will send new alarms for any new failures; if,
          after any failure, a full cycle of tests passes, then a message
          indicating that the problem has cleared is sent to each
-         <alarm-address>.
+         <alarm\-address>.
 
-         If no alarm addresses are provided, sipx-servtest runs only one
+         If no alarm addresses are provided, sipx\-servtest runs only one
          instance of each tests, prints a message describing the result of
          each on the standard output, and exits with status zero if all
-         tests passed and a non-zero status if any failed.
+         tests passed and a non\-zero status if any failed.
 
    Other available options:
 
-      --test-id <label>
+      \-\-test\-id <label>
          Specifies an identifying label included in any message sent
          (useful if you are running more than one instance of the tester). 
          Defaults to the host name where the tester is run.
 
-      --delay <delay-seconds> (default is 60)
+      \-\-delay <delay\-seconds> (default is 60)
          How long to wait between each cycle of tests.
 
-      --verbose
+      \-\-verbose
          Prints details about each step of each test on the standard output 
          as the tests are performed.  
 
-      --test-alarm
-         Sends a trial message to each <alarm-address>.  At least one --alarm
+      \-\-test\-alarm
+         Sends a trial message to each <alarm\-address>.  At least one \-\-alarm
          must be specified.  Useful to verify that email sent from the test
          platform reaches each recipient promptly.  
          Does not actually run any tests.
 
-      --timeout <timeout-seconds> (default is 10)
+      \-\-timeout <timeout\-seconds> (default is 10)
          How long to wait for an expected event in any test.
 
-      --symmetric
+      \-\-symmetric
          Use symmetric signalling (send and listen on the same port)
 
-      --local <port>
+      \-\-local <port>
          Specifies the local port number for incoming requests.  The
          program defaults to using an available port assigned by the OS. 
-
-ENVIRONMENT
------------
+.SH "ENVIRONMENT"
 NONE
-  
-EXAMPLE
--------  
-
-   sipx-servtest --domain example.edu \
-                 --proxy sipx.example.edu --redirect sipx.example.edu \
-                 --aor sip:100@example.edu \
-                 --alarm admin@example.edu
-
-BUGS
-----
-see http://tracker.sipfoundry.org/browse/XECS
-  
-AUTHOR
-------
-Andy Spitzer and Scott Lawrence
-
+.SH "EXAMPLE"
+   sipx\-servtest \-\-domain example.edu \
+                 \-\-proxy sipx.example.edu \-\-redirect sipx.example.edu \
+                 \-\-aor sip:100@example.edu \
+                 \-\-alarm admin@example.edu
+.SH "BUGS"
+see http://tracker.sipfoundry.org

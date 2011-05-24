@@ -1,0 +1,56 @@
+.TH "SIPXPROC" "" "1" "Douglas Hubler" ""
+.SH "NAME"
+sipxproc \- Utilities to deal with the sipX processes. 
+.SH "SYNOPSIS"
+sipxproc [options] [sipx\-process\-name]
+.SH "DESCRIPTION"
+Provides a command line access to restarting one or more processes controlled by the sipX system.
+.SH "OPTIONS"
+  \-h|\-\-help           This help text
+  \-n|\-\-host hostname  Remote server, e.g. HA slave (default is localhost)
+  \-p|\-\-port portnum   Server port (default is 8092)
+  \-s|\-\-start          Start the specified monitored process
+  \-k|\-\-stop           Stop the specified monitored process
+  \-r|\-\-restart        Restart the specified monitored process
+  \-l|\-\-state          Current state of all monitored processes
+  \-m|\-\-getStatusMessages          Display output from the specified service
+  \-c|\-\-getConfigVersion Get the configuration version of the specified service
+  \-u|\-\-setConfigVersion Set the configuration version of the specified service
+  \-v|\-\-serviceVersion The service version value to update
+  \-f|\-\-file           Get the named file
+  \-d|\-\-delete         Delete the named file
+  \-t|\-\-runConfigtest          Run the configtest for the specified service
+  \-\-getConfigtestMessages     Return messages from the configtest for the specified service
+  \-S|\-\-snapshot         Execute snapshot on a local/remote system. Snapshot arguments may
+                        be specified after an empty option \-\- (two minus symbols)
+                        e.g. sipxproc \-\-snapshot \-\- \-\-snapshot_arg_1 x \-\-snapshot_arg_2 y
+  \-E|\-\-execStatus       Returns the execution status of any of the following commands :
+                           snapshot, checkUpdate, checkSwVersion, updateSwVersion
+  \-C|\-\-checkUpdate      Check for Software Updates
+  \-V|\-\-checkSwVersion   Check Software Version
+  \-U|\-\-updateSwVersion  Update Software
+  \-R|\-\-restartSipXecs   Restart the SipXecs services
+  \-B|\-\-rebootSystem     Reboot the system
+.SH "ENVIRONMENT"
+NONE
+.SH "EXMAPLE"
+Show all the processes and their statuses
+
+ $ sipxproc
+
+Restart just the sipXconfig web interface
+
+ $ sipxproc \-r ConfigServer
+    
+Combine with CLI scheduling to restart the proxy at 11 PM.
+
+ $ echo "sipxproc \-r SIPXProxy" | at 23:00
+ 
+Display any output from a service, including messages about missing resources
+or invalid versions:
+
+ $ sipxproc \-m ResourceListServer
+.SH "HINTS"
+For friendlier web user interface for viewing, starting, stoping sipX process see "Services" module of the sipXconfig web admin interface.
+.SH "BUGS"
+see http://track.sipfoundry.org
