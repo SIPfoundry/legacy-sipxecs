@@ -1,0 +1,10 @@
+provision_PKGS = \
+	sipxcommons \
+	log4j \
+	commons-codec \
+	commons-io \
+	commons-logging \
+	javax.servlet \
+	velocity \
+	jetty
+

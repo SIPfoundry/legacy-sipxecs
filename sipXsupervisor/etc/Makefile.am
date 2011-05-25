@@ -1,18 +1,19 @@
-## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
-
-pkgconfdir = @SIPX_CONFDIR@
+include $(top_srcdir)/config/utility.am
 
 alarmdir = @SIPX_CONFDIR@/alarms
-alarm_DATA = \
-    sipXalarms-config.xml
+dist_alarm_DATA = \
+	sipXalarms-config.xml
 
 EXTRA_DIST = \
-	sipxsupervisor-process.xml.in \
-	$(alarm_DATA)
+        $(proc_DATA:.xml=.xml.in)
 
-SIPX_PROCESS_DEFS=\
-	sipxsupervisor
+procdir = \
+        $(SIPX_DATADIR)/process.d
 
-install-data-hook :
+proc_DATA = \
+	sipxsupervisor-process.xml
 
+$(proc_DATA) : % : %.in
+	@$(call SearchAndReplace, $<, $@)
+
+CLEANFILES = $(proc_DATA)

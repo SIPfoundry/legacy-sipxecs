@@ -1,0 +1,19 @@
+INTRODUCTION
+============
+Preflight is a network test utility used to verify the functionality of various
+network services which are required for proper operation of the sipXecs system.
+It is capable of testing proper operation of the following network services:
+  DHCP
+  DNS
+  NTP
+  TFTP
+  FTP
+  HTTP
+
+It can also perform basic testing of the sipXecs proxy, registrar and publisher.
+
+For details on the operation of the command line version of preflight, invoke
+with the "--help" switch.
+
+NOTES: There used to be a windows installer but it was removed because it
+was difficult to build and did not add a lot of value.

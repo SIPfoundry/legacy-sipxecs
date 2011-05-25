@@ -1,0 +1,11 @@
+DO
+=======
+* If you need an older version of a jar then what is found here, add the jar specifically to your project's ./lib directory
+* If you need an newer version of a jar then what is found here, update the jar here and verify all projects that rely on the package still work.  If they don't update them so they do work with the new version.  This ensure we are updating our dependencies on a natural schedule.
+
+DO NOT
+=======
+* Create symlinks to avoid recommendation in the "DO" section
+* Add jars that do not have a version number. The version number is the only way the version of a library is tracked
+* Add jars that are modified by anyone. Jars must the the same ones that would be found in the project's download page.
+

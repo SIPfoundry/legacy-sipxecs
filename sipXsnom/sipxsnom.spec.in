@@ -1,0 +1,51 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary: VoIP PBX 
+License: LGPL
+Group: Telcommunications
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org
+
+%if %{_vendor} == suse
+BuildRequires: java-1_6_0-sun-devel
+%else
+BuildRequires: java-devel >= 1.6
+%endif
+BuildRequires: automake
+BuildRequires: sipxcommons >= %version
+BuildRequires: sipxconfig >= %version
+
+Requires: sipxconfig
+
+Source: %name-%version.tar.gz
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Configuration support snom phones
+
+%prep
+%setup -q
+
+%build
+%configure
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%{_sysconfdir}/sipxpbx/snom/*
+%{_datadir}/java/sipXecs/sipXconfig/sipXsnom.jar
+
+
+

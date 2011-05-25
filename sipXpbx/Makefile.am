@@ -4,8 +4,7 @@ SUBDIRS = . \
     include \
     src \
     bin \
-    etc \
-    meta
+    etc
 
 install-data-hook :
 	$(INSTALL) -d $(DESTDIR)@wwwdir@/doc

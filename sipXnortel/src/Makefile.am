@@ -1,0 +1,24 @@
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/config/java.am
+include $(srcdir)/common.am
+
+EXTRA_DIST = \
+	$(nortel_SRC) \
+	$(nortel_RESOURCES)
+
+noinst_DATA = javac-nortel
+
+jardir = @SIPX_JAVADIR@/sipXconfig
+JAR_FILE = sipXnortel.jar
+jar_DATA = $(JAR_FILE)
+
+nortel_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
+nortel_RESOURCES = sipxplugin.beans.xml
+
+nortel_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(nortel_PKGS))
+
+$(JAR_FILE) : javac-nortel $(nortel_RESOURCES)
+	jar cf $@.tmp -C $(JAVAROOT) .
+	cd $(srcdir); jar uf $(abspath $@.tmp) $(nortel_RESOURCES)
+	mv $@.tmp $@

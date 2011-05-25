@@ -21,7 +21,7 @@ use Net::Ping;
 ## Constants
 $CRLF = "\r\n";
 $SipVersion = '2.0';
-$VERSION = '@SIPX_VERSION@';
+$VERSION = '@VERSION@';
 $BINDIR = "@SIPX_BINDIR@";
 
 ## Globals

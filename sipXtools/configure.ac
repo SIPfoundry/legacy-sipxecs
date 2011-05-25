@@ -14,15 +14,11 @@ AX_COMPILER_VENDOR
 AC_PROG_CC
 SFAC_INIT_FLAGS
 SFAC_LIB_STACK
-CHECK_JDK
-CHECK_ANT
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
   src/test/Makefile
   src/man/Makefile
-  src/sipviewer/Makefile
   src/syslog2siptrace/Makefile
-  preflight/Makefile
 ])
 AC_OUTPUT

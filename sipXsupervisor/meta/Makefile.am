@@ -1,28 +1,22 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
-SUBDIRS = alarms mibs
+SUBDIRS = \
+	alarms \
+	mibs \
+	.
 
-schemas = \
+EXTRA_DIST = \
+	$(schema_DATA:=.in)
+
+schemadir = @SIPX_DATADIR@/schema
+schema_DATA = \
 	sipXecs-process.xsd \
-   alarm.xsd \
-   alarm-group.xsd
+	alarm.xsd \
+	alarm-group.xsd
 
-EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
-
-EXTRA_DIST = $(EXTRA_DATA)
-
-install-data-hook : install-schema
-
-.PHONY : install-schema
-install-schema: $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd))
-
-$(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd)): $(DESTDIR)@SIPX_DATADIR@/schema/% : %
-	$(INSTALL) -D -m 644 $< $@
-
-$(foreach xsd,$(schemas),$(xsd)): % : $(srcdir)/%.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+$(schema_DATA) : % : %.in
+	@$(call SearchAndReplace,$<,$@)
 
 CLEANFILES = \
-	$(schemas)
+	$(schema_DATA)
 

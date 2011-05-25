@@ -1,6 +1,3 @@
-## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
-
 ## HACK
 ##    We don't need these libraries installed, so we declare them noinst_
 ##    but that has the unfortunate side effect that automake then assumes

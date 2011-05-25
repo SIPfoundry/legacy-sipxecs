@@ -1,8 +1,21 @@
-## Process this file with automake to produce Makefile.in
-
-include $(top_srcdir)/config/subdir.am
-include ant-targets.am
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/config/java.am
+include $(srcdir)/common.am
 
 EXTRA_DIST = \
-   build.xml \
-   ant-targets.xml
+	$(jar_SRC)
+
+noinst_DATA = javac-ivr
+
+jardir = @SIPX_JAVADIR@/sipXivr/sipXivr.jar
+jar_DATA = $(JAR_FILE)
+
+ivr_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
+
+ivr_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(ivr_PKGS)) \
+	@SIPX_JAVADIR@/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar
+
+$(JAR_FILE) : javac-ivr
+	jar -cf $@ -C $(JAVAROOT) .
+

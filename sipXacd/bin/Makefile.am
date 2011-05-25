@@ -1,16 +1,12 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
-editscripts_IN = \
-    sipxacd.sh
-
-install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
-
-$(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bindir)/% : %
-	$(INSTALL) -D -m 755 $< $@
-
-$(foreach file,$(editscripts_IN),$(file)) : % : %.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+bin_SCRIPTS = \
+	sipxacd.sh
 
 EXTRA_DIST = \
-   $(foreach file,$(editscripts_IN),$(file).in)
+	$(bin_SCRIPTS:=.in)
+
+$(bin_SCRIPTS) : % : %.in
+	@$(call SearchAndReplace,$<,$@)
+
+CLEANFILES = $(bin_SCRIPTS)

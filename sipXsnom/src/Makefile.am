@@ -1,0 +1,24 @@
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/config/java.am
+include $(srcdir)/common.am
+
+EXTRA_DIST = \
+	$(snom_SRC) \
+	$(snom_RESOURCES)
+
+noinst_DATA = javac-snom
+
+jardir = @SIPX_JAVADIR@/sipXconfig
+JAR_FILE = sipXsnom.jar
+jar_DATA = $(JAR_FILE)
+
+snom_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
+snom_RESOURCES = sipxplugin.beans.xml
+
+snom_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(snom_PKGS))
+
+$(JAR_FILE) : javac-snom $(snom_RESOURCES)
+	jar cf $@.tmp -C $(JAVAROOT) .
+	cd $(srcdir); jar uf $(abspath $@.tmp) $(snom_RESOURCES)
+	mv $@.tmp $@

@@ -30,7 +30,6 @@ BuildRequires: jakarta-commons-beanutils
 BuildRequires: jakarta-commons-collections
 BuildRequires: ruby-devel
 BuildRequires: rubygems
-BuildRequires: rubygem-rake
 BuildRequires: sipxcommons >= %version
 
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
@@ -152,15 +151,6 @@ Summary: Configures/enables SNMP for %{name}
 %description snmp
 * installs and configures SNMP
 
-%package tunnel
-Requires: stunnel
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Summary: Configures/enables stunnels for %{name}
-
-%description tunnel
-Create encrypted tunnels using stunnnel from one machine to another
-
 %package mrtg
 Requires: sipxconfig-snmp
 Requires: sipxconfig
@@ -178,49 +168,14 @@ Summary: Configures/enables MRTG monitoring for %{name}
 %description mrtg
 * installs and configures sipXconfig integration for MRTG
 
-
-%package agent
-Requires: sipxcommserverlib
-Requires: ruby
-Requires: rubygems
-Requires: rubygem-file-tail
-
-%if %{_vendor} == redhat
-# irb is for file-tail gem
-Requires: irb
-%endif
-
+%package tunnel
+Requires: stunnel
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
-Summary: Analyzes data from sipxpbx and provides SOAP API to information
+Summary: Configures/enables stunnels for %{name}
 
-%description agent
-Provides a SOAP interface to automatic call distribution records. Ideal
-for CTI applications or report aggregating tools like sipxconfig-report
-or real-time analysys like sipxconfig's statistics web console.
-
-%package report
-Requires: ruby
-Requires: sipxcommserverlib
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
-
-Requires: rubygems
-Requires: ruby-dbi
-%if %{_vendor} == redhat
-Requires: ruby-postgres
-%endif
-%if %{_vendor} == suse
-Requires: rubygem-postgres
-%endif
-
-%description report
-Report peridocically queries sipxconfig-agent regarding automatic call distribution records
-and assembles data into a postgres database SIPXACD_HISTORY for reporting tools.
-
-Although this package does not have any other sipx dependencies because it's not required to
-run on the same machine it's default setup it to point to localhost.
+%description tunnel
+Create encrypted tunnels using stunnnel from one machine to another
 
 %prep
 %setup -q
@@ -229,7 +184,7 @@ mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 
-%configure --enable-rpmbuild --enable-reports --enable-agent --enable-mrtg @SIPX_RPM_CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -533,11 +488,6 @@ fi
 %post snmp
 sipx-snmp-init > /dev/null
 
-%files tunnel
-%attr(755,sipxchange,sipxchange) %{_bindir}/sipx-tunnel
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/tunnel-process.xml
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mongod/mongod.vm
-
 %files mrtg
 %defattr(644,sipxchange,sipxchange,755)
 %attr(755,sipxchange,sipxchange) %{_bindir}/sipx-mrtg-init
@@ -553,60 +503,8 @@ if [ "$1" = "0" ] ; then
   sipx-mrtg-init -d > /dev/null
 fi
 
-%files agent
-%defattr(644,root,root,755)
-%{sipxpbxvarlib}/sipXconfig-agent-*.gem
-# %{sipxpbxvarlib}/file-tail-*.gem
+%files tunnel
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipx-tunnel
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/tunnel-process.xml
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mongod/mongod.vm
 
-%attr(755,root,root) %{_bindir}/sipxconfig-agent
-
-%defattr(644,sipxchange,sipxchange,755)
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-agent-process.xml
-
-%post agent
-gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-agent-*.gem >/dev/null
-#gem install --no-rdoc --local %{sipxpbxvarlib}/file-tail-*.gem >/dev/null
-
-%if %{_vendor} == redhat
-# change default yum update daemon repo query to once every 24 hours
-if [ -f /etc/yum/yum-updatesd.conf ]; then
-  sed /etc/yum/yum-updatesd.conf -i -e 's|\W*run_interval\W*=\W*3600\W*|run_interval = 86400|'
-  /sbin/service yum-updatesd restart >/dev/null
-fi
-%endif
-
-%preun agent
-# prevent uninstalling during an upgrade
-#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
-if [ "$1" = "0" ] ; then
-  gem uninstall sipXconfig-agent >/dev/null 2>&1 || true
-fi
-# not uninstalling file-tail incase it's used elsewhere
-
-%files report
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxconfig-report-setup
-%{sipxpbxvarlib}/sipXconfig-report-*.gem
-%config(noreplace) /etc/cron.d/sipxconfig-report-crontab
-
-%attr(755,root,root) %{_bindir}/sipxconfig-report
-
-%defattr(644,sipxchange,sipxchange,755)
-%config(noreplace) %{sipxpbxconf}/sipxconfig-report-config
-%config(noreplace) %{sipxpbxconf}/report/schema.sql
-%config(noreplace) %{sipxpbxconf}/report/enable_upgrades.sql
-%config(noreplace) %{sipxpbxconf}/report/location_fqdn.sql
-%config(noreplace) %{sipxpbxconf}/report/sipxconfig-report-config.vm
-
-%post report
-gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-report-*.gem >/dev/null
-if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^sipxchange$' /etc/cron.d/cron.allow > /dev/null ); then
-  echo sipxchange >> /etc/cron.d/cron.allow
-fi
-
-%preun report
-# prevent uninstalling during an upgrade
-#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
-if [ "$1" = "0" ] ; then
-  gem uninstall sipXconfig-report >/dev/null 2>&1 || true
-fi

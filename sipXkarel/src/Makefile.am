@@ -1,0 +1,24 @@
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/config/java.am
+include $(srcdir)/common.am
+
+EXTRA_DIST = \
+	$(karel_SRC) \
+	$(karel_RESOURCES)
+
+noinst_DATA = javac-karel $(JAR_FILE)
+
+JAR_FILE = sipXkarel.jar
+jardir = @SIPX_JAVADIR@/sipXconfig
+jar_DATA = $(JAR_FILE)
+
+karel_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
+karel_RESOURCES = sipxplugin.beans.xml
+
+karel_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(karel_PKGS))
+
+$(JAR_FILE) : javac-karel $(karel_RESOURCES)
+	jar cf $@.tmp -C $(JAVAROOT) .
+	cd $(srcdir); jar uf $(abspath $@.tmp) $(karel_RESOURCES)
+	mv $@.tmp $@

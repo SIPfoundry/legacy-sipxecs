@@ -1,39 +1,17 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
 SUBDIRS = database
 
-cfgfiles_IN = \
-	sipxcallresolver-agent-config
-
 EXTRA_DIST = \
-	sipXproxy-process.xml.in \
-	sipxcallresolver-agent-process.xml.in \
-	sipxcallresolver-process.xml.in \
-	$(cfgfiles_IN)
+	$(proc_DATA:.xml=.xml.in)
 
-SIPX_PROCESS_DEFS=\
-	sipXproxy \
-	sipxcallresolver-agent \
-	sipxcallresolver
+procdir = \
+	$(SIPX_DATADIR)/process.d
 
-CFG_FILES = $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file))
+proc_DATA = \
+	sipXproxy-process.xml
 
-install-data-hook : \
-	$(CFG_FILES)
+$(proc_DATA) : % : %.in
+	@$(call SearchAndReplace, $<, $@, $(OPENACD_VARS))
 
-
-$(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %.local
-	@if ! test -f $@; \
-	then \
-		echo "Installing default $@"; \
-		$(INSTALL) -D -m 644 $< $@; \
-	else \
-		diff $< $@ > /dev/null 2>&1 \
-		|| (  echo "Using existing $@ - new file is $@.NEW" \
-		    ; $(INSTALL) -D -m 644 $< $@.NEW; \
-			); \
-	fi
-
-$(foreach file,$(cfgfiles_IN),$(file).local) : %.local : %
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+CLEANFILES = $(proc_DATA)

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="CiscoplusModel" class="org.sipfoundry.sipxconfig.phone.ciscoplus.CiscoplusModel" parent="abstractPhoneModel"
+    abstract="true">
+	<property name="vendor" value="Ciscoplus"/>
+	<property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="ciscoplusPhoneStandard" abstract="true" parent="CiscoplusModel">
+    <property name="beanId" value="ciscoplusPhone" />
+    <property name="modelDir" value="ciscoplus" />
+    <property name="profileTemplate" value="ciscoplus/config.vm" />
+  </bean>
+
+  <bean id="ciscoplus7911G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7911G" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+  <bean id="ciscoplus7941G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7941G" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+  <bean id="ciscoplus7945G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7945G" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+  <bean id="ciscoplus7961G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7961G" />
+    <property name="maxLineCount" value="6" />
+  </bean>
+  <bean id="ciscoplus7965G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7965G" />
+    <property name="maxLineCount" value="6" />
+  </bean>
+  <bean id="ciscoplus7970G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7970G" />
+    <property name="maxLineCount" value="8" />
+  </bean>
+  <bean id="ciscoplus7975G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7975G" />
+    <property name="maxLineCount" value="8" />
+  </bean>
+
+  <bean id="ciscoplusPhone" class="org.sipfoundry.sipxconfig.phone.ciscoplus.CiscoplusPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+
+  <bean id="ciscoModel" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel" parent="abstractPhoneModel"
+    abstract="true">
+	<property name="vendor" value="Cisco"/>
+	<property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="ciscoIpModel" abstract="true" parent="ciscoModel">
+    <property name="beanId" value="ciscoIp" />
+    <property name="profileTemplate" value="ciscoIp/cisco-ip.vm" />
+    <property name="emergencyConfigurable" value="true"/>
+  </bean>
+
+  <bean id="cisco7960" parent="ciscoIpModel">
+    <property name="label" value="Cisco IP 7960" />
+    <property name="maxLineCount" value="6" />
+  </bean>
+  <bean id="cisco7940" parent="ciscoIpModel">
+    <property name="label" value="Cisco IP 7940" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+
+  <bean id="ciscoAtaModel" abstract="true" parent="ciscoModel">
+    <property name="beanId" value="ciscoAta" />
+  </bean>
+
+  <bean id="cisco7912" parent="ciscoAtaModel">
+    <property name="label" value="Cisco IP 7912" />
+    <property name="maxLineCount" value="1" />
+    <property name="cfgPrefix" value="gk" />
+    <property name="upgCode" value="0x601,0x400,0x200" />
+  </bean>
+  <bean id="cisco7905" parent="ciscoAtaModel">
+    <property name="label" value="Cisco IP 7905" />
+    <property name="maxLineCount" value="1" />
+    <property name="cfgPrefix" value="ld" />
+    <property name="upgCode" value="0x501,0x400,0x200" />
+  </bean>
+  <bean id="cisco18x" parent="ciscoAtaModel">
+    <property name="label" value="Cisco ATA 186/188" />
+    <property name="maxLineCount" value="2" />
+    <property name="cfgPrefix" value="ata" />
+    <property name="upgCode" value="0x301,0x400,0x200" />
+  </bean>
+
+  <!-- Cisco 7940, 7960 -->
+  <bean id="ciscoIp" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+  <bean id="ciscoIpFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="upload" />
+    <property name="modelFilePath" value="ciscoIp/upload.xml" />
+    <property name="label" value="Cisco 7940/60" />
+  </bean>
+
+  <!-- CISCO ATA and low-end cisco phones -->
+  <bean id="ciscoAta" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"
+    parent="abstractPhone">
+    <property name="profileGenerator">
+      <bean class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaProfileWriter" />
+    </property>
+  </bean>
+
+  <bean id="CiscospaModel" class="org.sipfoundry.sipxconfig.phone.linksys.CiscospaModel" parent="abstractPhoneModel"
+    abstract="true">
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="CiscospaPhoneStandard" abstract="true" parent="CiscospaModel">
+    <property name="beanId" value="CiscospaPhone" />
+    <property name="modelDir" value="Ciscospa" />
+    <property name="profileTemplate" value="linksys/config.vm" />
+  </bean>
+
+  <bean id="SPA501G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA501G" />
+    <property name="maxLineCount" value="1" />
+    <property name="psn" value="501G" />
+  </bean>
+  <bean id="SPA502G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA502G" />
+    <property name="maxLineCount" value="2" />
+    <property name="psn" value="502G" />
+  </bean>
+  <bean id="SPA504G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA504G" />
+    <property name="maxLineCount" value="4" />
+    <property name="psn" value="504G" />
+
+  </bean>
+  <bean id="SPA508G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA508G" />
+    <property name="maxLineCount" value="8" />
+    <property name="psn" value="508G" />
+  </bean>
+  <bean id="SPA509G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA509G" />
+    <property name="maxLineCount" value="12" />
+    <property name="psn" value="509G" />
+  </bean>
+  <bean id="SPA525G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA525G" />
+    <property name="maxLineCount" value="12" />
+    <property name="psn" value="525G" />
+  </bean>
+  
+  <bean id="CiscospaPhone" class="org.sipfoundry.sipxconfig.phone.linksys.CiscospaPhone" singleton="false"
+    parent="abstractPhone">
+  </bean> 
+
+  <bean id="CiscospaModel" class="org.sipfoundry.sipxconfig.phone.linksys.CiscospaModel" parent="abstractPhoneModel"
+    abstract="true">
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="linksysPhoneStandard" abstract="true" parent="LinksysModel">
+    <property name="beanId" value="CiscospaPhone" />
+    <property name="modelDir" value="Ciscospa" />
+    <property name="profileTemplate" value="linksys/config.vm" />
+  </bean>
+
+  <bean id="SPA501G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA501G" />
+    <property name="maxLineCount" value="1" />
+    <property name="psn" value="501G" />
+  </bean>
+  <bean id="SPA502G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA502G" />
+    <property name="maxLineCount" value="2" />
+    <property name="psn" value="502G" />
+  </bean>
+  <bean id="SPA504G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA504G" />
+    <property name="maxLineCount" value="4" />
+    <property name="psn" value="504G" />
+
+  </bean>
+  <bean id="SPA508G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA508G" />
+    <property name="maxLineCount" value="8" />
+    <property name="psn" value="508G" />
+  </bean>
+  <bean id="SPA509G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA509G" />
+    <property name="maxLineCount" value="12" />
+    <property name="psn" value="509G" />
+  </bean>
+  <bean id="SPA525G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA525G" />
+    <property name="maxLineCount" value="12" />
+    <property name="psn" value="525G" />
+  </bean>
+  
+  <bean id="CiscospaPhone" class="org.sipfoundry.sipxconfig.phone.linksys.CiscospaPhone" singleton="false"
+    parent="abstractPhone">
+  </bean> 
+</beans>

@@ -1,8 +1,10 @@
 include config/project.am
 
 @PACKAGE@_EXTRA_DIST = \
-   @PACKAGE@-rpmlintrc \
-   lib
+	@PACKAGE@-rpmlintrc \
+	doc
 
 SUBDIRS = \
-   src
+	 src \
+	lib \
+	bin

@@ -1,86 +1,66 @@
 include config/project.am
 
-# Append to global search/replace with _very_ project specific search/replaces
-edit = $(LocalizeSipXconfig) \
-    -e 's,@OPENSSL\@,@OPENSSL@,g' \
-    -e 's,@CLASSPATH_BUILD\@,@CLASSPATH_BUILD@,g' \
-    -e 's,@CLASSPATH_RUN\@,@CLASSPATH_RUN@,g' \
-    -e 's,@CLOVER_JAR\@,@CLOVER_JAR@,g' \
-    -e 's,@MRTG_ENABLED\@,@MRTG_ENABLED@,g' \
-    -e 's,@RUBY_BINDINGS_ENABLED\@,@RUBY_BINDINGS_ENABLED@,g' \
-    -e 's,@RUBY\@,@RUBY@,g' \
-    -e 's,@WSDL2RUBY\@,@WSDL2RUBY@,g' \
-    -e 's,@SIPX_PAGEMUSICDIR\@,@SIPX_PAGEMUSICDIR@,g' \
-    -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g' \
-    -e 's,@SIPX_DOWNLOADDIR\@,@SIPX_DOWNLOADDIR@,g' \
-    -e 's,@MRTG_BINARY\@,@MRTG_BINARY@,g' \
-    -e 's,@YUM_EXISTS\@,@YUM_EXISTS@,g'
-
-if REPORTS
-REPORTS_OPT = report
-endif
-
-if AGENT
-AGENT_OPT = agent
-endif
-
-if MRTG
-MRTG_OPT = mrtg
-endif
+@PACKAGE@_EXTRA_DIST = \
+	@PACKAGE@-rpmlintrc \
+	LICENSE \
+	NOTICE \
+	meta
 
 SUBDIRS = \
-	. \
 	bin \
 	etc \
+	lib \
 	neoconf \
-	neoconf/etc \
-	gwt \
+	report \
 	web \
-	meta \
-	plugins \
-	$(REPORTS_OPT)\
-	$(AGENT_OPT)\
-	$(MRTG_OPT)
-
-install-exec-hook :
-	$(ANT_CMD) $(ANT_FLAGS) remove-jars
+	.
 
 install-data-hook :
 	$(mkdir_p) $(DESTDIR)@SIPX_VARDIR@/upload
 	$(mkdir_p) $(DESTDIR)@SIPX_VARDIR@/backup
 
 precommit :
-	$(ANT_CMD) $(ANT_FLAGS) precommit
+	$(error To be implemented)
 
-@PACKAGE@_EXTRA_DIST = \
-    ant-targets.xml \
-    build.xml \
-    dependencies.xml \
-    subant-targets.xml \
-    LICENSE \
-    NOTICE \
-    build.properties.in \
-    lib.properties \
-    neoconf \
-    gwt \
-    @PACKAGE@-rpmlintrc \
-    doc \
-    web \
-    meta \
-    agent \
-    report \
-    mrtg \
-    lib
+reset-db reset-test-db :
+	$(error To be implemented)
 
-# BUILT_SOURCES is special autoconf variable to be checked on every make
-BUILT_SOURCES = build.properties
 
-build.properties : build.properties.in Makefile _top.build.dir
-	@echo "Localize $< -> $@"
-	@$(edit) $(srcdir)/build.properties.in > $(top_builddir)/build.properties
+precommit check-integration check-performance check-db :
+	$(error To be implemented)
 
-# This sets the default build dir to the last directory that called
-# configure shell script.  This allows 'ant' to be called from any directory
-# target name is not a file to force this make everytime
-_top.build.dir :
-	echo "top.build.dir="`pwd` > $(top_srcdir)/top.build.dir
+# <target name="reset-acd-history-db">
+#   <property name="acd.history.test.db.url" value="jdbc:postgresql://localhost/${acd.history.test.db}" />
+#   <exec executable="dropdb" outputproperty="eatme">
+#     <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}" />
+#   </exec>
+#   <exec executable="createdb" outputproperty="eatme">
+#     <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}" />
+#   </exec>
+#   <pgsql url="${acd.history.test.db.url}" src="${acd.history.db.schema}" />
+# 	<pgsql url="${acd.history.test.db.url}" src="${acd.history.db.enableUpgradesPatch}" />
+# 	<pgsql url="${acd.history.test.db.url}" src="${acd.history.db.locationFqdnPatch}" />
+#   <pgsql url="${acd.history.test.db.url}" src="test/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql" />
+# </target>
+
+# <target name="reset-cdr-db">
+#   <property name="cdr.test.db.url" value="jdbc:postgresql://localhost/${cdr.test.db}" />
+#   <exec executable="dropdb" outputproperty="eatme">
+#     <arg line="-U ${sipxconfig.db.user} ${cdr.test.db}" />
+#   </exec>
+#   <exec executable="createdb" outputproperty="eatme">
+#     <arg line="-U ${sipxconfig.db.user} ${cdr.test.db}" />
+#   </exec>
+#   <pgsql url="${cdr.test.db.url}" src="${cdr.db.schema}" />
+#   <pgsql url="${cdr.test.db.url}" src="test/org/sipfoundry/sipxconfig/cdr/cdr_seed.sql" />
+# </target>
+
+
+# <target name="dataset-db"
+#         description="Generates the sipconfig-db.dtd which is used to validate datasets"
+#         depends="compile.test, reset-db">
+#   <java classname="org.sipfoundry.sipxconfig.GenerateDatabaseDtd" classpathref="test.path" fork="on">
+#     <arg value="${test.classes.dir}" />
+#   </java>
+#   <echo level="info" message="Please remember to commit new sipxconfig-db.dtd file" />
+# </target>

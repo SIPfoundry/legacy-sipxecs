@@ -1,0 +1,84 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  @PACKAGE_REVISION@
+
+Summary: CDR (Call Distribution Record) aggregration
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   SIPFoundry
+Packager: SIPFoundry <sipx-dev@list.sipfoundry.org>
+Url:      http://www.sipfoundry.org
+
+BuildRequires: automake
+BuildRequires: rubygems
+BuildRequires: ruby
+
+Source:   %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= %version
+Requires: %name >= %version
+Requires: postgresql-odbc
+Requires: stunnel
+Requires: ruby
+Requires: ruby-dbi
+Requires: rubygems
+%if %{_vendor} == suse
+Requires: rubygem-postgres
+%else
+Requires: ruby-libs
+Requires: ruby-postgres
+%endif
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%define sipxpbxvarlib %{_var}/lib/sipxpbx
+
+%description 
+Gather CSE (Call State Events) for one or more proxy servers and generate
+postgres database records from data.
+
+%prep
+%setup -q
+
+%build
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make %{_smp_mflags}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files 
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxcallresolver-setup
+%config(noreplace) %attr(644,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/sipxcallresolver-agent-config
+%config(noreplace) %attr(644,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/cdr/*
+%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/cdr
+%dir %attr(755,root,root) %{sipxpbxvarlib}
+%attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem
+%attr(755,root,root) %{_bindir}/sipxcallresolver.sh
+%attr(755,root,root) %{_bindir}/sipxcallresolver-agent.sh
+
+%post
+%define gem_dir %(ruby -rrbconfig -e 'puts File::join(Config::CONFIG["libdir"],"/ruby/gems")')
+%define rb_ver %(ruby -rrbconfig -e 'puts Config::CONFIG["ruby_version"]')
+%define gem_home %{gem_dir}/%{rb_ver}
+
+gem install --no-rdoc --local --install-dir %{gem_home} %{sipxpbxvarlib}/sipxcallresolver-*.gem >/dev/null 2>&1
+
+if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
+  rm -f %{_sysconfdir}/cron.daily/callresolver_run
+fi
+
+%preun
+# Uninstall the sipxcallresolver gem, unless this RPM uninstall is part of
+# an upgrade.
+#   see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
+if [ "$1" == "0" ] ; then
+  gem uninstall sipxcallresolver >/dev/null 2>&1
+fi

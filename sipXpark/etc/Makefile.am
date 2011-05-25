@@ -1,7 +1,15 @@
-include $(top_srcdir)/config/subdir.am
-
-SIPX_PROCESS_DEFS = \
-	sipxpark
+include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-    sipxpark-process.xml.in
+        $(proc_DATA:.xml=.xml.in)
+
+procdir = \
+        $(SIPX_DATADIR)/process.d
+
+proc_DATA = \
+	sipxpark-process.xml
+
+$(proc_DATA) : % : %.in
+	@$(call SearchAndReplace, $<, $@)
+
+CLEANFILES = $(proc_DATA)

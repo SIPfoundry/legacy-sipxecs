@@ -1,0 +1,10 @@
+polycom_PKGS = \
+	log4j \
+	dom4j \
+	commons-lang \
+	commons-io \
+	commons-collections \
+	org.springframework.beans \
+	sipxcommons \
+	sipxconfig \
+	velocity

@@ -13,6 +13,7 @@ sipx = \
   sipXcommserverLib \
   sipXcommons \
   sipXacd \
+  sipXacdStatistics \
   sipXacccode \
   sipXrelay \
   sipXbridge \
@@ -20,13 +21,14 @@ sipx = \
   sipXcallController \
   sipXcdrLog \
   sipXfreeSwitch \
+  sipXcdr \
+  sipXconfig \
   sipXopenfire \
   sipXtools \
   sipXpark \
   sipXpresence \
   sipXrls \
   sipXpbx \
-  sipXconfig \
   sipXaudiocodes \
   sipXimbot \
   sipXivr \
@@ -39,7 +41,25 @@ sipx = \
   sipXsaa \
   sipXsupervisor \
   sipXopenacd \
-  sipXecs
+  sipXecs \
+  sipXaastra \
+  sipXcisco \
+  sipXclearone \
+  sipXcounterpath \
+  sipXgtek \
+  sipXhitachi \
+  sipXipdialog \
+  sipXisphone \
+  sipXkarel \
+  sipXnortel \
+  sipXlg-nortel \
+  sipXlinksys \
+  sipXmitel \
+  sipXpolycom \
+  sipXsnom \
+  sipXunidata \
+  sipXpreflight \
+  sipXviewer
 
 lang = \
   sipXlang-abitibi-fr_CA \

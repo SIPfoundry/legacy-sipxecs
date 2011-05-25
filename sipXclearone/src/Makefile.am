@@ -1,0 +1,24 @@
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/config/java.am
+include $(srcdir)/common.am
+
+EXTRA_DIST = \
+	$(clearone_SRC) \
+	$(clearone_RESOURCES)
+
+noinst_DATA = javac-clearone
+
+jardir = @SIPX_JAVADIR@/sipXconfig
+JAR_FILE = sipXclearone.jar
+jar_DATA = $(JAR_FILE)
+
+clearone_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
+clearone_RESOURCES = sipxplugin.beans.xml
+
+clearone_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(clearone_PKGS))
+
+$(JAR_FILE) : javac-clearone $(clearone_RESOURCES)
+	jar cf $@.tmp -C $(JAVAROOT) .
+	cd $(srcdir); jar uf $(abspath $@.tmp) $(clearone_RESOURCES)
+	mv $@.tmp $@

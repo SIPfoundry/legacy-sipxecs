@@ -29,7 +29,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     protected static int port; // Make sure your sever is running there.
     protected XmlRpcClient client;
     protected String clientHandle;
-    protected String testerAddress;
+    protected String testerAddress = "";
 
     protected void connectToServer() throws Exception {
         clientHandle = "thruput-tester:" + new Random().nextLong();

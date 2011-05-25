@@ -1,5 +1,4 @@
-## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
 INCLUDES = -I$(top_srcdir)/include
 
@@ -10,13 +9,14 @@ syslog2siptrace_LDADD = \
 
 syslog2siptrace_SOURCES = main.cpp
 
-bin_SCRIPTS = merge-logs siptrace-merge
+bin_SCRIPTS = merge-logs
+
+dist_bin_SCRIPTS = siptrace-merge
 
 EXTRA_DIST = \
-    merge-logs \
-    siptrace-merge \
-    merge-logs.in
+    $(bin_SCRIPTS:=.in)
 
-merge-logs: $(srcdir)/merge-logs.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $(srcdir)/merge-logs.in > merge-logs
+$(bin_SCRIPTS) : % : %.in
+	@$(call SearchAndReplace,$<,$@)
+
+CLEANFILES = $(bin_SCRIPTS)

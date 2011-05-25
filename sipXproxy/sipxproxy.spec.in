@@ -16,7 +16,6 @@ BuildRequires: doxygen
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: rubygems
 BuildRequires: ruby
-BuildRequires: rubygem-rake
 BuildRequires: stunnel
 BuildRequires: unixODBC-devel
 BuildRequires: zip

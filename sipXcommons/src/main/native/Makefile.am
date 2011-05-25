@@ -1,5 +1,3 @@
-include $(top_srcdir)/config/subdir.am
-
 EXTRA_DIST = \
 	posix/pico.h \
 	posix/RawSocket.h

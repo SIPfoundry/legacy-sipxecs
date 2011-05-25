@@ -18,10 +18,6 @@ SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED
 SFAC_INIT_FLAGS
 SFAC_LIB_COMMSERVER
 SFAC_FEATURE_SIP_TLS
-CHECK_STUNNEL
-CHECK_RUBY([1.8.2])
-CHECK_RAKE([0.5.3])
-CHECK_GEM([0.8.11])
 CHECK_ODBC
 AC_ARG_ENABLE(cse-tests,
   AC_HELP_STRING([--enable-cse-tests], [Run unit tests that test saving CSE data to postgres db setup]),
@@ -32,17 +28,18 @@ then
 fi
 AM_CONDITIONAL(ENABLE_CSE_TESTS, test x$enable_cse_tests = xyes)
 CHECK_POSTGRES
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([src/Makefile])
-AC_CONFIG_FILES([src/test/Makefile])
-AC_CONFIG_FILES([include/Makefile])
-AC_CONFIG_FILES([lib/Makefile])
-AC_CONFIG_FILES([lib/authplugins/Makefile])
-AC_CONFIG_FILES([lib/authplugins/NatTraversalAgent/Makefile])
-AC_CONFIG_FILES([lib/authplugins/test/Makefile])
-AC_CONFIG_FILES([bin/Makefile])
-AC_CONFIG_FILES([meta/Makefile])
-AC_CONFIG_FILES([etc/Makefile])
-AC_CONFIG_FILES([etc/database/Makefile])
-AC_CONFIG_FILES([src/cdr/Makefile])
+AC_CONFIG_FILES([
+  Makefile
+  src/Makefile
+  src/test/Makefile
+  include/Makefile
+  lib/Makefile
+  lib/authplugins/Makefile
+  lib/authplugins/NatTraversalAgent/Makefile
+  lib/authplugins/test/Makefile
+  bin/Makefile
+  meta/Makefile
+  etc/Makefile
+  etc/database/Makefile
+])
 AC_OUTPUT

@@ -1,0 +1,11 @@
+# NOTE: List is alphabetical
+sipxacc_PKGS = \
+	commons-codec \
+	commons-io \
+	commons-logging \
+	dom4j \
+	jaxen \
+	log4j \
+	sipxcommons
+
+sipxacc_JAVAROOT = $(abspath $(top_builddir)/src/main/java/classes)

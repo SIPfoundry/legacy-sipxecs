@@ -1,8 +1,7 @@
 include config/project.am
 
 SUBDIRS = \
-	src \
-	preflight
+	src
 
 @PACKAGE@_EXTRA_DIST = \
 	LICENSE \

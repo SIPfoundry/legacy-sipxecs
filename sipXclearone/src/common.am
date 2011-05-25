@@ -1,0 +1,11 @@
+clearone_PKGS = \
+	log4j \
+	commons-lang \
+	commons-io \
+	commons-collections \
+	org.springframework.beans \
+	org.springframework.context \
+	org.springframework.core \
+	sipxcommons \
+	sipxconfig \
+	velocity

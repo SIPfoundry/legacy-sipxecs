@@ -1,0 +1,7 @@
+RepoName=sipXconfig
+sipXconfig_dependency() {
+  case $1 in
+  tapestry-contrib*)
+    pkg_push commons-io;;
+  esac
+}

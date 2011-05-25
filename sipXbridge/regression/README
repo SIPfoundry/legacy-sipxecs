@@ -1,3 +1,5 @@
+There are probably some good tests here, but very difficult work with so they were not ported to autoconf --Douglas
+
 To run the tests
 ================
 Edit tester.properties and put your IP address there. See tester.properties.example

@@ -1,13 +1,9 @@
-## Process this file with automake to produce Makefile.in
-
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/config
 
-schemas = \
-	xml.xsd
-
-bin_PROGRAMS = xsdvalid
+bin_PROGRAMS = \
+	xsdvalid
 
 xsdvalid_LDADD = \
 	@SIPXPORT_LIBS@ \
@@ -20,21 +16,15 @@ xsdvalid_CPPFLAGS = \
 xsdvalid_SOURCES = \
 	xsdvalid.cpp
 
-install-data-hook : install-schema
-
-EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
+schema_DATA = \
+	xml.xsd
 
 EXTRA_DIST = \
-	$(EXTRA_DATA)
+	$(schema_DATA:=.in)
 
-.PHONY: install-schema
-install-schema: $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd))
+schemadir = @SIPX_DATADIR@/schema
 
-$(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd)): $(DESTDIR)@SIPX_DATADIR@/schema/% : %
-	$(INSTALL) -D -m 644 $< $@
+$(schema_DATA) : % : %.in
+	@$(call SearchAndReplace,$<,$@)
 
-$(foreach xsd,$(schemas),$(xsd)): % : $(srcdir)/%.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-
-DISTCLEANFILES = $(schemas)
+CLEANFILES = $(schema_DATA)

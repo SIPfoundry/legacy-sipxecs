@@ -4,6 +4,8 @@
 # Very generic utility functions that should be in automake/gnumake
 #
 
+utility_am_required=
+
 # Lowercase something
 #
 # Example:
@@ -39,3 +41,35 @@ define Installer
 	done;
 endef
 export Installer
+
+# Lists common variable names defined in sipx projects
+CommonVariablesNames = \
+	VERSION \
+	PREFIX \
+	BASH \
+	PERL \
+	RUBY \
+	$(filter SIPX%,$(.VARIABLES)) \
+	$(filter %DIR,$(.VARIABLES)) \
+	$(filter POSTGRES%,$(.VARIABLES)) \
+	$(filter SELINUX%,$(.VARIABLES)) \
+	$(filter GEM%,$(.VARIABLES)) \
+	$(filter FREESWITCH%,$(.VARIABLES)) \
+	$(filter OPENFIRE%,$(.VARIABLES)) \
+	$(filter APACHE%,$(.VARIABLES)) \
+	$(filter PACKAGE%,$(.VARIABLES)) \
+	$(filter-out am__%,$(filter %dir,$(.VARIABLES)))
+
+# Search and replace @VAR@ in a file with common or explicit make variables
+#  arg1 - input file
+#  arg2 - output file
+#  [arg3] - optional:  space delimitted list of addtional autoconf variable names to add search/replace.
+#           this is in addtion to ones listed in $(CommonVariableNames)
+#
+# Examples:
+#  $(call SearchAndReplace, infile, outfile)
+#  $(call SearchAndReplace, $<, $@)
+#  $(call SearchAndReplace, $<, $@, MYVAR1 MYVAR2)
+SearchAndReplace = \
+	sed $(foreach V,$3 $(CommonVariablesNames), -e 's|@$(V)\@|$($(V))|g') $1 > $2
+

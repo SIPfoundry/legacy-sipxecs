@@ -1,0 +1,10 @@
+cfg_PKGS = \
+	sipxconfig \
+	sipxcommons \
+	velocity \
+	commons-lang \
+	dom4j \
+	org.springframework.beans \
+	org.springframework.core \
+	org.springframework.transaction \
+	xercesImpl

@@ -27,10 +27,12 @@ AC_ARG_WITH([dailydir],
 AC_SUBST([DAILYDIR])
 CHECK_POSTGRES
 CHECK_SERVICEDIR
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([src/Makefile])
-AC_CONFIG_FILES([src/test/Makefile])
-AC_CONFIG_FILES([etc/Makefile])
-AC_CONFIG_FILES([bin/Makefile])
-AC_CONFIG_FILES([meta/Makefile])
+AC_CONFIG_FILES([
+	Makefile
+	src/Makefile
+	src/test/Makefile
+	etc/Makefile
+	bin/Makefile
+	meta/Makefile
+])
 AC_OUTPUT

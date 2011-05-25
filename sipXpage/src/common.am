@@ -1,0 +1,5 @@
+page_PKGS = \
+	sipxcommons \
+	dom4j \
+	jain-sip-sdp \
+	dnsjava

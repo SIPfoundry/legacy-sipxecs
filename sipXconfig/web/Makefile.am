@@ -1,1 +1,121 @@
-include $(top_srcdir)/ant-targets.am
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/config/java.am
+include $(top_srcdir)/neoconf/common.am
+
+EXTRA_DIST = \
+	$(gwt_SRC) \
+	$(addprefix src/,$(web_RESOURCES))
+
+noinst_DATA = javac-wsdl java-gwt javac-web 
+
+# W S D L
+WSDL = $(web_SRCDIR)/org/sipfoundry/sipxconfig/api/sipxconfig.wsdl
+wsdl_JAVAROOT = $(web_JAVAROOT)
+wsdl_SRCDIR = wsdl.src
+wsdl_SRC = $(shell find $(wsdl_SRCDIR) -name '*.java')
+wsdl_DEPS = $(call JavaDep,@SIPX_JAVADIR@/sipXcommons,axis)
+
+javac-wsdl : wsdl-src
+
+wsdl-src : $(WSDL)
+	test -d $(wsdl_SRCDIR) || mkdir -p $(wsdl_SRCDIR)
+	$(call JavaCommand,wsdl) org.apache.axis.wsdl.WSDL2Java \
+	  --server-side \
+	  --noWrapped \
+	  --verbose \
+          --NStoPkg http://www.sipfoundry.org/2007/08/21/ConfigService=org.sipfoundry.sipxconfig.api \
+	  --output $(wsdl_SRCDIR) \
+	  $(WSDL)
+	find $(wsdl_SRCDIR) -name '*BindingImpl.java' -exec rm {} \;
+	@echo timestamp > $@
+
+# G W T
+gwt_PKGS = \
+	gwt-user \
+	gwt-dev-linux \
+	smartgwt \
+	smartgwt-skins
+
+gwt_SRC = $(cd $(srcdir); find gwt -type f) 
+
+gwt_DEPS = \
+	$(srcdir)/gwt/src \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(gwt_PKGS))
+
+# preserved from ant port, probably true on some systems but not verified post port
+gwt_JAVACFLAGS = -Xmx512m -Xms256m
+
+java-gwt : $(gwt_SRC)
+	$(call JavaCommand,gwt) com.google.gwt.dev.Compiler \
+		-style PRETTY \
+		-war \
+		out/gwt \
+		org.sipfoundry.sipxconfig.userportal.user_phonebook_search \
+		org.sipfoundry.sipxconfig.userportal.contact_information
+	@echo timestamp > $@
+
+#  TODO: Account for this somehow
+# 		<move file="${output}/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/org.sipfoundry.sipxconfig.userportal.user_phonebook_search.nocache.js" tofile="${output}/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js" />
+# 		<move file="${output}/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js" tofile="${output}/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js" />
+
+
+# W E B
+web_JAVAROOT = $(abspath $(top_builddir)/web/out/WEB-INF/classes)
+web_SRCDIR = $(abspath $(top_srcdir)/web/src)
+
+web_PKGS = \
+	$(neoconf_PKGS) \
+	backport-util-concurrent \
+	hivemind \
+	hivemind-lib \
+	ognl \
+	rome \
+	smartgwt \
+	smartgwt-skins \
+	tapestry \
+	tapestry-annotations \
+	tapestry-contrib \
+	tapestry-framework
+
+# avoiding use the sipxconfig.jar in case it out of date. Point to class and src directories
+# as the cannot be more out of date.
+web_DEPS = \
+	$(neoconf_SRCDIR) \
+	$(neoconf_JAVAROOT) \
+	$(web_SRCDIR) \
+	$(web_JAVAROOT) \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(web_PKGS)) \
+	@SIPX_JAVADIR@/sipXconfig/agent-bindings.jar \
+	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
+
+# classes from wsdl compilation are refererence in web project source so ensure this is
+# done first
+javac-web : javac-wsdl
+
+web_SRC = $(shell cd $(srcdir); find src -type f -name '*.java')
+web_RESOURCES = $(shell cd $(srcdir)/src; find . -type f \( \
+	  -name '*.png' \
+	  -o -name '*.gif' \
+	  -o -name '*.jpg' \
+	  -o -name '*.css' \
+	  -o -name '*.xml' \
+	  -o -name '*.vm' \
+	  -o -name '*.wsdl' \
+	  -o -name '*.properties' \
+	  -o -name '*.js' \
+	  -o -name '*.ico' \
+	\))
+
+# W A R
+wardir = @SIPX_JAVADIR@/sipXconfig
+war_DATA = sipxconfig.war
+
+sipxconfig.war : javac-web java-gwt javac-wsdl $(addprefix $(web_JAVAROOT)/,$(web_RESOURCES))
+	jar cf $@.tmp -C out .
+	cd $(srcdir)/context; jar uf $(abspath $(builddir))/$@.tmp .
+	mv $@.tmp $@
+
+$(web_JAVAROOT)/% : src/%
+	test -d $(dir $@) || mkdir -p $(dir $@)
+	cp $^ $@
+

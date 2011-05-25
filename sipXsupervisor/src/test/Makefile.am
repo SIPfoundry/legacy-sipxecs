@@ -1,6 +1,3 @@
-## SipxProcess this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
-
 INCLUDES = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/include

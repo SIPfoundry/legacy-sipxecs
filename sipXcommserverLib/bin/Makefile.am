@@ -1,25 +1,25 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
 SUBDIRS = ssl-cert
 
 INCLUDES = -I$(top_srcdir)/include
 
-LOCAL_SHELLSCRIPTS = \
-   sipx-validate-xml \
-   pgpatch.sh \
-   sipx-dns
+utildir = @SIPX_LIBEXECDIR@
+util_SCRIPTS = \
+	sipx-utils.sh
 
 bin_SCRIPTS = \
-  $(LOCAL_SHELLSCRIPTS)
+	sipx-validate-xml \
+	pgpatch.sh \
+	sipx-dns
 
 dist_bin_SCRIPTS = \
-   pkg-upgrade \
-   configmerge \
-   configquery
+	pkg-upgrade \
+	configmerge \
+	configquery
 
-setupbindir = @SIPX_LIBEXECDIR@/setup.d
-
-setupbin_SCRIPTS = \
+setupdir = @SIPX_LIBEXECDIR@/setup.d
+setup_SCRIPTS = \
         sipx-time-manager-init \
         sipx-change-timezone-init \
         sipxpackage-init \
@@ -27,40 +27,28 @@ setupbin_SCRIPTS = \
         sipxcdrpostgres-init \
         sipxzoneadmin-init
 
-setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
+EXTRA_DIST = \
+	$(bin_SCRIPTS:=.in) \
+	$(setup_SCRIPTS:=.in) \
+	$(util_SCRIPTS:=.in)
 
-EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS) $(setupbin_SCRIPTS),$(sipxScript).in)
+$(util_SCRIPTS) $(bin_SCRIPTS) $(setup_SCRIPTS) : % : %.in
+	@$(call SearchAndReplace,$<,$@)
+
+CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS) $(util_SCRIPTS)
 
 noinst_PROGRAMS = \
 	sipxconfigrpc \
 	sipxconfigrpcsrv
 
-$(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-	chmod +x $@
-
 sipxconfigrpc_SOURCES = \
 	configrpc.cpp
 
 sipxconfigrpcsrv_SOURCES = \
-  configrpcsrv.cpp
+	configrpcsrv.cpp
 
 sipxconfigrpc_LDADD = \
 	../src/libsipXcommserver.la
 
 sipxconfigrpcsrv_LDADD = \
 	../src/libsipXcommserver.la
-
-sipregistrar_CXXFLAGS = \
-	-I$(top_builddir)/config \
-	-I$(top_srcdir)/include \
-	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
-	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
-	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\"
-
-$(setupbin_SCRIPTS) : $(setupbin_IN)
-	@echo "Localize $< -> $@"
-	@${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
-
-DISTCLEANFILES = sipx-validate-xml

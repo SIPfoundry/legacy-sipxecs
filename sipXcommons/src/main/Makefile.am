@@ -1,4 +1,3 @@
-include $(top_srcdir)/config/subdir.am
 include $(top_srcdir)/config/utility.am
 
 SUBDIRS = \
@@ -6,7 +5,6 @@ SUBDIRS = \
 	native \
 	.
 
-JAVAROOT = classes
 jardir = @SIPX_JAVADIR@/sipXcommons
 JAR_FILE = sipxcommons.jar
 jar_DATA = \

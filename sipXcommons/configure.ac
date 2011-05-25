@@ -5,19 +5,20 @@ m4_include([config/java2.m4])
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
-#AC_PROG_LIBTOOL
 LT_INIT([disable-static])
-# force javac but unknown if any other compiler works
-JAVAC=javac
 AC_PROG_JAVA_CC([javac])
 AC_PROG_JAVA([java])
 CHECK_JDK
 CHECK_JNI
 SFAC_AUTOMAKE_VERSION([1.6])
 SFAC_INIT_FLAGS
+SFAC_SRCDIR_EXPAND
+PROG_JAVA_DEP([${abs_srcdir}/bin])
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
+	bin/Makefile
+	lib/Makefile
 	src/main/Makefile
 	src/main/java/Makefile
 	src/main/native/Makefile

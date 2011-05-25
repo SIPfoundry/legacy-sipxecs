@@ -1043,6 +1043,15 @@ GEMS_HOWTO
   AX_COMPARE_VERSION([$gemVersion],[ge],[$minGemVersion],
        [AC_MSG_RESULT($gemVersion is ok)],
        [AC_MSG_ERROR([gem version must be >= $minGemVersion - found $gemVersion])])
+
+  # We install gems into dir based off ${prefix} so this is not the system ver
+  #  ruby -rubygems -e 'puts Gem::dir'
+  # TODO: Make this more dynamic
+  #   See http://fedoraproject.org/wiki/Packaging:Ruby
+  # Call eval a few times to resolve nested shell vars
+  eval GEM_LOCAL_LIB_DIR=${libdir}/ruby/gems/1.8
+  eval GEM_LOCAL_LIB_DIR=${GEM_LOCAL_LIB_DIR}
+  AC_SUBST(GEM_LOCAL_LIB_DIR)
 ])
 
 # ==================== Rake ====================

@@ -1,0 +1,24 @@
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/config/java.am
+include $(srcdir)/common.am
+
+EXTRA_DIST = \
+	$(hitachi_SRC) \
+	$(hitachi_RESOURCES)
+
+noinst_DATA = javac-hitachi
+
+jardir = @SIPX_JAVADIR@/sipXconfig
+JAR_FILE = sipXhitachi.jar
+jar_DATA = $(JAR_FILE)
+
+hitachi_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
+hitachi_RESOURCES = sipxplugin.beans.xml
+
+hitachi_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(hitachi_PKGS))
+
+$(JAR_FILE) : javac-hitachi $(hitachi_RESOURCES)
+	jar cf $@.tmp -C $(JAVAROOT) .
+	cd $(srcdir); jar uf $(abspath $@.tmp) $(hitachi_RESOURCES)
+	mv $@.tmp $@

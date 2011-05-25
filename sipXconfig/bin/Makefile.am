@@ -1,34 +1,29 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-	$(shell_scripts:=.in) \
-	$(setup_SCRIPTS:=.in) \
-	$(ruby_scripts:=.rb)
+	$(bin_SCRIPTS:=.in) \
+	$(setup_SCRIPTS:=.in)
 
 bin_SCRIPTS = \
-	$(shell_scripts) \
-	$(ruby_scripts)
-
-shell_scripts = \
+	sipxconfig.sh \
 	sipx-mrtg-init \
 	sipx-snmp-init \
+	sipXmrtg.sh \
 	sipx-time-manager \
 	sipx-tunnel
-
-ruby_scripts = \
-	sipx-upgrade-3.6-mailstore \
-	sipx-upgrade-3.6-mailstore-report
 
 setupdir = @SIPX_LIBEXECDIR@/setup.d
 setup_SCRIPTS = \
 	sipxconfig-setup
 
-$(ruby_scripts) : % : %.rb
-	$(info "Localize $< -> $@")
-	@${LocalizeSipXconfig} $< > $@
+CONF_VARS = \
+	MRTG_BINARY \
+	DATE_BINARY \
+	SERVICEDIR \
+	POSTGRESQL_USER \
+	CLASSPATH_RUN
 
-$(setup_SCRIPTS)    $(shell_scripts) : % : %.in
-	$(info "Localize $< -> $@")
-	@$(LocalizeSipXconfig) \
-	  -e 's,@MRTG_BINARY\@,@MRTG_BINARY@,g' \
-	  -e 's,@DATE_BINARY\@,@DATE_BINARY@,g' $< > $@
+$(setup_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@,$(CONF_VARS))
+
+CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS)

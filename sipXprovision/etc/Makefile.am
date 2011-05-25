@@ -1,8 +1,12 @@
-include $(top_srcdir)/config/subdir.am
-
-SIPX_PROCESS_DEFS = \
-	sipxprovision
+include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-    sipxprovision-process.xml.in
+	$(proc_DATA:=.in)
 
+procdir = $(SIPX_DATADIR)/process.d
+proc_DATA = sipxprovision-process.xml
+
+$(proc_DATA) : % : %.in
+	@$(call SearchAndReplace, $<, $@)
+
+CLEANFILES = $(proc_DATA)
