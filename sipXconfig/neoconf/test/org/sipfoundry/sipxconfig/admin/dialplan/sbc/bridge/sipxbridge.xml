@@ -51,6 +51,7 @@
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
     <rtp-keepalive-method>NONE</rtp-keepalive-method>
     <route-by-to-header>false</route-by-to-header>
+    <always-relay-media>true</always-relay-media>
   </itsp-account>
 
 </sipxbridge-config>

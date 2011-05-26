@@ -68,6 +68,8 @@ restlet.jarname=org.restlet.jar
 restlet=${sipxcommons.dir}/${restlet.jarname}
 libhostname.soname=libhostname.so
 ws-commons-util=${sipxcommons.dir}/${libhostname.soname}
+mongo.jarname=mongo-2.3.jar
+mongo=${sipxcommons.dir}/${mongo.jarname}
 
 javac.debug=on
 javac.source=1.5

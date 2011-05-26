@@ -16,7 +16,7 @@
 				label="message:label.atom">
             <span jwcid="atom@TextField" id="atom"
 				value="ognl:skill.atom"
-				disabled="ognl:(skill.defaultSkill || !skill.isNew())"
+				disabled="ognl:(skill.defaultSkill || disabled)"
 				displayName="message:label.atom"/>
           </tr>
 		  <tr jwcid="@common/FieldPanel" for="skillGroup" field="ognl:null"
