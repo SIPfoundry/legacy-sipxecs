@@ -197,6 +197,7 @@ private:
     std::string _server;
     static Mutex _serversMutex;
     static std::map<std::string, MongoDB::Ptr> _dbServers;
+    bool _autoReconnect;
 };
 
 
