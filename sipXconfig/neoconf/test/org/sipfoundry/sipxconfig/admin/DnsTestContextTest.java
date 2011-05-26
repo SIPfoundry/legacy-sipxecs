@@ -59,6 +59,7 @@ public class DnsTestContextTest extends TestCase {
         proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
         Setting proxySettings = proxyService.getSettings();
         proxySettings.getSetting("proxy-configuration/SIP_PORT").setValue("5061");
+        proxySettings.getSetting("proxy-configuration/TLS_SIP_PORT").setValue("5062");
         l1.setServiceDefinitions(singleton(proxyService));
         SipxServiceManager serviceManager = createMock(SipxServiceManager.class);
         serviceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
