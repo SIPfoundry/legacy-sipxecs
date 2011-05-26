@@ -19,6 +19,7 @@
 #include <net/NameValueTokenizer.h>
 #include <os/OsTask.h>
 #include <os/OsLogger.h>
+#include <os/UnixSignals.h>
 #include <utl/UtlString.h>
 #include "ACDServer.h"
 
@@ -60,42 +61,7 @@ UtlBoolean       gRestartFlag = FALSE;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SignalTask : public OsTask
-{
-public:
-   SignalTask() : OsTask() {}
 
-   int
-   run(void *pArg)
-   {
-       int sig_num ;
-       OsStatus res ;
-
-       // Wait for a signal.  This will unblock signals
-       // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process
-       // from the outside.
-       res = awaitSignal(sig_num);
-       if (res == OS_SUCCESS)
-       {
-          if (SIGTERM == sig_num)
-          {
-             Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
-          }
-          else
-          {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
-          }
-       }
-       else
-       {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
-       }
-       // set the global shutdown flag
-       gShutdownFlag = TRUE ;
-       return 0 ;
-   }
-} ;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -115,15 +81,6 @@ public:
 
 int main(int argc, char* argv[])
 {
-   // Block all signals in this the main thread.
-   // Any threads created from now on will have all signals masked.
-   OsTask::blockSignals();
-
-   // Create a new task to wait for signals.  Only that task
-   // will ever see a signal from the outside.
-   SignalTask* signalTask = new SignalTask();
-   signalTask->start();
-
    int provisioningAgentPort = 8110;
    int watchdogRpcServerPort = 8092;
    ACDServer* pAcdServer;
@@ -174,7 +131,7 @@ int main(int argc, char* argv[])
    pAcdServer = new ACDServer(provisioningAgentPort, watchdogRpcServerPort);
 
    // Loop forever until signaled to shut down
-   while (!gShutdownFlag) {
+   while (!Os::UnixSignals::instance().isTerminateSignalReceived() && !gShutdownFlag) {
       OsTask::delay(2000);
    }
 

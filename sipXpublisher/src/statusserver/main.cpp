@@ -19,6 +19,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsFS.h"
 #include "os/OsTask.h"
+#include "os/UnixSignals.h"
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"    // now deregister this process's database references from the IMDB
@@ -49,42 +50,6 @@ using namespace std;
 /* ============================ FUNCTIONS ================================= */
 
 
-class SignalTask : public OsTask
-{
-public:
-   SignalTask() : OsTask() {}
-
-   int
-   run(void *pArg)
-   {
-       int sig_num ;
-       OsStatus res ;
-
-       // Wait for a signal.  This will unblock signals
-       // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process
-       // from the outside.
-       res = awaitSignal(sig_num);
-       if (res == OS_SUCCESS)
-       {
-          if (SIGTERM == sig_num)
-          {
-             Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
-          }
-          else
-          {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
-          }
-       }
-       else
-       {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
-       }
-       // set the global shutdown flag
-       gShutdownFlag = TRUE ;
-       return 0 ;
-   }
-} ;
 
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
@@ -177,15 +142,6 @@ void initSysLog(OsConfigDb* pConfig)
 int
 main(int argc, char* argv[] )
 {
-   // Block all signals in this the main thread.
-   // Any threads created after this will have all signals masked.
-   OsTask::blockSignals();
-
-   // Create a new task to wait for signals.  Only that task
-   // will ever see a signal from the outside.
-   SignalTask* signalTask = new SignalTask();
-   signalTask->start();
-
    OsConfigDb  configDb ;  // Params for OsSysLog init
 
    UtlBoolean interactiveSet = false;
@@ -247,7 +203,7 @@ main(int argc, char* argv[] )
     pServerTask = static_cast<OsServerTask*>(pStatusServer);
 
     // Do not exit, let the proxy do its stuff
-    while( !gShutdownFlag )
+    while( !Os::UnixSignals::instance().isTerminateSignalReceived() )
     {
         if( interactiveSet)
         {

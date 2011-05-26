@@ -18,6 +18,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsLogger.h"
 #include "os/OsLoggerHelper.h"
+#include "os/UnixSignals.h"
 #include "sipdb/EntityDB.h"
 #include "sipXecsService/SipXecsService.h"
 #include "utl/UtlString.h"
@@ -85,42 +86,7 @@ UtlBoolean    gShutdownFlag = FALSE;
 
 /* ============================ FUNCTIONS ================================= */
 
-class SignalTask : public OsTask
-{
-public:
-   SignalTask() : OsTask("SignalTask") {}
 
-   int
-   run(void *pArg)
-   {
-       int sig_num ;
-       OsStatus res ;
-
-       // Wait for a signal.  This will unblock signals
-       // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process
-       // from the outside.
-       res = awaitSignal(sig_num);
-       if (res == OS_SUCCESS)
-       {
-          if (SIGTERM == sig_num)
-          {
-             Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
-          }
-          else
-          {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
-          }
-       }
-       else
-       {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
-       }
-       // set the global shutdown flag
-       gShutdownFlag = TRUE ;
-       return 0 ;
-   }
-} ;
 
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
@@ -306,16 +272,6 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
 //
 int main(int argc, char* argv[])
 {
-
-   // Block all signals in this the main thread.
-   // Any threads created from now on will have all signals masked.
-   OsTask::blockSignals();
-
-   // Create a new task to wait for signals.  Only that task
-   // will ever see a signal from the outside.
-   SignalTask* signalTask = new SignalTask();
-   signalTask->start();
-
    // Configuration Database (used for OsSysLog)
    OsConfigDb configDb;
 
@@ -481,7 +437,7 @@ int main(int argc, char* argv[])
       saa.start();
 
       // Loop forever until signaled to shut down
-      while (!gShutdownFlag)
+      while (!Os::UnixSignals::instance().isTerminateSignalReceived() && !gShutdownFlag)
       {
          OsTask::delay(2 * OsTime::MSECS_PER_SEC);
          // See if the list configuration file has changed.

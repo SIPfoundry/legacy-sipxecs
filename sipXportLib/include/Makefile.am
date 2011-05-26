@@ -97,6 +97,7 @@ nobase_include_HEADERS = \
     os/OsStunQueryAgent.h \
     os/OsStunDatagramSocket.h \
     os/qsTypes.h \
+    os/UnixSignals.h \
     xmlparser/XmlErrorMsg.h \
     xmlparser/ExtractContent.h \
     xmlparser/tinystr.h \

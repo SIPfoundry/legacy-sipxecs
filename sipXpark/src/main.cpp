@@ -16,7 +16,7 @@
 #include <os/OsFS.h>
 #include <os/OsLogger.h>
 #include <os/OsConfigDb.h>
-
+#include <os/UnixSignals.h>
 #include <net/NameValueTokenizer.h>
 #include <net/SipPublishContentMgr.h>
 #include <persist/SipPersistentSubscriptionMgr.h>
@@ -117,44 +117,6 @@ UtlBoolean    gShutdownFlag = FALSE;
 
 
 /* ============================ FUNCTIONS ================================= */
-
-class SignalTask : public OsTask
-{
-public:
-   SignalTask() : OsTask() {}
-
-   int
-   run(void *pArg)
-   {
-       int sig_num ;
-       OsStatus res ;
-
-       // Wait for a signal.  This will unblock signals
-       // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process
-       // from the outside.
-       res = awaitSignal(sig_num);
-       if (res == OS_SUCCESS)
-       {
-          if (SIGTERM == sig_num)
-          {
-             Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
-          }
-          else
-          {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
-          }
-       }
-       else
-       {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
-       }
-       // set the global shutdown flag
-       gShutdownFlag = TRUE ;
-       return 0 ;
-   }
-} ;
-
 
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
@@ -292,15 +254,6 @@ void initCodecs(SdpCodecFactory* codecFactory, OsConfigDb* pConfig)
 //
 int main(int argc, char* argv[])
 {
-   // Block all signals in this the main thread.
-   // Any threads created from now on will have all signals masked.
-   OsTask::blockSignals();
-
-   // Create a new task to wait for signals.  Only that task
-   // will ever see a signal from the outside.
-   SignalTask* signalTask = new SignalTask();
-   signalTask->start();
-
     // Configuration Database (used for OsSysLog)
     OsConfigDb configDb;
 
@@ -633,7 +586,7 @@ int main(int argc, char* argv[])
     int numTwoSecIntervals = 0;
     int CleanLoopWaitTimeSecs = 10;
 
-    while (!gShutdownFlag)
+    while (!Os::UnixSignals::instance().isTerminateSignalReceived() && !gShutdownFlag)
     {
        OsTask::delay(2000);
 

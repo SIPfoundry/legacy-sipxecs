@@ -20,6 +20,7 @@
 #include "os/OsTask.h"
 #include "os/OsLogger.h"
 #include "os/OsLoggerHelper.h"
+#include "os/UnixSignals.h"
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"
@@ -52,7 +53,6 @@ using namespace std ;
 // STATIC VARIABLE INITIALIZATIONS
 // GLOBAL VARIABLE INITIALIZATIONS
 OsServerTask* pServerTask   = NULL;
-UtlBoolean     gShutdownFlag = FALSE;
 OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 
 /* ============================ FUNCTIONS ================================= */
@@ -155,57 +155,10 @@ initSysLog(OsConfigDb* pConfig)
    }
 }
 
-
-class SignalTask : public OsTask
-{
-public:
-   SignalTask() : OsTask() {}
-
-   int
-   run(void *pArg)
-   {
-       int sig_num ;
-       OsStatus res ;
-
-       // Wait for a signal.  This will unblock signals
-       // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process
-       // from the outside.
-       res = awaitSignal(sig_num);
-       if (res == OS_SUCCESS)
-       {
-          if (SIGTERM == sig_num)
-          {
-             Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
-          }
-          else
-          {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
-          }
-       }
-       else
-       {
-            Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
-       }
-       // set the global shutdown flag
-       gShutdownFlag = TRUE ;
-       return 0 ;
-   }
-} ;
-
 /** The main entry point to the sipregistrar */
 int
 main(int argc, char* argv[] )
 {
-   // Block all signals in this the main thread.
-   // Any threads created from now on will have all signals masked.
-   OsTask::blockSignals();
-
-   // Create a new task to wait for signals.  Only that task
-   // will ever see a signal from the outside.
-   SignalTask* signalTask = new SignalTask();
-   signalTask->start();
-
    // Configuration Database (used for OsSysLog)
    OsConfigDb* configDb = new OsConfigDb();
 
@@ -293,7 +246,7 @@ main(int argc, char* argv[] )
    pServerTask = static_cast<OsServerTask*>(registrar);
 
    // Do not exit, let the services run...
-   while( !gShutdownFlag && !pServerTask->isShutDown() )
+   while( !Os::UnixSignals::instance().isTerminateSignalReceived() && !pServerTask->isShutDown() )
    {
       OsTask::delay(1 * OsTime::MSECS_PER_SEC);
    }
