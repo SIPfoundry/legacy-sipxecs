@@ -1,6 +1,6 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
-include $(top_srcdir)/src/common.am
+include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(sipxacc_SRC)
@@ -13,3 +13,10 @@ sipxacc_SRC = \
 sipxacc_DEPS = \
 	$(JAVAROOT) \
 	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons, $(sipxacc_PKGS))
+
+jardir = @SIPX_JAVADIR@/sipXacccode
+JAR_FILE = sipXacccode.jar
+jar_DATA = $(JAR_FILE)
+
+$(JAR_FILE) : javac-sipxacc Manifest.txt Makefile
+	jar cfm $@ Manifest.txt -C $(sipxacc_JAVAROOT) .

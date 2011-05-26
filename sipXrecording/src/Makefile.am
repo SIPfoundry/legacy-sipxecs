@@ -6,7 +6,8 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-recording
 
-jardir = @SIPX_JAVADIR@/sipXrecording/sipXrecording.jar
+jardir = @SIPX_JAVADIR@/sipXrecording
+JAR_FILE = sipXrecording.jar
 jar_DATA = $(JAR_FILE)
 
 recording_PKGS = \

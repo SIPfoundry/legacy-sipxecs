@@ -9,7 +9,7 @@ EXTRA_DIST = \
 noinst_DATA = javac-karel $(JAR_FILE)
 
 JAR_FILE = sipXkarel.jar
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 jar_DATA = $(JAR_FILE)
 
 karel_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
@@ -19,6 +19,6 @@ karel_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(karel_PKGS))
 
 $(JAR_FILE) : javac-karel $(karel_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(karel_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(karel_RESOURCES))

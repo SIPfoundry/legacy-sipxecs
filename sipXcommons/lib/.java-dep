@@ -20,6 +20,8 @@ sipXcommons_dependency() {
     pkg_push jibx-run bcel;;
   jain-sip-sdp)
     pkg_push log4j;;
+  jetty)
+    pkg_push javax.servlet;;
   smackx)
     pkg_push smack;;
   xmlrpc-client)

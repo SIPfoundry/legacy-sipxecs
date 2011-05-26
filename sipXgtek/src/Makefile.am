@@ -8,7 +8,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-gtek
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXgtek.jar
 jar_DATA = $(JAR_FILE)
 
@@ -19,6 +19,6 @@ gtek_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(gtek_PKGS))
 
 $(JAR_FILE) : javac-gtek $(gtek_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(gtek_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(gtek_RESOURCES))

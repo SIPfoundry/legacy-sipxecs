@@ -19,6 +19,6 @@ snom_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(snom_PKGS))
 
 $(JAR_FILE) : javac-snom $(snom_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(snom_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(snom_RESOURCES))

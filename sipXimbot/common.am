@@ -1,0 +1,11 @@
+imbot_PKGS = \
+	sipxcommons \
+	log4j \
+	smackx \
+	commons-codec \
+	commons-httpclient \
+	commons-lang \
+	commons-logging \
+	jetty \
+	javax.servlet \
+	xmlrpc-client

@@ -1,5 +1,6 @@
 include config/project.am
 include config/utility.am
+include common.am
 
 SUBDIRS = \
 	src \
@@ -18,7 +19,7 @@ procdir = \
 proc_DATA = \
 	sipxrelay-process.xml
 
-$(proc_DATA) $(bin_SCRIPTS) : % : %.in
-	$(call SearchAndReplace,$<, $@)
+$(proc_DATA) $(bin_SCRIPTS) : % : %.in Makefile
+	$(call SearchAndReplace,$<,$@,relay_PKGS)
 
 CLEANFILES = $(proc_DATA) $(bin_SCRIPTS)

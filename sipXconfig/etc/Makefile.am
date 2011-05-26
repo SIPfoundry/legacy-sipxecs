@@ -22,7 +22,8 @@ emptydirs = \
 	$(DESTDIR)@SIPX_VARDIR@/configserver/web-cert \
 	$(DESTDIR)@SIPX_LOGDIR@ \
 	$(DESTDIR)@SIPX_DATADIR@/devicefiles \
-	$(DESTDIR)@SIPX_VARDIR@/phonebook
+	$(DESTDIR)@SIPX_VARDIR@/phonebook \
+	$(DESTDIR)@SIPX_JAVADIR@/sipXconfig/plugins
 
 # automatically selects configuration files, but as importantly, also has to distinguish what is NOT
 # a configuration file in the 'find' statement
@@ -32,15 +33,15 @@ conf_SOURCE = \
 conf_FILES = $(addprefix out/,$(conf_SOURCE))
 out/% : sipxpbx/% Makefile
 	@test -d $(@D) || mkdir -p $(@D)
-	@$(call SearchAndReplace, $<,  $@, \
+	@$(call SearchAndReplace,$<, $@,\
 	  YUM_EXISTS \
 	  MRTG_ENABLED \
-	  JAVAC_DEBUG \
+	  TEST_MODE \
 	  POSTGRESQL_USER \
 	\)
 
 $(emptydirs) :
-	mkdir -p $@
+	$(INSTALL) -d $@
 
 install-data-hook : $(conf_FILES) $(emptydirs)
 	@echo "$$Installer" | \

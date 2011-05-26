@@ -7,7 +7,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-audiocodes
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 jar_DATA = $(JAR_FILE)
 
 audiocodes_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')

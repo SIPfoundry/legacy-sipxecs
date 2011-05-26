@@ -12,3 +12,6 @@ dist_ip_DATA = $(shell cd $(srcdir); find ciscoIp -type f)
 spadir = $(SIPX_CONFDIR)/Ciscospa
 dist_spa_DATA = $(shell cd $(srcdir); find Ciscospa -type f)
 
+linksysdir = $(SIPX_CONFDIR)/linksys
+dist_linksys_DATA = $(shell cd $(srcdir); find linksys -type f)
+

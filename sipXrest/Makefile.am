@@ -1,5 +1,6 @@
 include config/project.am
 include config/utility.am
+include common.am
 
 @PACKAGE@_EXTRA_DIST = \
 	README \
@@ -21,6 +22,6 @@ proc_DATA = \
 	sipxrest-process.xml
 
 $(proc_DATA) $(bin_SCRIPTS) : % : %.in
-	@$(call SearchAndReplace,$<, $@)
+	@$(call SearchAndReplace,$<,$@,rest_PKGS)
 
 CLEANFILES = $(proc_DATA)

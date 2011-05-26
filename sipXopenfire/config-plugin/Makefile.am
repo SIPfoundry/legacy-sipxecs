@@ -1,9 +1,10 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
-include $(srcdir)/common.am
+include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(cfg_SRC)
+	$(cfg_SRC) \
+	$(cfg_RESOURCES)
 
 # tests do not compile
 #SUBDIRS = \
@@ -12,14 +13,15 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-cfg
 
-jardir = @SIPX_JAVADIR@/sipXconfig
-jar_DATA =
-	$(cfg_JAR)
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
+jar_DATA = $(cfg_JAR)
+cfg_JAR = cfg-service.jar
+cfg_RESOURCES = sipxplugin.beans.xml
 
-cfg_JAR = openfire-service.jar
-
-$(cfg_JAR) :
-	jar -cf $@ -C $(JAVAROOT) .
+$(cfg_JAR) : javac-cfg
+	jar -cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(cfg_RESOURCES))
 
 cfg_DEPS = \
 	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig, $(cfg_PKGS))

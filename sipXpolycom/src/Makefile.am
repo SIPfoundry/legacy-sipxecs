@@ -8,7 +8,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-polycom
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXpolycom.jar
 jar_DATA = $(JAR_FILE)
 
@@ -19,6 +19,6 @@ polycom_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(polycom_PKGS))
 
 $(JAR_FILE) : javac-polycom $(polycom_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(polycom_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(polycom_RESOURCES))

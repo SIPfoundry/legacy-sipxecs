@@ -30,5 +30,6 @@ callcntlr_DEPS = \
 	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons, $(callcntlr_PKGS))
 
 $(JAR_FILE) : javac-callcntlr Manifest.txt $(callcntlr_RESOURCES)
-	jar -cfm $@ Manifest.txt -C $(JAVAROOT) .
-	cd $(srcdir); jar -uf $(abspath $@)  $(callcntlr_RESOURCES)
+	jar cfm $@ Manifest.txt \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(callcntlr_RESOURCES))

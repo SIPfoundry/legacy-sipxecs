@@ -1,6 +1,6 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
-include $(srcdir)/../common.am
+include $(top_srcdir)/common.am
 
 noinst_DATA = javac-test
 

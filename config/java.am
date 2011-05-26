@@ -258,6 +258,20 @@ Implementation-Vendor: $(PACKAGE_VENDOR)
 endef
 export manifest_body
 
+# Jar command has a strange CLI interface, in this case:
+#   jar my.jar -C dir file1 file2
+# file1 is found in dir but file2 is found in cwd. So you have to do this
+#   jar my.jar -C dir file1 -C dir file2
+# So here we compensate for this strange behaviour and expand out "dir" for each file and
+# let you chain the lists together
+#
+#  Example:
+#  jar my.jar \
+#    $(call JarInclude,$(JAVAROOT),.) \
+#    $(call JarInclude,$(srcdir),$(resources))
+#
+JarInclude = $(foreach D,$2,-C $(1) $(D))
+
 #
 # M I S C.
 #

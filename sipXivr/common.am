@@ -1,0 +1,13 @@
+ivr_PKGS = \
+	commons-codec \
+	commons-io \
+	commons-logging \
+	dom4j \
+	javamail \
+	javax.servlet \
+	jaxen \
+	jetty \
+	log4j \
+	mongo \
+	sipxcommons \
+	xmlrpc-common

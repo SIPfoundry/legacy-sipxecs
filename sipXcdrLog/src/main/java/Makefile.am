@@ -30,5 +30,6 @@ cdrlog_DEPS = \
 	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons, $(cdrlog_PKGS))
 
 $(JAR_FILE) : javac-cdrlog Manifest.txt $(cdrlog_RESOURCES)
-	jar -cfm $@ Manifest.txt -C $(JAVAROOT) .
-	cd $(srcdir); jar -uf $(abspath $@) $(cdrlog_RESOURCES)
+	jar cfm $@ Manifest.txt \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(cdrlog_RESOURCES))

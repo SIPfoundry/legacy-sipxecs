@@ -1,5 +1,6 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
+include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(sipxrest_SRC)
@@ -13,25 +14,6 @@ jar_DATA = \
 
 rest_SRC = \
 	$(shell cd $(srcdir); find org -type f -name '*.java')
-
-rest_PKGS = \
-	com.noelios.restlet \
-	com.noelios.restlet.ext.servlet \
-	commons-beanutils \
-	commons-codec \
-	commons-collections \
-	commons-digester \
-	commons-logging \
-	dnsjava \
-	jain-sip-sdp \
-	javax.servlet \
-	jetty \
-	log4j \
-	org.restlet \
-	sipxcommons \
-	ws-commons-util \
-	xmlrpc-client \
-	xmlrpc-server
 
 rest_DEPS = \
 	$(JAVAROOT) \

@@ -58,6 +58,7 @@ sipx = \
   sipXpolycom \
   sipXsnom \
   sipXunidata \
+  sipXgrandstream \
   sipXpreflight \
   sipXviewer
 

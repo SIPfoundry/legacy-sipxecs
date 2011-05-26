@@ -1,4 +1,5 @@
 include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(bin_SCRIPTS:=.in) \
@@ -16,14 +17,12 @@ setupdir = @SIPX_LIBEXECDIR@/setup.d
 setup_SCRIPTS = \
 	sipxconfig-setup
 
-CONF_VARS = \
+EXTRA_REPLACE = \
 	MRTG_BINARY \
 	DATE_BINARY \
-	SERVICEDIR \
-	POSTGRESQL_USER \
-	CLASSPATH_RUN
+	web_PKGS
 
 $(setup_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
-	@$(call SearchAndReplace,$<,$@,$(CONF_VARS))
+	@$(call SearchAndReplace,$<,$@,$(EXTRA_REPLACE))
 
 CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS)

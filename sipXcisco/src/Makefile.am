@@ -8,7 +8,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-cisco $(JAR_FILE)
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXcisco.jar
 jar_DATA = $(JAR_FILE)
 
@@ -19,6 +19,6 @@ cisco_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(cisco_PKGS))
 
 $(JAR_FILE) : javac-cisco $(cisco_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(cisco_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(cisco_RESOURCES))

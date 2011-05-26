@@ -8,7 +8,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-nortel
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXnortel.jar
 jar_DATA = $(JAR_FILE)
 
@@ -19,6 +19,6 @@ nortel_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(nortel_PKGS))
 
 $(JAR_FILE) : javac-nortel $(nortel_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(nortel_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(nortel_RESOURCES))

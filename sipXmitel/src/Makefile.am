@@ -8,7 +8,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-mitel
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXmitel.jar
 jar_DATA = $(JAR_FILE)
 
@@ -19,6 +19,6 @@ mitel_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(mitel_PKGS))
 
 $(JAR_FILE) : javac-mitel $(mitel_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(mitel_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(mitel_RESOURCES))

@@ -10,11 +10,6 @@ Vendor:   SIPfoundry
 Packager: SIPfoundry <sipx-dev@lif.sipfoundry.org>
 Url:      http://www.sipfoundry.org/
 
-BuildRequires: ant-commons-logging
-BuildRequires: ant-junit
-BuildRequires: ant-trax
-BuildRequires: xalan-j2
-BuildRequires: ant-nodeps
 BuildRequires: automake
 BuildRequires: java-devel >= 1.6
 %if %{_vendor} == redhat
@@ -26,8 +21,6 @@ BuildRequires: pwdutils
 BuildRequires: cron
 %endif
 BuildRequires: zip
-BuildRequires: jakarta-commons-beanutils
-BuildRequires: jakarta-commons-collections
 BuildRequires: ruby-devel
 BuildRequires: rubygems
 BuildRequires: sipxcommons >= %version

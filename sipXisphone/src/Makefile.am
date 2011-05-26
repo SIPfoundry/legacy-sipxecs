@@ -8,7 +8,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-isphone
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXisphone.jar
 jar_DATA = $(JAR_FILE)
 
@@ -19,6 +19,6 @@ isphone_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(isphone_PKGS))
 
 $(JAR_FILE) : javac-isphone $(isphone_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(isphone_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(isphone_RESOURCES))

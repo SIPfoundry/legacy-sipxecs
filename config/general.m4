@@ -204,32 +204,6 @@ AC_DEFUN([CHECK_CPPUNIT],
 
 m4_include([config/check_jdk.m4])
 
-# ============ A N T  ==================
-AC_DEFUN([CHECK_ANT],
-[
-   AC_REQUIRE([AC_EXEEXT])
-   AC_REQUIRE([CHECK_JDK])
-   AC_ARG_VAR(ANT, [Ant program])
-
-   test -z $ANT_HOME || ANT_HOME_BIN=$ANT_HOME/bin
-   for dir in $ANT_HOME_BIN $PATH /usr/local/ant/bin; do
-       # only works because unix does not use ant.sh
-       AC_PATH_PROG(ANT, ant$EXEEXT ant.bat, ,$dir)
-       if test x$ANT != x; then
-           found_ant="yes";
-           break;
-       fi
-   done
-
-   if test x_$found_ant != x_yes; then
-       AC_MSG_ERROR([Cannot find ant program. Try setting ANT_HOME environment variable or use 'configure ANT=<path to ant executable>])
-   fi
-
-  AC_SUBST(ANT_FLAGS, '-e -Dtop.build.dir=$(shell cd $(top_builddir) && pwd) -f $(srcdir)/build.xml')
-  AC_SUBST(ANT_CMD, "JAVA_HOME=${JAVA_HOME} ${ANT}")
-])
-
-
 # ============ O P E N S S L ==================
 #
 # OpenSSL is required

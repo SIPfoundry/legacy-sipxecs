@@ -1,6 +1,6 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
-include $(srcdir)/../common.am
+include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(neoconf_SRC)
@@ -21,13 +21,22 @@ neoconf_RESOURCES = \
 	\))
 
 $(JAR_FILE) : javac-neoconf Manifest.txt
-	jar cfm $@.tmp Manifest.txt -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(neoconf_RESOURCES)
-	mv $@.tmp $@
+	jar cfm $@ Manifest.txt \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(neoconf_RESOURCES))
+
+neoconf_COMPILE_PKGS = \
+	$(neoconf_PKGS) \
+	junit \
+	xmlunit \
+	dbunit \
+	easymock \
+	easymockclassextension \
+	spring-mock
 
 neoconf_DEPS = \
 	$(JAVAROOT) \
-	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons, $(neoconf_PKGS)) \
+	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons, $(neoconf_COMPILE_PKGS)) \
 	@SIPX_JAVADIR@/sipXconfig/agent-bindings.jar \
 	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
 

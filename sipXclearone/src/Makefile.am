@@ -8,7 +8,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-clearone
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXclearone.jar
 jar_DATA = $(JAR_FILE)
 
@@ -19,6 +19,6 @@ clearone_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(clearone_PKGS))
 
 $(JAR_FILE) : javac-clearone $(clearone_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(clearone_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(clearone_RESOURCES))

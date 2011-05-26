@@ -9,7 +9,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-lgnortel
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXlgnortel.jar
 jar_DATA = $(JAR_FILE)
 
@@ -20,6 +20,6 @@ lgnortel_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(lgnortel_PKGS))
 
 $(JAR_FILE) : javac-lgnortel $(lgnortel_RESOURCES)
-	jar cf $@.tmp -C $(JAVAROOT) .
-	cd $(srcdir); jar uf $(abspath $@.tmp) $(lgnortel_RESOURCES)
-	mv $@.tmp $@
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(lgnortel_RESOURCES))

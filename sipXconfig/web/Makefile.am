@@ -1,6 +1,6 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
-include $(top_srcdir)/neoconf/common.am
+include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(gwt_SRC) \
@@ -28,6 +28,24 @@ wsdl-src : $(WSDL)
 	  $(WSDL)
 	find $(wsdl_SRCDIR) -name '*BindingImpl.java' -exec rm {} \;
 	@echo timestamp > $@
+
+# W S D D
+wsdd_DEPS = \
+	$(wsdl_DEPS) \
+	$(web_JAVAROOT)
+
+WSDD = out/WEB-INF/server-config.wsdd
+WSDD_XSLT = $(top_srcdir)/meta/server-config.xsl
+
+# WSDD doesn't validate, schema does not resolve among 
+#  other things, so removing erroneous referance to namespaces.
+# I have posted email to ant project to get feedback on this
+# http://thread.gmane.org/gmane.comp.jakarta.ant.user/34470
+$(WSDD) : javac-wsdl $(WSDL) $(WSDD_XSLT)
+	$(call JavaCommand,wsdd) org.apache.axis.utils.Admin server $(wsdl_SRCDIR)/org/sipfoundry/sipxconfig/api/deploy.wsdd
+	sed -e 's/<deployment.*>/<deployment>/g' server-config.wsdd > server-config-no-spring.wsdd.dirty
+	xsltproc -v -o server-config.wsdd.dirty $(WSDD_XSLT) server-config-no-spring.wsdd.dirty
+	sed -e 's/xmlns=""//g' server-config.wsdd.dirty > $@
 
 # G W T
 gwt_PKGS = \
@@ -63,28 +81,23 @@ java-gwt : $(gwt_SRC)
 web_JAVAROOT = $(abspath $(top_builddir)/web/out/WEB-INF/classes)
 web_SRCDIR = $(abspath $(top_srcdir)/web/src)
 
-web_PKGS = \
-	$(neoconf_PKGS) \
-	backport-util-concurrent \
-	hivemind \
-	hivemind-lib \
-	ognl \
-	rome \
-	smartgwt \
-	smartgwt-skins \
-	tapestry \
-	tapestry-annotations \
-	tapestry-contrib \
-	tapestry-framework
+web_COMPILE_PKGS = \
+	$(web_PKGS) \
+	junit \
+	dbunit \
+	p6spy \
+	junit \
+	easymock \
+	easymockclassextension \
+	spring-mock
 
-# avoiding use the sipxconfig.jar in case it out of date. Point to class and src directories
-# as the cannot be more out of date.
+# use the compiled output dirs when possible in case jar files have not been updated
 web_DEPS = \
 	$(neoconf_SRCDIR) \
 	$(neoconf_JAVAROOT) \
 	$(web_SRCDIR) \
 	$(web_JAVAROOT) \
-	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(web_PKGS)) \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(web_COMPILE_PKGS)) \
 	@SIPX_JAVADIR@/sipXconfig/agent-bindings.jar \
 	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
 
@@ -110,9 +123,9 @@ web_RESOURCES = $(shell cd $(srcdir)/src; find . -type f \( \
 wardir = @SIPX_JAVADIR@/sipXconfig
 war_DATA = sipxconfig.war
 
-sipxconfig.war : javac-web java-gwt javac-wsdl $(addprefix $(web_JAVAROOT)/,$(web_RESOURCES))
-	jar cf $@.tmp -C out .
-	cd $(srcdir)/context; jar uf $(abspath $(builddir))/$@.tmp .
+sipxconfig.war : javac-web java-gwt javac-wsdl $(addprefix $(web_JAVAROOT)/,$(web_RESOURCES)) $(WSDD)
+	jar cf $@.tmp $(call JarInclude,out,.)
+	jar uf $@.tmp $(call JarInclude,$(srcdir)/context,.)
 	mv $@.tmp $@
 
 $(web_JAVAROOT)/% : src/%

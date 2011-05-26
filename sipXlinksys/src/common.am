@@ -1,9 +1,0 @@
-linksys_PKGS = \
-	log4j \
-	commons-lang \
-	commons-io \
-	commons-collections \
-	org.springframework.beans \
-	sipxcommons \
-	sipxconfig \
-	velocity

@@ -8,30 +8,25 @@
 Action=RUN
 Status=0
 Args=""
-
-# Declare script variables in a manner that unit test
-# (or end user I suppose) can override
-: ${SslDir:=@SIPX_CONFDIR@/ssl}
-: ${AuthoritiesDir:=$SslDir/authorities}
-: ${JavaCmd:=`@bindir@/sipx-config --java`}
-: ${ConfigFiles:=@SIPX_CONFDIR@/sipxconfig.properties}
-: ${PidFile:=@SIPX_RUNDIR@/sipxconfig.pid}
-: ${DatabaseProject:=@SIPX_CONFDIR@/database/database.xml}
-: ${LibDir:=@SIPX_JAVADIR@/sipXconfig}
-: ${CommonsLibDir:=@SIPX_JAVADIR@/sipXcommons}
-: ${Psql:=psql}
-: ${ServiceDir:=@SERVICEDIR@}
-: ${SubstituteUser:=su}
-: ${Chown:=chown}
-: ${LogDir:=@SIPX_LOGDIR@}
-: ${TmpDir:=@SIPX_TMPDIR@}
-: ${MailstoreDir:=@SIPX_VXMLDATADIR@/mailstore}
-: ${RunningUser:=@SIPXPBXUSER@}
-: ${StorePassword:=changeit}
-: ${PostgresUser:=@POSTGRESQL_USER@}
-: ${FirstRunFile:=@SIPX_CONFDIR@/.first-run}
-: ${SipxUtils:=@SIPX_LIBEXECDIR@/sipx-utils.sh}
-: ${SipxConfigEnv:=@SIPX_CONFDIR@/sipxconfigrc}
+SslDir=@SIPX_CONFDIR@/ssl
+AuthoritiesDir=$SslDir/authorities
+JavaCmd=`@bindir@/sipx-config --java`
+ConfigFiles=@SIPX_CONFDIR@/sipxconfig.properties
+PidFile=@SIPX_RUNDIR@/sipxconfig.pid
+DatabaseProject=@SIPX_CONFDIR@/database/database.xml
+LibDir=@SIPX_JAVADIR@/sipXconfig
+PluginDir=@SIPX_JAVADIR@/sipXconfig/plugins
+CommonsLibDir=@SIPX_JAVADIR@/sipXcommons
+ServiceDir=@SERVICEDIR@
+LogDir=@SIPX_LOGDIR@
+TmpDir=@SIPX_TMPDIR@
+MailstoreDir=@SIPX_VXMLDATADIR@/mailstore
+RunningUser=@SIPXPBXUSER@
+StorePassword=changeit
+PostgresUser=@POSTGRESQL_USER@
+FirstRunFile=@SIPX_CONFDIR@/.first-run
+SipxUtils=@SIPX_LIBEXECDIR@/sipx-utils.sh
+SipxConfigEnv=@SIPX_CONFDIR@/sipxconfigrc
 
 . ${SipxUtils}
 
@@ -43,12 +38,8 @@ fi
 Database=SIPXCONFIG
 RequiredDatabaseVersion=12
 IndexDir=${TmpDir}/index
-
-# jars that we expect to be installed on the system
-ADDITIONAL_JARS="\
-	log4j \
-	ant \
-	ant-launcher"
+Dependencies=`@SIPX_BINDIR@/java-dep -d ${CommonsLibDir} -d ${LibDir} sipxconfig @web_PKGS@ agent-bindings cdr-binding`
+export CLASSPATH=`echo @SIPX_CONFDIR@ ${Dependencies} ${PluginDir}/*.jar | sed -e 's/ /:/g'`
 
 # set primary system hostname (assume sipxconfig is only run on primary system)
 PRIMARY_HOSTNAME=`hostname -f`
@@ -73,20 +64,6 @@ setTrustStoreOpts() {
     fi
 }
 
-
-
-
-# Take a list of files or directories
-# and expand pathnames to create a string for PATH-based variables
-classpath() {
-    # initialize with additional JARS
-    Cpath=@CLASSPATH_RUN@
-    for f in $@; do
-      Cpath=$Cpath:$f
-    done
-    echo $Cpath
-}
-
 # Incase system failed suddenly, clear previous locks
 clearIndexLocks() {
   rm ${IndexDir}/*.lock 2>/dev/null
@@ -99,11 +76,6 @@ databaseCommand() {
 
     clearIndexLocks
 
-    Classpath=`classpath \
-        @SIPX_CONFDIR@ \
-        ${CommonsLibDir}/*.jar \
-        ${LibDir}/*.jar`
-
     JavaOpts="$SIPXCONFIG_OPTS"
 
     # XCF-1275 - Do not want to suppress output if there is an error
@@ -114,7 +86,6 @@ databaseCommand() {
         $JavaOpts \
         -Dant.library.dir=${TmpDir} \
         -Djava.net.preferIPv4Stack=true \
-        -classpath $Classpath \
         org.apache.tools.ant.launch.Launcher \
         -emacs \
         -quiet \
@@ -159,7 +130,6 @@ firstRunCheck() {
 }
 
 
-
 # Run Web interface
 onWebUi() {
 
@@ -177,7 +147,6 @@ onWebUi() {
     clearIndexLocks
 
     X509Algorithm=`$JavaCmd \
-       -classpath "$Classpath" \
        org.sipfoundry.sipxconfig.common.X509Selector`
 
     # Used in sipxconfig-jetty.xml only
@@ -195,11 +164,6 @@ onWebUi() {
       -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
       -Djavax.net.ssl.keyStorePassword=$StorePassword"
 
-    Classpath=`classpath \
-        @SIPX_CONFDIR@ \
-        ${CommonsLibDir}/*.jar \
-        ${LibDir}/*.jar`
-
     echo $$ > ${PidFile}
 
     exec $JavaCmd \
@@ -209,7 +173,6 @@ onWebUi() {
        $JavaOpts \
        $TrustStoreOpts \
        $KeyStoreOpts \
-       -classpath "$Classpath" \
        org.mortbay.jetty.Server @SIPX_CONFDIR@/sipxconfig-jetty.xml
 }
 
@@ -219,10 +182,10 @@ stopWebUi() {
 
 # Return false if postgres is
 #  1. not running
-#  2. running but not setup to communicate w/java or ${Psql} command
+#  2. running but not setup to communicate w/java or psql command
 #  3. Database is not created
 databaseCheck() {
-    ${Psql} --list --field-separator , --no-align --username ${PostgresUser} \
+    psql --list --field-separator , --no-align --username ${PostgresUser} \
     | cut -d , -f 1 \
     | grep "${Database}"$ > /dev/null 2>&1
 }
@@ -230,7 +193,7 @@ databaseCheck() {
 # Check the database version.  If it is wrong, then exit, because it's dangerous to
 # run sipXconfig on top of the wrong database version.
 databaseVersionCheck() {
-    dbver=`${Psql} --tuples-only --no-align \
+    dbver=`psql --tuples-only --no-align \
            --command "select max(vh.version) from version_history vh;" \
            ${Database} ${PostgresUser}`
     if [ $? -ne 0 -o "$dbver" = "" ]

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -x
 #
 # openfire	Stops and starts the Openfire XMPP service.
 #
@@ -24,7 +24,10 @@ Action="START"
 OPENFIRE_HOME="@OPENFIRE_HOME@"
 OPENFIRE_LIB="${OPENFIRE_HOME}/lib"
 JAVACMD=`@SIPX_BINDIR@/sipx-config --java`
-LibPath=`perl -e 'print join(":", @ARGV);' ${OPENFIRE_LIB}/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar  @SIPX_JAVADIR@/sipXopenfire/*.jar `
+
+Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @plugin_PKGS@`
+export CLASSPATH=`echo ${OPENFIRE_LIB}/*.jar @SIPX_JAVADIR@/sipXopenfire/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+
 CONFIG_FILES="\
   @SIPX_CONFDIR@/sipxopenfire.xml "
 SIPX_OPENFIRE_DIR=@SIPX_JAVADIR@/sipXopenfire
@@ -34,9 +37,6 @@ ANT_DATABASE_DIR="@SIPX_CONFDIR@"
 
 ANT_DATABASE_SCRIPT="${ANT_DATABASE_DIR}/sipxopenfire-database.xml"
 TMP_DIR="/tmp"
-
-# Prepare local java class path
-LOCALCLASSPATH="${LibPath}"
 
 # Export any necessary variables
 export JAVA_HOME JAVACMD
@@ -63,7 +63,7 @@ start() {
 
    # Set the openfire debug level based on the sipxopenfire log level
    SIPXOPENFIRE_LOGLEVEL=`grep "<log-level>.*<.log-level>" $CONFIG_FILES | cut -f2 -d">" | cut -f1 -d"<"`
-   if [ $SIPXOPENFIRE_LOGLEVEL == "DEBUG" ]
+   if [ "$SIPXOPENFIRE_LOGLEVEL" == "DEBUG" ]
    then
       sed -e "s/<enabled>.*<\/enabled>/<enabled>true<\/enabled>/g" "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" > ${OPENFIRE_HOME}/conf/openfire.xml 
    else
@@ -142,6 +142,12 @@ status() {
 
 configtest() {
 	echo "sipxopenfire configtest"
+	for f in $CONFIG_FILES; do
+	    if ! test -f $f; then
+		echo "Missing config file $f" >&2
+		RETVAL=1
+	    fi
+	done
 }
 
 # Called as root in sipxpbx startup script to do initial setup,
@@ -185,7 +191,6 @@ databaseCommand() {
     # output
     # ant.library.dir needs to be set - but should not point to any jars
     CmdOut=`$JAVACMD \
-        -classpath $LOCALCLASSPATH \
         -Dant.library.dir=${TMP_DIR} \
         -Dsipxopenfire.db.user=postgres \
         org.apache.tools.ant.launch.Launcher \

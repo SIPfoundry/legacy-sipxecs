@@ -1,6 +1,6 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
-include $(srcdir)/common.am
+include $(top_srcdir)/common.am
 
 SUBDIRS = \
 	. \
@@ -19,6 +19,9 @@ jar_DATA = \
 
 plugin_JAR = sipx-openfire-presence-plugin.jar
 plugin_SRC = $(shell cd $(srcdir); find org -name '*.java')
+plugin_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(plugin_PKGS)) \
+	@OPENFIRE_HOME@/lib/openfire.jar
 
 # presence jar include other jars. more like a war.
 presence_JAR = sipx-openfire-presence.jar

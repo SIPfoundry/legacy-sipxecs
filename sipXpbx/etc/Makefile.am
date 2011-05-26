@@ -38,10 +38,16 @@ service_SCRIPTS = \
 	sipxecs \
 	phonelogd
 
-httpdconfddir = @SIPX_CONFDIR@/httpd.conf.d
-wwwvardir = $(wwwdir)/var
-webdavdir = $(wwwdir)/webdav
-phonelogdir = @SIPX_LOGDIR@/phone
+emptydirs = \
+	$(DESTDIR)@SIPX_CONFDIR@/httpd.conf.d \
+	$(DESTDIR)$(wwwdir)/var \
+	$(DESTDIR)$(wwwdir)/webdav \
+	$(DESTDIR)@SIPX_LOGDIR@/phone
+
+$(emptydirs) :
+	$(INSTALL) -d $@
+
+install-data-hook : $(emptydirs)
 
 logrotatedir = $(sysconfdir)/logrotate.d
 logrotate_DATA = \

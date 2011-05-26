@@ -1,13 +1,14 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
-include $(srcdir)/common.am
+include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(jar_SRC)
 
 noinst_DATA = javac-ivr
 
-jardir = @SIPX_JAVADIR@/sipXivr/sipXivr.jar
+jardir = @SIPX_JAVADIR@/sipXivr
+JAR_FILE = sipXivr.jar
 jar_DATA = $(JAR_FILE)
 
 ivr_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')

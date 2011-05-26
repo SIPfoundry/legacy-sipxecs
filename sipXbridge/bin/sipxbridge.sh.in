@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -x
 
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
@@ -80,12 +80,10 @@ CONFIG_FILES="\
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar  @SIPX_JAVADIR@/sipXcommons/*.jar`
-ClassPath=$LibPath
 
-X509Algorithm=`$JavaCmd \
-       -classpath "$ClassPath" \
-       org.sipfoundry.commons.x509selector.X509Selector`
+Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
+export CLASSPATH=`echo @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+X509Algorithm=`$JavaCmd org.sipfoundry.commons.x509selector.X509Selector`
 
 setTruststoreOpts
 # need to run this again because we need to set 
@@ -102,7 +100,7 @@ case ${Action} in
 	 -Djetty.ssl.keypassword=$KeyStorePassword	\
 	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
          -Dsipxbridge.command=start 			  \
-         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+         org.sipfoundry.sipxbridge.Gateway \
 	 $Args
      ;;
 
@@ -123,7 +121,7 @@ case ${Action} in
 	 -Djetty.ssl.keypassword=$KeyStorePassword	\
          -Dsipxbridge.command=start 			\
 	 -Xbootclasspath/a:/opt/jprofiler5/bin/agent.jar \
-         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+         org.sipfoundry.sipxbridge.Gateway \
 	 $Args
      ;;
 
@@ -151,7 +149,7 @@ case ${Action} in
 	 -Djetty.ssl.password=$TrustStorePassword	\
 	 -Djetty.ssl.keypassword=$KeyStorePassword	\
          -Dsipxbridge.command=configtest 		\
-         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+         org.sipfoundry.sipxbridge.Gateway \
 	 $Args
      ;;
 esac
