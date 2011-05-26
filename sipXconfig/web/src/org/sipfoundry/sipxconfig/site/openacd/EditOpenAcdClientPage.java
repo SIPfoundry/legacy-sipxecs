@@ -40,24 +40,21 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
 
     public abstract void setOpenAcdClientId(Integer id);
 
-    @Persist
     public abstract OpenAcdClient getOpenAcdClient();
 
     public abstract void setOpenAcdClient(OpenAcdClient client);
 
-    public abstract int getIndex();
+    public abstract boolean isDisabled();
 
-    public abstract void setIndex(int i);
+    public abstract void setDisabled(boolean disabled);
 
     public void addClient(String returnPage) {
-        setOpenAcdClient(null);
         setOpenAcdClientId(null);
         setReturnPage(returnPage);
     }
 
     public void editClient(Integer clientId, String returnPage) {
         setOpenAcdClientId(clientId);
-        setOpenAcdClient(getOpenAcdContext().getClientById(getOpenAcdClientId()));
         setReturnPage(returnPage);
     }
 
@@ -67,7 +64,10 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
             return;
         }
 
-        if (getOpenAcdClient() == null && getOpenAcdClientId() == null) {
+        if (getOpenAcdClientId() != null) {
+            setOpenAcdClient(getOpenAcdContext().getClientById(getOpenAcdClientId()));
+            setDisabled(true);
+        } else {
             setOpenAcdClient(new OpenAcdClient());
         }
     }

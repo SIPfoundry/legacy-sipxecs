@@ -139,7 +139,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
         // test remove extension
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
-        m_openAcdContextImpl.removeExtensions(Collections.singletonList(id));
+        m_openAcdContextImpl.deleteExtension(extensionById);
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
     }
 
@@ -241,7 +241,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         
         // test remove extension
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
-        m_openAcdContextImpl.removeExtensions(Collections.singletonList(id));
+        m_openAcdContextImpl.deleteExtension(extensionById);
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
     }
 

@@ -178,7 +178,7 @@ public:
         const BSONObj& query,
         std::string& error);
 
-    void createInitialPool(size_t initialCount = 10);
+    void createInitialPool(size_t initialCount = 10, bool autoReconnect = true);
 
     void relinquish(const Client& pClient);
 
@@ -197,6 +197,7 @@ private:
     std::string _server;
     static Mutex _serversMutex;
     static std::map<std::string, MongoDB::Ptr> _dbServers;
+    bool _autoReconnect;
 };
 
 

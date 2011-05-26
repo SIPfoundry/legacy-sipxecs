@@ -96,6 +96,9 @@ public enum ValidUsers {
      * @return user found or null
      */
     public User getUser(String userName) {
+        if (userName == null) {
+            return null;
+        }
         DBObject queryUserName = QueryBuilder.start(VALID_USER).is(Boolean.TRUE).and(UID).is(userName).get();
         DBObject result = getEntityCollection().findOne(queryUserName);
         if (result != null) {

@@ -35,7 +35,8 @@ void MongoDB::releaseServers()
     MongoDB::_dbServers.clear();
 }
 
-MongoDB::MongoDB()
+MongoDB::MongoDB() :
+  _autoReconnect(true)
 {
 }
 
@@ -52,12 +53,23 @@ MongoDB::~MongoDB()
     }
 }
 
-void MongoDB::createInitialPool(size_t initialCount)
+void MongoDB::createInitialPool(size_t initialCount, bool autoReconnect)
 {
+    _autoReconnect = autoReconnect;
+
     mutex_lock lock(_mutex);
+
+    if (!_queue.empty())
+    {
+      //
+      // This means createInitialPool() has already been called prior
+      //
+      return;
+    }
+
     for (size_t i = 0; i < initialCount; i++)
     {
-        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection();
+        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection(autoReconnect);
         if (_server.empty())
             _server = "localhost";
 
@@ -85,7 +97,7 @@ MongoDB::Client MongoDB::acquire()
     }
     else
     {
-        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection();
+        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection(_autoReconnect);
         std::string errorMessage;
         if (pConnection->connect(_server, errorMessage))
         {

@@ -349,7 +349,6 @@
     <property name="processName" value="sipXimbot" />
     <property name="modelName" value="sipximbot.xml" />
     <property name="modelDir" value="sipximbot" />
-    <property name="editable" value="true" />
     <property name="configurations">
       <list>
         <ref bean="sipxImbotConfiguration" />

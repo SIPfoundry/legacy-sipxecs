@@ -333,8 +333,53 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
       }
       else
       {
-         rc = temporaryFile.write(pdecodedData.data(), pdecodedData.length(), bytesRead);
-         temporaryFile.close();
+         if (pdecodedData.length() == 0)
+         {
+            //
+            // We do not have data to write
+            //
+           rc = OS_FILE_INVALID_HANDLE;
+         }
+         else
+         {
+            rc = temporaryFile.write(pdecodedData.data(), pdecodedData.length(), bytesRead);
+            temporaryFile.close();
+            if (rc == OS_SUCCESS)
+            {
+              if (!bytesRead || bytesRead < pdecodedData.length())
+              {
+                //
+                // If we have zero bytes written or write was truncated,
+                // then consider as failure
+                //
+                rc = OS_FILE_INVALID_HANDLE;
+              }
+            }
+
+            //
+            // Double check the length of the temporaryFile
+            //
+            rc = temporaryFile.open();
+            if (rc == OS_SUCCESS)
+            {
+              size_t newLen = 0;
+              rc = temporaryFile.getLength(newLen);
+              if (rc == OS_SUCCESS && !newLen)
+              {
+                //
+                // We got a zero length file.  Consider as failure
+                //
+                rc = OS_FILE_INVALID_HANDLE;
+              }
+            }
+            temporaryFile.close();
+         }
+
+
+         //
+         // At this point we know that we got the temporary file written
+         // correctly to disk
+         //
          if (rc == OS_SUCCESS)
          {
             rc = temporaryFile.rename(path_and_name);
