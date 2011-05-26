@@ -178,7 +178,7 @@ public:
         const BSONObj& query,
         std::string& error);
 
-    void createInitialPool(size_t initialCount = 10);
+    void createInitialPool(size_t initialCount = 10, bool autoReconnect = true);
 
     void relinquish(const Client& pClient);
 

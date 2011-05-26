@@ -52,12 +52,12 @@ MongoDB::~MongoDB()
     }
 }
 
-void MongoDB::createInitialPool(size_t initialCount)
+void MongoDB::createInitialPool(size_t initialCount, bool autoReconnect)
 {
     mutex_lock lock(_mutex);
     for (size_t i = 0; i < initialCount; i++)
     {
-        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection();
+        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection(autoReconnect);
         if (_server.empty())
             _server = "localhost";
 
