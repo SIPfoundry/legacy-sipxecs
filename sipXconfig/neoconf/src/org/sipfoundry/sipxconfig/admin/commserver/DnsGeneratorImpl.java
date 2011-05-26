@@ -86,8 +86,10 @@ public class DnsGeneratorImpl implements DnsGenerator, DaoEventListener {
 
         String portTCP = ((SipxProxyService) proxyService).getSipTCPPort();
         String portUDP = ((SipxProxyService) proxyService).getSipUDPPort();
+        String portTLS = ((SipxProxyService) proxyService).getSipTLSPort();
 
-        cmd.format("--zone --serial %s --provide-dns --port-TCP %s --port-UDP %s", m_serial++, portTCP, portUDP);
+        cmd.format("--zone --serial %s --provide-dns --port-TCP %s --port-UDP %s --port-TLS %s",
+                m_serial++, portTCP, portUDP, portTLS);
         try {
             ZoneAdminApi api = m_zoneAdminApiProvider.getApi(primaryLocation.getProcessMonitorUrl());
             api.generateDns(primaryLocation.getFqdn(), cmd.toString());
