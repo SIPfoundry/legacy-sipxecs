@@ -9,7 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.authcode;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
+
+import static org.sipfoundry.commons.mongo.MongoConstants.PASSTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 public class AuthCode extends BeanWithUserPermissions {
     private String m_code;
@@ -29,6 +35,14 @@ public class AuthCode extends BeanWithUserPermissions {
 
     public void setDescription(String description) {
         m_description = description;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(UID, getInternalUser().getUserName());
+        props.put(PASSTOKEN, getInternalUser().getSipPassword());
+        return props;
     }
 
 }

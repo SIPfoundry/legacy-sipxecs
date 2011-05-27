@@ -17,8 +17,9 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 
-public interface AuthCodeManager extends DataObjectSource, AliasOwner, AliasProvider {
+public interface AuthCodeManager extends DataObjectSource, AliasOwner, AliasProvider, ReplicableProvider {
 
     String CONTEXT_BEAN_NAME = "authCodeManager";
 
