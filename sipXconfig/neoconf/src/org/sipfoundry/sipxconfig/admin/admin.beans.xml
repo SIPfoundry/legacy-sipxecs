@@ -75,6 +75,7 @@
     <property name="pagingContext" ref="pagingContext" />
     <property name="sbcManager" ref="sbcManager" />
     <property name="alarmServerManager" ref="alarmServerManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
   </bean>
 
   <bean id="exportCsv" class="org.sipfoundry.sipxconfig.admin.ExportCsv">
@@ -134,7 +135,8 @@
     <property name="target" ref="dnsTestContextImpl" />
   </bean>
 
-  <bean id="auditLogContext" class="org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl"/>
+  <bean id="auditLogContext" class="org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl"
+        init-method="init"/>
 
   <bean id="restartListener" class="org.sipfoundry.sipxconfig.admin.RestartListener" scope="prototype">
 	<property name="sipxProcessContext" ref="sipxProcessContext" />

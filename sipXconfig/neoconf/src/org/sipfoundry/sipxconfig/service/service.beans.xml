@@ -71,6 +71,9 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="domainManager" ref="domainManager" />
+    <property name="dnsGenerator" ref="dnsGenerator"/>
+    <property name="auditLogContext" ref="auditLogContext"/>
+    <property name="acdHistoricalConfiguration" ref="acdHistoricalConfiguration" />
   </bean>
 
   <bean id="serviceConfigurator" class="org.springframework.aop.framework.ProxyFactoryBean">

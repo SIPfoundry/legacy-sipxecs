@@ -14,9 +14,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.Location.State;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
@@ -50,6 +52,7 @@ public class FirstRunTask implements ApplicationListener {
     private PagingContext m_pagingContext;
     private SbcManager m_sbcManager;
     private AlarmServerManager m_alarmServerManager;
+    private AuditLogContext m_auditLogContext;
 
     public void runTask() {
         LOG.info("Executing first run tasks...");
@@ -102,6 +105,7 @@ public class FirstRunTask implements ApplicationListener {
         m_phoneProfileManager.generateProfiles(phoneIds, true, null);
     }
 
+    @Override
     public void onApplicationEvent(ApplicationEvent event) {
         if (!(event instanceof ApplicationInitializedEvent)) {
             // only interested in init events
@@ -116,6 +120,20 @@ public class FirstRunTask implements ApplicationListener {
             LOG.info("Handling task " + m_taskName);
             runTask();
             removeTask();
+        } else {
+            // System was previously initialized, so no replication takes place
+            // in this phase
+            // Therefore we need to save latest replication result
+            Location[] locations = m_locationsManager.getLocations();
+            for (Location location : locations) {
+                if (location.isInProgressState()) {
+                    // it was a disaster situation and system went down during
+                    // sent profiles
+                    location.setState(State.NOT_FINISHED);
+                    m_locationsManager.updateLocation(location);
+                }
+                m_auditLogContext.saveLatestReplicationsState(location);
+            }
         }
     }
 
@@ -199,5 +217,10 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
         m_alarmServerManager = alarmServerManager;
+    }
+
+    @Required
+    public void setAuditLogContext(AuditLogContext auditLogContext) {
+        m_auditLogContext = auditLogContext;
     }
 }

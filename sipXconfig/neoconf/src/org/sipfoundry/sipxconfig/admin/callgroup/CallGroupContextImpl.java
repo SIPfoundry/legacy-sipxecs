@@ -62,10 +62,12 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         m_acdContext = acdContext;
     }
 
+    @Override
     public CallGroup loadCallGroup(Integer id) {
-        return (CallGroup) getHibernateTemplate().load(CallGroup.class, id);
+        return getHibernateTemplate().load(CallGroup.class, id);
     }
 
+    @Override
     public void storeCallGroup(CallGroup callGroup) {
         // Check for duplicate names or extensions before saving the call group
         String name = callGroup.getName();
@@ -85,6 +87,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         m_replicationContext.generate(callGroup);
     }
 
+    @Override
     public void removeCallGroups(Collection<Integer> ids) {
         if (ids.isEmpty()) {
             return;
@@ -106,6 +109,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     }
 
     private class OnUserDelete extends UserDeleteListener {
+        @Override
         protected void onUserDelete(User user) {
             getHibernateTemplate().update(user);
             removeUser(user.getId());
@@ -126,6 +130,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
      * @param userId id of the user that us being deleted
      *
      */
+    @Override
     public void removeUser(Integer userId) {
         final HibernateTemplate hibernate = getHibernateTemplate();
         Collection rings = hibernate.findByNamedQueryAndNamedParam("userRingsForUserId", "userId", userId);
@@ -137,10 +142,12 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         }
     }
 
+    @Override
     public List<CallGroup> getCallGroups() {
         return getHibernateTemplate().loadAll(CallGroup.class);
     }
 
+    @Override
     public void duplicateCallGroups(Collection ids) {
         for (Iterator i = ids.iterator(); i.hasNext();) {
             CallGroup group = loadCallGroup((Integer) i.next());
@@ -161,6 +168,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     /**
      * Remove all call groups - mostly used for testing
      */
+    @Override
     public void clear() {
         HibernateTemplate template = getHibernateTemplate();
         Collection<CallGroup> callGroups = template.loadAll(CallGroup.class);
@@ -182,6 +190,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     /**
      * Generate aliases for all call groups
      */
+    @Override
     public Collection<AliasMapping> getAliasMappings() {
         Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         Collection<CallGroup> callGroups = getCallGroups();
@@ -192,6 +201,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         return aliases;
     }
 
+    @Override
     public boolean isAliasInUse(String alias) {
         // Look for the ID of a call group with the specified alias as its name or extension.
         // If there is one, then the alias is in use.
@@ -200,6 +210,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         return SipxCollectionUtils.safeSize(objs) > 0;
     }
 
+    @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         List ids = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE,
                 alias);
@@ -207,6 +218,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         return bids;
     }
 
+    @Override
     public void addUsersToCallGroup(Integer callGroupId, Collection ids) {
         CallGroup callGroup = loadCallGroup(callGroupId);
         for (Iterator i = ids.iterator(); i.hasNext();) {
@@ -217,6 +229,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         storeCallGroup(callGroup);
     }
 
+    @Override
     public void generateSipPasswords() {
         List<CallGroup> callGroups = getCallGroups();
         List<CallGroup> changed = new ArrayList<CallGroup>();
