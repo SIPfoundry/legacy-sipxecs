@@ -138,7 +138,9 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
         @SettingEntry(path = DIAL_STRING)
         public String getDialString() {
             // change this when installing on different locations will be supported
-            return String.format("{ignore_early_media=true}sofia/%s/$1", m_domainName);
+            return String.format(
+                    "{ignore_early_media=true}sofia/%s/$1;sipx-noroute=VoiceMail;sipx-userforward=false",
+                    m_domainName);
         }
     }
 }
