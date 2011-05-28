@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.openacd.FreeswitchMediaCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentConfigCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdLogConfigCommand;
@@ -35,6 +36,7 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
     private String m_audioDirectory;
     private String m_logDirectory;
     private OpenAcdProvisioningContext m_provisioningContext;
+    private DomainManager m_domainManager;
 
     @Override
     public String getLogSetting() {
@@ -84,9 +86,13 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
         m_provisioningContext = context;
     }
 
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new DefaultSettings(getLocationsManager().getPrimaryLocation()));
+        addDefaultBeanSettingHandler(new DefaultSettings(m_domainManager.getDomainName()));
     }
 
     @Override
@@ -117,10 +123,10 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
 
     public static class DefaultSettings {
 
-        private Location m_location;
+        private String m_domainName;
 
-        public DefaultSettings(Location location) {
-            m_location = location;
+        public DefaultSettings(String domainName) {
+            m_domainName = domainName;
         }
 
         @SettingEntry(path = C_NODE)
@@ -132,7 +138,7 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
         @SettingEntry(path = DIAL_STRING)
         public String getDialString() {
             // change this when installing on different locations will be supported
-            return String.format("{ignore_early_media=true}sofia/%s/$1", m_location.getFqdn());
+            return String.format("{ignore_early_media=true}sofia/%s/$1", m_domainName);
         }
     }
 }
