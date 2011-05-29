@@ -796,24 +796,24 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     @Override
-    public boolean removeQueueGroups(Collection<Integer> queueGroupIds) {
-        boolean affectDefaultAgentGroup = false;
+    public List<String> removeQueueGroups(Collection<Integer> queueGroupIds) {
         List<OpenAcdQueueGroup> groups = new LinkedList<OpenAcdQueueGroup>();
         List<OpenAcdQueue> queues = new LinkedList<OpenAcdQueue>();
+        List<String> usedGroups = new ArrayList<String>();
         for (Integer id : queueGroupIds) {
             OpenAcdQueueGroup group = getQueueGroupById(id);
-            if (!group.getName().equals(GROUP_NAME_DEFAULT)) {
+            if (group.getName().equals(GROUP_NAME_DEFAULT) || containsUsedQueues(group)) {
+                usedGroups.add(group.getName());
+            } else {
                 queues.addAll(group.getQueues());
                 groups.add(group);
-            } else {
-                affectDefaultAgentGroup = true;
             }
         }
         getHibernateTemplate().deleteAll(groups);
         m_provisioningContext.deleteObjects(queues);
         m_provisioningContext.deleteObjects(groups);
 
-        return affectDefaultAgentGroup;
+        return usedGroups;
     }
 
     private boolean isNameChanged(OpenAcdQueueGroup queueGroup) {
@@ -828,6 +828,15 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         if (existingQueueGroup != null) {
             throw new UserException("&duplicate.queueGroupName.error", queueGroupName);
         }
+    }
+
+    private boolean containsUsedQueues(OpenAcdQueueGroup group) {
+        for (OpenAcdQueue queue : group.getQueues()) {
+            if (isUsedByLine(OpenAcdLine.Q + queue.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<OpenAcdQueue> getQueues() {

@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.site.openacd;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -77,10 +78,12 @@ public abstract class OpenAcdQueueGroupsPanel extends BaseComponent implements P
         if (ids.isEmpty()) {
             return;
         }
-        boolean errorMessage = getOpenAcdContext().removeQueueGroups(ids);
-        if (errorMessage) {
+        List<String> groups = getOpenAcdContext().removeQueueGroups(ids);
+        if (!groups.isEmpty()) {
+            String groupNames = StringUtils.join(groups.iterator(), ", ");
+            String errMessage = getMessages().format("msg.err.queueGroupDeletion", groupNames);
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-            validator.record(new ValidatorException(getMessages().getMessage("msg.err.defalutQueueGroupDeletion")));
+            validator.record(new ValidatorException(errMessage));
         }
     }
 }
