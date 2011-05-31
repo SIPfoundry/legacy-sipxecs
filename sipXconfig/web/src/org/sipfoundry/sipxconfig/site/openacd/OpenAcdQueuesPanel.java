@@ -32,6 +32,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -142,10 +143,15 @@ public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBe
             if (ids.isEmpty()) {
                 return;
             }
-            for (Integer id : ids) {
-                OpenAcdQueue queue = getOpenAcdContext().getQueueById(id);
-                queue.setGroup(m_group);
-                getOpenAcdContext().saveQueue(queue);
+            try {
+                for (Integer id : ids) {
+                    OpenAcdQueue queue = getOpenAcdContext().getQueueById(id);
+                    queue.setGroup(m_group);
+                    getOpenAcdContext().saveQueue(queue);
+                }
+            } catch (UserException ex) {
+                IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+                validator.record(new ValidatorException(getMessages().getMessage("msg.cannot.connect")));
             }
         }
     }
