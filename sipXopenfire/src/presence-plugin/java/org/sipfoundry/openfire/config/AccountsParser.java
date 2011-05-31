@@ -362,8 +362,8 @@ public class AccountsParser {
         for (User user : users) {
             XmppUserAccount account = new XmppUserAccount();
             account.setPassword(user.getImPassword());
-            account.setUserName(user.getUserName());
-            account.setSipUserName(user.getJid());
+            account.setUserName(user.getJid());
+            account.setSipUserName(user.getUserName());
             account.setEmail(StringUtils.defaultIfEmpty(user.getEmailAddress(), StringUtils.EMPTY));
             account.setDisplayName(StringUtils.defaultIfEmpty(user.getImDisplayName(), StringUtils.EMPTY));
             account.setAdvertiseOnCallPreference(BooleanUtils.toStringTrueFalse(user.isAdvertiseOnCallStatus()));

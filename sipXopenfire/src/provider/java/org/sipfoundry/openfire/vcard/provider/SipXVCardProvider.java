@@ -32,6 +32,8 @@ import org.jivesoftware.util.Log;
 import org.jivesoftware.util.NotFoundException;
 import org.jivesoftware.util.cache.Cache;
 import org.jivesoftware.util.cache.CacheFactory;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.openfire.vcard.provider.RestInterface;
 
 /**
@@ -342,34 +344,15 @@ public class SipXVCardProvider implements VCardProvider {
     }
 
     public String getAORFromJABBERID(String jabberid) {
-        String path = getConfDir();
-        String accountFileName = path + "/xmpp-account-info.xml";
-
         try {
-            File accountFile = new File(accountFileName);
-            String xmlstr = readXML(accountFile);
-
-            if (xmlstr != null) {
-                Log.debug("after readXML " + xmlstr);
-                Document doc = DocumentHelper.parseText(xmlstr);
-                Element root = doc.getRootElement();
-                for (Iterator i = root.elements().iterator(); i.hasNext();) {
-                    Element user = (Element) i.next();
-                    Node userName = user.selectSingleNode("user-name");
-                    Node sipUserName = user.selectSingleNode("sip-user-name");
-                    Log.debug("username = " + userName.getText());
-                    Log.debug("sipUserName = " + sipUserName.getText());
-                    if (userName != null && sipUserName != null) {
-                        if (userName.getText().compareToIgnoreCase(jabberid) == 0) {
-                            return sipUserName.getText();
-                        }
-                    }
-                }
+            User user = ValidUsers.INSTANCE.getUserByJid(jabberid);
+            if (user != null) {
+                return user.getUserName();
             }
 
             return null;
         } catch (Exception ex) {
-            Log.error("getAORFROMJABBERID excption " + ex.getMessage());
+            Log.error("getAORFROMJABBERID exception " + ex.getMessage());
             return null;
         }
     }
