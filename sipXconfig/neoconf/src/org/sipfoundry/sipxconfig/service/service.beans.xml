@@ -91,6 +91,7 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="serviceModelSource" ref="sipxServiceModelSource" />
     <property name="bundleModelSource" ref="sipxBundleModelSource" />
+    <property name="aliasManager" ref="aliasManagerImpl" />
   </bean>
 
   <bean id="sipxServiceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

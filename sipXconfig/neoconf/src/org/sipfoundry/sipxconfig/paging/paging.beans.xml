@@ -21,6 +21,7 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
     <property name="pagingProvisioningContext" ref="pagingProvisioningContext" />
+    <property name="aliasManager" ref="aliasManager" />
   </bean>
 
   <bean id="pagingProvisioningContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingProvisioningContextImpl">

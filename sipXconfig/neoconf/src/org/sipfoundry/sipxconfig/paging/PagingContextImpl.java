@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +20,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.PagingRule;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -29,14 +32,14 @@ import org.springframework.dao.support.DataAccessUtils;
 public abstract class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
     /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
     private static final String ALERT_INFO = "sipXpage";
-
     private static final String PARAM_PAGING_GROUP_NUMBER = "pageGroupNumber";
-
     private static final String PARAM_PAGING_GROUP_ID = "pagingGroupId";
+    private static final String ERROR_ALIAS_IN_USE = "&error.aliasinuse";
 
     private DialPlanActivationManager m_dialPlanActivationManager;
 
     private PagingProvisioningContext m_pagingProvisioningContext;
+    private AliasManager m_aliasManager;
 
     protected abstract PagingServer createPagingServer();
 
@@ -63,6 +66,12 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
     }
 
     public void setPagingPrefix(String prefix) {
+        for (PagingGroup group : getPagingGroups()) {
+            String code = new StringBuilder(prefix).append(group.getPageGroupNumber()).toString();
+            if (!m_aliasManager.canObjectUseAlias(group, code)) {
+                throw new UserException(ERROR_ALIAS_IN_USE, code);
+            }
+        }
         getPagingServer().setPrefix(prefix);
         m_dialPlanActivationManager.replicateDialPlan(true);
     }
@@ -76,29 +85,33 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
     }
 
     public void savePagingGroup(PagingGroup group) {
+        String code = getPagingPrefix() + group.getPageGroupNumber();
+        if (!m_aliasManager.canObjectUseAlias(group, code)) {
+            throw new UserException(ERROR_ALIAS_IN_USE, code);
+        }
         if (group.isNew()) {
             // check if new object
             checkForDuplicateNames(group);
+            getHibernateTemplate().save(group);
         } else {
             // on edit action - check if the group number for this group was modified
             // if the group number was changed then perform duplicate group number checking
             if (isNameChanged(group)) {
                 checkForDuplicateNames(group);
             }
+            getHibernateTemplate().merge(group);
         }
-
-        getHibernateTemplate().saveOrUpdate(group);
     }
 
     private void checkForDuplicateNames(PagingGroup group) {
         if (isNameInUse(group)) {
-            throw new UserException("error.duplicateGroupNumbers");
+            throw new UserException("&error.duplicateGroupNumbers");
         }
     }
 
     private boolean isNameInUse(PagingGroup group) {
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "anotherPagingGroupWithSameName", new String[] {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("anotherPagingGroupWithSameName",
+                new String[] {
                     PARAM_PAGING_GROUP_NUMBER
                 }, new Object[] {
                     group.getPageGroupNumber()
@@ -108,8 +121,8 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
     }
 
     private boolean isNameChanged(PagingGroup group) {
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "countPagingGroupWithSameName", new String[] {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("countPagingGroupWithSameName",
+                new String[] {
                     PARAM_PAGING_GROUP_ID, PARAM_PAGING_GROUP_NUMBER
                 }, new Object[] {
                     group.getId(), group.getPageGroupNumber()
@@ -165,5 +178,33 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
                 m_pagingProvisioningContext.deploy();
             }
         }
+    }
+
+    @Override
+    public boolean isAliasInUse(String alias) {
+        for (PagingGroup pg : getPagingGroups()) {
+            String code = new StringBuilder(getPagingPrefix()).append(pg.getPageGroupNumber()).toString();
+            if (StringUtils.equals(alias, code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Collection getBeanIdsOfObjectsWithAlias(String alias) {
+        Collection<Integer> ids = new ArrayList<Integer>();
+        for (PagingGroup pg : getPagingGroups()) {
+            String code = new StringBuilder(getPagingPrefix()).append(pg.getPageGroupNumber()).toString();
+            if (StringUtils.equals(alias, code)) {
+                ids.add(pg.getId());
+            }
+        }
+
+        return BeanId.createBeanIdCollection(ids, PagingGroup.class);
+    }
+
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
     }
 }

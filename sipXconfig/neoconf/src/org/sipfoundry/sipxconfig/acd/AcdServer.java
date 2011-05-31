@@ -354,4 +354,8 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
     }
+
+    public SipxPresenceService getPresenceService() {
+        return m_presenceService;
+    }
 }
