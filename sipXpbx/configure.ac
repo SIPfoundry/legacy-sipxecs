@@ -5,24 +5,14 @@ m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
-AC_PROG_LIBTOOL
 AC_PROG_LN_S
 AC_PATH_PROG([BASH], [bash])
 AC_PATH_PROG([PERL], [perl])
-AC_PROG_CXX
-AX_COMPILER_VENDOR
-AC_PROG_CC
 CHECK_APACHE2
 CHECK_SELINUX
 CHECK_XARGS_REPLACE
 CHECK_FREESWITCH
 SFAC_LIB_COMMSERVER
-SFAC_LIB_CALL
-SFAC_LIB_MEDIA
-SFAC_LIB_STACK
-CHECK_GIPSNEQ
-CHECK_JDK
-CHECK_ANT
 CHECK_MSGFMT
 AC_ARG_WITH([dailydir],
   AC_HELP_STRING([--with-dailydir=directory],
@@ -35,9 +25,7 @@ AC_CONFIG_FILES([
 	Makefile
 	bin/Makefile
 	etc/Makefile
-	include/Makefile
 	src/Makefile
-	src/test/Makefile
 	src/wwwcontent/Makefile
 ])
 AC_OUTPUT

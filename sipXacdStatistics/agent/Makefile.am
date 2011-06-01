@@ -1,8 +1,13 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/ruby.am
+include $(top_srcdir)/common.am
 
-sipxconfig_agent_VER = 1.0.0
+EXTRA_DIST = \
+	$(sipXconfig_agent_SRC) \
+	sipXconfig-agent.gemspec.in \
+	sipxconfig-agent.wsdl
+
 noinst_DATA = \
-	sipxconfig-agent-$(sipxconfig_agent_VER).gem
+	sipXconfig-agent-$(sipXconfig_agent_VER).gem
 
-sipxconfig_agent_SRC = $(shell cd $(srcdir); find lib -name '*.rb')
+sipXconfig_agent_SRC = $(shell cd $(srcdir); find lib -name '*.rb')

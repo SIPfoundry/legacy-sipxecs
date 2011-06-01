@@ -1,11 +1,8 @@
 include $(top_srcdir)/config/utility.am
 
-alarmdir = @SIPX_CONFDIR@/alarms
-dist_alarm_DATA = \
-	sipXalarms-config.xml
-
 EXTRA_DIST = \
-        $(proc_DATA:.xml=.xml.in)
+	$(schema_DATA:=.in) \
+        $(proc_DATA:=.in)
 
 procdir = \
         $(SIPX_DATADIR)/process.d
@@ -13,7 +10,26 @@ procdir = \
 proc_DATA = \
 	sipxsupervisor-process.xml
 
-$(proc_DATA) : % : %.in
+schemadir = @SIPX_DATADIR@/schema
+schema_DATA = \
+	sipXecs-process.xsd \
+	alarm.xsd \
+	alarm-group.xsd
+
+alarmcfgdir = @SIPX_CONFDIR@/alarms
+dist_alarmcfg_DATA = \
+	sipXalarms-config.xml
+
+alarmdir = @SIPX_DATADIR@/alarms
+dist_alarm_DATA = \
+	alarm-strings.xml \
+	sipXalarms-strings.xml
+
+mibdir = @SIPX_DATADIR@/mibs
+dist_mib_DATA = \
+	SIPXECS-ALARM-NOTIFICATION-MIB.mib
+
+$(schema_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
-CLEANFILES = $(proc_DATA)
+CLEANFILES = $(proc_DATA) $(schema_DATA)

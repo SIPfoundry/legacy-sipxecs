@@ -1,7 +1,9 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/ruby.am
+include $(top_srcdir)/common.am
 
-sipxacd_stats_client_VER = 1.0.0
+EXTRA_DIST = \
+	sipxacd-stats-client.gemspec.in
 
 noinst_DATA = \
 	sipxacd-stats-client-$(sipxacd_stats_client_VER).gem

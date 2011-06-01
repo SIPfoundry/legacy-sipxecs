@@ -24,7 +24,7 @@ $(cfg_JAR) : javac-cfg
 	  $(call JarInclude,$(srcdir),$(cfg_RESOURCES))
 
 cfg_DEPS = \
-	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig, $(cfg_PKGS))
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig,$(cfg_PKGS))
 
 cfg_SRC = \
 	$(shell cd $(srcdir); find org -name '*.java')

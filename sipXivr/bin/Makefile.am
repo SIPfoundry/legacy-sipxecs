@@ -7,7 +7,7 @@ EXTRA_DIST = \
 bin_SCRIPTS = \
     sipxivr.sh
 
-$(bin_SCRIPTS) : % : %.in
+$(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,ivr_PKGS)
 
 CLEANFILES = $(bin_SCRIPTS)

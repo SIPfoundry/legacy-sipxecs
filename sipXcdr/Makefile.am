@@ -1,11 +1,12 @@
 include config/utility.am
-include $(top_srcdir)/config/project.am
-include $(top_srcdir)/config/utility.am
-include $(top_srcdir)/config/ruby.am
-include $(top_srcdir)/common.am
+include config/project.am
+include config/ruby.am
+include common.am
 
 @PACKAGE@_EXTRA_DIST = \
-	$(sipxcallresolver_SRC)
+	$(sipxcallresolver_SRC) \
+	sipxcallresolver.gemspec.in \
+	sipxcallresolver.wsdl
 
 SUBDIRS = \
 	java-client \

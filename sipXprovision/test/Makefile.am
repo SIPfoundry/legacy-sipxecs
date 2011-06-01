@@ -3,6 +3,8 @@ include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
 noinst_DATA = javac-test
+EXTRA_DIST = \
+	$(test_SRC)
 
 test_PKGS = \
 	$(provision_PKGS) \

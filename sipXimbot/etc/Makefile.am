@@ -12,7 +12,7 @@ dist_image_DATA = avatar.jpg
 procdir = $(SIPX_DATADIR)/process.d
 proc_DATA = sipximbot-process.xml
 
-$(proc_DATA) : % : %.in
+$(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
 CLEANFILES = $(proc_DATA) 

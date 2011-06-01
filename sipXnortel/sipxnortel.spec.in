@@ -45,7 +45,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %{_sysconfdir}/sipxpbx/nortel/*
-%{_datadir}/java/sipXecs/sipXconfig/sipXnortel.jar
+%{_sysconfdir}/sipxpbx/nortel12x0/*
+%{_sysconfdir}/sipxpbx/nt1535/*
+%{_datadir}/java/sipXecs/sipXconfig/plugins/sipXnortel.jar
 
 
 

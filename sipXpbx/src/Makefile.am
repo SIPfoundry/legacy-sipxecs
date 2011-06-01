@@ -1,3 +1,2 @@
-SUBDIRS= \
-    wwwcontent \
-    test
+SUBDIRS = \
+    wwwcontent

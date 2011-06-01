@@ -14,25 +14,44 @@ BuildRequires: automake
 BuildRequires: java-devel >= 1.6
 BuildRequires: rubygems
 BuildRequires: sipxcommons >= %version
+%if %{_vendor} == redhat
+BuildRequires: vixie-cron
+%endif
+%if %{_vendor} == suse
+BuildRequires: cron
+%endif
+
+Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib
 Requires: ruby
 Requires: rubygems
 Requires: rubygem-file-tail
+%if %{_vendor} == redhat
+BuildRequires: vixie-cron
+%endif
+%if %{_vendor} == suse
+BuildRequires: cron
+%endif
 
 %if %{_vendor} == redhat
 # irb is for file-tail gem
 Requires: irb
 %endif
 
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Summary: Analyzes data from sipxpbx and provides SOAP API to information
 
 %description
 Provides a SOAP interface to automatic call distribution records. Ideal
 for CTI applications or report aggregating tools like sipxconfig-report
 or real-time analysys like sipxconfig's statistics web console.
+
+%package client
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Ruby and Java API web service bindings for ACD stats
+
+%description client
+gem and jar of the Ruby and Java API web service bindings for ACD stats
 
 %package report
 Requires: ruby
@@ -43,6 +62,7 @@ Summary: Aggregates data from sipxconfig-agent into a database for reporting too
 
 Requires: rubygems
 Requires: ruby-dbi
+Requires: %{name}-client >= %{version}
 %if %{_vendor} == redhat
 Requires: ruby-postgres
 %endif
@@ -75,7 +95,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%{sipxpbxvarlib}/sipXconfig-agent-*.gem
+%{_var}/lib/sipxpbx/sipXconfig-agent-*.gem
 
 %attr(755,root,root) %{_bindir}/sipxconfig-agent
 
@@ -83,11 +103,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-agent-process.xml
 
 %post
-gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-agent-*.gem >/dev/null
+gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipXconfig-agent-*.gem >/dev/null
 
 %if %{_vendor} == redhat
 # change default yum update daemon repo query to once every 24 hours --annonymous coward
-# AAAHHHH - Why!? and Why Here!? -- douglas
+# AAAGHHHH - Why!? and Why Here!? -- douglas
 if [ -f /etc/yum/yum-updatesd.conf ]; then
   sed /etc/yum/yum-updatesd.conf -i -e 's|\W*run_interval\W*=\W*3600\W*|run_interval = 86400|'
   /sbin/service yum-updatesd restart >/dev/null
@@ -104,20 +124,20 @@ fi
 %files report
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxconfig-report-setup
-%{sipxpbxvarlib}/sipXconfig-report-*.gem
+%{_var}/lib/sipxpbx/sipXconfig-report-*.gem
 %config(noreplace) /etc/cron.d/sipxconfig-report-crontab
 
 %attr(755,root,root) %{_bindir}/sipxconfig-report
 
 %defattr(644,sipxchange,sipxchange,755)
-%config(noreplace) %{sipxpbxconf}/sipxconfig-report-config
-%config(noreplace) %{sipxpbxconf}/report/schema.sql
-%config(noreplace) %{sipxpbxconf}/report/enable_upgrades.sql
-%config(noreplace) %{sipxpbxconf}/report/location_fqdn.sql
-%config(noreplace) %{sipxpbxconf}/report/sipxconfig-report-config.vm
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxconfig-report-config
+%config(noreplace) %{_sysconfdir}/sipxpbx/report/schema.sql
+%config(noreplace) %{_sysconfdir}/sipxpbx/report/enable_upgrades.sql
+%config(noreplace) %{_sysconfdir}/sipxpbx/report/location_fqdn.sql
+%config(noreplace) %{_sysconfdir}/sipxpbx/report/sipxconfig-report-config.vm
 
 %post report
-gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-report-*.gem >/dev/null
+gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipXconfig-report-*.gem >/dev/null
 if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^sipxchange$' /etc/cron.d/cron.allow > /dev/null ); then
   echo sipxchange >> /etc/cron.d/cron.allow
 fi
@@ -127,4 +147,19 @@ fi
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
 if [ "$1" = "0" ] ; then
   gem uninstall sipXconfig-report >/dev/null 2>&1 || true
+fi
+
+%files client
+%defattr(644,root,root,755)
+%{_var}/lib/sipxpbx/sipxacd-stats-client-*.gem
+%{_datadir}/java/sipXecs/sipXconfig/agent-bindings.jar
+
+%post client
+gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipxacd-stats-client-*.gem >/dev/null
+
+%preun client
+# prevent uninstalling during an upgrade
+#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
+if [ "$1" = "0" ] ; then
+  gem uninstall sipxacd-stats-client >/dev/null 2>&1 || true
 fi

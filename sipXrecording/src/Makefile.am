@@ -2,7 +2,7 @@ include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
 
 EXTRA_DIST = \
-	$(jar_SRC)
+	$(recording_SRC)
 
 noinst_DATA = javac-recording
 

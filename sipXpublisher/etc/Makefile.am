@@ -9,7 +9,7 @@ procdir = \
 proc_DATA = \
 	sipstatus-process.xml
 
-$(proc_DATA) : % : %.in
+$(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
 CLEANFILES = $(proc_DATA)

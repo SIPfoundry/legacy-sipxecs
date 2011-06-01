@@ -45,7 +45,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %{_sysconfdir}/sipxpbx/karel/*
-%{_datadir}/java/sipXecs/sipXconfig/sipXkarel.jar
+%{_sysconfdir}/sipxpbx/karel-ip11x/*
+%{_datadir}/java/sipXecs/sipXconfig/plugins/sipXkarel.jar
 
 
 

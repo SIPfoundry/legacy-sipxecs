@@ -45,7 +45,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %{_sysconfdir}/sipxpbx/counterpath/*
-%{_datadir}/java/sipXecs/sipXconfig/sipXcounterpath.jar
+%{_datadir}/java/sipXecs/sipXconfig/cmcprov.war
+%{_datadir}/java/sipXecs/sipXconfig/plugins/sipXcounterpath.jar
 
 
 

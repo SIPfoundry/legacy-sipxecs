@@ -12,7 +12,7 @@ dist_cfg_DATA = \
 cfg_DATA = \
 	cmcprov.properties
 
-$(cfg_DATA) : % : %.in
+$(cfg_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
 EXTRA_DIST = $(cfg_DATA:=.in)

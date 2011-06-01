@@ -1,4 +1,4 @@
-#!@BASH@ -p
+#!@BASH@
 
 ## Detect and remove the obsolete stunnel configuration for 
 ## distributed systems (replaced by sipxcallresolver-agent)

@@ -17,7 +17,7 @@ pylibexecdir = @SIPX_LIBEXECDIR@
 # install python source in case it needs to be modified
 pylibexec_DATA = \
 	$(pylibexec_SRC) \
-	$(pylibexec_SRC=.c)
+	$(pylibexec_SRC:.py=.pyc)
 
 bin_SCRIPTS = \
 	analyze_483s \
@@ -48,15 +48,16 @@ bin_SCRIPTS = \
 
 CLEANFILES = \
 	$(pylibexec_SRC) \
+	$(pylibexec_SRC:.py=.pyc) \
 	$(libexec_SCRIPTS) \
-	$(bin_TEMPLATES) \
+	$(bin_SCRIPTS) \
 	$(daily_SCRIPTS)
 
 EXTRA_DIST = \
 	$(pylibexec_SRC:=.in) \
 	$(libexec_SCRIPTS:=.in) \
-	$(bin_TEMPLATES:=.in) \
-	$(daily_SCRIPTS:=in) \
+	$(bin_SCRIPTS:=.in) \
+	$(daily_SCRIPTS:=.in) \
 	$(messages_DATA:.mo=.po)
 
 messagesdir = \
@@ -81,7 +82,7 @@ setup_LINKS = \
 
 NoSequenceId = $(shell echo $1 | sed -e 's|^[0-9]\{3\}_\(.*\)$$|\1|g')
 
-$(pylibexec_SRC) $(daily_SCRIPTS) $(libexec_SCRIPTS) $(bin_SCRIPTS) : % : %.in
+$(pylibexec_SRC) $(daily_SCRIPTS) $(libexec_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
 %.mo : %.po
@@ -93,7 +94,7 @@ $(pylibexec_SRC) $(daily_SCRIPTS) $(libexec_SCRIPTS) $(bin_SCRIPTS) : % : %.in
 install-exec-hook : $(addprefix $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/,$(setup_LINKS))
 
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/% :
-	test -d $(dir $*) || mkdir $(dir $*)
-	cd $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d; \
+	test -d $(dir $@) || mkdir $(dir $@)
+	cd  $(dir $@); \
 		ln -sf ../$(call NoSequenceId,$*) $*;
 

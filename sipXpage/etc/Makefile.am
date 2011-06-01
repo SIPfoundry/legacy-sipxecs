@@ -16,7 +16,7 @@ dist_audio_DATA = \
 procdir = $(SIPX_DATADIR)/process.d
 proc_DATA = sipxpage-process.xml
 
-$(proc_DATA) : % : %.in
+$(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
 CLEANFILES = $(proc_DATA)

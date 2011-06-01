@@ -1,6 +1,5 @@
 include config/utility.am
 include config/project.am
-include config/utility.am
 include common.am
 
 @PACKAGE@_EXTRA_DIST = \
@@ -22,7 +21,7 @@ procdir = \
 proc_DATA = \
 	sipxrest-process.xml
 
-$(proc_DATA) $(bin_SCRIPTS) : % : %.in
+$(proc_DATA) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,rest_PKGS)
 
 CLEANFILES = $(proc_DATA)

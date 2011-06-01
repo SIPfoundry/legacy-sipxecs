@@ -1,7 +1,7 @@
 include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-	$(conf_SOURCE) \
+	$(addprefix sipxpbx/,$(conf_SOURCE)) \
 	$(proc_DATA:=.in)
 
 procdir = $(SIPX_DATADIR)/process.d
@@ -10,7 +10,7 @@ proc_DATA = \
 	tunnel-process.xml \
 	sipXmrtg-process.xml
 
-$(proc_DATA) : % : %.in
+$(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
 # Directories should be created in the application layer to make it more resiliant to IT administation errors
@@ -20,6 +20,8 @@ emptydirs = \
 	$(DESTDIR)@SIPX_CONFDIR@/freeswitch/conf/sip_profiles \
 	$(DESTDIR)@SIPX_VARDIR@/mrtg/thresh \
 	$(DESTDIR)@SIPX_VARDIR@/configserver/web-cert \
+	$(DESTDIR)@SIPX_VARDIR@/configserver/phone/profile/tftproot \
+	$(DESTDIR)@SIPX_VARDIR@/configserver/phone/profile/docroot \
 	$(DESTDIR)@SIPX_LOGDIR@ \
 	$(DESTDIR)@SIPX_DATADIR@/devicefiles \
 	$(DESTDIR)@SIPX_VARDIR@/phonebook \

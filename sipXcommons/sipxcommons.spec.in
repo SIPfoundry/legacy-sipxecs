@@ -24,6 +24,9 @@ BuildRequires: pwdutils
 %endif
 BuildRequires: zip
 
+# disable JAR repacking. gwt for one won't repack
+%define __jar_repack %{nil}
+
 Source: %name-%version.tar.gz
 
 %if %{_vendor} == suse
@@ -86,6 +89,7 @@ fi
 %defattr(644,root,root,755)
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXcommons
+%attr(755,root,root) %{_bindir}/java-dep
 
 %changelog
 

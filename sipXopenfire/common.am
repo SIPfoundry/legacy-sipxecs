@@ -33,6 +33,7 @@ plugin_PKGS = \
 	$(plugin_JAR_PKGS)
 
 provider_PKGS = \
+	sipxcommons \
 	ws-commons-util \
 	xmlrpc-client \
 	xmlrpc-server

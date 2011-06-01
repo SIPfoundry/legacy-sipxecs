@@ -7,7 +7,7 @@ dist_jar_DATA = \
 	tapestry-contrib-4.1.6.jar \
 	tapestry-framework-4.1.6.jar
 
-# used at compile time.
+# only used at compile time, so do not install at this time
 EXTRA_DIST = \
 	smartgwt-2.0.jar \
 	smartgwt-skins-2.0.jar

@@ -2,6 +2,9 @@ include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
+EXTRA_DIST = \
+	$(test_SRC)
+
 noinst_DATA = javac-test
 
 test_PKGS = \
@@ -17,5 +20,5 @@ test_DEPS = \
 
 # ant port, RestfulRequestTest is not working
 test_SRC = $(shell cd $(srcdir); find org \( \
-	-name '*.java' \
+	  -name '*.java' \
 	\))

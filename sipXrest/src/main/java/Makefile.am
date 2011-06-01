@@ -3,7 +3,7 @@ include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(sipxrest_SRC)
+	$(rest_SRC)
 
 noinst_DATA = javac-rest
 

@@ -32,7 +32,7 @@ EXTRA_DIST = \
 	$(setup_SCRIPTS:=.in) \
 	$(util_SCRIPTS:=.in)
 
-$(util_SCRIPTS) $(bin_SCRIPTS) $(setup_SCRIPTS) : % : %.in
+$(util_SCRIPTS) $(bin_SCRIPTS) $(setup_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
 CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS) $(util_SCRIPTS)

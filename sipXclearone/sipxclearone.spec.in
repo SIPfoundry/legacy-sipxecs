@@ -45,7 +45,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %{_sysconfdir}/sipxpbx/clearone/*
-%{_datadir}/java/sipXecs/sipXconfig/sipXclearone.jar
+%{_datadir}/java/sipXecs/sipXconfig/plugins/sipXclearone.jar
 
 
 

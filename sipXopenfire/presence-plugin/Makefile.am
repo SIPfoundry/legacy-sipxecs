@@ -8,6 +8,7 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	plugin.xml \
+	web \
 	$(plugin_SRC)
 
 noinst_DATA = javac-plugin

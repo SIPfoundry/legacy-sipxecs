@@ -4,7 +4,6 @@
 utility_am_required ?= $(error Please include utility.am)
 $(utility_am_required)
 
-
 EXTRA_DIST = \
     config/revision-gen \
     CONTRIBUTORS \

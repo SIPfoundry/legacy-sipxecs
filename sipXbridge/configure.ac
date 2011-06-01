@@ -20,6 +20,5 @@ AC_CONFIG_FILES([
   etc/Makefile
   bin/Makefile
   schema/Makefile
-  regression/Makefile
 ])
 AC_OUTPUT

@@ -44,8 +44,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%{_sysconfdir}/sipxpbx/cisco/*
-%{_datadir}/java/sipXecs/sipXconfig/sipXcisco.jar
+%{_sysconfdir}/sipxpbx/ciscoAta/*
+%{_sysconfdir}/sipxpbx/ciscoIp/*
+%{_sysconfdir}/sipxpbx/ciscoplus/*
+%{_sysconfdir}/sipxpbx/Ciscospa/*
+%{_sysconfdir}/sipxpbx/linksys/*
+%{_datadir}/java/sipXecs/sipXconfig/plugins/sipXcisco.jar
 
 
 

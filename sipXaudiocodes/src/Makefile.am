@@ -3,14 +3,17 @@ include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(jar_SRC)
+	$(audiocodes_SRC) \
+	$(audiocodes_RESOURCES)
 
 noinst_DATA = javac-audiocodes
 
 jardir = @SIPX_JAVADIR@/sipXconfig/plugins
+JAR_FILE = sipXaudiocodes.jar
 jar_DATA = $(JAR_FILE)
 
 audiocodes_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
+audiocodes_RESOURCES = sipxplugin.beans.xml
 
 audiocodes_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig,$(audiocodes_PKGS))

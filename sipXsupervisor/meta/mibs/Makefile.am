@@ -1,3 +1,0 @@
-mibdir = @SIPX_DATADIR@/mibs
-dist_mib_DATA = \
-	SIPXECS-ALARM-NOTIFICATION-MIB.mib

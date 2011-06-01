@@ -18,7 +18,7 @@ EXTRA_DIST = \
 	$(bin_SCRIPTS:=.in) \
 	$(noinst_SCRIPTS:=.in)
 
-$(noinst_SCRIPTS) $(bin_SCRIPTS) : % : %.in
+$(noinst_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
 CLEANFILES = $(bin_SCRIPTS) $(noinst_SCRIPTS)

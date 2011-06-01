@@ -11,7 +11,7 @@ EXTRA_DIST = \
 
 schemadir = @SIPX_DATADIR@/schema
 
-$(schema_DATA) : % : %.in
+$(schema_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
 CLEANFILES = $(schema_DATA)

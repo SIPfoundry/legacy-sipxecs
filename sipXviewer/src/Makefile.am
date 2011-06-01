@@ -2,6 +2,8 @@ include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
 
 noinst_DATA = javac-sipviewer
+EXTRA_DIST = \
+	$(sipviewer_SRC)
 
 jardir = @SIPX_JAVADIR@/sipXviewer
 jar_DATA = $(JAR_FILE)

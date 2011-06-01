@@ -37,7 +37,7 @@ etcdir = @SIPX_CONFDIR@
 etc_DATA = \
 	sipxopenfire-database.xml
 
-$(etc_DATA) $(proc_DATA) : % : %.in
+$(etc_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@, OPENFIRE_HOME)
 
 CLEANFILES = $(proc_DATA) $(etc_DATA)

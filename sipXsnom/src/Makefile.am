@@ -8,7 +8,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-snom
 
-jardir = @SIPX_JAVADIR@/sipXconfig
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXsnom.jar
 jar_DATA = $(JAR_FILE)
 

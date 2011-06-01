@@ -10,7 +10,7 @@ EXTRA_DIST = \
 noinst_DATA = javac-lgnortel
 
 jardir = @SIPX_JAVADIR@/sipXconfig/plugins
-JAR_FILE = sipXlgnortel.jar
+JAR_FILE = sipXlg-nortel.jar
 jar_DATA = $(JAR_FILE)
 
 lgnortel_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')

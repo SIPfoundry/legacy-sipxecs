@@ -1,14 +1,20 @@
 include $(top_srcdir)/config/utility.am
 
-if IS_RPMBUILD
-CRON_INSTALL = install-crontab
-endif
-
 EXTRA_DIST = \
 	$(proc_DATA:=.in) \
 	$(cfg_DATA:=.in) \
 	$(rpt_DATA) \
-	sipxconfig-report-crontab.in
+	$(cron_FILES:=.in)
+
+cron_FILES = sipxconfig-report-crontab
+if IS_RPMBUILD
+# Target is not normally run, also, you may have to add sipx user to
+# /etc/cron.d/cron.allow file
+crondir = $(CRON_D)
+cron_SCRIPTS = $(cron_FILES)
+else
+noinst_SCRIPTS = $(cron_FILES)
+endif
 
 procdir = $(SIPX_DATADIR)/process.d
 proc_DATA = \
@@ -25,12 +31,7 @@ rpt_DATA = \
 	location_fqdn.sql \
 	sipxconfig-report-config.vm
 
-sipxconfig-report-crontab $(cfg_DATA) $(proc_DATA) : % : %.in
+$(cron_FILES) $(cfg_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
-# Target is not normally run, also, you may have to add sipx user to
-# /etc/cron.d/cron.allow file
-install-crontab : sipxconfig-report-crontab
-	$(INSTALL) -D -m 644 $< $(DESTDIR)$(CRON_D)/$@
-
-CLEANFILES = sipxconfig-report-crontab $(cfg_DATA) $(proc_DATA)
+CLEANFILES = $(cron_FILES) $(cfg_DATA) $(proc_DATA)

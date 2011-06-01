@@ -40,6 +40,5 @@ AC_CONFIG_FILES([
   bin/Makefile
   meta/Makefile
   etc/Makefile
-  etc/database/Makefile
 ])
 AC_OUTPUT

@@ -4,14 +4,12 @@ include $(top_srcdir)/cmcprov/src/common.am
 
 noinst_DATA = javac-test
 
+EXTRA_DIST = \
+	$(test_SRC)
+
 test_PKGS = \
 	$(cmcprov_PKGS) \
 	junit
-
-X = \
-	dbunit \
-	easymock \
-	easymockclassextension
 
 test_DEPS = \
 	$(JAVAROOT) \

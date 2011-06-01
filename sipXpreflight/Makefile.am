@@ -2,7 +2,8 @@ include config/utility.am
 include config/project.am
 
 @PACKAGE@_EXTRA_DIST = \
-	README
+	README \
+	LICENSE
 
 SUBDIRS = \
 	src \

@@ -12,7 +12,7 @@ schema_DATA = \
 	autoattendants.xsd \
 	validusers.xsd 
 
-$(schema_DATA) $(proc_DATA) : % : %.in
+$(schema_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
 CLEANFILES = $(schema_DATA) $(proc_DATA)

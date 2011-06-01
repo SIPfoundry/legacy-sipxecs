@@ -4,8 +4,7 @@ include config/project.am
 SUBDIRS = . \
 	bin \
 	src \
-	etc \
-	meta
+	etc
 
 install-data-hook: \
 	$(DESTDIR)$(SIPX_VARDIR)/process-state \

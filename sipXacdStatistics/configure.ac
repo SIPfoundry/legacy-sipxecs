@@ -15,6 +15,7 @@ CHECK_RUBY([1.8.2])
 CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_GEM([0.8.11])
 CHECK_POSTGRES
+CHECK_CRON
 AC_CONFIG_FILES([
   Makefile
   bin/Makefile

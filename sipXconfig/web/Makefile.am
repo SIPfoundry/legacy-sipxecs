@@ -2,8 +2,14 @@ include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
+SUBDIRS = \
+	. \
+	test
+
 EXTRA_DIST = \
 	$(gwt_SRC) \
+	context \
+	$(web_SRC) \
 	$(addprefix src/,$(web_RESOURCES))
 
 noinst_DATA = javac-wsdl java-gwt javac-web 
@@ -44,7 +50,7 @@ WSDD_XSLT = $(top_srcdir)/meta/server-config.xsl
 $(WSDD) : javac-wsdl $(WSDL) $(WSDD_XSLT)
 	$(call JavaCommand,wsdd) org.apache.axis.utils.Admin server $(wsdl_SRCDIR)/org/sipfoundry/sipxconfig/api/deploy.wsdd
 	sed -e 's/<deployment.*>/<deployment>/g' server-config.wsdd > server-config-no-spring.wsdd.dirty
-	xsltproc -v -o server-config.wsdd.dirty $(WSDD_XSLT) server-config-no-spring.wsdd.dirty
+	$(XSLTPROC) -o server-config.wsdd.dirty $(WSDD_XSLT) server-config-no-spring.wsdd.dirty
 	sed -e 's/xmlns=""//g' server-config.wsdd.dirty > $@
 
 # G W T
@@ -54,7 +60,7 @@ gwt_PKGS = \
 	smartgwt \
 	smartgwt-skins
 
-gwt_SRC = $(cd $(srcdir); find gwt -type f) 
+gwt_SRC = $(shell cd $(srcdir); find gwt -type f) 
 
 gwt_DEPS = \
 	$(srcdir)/gwt/src \
@@ -124,6 +130,7 @@ web_RESOURCES = $(shell cd $(srcdir)/src; find . -type f \( \
 wardir = @SIPX_JAVADIR@/sipXconfig
 war_DATA = sipxconfig.war
 
+# create war, then update because jar won't accept 2 dirs w/WEB-INF dirs in create jar command
 sipxconfig.war : javac-web java-gwt javac-wsdl $(addprefix $(web_JAVAROOT)/,$(web_RESOURCES)) $(WSDD)
 	jar cf $@.tmp $(call JarInclude,out,.)
 	jar uf $@.tmp $(call JarInclude,$(srcdir)/context,.)

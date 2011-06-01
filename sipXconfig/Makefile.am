@@ -20,14 +20,10 @@ install-data-hook :
 	$(mkdir_p) $(DESTDIR)@SIPX_VARDIR@/upload
 	$(mkdir_p) $(DESTDIR)@SIPX_VARDIR@/backup
 
-precommit :
-	$(error To be implemented)
+reset-test-db :
+	dropdb -U postgres $(TEST_DB)
 
-reset-db reset-test-db :
-	$(error To be implemented)
-
-
-precommit check-integration check-performance check-db :
+reset-db reset-test-db precommit check-integration check-performance check-db :
 	$(error To be implemented)
 
 # <target name="reset-acd-history-db">

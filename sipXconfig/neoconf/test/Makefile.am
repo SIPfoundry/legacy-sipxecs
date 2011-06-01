@@ -2,6 +2,10 @@ include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
+EXTRA_DIST = \
+	$(test_SRC) \
+	$(test_RESOURCES) 
+
 noinst_DATA = javac-test
 
 test_PKGS = \
@@ -16,6 +20,12 @@ test_PKGS = \
 	xercesImpl \
 	xml-apis \
 	spring-mock
+
+test_RESOURCES = \
+	$(shell cd $(srcdir); find org -not -name '*.java') \
+	log4j.properties \
+	sipxplugin.beans.xml \
+	spy.properties
 
 test_DEPS = \
 	$(JAVAROOT) \

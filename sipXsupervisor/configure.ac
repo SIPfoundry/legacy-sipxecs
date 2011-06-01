@@ -16,12 +16,11 @@ AC_PROG_CC
 CHECK_XARGS_REPLACE
 CHECK_NET_SNMP
 SFAC_LIB_COMMSERVER
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([bin/Makefile])
-AC_CONFIG_FILES([src/Makefile])
-AC_CONFIG_FILES([src/test/Makefile])
-AC_CONFIG_FILES([etc/Makefile])
-AC_CONFIG_FILES([meta/Makefile])
-AC_CONFIG_FILES([meta/alarms/Makefile])
-AC_CONFIG_FILES([meta/mibs/Makefile])
+AC_CONFIG_FILES([
+	Makefile
+	bin/Makefile
+	src/Makefile
+	src/test/Makefile
+	etc/Makefile
+])
 AC_OUTPUT

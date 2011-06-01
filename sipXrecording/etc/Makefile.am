@@ -12,7 +12,7 @@ schemadir = $(SIPX_DATADIR)/schema
 schema_DATA = \
 	conferencebridge.xsd
 
-$(schema_DATA) $(proc_DATA) : % : %.in
+$(schema_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
 CLEANFILES = $(proc_DATA) $(schema_DATA)

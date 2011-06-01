@@ -9,6 +9,3 @@ SUBDIRS = \
 	bin \
 	meta \
 	etc
-
-@PACKAGE@_EXTRA_DIST = \
-    src/cdr

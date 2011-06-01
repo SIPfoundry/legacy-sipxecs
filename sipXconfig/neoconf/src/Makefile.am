@@ -3,7 +3,8 @@ include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(neoconf_SRC)
+	$(neoconf_SRC) \
+	$(neoconf_RESOURCES)
 
 noinst_DATA = javac-neoconf
 

@@ -22,6 +22,6 @@ dist_authorities_DATA = verisignclass3ca.crt
 
 dist_man1_MANS = gen-ssl-keys.1
 
-$(ssl_SCRIPTS) : % : %.in
+$(ssl_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,$(EXTRA_REPLACE))
 

@@ -20,7 +20,7 @@ EXTRA_REPLACE = \
 	APACHE2_HOST_ACCESS \
 	APACHE2_MOD_ACCESS
 
-$(logrotate_DATA) $(service_SCRIPTS) $(wwwconf_DATA) : % : %.in
+$(logrotate_DATA) $(service_SCRIPTS) $(wwwconf_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,EXTRA_REPLACE)
 
 CLEANFILES = \
@@ -30,7 +30,7 @@ CLEANFILES = \
 
 EXTRA_DIST = \
 	$(wwwconf_DATA:=.in) \
-	$(service_SCRIPT:=.in) \
+	$(service_SCRIPTS:=.in) \
 	$(logrotate_DATA:=.in)
 
 servicedir = @SERVICEDIR@
@@ -41,6 +41,7 @@ service_SCRIPTS = \
 emptydirs = \
 	$(DESTDIR)@SIPX_CONFDIR@/httpd.conf.d \
 	$(DESTDIR)$(wwwdir)/var \
+	$(DESTDIR)$(wwwdir)/conf \
 	$(DESTDIR)$(wwwdir)/webdav \
 	$(DESTDIR)@SIPX_LOGDIR@/phone
 

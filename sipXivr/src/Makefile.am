@@ -3,7 +3,7 @@ include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(jar_SRC)
+	$(ivr_SRC)
 
 noinst_DATA = javac-ivr
 

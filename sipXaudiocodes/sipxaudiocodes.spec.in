@@ -45,5 +45,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%{_datadir}/java/sipXecs/sipXconfig/sipxconfig-audiocodes.jar
 %config(noreplace) %{_sysconfdir}/sipxpbx/audiocodesphone/*
+%config(noreplace) %{_sysconfdir}/sipxpbx/audiocodes/*
+%{_localstatedir}/sipxdata/audiocodes/MP11x-02-1-FXS_16KHZ.dat
+%{_localstatedir}/sipxdata/audiocodes/usa_tones_12.dat
+%{_datadir}/java/sipXecs/sipXconfig/plugins/sipXaudiocodes.jar

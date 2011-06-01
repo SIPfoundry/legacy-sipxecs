@@ -23,6 +23,7 @@ CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_GEM([0.8.11])
 CHECK_YUM
 AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/meta/wsdl2ruby.rb)
+AC_PATH_PROG([XSLTPROC], xsltproc)
 CHECK_POSTGRES
 CHECK_SERVICEDIR
 AC_ARG_WITH(mrtg-binary-location,[  --with-mrtg-binary-location=PFX   Location where mrtg is installed (optional)],

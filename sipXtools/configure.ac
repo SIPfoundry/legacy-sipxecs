@@ -5,7 +5,6 @@ m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
-CHECK_NSIS
 AC_CONFIG_SRCDIR([src/sipxproc.in])
 AC_PROG_LIBTOOL
 AC_PATH_PROG([BASH], [bash])

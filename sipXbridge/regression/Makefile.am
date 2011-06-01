@@ -7,7 +7,7 @@ noinst_SCRIPTS = \
 EXTRA_DIST = \
 	$(noinst_SCRIPTS:=.in)
 
-$(noinst_SCRIPTS) : % : %.in
+$(noinst_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
 regression: $(noinst_SCRIPTS)
