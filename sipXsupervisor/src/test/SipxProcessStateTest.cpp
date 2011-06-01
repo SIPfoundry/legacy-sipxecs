@@ -39,7 +39,7 @@ public:
    void setUp()
    {
       OsSysLog::initialize(0, "processFsm");
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "processFsmTest::setUp");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "processFsmTest::setUp");
    }
 
    void tearDown()
@@ -97,7 +97,7 @@ public:
       process1->setConfigurationVersion(newCfgVersion);
       UtlString currCfgVersion;
       process2->getConfigurationVersion(currCfgVersion);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                     "process2 config version = %s", currCfgVersion.data());
 
       process1->enable();
@@ -111,7 +111,7 @@ public:
          OsTask::delay(1 * OsTime::MSECS_PER_SEC);
       }
 
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                     "test that process2 does not start until config version is set");
       ASSERT_STR_EQUAL(SipxProcess::pConfigurationMismatch->name(), process2->GetCurrentState()->name());
 
@@ -202,7 +202,7 @@ public:
       process1->setConfigurationVersion(newCfgVersion);
       process2->setConfigurationVersion(newCfgVersion);
 
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                     "test that process2 does not start until process1 is Running");
       process2->enable();
 
@@ -229,7 +229,7 @@ public:
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process2->GetCurrentState()->name());
 
       /*
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "This should assert fail as it comes in the wrong thread:");
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "This should assert fail as it comes in the wrong thread:");
       process2->configurationVersionChangeInTask();
       */
 

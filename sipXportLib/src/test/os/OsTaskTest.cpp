@@ -119,14 +119,14 @@ public:
 
    virtual int run(void* pArg) {
 
-     OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "SimpleTask::run task %p", (void *)this );
+     Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "SimpleTask::run task %p", (void *)this );
      m_numOfRuns++;
      m_state = SIMPLE_TASK_INSIDE_RUN;
      if ( m_command == SIMPLE_TASK_SHUTDOWN ) {}
      else if ( m_command == SIMPLE_TASK_RUN ) { while (!isShuttingDown()) OsTask::delay(20); }
      else if ( m_command == SIMPLE_TASK_DONOT_SHUTDOWN ) { while (TRUE) OsTask::delay(20); }
 
-     OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "SimpleTask::run task %p done", (void *)this );
+     Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "SimpleTask::run task %p done", (void *)this );
      m_state = SIMPLE_TASK_OUT_RUN;
      return 0;
    }
@@ -252,12 +252,12 @@ public:
 
       for ( int j = 0 ; j < NUMBER_OF_ITERATIONS ; j++ ) {
          SimpleTask * pTask = new SimpleTask();
-	 OsSysLog::add("main", myPID, FAC_KERNEL, PRI_DEBUG, "Created task %p in iteration %d", (void *)pTask,  j );
+	 Os::Logger::instance().log("main", myPID, FAC_KERNEL, PRI_DEBUG, "Created task %p in iteration %d", (void *)pTask,  j );
          pTask->setCommand(SimpleTask::SIMPLE_TASK_RUN);
          pTask->start();
-	 OsSysLog::add("main", myPID, FAC_KERNEL, PRI_DEBUG, "Started task %p in iteration %d", (void *)pTask,  j );
+	 Os::Logger::instance().log("main", myPID, FAC_KERNEL, PRI_DEBUG, "Started task %p in iteration %d", (void *)pTask,  j );
          delete pTask;
-	 OsSysLog::add("main", myPID, FAC_KERNEL, PRI_DEBUG, "Deleted task %p in iteration %d", (void *)pTask,  j );
+	 Os::Logger::instance().log("main", myPID, FAC_KERNEL, PRI_DEBUG, "Deleted task %p in iteration %d", (void *)pTask,  j );
       }
       CPPUNIT_ASSERT_EQUAL(startingThreads,getNumThreads(myPID));
    }
@@ -283,10 +283,10 @@ public:
 
       for ( int j = 0 ; j < NUMBER_OF_ITERATIONS ; j++ ) {
          SimpleTask * pTask = new SimpleTask();
-	 OsSysLog::add("main", myPID, FAC_KERNEL, PRI_DEBUG, "Created task %p in iteration %d", (void *)pTask,  j );
+	 Os::Logger::instance().log("main", myPID, FAC_KERNEL, PRI_DEBUG, "Created task %p in iteration %d", (void *)pTask,  j );
          pTask->setCommand(SimpleTask::SIMPLE_TASK_DONOT_SHUTDOWN);
          pTask->start();
-	 OsSysLog::add("main", myPID, FAC_KERNEL, PRI_DEBUG, "Started task %p in iteration %d", (void *)pTask,  j );
+	 Os::Logger::instance().log("main", myPID, FAC_KERNEL, PRI_DEBUG, "Started task %p in iteration %d", (void *)pTask,  j );
          delete pTask;
       }
       CPPUNIT_ASSERT_EQUAL(startingThreads,getNumThreads(myPID));

@@ -115,6 +115,7 @@ web_RESOURCES = $(shell cd $(srcdir)/src; find . -type f \( \
 	  -o -name '*.vm' \
 	  -o -name '*.wsdl' \
 	  -o -name '*.properties' \
+	  -o -name '*.license' \
 	  -o -name '*.js' \
 	  -o -name '*.ico' \
 	\))

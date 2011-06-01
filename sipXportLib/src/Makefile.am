@@ -27,7 +27,8 @@ libsipXport_la_LIBADD = \
 	-lpthread  \
 	-lstdc++ \
 	-lboost_system-mt \
-	-lboost_thread-mt
+	-lboost_thread-mt \
+	-lboost_filesystem-mt
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
@@ -110,10 +111,6 @@ libsipXport_la_SOURCES =  \
     os/OsSSL.cpp \
     os/OsSSLConnectionSocket.cpp \
     os/OsSSLServerSocket.cpp \
-    os/OsSysLog.cpp \
-    os/OsSysLogFacilities.cpp \
-    os/OsSysLogMsg.cpp \
-    os/OsSysLogTask.cpp \
     os/OsTask.cpp \
     os/OsTime.cpp \
     os/OsTimeLog.cpp \

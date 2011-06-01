@@ -93,7 +93,7 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
         pConfigDb->get(CONFIG_PHONESET_SEND_INBAND_DTMF, strInBandDTMF) ;
         strInBandDTMF.toUpper() ;
 
-        OsSysLog::add(FAC_MP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                       "sipXmediaFactoryImpl::sipXmediaFactoryImpl maxFlowGraph = %d",
                       maxFlowGraph);
     }
@@ -275,7 +275,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
         {
             UtlString references = sPreferences;
             *iRejected = pFactory->buildSdpCodecFactory(references);
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                           "sipXmediaFactoryImpl::buildCodecFactory: sReferences = %s with NumReject %d",
                            references.data(), *iRejected);
 
@@ -294,7 +294,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
 
             pFactory->clearCodecs();
             *iRejected = pFactory->buildSdpCodecFactory(preferences);
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                           "sipXmediaFactoryImpl::buildCodecFactory: supported codecs = %s with NumReject %d",
                           preferences.data(), *iRejected);
 
@@ -484,7 +484,7 @@ OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, 
         codecName = GIPS_CODEC_ID_ISAC;
         break;
     default:
-        OsSysLog::add(FAC_MP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_MP, PRI_WARNING,
                       "sipXmediaFactoryImpl::getCodecNameByType unsupported type %d.",
                       type);
 

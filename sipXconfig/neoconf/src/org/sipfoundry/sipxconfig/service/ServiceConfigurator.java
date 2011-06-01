@@ -74,4 +74,6 @@ public interface ServiceConfigurator {
     void markServiceForRestart(Collection< ? extends SipxService> services);
 
     public void initLocation(Location locationToActivate);
+
+    void sendProfiles(Collection<Location> selectedLocations);
 }

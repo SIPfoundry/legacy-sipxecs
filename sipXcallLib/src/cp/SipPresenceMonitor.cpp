@@ -13,7 +13,7 @@
 #include <os/OsEventMsg.h>
 #include <os/OsFS.h>
 #include <os/OsMsg.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsConfigDb.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
@@ -113,7 +113,7 @@ void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
 							const char* eventTypeKey,
 							const char* eventType)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "PresenceDefaultConstructor::generateDefaultContent "
                  "generating default content for resourceId '%s', "
                  "eventTypeKey '%s', eventType '%s'",
@@ -314,7 +314,7 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       list = new SipResourceList((UtlBoolean)TRUE, listName->data(), PRESENCE_EVENT_TYPE);
 
       mMonitoredLists.insertKeyAndValue(listName, list);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addExtension insert listName %s and object %p to the resource list",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addExtension insert listName %s and object %p to the resource list",
                     groupName.data(), list);
    }
 
@@ -339,7 +339,7 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    }
    else
    {
-      OsSysLog::add(FAC_LOG, PRI_WARNING,
+      Os::Logger::instance().log(FAC_LOG, PRI_WARNING,
                     "SipPresenceMonitor::addExtension contact %s already exists.",
                     resourceId.data());
    }
@@ -359,7 +359,7 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    SipResourceList* list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
    if (list == NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::removeExtension group %s does not exist",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::removeExtension group %s does not exist",
                     groupName.data());
    }
    else
@@ -377,7 +377,7 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       }
       else
       {
-         OsSysLog::add(FAC_LOG, PRI_WARNING,
+         Os::Logger::instance().log(FAC_LOG, PRI_WARNING,
                        "SipPresenceMonitor::removeExtension subscription for contact %s does not exists.",
                        resourceId.data());
       }
@@ -397,13 +397,13 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
    if (mPresenceEventList.find(&contact) == NULL)
    {
       requiredPublish = true;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipPresenceMonitor::addPresenceEvent adding presenceEvent %p for contact %s",
                     presenceEvent, contact.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipPresenceMonitor::addPresenceEvent presenceEvent %p for contact %s already exists, updating its contents.",
                     presenceEvent, contact.data());
 
@@ -437,13 +437,13 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       // Insert it into the presence event list.
       presenceEvent->buildBody();
       mPresenceEventList.insertKeyAndValue(new UtlString(contact), presenceEvent);
-      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
       {
          UtlString b;
          ssize_t l;
          presenceEvent->getBytes(&b, &l);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipPresenceMonitor::addPresenceEvent presenceEvent %p for contact '%s' body '%s' is different from previous presenceEvent",
                        presenceEvent, contact.data(), b.data());
       }
@@ -530,7 +530,7 @@ void SipPresenceMonitor::readPersistentFile()
                if (id.isNull())
                {
                   // Id null.
-                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                  Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                                 "id child of <item> was null");
                   item_valid = false;
                }
@@ -538,7 +538,7 @@ void SipPresenceMonitor::readPersistentFile()
             else
             {
                // Id missing.
-               OsSysLog::add(FAC_ACD, PRI_ERR,
+               Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                              "id child of <item> was missing");
                item_valid = false;
             }
@@ -552,7 +552,7 @@ void SipPresenceMonitor::readPersistentFile()
                if (contact.isNull())
                {
                   // Contact null.
-                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                  Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                                 "contact child of <item> was null");
                   item_valid = false;
                }
@@ -560,7 +560,7 @@ void SipPresenceMonitor::readPersistentFile()
             else
             {
                // Contact missing.
-               OsSysLog::add(FAC_ACD, PRI_ERR,
+               Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                              "contact child of <item> was missing");
                item_valid = false;
             }
@@ -574,7 +574,7 @@ void SipPresenceMonitor::readPersistentFile()
                if (status.isNull())
                {
                   // Status null.
-                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                  Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                                 "status child of <item> was null");
                   item_valid = false;
                }
@@ -582,12 +582,12 @@ void SipPresenceMonitor::readPersistentFile()
             else
             {
                // Status missing.
-               OsSysLog::add(FAC_ACD, PRI_ERR,
+               Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                              "status child of <item> was missing");
                item_valid = false;
             }
 
-            OsSysLog::add(FAC_ACD, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, PRI_DEBUG,
                           "SipPresenceMonitor::readPersistentFile row: id = '%s', contact = '%s', status = '%s'",
                           id.data(), contact.data(), status.data());
 
@@ -606,7 +606,7 @@ void SipPresenceMonitor::readPersistentFile()
             }
             else
             {
-            OsSysLog::add(FAC_ACD, PRI_ERR,
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                           "In presence status file '%s', <item> number %d had invalid or incomplete information.  The readable information was: id = '%s', contact = '%s', status = '%s'",
                           mPersistentFile.data(), item_seq_no,
                           id.data(), contact.data(), status.data());
@@ -618,14 +618,14 @@ void SipPresenceMonitor::readPersistentFile()
    else
    {
       // Report error parsing file.
-      OsSysLog::add(FAC_ACD, PRI_CRIT,
+      Os::Logger::instance().log(FAC_ACD, PRI_CRIT,
                     "Presence status file '%s' could not be parsed.",
                     mPersistentFile.data());
    }
 
    mLock.release();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPresenceMonitorPersistenceTask::readPersistentFile done");
 }
 
@@ -701,7 +701,7 @@ void SipPresenceMonitor::writePersistentFile()
 
    mLock.release();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPresenceMonitorPersistenceTask::writePersistentFile file written");
 }
 
@@ -719,7 +719,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
       bool contentChanged = false;
 
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::publishContent listUri %s list %p",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::publishContent listUri %s list %p",
                     listUri->data(), list);
 
       // Search for the contact in this list
@@ -833,11 +833,11 @@ void SipPresenceMonitor::notifyStateChange(UtlString& contact,
 // Returns TRUE if the requested state is different from the current state.
 bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
 {
-   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+   if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
    {
       UtlString aorString;
       aor.toString(aorString);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipPresenceMonitor::setStatus aor = '%s', value = %d %s",
                     aorString.data(), value,
                     (value == StateChangeNotifier::PRESENT ? "PRESENT" :
@@ -895,12 +895,12 @@ void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
       UtlString id;
       makeId(id, contact);
       presenceEvent->getTuple(id)->getStatus(status);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s state = %s",
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s state = %s",
                     contact.data(), status.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s does not exist",
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s does not exist",
                     contact.data());
 
       status = STATUS_CLOSED;
@@ -916,7 +916,7 @@ SipPresenceMonitorPersistenceTask::SipPresenceMonitorPersistenceTask(
    OsServerTask("SipPresenceMonitorPersistenceTask-%d"),
    mSipPresenceMonitor(presenceMonitor)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPresenceMonitorPersistenceTask::_ "
                  "mSipPresenceMonitor = %p",
                  mSipPresenceMonitor);
@@ -925,7 +925,7 @@ SipPresenceMonitorPersistenceTask::SipPresenceMonitorPersistenceTask(
 // Destructor
 SipPresenceMonitorPersistenceTask::~SipPresenceMonitorPersistenceTask()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPresenceMonitorPersistenceTask::~");
 }
 
@@ -935,7 +935,7 @@ UtlBoolean SipPresenceMonitorPersistenceTask::handleMessage(OsMsg& rMsg)
 {
    UtlBoolean handled = FALSE;
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SipPresenceMonitorPersistenceTask::handleMessage message type %d subtype %d",
                  rMsg.getMsgType(), rMsg.getMsgSubType());
 
@@ -953,7 +953,7 @@ UtlBoolean SipPresenceMonitorPersistenceTask::handleMessage(OsMsg& rMsg)
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_ERR,
+      Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                     "SipPresenceMonitorPersistenceTask::handleMessage unknown msg type %d",
                     rMsg.getMsgType());
    }

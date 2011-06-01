@@ -8,7 +8,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "SipRouter.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "net/SipXauthIdentity.h"
 #include "RequestLinter.h"
 
@@ -29,7 +29,7 @@ RequestLinter::RequestLinter(const UtlString& pluginName ///< the name for this 
    : AuthPlugin(pluginName),
      mpSipRouter( 0 )
 {
-   OsSysLog::add(FAC_SIP,PRI_INFO,"RequestLinter plugin instantiated '%s'",
+   Os::Logger::instance().log(FAC_SIP,PRI_INFO,"RequestLinter plugin instantiated '%s'",
                  mInstanceName.data());
 };
 

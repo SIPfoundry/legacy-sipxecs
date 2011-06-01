@@ -151,7 +151,7 @@ OsStatus StreamQueueingFormatDecoder::queueFrame(const uint16_t* pSamples)
    else
    {
       status = OS_FAILED;
-      OsSysLog::add(FAC_MP, PRI_ERR, "StreamQueueingFormatDecoder::queueFrame failed: free msg is NULL!\n");
+      Os::Logger::instance().log(FAC_MP, PRI_ERR, "StreamQueueingFormatDecoder::queueFrame failed: free msg is NULL!\n");
    }
 
    return status ;
@@ -177,7 +177,7 @@ OsStatus StreamQueueingFormatDecoder::queueEndOfFrames()
    else
    {
     status = OS_FAILED;
-    OsSysLog::add(FAC_MP, PRI_ERR, "StreamQueueingFormatDecoder::queueEndOfFrames failed: free msg is NULL!\n");
+    Os::Logger::instance().log(FAC_MP, PRI_ERR, "StreamQueueingFormatDecoder::queueEndOfFrames failed: free msg is NULL!\n");
    }
 
    return OS_SUCCESS ;
@@ -266,7 +266,7 @@ void StreamQueueingFormatDecoder::reportFrame(UtlBoolean bUnderrun)
             sTotalStreams, sTotalFrames, sTotalUnderruns, sTotalThrottles) ;
 #else
       // Under linux, report using OsSysLog
-      OsSysLog::add(FAC_MP, PRI_INFO,
+      Os::Logger::instance().log(FAC_MP, PRI_INFO,
             "Last %4ld secs: streams=%4d, frames=%6d, underruns=%4d, throttles=%5d\n"\
             "    Cumulative: streams=%4d, frames=%6d, underruns=%4d, throttles=%5d\n",
             now-sLastReported, sDeltaStreams, sDeltaFrames, sDeltaUnderruns, sDeltaThrottles,

@@ -62,7 +62,6 @@
       </generator>
     </id>
     <property name="name"/>
-	<property name="sort" />
     <property name="description"/>
     <set name="queues" table="openacd_queue" inverse="true" cascade="all,delete-orphan" order-by="openacd_queue_id">
       <key column="openacd_queue_group_id"/>
@@ -99,6 +98,20 @@
     </set>
   </class>
 
+  <class name="OpenAcdSkillGroup" table="openacd_skill_group">
+    <id name="id" column="openacd_skill_group_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_skill_group_seq</param>
+      </generator>
+    </id>
+    <property name="name"/>
+    <property name="description"/>
+    <set name="skills" table="openacd_skill" inverse="true" cascade="all,delete-orphan" order-by="openacd_skill_id">
+      <key column="openacd_skill_group_id"/>
+      <one-to-many class="OpenAcdSkill"/>
+    </set>
+  </class>
+
   <class name="OpenAcdSkill" table="openacd_skill">
     <id name="id" column="openacd_skill_id" type="int" unsaved-value="-1">
       <generator class="sequence">
@@ -108,8 +121,9 @@
     <property name="name"/>
     <property name="atom"/>
     <property name="description"/>
-	<property name="groupName"/>
     <property name="defaultSkill" />
+	<many-to-one name="group" class="OpenAcdSkillGroup" column="openacd_skill_group_id" lazy="proxy"
+	  foreign-key="fk_openacd_skill_group"/>
   </class>
 
   <class name="OpenAcdClient" table="openacd_client">
@@ -196,4 +210,13 @@
     <![CDATA[from OpenAcdClient client where client.identity = :value]]>
   </query>
 
+  <query name="openAcdSkillGroupWithName">
+    <![CDATA[from OpenAcdSkillGroup skillGroup where skillGroup.name = :value]]>
+  </query>
+
+  <sql-query name="allSkills">
+    <return-scalar type="int" column="id" />
+    <return-scalar type="string" column="group_name" />
+    <![CDATA[select openacd_skill_id as id, group_name from openacd_skill]]>
+  </sql-query>
 </hibernate-mapping>

@@ -13,7 +13,7 @@
 
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlString.h>
 #include <utl/UtlRegex.h>
 #include <utl/UtlTokenizer.h>

@@ -18,7 +18,7 @@
 #include <net/SdpCodec.h>
 #include <net/SdpCodecFactory.h>
 #include <utl/UtlSListIterator.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 
 // EXTERNAL FUNCTIONS
@@ -488,7 +488,7 @@ OsStatus VoiceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
         {
             if (iCodecs == 0)
             {
-                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                               "buildCidecFactory: VoiceEngine has no codecs");
             }
         }
@@ -534,7 +534,7 @@ OsStatus VoiceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
             {
                 if (iCodecs == 0)
                 {
-                    OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    Os::Logger::instance().log(FAC_MP, PRI_DEBUG,
                                 "buildCidecFactory: VideoEngine has no codecs");
                 }
             }

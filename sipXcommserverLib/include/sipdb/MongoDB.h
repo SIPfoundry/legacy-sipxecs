@@ -25,7 +25,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/functional/hash.hpp>
 
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 #define BSON_NOT_EQUAL(val) BSON("$ne"<< val)
 #define BSON_LESS_THAN(val) BSON("$lt"<< val)
@@ -178,7 +178,7 @@ public:
         const BSONObj& query,
         std::string& error);
 
-    void createInitialPool(size_t initialCount = 10);
+    void createInitialPool(size_t initialCount = 10, bool autoReconnect = true);
 
     void relinquish(const Client& pClient);
 
@@ -197,6 +197,7 @@ private:
     std::string _server;
     static Mutex _serversMutex;
     static std::map<std::string, MongoDB::Ptr> _dbServers;
+    bool _autoReconnect;
 };
 
 

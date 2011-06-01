@@ -12,7 +12,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlDList.h>
@@ -378,7 +378,7 @@ void HttpBody::getBytes(UtlString* bytes, ssize_t* length) const
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "HttpBody::getBytes allocation failure to reserve %zu bytes", newLength);
       }
    }

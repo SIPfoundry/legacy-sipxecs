@@ -81,8 +81,6 @@ public class ConfBasicThread extends Thread {
 
         if(action != null) {
 
-            User user = ValidUsers.INSTANCE.getUser(memberNumber);
-
             ConferenceTask conf = m_ConferenceMap.get(confName);
             
             if(action.equalsIgnoreCase("add-member")) {
@@ -103,6 +101,7 @@ public class ConfBasicThread extends Thread {
                 member.m_memberIndex = conf.getNextParticipantIndex();
                 conf.add(member.m_memberId, member);
                 ProcessConfUserAdd(conf, member);
+                User user = ValidUsers.INSTANCE.getUser(memberNumber);
                 if(user != null) {
                     m_UserMap.put(user.getUserName(), new Date());
                 } 

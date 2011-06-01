@@ -12,7 +12,7 @@
 #include <net/SipDialogMgr.h>
 #include <net/SipDialog.h>
 #include <net/SipMessage.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlHashBagIterator.h>
 
 
@@ -69,7 +69,7 @@ UtlBoolean SipDialogMgr::createDialog(const SipMessage& message,
     {
         // Should not try to create a dialog for one that
         // already exists
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                       "SipDialogMgr::createDialog called with handle: '%s' for existing dialog",
                       handle.data());
     }
@@ -80,7 +80,7 @@ UtlBoolean SipDialogMgr::createDialog(const SipMessage& message,
         createdDialog = TRUE;
         SipDialog* dialog = new SipDialog(&message, messageIsFromLocalSide);
         lock();
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipDialogMgr::createDialog called with handle: '%s' for new dialog",
                       handle.data());
         mDialogs.insert(dialog);
@@ -154,16 +154,16 @@ UtlBoolean SipDialogMgr::setNextLocalTransactionInfo(SipMessage& request,
 #ifdef TEST_PRINT
         UtlString dialogDump;
         dialog->toString(dialogDump);
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMgr::setNextLocalTransactionInfo dialog: '%s'",
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogMgr::setNextLocalTransactionInfo dialog: '%s'",
                       dialogDump.data());
 #endif
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogMgr::setNextLocalTransactionInfo dialog not found for handle '%s'",
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipDialogMgr::setNextLocalTransactionInfo dialog not found for handle '%s'",
                      dialogHandle);
 
-       if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+       if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
        {
           SipDialog* dialog;
           UtlHashBagIterator iterator(mDialogs);
@@ -174,7 +174,7 @@ UtlBoolean SipDialogMgr::setNextLocalTransactionInfo(SipMessage& request,
              dialog->getCallId(callId);
              dialog->getLocalTag(localTag);
              dialog->getRemoteTag(remoteTag);
-             OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMgr::setNextLocalTransactionInfo dialog call-id = '%s', local tag = '%s', remote tag = '%s'",
+             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogMgr::setNextLocalTransactionInfo dialog call-id = '%s', local tag = '%s', remote tag = '%s'",
                            callId.data(), localTag.data(), remoteTag.data());
           }
        }
@@ -392,7 +392,7 @@ UtlBoolean SipDialogMgr::isLastLocalTransaction(const SipMessage& message,
                                    TRUE, // if established, match early dialog
                                    TRUE); // if early, match established dialog
 
-    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+    if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
     {
        UtlString m, d;
        ssize_t l;
@@ -405,7 +405,7 @@ UtlBoolean SipDialogMgr::isLastLocalTransaction(const SipMessage& message,
           d = "[NULL]";
        }
        message.getBytes(&m, &l, FALSE);
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipDialogMgr::isLastLocalTransaction message = '%s', dialog = '%s'",
                      m.data(), d.data());
     }
@@ -548,7 +548,7 @@ UtlBoolean SipDialogMgr::deleteDialog(const char* dialogHandle)
     if(dialog)
     {
         dialogRemoved = TRUE;
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipDialogMgr::deleteDialog dialogHandle = '%s' deleted",
                       dialogHandle);
         mDialogs.removeReference(dialog);
@@ -557,7 +557,7 @@ UtlBoolean SipDialogMgr::deleteDialog(const char* dialogHandle)
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_WARNING,
+       Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                      "SipDialogMgr::deleteDialog dialogHandle = '%s' not found",
                       dialogHandle);
     }

@@ -19,7 +19,7 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "assert.h"
 #include "mp/MpCodecFactory.h"
 
@@ -171,7 +171,7 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
 #endif
 
    default:
-      OsSysLog::add(FAC_MP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_MP, PRI_WARNING,
                     "MpCodecFactory::createDecoder unknown codec type "
                     "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
                     "payloadType = %d",
@@ -253,7 +253,7 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       break;
 #endif /* HAVE_GIPS*/
    default:
-      OsSysLog::add(FAC_MP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_MP, PRI_WARNING,
                     "MpCodecFactory::createEncoder unknown codec type "
                     "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
                     "payloadType = %d",

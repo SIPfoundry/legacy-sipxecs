@@ -7,7 +7,7 @@
 	</li>
   </ul>
   <table jwcid="@common/Table" id="skills:list"
-		columns="* name,atom,groupName,description"
+		columns="* name,atom,!skillGroup,description"
 		source="ognl:skills"
 		row="ognl:currentRow"
 		selections="bean:selections">
@@ -17,6 +17,9 @@
 		  parameters="ognl:currentRow.id">
           <span jwcid="@Insert" value="ognl:currentRow.name"/>
 	  </td>
+	</tr>
+	<tr jwcid="skillGroupColumnValue@Block">
+	  <td jwcid="@Insert" value="ognl:currentRow.group.name"/>
 	</tr>
   </table>
   <ul class="component-submit">

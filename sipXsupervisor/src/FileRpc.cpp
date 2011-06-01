@@ -13,7 +13,7 @@
 #include "utl/UtlHashBagIterator.h"
 #include "utl/UtlHashMapIterator.h"
 #include "utl/UtlSListIterator.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsFileSystem.h"
 #include "net/XmlRpcDispatch.h"
 #include "net/XmlRpcMethod.h"
@@ -93,7 +93,7 @@ bool FileRpcMethod::validCaller(const HttpRequestContext& requestContext,
       {
          // sipXsupervisor says it is one of the allowed peers.
          result = true;
-         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                        "FileRpcMethod::validCaller '%s' peer authenticated for %s",
                        peerName.data(), callingMethod
                        );
@@ -107,7 +107,7 @@ bool FileRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append("'");
          response.setFault(FileRpcMethod::UnconfiguredPeer, faultMsg.data());
 
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
                        );
@@ -118,7 +118,7 @@ bool FileRpcMethod::validCaller(const HttpRequestContext& requestContext,
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
 
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
                     );
@@ -139,7 +139,7 @@ void FileRpcMethod::handleMissingExecuteParam(const char* methodName,
    faultMsg += "' parameter is missing or invalid type";
    status = XmlRpcMethod::FAILED;
    response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 void FileRpcMethod::handleExtraExecuteParam(const char* methodName,
@@ -151,7 +151,7 @@ void FileRpcMethod::handleExtraExecuteParam(const char* methodName,
    faultMsg += " has incorrect number of parameters";
    status = XmlRpcMethod::FAILED;
    response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 
@@ -243,7 +243,7 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
                         faultMsg.append("File '");
                         faultMsg.append(*pfileName);
                         faultMsg.append("' not declared as a resource by any sipXecs process");
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
+                        Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
                                       faultMsg.data());
                         result=false;
                         response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
@@ -255,7 +255,7 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
                         faultMsg.append(*pfileName);
                         faultMsg.append("' denied by process resource ");
                         fileResource->appendDescription(faultMsg);
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
+                        Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
                                       faultMsg.data());
                         result=false;
                         response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
@@ -267,7 +267,7 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
                         faultMsg.appendNumber(pfilePermissions->getValue(),"File permissions %04o");
                         faultMsg.appendNumber(minPermissions,"not within valid range (%04o - ");
                         faultMsg.appendNumber(maxPermissions,"%04o)");
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
+                        Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
                                       faultMsg.data());
                         result = false;
                         response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
@@ -328,20 +328,65 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
          errorMsg.append("Failed to decode file data from base64 for '");
          errorMsg.append(path_and_name);
          errorMsg.append("'");
-         OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
                        errorMsg.data());
       }
       else
       {
-         rc = temporaryFile.write(pdecodedData.data(), pdecodedData.length(), bytesRead);
-         temporaryFile.close();
+         if (pdecodedData.length() == 0)
+         {
+            //
+            // We do not have data to write
+            //
+           rc = OS_FILE_INVALID_HANDLE;
+         }
+         else
+         {
+            rc = temporaryFile.write(pdecodedData.data(), pdecodedData.length(), bytesRead);
+            temporaryFile.close();
+            if (rc == OS_SUCCESS)
+            {
+              if (!bytesRead || bytesRead < pdecodedData.length())
+              {
+                //
+                // If we have zero bytes written or write was truncated,
+                // then consider as failure
+                //
+                rc = OS_FILE_INVALID_HANDLE;
+              }
+            }
+
+            //
+            // Double check the length of the temporaryFile
+            //
+            rc = temporaryFile.open();
+            if (rc == OS_SUCCESS)
+            {
+              size_t newLen = 0;
+              rc = temporaryFile.getLength(newLen);
+              if (rc == OS_SUCCESS && !newLen)
+              {
+                //
+                // We got a zero length file.  Consider as failure
+                //
+                rc = OS_FILE_INVALID_HANDLE;
+              }
+            }
+            temporaryFile.close();
+         }
+
+
+         //
+         // At this point we know that we got the temporary file written
+         // correctly to disk
+         //
          if (rc == OS_SUCCESS)
          {
             rc = temporaryFile.rename(path_and_name);
             if (rc == OS_SUCCESS)
             {
                int int_rc;
-               OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile"
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile"
                                    " updated file '%s'", path_and_name.data());
                rc = temporaryFile.remove(TRUE);
 
@@ -357,7 +402,7 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
                errorMsg.append("' to '");
                errorMsg.append(path_and_name);
                errorMsg.append("'");
-               OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
                              errorMsg.data());
             }
          }
@@ -367,7 +412,7 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
             errorMsg.append("Failed to write to temporary file '");
             errorMsg.append(temporaryLocation);
             errorMsg.append("'");
-            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
                           errorMsg.data());
          }
       }
@@ -378,7 +423,7 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
       errorMsg.append("Failed to create temporary file '");
       errorMsg.append(temporaryLocation);
       errorMsg.append("'");
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
                     errorMsg.data());
    }
 

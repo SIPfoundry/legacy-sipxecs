@@ -10,9 +10,9 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlString.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/SipSubscribeServerEventHandler.h>
 #include <net/SipPublishContentMgr.h>
 #include <net/SipMessage.h>
@@ -117,7 +117,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
         authIndex++
       )
    {
-      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
+      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
                     "authRealm='%s', authUser='%s', authUserBase='%s'",
                     authRealm.data() , authUser.data(), authUserBase.data());
 
@@ -125,7 +125,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
 
       if (mRealm.compareTo(authRealm) ) // case sensitive check that realm is correct
       {
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                        "RlsSubscribePolicy::isAuthenticated "
                        "Realm does not match");
       }
@@ -133,7 +133,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
       // validate the nonce
       else if (!mNonceDb.isNonceValid(authNonce, callId, fromTag, mRealm, mNonceExpiration))
       {
-          OsSysLog::add(FAC_AUTH, PRI_INFO,
+          Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                         "RlsSubscribePolicy::isAuthenticated "
                         "Invalid nonce: nonce='%s', callId='%s'",
                         authNonce.data(), callId.data());
@@ -146,7 +146,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
                                                qopType)
                >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
       {
-          OsSysLog::add(FAC_AUTH, PRI_INFO,
+          Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                         "RlsSubscribePolicy::isAuthenticated "
                         "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
                         authQop.data(), authCnonce.data(), authNonceCount.data());
@@ -178,7 +178,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
                                                          uriParam)
                    ))
             {
-               OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                              "RlsSubscribePolicy::isAuthenticated "
                              "response auth hash matches");
             }
@@ -186,7 +186,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
             {
                UtlString identity;
                authIdentity.getIdentity(identity);
-               OsSysLog::add(FAC_AUTH, PRI_ERR,
+               Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                              "Response auth hash does not match (bad password?)"
                              " authIdentity='%s' authUserBase='%s'",
                              identity.data(), authUserBase.data());
@@ -194,7 +194,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
          }
          else // failed to get credentials
          {
-            OsSysLog::add(FAC_AUTH, PRI_ERR,
+            Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                           "Unable to get credentials for realm='%s', user='%s'",
                           mRealm.data(), authUserBase.data());
          }

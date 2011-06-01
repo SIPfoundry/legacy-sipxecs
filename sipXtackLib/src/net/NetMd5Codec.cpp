@@ -13,7 +13,7 @@
 
 // #define LOG_MD5_HASH_INPUTS
 #ifdef LOG_MD5_HASH_INPUTS
-#   include "os/OsSysLog.h"
+#   include "os/OsLogger.h"
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -49,7 +49,7 @@ void NetMd5Codec::hash(const void*  input,
    assert(!mFinalized);
 
 #  ifdef LOG_MD5_HASH_INPUTS
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "NetMd5Codec::hash('%s', %d)", (const unsigned char*)input, length);
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "NetMd5Codec::hash('%s', %d)", (const unsigned char*)input, length);
 #  endif
    MD5Update (&mContext, (const unsigned char*)input, length);
 }

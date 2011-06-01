@@ -41,7 +41,7 @@
 #include "os/OsSSL.h"
 #include "os/OsSSLConnectionSocket.h"
 #include "os/OsUtil.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsTask.h"
 
 #ifdef VALGRIND_MAKE_READABLE
@@ -68,7 +68,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor,
 {
    if (mIsConnected)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "OsSSLConnectionSocket::_(socket %d , timeout %ld)",
                     connectedSocketDescriptor, timeoutInSecs
                     );
@@ -77,7 +77,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor,
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsSSLConnectionSocket::_ underlying OsConnectionSocket not connected!!");
    }
 }
@@ -89,7 +89,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(SSL *s, int connectedSocketDescript
 {
     mbExternalSSLSocket = TRUE;
     socketDescriptor = connectedSocketDescriptor;
-    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                   "OsSSLConnectionSocket::_(SSL %p, socket %d)", s, connectedSocketDescriptor);
 }
 
@@ -105,7 +105,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverN
     mbExternalSSLSocket = FALSE;
     if (mIsConnected)
     {
-       OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                      "OsSSLConnectionSocket::_(port %d, name '%s', timeout %ld)",
                      serverPort, serverName, timeoutInSecs
                      );
@@ -117,7 +117,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverN
 // Destructor
 OsSSLConnectionSocket::~OsSSLConnectionSocket()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                  "OsSSLConnectionSocket::~"
                  );
    remoteHostName = OsUtil::NULL_OS_STRING;
@@ -135,7 +135,7 @@ UtlBoolean OsSSLConnectionSocket::reconnect()
 
 void OsSSLConnectionSocket::close()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_INFO, "OsSSLConnectionSocket::close");
+   Os::Logger::instance().log(FAC_KERNEL, PRI_INFO, "OsSSLConnectionSocket::close");
 
     if (mSSL)
     {
@@ -280,13 +280,13 @@ bool OsSSLConnectionSocket::peerIdentity( UtlSList* altNames
          ? TRUSTED : UNTRUSTED;
       if ( TRUSTED == mPeerIdentity )
       {
-         OsSysLog::add(FAC_SIP, PRI_INFO,
+         Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                        "OsSSLConnectionSocket::peerIdentity %p OsSSL returned trusted",
                        this);
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "OsSSLConnectionSocket::peerIdentity %p OsSSL returned NOT trusted",
                        this);
       }
@@ -363,7 +363,7 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
        }
        else
        {
-          OsSysLog::add(FAC_KERNEL, PRI_CRIT
+          Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT
                         , "OsSSLConnectionSocket bad parameters mSSL=%p,%d, closing socket..."
                         , mSSL, socketDescriptor);
           mIsConnected = FALSE;
@@ -373,7 +373,7 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
     }
     else
     {
-       OsSysLog::add(FAC_KERNEL, PRI_ERR,
+       Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                      "OsSSLConnectionSocket::SSLInitSocket called on unconnected socket"
                      );
     }

@@ -13,7 +13,8 @@
 #include <os/OsFS.h>
 #include <os/OsProcess.h>
 #include <os/OsTask.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
+#include <os/OsLoggerHelper.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlSList.h>
@@ -136,14 +137,14 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
    {
       if (OS_SUCCESS == domainConfiguration.get(SipXecsService::DomainDbKey::SIP_REALM, mRealm))
       {
-         OsSysLog::add(FAC_ACD, PRI_INFO,
+         Os::Logger::instance().log(FAC_ACD, PRI_INFO,
                        "ACDServer::ACDServer "
                        "realm='%s'",
                        mRealm.data());
       }
       else
       {
-         OsSysLog::add(FAC_ACD, PRI_ERR,
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                        "ACDServer::ACDServer"
                        " realm not configured: transfer functions will not work."
                        );
@@ -154,7 +155,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
    }
    else
    {
-      OsSysLog::add(LOG_FACILITY, PRI_ERR,
+      Os::Logger::instance().log(LOG_FACILITY, PRI_ERR,
                     "ACDServer::ACDServer failed to load domain configuration from '%s'"
                     " realm not configured: transfer functions will not work.",
                     domainConfigPath.data()
@@ -206,7 +207,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
 
             if (!mpAcdAgentManager->isOk())
             {
-               OsSysLog::add(FAC_ACD, PRI_EMERG,
+               Os::Logger::instance().log(FAC_ACD, PRI_EMERG,
                      "AcdAgentManager failed to initialize, requesting shutdown");
                gShutdownFlag = true;
             }
@@ -216,7 +217,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
       }
       else
       {
-         OsSysLog::add(FAC_ACD, PRI_EMERG,
+         Os::Logger::instance().log(FAC_ACD, PRI_EMERG,
                "AcdCallManager failed to initialize sipXtapi, requesting shutdown");
          gShutdownFlag = true;
       }
@@ -243,7 +244,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
 ACDServer::~ACDServer()
 {
    // Shut down the server components
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "SHUTTING DOWN ACD SERVER");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "SHUTTING DOWN ACD SERVER");
 
 #ifdef CML
    if (mpAcdRpcServer) {
@@ -308,8 +309,7 @@ ACDServer::~ACDServer()
 
 void ACDServer::initSysLog(const char* pApplication, UtlString& rLogDirectory, UtlString& rLogLevel, bool consoleLogging)
 {
-   OsSysLog::initialize(0, pApplication);
-
+   Os::LoggerHelper::instance().processName = pApplication;
    //
    // Get/Apply Log Filename
    //
@@ -323,7 +323,7 @@ void ACDServer::initSysLog(const char* pApplication, UtlString& rLogDirectory, U
          path.getNativePath(workingDirectory);
 
          osPrintf("<%s> : %s\n", LOG_DIR_TAG, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "<%s> : %s", LOG_DIR_TAG, workingDirectory.data());
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "<%s> : %s", LOG_DIR_TAG, workingDirectory.data());
       }
       else {
          OsPath path;
@@ -331,7 +331,7 @@ void ACDServer::initSysLog(const char* pApplication, UtlString& rLogDirectory, U
          path.getNativePath(workingDirectory);
 
          osPrintf("<%s> : %s\n", LOG_DIR_TAG, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "<%s> : %s", LOG_DIR_TAG, workingDirectory.data());
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "<%s> : %s", LOG_DIR_TAG, workingDirectory.data());
       }
 
       rLogDirectory = workingDirectory;
@@ -341,14 +341,14 @@ void ACDServer::initSysLog(const char* pApplication, UtlString& rLogDirectory, U
    }
    else {
       osPrintf("<%s> : %s\n", LOG_DIR_TAG, rLogDirectory.data());
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "<%s> : %s", LOG_DIR_TAG, rLogDirectory.data());
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "<%s> : %s", LOG_DIR_TAG, rLogDirectory.data());
 
       mLogFile = rLogDirectory +
                  OsPathBase::separator +
                  CONFIG_LOG_FILE;
    }
 
-   OsSysLog::setOutputFile(0, mLogFile);
+   Os::LoggerHelper::instance().initialize(mLogFile);
 
    // Set the OsSysLog Logging Level
    setSysLogLevel(rLogLevel);
@@ -356,13 +356,10 @@ void ACDServer::initSysLog(const char* pApplication, UtlString& rLogDirectory, U
    //
    // Get/Apply console logging
    //
-   OsSysLog::enableConsoleOutput(false);
-   if (consoleLogging) {
-      OsSysLog::enableConsoleOutput(true);
-   }
+   Os::Logger::instance().enableConsoleOutput(consoleLogging);
 
    osPrintf("<%s> : %s\n", LOG_TO_CONSOLE_TAG, consoleLogging ? "ENABLE" : "DISABLE") ;
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "<%s> : %s", LOG_TO_CONSOLE_TAG, consoleLogging ? "ENABLE" : "DISABLE") ;
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "<%s> : %s", LOG_TO_CONSOLE_TAG, consoleLogging ? "ENABLE" : "DISABLE") ;
 }
 
 
@@ -384,15 +381,15 @@ void ACDServer::initSysLog(const char* pApplication, UtlString& rLogDirectory, U
 
 void ACDServer::setSysLogLevel(UtlString& rLogLevel)
 {
-   OsSysLogPriority newPriority;
-   if (! OsSysLog::priority(rLogLevel.data(), newPriority))
+   int newPriority;
+   if (! Os::Logger::instance().priority(rLogLevel.data(), newPriority))
    {
       newPriority = PRI_NOTICE;
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDServer::setSysLogLevel invalid log level %s",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDServer::setSysLogLevel invalid log level %s",
                     rLogLevel.data());
    }
-   OsSysLog::setLoggingPriority(newPriority);
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::Logger::instance().setLogPriority(newPriority);
+   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 }
 
 
@@ -575,7 +572,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
       mOperationalState = DOWN;
       // Save the configuration.
       setPSAttribute(pInstanceNode, ADMINISTRATIVE_STATE_TAG, mAdministrativeState);
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Create - Writing out the config file before shutting down the server");
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDServer::Create - Writing out the config file before shutting down the server");
       mpXmlConfigDoc->SaveFile();
       // Flag to restart the server.
       // gShutdownFlag = true;  // No longer self-restart.  Instead rely on sipXsupervisor.
@@ -585,7 +582,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
       setPSAttribute(pInstanceNode, ADMINISTRATIVE_STATE_TAG, mAdministrativeState);
 
       // Update the configuration file
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Create - Updating the config file");
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDServer::Create - Updating the config file");
       mpXmlConfigDoc->SaveFile();
 
       // Now that the ACDServer instance has been initialized,
@@ -684,7 +681,7 @@ ProvisioningAttrList* ACDServer::Delete(ProvisioningAttrList& rRequestAttributes
       deletePSInstance(ACD_SERVER_TAG, SERVER_NAME_TAG, ACD_SERVER_NAME);
 
       // Update the configuration file
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Delete - Updating the config file");
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDServer::Delete - Updating the config file");
       mpXmlConfigDoc->SaveFile();
 
       // Build up the response.
@@ -703,7 +700,7 @@ ProvisioningAttrList* ACDServer::Delete(ProvisioningAttrList& rRequestAttributes
       return pResponse;
    }
    else {
-      OsSysLog::add(LOG_FACILITY, PRI_WARNING, "ACDServer::Delete There are active calls on this server. Deleting this server instance is prohibited.");
+      Os::Logger::instance().log(LOG_FACILITY, PRI_WARNING, "ACDServer::Delete There are active calls on this server. Deleting this server instance is prohibited.");
 
       pResponse = new ProvisioningAttrList;
       pResponse->setAttribute("method-name", "delete");
@@ -869,7 +866,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
          mOperationalState = DOWN;
          // Save the configuration.
          setPSAttribute(pInstanceNode, ADMINISTRATIVE_STATE_TAG, mAdministrativeState);
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Writing out the config file before shutting down the server");
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Writing out the config file before shutting down the server");
          mpXmlConfigDoc->SaveFile();
          // Flag to restart the server.
          // gShutdownFlag = true;  // No longer self-restart.  Instead rely on sipXsupervisor.
@@ -918,7 +915,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
    }
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    // Build up the response.
@@ -957,7 +954,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
          int faultCode;
          UtlString faultString;
          response.getFault(&faultCode, faultString);
-         OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart failed, fault %d : %s",
+         Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart failed, fault %d : %s",
          faultCode, faultString.data());
       }
       else
@@ -966,14 +963,14 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
          UtlContainable* pValue = NULL;
          if (!response.getResponse(pValue) || !pValue)
          {
-            OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart response had no result.");
+            Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart response had no result.");
          }
          else
          {
             UtlHashMap* pResult = dynamic_cast<UtlHashMap*>(pValue);
             if (!pResult)
             {
-               OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+               Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                "ProcMgmtRpc.restart response result had unexpected type: %s",
                pValue->getContainableType());
             }
@@ -981,11 +978,11 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
             {
                if (!pResult->findValue(&alias))
                {
-                  OsSysLog::add(LOG_FACILITY, PRI_ERR, "ProcMgmtRpc.restart could not restart the process.");
+                  Os::Logger::instance().log(LOG_FACILITY, PRI_ERR, "ProcMgmtRpc.restart could not restart the process.");
                }
                else
                {
-                  OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Restart %s", mDomain.data());
+                  Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Restart %s", mDomain.data());
                   bWatchDogRestarted = true;
                }
             }
@@ -994,7 +991,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
 
       if (!bWatchDogRestarted)
       {
-         OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ACDServer::Set - This process could not be controlled by the watchdog.  Exit, stage left.");
+         Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT, "ACDServer::Set - This process could not be controlled by the watchdog.  Exit, stage left.");
          exit(0) ;
       }
    }

@@ -34,7 +34,7 @@
 #include "os/OsSSL.h"
 #include "os/OsSSLServerSocket.h"
 #include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -53,7 +53,7 @@ OsSSLServerSocket::OsSSLServerSocket(int connectionQueueSize, int serverPort,
    : OsServerSocket(connectionQueueSize,serverPort,szBindAddr),
       mVerifyPeer(true)
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSLServerSocket::_ %p", this );
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSSLServerSocket::_ %p", this );
 }
 
 // Destructor
@@ -80,7 +80,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
 
    if (socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR
+      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR
                     , "OsSSLServerSocket: accept exiting because socketDescriptor is %d"
                     ,socketDescriptor);
    }
@@ -98,7 +98,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
          int error = OsSocketGetERRNO();
          if (0 != error)
          {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                           "OsSSLServerSocket: accept call failed with error: %d=%x",
                           error, error);
             socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
@@ -106,7 +106,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                        "OsSSLServerSocket::accept socket accepted: %d",
                        clientSocket);
 
@@ -126,7 +126,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                                           ,"OsSSLServerSocket::accept"
                                           ,pSSL);
 
-                  OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                                 "OsSSLServerSocket::accept connection %p",
                                 this
                                 );
@@ -150,14 +150,14 @@ OsConnectionSocket* OsSSLServerSocket::accept()
             }
             else
             {
-               OsSysLog::add(FAC_KERNEL, PRI_ERR,
+               Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                              "OsSSLServerSocket::accept - new OsSSLConnectionSocket failed"
                              );
             }
          }
          else
          {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR
+            Os::Logger::instance().log(FAC_KERNEL, PRI_ERR
                           , "OsSSLConnectionSocket::accept - Error creating new SSL connection.");
          }
       }

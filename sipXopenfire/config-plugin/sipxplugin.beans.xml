@@ -75,7 +75,6 @@
     <property name="configurationFiles">
       <list>
         <ref bean="xmppAccountInfo" />
-        <ref bean="presenceRoutingConfiguration" />
         <ref bean="sipxOpenfireConfiguration" />
       </list>
     </property>

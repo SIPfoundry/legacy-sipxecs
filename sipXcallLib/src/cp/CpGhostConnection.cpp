@@ -96,7 +96,7 @@ UtlBoolean CpGhostConnection::targetCallBlindTransfer(const char* transferTarget
                                                            const char* transferControllerAddress)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpGhostConnection::targetCallBlindTransfer ");
 #endif
     mRemoteAddress = transferTargetAddress;
@@ -117,7 +117,7 @@ void CpGhostConnection::disconnectForSipXTapi()
 
     fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_GHOST, (void*)(&bNotifyCallManager)) ;
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpGhostConnection::tearDownForSipXTapi "
                   "returns %d", bNotifyCallManager);
 #endif
@@ -127,7 +127,7 @@ void CpGhostConnection::disconnectForSipXTapi()
         UtlString ghostCallId;
         getCallId(&ghostCallId);
         CpMultiStringMessage callMessage(CpCallManager::CP_DROP, ghostCallId.data());
-        OsSysLog::add(FAC_CP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                       "CpGhostConnection::tearDownForSipXTapi "
                       "post drop for call %s",
                       ghostCallId.data());
@@ -145,7 +145,7 @@ UtlBoolean CpGhostConnection::transferControllerStatus(int connectionState, int 
 #ifdef TEST_PRINT
     UtlString connState;
     getStateString(connectionState, &connState);
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
                   "CpGhostConnection::transferControllerStatus "
                   "state: %s cause: %d\n",
                   connState.data(), cause);

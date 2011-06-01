@@ -43,7 +43,7 @@ SubscribePersistThread::SubscribePersistThread(StatusServer& statusServer) :
    {
       mPersistInterval = SIP_STATUS_DEFAULT_PERSIST_INTERVAL;
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SubscribePersistThread::SubscribePersistThread "
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SubscribePersistThread::SubscribePersistThread "
                  "persist interval = %d seconds", mPersistInterval);
 };
 
@@ -51,7 +51,7 @@ SubscribePersistThread::SubscribePersistThread(StatusServer& statusServer) :
 /// Destructor
 SubscribePersistThread::~SubscribePersistThread()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SubscribePersistThread::~SubscribePersistThread ");
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SubscribePersistThread::~SubscribePersistThread ");
    waitUntilShutDown();
 }
 
@@ -66,7 +66,7 @@ void SubscribePersistThread::schedulePersist()
    {
       // Start the timer
       mIsTimerRunning = true;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SubscribePersistThread::schedulePersist in %d seconds"
                     ,mPersistInterval);
       assert(mPersistInterval > 0);
@@ -83,7 +83,7 @@ UtlBoolean SubscribePersistThread::handleMessage(OsMsg& eventMessage)    ///< Ti
    int msgType    = eventMessage.getMsgType();
    int msgSubType = eventMessage.getMsgSubType();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SubscribePersistThread::handleMessage received message %d/%d",
                     msgType, msgSubType);
 

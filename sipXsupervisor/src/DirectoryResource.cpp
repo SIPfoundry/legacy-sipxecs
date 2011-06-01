@@ -9,7 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
@@ -87,7 +87,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
                                                                      attribute, currentProcess)
                      ))
                {
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                                 "invalid attribute '%s': directory path '%s' ignored",
                                 attribute->Name(), path.data());
                }         
@@ -107,7 +107,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
          {
             resourceIsValid = false;
             XmlErrorMsg(directoryDefinitionDoc, errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                           "'path' element is empty or invalid %s",
                           errorMsg.data()
                           );
@@ -118,7 +118,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
          // first child is not 'path'
          resourceIsValid = false;
          XmlErrorMsg(directoryDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                        "expected path element, found %s",
                        dbElement->Value()
                        );
@@ -128,7 +128,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
    {
       resourceIsValid = false;
       XmlErrorMsg(directoryDefinitionDoc, errorMsg);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                     "no elements are present: path element is required %s",
                     errorMsg.data()
                     );
@@ -167,7 +167,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
                          SipxResource::isAttribute(attribute, SipxResource::RequiredAttributeName))
                      {
                         resourceIsValid = false ;
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+                        Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                                       "invalid attribute '%s' on filePattern '%s'",
                                       attribute->Name(), path.data()) ;
                      }
@@ -176,7 +176,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
                                                              attribute, currentProcess)
                                 ))
                      {
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+                        Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                                       "invalid attribute '%s': filePattern '%s' ignored",
                                       attribute->Name(), pattern.data());
                      }
@@ -199,7 +199,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
                else
                {
                   resourceIsValid = false;
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                                 "path '%s' "
                                 "filePattern '%s' did not translate to a regular expression",
                                 path.data(), pattern.data()
@@ -219,7 +219,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
                       SipxResource::isAttribute(attribute, SipxResource::RequiredAttributeName))
                   {
                      resourceIsValid = false ;
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+                     Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                                    "invalid attribute '%s' on filePattern '%s'",
                                    attribute->Name(), path.data()) ;
                   }
@@ -228,7 +228,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
                                                           attribute, currentProcess)
                         ))
                   {
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+                     Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                                    "invalid attribute '%s': filePattern '%s' ignored",
                                    attribute->Name(), pattern.data());
                   }
@@ -242,7 +242,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
                      directoryResource->mAccess = dirWithoutPatternResource->mAccess;
                   }
 
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "DirectoryResource::parse "
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "DirectoryResource::parse "
                                 "shared directory '%s' pattern '%s'",
                                 path.data(), pattern.data()
                                 );
@@ -256,7 +256,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
          {
             resourceIsValid = false;
             XmlErrorMsg(directoryDefinitionDoc, errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                           "'filePattern' element is empty"
                           );
          }
@@ -265,7 +265,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
       {
          resourceIsValid = false;
          XmlErrorMsg(directoryDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                        "expected 'filePattern' element; found '%s'",
                        dbElement->Value()
                        );
@@ -283,7 +283,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
    {
       // the directory resource was created, but no filePattern elements
       resourceIsValid = false;
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "DirectoryResource::parse "
                     "no 'filePattern' elements found for path '%s'",
                     path.data()
                     );
@@ -309,7 +309,7 @@ bool DirectoryResource::parse(const TiXmlDocument& directoryDefinitionDoc, ///< 
 
             UtlString description;
             directoryResource->appendDescription(description);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "DirectoryResource::parse add %s",
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "DirectoryResource::parse add %s",
                           description.data()
                           );
          }
@@ -386,7 +386,7 @@ bool DirectoryResource::pattern2RegEx(const UtlString& pattern, UtlString& patte
       patternExpression.append( pattern, patternPosition, UTLSTRING_TO_END );
    }
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                  "DirectoryResource::patternRegEx( '%s' ) -> '%s'",
                  pattern.data(), patternExpression.data()
                  );
@@ -418,7 +418,7 @@ void DirectoryResource::appendDescription(UtlString&  description /**< returned 
 bool DirectoryResource::isReadyToStart(UtlString& missingResource)
 {
    OsPath directoryPath(*this);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                  "DirectoryResource::isReadyToStart checking for existence of %s",
                  data());
    bool bReady;

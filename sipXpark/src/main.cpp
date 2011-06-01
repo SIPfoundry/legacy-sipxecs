@@ -14,9 +14,9 @@
 
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsConfigDb.h>
-
+#include <os/UnixSignals.h>
 #include <net/NameValueTokenizer.h>
 #include <net/SipPublishContentMgr.h>
 #include <persist/SipPersistentSubscriptionMgr.h>
@@ -41,6 +41,9 @@
 #include "sipdb/EntityDB.h"
 #include <sipdb/SubscribeDB.h>
 #include "sipXecsService/SipXecsService.h"
+
+#include <os/OsLogger.h>
+#include <os/OsLoggerHelper.h>
 
 #include "OrbitListener.h"
 #include "config.h"
@@ -115,44 +118,6 @@ UtlBoolean    gShutdownFlag = FALSE;
 
 /* ============================ FUNCTIONS ================================= */
 
-class SignalTask : public OsTask
-{
-public:
-   SignalTask() : OsTask() {}
-
-   int
-   run(void *pArg)
-   {
-       int sig_num ;
-       OsStatus res ;
-
-       // Wait for a signal.  This will unblock signals
-       // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process
-       // from the outside.
-       res = awaitSignal(sig_num);
-       if (res == OS_SUCCESS)
-       {
-          if (SIGTERM == sig_num)
-          {
-             OsSysLog::add( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
-          }
-          else
-          {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
-          }
-       }
-       else
-       {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
-       }
-       // set the global shutdown flag
-       gShutdownFlag = TRUE ;
-       return 0 ;
-   }
-} ;
-
-
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
 {
@@ -162,8 +127,8 @@ void initSysLog(OsConfigDb* pConfig)
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
 
-   OsSysLog::initialize(0, "sipxpark");
-   OsSysLog::add(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
+   Os::LoggerHelper::instance().processName = "sipxpark";
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
                  VERSION, PACKAGE_REVISION
                  );
 
@@ -186,7 +151,7 @@ void initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
       else
       {
@@ -195,7 +160,7 @@ void initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
 
       fileTarget = workingDirectory +
@@ -206,21 +171,22 @@ void initSysLog(OsConfigDb* pConfig)
    {
       bSpecifiedDirError = false;
       osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data());
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data());
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data());
 
       fileTarget = fileTarget +
          OsPathBase::separator +
          CONFIG_LOG_FILE;
    }
-   OsSysLog::setOutputFile(0, fileTarget);
+   
+
 
 
    //
    // Get/Apply Log Level
    //
    SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX, PRI_ERR);
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
-
+   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::LoggerHelper::instance().initialize(fileTarget);
    //
    // Get/Apply console logging
    //
@@ -230,17 +196,17 @@ void initSysLog(OsConfigDb* pConfig)
       consoleLogging.toUpper();
       if (consoleLogging == "ENABLE")
       {
-         OsSysLog::enableConsoleOutput(true);
+         Os::Logger::instance().enableConsoleOutput(true);
          bConsoleLoggingEnabled = true;
       }
    }
 
    osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      Os::Logger::instance().log(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
    }
 }
 
@@ -269,7 +235,7 @@ void initCodecs(SdpCodecFactory* codecFactory, OsConfigDb* pConfig)
       internalCodecId = SdpCodecFactory::getCodecType(oneCodec.data());
       if (internalCodecId == SdpCodec::SDP_CODEC_UNKNOWN)
       {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "initCodecs: Unknown codec ID: %s",
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "initCodecs: Unknown codec ID: %s",
                        oneCodec.data());
       }
       else
@@ -288,15 +254,6 @@ void initCodecs(SdpCodecFactory* codecFactory, OsConfigDb* pConfig)
 //
 int main(int argc, char* argv[])
 {
-   // Block all signals in this the main thread.
-   // Any threads created from now on will have all signals masked.
-   OsTask::blockSignals();
-
-   // Create a new task to wait for signals.  Only that task
-   // will ever see a signal from the outside.
-   SignalTask* signalTask = new SignalTask();
-   signalTask->start();
-
     // Configuration Database (used for OsSysLog)
     OsConfigDb configDb;
 
@@ -416,14 +373,14 @@ int main(int argc, char* argv[])
                                                            )
                              )
                          {
-                            OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                            Os::Logger::instance().log(LOG_FACILITY, PRI_INFO,
                                           "Added identity '%s': user='%s' realm='%s'"
                                           ,identity.toString().data(), user.data(), realm.data()
                                           );
                          }
                          else
                          {
-                            OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                            Os::Logger::instance().log(LOG_FACILITY, PRI_ERR,
                                           "Error adding identity '%s': user='%s' realm='%s'\n"
                                           "  escape and timeout from park may not work.",
                                           identity.toString().data(), user.data(), realm.data()
@@ -434,7 +391,7 @@ int main(int argc, char* argv[])
                       }     // end addLine
                       else
                       {
-                         OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                         Os::Logger::instance().log(LOG_FACILITY, PRI_ERR,
                                        "addLine failed: "
                                        "  escape and timeout from park may not work."
                                        );
@@ -442,7 +399,7 @@ int main(int argc, char* argv[])
                    }
                    else
                    {
-                      OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                      Os::Logger::instance().log(LOG_FACILITY, PRI_ERR,
                                     "Constructing SipLineMgr failed:  "
                                     "  escape and timeout from park may not work."
                                     );
@@ -450,7 +407,7 @@ int main(int argc, char* argv[])
                 }   // end new SipLine
                 else
                 {
-                   OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                   Os::Logger::instance().log(LOG_FACILITY, PRI_ERR,
                                  "Constructing SipLine failed:  "
                                  "  escape and timeout from park may not work."
                                  );
@@ -458,7 +415,7 @@ int main(int argc, char* argv[])
              }  // end getCredential
              else
              {
-                OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                Os::Logger::instance().log(LOG_FACILITY, PRI_ERR,
                               "No credential found for '%s@%s' in realm '%s'"
                               "; transfer functions will not work",
                               PARK_SERVER_ID_TOKEN, domain.data(), realm.data()
@@ -469,7 +426,7 @@ int main(int argc, char* argv[])
        }    // end have domain and realm
        else
        {
-          OsSysLog::add(LOG_FACILITY, PRI_ERR,
+          Os::Logger::instance().log(LOG_FACILITY, PRI_ERR,
                         "Domain or Realm not configured:"
                         "\n  '%s' : '%s'\n  '%s' : '%s'"
                         "  transfer functions will not work.",
@@ -480,7 +437,7 @@ int main(int argc, char* argv[])
     }       // end found domain config
     else
     {
-       OsSysLog::add(LOG_FACILITY, PRI_ERR,
+       Os::Logger::instance().log(LOG_FACILITY, PRI_ERR,
                      "main: failed to load domain configuration from '%s'",
                      domainConfigPath.data()
                      );
@@ -525,7 +482,7 @@ int main(int argc, char* argv[])
 
     if (!userAgent->isOk())
     {
-       OsSysLog::add(LOG_FACILITY, PRI_EMERG, "SipUserAgent failed to initialize, requesting shutdown");
+       Os::Logger::instance().log(LOG_FACILITY, PRI_EMERG, "SipUserAgent failed to initialize, requesting shutdown");
        gShutdownFlag = TRUE;
     }
 
@@ -629,16 +586,16 @@ int main(int argc, char* argv[])
     int numTwoSecIntervals = 0;
     int CleanLoopWaitTimeSecs = 10;
 
-    while (!gShutdownFlag)
+    while (!Os::UnixSignals::instance().isTerminateSignalReceived() && !gShutdownFlag)
     {
        OsTask::delay(2000);
 
        if (2*numTwoSecIntervals >= CleanLoopWaitTimeSecs)
        {
            numTwoSecIntervals = 0;
-           if (OsSysLog::willLog(FAC_PARK, PRI_DEBUG))
+           if (Os::Logger::instance().willLog(FAC_PARK, PRI_DEBUG))
            {
-               OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
+               Os::Logger::instance().log(LOG_FACILITY, PRI_DEBUG,
                              "park main "
                              "logging call status"
                              );
@@ -654,7 +611,7 @@ int main(int argc, char* argv[])
     }
 
     // Flush the log file
-    OsSysLog::flush();
+    Os::Logger::instance().flush();
 
     // Say goodnight Gracie...
     return 0;

@@ -8,7 +8,8 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
+#include "os/OsLoggerHelper.h"
 #include "os/OsConfigDb.h"
 #include "sipXecsService/SipXecsService.h"
 
@@ -60,16 +61,15 @@ SipXecsService::SipXecsService(const char* serviceName)
    :mServiceName(serviceName)
 {
 
-   OsSysLog::initialize(0, mServiceName.data());
 
    UtlString logFileName;
    logFileName.append(mServiceName);
    logFileName.append(".log");
 
-   OsPath logFilePath = Path(LogDirType, logFileName);
-   OsSysLog::setOutputFile(0, logFilePath.data()) ;
-   OsSysLog::enableConsoleOutput(false);
-   OsSysLog::add(FAC_KERNEL, PRI_NOTICE, "%s >>>>>>>>>>>>>>>> STARTED",
+   Os::LoggerHelper::instance().processName = mServiceName.data();
+   Os::LoggerHelper::instance().initialize(PRI_NOTICE, logFileName.data());
+
+   Os::Logger::instance().log(FAC_KERNEL, PRI_NOTICE, "%s >>>>>>>>>>>>>>>> STARTED",
                  mServiceName.data()
                  );
 
@@ -126,7 +126,7 @@ const char* SipXecsService::defaultDir(DirectoryType pathType)
    else
    {
       // invalid directory type
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT, "SipXecsService::defaultDir Invalid DirectoryType '%s'",
+      Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT, "SipXecsService::defaultDir Invalid DirectoryType '%s'",
                     pathType);
       assert(false);
    }
@@ -141,7 +141,7 @@ OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName)
    const char* dirPath;
    if ( (dirPath = getenv(pathType)) )
    {
-      OsSysLog::add(FAC_KERNEL, PRI_NOTICE,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_NOTICE,
                     "SipXecsService::Path type '%s' overridden by environment to '%s'",
                     pathType, dirPath);
    }
@@ -181,7 +181,7 @@ OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName)
       path.remove(path.length()-1);
    }
 
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                  "SipXecsService::Path('%s', '%s') returning '%s'",
                  pathType, fileName ? fileName : "", path.data() );
    return path;
@@ -211,7 +211,7 @@ const char* SipXecsService::Name()
    const char* name;
    if ( (name = getenv(NameType)) )
    {
-      OsSysLog::add(FAC_KERNEL, PRI_NOTICE,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_NOTICE,
                     "SipXecsService::Name overridden by environment to '%s'",
                     name);
    }
@@ -244,14 +244,14 @@ OsSysLogPriority SipXecsService::setLogPriority(const char* configSettingsFile, 
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
                     "SipXecsService::setLogPriority: Failed to open config file at '%s'\n"
                     "  setting %s%s to %s",
                     configPath.data(),
-                    servicePrefix, LogLevelSuffix, OsSysLog::priorityName(defaultLevel)
+                    servicePrefix, LogLevelSuffix, Os::Logger::instance().priorityName(defaultLevel)
                     );
 
-      OsSysLog::setLoggingPriority(defaultLevel);
+      Os::Logger::instance().setLogPriority(defaultLevel);
       return defaultLevel;
    }
 }
@@ -270,34 +270,40 @@ OsSysLogPriority SipXecsService::setLogPriority(const OsConfigDb& configSettings
 
    configSettings.get(logLevelTag, logLevel);
 
-   OsSysLogPriority priority;
+   int priority;
    if ( logLevel.isNull() )
    {
-      OsSysLog::add(FAC_KERNEL,PRI_WARNING,
+      Os::Logger::instance().log(FAC_KERNEL,PRI_WARNING,
                     "SipXecsService::setLogPriority: %s not found, using '%s'",
-                    logLevelTag.data(), OsSysLog::priorityName(defaultLevel)
+                    logLevelTag.data(), Os::Logger::instance().priorityName(defaultLevel)
                     );
 
       priority = defaultLevel;
    }
-   else if ( ! OsSysLog::priority(logLevel.data(), priority))
+   else if ( ! Os::Logger::instance().priority(logLevel.data(), priority))
    {
-      OsSysLog::add(FAC_KERNEL,PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL,PRI_ERR,
                     "SipXecsService::setLogPriority: %s value '%s' is invalid, using '%s'",
-                    logLevelTag.data(), logLevel.data(), OsSysLog::priorityName(defaultLevel)
+                    logLevelTag.data(), logLevel.data(), Os::Logger::instance().priorityName(defaultLevel)
                     );
 
       priority = defaultLevel;
 
    }
 
-   OsSysLog::setLoggingPriority(priority);
-   return priority;
+   //
+   // Set the new logger priority
+   //
+   Os::Logger::instance().setLogPriority(priority);
+
+   return (OsSysLogPriority)priority;
 }
 
 /// destructor
 SipXecsService::~SipXecsService()
 {
-   // Flush the log file
-   OsSysLog::flush();
+   //
+   // Flush the new logger
+   //
+   Os::Logger::instance().flush();
 };

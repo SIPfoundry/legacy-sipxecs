@@ -133,7 +133,7 @@ public class ConfRecordThread extends ConfBasicThread {
                 authPrefs.add(AuthPolicy.DIGEST);
                 httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
                 DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
-                Credentials credentials = new UsernamePasswordCredentials("superadmin", config.getSharedSecret());
+                Credentials credentials = new UsernamePasswordCredentials(item.getOwnerName(), config.getSharedSecret());
                 httpClient.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM),
                     credentials);
                 String urlString = "https://" + mboxServerAndPort +

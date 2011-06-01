@@ -7,6 +7,8 @@
 
 // Cloned from syslogviewer
 
+#include <string>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -20,7 +22,7 @@
 #define BUFFER_SIZE 8192
 
 #include <os/OsDefs.h>
-#include <os/OsSysLog.h>
+#include <os/OsLoggerHelper.h>
 #include <net/NameValueTokenizer.h>
 #include <net/SipMessage.h>
 
@@ -429,17 +431,17 @@ void getMessageData(UtlString& content,
 
 void convertToXml(UtlString& bufferString, int outputFileDescriptor)
 {
-    UtlString date;
-    UtlString eventCount;
-    UtlString facility;
-    UtlString priority;
-    UtlString hostname;
-    UtlString taskname;
-    UtlString taskId;
-    UtlString processId;
-    UtlString content;
+    std::string date;
+    std::string eventCount;
+    std::string facility;
+    std::string priority;
+    std::string hostname;
+    std::string taskname;
+    std::string taskId;
+    std::string processId;
+    std::string content;
 
-    OsSysLog::parseLogString(bufferString.data(),
+    Os::LoggerHelper::parseLogString(bufferString.data(),
                              date,
                              eventCount,
                              facility,
@@ -450,31 +452,36 @@ void convertToXml(UtlString& bufferString, int outputFileDescriptor)
                              processId,
                              content);
 
-    if(facility.compareTo("OUTGOING") == 0)
-    {
-        hostname.append("-");
-        hostname.append(processId);
+    UtlString content_ = content.c_str();
+    UtlString date_ = date.c_str();
+    UtlString hostname_ = hostname.c_str();
+    UtlString eventCount_ = eventCount.c_str();
 
-        getMessageData(content,
+    if(facility == "OUTGOING")
+    {
+        hostname += "-";
+        hostname += processId;
+
+        getMessageData(content_,
                        TRUE,
-                       date,
-                       hostname,
-                       eventCount,
+                       date_,
+                       hostname_,
+                       eventCount_,
                        outputFileDescriptor);
 
 
     }
 
-    else if(facility.compareTo("INCOMING") == 0)
+    else if(facility == "INCOMING")
     {
-        hostname.append("-");
-        hostname.append(processId);
+        hostname += "-";
+        hostname += processId;
 
-        getMessageData(content,
+        getMessageData(content_,
                        FALSE,
-                       date,
-                       hostname,
-                       eventCount,
+                       date_,
+                       hostname_,
+                       eventCount_,
                        outputFileDescriptor);
     }
 }

@@ -1,5 +1,6 @@
 <div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
   <span jwcid="@common/ErrorMsg"></span>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <form jwcid="@Form" delegate="bean:validator">
     <fieldset>
       <table>
@@ -15,18 +16,14 @@
 				label="message:label.atom">
             <span jwcid="atom@TextField" id="atom"
 				value="ognl:skill.atom"
-				disabled="ognl:(skill.defaultSkill || !skill.isNew())"
+				disabled="ognl:(skill.defaultSkill || disabled)"
 				displayName="message:label.atom"/>
           </tr>
-		  <tr jwcid="@common/FieldPanel" for="group" field="component:group"
-				label="message:label.group"
-				description="message:description.group">
-            <input jwcid="group@Suggest"
-				value="ognl:skill.groupName"
-				disabled="ognl:skill.defaultSkill"
-				listSource="ognl:skillGroupNames"
-				id="ognl:'suggest_' + index"
-				listener="listener:filterList"/>
+		  <tr jwcid="@common/FieldPanel" for="skillGroup" field="ognl:null"
+			  label="message:label.group">
+			<span jwcid="skillGroup@openacd/OpenAcdSkillGroupSelect"
+			  selectedSkillGroup="ognl:selectedSkillGroup"
+			  disabled="ognl:skill.defaultSkill"/>
 		  </tr>
           <tr jwcid="@common/FieldPanel" for="description" field="component:description"
 				label="message:label.description">

@@ -193,5 +193,11 @@
       <value>REPLAY-LAST-SENT-PACKET</value>
       <description>Defines the mechanism to use for media (RTP) keepalive.</description>
     </setting>
+    <setting name="always-relay-media" advanced="yes">
+      <label>Always Relay Media</label>
+      <type refid="switch"></type>
+      <value>true</value>
+      <description>Controls whether media is always relayed or not. If set to false then for hairpinned forwarded or blind transferred calls, the media relay will be removed from the media path AFTER transfer.</description>
+    </setting>
   </group>
 </model>

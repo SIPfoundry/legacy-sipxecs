@@ -52,7 +52,7 @@ void RegistrarTest::check()
 /// Override default run method to do one initial check before waiting for timers
 int RegistrarTest::run(void* pArg)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest started - starting initial check");
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "RegistrarTest started - starting initial check");
    /*
     * When this thread is first started, all peers should be either Uninitialized or
     * UnReachable, because the registrarSync.pullUpdates never sets them to Reachable.
@@ -60,7 +60,7 @@ int RegistrarTest::run(void* pArg)
     * to Reachable.
     */
    checkPeers();
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest initial check complete");
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "RegistrarTest initial check complete");
 
    // from here on, we run only when a timer has expired.
    return OsServerTask::run(pArg);
@@ -97,14 +97,14 @@ void RegistrarTest::checkPeers()
              || RegistrarPeer::UnReachable   == state
              )
          {
-            OsSysLog::add( FAC_SIP, PRI_DEBUG, "RegistrarTest invoke SyncRpcReset(%s, %s)"
+            Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "RegistrarTest invoke SyncRpcReset(%s, %s)"
                           ,sipRegistrar->primaryName().data(), peer->name());
 
             peer->setState(SyncRpcReset::invoke(sipRegistrar->primaryName(), *peer));
 
             if (RegistrarPeer::Reachable == peer->synchronizationState())
             {
-               OsSysLog::add( FAC_SIP, PRI_NOTICE,
+               Os::Logger::instance().log( FAC_SIP, PRI_NOTICE,
                              "registerSync.reset success to '%s'; update numbering synchronized."
                              ,peer->name()
                              );
@@ -135,7 +135,7 @@ void RegistrarTest::checkPeers()
 
          if (somePeerIsUnreachable)
          {
-            OsSysLog::add( FAC_SIP, PRI_INFO,
+            Os::Logger::instance().log( FAC_SIP, PRI_INFO,
                           "RegistrarTest::checkPeers "
                           "- at least one peer is UnReachable, starting timer."
                           );
@@ -144,7 +144,7 @@ void RegistrarTest::checkPeers()
          }
          else // there are no UnReachable peers
          {
-            OsSysLog::add( FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                           "RegistrarTest::checkPeers - all peers Reachable."
                           );
             mTestState = Idle;
@@ -155,7 +155,7 @@ void RegistrarTest::checkPeers()
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "RegistrarTest::checkPeers no peers %p %p",
                     sipRegistrar, peers
                     );
@@ -169,7 +169,7 @@ void RegistrarTest::requestShutdown(void)
     * Use the shutdown message to wake up the RegistrarTest task
     * to stop the timer before starting the shutdown of the task
     */
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest::requestShutdown" );
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "RegistrarTest::requestShutdown" );
    OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
 
    postMessage(msg); // wake up the task by sending a message to it.
@@ -194,7 +194,7 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
    }
    else if ( OsMsg::OS_SHUTDOWN == msgType )
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "RegistrarTest::handleMessage received shutdown message"
                     );
       {
@@ -210,7 +210,7 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "RegistrarTest::handleMessage received unexpected message %d/%d",
                     msgType, msgSubType
                     );
@@ -236,7 +236,7 @@ void RegistrarTest::restartTimer()
 
       // start the timer
       mTestState = TimerRunning;
-      OsSysLog::add( FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
                     "RegistrarTest::restartTimer %zu"
                     ,mRetryTime
                     );

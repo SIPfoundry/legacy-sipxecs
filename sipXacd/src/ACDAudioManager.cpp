@@ -9,7 +9,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlSList.h>
 #include <xmlparser/tinyxml.h>
 #include <net/ProvisioningAgent.h>
@@ -63,7 +63,7 @@ ACDAudioManager::ACDAudioManager(ACDServer* pAcdServer)
 
    if (!OsFileSystem::exists(mAudioStoreDirectory)) {
       if (OsFileSystem::createDir(mAudioStoreDirectory,TRUE /* create Parent */) != OS_SUCCESS) {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAudioManager::ACDAudioManager - "
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDAudioManager::ACDAudioManager - "
                        "failed to establish audio store directory: %s", mAudioStoreDirectory.data());
          mAudioStoreDirectory.remove(0);
       }
@@ -174,7 +174,7 @@ ACDAudio* ACDAudioManager::createACDAudio(const char* pName,
    // Create a mapping between the ACDAudio name and the ACDAudio instance.
    mAcdAudioList.insertKeyAndValue(new UtlString(pName), pAudioRef);
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAudioManager::createACDAudio - Audio added: %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAudioManager::createACDAudio - Audio added: %s",
                  pName);
 
    mLock.release();
@@ -211,7 +211,7 @@ void ACDAudioManager::deleteACDAudio(const char* pName)
    pKey = mAcdAudioList.removeKeyAndValue(&searchUriKey, pAudioRef);
    if (pKey == NULL) {
       // Error. Did not find a matching ACDAudio object.
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAudioManager::deleteACDAudio - Failed to find reference to Audio: %s",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDAudioManager::deleteACDAudio - Failed to find reference to Audio: %s",
                     pName);
       mLock.release();
       return;
@@ -230,7 +230,7 @@ void ACDAudioManager::deleteACDAudio(const char* pName)
    // Finally delete the ACDAudio object.
    delete pAudioRef;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAudioManager::deleteACDAudio - Audio: %s deleted",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDAudioManager::deleteACDAudio - Audio: %s deleted",
                  pName);
 
    mLock.release();
@@ -351,7 +351,7 @@ ProvisioningAttrList* ACDAudioManager::Create(ProvisioningAttrList& rRequestAttr
    }
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDAudioManager::Create - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDAudioManager::Create - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();
@@ -419,7 +419,7 @@ ProvisioningAttrList* ACDAudioManager::Delete(ProvisioningAttrList& rRequestAttr
    deletePSInstance(ACD_AUDIO_TAG, AUDIO_NAME_TAG, name);
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDAudioManager::Delete - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDAudioManager::Delete - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();
@@ -541,7 +541,7 @@ ProvisioningAttrList* ACDAudioManager::Set(ProvisioningAttrList& rRequestAttribu
    }
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDAudioManager::Set - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDAudioManager::Set - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();

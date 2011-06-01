@@ -55,7 +55,7 @@ SipUdpServer::SipUdpServer(int port,
    mStunRefreshSecs(28),
    mStunOptions(0)
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipUdpServer[%s]::_ port = %d, bUseNextAvailablePort = %d, szBoundIp = '%s'",
                   getName().data(), port, bUseNextAvailablePort, szBoundIp);
 
@@ -162,7 +162,7 @@ void SipUdpServer::createServerSocket(const char* szBindAddr,
                  (char*) &sockbufsize,
                  &size);
 #ifdef LOG_SIZE
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipUdpServer[%s]::SipUdpServer UDP buffer size: %d size: %d",
                     getName().data(), sockbufsize, size);
 #endif /* LOG_SIZE */
@@ -182,7 +182,7 @@ void SipUdpServer::createServerSocket(const char* szBindAddr,
                     (char*) &sockbufsize,
                     &size);
 #ifdef LOG_SIZE
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipUdpServer[%s]::SipUdpServer reset UDP buffer size: %d size: %d",
                        getName().data(), sockbufsize, size);
 #endif /* LOG_SIZE */

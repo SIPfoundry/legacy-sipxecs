@@ -2081,7 +2081,7 @@ void SipRefreshMgr::setLastLineEvent(const UtlString& lineId, const SIPX_LINESTA
 
     if((exisitingId = dynamic_cast<UtlString*>(mpLastLineEventMap->find(newId))))
     {
-       OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_REFRESH_MGR, PRI_DEBUG,
                      "SipRefreshMgr::setLastLineEvent: LineId found, being destroyed ??"
                      );
        mpLastLineEventMap->destroy(exisitingId);

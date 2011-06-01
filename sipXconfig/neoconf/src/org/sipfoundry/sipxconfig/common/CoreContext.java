@@ -136,7 +136,7 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
 
     void clear();
 
-    List getGroups();
+    List<Group> getGroups();
 
     /**
      * Retrieves user group by name.

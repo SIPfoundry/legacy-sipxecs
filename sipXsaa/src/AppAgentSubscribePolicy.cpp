@@ -10,7 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "net/SipMessage.h"
 #include "net/Url.h"
 #include "sipdb/EntityDB.h"
@@ -121,7 +121,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
         authIndex++
       )
    {
-      OsSysLog::add(FAC_AUTH, PRI_DEBUG, 
+      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, 
                     "AppAgentSubscribePolicy::isAuthenticated "
                     "Message Authorization received: "
                     "reqRealm='%s', reqUser='%s', reqUserBase='%s'",
@@ -131,7 +131,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
 
       if (mRealm.compareTo(authRealm) ) // case sensitive check that realm is correct
       {
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                        "AppAgentSubscribePolicy::isAuthenticated "
                        "Realm does not match");
       }
@@ -139,7 +139,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
       // validate the nonce
       else if (!mNonceDb.isNonceValid(authNonce, callId, fromTag, mRealm, mNonceExpiration))
       {
-          OsSysLog::add(FAC_AUTH, PRI_INFO,
+          Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                         "AppAgentSubscribePolicy::isAuthenticated -"
                         "Invalid nonce: nonce='%s', callId='%s'",
                         authNonce.data(), callId.data());
@@ -152,7 +152,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
                                                      qopType)
                >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
       {
-          OsSysLog::add(FAC_AUTH, PRI_INFO,
+          Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                         "AppAgentSubscribePolicy::isAuthenticated -"
                         "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
                         authQop.data(), authCnonce.data(), authNonceCount.data());
@@ -184,7 +184,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
                                                          uriParam.data())
                    ))
             {
-               OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                              "AppAgentSubscribePolicy::isAuthenticated "
                              "response auth hash matches");
             }
@@ -192,7 +192,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
             {
                UtlString identity;
                authIdentity.getIdentity(identity);
-               OsSysLog::add(FAC_AUTH, PRI_ERR,
+               Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                              "AppAgentSubscribePolicy::isAuthenticated "
                              "Response auth hash does not match (bad password?)"
                              " authIdentity='%s' authUser='%s' authUserBase='%s'",
@@ -203,7 +203,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
          {
             UtlString identity;
             authIdentity.getIdentity(identity);
-            OsSysLog::add(FAC_AUTH, PRI_ERR,
+            Os::Logger::instance().log(FAC_AUTH, PRI_ERR,
                           "AppAgentSubscribePolicy::isAuthenticated "
                           "Unable to get credentials for realm='%s', user='%s', userBase = '%s'",
                           mRealm.data(), authUser.data(), authUserBase.data());

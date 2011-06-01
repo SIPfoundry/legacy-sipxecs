@@ -14,7 +14,7 @@
 // APPLICATION INCLUDES
 
 #include "filereader/RefreshingFileReader.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsFS.h>
 #include <os/OsDateTime.h>
 
@@ -55,7 +55,7 @@ void RefreshingFileReader::setFileName(const UtlString* fileName)
 {
    // Set the file name.
    mFileName = fileName ? *fileName : "";
-   OsSysLog::add(FAC_DB, PRI_INFO, "RefreshingFileReader:: "
+   Os::Logger::instance().log(FAC_DB, PRI_INFO, "RefreshingFileReader:: "
                  "File name is now '%s'", mFileName.data());
 
    // Set the state to force refresh() to set up the state and call

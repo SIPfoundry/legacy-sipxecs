@@ -62,3 +62,7 @@ missingok
 @SIPX_LOGDIR@/openfire/*.log {
     copytruncate
 }
+
+@SIPX_LOGDIR@/openacd/*.log {
+    copytruncate
+}

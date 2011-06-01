@@ -9,9 +9,9 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlString.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/SipSubscribeServerEventHandler.h>
 #include <net/SipPublishContentMgr.h>
 #include <net/SipMessage.h>
@@ -145,12 +145,12 @@ SipSubscribeServerEventHandler::getNotifyContent(const UtlString& resourceId,
         notifyRequest.setContentType(messageBody->getContentType());
         notifyRequest.setBody(messageBody);
 
-        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+        if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
         {
            UtlString request;
            ssize_t requestLength;
            notifyRequest.getBytes(&request, &requestLength);
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                          "SipSubscribeServerEventHandler::getNotifyContent resourceId '%s', eventTypeKey '%s' contentType '%s' NOTIFY message length = %zu, message = '%s'",
                          resourceId.data(), eventTypeKey.data(),
                          messageBody->getContentType(),

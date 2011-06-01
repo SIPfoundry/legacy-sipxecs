@@ -11,7 +11,7 @@
 #include <utl/UtlRegex.h>
 #include <utl/UtlTokenizer.h>
 #include "os/OsDateTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorTimeOfDay.h"
 
@@ -58,7 +58,7 @@ SipRedirectorTimeOfDay::initialize(OsConfigDb& configDb,
                                  int redirectorNo,
                                  const UtlString& localDomainHost)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::initialize", mLogName.data());
    return OS_SUCCESS;
 }
@@ -67,7 +67,7 @@ SipRedirectorTimeOfDay::initialize(OsConfigDb& configDb,
 void
 SipRedirectorTimeOfDay::finalize()
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::finalize entered", mLogName.data());
 }
 
@@ -99,7 +99,7 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processContactList(ContactL
    // Get the number of contacts in the contact list
    int numContactsInList = contactList.entries();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::processContactList %d contacts found",
                  mLogName.data(), numContactsInList);
 
@@ -116,7 +116,7 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processContactList(ContactL
       UtlString contact;
       if (!contactList.get(contactIndex, contact))
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "%s::processContactList getContactEntry failed for index %d",
                        mLogName.data(), contactIndex);
       }
@@ -124,20 +124,20 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processContactList(ContactL
       {
          Url contactUri(contact);
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "%s::processContactList contact %d '%s'",
                        mLogName.data(), contactIndex, contact.data());
 
          UtlString timeOfDayString;
          if (!contactUri.getFieldParameter(SIPX_TIMEOFDAY_PARAMETER, timeOfDayString))
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "%s::processContactList %s param not found",
                           mLogName.data(), SIPX_TIMEOFDAY_PARAMETER);
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "%s::processContactList %s param found: '%s'",
                           mLogName.data(), SIPX_TIMEOFDAY_PARAMETER, timeOfDayString.data());
 
@@ -149,7 +149,7 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processContactList(ContactL
                UtlString modifiedContact;
                contactUri.toString(modifiedContact);
                contactList.set( contactIndex, modifiedContact, *this );
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "%s::processContactList modified contact is: '%s'",
                              mLogName.data(), modifiedContact.data());
             }
@@ -157,7 +157,7 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processContactList(ContactL
             {
                // Remove the contact header alltogether
                UtlBoolean removed = contactList.remove( contactIndex, *this );
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "%s::processContactList attempt to remove contact %d rsp %d",
                              mLogName.data(), contactIndex, removed);
             }
@@ -183,7 +183,7 @@ UtlBoolean SipRedirectorTimeOfDay::isCurrentTimeValid(UtlString const & validity
    // Jan 1 1970 was a Thursday.  Adjust to obtain minutes from Sunday
    unsigned short minFromSunday = (osCurTimeSinceEpoch/60 - 4320)%10080;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorTimeOfDay::isCurrentTimeValid curMinFromSunday=0x%x", minFromSunday);
 
    UtlTokenizer tokenizer(validityString);
@@ -195,14 +195,14 @@ UtlBoolean SipRedirectorTimeOfDay::isCurrentTimeValid(UtlString const & validity
       int startMinutes;
       if (!from_string(startMinutes, startMinString))
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "SipRedirectorTimeOfDay::isCurrentTimeValid invalid interval start: '%s' value: '%s'",
                        validityString.data(), startMinString.data());
          validTokens = false;
       }
       else if (!tokenizer.next(endMinString, ":"))
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "SipRedirectorTimeOfDay::isCurrentTimeValid no interval end: '%s'",
                        validityString.data());
          validTokens = false;
@@ -212,14 +212,14 @@ UtlBoolean SipRedirectorTimeOfDay::isCurrentTimeValid(UtlString const & validity
          int endMinutes;
          if (!from_string(endMinutes, endMinString))
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SipRedirectorTimeOfDay::isCurrentTimeValid invalid interval end: '%s' value: '%s'",
                           validityString.data(), endMinString.data());
             validTokens = false;
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipRedirectorTimeOfDay::isCurrentTimeValid interval: start: '%s' end: '%s'",
                           startMinString.data(), endMinString.data());
 

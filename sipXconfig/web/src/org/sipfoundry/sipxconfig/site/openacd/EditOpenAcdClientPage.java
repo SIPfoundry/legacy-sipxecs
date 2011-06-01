@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.site.openacd;
@@ -40,24 +41,21 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
 
     public abstract void setOpenAcdClientId(Integer id);
 
-    @Persist
     public abstract OpenAcdClient getOpenAcdClient();
 
     public abstract void setOpenAcdClient(OpenAcdClient client);
 
-    public abstract int getIndex();
+    public abstract boolean isDisabled();
 
-    public abstract void setIndex(int i);
+    public abstract void setDisabled(boolean disabled);
 
     public void addClient(String returnPage) {
-        setOpenAcdClient(null);
         setOpenAcdClientId(null);
         setReturnPage(returnPage);
     }
 
     public void editClient(Integer clientId, String returnPage) {
         setOpenAcdClientId(clientId);
-        setOpenAcdClient(getOpenAcdContext().getClientById(getOpenAcdClientId()));
         setReturnPage(returnPage);
     }
 
@@ -67,7 +65,10 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
             return;
         }
 
-        if (getOpenAcdClient() == null && getOpenAcdClientId() == null) {
+        if (getOpenAcdClientId() != null) {
+            setOpenAcdClient(getOpenAcdContext().getClientById(getOpenAcdClientId()));
+            setDisabled(true);
+        } else {
             setOpenAcdClient(new OpenAcdClient());
         }
     }

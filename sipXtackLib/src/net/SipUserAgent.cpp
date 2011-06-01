@@ -49,7 +49,7 @@
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
 #include <config.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsFS.h>
 #include <utl/UtlTokenizer.h>
 
@@ -137,7 +137,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbShuttingDown(FALSE)
         , mbShutdownDone(FALSE)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipUserAgent[%s]::_ sipTcpPort = %d, sipUdpPort = %d, "
                  "sipTlsPort = %d",
                  getName().data(), sipTcpPort, sipUdpPort, sipTlsPort);
@@ -160,7 +160,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
         if (mTlsPort == PORT_NONE || !mSipTlsServer->isOk())
         {
-            OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on tls port %d (ok=%d)",
+            Os::Logger::instance().log(FAC_NET, PRI_EMERG, "Unable to bind on tls port %d (ok=%d)",
                     sipTlsPort, mSipTlsServer->isOk());
             mTlsPort = PORT_NONE;
         }
@@ -178,7 +178,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
         if (mTcpPort == PORT_NONE || !mSipTcpServer->isOk())
         {
-            OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on tcp port %d (ok=%d)",
+            Os::Logger::instance().log(FAC_NET, PRI_EMERG, "Unable to bind on tcp port %d (ok=%d)",
                     sipTcpPort, mSipTcpServer->isOk());
             mTcpPort = PORT_NONE;
         }
@@ -198,12 +198,12 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
         if (mUdpPort == PORT_NONE || !mSipUdpServer->isOk())
         {
-            OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on udp port %d (ok=%d)",
+            Os::Logger::instance().log(FAC_NET, PRI_EMERG, "Unable to bind on udp port %d (ok=%d)",
                     sipUdpPort, mSipUdpServer->isOk());
             mUdpPort = PORT_NONE;
         }
     }
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent[%s]::_ after creating mSip*Servers: "
                   "mTcpPort = %d, mUdpPort = %d, mTlsPort = %d",
                   getName().data(), mTcpPort, mUdpPort, mTlsPort);
@@ -291,7 +291,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         }
         else
         {
-           OsSysLog::add(FAC_SIP, PRI_WARNING,
+           Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                          "SipUserAgent::_ no IP addresses found.");
         }
     }
@@ -322,7 +322,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         else
         {
            // If getContactAdapterName can't find an adapter.
-           OsSysLog::add(FAC_SIP, PRI_WARNING,
+           Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                          "SipUserAgent::_ no adaptor found for address '%s'",
                          defaultSipAddress.data());
            strcpy(contact.cInterface, "(unknown)");
@@ -403,7 +403,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
        else
        {
           // Unknown.
-          OsSysLog::add(FAC_SIP, PRI_ERR,
+          Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                         "SipUserAgent:: neither TCP, UDP, nor TLS in use -- can't construct Contact");
           // Make a guess, it might work.
           port = PORT_NONE;
@@ -417,7 +417,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                                port,
                                protocol,
                                defaultSipUser.data());
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipUserAgent[%s]::_ port = %d, protocol = %s, mContactURI = '%s'",
                      getName().data(), port,
                      protocol ? protocol : "NULL",
@@ -695,7 +695,7 @@ void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
 
 void SipUserAgent::allowMethod(const char* methodName, const bool bAllow)
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::allowMethod this = '%s', methodName = '%s', bAllow = %d",
                   mName.data(), methodName, bAllow);
 
@@ -812,7 +812,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       else
       {
          // Should not be getting here.
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipUserAgent::send message being resent");
       }
    }    // !isResponse
@@ -831,7 +831,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
                                                                      relationship);
 
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-   OsSysLog::add(FAC_SIP, PRI_DEBUG
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                  ,"SipUserAgent[%s]::send "
                   "searched for existing transaction, relationship = %d",
                  getName().data(), relationship);
@@ -884,7 +884,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          else
          {
             // Should not be getting here
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::send %s request matches existing transaction",
                           method.data());
 
@@ -903,7 +903,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       if (isResponse)
       {
          // Should not get here except possibly on a server
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipUserAgent::send response without an existing transaction"
                        );
       }
@@ -921,7 +921,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
             // See if there is a parent server proxy transaction
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-            OsSysLog::add(FAC_SIP, PRI_DEBUG
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                           ,"SipUserAgent[%s]::send searching for parent transaction",
                           getName().data());
 #           endif
@@ -958,7 +958,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                              "SipUserAgent::send proxied client transaction not "
                              "part of server transaction, parent relationship: %s",
                              SipTransaction::relationshipString(parentRelationship));
@@ -973,7 +973,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          {
             if (sav2xxAckParentTxValue)
             {
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipUserAgent[%s]::send proxied client transaction %p 2xx ACK has parent %p",
                               getName().data(), sav2xxAckTxValue, sav2xxAckParentTxValue);
             }
@@ -981,7 +981,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             // old comment-> this happens all the time in the authproxy, so log only at debug
             else
             {
-                OsSysLog::add(FAC_SIP, PRI_WARNING,
+                Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                               "SipUserAgent[%s]::send proxied client transaction does not have parent",
                               getName().data());
             }
@@ -1080,7 +1080,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       else
       {
          //  All other messages just get sent.
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipUserAgent::send "
                         "outgoing call 1");
          sendSucceeded = transaction->handleOutgoing(message,
@@ -1093,13 +1093,13 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "SipUserAgent::send failed to construct new transaction");
    }
 
    if (!sendSucceeded)
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipUserAgent::send returning false");
    }
    return (sendSucceeded);
@@ -1160,7 +1160,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
     {
       // Only bother processing if the logs are enabled
       if (    isMessageLoggingEnabled() ||
-              OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
+              Os::Logger::instance().willLog(FAC_SIP_OUTGOING, PRI_INFO))
         {
           UtlString msgBytes;
           ssize_t msgLen;
@@ -1168,7 +1168,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
           msgBytes.insert(0, "No send address\n");
           msgBytes.append("--------------------END--------------------\n");
           logMessage(msgBytes.data(), msgBytes.length());
-          OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
+          Os::Logger::instance().log(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
         }
       sentOk = FALSE;
     }
@@ -1214,7 +1214,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
 
   // Only bother processing if the logs are enabled
   if (    isMessageLoggingEnabled() ||
-          OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
+          Os::Logger::instance().willLog(FAC_SIP_OUTGOING, PRI_INFO))
     {
       ssize_t len;
       message->getBytes(&msgBytes, &len);
@@ -1223,7 +1223,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
       logMessage(msgBytes.data(), msgBytes.length());
       if (msgBytes.length())
       {
-        OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
+        Os::Logger::instance().log(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
       }
     }
 
@@ -1254,7 +1254,7 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
 
     // Don't bother processing unless the logs are enabled
     if (    isMessageLoggingEnabled() ||
-            OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
+            Os::Logger::instance().willLog(FAC_SIP_OUTGOING, PRI_INFO))
     {
         UtlString msgBytes;
         ssize_t msgLen;
@@ -1297,7 +1297,7 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
         }
 
         logMessage(msgBytes.data(), msgBytes.length());
-        OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
+        Os::Logger::instance().log(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
     }
 
     return(sentOk);
@@ -1461,13 +1461,13 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     else if (*serverAddress == '\0')
     {
        if (isMessageLoggingEnabled() ||
-           OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
+           Os::Logger::instance().willLog(FAC_SIP_OUTGOING, PRI_INFO))
        {
           message->getBytes(&msgBytes, &len);
           msgBytes.insert(0, "No send address\n");
           msgBytes.append("--------------------END--------------------\n");
           logMessage(msgBytes.data(), msgBytes.length());
-          OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
+          Os::Logger::instance().log(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
        }
        sendSucceeded = FALSE;
     }
@@ -1487,7 +1487,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     }
 
     if (   isMessageLoggingEnabled()
-        || OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO)
+        || Os::Logger::instance().willLog(FAC_SIP_OUTGOING, PRI_INFO)
         )
     {
        message->getBytes(&msgBytes, &len);
@@ -1508,7 +1508,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
        msgBytes.append("--------------------END--------------------\n");
 
        logMessage(msgBytes.data(), msgBytes.length());
-       OsSysLog::add(FAC_SIP_OUTGOING , PRI_INFO, "%s", msgBytes.data());
+       Os::Logger::instance().log(FAC_SIP_OUTGOING , PRI_INFO, "%s", msgBytes.data());
     }
 
     return (sendSucceeded);
@@ -1538,13 +1538,13 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    else if(*serverAddress == '\0')
    {
       if (    isMessageLoggingEnabled() ||
-          OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
+          Os::Logger::instance().willLog(FAC_SIP_OUTGOING, PRI_INFO))
       {
          message->getBytes(&msgBytes, &len);
          msgBytes.insert(0, "No send address\n");
          msgBytes.append("--------------------END--------------------\n");
          logMessage(msgBytes.data(), msgBytes.length());
-         OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
+         Os::Logger::instance().log(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
       }
       sendSucceeded = FALSE;
    }
@@ -1567,7 +1567,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    }
 
    if (    isMessageLoggingEnabled() ||
-       OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
+       Os::Logger::instance().willLog(FAC_SIP_OUTGOING, PRI_INFO))
    {
       message->getBytes(&msgBytes, &len);
       messageStatusString.append("----Local Host:");
@@ -1587,7 +1587,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
       msgBytes.append("--------------------END--------------------\n");
 
       logMessage(msgBytes.data(), msgBytes.length());
-      OsSysLog::add(FAC_SIP_OUTGOING , PRI_INFO, "%s", msgBytes.data());
+      Os::Logger::instance().log(FAC_SIP_OUTGOING , PRI_INFO, "%s", msgBytes.data());
    }
 
    return(sendSucceeded);
@@ -1620,8 +1620,8 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
    // Get the message bytes for logging before the message is
    // potentially deleted or nulled out.
    if (   isMessageLoggingEnabled()
-       || OsSysLog::willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG)
-       || OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+       || Os::Logger::instance().willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG)
+       || Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
    {
       message->getBytes(&msgBytes, &len);
    }
@@ -1636,7 +1636,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          UtlString protocol;
          UtlString originalHeader;
 
-         if (OsSysLog::willLog(FAC_SIP, PRI_NOTICE))
+         if (Os::Logger::instance().willLog(FAC_SIP, PRI_NOTICE))
          {
              originalHeader = message->getFirstHeaderLine();
          }
@@ -1650,9 +1650,9 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          uri.getUri(uriStr);
          message->setFirstHeaderLine(method, uriStr, protocol);
 
-         if (OsSysLog::willLog(FAC_SIP, PRI_NOTICE))
+         if (Os::Logger::instance().willLog(FAC_SIP, PRI_NOTICE))
          {
-            OsSysLog::add(FAC_SIP, PRI_NOTICE,
+            Os::Logger::instance().log(FAC_SIP, PRI_NOTICE,
                   "SipUserAgent[%s]::dispatch updated first line header "
                   "per RFC 3261 Section 16.4:\n%s -> %s",
                   getName().data(),
@@ -1672,7 +1672,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
       UtlBoolean isUaTransaction = mIsUaTransactionByDefault;
       enum SipTransaction::messageRelationship relationship;
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-            OsSysLog::add(FAC_SIP, PRI_DEBUG
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                           ,"SipUserAgent[%s]::dispatch(incoming) searching for transaction",
                           getName().data());
 #           endif
@@ -1680,7 +1680,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          mSipTransactions.findTransactionFor(*message,
                                              FALSE, // incoming
                                              relationship);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipUserAgent[%s]::dispatch transaction = %p, relationship = %d",
                     getName().data(), transaction, relationship);
 
@@ -1699,7 +1699,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
       {
          if(isResponse)
          {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,"SipUserAgent::dispatch "
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,"SipUserAgent::dispatch "
                           "received response without transaction");
 
          }      // end no transaction found for response message
@@ -1727,7 +1727,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                if (relationship != SipTransaction::MESSAGE_2XX_ACK_PROXY)   // don't overwrite this value
                {
                    relationship = SipTransaction::MESSAGE_ACK;
-                   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                   Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                  "SipUserAgent[%s]::dispatch received ACK without transaction",
                                  getName().data());
                }
@@ -1735,7 +1735,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                {
                    // Should happen whenever the ACK is not traversing the same proxy as where the transaction was origniated.
                    // E.g. Call setup in the authproxy, because the original transaction was in the forking proxy.
-                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                  "SipUserAgent[%s]::dispatch received 2xx ACK to forward for transaction %p",
                                   getName().data(), sav2xxAckTxValue );
                }
@@ -1743,7 +1743,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             else if(method.compareTo(SIP_CANCEL_METHOD) == 0)
             {
                relationship = SipTransaction::MESSAGE_CANCEL;
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                              "SipUserAgent::dispatch received CANCEL without transaction");
             }
             else
@@ -2063,7 +2063,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             if(response)
             {
                // Send the error response
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipUserAgent::send "
                               "outgoing call 2");
                transaction->handleOutgoing(*response,
@@ -2086,7 +2086,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::dispatch NULL message to handle");
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipUserAgent::dispatch NULL message to handle");
                //osPrintf("ERROR: SipUserAgent::dispatch NULL message to handle\n");
             }
          }      // end REQUEST case
@@ -2152,9 +2152,9 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 
          default:
          {
-            if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
+            if (Os::Logger::instance().willLog(FAC_SIP, PRI_WARNING))
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                              "SipUserAgent::dispatch unhandled incoming message: %s",
                              SipTransaction::relationshipString(relationship));
             }
@@ -2170,7 +2170,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
    }        // end SipMessageEvent::APPLICATION
    else if(messageType == SipMessageEvent::TRANSPORT_ERROR)
    {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipUserAgent[%s]::dispatch transport error message received",
                      getName().data());
 
@@ -2184,7 +2184,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 
           if(message->getSipTransaction() == NULL)
           {
-             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                            "SipUserAgent[%s]::dispatch "
                            "transport error message with NULL transaction",
                            getName().data()
@@ -2195,7 +2195,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
           enum SipTransaction::messageRelationship relationship;
           //mSipTransactions.lock();
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-       OsSysLog::add(FAC_SIP, PRI_DEBUG
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                      ,"SipUserAgent[%s]::dispatch(transport error) searching for transaction",
                      getName().data());
 #           endif
@@ -2232,7 +2232,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
              {
                 // Only bother processing if the logs are enabled
                 if (    isMessageLoggingEnabled() ||
-                    OsSysLog::willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG))
+                    Os::Logger::instance().willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG))
                 {
                    UtlString delayMsgString;
                    ssize_t delayMsgLen;
@@ -2242,7 +2242,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                    delayMsgString.append("++++++++++++++++++++END++++++++++++++++++++\n");
 
                    logMessage(delayMsgString.data(), delayMsgString.length());
-                   OsSysLog::add(FAC_SIP_INCOMING_PARSED, PRI_DEBUG,"%s",
+                   Os::Logger::instance().log(FAC_SIP_INCOMING_PARSED, PRI_DEBUG,"%s",
                                  delayMsgString.data());
                 }
 
@@ -2256,13 +2256,13 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
           }
           else // Could not find a transaction for this expired message
           {
-             if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+             if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
              {
                 UtlString noTxMsgString;
                 ssize_t noTxMsgLen;
                 message->getBytes(&noTxMsgString, &noTxMsgLen);
 
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipUserAgent[%s]::dispatch "
                               "transport error with no matching transaction: %s",
                               getName().data(), noTxMsgString.data());
@@ -2281,14 +2281,14 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 #endif
 
    if (    isMessageLoggingEnabled()
-       || OsSysLog::willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG)
+       || Os::Logger::instance().willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG)
        )
    {
       msgBytes.insert(0, messageStatusString.data());
       msgBytes.append("++++++++++++++++++++END++++++++++++++++++++\n");
 
       logMessage(msgBytes.data(), msgBytes.length());
-      OsSysLog::add(FAC_SIP_INCOMING_PARSED, PRI_DEBUG, "%s", msgBytes.data());
+      Os::Logger::instance().log(FAC_SIP_INCOMING_PARSED, PRI_DEBUG, "%s", msgBytes.data());
    }
 
    if(message && shouldDispatch)
@@ -2304,7 +2304,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
    if(delayedDispatchMessage)
    {
       if (   isMessageLoggingEnabled()
-          || OsSysLog::willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG)
+          || Os::Logger::instance().willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG)
           )
       {
          UtlString delayMsgString;
@@ -2315,7 +2315,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          delayMsgString.append("++++++++++++++++++++END++++++++++++++++++++\n");
 
          logMessage(delayMsgString.data(), delayMsgString.length());
-         OsSysLog::add(FAC_SIP_INCOMING_PARSED, PRI_DEBUG, "%s",
+         Os::Logger::instance().log(FAC_SIP_INCOMING_PARSED, PRI_DEBUG, "%s",
                        delayMsgString.data());
       }
 
@@ -2335,7 +2335,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
    eventTimes.addEvent("finish");
    UtlString timeString;
    eventTimes.getLogString(timeString);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipUserAgent[%s]::dispatch time log: %s",
                  getName().data(), timeString.data());
 #endif
@@ -2450,18 +2450,18 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
                {
                   int numMsgs = observerQueue->numMsgs();
                   int maxMsgs = observerQueue->maxMsgs();
-                  OsSysLog::add(FAC_SIP, PRI_CRIT,
+                  Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                                 "SipUserAgent::queueMessageToInterestedObservers "
                                 "send failed with status %d "
                                 "(numMsgs = %d, maxMsgs = %d)",
                                 r, numMsgs, maxMsgs);
-                  OsSysLog::add(FAC_SIP, PRI_CRIT,
+                  Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                                 "SipUserAgent::queueMessageToInterestedObservers "
                                 "send failed to queue named '%s'",
                                 observerQueue->getName()->data());
                   UtlString eventName;
                   observerCriteria->getEventName(eventName);
-                  OsSysLog::add(FAC_SIP, PRI_CRIT,
+                  Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                                 "SipUserAgent::queueMessageToInterestedObservers "
                                 "observerQueue %p, observerData %p, SIP method '%s', "
                                 "wantsRequests %d, wantsResponses %d, wantsIncoming %d, "
@@ -2478,7 +2478,7 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
                   UtlString messageContent;
                   ssize_t messageLength;
                   message->getBytes(&messageContent, &messageLength);
-                  OsSysLog::add(FAC_SIP, PRI_CRIT,
+                  Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                                 "SipUserAgent::queueMessageToInterestedObservers failed message is: %s",
                                 messageContent.data());
                }
@@ -2492,7 +2492,7 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "queueMessageToInterestedObservers - no message");
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT, "queueMessageToInterestedObservers - no message");
    }
 }
 
@@ -2517,7 +2517,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    // Print message if input queue to SipUserAgent exceeds 100.
    if (getMessageQueue()->numMsgs() > 100)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipUserAgent[%s]::handleMessage "
                     "msgType = %d, msgSubType = %d, queue length = %d",
                     getName().data(),
@@ -2554,17 +2554,17 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          if(sipMsg)
          {
             //messages for which the UA is consumer will end up here.
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipUserAgent[%s]::handleMessage posting message",
                           getName().data());
 
             // I cannot remember what kind of message ends up here???
-            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
             {
                ssize_t len;
                UtlString msgBytes;
                sipMsg->getBytes(&msgBytes, &len);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "??????????????????????????????????????\n"
                              "%s???????????????????????????????????\n",
                              msgBytes.data());
@@ -2604,7 +2604,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                // the transaction has been locked (via findTransactionFor).
                // if no transaction is returned, it either no longer exists or we could not get a lock for it.
 
-               if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+               if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
                {
                   UtlString callId;
                   int protocolType = sipMessage->getSendProtocol();
@@ -2612,12 +2612,12 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
 
                   if(sipMessage->getSipTransaction() == NULL)
                   {
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                    "SipUserAgent[%s]::handleMessage "
                                    "resend Timeout message with NULL transaction",
                                    getName().data());
                   }
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                 "SipUserAgent[%s]::handleMessage "
                                 "resend Timeout of message for protocol %d, callId: \"%s\"",
                                 getName().data(), protocolType, callId.data());
@@ -2627,7 +2627,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                enum SipTransaction::messageRelationship relationship;
                //mSipTransactions.lock();
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipUserAgent[%s]::handleMessage(resend) "
                           "searching for transaction",
                           getName().data());
@@ -2638,7 +2638,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                if (transaction)
                {
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipUserAgent[%s]::handleMessage "
                           "(resend) found transaction %p",
                           getName().data(), transaction);
@@ -2667,7 +2667,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
 
                   if(nextTimeout == 0)
                   {
-                     if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                     if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
                      {
                         UtlString transactionString;
                         transaction->toString(transactionString, TRUE);
@@ -2675,7 +2675,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                                  "SipUserAgent::handleMessage "
                                                  "timeout send failed\n"
                                                  );
-                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s\n", transactionString.data());
+                        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s\n", transactionString.data());
                         //osPrintf("%s\n", transactionString.data());
                      }
                   }
@@ -2684,7 +2684,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                   {
                      // Only bother processing if the logs are enabled
                      if (    isMessageLoggingEnabled() ||
-                         OsSysLog::willLog(FAC_SIP_INCOMING, PRI_DEBUG))
+                         Os::Logger::instance().willLog(FAC_SIP_INCOMING, PRI_DEBUG))
                      {
                         UtlString delayMsgString;
                         ssize_t delayMsgLen;
@@ -2694,7 +2694,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                         delayMsgString.append("++++++++++++++++++++END++++++++++++++++++++\n");
 
                         logMessage(delayMsgString.data(), delayMsgString.length());
-                        OsSysLog::add(FAC_SIP_INCOMING_PARSED, PRI_DEBUG,"%s",
+                        Os::Logger::instance().log(FAC_SIP_INCOMING_PARSED, PRI_DEBUG,"%s",
                                       delayMsgString.data());
                      }
 
@@ -2717,7 +2717,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                      // Somehow the transaction got deleted perhaps it timed
                      // out and there was a log jam that prevented the handling
                      // of the timeout ????? This should not happen.
-                     OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::handleMessage "
+                     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipUserAgent::handleMessage "
                                    "SIP message timeout expired with no matching transaction");
                   }
                }
@@ -2752,7 +2752,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          else if (msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION ||
                   msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION_TIMER_C)
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipUserAgent[%s]::handleMessage "
                           "transaction expiration message received, msgEventType = %d",
                           getName().data(), msgEventType);
@@ -2767,7 +2767,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
 
                if(sipMessage->getSipTransaction() == NULL)
                {
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                 "SipUserAgent[%s]::handleMessage "
                                 "expires Timeout message with NULL transaction",
                                 getName().data()
@@ -2778,7 +2778,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                enum SipTransaction::messageRelationship relationship;
                //mSipTransactions.lock();
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-            OsSysLog::add(FAC_SIP, PRI_DEBUG
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                           ,"SipUserAgent[%s]::handleMessage(expired) "
                            "searching for transaction",
                           getName().data());
@@ -2790,7 +2790,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                if(transaction)
                {
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-            OsSysLog::add(FAC_SIP, PRI_DEBUG
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                           ,"SipUserAgent[%s]::handleMessage(expired) "
                            "found transaction %p",
                           getName().data(), transaction);
@@ -2823,7 +2823,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                   {
                      // Only bother processing if the logs are enabled
                      if (    isMessageLoggingEnabled() ||
-                         OsSysLog::willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG))
+                         Os::Logger::instance().willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG))
                      {
                         UtlString delayMsgString;
                         ssize_t delayMsgLen;
@@ -2833,7 +2833,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                         delayMsgString.append("++++++++++++++++++++END++++++++++++++++++++\n");
 
                         logMessage(delayMsgString.data(), delayMsgString.length());
-                        OsSysLog::add(FAC_SIP_INCOMING_PARSED, PRI_DEBUG,"%s",
+                        Os::Logger::instance().log(FAC_SIP_INCOMING_PARSED, PRI_DEBUG,"%s",
                                       delayMsgString.data());
                      }
 
@@ -2847,13 +2847,13 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                }
                else // Could not find a transaction for this expired message
                {
-                  if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                  if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
                   {
                      UtlString noTxMsgString;
                      ssize_t noTxMsgLen;
                      sipMessage->getBytes(&noTxMsgString, &noTxMsgLen);
 
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                    "SipUserAgent[%s]::handleMessage "
                                    "event timeout with no matching transaction: %s",
                                    getName().data(), noTxMsgString.data());
@@ -2868,7 +2868,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          // Unknown timeout
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::handleMessage unknown timeout event: %d.", msgEventType);
          }
 
@@ -2889,7 +2889,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    // that is queued up for us.
    if (getMessageQueue()->isEmpty())
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipUserAgent[%s]::handleMessage calling garbageCollection()",
                     getName().data());
       garbageCollection();
@@ -2918,7 +2918,7 @@ void SipUserAgent::garbageCollection()
     if(mLastCleanUpTime < then)      // tx timeout could have happened
     {
        #ifdef LOG_TIME
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipUserAgent[%s]::garbageCollection"
                         " bootime: %ld then: %ld tcpThen: %ld"
                         " oldTransaction: %ld oldInviteTransaction: %ld",
@@ -2931,7 +2931,7 @@ void SipUserAgent::garbageCollection()
        if (mSipUdpServer)
        {
           #ifdef LOG_TIME
-             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                            "SipUserAgent[%s]::garbageCollection starting removeOldClients(udp)",
                            getName().data());
           #endif
@@ -2940,7 +2940,7 @@ void SipUserAgent::garbageCollection()
        if (mSipTcpServer)
        {
           #ifdef LOG_TIME
-             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                            "SipUserAgent[%s]::garbageCollection starting removeOldClients(tcp)",
                            getName().data());
           #endif
@@ -2950,7 +2950,7 @@ void SipUserAgent::garbageCollection()
           if (mSipTlsServer)
           {
              #ifdef LOG_TIME
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                               "SipUserAgent[%s]::garbageCollection starting removeOldClients(tls)",
                               getName().data());
              #endif
@@ -2958,7 +2958,7 @@ void SipUserAgent::garbageCollection()
           }
        #endif // SIP_TLS
        #ifdef LOG_TIME
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipUserAgent[%s]::garbageCollection done",
                         getName().data());
        #endif
@@ -3151,7 +3151,7 @@ void SipUserAgent::setMaxForwards(int maxForwards)
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipUserAgent[%s]::setMaxForwards maxForwards <= 0: %d",
                       getName().data(),
                       maxForwards);
@@ -3163,7 +3163,7 @@ int SipUserAgent::getMaxForwards()
     int maxForwards;
     if(mMaxForwards <= 0)
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "SipUserAgent[%s]::getMaxForwards maxForwards <= 0: %d",
                       getName().data(),
                       mMaxForwards);
@@ -3241,7 +3241,7 @@ void SipUserAgent::getViaInfo(int protocol,
         // Default to UDP and warning if the protocol type is not UDP
         if(protocol != OsSocket::UDP)
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::getViaInfo unknown protocol: %d",
                           protocol);
         }
@@ -3379,7 +3379,7 @@ void SipUserAgent::setInviteTransactionTimeoutSeconds(int expiresSeconds)
         mMinInviteTransactionTimeout = expiresSeconds;
         if(expiresSeconds > DEFAULT_SIP_TRANSACTION_EXPIRES)
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::setInviteTransactionTimeoutSeconds "
                           "large expiresSeconds value: %d NOT RECOMMENDED",
                           expiresSeconds);
@@ -3387,12 +3387,12 @@ void SipUserAgent::setInviteTransactionTimeoutSeconds(int expiresSeconds)
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                       "SipUserAgent::setInviteTransactionTimeoutSeconds "
                       "illegal expiresSeconds value: %d IGNORED",
                       expiresSeconds);
     }
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::setInviteTransactionTimeoutSeconds "
                   "mMinInviteTransactionTimeout %d ",
                   mMinInviteTransactionTimeout);
@@ -3410,7 +3410,7 @@ void SipUserAgent::setDefaultExpiresSeconds(int expiresSeconds)
         mDefaultExpiresSeconds = expiresSeconds;
         if(expiresSeconds > DEFAULT_SIP_TRANSACTION_EXPIRES)
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::setDefaultExpiresSeconds "
                           "large expiresSeconds value: %d NOT RECOMMENDED",
                           expiresSeconds);
@@ -3426,12 +3426,12 @@ void SipUserAgent::setDefaultExpiresSeconds(int expiresSeconds)
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                       "SipUserAgent::setDefaultExpiresSeconds "
                       "illegal expiresSeconds value: %d IGNORED",
                       expiresSeconds);
     }
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::setDefaultExpiresSeconds "
                   "mDefaultExpiresSeconds %d ",
                   mDefaultExpiresSeconds);
@@ -3439,7 +3439,7 @@ void SipUserAgent::setDefaultExpiresSeconds(int expiresSeconds)
 
 int SipUserAgent::getDefaultSerialExpiresSeconds() const
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::getDefaultSerialExpiresSeconds time=%d",
                   mDefaultSerialExpiresSeconds);
 
@@ -3453,7 +3453,7 @@ void SipUserAgent::setDefaultSerialExpiresSeconds(int expiresSeconds)
         mDefaultSerialExpiresSeconds = expiresSeconds;
         if(expiresSeconds > DEFAULT_SIP_TRANSACTION_EXPIRES)
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::setDefaultSerialExpiresSeconds "
                           "large expiresSeconds value: %d NOT RECOMMENDED",
                           expiresSeconds);
@@ -3469,12 +3469,12 @@ void SipUserAgent::setDefaultSerialExpiresSeconds(int expiresSeconds)
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                       "SipUserAgent::setDefaultSerialExpiresSeconds "
                       "illegal expiresSeconds value: %d IGNORED",
                       expiresSeconds);
     }
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::setDefaultSerialExpiresSeconds "
                   "mDefaultSerialExpiresSeconds %d ",
                   mDefaultSerialExpiresSeconds);
@@ -3488,11 +3488,11 @@ void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::setMaxTcpSocketIdleTime "
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipUserAgent::setMaxTcpSocketIdleTime "
                       "idleTimeSeconds: %d less than mMinInviteTransactionTimeout: %d, ignored",
                       idleTimeSeconds, mMinInviteTransactionTimeout);
     }
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::setMaxTcpSocketIdleTime "
                   "mMaxTcpSocketIdleTime value: %d ",
                   mMaxTcpSocketIdleTime);
@@ -3502,7 +3502,7 @@ void SipUserAgent::setHostAliases(const UtlString& aliases)
 {
     UtlString aliasString;
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent[%s]::setHostAliases('%s')",
                   getName().data(),
                   aliases.data());
@@ -3529,7 +3529,7 @@ void SipUserAgent::setHostAliases(const UtlString& aliases)
             hostAlias.append(portString);
         }
 
-        OsSysLog::add(FAC_SIP, PRI_INFO, "SipUserAgent::setHostAliases adding '%s'",
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SipUserAgent::setHostAliases adding '%s'",
                       hostAlias.data());
 
         UtlString* newAlias = new UtlString(hostAlias);
@@ -3661,7 +3661,7 @@ SipMessage* SipUserAgent::getRequest(const SipMessage& response)
     // is returned.
     enum SipTransaction::messageRelationship relationship;
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-            OsSysLog::add(FAC_SIP, PRI_DEBUG
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG
                           ,"SipUserAgent[%s]::getRequest searching for transaction",
                           getName().data());
 #           endif
@@ -3854,7 +3854,7 @@ UtlBoolean SipUserAgent::isOk(OsSocket::IpProtocolSocketType socketType)
       break;
 #endif
    default :
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::isOK - invalid socket type %d",
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipUserAgent::isOK - invalid socket type %d",
                     socketType);
       break;
    }
@@ -3920,7 +3920,7 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
 
         SipMessage* authorizedRequest = new SipMessage();
 
-        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+        Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                       "SipUserAgent::resendWithAuthorization ");
         if ( mpLineMgr && mpLineMgr->buildAuthorizationRequest(response, request,authorizedRequest))
         {

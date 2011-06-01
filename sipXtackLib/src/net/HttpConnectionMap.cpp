@@ -33,7 +33,7 @@
 #ifdef HAVE_SSL
 #include <os/OsSSLConnectionSocket.h>
 #endif /* HAVE_SSL */
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsTask.h>
 #include <os/OsLock.h>
 
@@ -99,14 +99,14 @@ HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& ur
           {
              if (insertKeyAndValue(new UtlString(keyString.data()), pEntry) != NULL)
              {
-                OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                               "HttpConnectionMap::getPersistentConnection "
                               "- Adding %s for %s",
                               pEntry->data(), keyString.data());
              }
              else
              {
-                OsSysLog::add(FAC_HTTP, PRI_ERR,
+                Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
                               "HttpConnectionMap::getPersistentConnection "
                               "- adding %s (entry %s) failed)",
                               keyString.data(), pEntry->data());
@@ -122,7 +122,7 @@ HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& ur
        pEntry->mLock.acquire();
        socket = pEntry->mpSocket;
        pEntry->mbInUse = true;
-       OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                      "HttpConnectionMap::getPersistentConnection - Found %s for %s, socket %p",
                      pEntry->data(), keyString.data(), socket);
 
@@ -192,7 +192,7 @@ HttpConnectionMapEntry::HttpConnectionMapEntry(const UtlString& name) :
 
 HttpConnectionMapEntry::~HttpConnectionMapEntry()
 {
-    //OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+    //Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
     //              "HttpConnectionMapEntry::destructor %s", this->data());
     if (mpSocket)
     {

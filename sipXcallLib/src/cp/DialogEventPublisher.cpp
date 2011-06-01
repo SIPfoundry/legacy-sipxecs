@@ -170,7 +170,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
       UtlBoolean localConnection = atoi(arg[TAO_OFFER_PARAM_LOCAL_CONNECTION]);
       UtlString  callId = arg[TAO_OFFER_PARAM_CALLID] ;
       UtlString  address = arg[TAO_OFFER_PARAM_ADDRESS] ;
-      OsSysLog::add(FAC_PARK, PRI_DEBUG, "DialogEventPublisher::handleMessage TaoMessage type %d, subtype %d, Tao event %d, args %d, localConnection %d, callId '%s', address '%s'",
+      Os::Logger::instance().log(FAC_PARK, PRI_DEBUG, "DialogEventPublisher::handleMessage TaoMessage type %d, subtype %d, Tao event %d, args %d, localConnection %d, callId '%s', address '%s'",
                     rMsg.getMsgType(), rMsg.getMsgSubType(),
                     (int)taoEventId, arg.getCnt(),
                     localConnection, callId.data(), address.data());
@@ -184,13 +184,13 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
          {
             if (!localConnection)
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "DialogEventPublisher::handleMessage CONNECTION_INITIATED");
 
                if (mpCallManager->getSipDialog(callId, address, sipDialog)
                      != OS_SUCCESS)
                {
-                  OsSysLog::add(
+                  Os::Logger::instance().log(
                         FAC_ACD,
                         PRI_ERR,
                         "DialogEventPublisher::handleMessage - CONNECTION_INITIATED - Failed call to getSipDialog(%s, %s)",
@@ -200,7 +200,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                }
 #ifdef DEBUGGING
                sipDialog.toString(sipDialogContent);
-               OsSysLog::add(
+               Os::Logger::instance().log(
                      FAC_SIP,
                      PRI_DEBUG,
                      "DialogEventPublisher::handleMessage sipDialog = '%s'",
@@ -214,7 +214,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
                if (entity.isNull())
                {
-                  OsSysLog::add(
+                  Os::Logger::instance().log(
                         FAC_SIP,
                         PRI_WARNING,
                         "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without localContact",
@@ -236,7 +236,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   pEntity = new UtlString(entity);
                   pThisCall = new SipDialogEvent(STATE, entity);
                   mCalls.insertKeyAndValue(pEntity, pThisCall);
-                  OsSysLog::add(
+                  Os::Logger::instance().log(
                       FAC_SIP,
                       PRI_DEBUG,
                       "DialogEventPublisher::handleMessage insert DialogEvent object %p to the list",
@@ -299,13 +299,13 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
          {
             if(!localConnection)
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "DialogEventPublisher::handleMessage CONNECTION_ALERTING");
 
                if (mpCallManager->getSipDialog(callId, address, sipDialog)
                      != OS_SUCCESS)
                {
-                  OsSysLog::add(
+                  Os::Logger::instance().log(
                         FAC_ACD,
                         PRI_ERR,
                         "DialogEventPublisher::handleMessage - CONNECTION_ALERTING - Failed call to getSipDialog(%s, %s)",
@@ -316,7 +316,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
 #ifdef DEBUGGING
                 sipDialog.toString(sipDialogContent);
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                       "DialogEventPublisher::handleMessage sipDialog = '%s'",
                             sipDialogContent.data());
 #endif
@@ -326,7 +326,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                 sipDialog.getLocalContact(tmpLocalContact);
                 getEntity(tmpLocalContact.toString(), entity);
 
-                OsSysLog::add(
+                Os::Logger::instance().log(
                       FAC_SIP,
                       PRI_DEBUG,
                       "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' localContact '%s'",
@@ -335,7 +335,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
                 if (entity.isNull())
                 {
-                   OsSysLog::add(
+                   Os::Logger::instance().log(
                          FAC_SIP,
                          PRI_WARNING,
                          "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without localContact",
@@ -357,7 +357,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                    pEntity = new UtlString(entity);
                    pThisCall = new SipDialogEvent(STATE, entity);
                    mCalls.insertKeyAndValue(pEntity, pThisCall);
-                   OsSysLog::add(
+                   Os::Logger::instance().log(
                          FAC_SIP,
                          PRI_DEBUG,
                          "DialogEventPublisher::handleMessage insert DialogEvent object %p to the list",
@@ -530,11 +530,11 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
          case PtEvent::CONNECTION_OFFERED:
             if(!localConnection)
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_OFFERED");
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_OFFERED");
                if (mpCallManager->getSipDialog(callId, address, sipDialog) !=
                    OS_SUCCESS)
                {
-                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                  Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                                 "DialogEventPublisher::handleMessage - CONNECTION_OFFERED - Failed call to getSipDialog(%s, %s)",
                                 callId.data(), address.data());
                   // Give up, since we can't get any information about this call.
@@ -542,19 +542,19 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                }
 #ifdef DEBUGGING
                sipDialog.toString(sipDialogContent);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = '%s'",
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = '%s'",
                              sipDialogContent.data());
 #endif
 
                sipDialog.getRemoteRequestUri(remoteRequestUri);
                getEntity(remoteRequestUri, entity);
 
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' requestUri '%s'",
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' requestUri '%s'",
                              callId.data(), address.data(), entity.data());
 
                if (entity.isNull())
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without requestUrl",
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without requestUrl",
                                 callId.data(), address.data());
                   break;
                }
@@ -573,7 +573,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   pEntity = new UtlString(entity);
                   pThisCall = new SipDialogEvent(STATE, entity);
                   mCalls.insertKeyAndValue(pEntity, pThisCall);
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage insert DialogEvent object %p to the list",
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage insert DialogEvent object %p to the list",
                                 pThisCall);
                }
 
@@ -629,7 +629,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
          case PtEvent::CONNECTION_ESTABLISHED:
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "DialogEventPublisher::handleMessage "
                           "CONNECTION_ESTABLISHED");
 
@@ -639,7 +639,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             if (mpCallManager->getSipDialog(callId, address, sipDialog) !=
              OS_SUCCESS)
             {
-               OsSysLog::add(FAC_ACD, PRI_ERR,
+               Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                              "DialogEventPublisher::handleMessage "
                              "- CONNECTION_ESTABLISHED - Failed call to getSipDialog(%s, %s)",
                              callId.data(), address.data());
@@ -648,20 +648,20 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             }
 #ifdef DEBUGGING
             sipDialog.toString(sipDialogContent);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s",
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s",
                           sipDialogContent.data());
 #endif
             sipDialog.getRemoteRequestUri(remoteRequestUri);
             getEntity(remoteRequestUri, entity);
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call connected: callId '%s' address '%s' with requestUrl '%s'",
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call connected: callId '%s' address '%s' with requestUrl '%s'",
                           callId.data(), address.data(), entity.data());
 
             if (entity.isNull())
             {
                if (localConnection)
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING,
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                 "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without requestUrl",
                                 callId.data(), address.data());
                   break;
@@ -682,7 +682,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             {
                if (!localConnection)
                {
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                 "DialogEventPublisher::handleMessage No local connection");
                   break;
                }
@@ -690,7 +690,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
             if (entity.isNull())
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                              "DialogEventPublisher::handleMessage Call connected: callId '%s' address '%s' without requestUrl",
                              callId.data(), address.data());
                break;
@@ -710,7 +710,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
                // Insert it into the active call list
                mCalls.insertKeyAndValue(pEntity, pThisCall);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "DialogEventPublisher::handleMessage inserting entity '%s'",
                              entity.data());
             }
@@ -753,7 +753,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                else
                {
                   // special case for park orbits so that call in orbit is always flashing.  Used for one button pickup.
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "DialogEventPublisher::handleMessage setting state to early when connected");
                   pDialog->setState(STATE_EARLY, NULL, NULL);
                }
@@ -780,7 +780,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                else
                {
                   // special case for park orbits so that call in orbit is always flashing.  Used for one button pickup.
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "DialogEventPublisher::handleMessage setting state to early when connected");
                   pDialog->setState(STATE_EARLY, NULL, NULL);
                }
@@ -829,13 +829,13 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
          case PtEvent::CONNECTION_DISCONNECTED:
          case PtEvent::CONNECTION_FAILED:
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_DISCONNECTED/CONNECTION_FAILED");
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_DISCONNECTED/CONNECTION_FAILED");
             if (!localConnection)
             {
                if (mpCallManager->getSipDialog(callId, address, sipDialog) !=
                    OS_SUCCESS)
                {
-                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                  Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                                 "DialogEventPublisher::handleMessage - CONNECTION_DISCONNECTED - Failed call to getSipDialog(%s, %s)",
                                 callId.data(), address.data());
                   // Fill sipDialog with empty information as if we had gotten an empty SipDialog - then go on
@@ -845,13 +845,13 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                }
 #ifdef DEBUGGING
                sipDialog.toString(sipDialogContent);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s",
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s",
                              sipDialogContent.data());
 #endif
                sipDialog.getRemoteRequestUri(remoteRequestUri);
                getEntity(remoteRequestUri, entity);
 
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call dropped: '%s' address '%s' with entity '%s'",
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call dropped: '%s' address '%s' with entity '%s'",
                              callId.data(), address.data(), entity.data());
 
                if (entity.isNull())
@@ -859,7 +859,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   // Under some circumstances (example failed transfer) the getSipDialog call above will return an empty SipDialog
                   // with an empty requestUrl and callId. We need to remember th callId that was passed in as a Tao message parameter
                   // and try to associate the callId with an entity.
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call dropped: callId '%s' address '%s' without requestUrl",
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call dropped: callId '%s' address '%s' without requestUrl",
                                 callId.data(), address.data());
                   // We have no request Url - try to get entity from callId
                   failCallId = callId;
@@ -885,7 +885,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                // If the SipDialog is empty we can't use the empty callId. Reassign the remembered callId.
                if (callId.isNull() && !failCallId.isNull())
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'",
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'",
                                 failCallId.data());
                   callId = failCallId;
                }
@@ -898,13 +898,13 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                // If the SipDialog is empty we can't use the empty callId. Reassign the remembered callId.
                if (callId.isNull() && !failCallId.isNull())
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'",
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'",
                                 failCallId.data());
                   callId = failCallId;
                }
 
                // Remove the call from the pool and clean up the call
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "Trying to find entity '%s'", entity.data());
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Trying to find entity '%s'", entity.data());
                pThisCall = dynamic_cast<SipDialogEvent *> (mCalls.findValue(&entity));
                if (pThisCall)
                {
@@ -942,7 +942,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                }
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher::handleMessage Call dropped - no entity %s founded in the active call list",
+                  Os::Logger::instance().log(FAC_SIP, PRI_ERR, "DialogEventPublisher::handleMessage Call dropped - no entity %s founded in the active call list",
                                 entity.data());
                }
 
@@ -967,12 +967,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
 void DialogEventPublisher::dumpTaoMessageArgs(unsigned char eventId, TaoString& args)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "===>Message type: %d args:\n", eventId) ;
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "===>Message type: %d args:\n", eventId) ;
 
    int argc = args.getCnt();
    for(int argIndex = 0; argIndex < argc; argIndex++)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "\targ[%d]=\"%s\"", argIndex, args[argIndex]);
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "\targ[%d]=\"%s\"", argIndex, args[argIndex]);
    }
 }
 
@@ -993,7 +993,7 @@ void DialogEventPublisher::getEntity(const UtlString& requestUri,
 
       entityUrl.toString(entity);
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "DialogEventPublisher::getEntity requestUri = '%s', userId = '%s', entity '%s'",
                  requestUri.data(), userId.data(), entity.data());
 }
@@ -1006,7 +1006,7 @@ bool DialogEventPublisher::findEntryByCallId(UtlString& callId, UtlString& entit
 
    while ((pKey = dynamic_cast<UtlString *>(iterator())))
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::findEntryByCallId callId '%s', key '%s'", callId.data(), pKey->data());
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::findEntryByCallId callId '%s', key '%s'", callId.data(), pKey->data());
 
       SipDialogEvent* pEvent;
       pEvent = dynamic_cast<SipDialogEvent *>(iterator.value());
@@ -1016,7 +1016,7 @@ bool DialogEventPublisher::findEntryByCallId(UtlString& callId, UtlString& entit
       if (pEvent)
       {
          pDialog = pEvent->getDialogByCallId(callId);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::findEntryByCallId After getDialog, result %p", pDialog);
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::findEntryByCallId After getDialog, result %p", pDialog);
          if (pDialog)
          {
             bRet = true;
@@ -1026,7 +1026,7 @@ bool DialogEventPublisher::findEntryByCallId(UtlString& callId, UtlString& entit
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::findEntryByCallId pEvent == NULL");
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "DialogEventPublisher::findEntryByCallId pEvent == NULL");
       }
    }
    return bRet;

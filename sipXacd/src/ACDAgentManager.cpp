@@ -9,7 +9,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <xmlparser/tinyxml.h>
 #include <cp/LinePresenceMonitor.h>
 #include <net/ProvisioningAgent.h>
@@ -83,7 +83,7 @@ ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort,
    }
    else {
       mPresenceServerEnabled = true;
-      OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgentManager::ACDAgentManager - Presence Server (%s) is enabled",
+      Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDAgentManager::ACDAgentManager - Presence Server (%s) is enabled",
                     presenceServerUri.toString().data());
    }
 }
@@ -214,7 +214,7 @@ ACDAgent* ACDAgentManager::createACDAgent(const char* pAgentUriString,
    // Create a mapping between the ACDAgent URI and the ACDAgent instance.
    mAcdAgentList.insertKeyAndValue(new UtlString(pAgentUriString), pAgentRef);
 
-   OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgentManager::createACDAgent - Agent added: %s",
+   Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDAgentManager::createACDAgent - Agent added: %s",
                  pAgentUriString);
 
    mLock.release();
@@ -251,7 +251,7 @@ void ACDAgentManager::deleteACDAgent(const char* pAgentUriString)
    pKey = mAcdAgentList.removeKeyAndValue(&searchUriKey, pAgentRef);
    if (pKey == NULL) {
       // Error. Did not find a matching ACDAgent object.
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgentManager::deleteACDAgent - Failed to find reference to Agent: %s",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDAgentManager::deleteACDAgent - Failed to find reference to Agent: %s",
                     pAgentUriString);
       mLock.release();
       return;
@@ -267,7 +267,7 @@ void ACDAgentManager::deleteACDAgent(const char* pAgentUriString)
    // Finally delete the ACDAgent object.
    delete pAgentRef;
 
-   OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgentManager::deleteACDAgent - Agent: %s deleted",
+   Os::Logger::instance().log(FAC_ACD, PRI_INFO, "ACDAgentManager::deleteACDAgent - Agent: %s deleted",
                  pAgentUriString);
 
    mLock.release();
@@ -497,7 +497,7 @@ ProvisioningAttrList* ACDAgentManager::Create(ProvisioningAttrList& rRequestAttr
    }
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDAgentManager::Create - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDAgentManager::Create - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();
@@ -569,7 +569,7 @@ ProvisioningAttrList* ACDAgentManager::Delete(ProvisioningAttrList& rRequestAttr
    deletePSInstance(ACD_AGENT_TAG, AGENT_URI_TAG, agentUriString);
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDAgentManager::Delete - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDAgentManager::Delete - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();
@@ -705,7 +705,7 @@ ProvisioningAttrList* ACDAgentManager::Set(ProvisioningAttrList& rRequestAttribu
    }
 
    // Update the configuration file
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDAgentManager::Set - Updating the config file");
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "ACDAgentManager::Set - Updating the config file");
    mpXmlConfigDoc->SaveFile();
 
    mLock.release();

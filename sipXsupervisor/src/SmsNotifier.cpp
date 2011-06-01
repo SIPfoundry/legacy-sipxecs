@@ -10,7 +10,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "net/MailMessage.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlTokenizer.h"
 #include "AlarmUtils.h"
@@ -85,10 +85,10 @@ OsStatus SmsNotifier::handleAlarm(const OsTime alarmTime,
             UtlString body;
             UtlString tempStr;
 
-            UtlString sevStr = OsSysLog::priorityName(alarmData->getSeverity());
+            UtlString sevStr = Os::Logger::instance().priorityName(alarmData->getSeverity());
             body.append(alarmMsg);
 
-            OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServer: sms body is %s", body.data());
+            Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "AlarmServer: sms body is %s", body.data());
 
             message.Body(body);
 
@@ -111,7 +111,7 @@ OsStatus SmsNotifier::handleAlarm(const OsTime alarmTime,
 
 OsStatus SmsNotifier::init(TiXmlElement* smsElement, TiXmlElement* groupElement)
 {
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Created SmsNotifier");
+   Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "Created SmsNotifier");
    TiXmlElement* element;
 
    // Extract the "From" contact from the alarm configuration file
@@ -127,7 +127,7 @@ OsStatus SmsNotifier::init(TiXmlElement* smsElement, TiXmlElement* groupElement)
 
       if (!groupName.isNull())
       {
-         OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Processing alarm group name: %s", groupName.data());
+         Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "Processing alarm group name: %s", groupName.data());
 
          TiXmlElement* smsElement = element->FirstChildElement("sms");
 
@@ -154,7 +154,7 @@ OsStatus SmsNotifier::init(TiXmlElement* smsElement, TiXmlElement* groupElement)
 
 OsStatus SmsNotifier::initStrings(TiXmlElement* smsElement)
 {
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "SmsNotifier initStrings");
+   Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "SmsNotifier initStrings");
 
    TiXmlElement* element = smsElement->FirstChildElement("email-intro");
 

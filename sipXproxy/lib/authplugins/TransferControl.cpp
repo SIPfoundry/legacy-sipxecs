@@ -7,7 +7,7 @@
 
 // SYSTEM INCLUDES
 #include "SipRouter.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 // APPLICATION INCLUDES
 #include "net/Url.h"
@@ -35,7 +35,7 @@ TransferControl::TransferControl(const UtlString& pluginName ///< the name for t
    : AuthPlugin(pluginName),
      mpSipRouter(NULL)
 {
-   OsSysLog::add(FAC_SIP,PRI_INFO,"TransferControl plugin instantiated '%s'",
+   Os::Logger::instance().log(FAC_SIP,PRI_INFO,"TransferControl plugin instantiated '%s'",
                  mInstanceName.data());
 };
 
@@ -60,7 +60,7 @@ TransferControl::readConfig( OsConfigDb& configDb /**< a subhash of the individu
     * is used to identify the plugin (see PluginHooks) has been removed (see the
     * examples in PluginHooks::readConfig).
     */
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "TransferControl[%s]::readConfig",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "TransferControl[%s]::readConfig",
                  mInstanceName.data()
                  );
 }
@@ -116,7 +116,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                   // when user-based gateway section is used.  See tracker for the details
                   if (mpSipRouter->isLocalDomain(target))
                   {
-                     OsSysLog::add(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
+                     Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
                                    "challenging transfer in call '%s'",
                                    mInstanceName.data(), callId.data()
                                    );
@@ -128,7 +128,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                       * This is a transfer to a target outside our domain, so let it go
                       * unchallenged.  See XECS-806
                       */
-                     OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                     Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
                                    "allowing foriegn transfer in call '%s'",
                                    mInstanceName.data(), callId.data()
                                    );
@@ -140,7 +140,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                      refcallId.append(";rel=refer");
                      target.setHeaderParameter(SIP_REFERENCES_FIELD, refcallId.data());
                   
-                     OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                     Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
                                    "adding Reference field [%s] to refer-to",
                                    mInstanceName.data(), callId.data()
                                   );
@@ -163,7 +163,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                   refcallId.append(";rel=refer");
                   target.setHeaderParameter(SIP_REFERENCES_FIELD, refcallId.data());
                   
-                  OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                  Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
                                 "adding Reference field [%s] to refer-to",
                                 mInstanceName.data(), callId.data()
                                );
@@ -174,7 +174,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
             }
             else
             {
-               OsSysLog::add(FAC_AUTH, PRI_WARNING, "TransferControl[%s]::authorizeAndModify "
+               Os::Logger::instance().log(FAC_AUTH, PRI_WARNING, "TransferControl[%s]::authorizeAndModify "
                              "unrecognized refer target '%s' for call '%s'",
                              mInstanceName.data(), targetStr.data(), callId.data()
                              );
@@ -183,7 +183,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
          else
          {
             // REFER without a Refer-To header... incorrect, but just ignore it.
-            OsSysLog::add(FAC_AUTH, PRI_WARNING,
+            Os::Logger::instance().log(FAC_AUTH, PRI_WARNING,
                           "TransferControl[%s]::authorizeAndModify "
                           "REFER method without Refer-To in call '%s'",
                           mInstanceName.data(), callId.data()
@@ -220,7 +220,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
    else
    {
       // Some earlier plugin already denied this - don't waste time figuring it out.
-      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
                     "prior authorization result %s for call %s",
                     mInstanceName.data(), AuthResultStr(priorResult), callId.data()
                     );

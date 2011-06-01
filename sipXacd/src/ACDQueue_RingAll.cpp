@@ -109,7 +109,7 @@ ACDQueue_RingAll::ACDQueue_RingAll(ACDQueueManager* pAcdQueueManager,
 {
    mAcdSchemeString = "ACDQueue_RingAll" ;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue_RingAll::ACDQueue_RingAll[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue_RingAll::ACDQueue_RingAll[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
                  mUriString.data(), mMaxRingDelay, mMaxWaitTime, mOverflowQueue.data());
 }
 
@@ -164,7 +164,7 @@ void ACDQueue_RingAll::routeCall(ACDCall* pCallRef)
       ACDQueue::routeCall(pCallRef) ;
    }
    else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue_RingAll::addCallMessage - There is already a call in active routing list for RING_ALL so ACDCall(%d) is being queued",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue_RingAll::addCallMessage - There is already a call in active routing list for RING_ALL so ACDCall(%d) is being queued",
                           pCallRef->getCallHandle());
       unableToRoute(pCallRef, false);
    }
@@ -189,7 +189,7 @@ void ACDQueue_RingAll::routeCall(ACDCall* pCallRef)
 void ACDQueue_RingAll::agentAvailableMessage(ACDAgent* pAgentRef)
 {
    // An ACDAgent has indicated that it is available to take calls
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - ACDAgent(%s) is available to take the call",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - ACDAgent(%s) is available to take the call",
                  mAcdSchemeString, pAgentRef->getUriString()->data());
 
    if (mRoutingCallList.isEmpty() == TRUE) {
@@ -198,20 +198,20 @@ void ACDQueue_RingAll::agentAvailableMessage(ACDAgent* pAgentRef)
       if (pCallRef != NULL) {
          // Check if he is still available, and grab him if so.
          if (pAgentRef->isAvailable(true) == false) {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - ACDAgent(%s) is not really  available to take the call",
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - ACDAgent(%s) is not really  available to take the call",
                        mAcdSchemeString, pAgentRef->getUriString()->data());
             return ;
          }
          // Append to the end of the RoutingCallList
          appendRoutingCall(pCallRef);
          // Send it on it's way
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - The call %s is being routed to ACDAgent(%s) in RING_ALL",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - The call %s is being routed to ACDAgent(%s) in RING_ALL",
                  mAcdSchemeString, pCallRef->getCallIdentity(), pAgentRef->getUriString()->data());
 
          pCallRef->routeRequest(pAgentRef, mCallConnectScheme, mMaxRingDelay);
          return ;
       }
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - no call is in the queue at this moment for ACDAgent(%s) in RING_ALL.",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - no call is in the queue at this moment for ACDAgent(%s) in RING_ALL.",
                     mAcdSchemeString, pAgentRef->getUriString()->data());
    }
    else
@@ -222,7 +222,7 @@ void ACDQueue_RingAll::agentAvailableMessage(ACDAgent* pAgentRef)
       if (pCallRef != NULL) {
           // But not if he already RNA'd/reject this call!
           if (getRingNoAnswerState(pCallRef, pAgentRef) == true) {
-             OsSysLog::add(FAC_ACD, gACD_DEBUG,
+             Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                 "%s::agentAvailableMessage -"
                 "agent(%s) has already RNA/rejected call(%s)",
                 mAcdSchemeString,
@@ -233,12 +233,12 @@ void ACDQueue_RingAll::agentAvailableMessage(ACDAgent* pAgentRef)
          // No need to check if he is still available, routeRequestAddAgent
          // will do that when the time comes.  If we grab him here,
          // it will fail there!
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - The call %s is also being routed to ACDAgent(%s) in RING_ALL",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - The call %s is also being routed to ACDAgent(%s) in RING_ALL",
                        mAcdSchemeString, pCallRef->getCallIdentity(), pAgentRef->getUriString()->data());
          pCallRef->routeRequestAddAgent(pAgentRef);
          return ;
       }
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - no call is in the routing list at this moment for ACDAgent(%s).",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - no call is in the routing list at this moment for ACDAgent(%s).",
                     mAcdSchemeString, pAgentRef->getUriString()->data());
    }
 }
@@ -277,7 +277,7 @@ bool ACDQueue_RingAll::buildTargetAgentList(UtlSList& rTargetAgentList, ACDCall*
       if (pAgent->isAvailable(true)) {
          foundAgent = true ;
          rTargetAgentList.append(pAgent);
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::buildTargetAgentList - agent(%s) is added to the target list",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::buildTargetAgentList - agent(%s) is added to the target list",
                        mAcdSchemeString, pAgent->getUriString()->data());
       }
    }

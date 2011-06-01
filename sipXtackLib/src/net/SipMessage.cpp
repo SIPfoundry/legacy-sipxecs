@@ -30,7 +30,7 @@
 #include <net/SmimeBody.h>
 #include <net/Url.h>
 #include <os/OsDateTime.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include "net/SipXauthIdentity.h"
 //#include "net/SignedUrl.h"
 
@@ -210,7 +210,7 @@ void SipMessage::setSipRequestFirstHeaderLine(const char* method,
    // Log error if the URI is not parsable or is not sip:/sips:.
    if (!(s == Url::SipUrlScheme || s == Url::SipsUrlScheme))
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "SipMessage::setSipRequestFirstHeaderLine "
                     "setting request-URI of SipMessage to non-SIP URI '%s'",
                     uri);
@@ -443,7 +443,7 @@ void SipMessage::setInviteData(const char* fromField,
 
        //fromUrl.setHeaderParameter(SIP_CALLID_FIELD,callId);
 #ifdef TEST_PRINT
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipMessage::setInviteData "
                      "from='%s' headerPAI '%s' idenStr '%s' callId '%s'",
                      fromField, headerPAI, idenStr.data(), callId);
@@ -474,7 +474,7 @@ void SipMessage::setInviteData(const char* fromField,
                      addHeaderField(fheaderName.data(), fheaderValue.data());
                   }
  #ifdef TEST_PRINT
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                 "SipMessage::setInviteData "
                                 "fname=%s, fvalue=%s\n",
                                 fheaderName.data(), fheaderValue.data());
@@ -482,7 +482,7 @@ void SipMessage::setInviteData(const char* fromField,
                }
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING,
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                 "SipMessage::setInviteData "
                                 "URL fheader '%s: %s' may not be added using a header parameter",
                                 fheaderName.data(), fheaderValue.data());
@@ -513,7 +513,7 @@ void SipMessage::setInviteData(const char* fromField,
               addHeaderField(headerName.data(), headerValue.data());
            }
 #ifdef TEST_PRINT
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                          "SipMessage::setInviteData "
                          "name=%s, value=%s\n",
                          headerName.data(), headerValue.data());
@@ -521,7 +521,7 @@ void SipMessage::setInviteData(const char* fromField,
         }
         else
         {
-           OsSysLog::add(FAC_SIP, PRI_WARNING,
+           Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                          "SipMessage::setInviteData "
                          "URL header '%s: %s' may not be added using a header parameter",
                          headerName.data(), headerValue.data());
@@ -638,7 +638,7 @@ const SdpBody* SipMessage::getSdpBody(const char* derPkcs12,
         }
         else
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING, "Could not decrypt S/MIME body");
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "Could not decrypt S/MIME body");
         }
     }
 
@@ -691,7 +691,7 @@ const SdpBody* SipMessage::getSdpBody(const char* derPkcs12,
                     }
                     else
                     {
-                        OsSysLog::add(FAC_SIP, PRI_WARNING, "Could not decrypt S/MIME body");
+                        Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "Could not decrypt S/MIME body");
                     }
                 }
                 partIndex++ ;
@@ -1484,7 +1484,7 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
        else
        {
           getRequestUri(&uriString);
-          OsSysLog::add(FAC_SIP,PRI_DEBUG,
+          Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,
                         "SipMessage::verifyMd5Authorization "
                         "using request URI: %s instead of Auth header uri parameter for digest\n",
                         uriString.data());
@@ -1493,7 +1493,7 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
     }
 
 #ifdef TEST
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,
                   "SipMessage::verifyMd5Authorization - "
                   "userId='%s', password='%s', nonce='%s', "
                   "realm='%s', cnonce='%s', nonceCount='%s', "
@@ -1529,7 +1529,7 @@ HttpMessage::AuthQopValues SipMessage::verifyQopConsistency(const char* cnonce,
         if (   cnonce == NULL || strlen(cnonce) == 0
             || nonceCount == NULL || strlen(nonceCount) == 0)
         {
-            OsSysLog::add(FAC_SIP,PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,
                           "SipMessage::verifyQopConsistency - "
                           "qop='%s'but cnonce and/or nonceCount not valid ",
                           qop->data());
@@ -1541,7 +1541,7 @@ HttpMessage::AuthQopValues SipMessage::verifyQopConsistency(const char* cnonce,
         if (   (cnonce && strlen(cnonce) )
             || (nonceCount && strlen(nonceCount)))
         {
-            OsSysLog::add(FAC_SIP,PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,
                           "SipMessage::verifyQopConsistency - "
                           "No qop parameter but unwanted cnonce and/or nonceCount is included ");
             qopValue = HttpMessage::AUTH_QOP_NOT_SUPPORTED;
@@ -1577,7 +1577,7 @@ HttpMessage::AuthQopValues SipMessage::parseQopValue(const UtlString* qop,
         {
             retVal = HttpMessage::AUTH_QOP_NOT_SUPPORTED;
         }
-        OsSysLog::add(FAC_SIP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,
                 "SipMessage::parseQopValue - "
                 "qop='%s' is %s\"auth\" ",
                 qop->data(), 
@@ -1587,7 +1587,7 @@ HttpMessage::AuthQopValues SipMessage::parseQopValue(const UtlString* qop,
     {
         retVal = HttpMessage::AUTH_QOP_EMPTY;
 
-        OsSysLog::add(FAC_SIP,PRI_DEBUG,
+        Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,
                 "SipMessage::parseQopValue - "
                 "no qop value found ");
     }
@@ -1715,7 +1715,7 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
       if (inviteRequest)
       {
          inviteRequest->getRequestUri(&uri);
-         OsSysLog::add(FAC_SIP,
+         Os::Logger::instance().log(FAC_SIP,
                        (uri.data()[0] == '<') ? PRI_ERR : PRI_DEBUG,
                        "SipMessage::setAckData inviteRequest->getRequestUri() = '%s'",
                        uri.data());
@@ -2183,7 +2183,7 @@ void SipMessage::applyTargetUriHeaderParams()
              * The Route header requires special handling
              *   Examine each redirected route and ensure that it is a loose route
              */
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipMessage::applyTargetUriHeaderParams found route header '%s'",
                           hdrValue.data()
                           );
@@ -2215,7 +2215,7 @@ void SipMessage::applyTargetUriHeaderParams()
             // If we found any routes, push them onto the route set
             if (!routeParams.isNull())
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipMessage::applyTargetUriHeaderParams adding route(s) '%s'",
                              routeParams.data()
                              );
@@ -2236,7 +2236,7 @@ void SipMessage::applyTargetUriHeaderParams()
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING, "URL header disallowed: %s: %s",
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "URL header disallowed: %s: %s",
                        hdrName.data(), hdrValue.data());
       }
    }
@@ -2442,7 +2442,7 @@ void SipMessage::setViaFromRequest(const SipMessage* request)
    while(request->getViaFieldSubField(&viaSubField, subFieldindex ))
    {
 #ifdef TEST
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "SipMessage::setViaFromRequest "
                      "Adding via field: %s\n",
                      viaSubField.data());
@@ -2703,7 +2703,7 @@ void SipMessage::setWarningField(int code, const char* hostname, const char* tex
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipMessage::setWarningField value too large (max %zu) host '%s' text '%s'",
                     allocated, hostname, text
                     );
@@ -3078,7 +3078,7 @@ UtlBoolean SipMessage::getResponseSendAddress(UtlString& address,
     // the same port it came from
     if(receivedPortSet && portIsValid(receivedPort))
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipMessage::getResponseSendAddress response to receivedPort %s:%d not %d\n",
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipMessage::getResponseSendAddress response to receivedPort %s:%d not %d\n",
             address.data(), receivedPort, port);
         port = receivedPort;
     }
@@ -3086,7 +3086,7 @@ UtlBoolean SipMessage::getResponseSendAddress(UtlString& address,
     // No  via, use the from
     if(address.isNull())
     {
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                       "SipMessage::getResponseSendAddress No VIA address, using From address\n");
 
         getFromAddress(&address, &port, &protocol);
@@ -3113,7 +3113,7 @@ void SipMessage::convertProtocolStringToEnum(const char* protocolString,
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                       "SipMessage::convertProtocolStringToEnum unrecognized protocol: %s",
                       protocolString);
         protocolEnum = OsSocket::UNKNOWN;
@@ -3496,7 +3496,7 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
          else
          {
             ret = FALSE;
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SipMessage::getCSeqField "
                           "CSeq header value '%s' contains invalid number part, "
                           "or it was followed by an unexpected character.  "
@@ -3671,7 +3671,7 @@ UtlBoolean SipMessage::getEventFieldParts(UtlString* eventType,
          }
          else
          {
-            OsSysLog::add(FAC_SIP,PRI_WARNING,"invalid event parameter '%s'", eventParam.data());
+            Os::Logger::instance().log(FAC_SIP,PRI_WARNING,"invalid event parameter '%s'", eventParam.data());
          }
       }
    }
@@ -4417,7 +4417,7 @@ UtlBoolean SipMessage::isInSpecifiedHeaderField(const char* token, const char* h
       NameValueTokenizer::getSubField(value, subFieldIndex,
                                       SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", value,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", value,
                fieldIndex, url.data());
 #endif
       url.strip(UtlString::both);
@@ -4433,7 +4433,7 @@ UtlBoolean SipMessage::isInSpecifiedHeaderField(const char* token, const char* h
                                          SIP_MULTIFIELD_SEPARATOR, &url);
          url.strip(UtlString::both);
 #ifdef TEST
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", SIP_SUPPORTED_FIELD,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", SIP_SUPPORTED_FIELD,
                   fieldIndex, url.data());
 #endif
 
@@ -5290,7 +5290,7 @@ void SipMessage::useChunkedBody(bool useChunked)
 {
    if (useChunked)
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "SipMessage::useChunkedBody chunked encoding is not allowed in SIP");
       assert(useChunked);
    }
@@ -5474,7 +5474,7 @@ void SipMessage::normalizeProxyRoutes(const SipUserAgent* sipUA,
             // Put the last route in as the request URI
             changeUri(lastRouteValue); // this strips appropriately
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipMessage::normalizeProxyRoutes "
                           "strict route '%s' replaced with uri from '%s'",
                           requestUriString.data(), lastRouteValue.data());
@@ -5491,7 +5491,7 @@ void SipMessage::normalizeProxyRoutes(const SipUserAgent* sipUA,
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipMessage::normalizeProxyRoutes  "
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "SipMessage::normalizeProxyRoutes  "
                           "found 'lr' in Request-URI with no Route; stripped 'lr'"
                           );
 
@@ -5532,7 +5532,7 @@ void SipMessage::normalizeProxyRoutes(const SipUserAgent* sipUA,
                UtlString removedRoute;
                removeRouteUri(0, &removedRoute);
 
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipMessage::normalizeProxyRoutes popped route to self '%s'",
                              removedRoute.data()
                              );

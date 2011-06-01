@@ -12,7 +12,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
 #include "net/SipXauthIdentity.h"
 #include "net/NameValueTokenizer.h"
@@ -63,18 +63,18 @@ SipRedirectorFallback::initialize(OsConfigDb& configDb,
                                  int redirectorNo,
                                  const UtlString& localDomainHost)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::SipRedirectorFallback Loading mapping rules from '%s'",
                  mLogName.data(), mFileName.data());
 
    mMappingRulesLoaded = mMap.loadMappings(mFileName);
    
 #ifndef __USE_OLD_FALLBACKRULES_SCHEMA__
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::SipRedirectorFallback using new, location-aware %s format",
                  mLogName.data(), mFileName.data());
 #else
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::SipRedirectorFallback using old, non-location-aware %s format",
                  mLogName.data(), mFileName.data());
 #endif   
@@ -133,7 +133,7 @@ SipRedirectorFallback::lookUp(
 #endif      
       
       int numUrlMappingRegistrations = urlMappingRegistrations.getSize();
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::lookUp got %d UrlMapping Contacts for %s @ location '%s'",
                     mLogName.data(), numUrlMappingRegistrations, requestString.data(), callerLocation.data() );
 
@@ -146,11 +146,11 @@ SipRedirectorFallback::lookUp(
             UtlString contactKey("contact");
             UtlString contact= *(dynamic_cast <UtlString*> (record.findValue(&contactKey)));
             UtlString callTagKey("callTag");
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contact = '%s'",
                           mLogName.data(), contact.data());
             Url contactUri(contact);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contactUri = '%s'",
                           mLogName.data(), contactUri.toString().data());
 
@@ -234,7 +234,7 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
 
               callerLocation = entity.location().c_str();
               result = OS_SUCCESS;
-              OsSysLog::add(FAC_SIP, PRI_DEBUG,
+              Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                             "%s::determineCallerLocationFromProvisionedUserLocation mapped user '%s' taken from header '%s' to location '%s' based on its provisioned location",
                             mLogName.data(), authenticatedUserIdentity.data(),
                             authenticatedUserIdentity.data(),

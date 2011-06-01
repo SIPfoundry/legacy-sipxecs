@@ -11,7 +11,7 @@
 
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "registry/SipRedirectServer.h"
 #include "SipRedirectorUserParam.h"
 
@@ -67,7 +67,7 @@ SipRedirectorUserParam::finalize()
 void SipRedirectorUserParam::readConfig(OsConfigDb& configDb)
 {
    mStripAll = configDb.getBoolean( StripAllUserParam, false );
-   OsSysLog::add(FAC_SIP, PRI_INFO,
+   Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                  "%s::readConfig '%s' = %s",
                  mLogName.data(), StripAllUserParam,
                  mStripAll ? "TRUE" : "FALSE");
@@ -101,7 +101,7 @@ SipRedirectorUserParam::lookUp(
             Url strippedUrl(requestUri);
             strippedUrl.setUserId(strippedUser);
 
-            OsSysLog::add(FAC_SIP, PRI_INFO,
+            Os::Logger::instance().log(FAC_SIP, PRI_INFO,
                           "%s::lookUp stripped parameters from '%s' -> '%s'",
                           mLogName.data(), userpart.data(), strippedUser.data());
 
@@ -110,18 +110,18 @@ SipRedirectorUserParam::lookUp(
       }
       else
       {
-         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+         if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
          {
             UtlString logUri;
             requestUri.getUri(logUri);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp '%s' not in my domain - not modified",
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp '%s' not in my domain - not modified",
                           mLogName.data(), logUri.data());
          }
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp disabled by configuration",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp disabled by configuration",
                     mLogName.data());
    }
 

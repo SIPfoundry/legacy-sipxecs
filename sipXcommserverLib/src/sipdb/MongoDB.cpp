@@ -35,7 +35,8 @@ void MongoDB::releaseServers()
     MongoDB::_dbServers.clear();
 }
 
-MongoDB::MongoDB()
+MongoDB::MongoDB() :
+  _autoReconnect(true)
 {
 }
 
@@ -52,12 +53,23 @@ MongoDB::~MongoDB()
     }
 }
 
-void MongoDB::createInitialPool(size_t initialCount)
+void MongoDB::createInitialPool(size_t initialCount, bool autoReconnect)
 {
+    _autoReconnect = autoReconnect;
+
     mutex_lock lock(_mutex);
+
+    if (!_queue.empty())
+    {
+      //
+      // This means createInitialPool() has already been called prior
+      //
+      return;
+    }
+
     for (size_t i = 0; i < initialCount; i++)
     {
-        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection();
+        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection(autoReconnect);
         if (_server.empty())
             _server = "localhost";
 
@@ -85,7 +97,7 @@ MongoDB::Client MongoDB::acquire()
     }
     else
     {
-        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection();
+        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection(_autoReconnect);
         std::string errorMessage;
         if (pConnection->connect(_server, errorMessage))
         {
@@ -113,6 +125,7 @@ MongoDB::Cursor MongoDB::find(
     const BSONObj& query,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         MongoDB::PooledConnection pConnection(*this);
@@ -134,6 +147,7 @@ bool MongoDB::insert(
     const mongo::BSONObj& obj,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         MongoDB::PooledConnection pConnection(*this);
@@ -156,6 +170,7 @@ bool MongoDB::insertUnique(
     const BSONObj& obj,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         MongoDB::PooledConnection pConnection(*this);
@@ -186,6 +201,7 @@ bool MongoDB::update(
     bool allowInsert,
     bool allowMultiple)
 {
+    mutex_lock lock(_mutex);
     try
     {
         Query updateQuery(query);
@@ -209,6 +225,7 @@ bool MongoDB::updateUnique(
     const BSONObj& obj,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         Query updateQuery(query);
@@ -237,6 +254,7 @@ bool MongoDB::remove(
     const BSONObj& query,
     std::string& error)
 {
+    mutex_lock lock(_mutex);
     try
     {
         MongoDB::PooledConnection pConnection(*this);

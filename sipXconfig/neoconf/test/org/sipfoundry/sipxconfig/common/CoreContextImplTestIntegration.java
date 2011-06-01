@@ -8,12 +8,14 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 /**
  * Contains Integration tests. All tests from CoreContextImplTestDb should be moved here and
@@ -22,6 +24,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 public class CoreContextImplTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
     private BranchManager m_branchManager;
+    private SettingDao m_settingDao;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -96,8 +99,8 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         List<Group> groups = m_coreContext.getAvailableGroups(user);
         assertEquals(3, groups.size());
         for (Group group : groups) {
-            assertTrue(group.getId() == null || group.getId() == 1001 ||
-                    group.getId() == 1002 || group.getId() == 1004);
+            assertTrue(group.getId() == null || group.getId() == 1001 || group.getId() == 1002
+                    || group.getId() == 1004);
         }
     }
 
@@ -118,7 +121,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
     public void testTrimUserValues() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
         User user = m_coreContext.newUser();
-        
+
         user.setFirstName("First  ");
         user.setLastName("  Last");
         user.setUserName(" username ");
@@ -136,8 +139,54 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals("Alias1 Alias2", user.getAliasesString());
     }
 
+    public void testAddRemoveGroup() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
+        // loadDataSet("common/UserGroupAvailable.db.xml");
+        Branch b1 = new Branch();
+        b1.setName("b1");
+        m_branchManager.saveBranch(b1);
+        Branch b2 = new Branch();
+        b2.setName("b2");
+        m_branchManager.saveBranch(b2);
+
+        Group g1 = new Group();
+        g1.setResource("user");
+        g1.setName("group1");
+        g1.setBranch(b1);
+        m_settingDao.saveGroup(g1);
+        Group g2 = new Group();
+        g2.setBranch(b2);
+        m_settingDao.saveGroup(g2);
+
+        User u1 = m_coreContext.newUser();
+        u1.setUserName("u1");
+        // u1.setBranch(b1);
+        m_coreContext.saveUser(u1);
+
+        m_coreContext.addToGroup(m_settingDao.getGroupByName("user", "group1").getId(),
+                Arrays.asList(m_coreContext.loadUserByUserName("u1").getId()));
+        m_coreContext.removeFromGroup(m_settingDao.getGroupByName("user", "group1").getId(),
+                Arrays.asList(m_coreContext.loadUserByUserName("u1").getId()));
+
+        u1.setBranch(b2);
+        m_coreContext.saveUser(u1);
+        try {
+            m_coreContext.addToGroup(m_settingDao.getGroupByName("user", "group1").getId(),
+                    Arrays.asList(m_coreContext.loadUserByUserName("u1").getId()));
+            fail();
+        } catch (UserException e) {
+            assertEquals("u1", e.getRawParams()[0]);
+            assertEquals("b2", e.getRawParams()[1]);
+            assertEquals("b1", e.getRawParams()[2]);
+        }
+    }
+
     public void setBranchManager(BranchManager branchManager) {
         m_branchManager = branchManager;
+    }
+
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 
 }

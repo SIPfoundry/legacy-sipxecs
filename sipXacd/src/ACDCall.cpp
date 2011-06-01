@@ -9,7 +9,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsTimer.h>
 #include <os/OsEventMsg.h>
 #include <os/OsQueuedEvent.h>
@@ -164,7 +164,7 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
    mpQueueMaxWaitTimer =
       new OsTimer(getMessageQueue(), (void*)QUEUE_MAX_WAIT_TIMER);
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                  "ACDCall::ACDCall - "
                  "New Call(%d) [%s] is created.",
                  mhCallHandle, mpCallIdentity);
@@ -190,7 +190,7 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
 void
 ACDCall::destroyACDCall()
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::destroyACDCall - Call(%d) [%s] is being destroyed",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::destroyACDCall - Call(%d) [%s] is being destroyed",
                  mhCallHandle, mpCallIdentity);
    if (mpCallIdentity == NULL) {
       return ;
@@ -256,7 +256,7 @@ ACDCall::destroyACDCall()
 
 ACDCall::~ACDCall()
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::~ACDCall - ACDCall(%p)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::~ACDCall - ACDCall(%p)",
                  this);
 }
 
@@ -728,7 +728,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
 
 
 //   osPrintf("ACDCall::handleMessage - MsgType: %d, MsgSubType: %d\n", rMessage.getMsgType(), rMessage.getMsgSubType());
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
       "ACDCall::handleMessage - Call(%d) MsgType: %d, MsgSubType: %d",
       mhCallHandle, rMessage.getMsgType(), rMessage.getMsgSubType());
 
@@ -738,7 +738,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
       // Timer Event, determine which timer fired
       ((OsEventMsg&)rMessage).getUserData(timerSourceVoid);
       timerSource = (int)(intptr_t)timerSourceVoid;
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
          "ACDCall::handleMessage - Call(%d) Timer %s expired",
          mhCallHandle, eCallTimers2str[timerSource]);
       switch (timerSource)
@@ -815,7 +815,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
             // when it shouldn't!
             if (mPlayingAudio == QUEUE_DELAY_TIMER)
             {
-               OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::handleMessage we are going to play the audio %s again",
+               Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::handleMessage we are going to play the audio %s again",
                                                 mQueueAudio.data());
 
                // Stop the queue background audio
@@ -854,7 +854,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
 
          default:
             // Bad message
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCall::handleMessage - Received bad timer");
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCall::handleMessage - Received bad timer");
             break;
       }
 
@@ -871,7 +871,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
             event       = pMessage->getCallEvent();
             cause       = pMessage->getCallCause();
             updateStateMessage(hCallHandle, event, cause);
-            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                           "ACDCall::handleMessage - "
                           "ACDCallMsg::UPDATE_STATE(%d)(%d)",
                           hCallHandle, event);
@@ -940,7 +940,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
 
          default:
             // Bad message
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCall::handleMessage - Received bad message");
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDCall::handleMessage - Received bad message");
             break;
       }
 
@@ -971,7 +971,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
 
 void ACDCall::setManagingQueueMessage(ACDQueue* pManagingQueue, int waitTime)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::setManagingQueueMessage - Call(%s) now on ACDQueue: %s\n",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::setManagingQueueMessage - Call(%s) now on ACDQueue: %s\n",
             mpCallIdentity, pManagingQueue->getUriString()->data());
 
    // Reset a previous max-wait-time timer
@@ -985,11 +985,11 @@ void ACDCall::setManagingQueueMessage(ACDQueue* pManagingQueue, int waitTime)
       mpQueueMaxWaitTimer->stop(true);
       mpQueueMaxWaitTimer->oneshotAfter(OsTime(waitTime, 0));
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::setManagingQueueMessage - max wait timer started for Call(%s) in ACDQueue(%s) = %d",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::setManagingQueueMessage - max wait timer started for Call(%s) in ACDQueue(%s) = %d",
                mpCallIdentity, pManagingQueue->getUriString()->data(), waitTime);
    }
    else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::setManagingQueueMessage - max wait timer is not enabled for Call(%s) in ACDQueue(%s)",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::setManagingQueueMessage - max wait timer is not enabled for Call(%s) in ACDQueue(%s)",
                mpCallIdentity, pManagingQueue->getUriString()->data());
    }
 
@@ -1019,7 +1019,7 @@ void ACDCall::setManagingQueueMessage(ACDQueue* pManagingQueue, int waitTime)
 
 void ACDCall::answerCallMessage(UtlString* pWelcomeAudio, bool bargeIn)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::answerCallMessage - Call(%d) [%s] is being answered.",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::answerCallMessage - Call(%d) [%s] is being answered.",
                  mhCallHandle, mpCallIdentity);
 
    // Remember the Welcome Audio and barge-in flag
@@ -1053,7 +1053,7 @@ void ACDCall::answerCallMessage(UtlString* pWelcomeAudio, bool bargeIn)
                                     RAW_PCM_16, false, false, true);
             mPlayingAudio = WELCOME_AUDIO_TIMER;
             mWelcomeAudioPlaying = true;
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::answerCallMessage - start to play audio %s for Call(%d) %s",
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::answerCallMessage - start to play audio %s for Call(%d) %s",
                           mWelcomeAudio.data(), mhCallHandle, mpCallIdentity);
 
             // Set the WelcomeAudioPlay timer to fire after the Welcome Audio has completed
@@ -1095,7 +1095,7 @@ void ACDCall::answerCallMessage(UtlString* pWelcomeAudio, bool bargeIn)
 
 void ACDCall::abortRouteRequestMessage(void)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::abortRouteRequestMessage - Call(%d) [%s] is being aborted.",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::abortRouteRequestMessage - Call(%d) [%s] is being aborted.",
                  mhCallHandle, mpCallIdentity);
 
    // Abort the Route FSM
@@ -1121,7 +1121,7 @@ void ACDCall::abortRouteRequestMessage(void)
 
 void ACDCall::dropCallMessage(int terminationToneDuration, UtlString* pTerminationAudio)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::dropCallMessage - Call(%d) [%s] is being dropped.",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::dropCallMessage - Call(%d) [%s] is being dropped.",
                  mhCallHandle, mpCallIdentity);
 
    char* audioBuffer;
@@ -1268,7 +1268,7 @@ void ACDCall::playAudioMessage(UtlString* pQueueAudio, int queueAudioInterval, U
 
 void ACDCall::stopAudioMessage(void)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::stopAudioMessage - stop all the audio timers for Call(%d)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::stopAudioMessage - stop all the audio timers for Call(%d)",
                  mhCallHandle);
 
    sipxCallPlayBufferStop(mhCallHandle);
@@ -1301,7 +1301,7 @@ void ACDCall::stopAudioMessage(void)
 
 void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionScheme, int timeout)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                  "ACDCall::routeRequestMessage - "
                  "Call(%d) [%s] is being routed.",
                  mhCallHandle, mpCallIdentity);
@@ -1330,7 +1330,7 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
       if (mAgentCandidateList.find(pAgent) == NULL)
       {
          mAgentCandidateList.append(pAgent);
-         OsSysLog::add(FAC_ACD, gACD_DEBUG,
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                        "ACDCall::routeRequestMessage -"
                        "agent(%s) is being added to handle call(%s)",
                        pAgent->getUriString()->data(), mpCallIdentity);
@@ -1350,7 +1350,7 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
       }
       else
       {
-         OsSysLog::add(FAC_ACD, PRI_CRIT,
+         Os::Logger::instance().log(FAC_ACD, PRI_CRIT,
                        "ACDCall::routeRequestMessage -"
                        "INVALID route state %s",
                        mpRouteStateMachine->getStateString()) ;
@@ -1383,7 +1383,7 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
    // Make sure that the call still requires routing and that
    // the agent is still available before proceeding
    if (mRouteState != ACDCallRouteState::TRYING) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                     "ACDCall::routeRequestAddAgentMessage -"
                     "call(%s) is in invalid state (%d) for routing",
                     mpCallIdentity, mRouteState);
@@ -1391,7 +1391,7 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
    }
 
    if (pTargetAgent->isAvailable(true) == false) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                     "ACDCall::routeRequestAddAgentMessage -"
                     "agent(%s) is not available any more for handling call(%s)",
                     pTargetAgent->getUriString()->data(), mpCallIdentity);
@@ -1406,7 +1406,7 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
       if (hCall != SIPX_CALL_NULL)
       {
          mpAcdCallManager->addMapAgentCallHandleToCall(hCall, this);
-         OsSysLog::add(FAC_ACD, gACD_DEBUG,
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                     "ACDCall::routeRequestAddAgentMessage -"
                     "agent(%s) is being added to handle call(%s)",
                     pTargetAgent->getUriString()->data(), mpCallIdentity);
@@ -1433,7 +1433,7 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
 
 void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                  "ACDCall::updateStateMessage - "
                  "Call(%d) incoming hCall=%d [%s] state is being published. "
                  "event %d cause %d TransferFlag %d, TransferConnect %d numTransfer %d",
@@ -1442,7 +1442,7 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
 
    if (mhCallHandle == SIPX_CALL_NULL)
    {
-      OsSysLog::add(FAC_ACD, PRI_CRIT,
+      Os::Logger::instance().log(FAC_ACD, PRI_CRIT,
                     "ACDCall::updateStateMessage - "
                     "mhCallHandle == SIPX_CALL_NULL");
       return ;
@@ -1542,7 +1542,7 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
       case CALLSTATE_TRANSFER:
          if (CALLSTATE_TRANSFER_FAILURE == cause)
          {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                           "ACDCall::updateStateMessage - "
                           "Call(%d) [%s] CALLSTATE_TRANSFER failed",
                           mhCallHandle, mpCallIdentity);
@@ -1571,7 +1571,7 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
 
 void ACDCall::acdCallConnectedEvent(int cause)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdCallConnectedEvent - Call(%d) [%s] state %d cause %d is being connected.",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::acdCallConnectedEvent - Call(%d) [%s] state %d cause %d is being connected.",
                  mhCallHandle, mpCallIdentity, getCurrentCallState(), cause);
 
    if ((true == getXferPendingAnswer()) && (cause == CALLSTATE_CONNECTED_INACTIVE))
@@ -1613,7 +1613,7 @@ void ACDCall::acdCallConnectedEvent(int cause)
 
 void ACDCall::acdCallDisconnectedEvent(void)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdCallDisconnectedEvent - Call(%d) [%s] is being disconected.",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::acdCallDisconnectedEvent - Call(%d) [%s] is being disconected.",
                  mhCallHandle, mpCallIdentity);
 
    // Update the call state
@@ -1641,7 +1641,7 @@ void ACDCall::acdCallDisconnectedEvent(void)
 
 void ACDCall::acdAgentConnectedActiveEvent(SIPX_CALL callHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdAgentConnectedActiveEvent - Call(%d) [%s] is being connected to AgentCall %d",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::acdAgentConnectedActiveEvent - Call(%d) [%s] is being connected to AgentCall %d",
                  mhCallHandle, mpCallIdentity, callHandle);
 
    mpRouteStateMachine->acdAgentConnectedActiveEvent(this, callHandle);
@@ -1671,7 +1671,7 @@ void ACDCall::acdAgentConnectedActiveEvent(SIPX_CALL callHandle)
 
 void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                  "ACDCall::acdTransferAgentConnectedEvent - "
                  "Call(%d) [%s] is being connected to AgentCall %d via Conference Join, mFlagTransfer %d mFlagTransferConnect %d",
                  mhCallHandle, mpCallIdentity, agentCallHandle, mFlagTransfer, mFlagTransferConnect);
@@ -1683,7 +1683,7 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
    rc = sipxConferenceJoin(mhConferenceHandle, agentCallHandle, TRUE);
    if (rc != SIPX_RESULT_SUCCESS)
    {
-       OsSysLog::add(FAC_ACD, PRI_ERR,
+       Os::Logger::instance().log(FAC_ACD, PRI_ERR,
                      "ACDCall::acdTransferAgentConnectedEvent"
                      "Error(%d) on sipxConferenceJoin for Call(%u), AgentCall(%u), Conference(%u)",
                      rc, mhCallHandle, agentCallHandle, mhConferenceHandle);
@@ -1769,7 +1769,7 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
        }
     }
 
-    OsSysLog::add(FAC_ACD, gACD_DEBUG,
+    Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                   "ACDCall::acdTransferAgentConnectedEvent"
                   "Completed sipxConferenceJoin for Call(%d), AgentCall(%d), Conference(%d)",
                   mhCallHandle, agentCallHandle, mhConferenceHandle);
@@ -1794,7 +1794,7 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
 
 void ACDCall::acdAgentConnectedInactiveEvent(SIPX_CALL callHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdAgentConnectedInactiveEvent - Call(%d) [%s] is being connected to AgentCall %d",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::acdAgentConnectedInactiveEvent - Call(%d) [%s] is being connected to AgentCall %d",
                  mhCallHandle, mpCallIdentity, callHandle);
 
    mpRouteStateMachine->acdAgentConnectedInactiveEvent(this, callHandle);
@@ -1819,7 +1819,7 @@ void ACDCall::acdAgentConnectedInactiveEvent(SIPX_CALL callHandle)
 
 void ACDCall::acdAgentDisconnectedEvent(SIPX_CALL callHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdAgentDisconnectedEvent - Call(%d) [%s] is being disconnected from AgentCall %d",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::acdAgentDisconnectedEvent - Call(%d) [%s] is being disconnected from AgentCall %d",
                  mhCallHandle, mpCallIdentity, callHandle);
 
     mpRouteStateMachine->acdAgentDisconnectedEvent(this, callHandle);
@@ -1843,7 +1843,7 @@ void ACDCall::acdAgentDisconnectedEvent(SIPX_CALL callHandle)
 
 void ACDCall::acdCallTransferModeFailure()
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdCallTransferModeFailure - Call(%d) [%s] has failed to transfer.",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::acdCallTransferModeFailure - Call(%d) [%s] has failed to transfer.",
                  mhCallHandle, mpCallIdentity);
 
    // Update the call state
@@ -1869,7 +1869,7 @@ void ACDCall::acdCallTransferModeFailure()
 
 void ACDCall::acdTransferAgentDisconnectedEvent(SIPX_CALL agentCallHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdTransferAgentDisconnectedEvent - Call(%d) [%s] is being disconnected from AgentCall %d",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::acdTransferAgentDisconnectedEvent - Call(%d) [%s] is being disconnected from AgentCall %d",
                  mhCallHandle, mpCallIdentity, agentCallHandle);
    // If the active ACDAgent is the one that disconnected..., otherwise ignore
    if (mpActiveAgent != NULL &&
@@ -1945,7 +1945,7 @@ void ACDCall::acdTransferAgentDisconnectedEvent(SIPX_CALL agentCallHandle)
          }
       }
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdTransferAgentDisconnectedEvent"
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::acdTransferAgentDisconnectedEvent"
                     "Agent(%d) dropped call(%d)", agentCallHandle, mhCallHandle);
 
    }
@@ -2018,7 +2018,7 @@ void ACDCall::resetRouteState(void)
    mpRouteStateMachine = ACDCallRouteState_IDLE::Instance();
    mRouteState = ACDCallRouteState::IDLE;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::resetRouteState -"
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::resetRouteState -"
                  "Call(%s) Route FSM being reset to: IDLE", mpCallIdentity);
 }
 
@@ -2054,7 +2054,7 @@ void ACDCall::transitionRouteState(ACDCallRouteState::eRouteState newState)
    mRouteState = newState;
    newStateString = mpRouteStateMachine->getStateString();
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::transitionRouteState - Call(%s) transitioning from: %s to: %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::transitionRouteState - Call(%s) transitioning from: %s to: %s",
                  mpCallIdentity, currentStateString.data(), newStateString.data());
 
    osPrintf("ACDCall::transitionRouteState - Call(%s) transitioning from: %s to: %s\n",
@@ -2087,7 +2087,7 @@ void ACDCall::setCallId(int callHandle)
    // save it where it belongs.
    mpCallIdentity = strdup(remoteID) ;
 
-    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::setCallId callId '%s' callHandle %d", mpCallIdentity, callHandle);
+    Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::setCallId callId '%s' callHandle %d", mpCallIdentity, callHandle);
 }
 
 #ifdef CML
@@ -2245,7 +2245,7 @@ void ACDCall::setCallIdentity(void)
    // Got to know what happened...
    log += "\n  callIdentity = ";
    log += callIdentity;
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::setCallIdentity %s", log.data());
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::setCallIdentity %s", log.data());
 
    // save it where it belongs.
    mpCallIdentity = new char[strlen(callIdentity)+1];
@@ -2297,7 +2297,7 @@ void ACDCall::doCallPickUp(ACDAgent* const pAgent) {
 
 void ACDCall::doCallPickUpMessage(ACDAgent* const pAgent) {
    mpACDAgentPickedUpBy = pAgent;
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::doCallPickUpMessage - mpACDAgentPickedUpBy=%d",mpACDAgentPickedUpBy);
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::doCallPickUpMessage - mpACDAgentPickedUpBy=%d",mpACDAgentPickedUpBy);
 
    mbIsBeingPickedUp = true;
 
@@ -2351,7 +2351,7 @@ void ACDCall::clearBeingPickedUp() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ACDAgent* ACDCall::isBeingPickedUp(bool& bRet) {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::isBeingPickedUp - mpACDAgentPickedUpBy=%d",mpACDAgentPickedUpBy);
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDCall::isBeingPickedUp - mpACDAgentPickedUpBy=%d",mpACDAgentPickedUpBy);
    bRet=mbIsBeingPickedUp;
    return mpACDAgentPickedUpBy;
 }

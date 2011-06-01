@@ -481,7 +481,7 @@ void sipxFireCallEvent(const void* pSrc,
                        SIPX_CALLSTATE_MINOR minor,
                        void* pEventData)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
                   "sipxFireCallEvent "
                   "pSrc=%p callId=%s pSession=%p, "
                   "szRemoteAddress=%s major=%d minor=%d",
@@ -579,7 +579,7 @@ void sipxFireCallEvent(const void* pSrc,
                         // Assume event data means ghost, report that a tapi listener couldn't find the call
                         bool *pbReport = (bool *)pEventData;
                         *pbReport = TRUE;
-                        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                        Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
                                       "sipxFireCallEvent - "
                                       "No call found for (ghost) szCallId=%s, pSrc=%p",
                                       szCallId, pSrc);
@@ -588,7 +588,7 @@ void sipxFireCallEvent(const void* pSrc,
                 }
                 if (showWarning == TRUE)
                 {
-                    OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+                    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_WARNING,
                                   "sipxFireCallEvent - "
                                   "No call found for szCallId=%s, pSrc=%p",
                                   szCallId, pSrc);
@@ -634,7 +634,7 @@ void sipxFireCallEvent(const void* pSrc,
             pSession->getRemoteRequestUri(requestUri);
             hLine = sipxLineLookupHandle(pInst, lineId.data(), requestUri.data()) ;
 
-            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIPXTAPI, PRI_DEBUG,
                           "sipxFireCallEvent "
                           "Line id = %s, hLine=%d, Request Uri = %s\n",
                           lineId.data(), hLine, requestUri.data());
@@ -642,7 +642,7 @@ void sipxFireCallEvent(const void* pSrc,
             {
                 // no line exists for the lineId
                 // log it
-                OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_WARNING,
                               "sipxFireCallEvent - "
                               "unknown line id = %s\n",
                               lineId.data());
@@ -716,7 +716,7 @@ void sipxFireCallEvent(const void* pSrc,
             // have been notified.
             if (DESTROYED == major)
             {
-                OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
                     "sipxFireCallEvent Free up the call object hCall=%u",
                     hCall);
                 sipxCallObjectFree(hCall);
@@ -740,7 +740,7 @@ SIPXTAPI_API SIPX_RESULT sipxEventListenerAdd(const SIPX_INST hInst,
                                              SIPX_EVENT_CALLBACK_PROC pCallbackProc,
                                              void *pUserData)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxEventListenerAdd hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
 
@@ -768,7 +768,7 @@ SIPXTAPI_API SIPX_RESULT sipxEventListenerRemove(const SIPX_INST hInst,
                                             SIPX_EVENT_CALLBACK_PROC pCallbackProc,
                                             void* pUserData)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxEventListenerRemove hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
 
@@ -807,7 +807,7 @@ SIPXTAPI_API SIPX_RESULT sipxListenerAdd(const SIPX_INST hInst,
                                          CALLBACKPROC pCallbackProc,
                                          void* pUserData)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxListenerAdd hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
 
@@ -836,7 +836,7 @@ SIPXTAPI_API SIPX_RESULT sipxListenerRemove(const SIPX_INST hInst,
                                             CALLBACKPROC pCallbackProc,
                                             void* pUserData)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxListenerRemove hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
 
@@ -973,7 +973,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineListenerAdd(const SIPX_INST hInst,
                                          LINECALLBACKPROC pCallbackProc,
                                          void* pUserData)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineListenerAdd hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
 
@@ -1000,7 +1000,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineListenerRemove(const SIPX_INST hInst,
                                             LINECALLBACKPROC pCallbackProc,
                                             void* pUserData)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineListenerRemove hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
 
@@ -1064,7 +1064,7 @@ void sipxFireLineEvent(const void* pSrc,
                        SIPX_LINE_EVENT_TYPE_MAJOR major,
                        SIPX_LINE_EVENT_TYPE_MINOR minor)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireLineEvent pSrc=%p szLineIdentifier=%s major=%d",
         pSrc, szLineIdentifier, major);
 
@@ -1124,7 +1124,7 @@ void sipxFireEvent(const void* pSrc,
                    SIPX_EVENT_CATEGORY category,
                    void* pInfo)
 {
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+    Os::Logger::instance().log(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireEvent pSrc=%p category=%d pInfo=%p",
         pSrc, category, pInfo);
 

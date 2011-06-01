@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.logging;
 
+import java.util.Set;
+
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public interface AuditLogContext {
@@ -32,9 +34,27 @@ public interface AuditLogContext {
         }
     }
 
+    void logReplicationMongo(String dataName, Location location);
+
     void logReplication(String dataName, Location location);
+
+    void logReplicationFailed(String dataName, Location location, Exception ex);
+
+    void logReplicationMongoFailed(String dataName, Location location, Exception ex);
 
     void logConfigChange(CONFIG_CHANGE_TYPE changeType, String configType, String configName);
 
     void logProcessStateChange(PROCESS_STATE_CHANGE stateChange, String processName, Location location);
+
+    Set<String> getReplicationFailedList(String fqdn);
+
+    Set<String> getReplicationSuccededList(String fqdn);
+
+    void resetReplications(String fqdn);
+
+    void saveLatestReplicationsState(Location location);
+
+    boolean isSendProfilesInProgress(Location location);
+
+    public int getProgressPercent(Location location);
 }

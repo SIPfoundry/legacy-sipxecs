@@ -11,7 +11,7 @@
 // APPLICATION INCLUDES
 
 #include "net/SipMessage.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "AppAgentTask.h"
 #include "AppearanceAgent.h"
 #include "ResourceListMsg.h"
@@ -35,7 +35,7 @@ AppearanceAgentTask::AppearanceAgentTask(AppearanceAgent* parent) :
    OsServerTask("AppearanceAgentTask-%d"),
    mAppearanceAgent(parent)
 {
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceAgentTask:: this = %p, mAppearanceAgent = %p",
                  this, mAppearanceAgent);
 }
@@ -54,7 +54,7 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
    if (rMsg.getMsgType() == RLS_SUBSCRIPTION_MSG)
    {
       // This is a request to refresh a Resource's subscription state.
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceAgentTask::handleMessage RLS_SUBSCRIPTION_MSG");
       SubscriptionCallbackMsg* pSubscriptionMsg =
          dynamic_cast <SubscriptionCallbackMsg*> (&rMsg);
@@ -68,7 +68,7 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
    else if (rMsg.getMsgType() == RLS_NOTIFY_MSG)
    {
       // This is a NOTIFY.
-      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceAgentTask::handleMessage RLS_NOTIFY_MSG");
       NotifyCallbackMsg* pNotifyMsg =
          dynamic_cast <NotifyCallbackMsg*> (&rMsg);
@@ -97,7 +97,7 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "AppearanceAgentTask::handleMessage unexpected %s %s",
                           method.data(),
                           sipMessage->isResponse() ? "response" : "request");
@@ -105,7 +105,7 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                        "AppearanceAgentTask::handleMessage  SipMessageEvent with NULL SipMessage");
       }
    }
@@ -115,7 +115,7 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_ERR,
+      Os::Logger::instance().log(FAC_SAA, PRI_ERR,
                     "AppearanceAgentTask::handleMessage unknown msg type %d subtype %d",
                     rMsg.getMsgType(), rMsg.getMsgSubType());
    }
@@ -163,11 +163,11 @@ void AppearanceAgentTask::debugDumpState(const SipMessage& msg)
    request_uri.getUrlParameter("id", id);
    // 'id' is empty string if no 'id' URI parameter.
 
-   OsSysLog::add(FAC_SAA, PRI_INFO,
+   Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                  "AppearanceAgentTask::debugDumpState called, id = '%s':",
                  id.data());
    getAppearanceAgent()->dumpState();
-   OsSysLog::add(FAC_SAA, PRI_INFO,
+   Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                  "AppearanceAgentTask::debugDumpState finished");
 }
 

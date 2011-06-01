@@ -11,7 +11,7 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <net/SipDialogMonitor.h>
 #include <net/SipMessage.h>
 
@@ -76,8 +76,8 @@ public:
       {
          OsSysLog::initialize(0, "test");
          OsSysLog::setOutputFile(0, "log");
-         OsSysLog::setLoggingPriority(PRI_DEBUG);
-         OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+         Os::Logger::instance().setLogPriority(PRI_DEBUG);
+         Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
          system("pwd >/tmp/p");
       }

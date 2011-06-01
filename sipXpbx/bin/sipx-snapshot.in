@@ -483,6 +483,7 @@ function marshal_configuration_information () {
    @SIPX_DATADIR@/process.d
    /var/log/yum.log
    /var/log/messages
+   /var/log/mongodb/mongodb.log
    /etc/yum.conf
    /etc/yum
    /etc/yum.repos.d

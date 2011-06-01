@@ -18,7 +18,8 @@
 #include <ptapi/PtProvider.h>
 #include <net/NameValueTokenizer.h>
 #include <os/OsFS.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
+#include <os/OsLoggerHelper.h>
 #include <os/OsConfigDb.h>
 #include <persist/SipPersistentSubscriptionMgr.h>
 #include <sipXecsService/SipXecsService.h>
@@ -112,16 +113,16 @@ void sigHandler( int sig_num )
     pt_signal( sig_num, SIG_DFL );
 
     // Minimize the chance that we loose log data
-    OsSysLog::flush();
+    Os::Logger::instance().flush();
     if (SIGTERM == sig_num)
     {
-       OsSysLog::add( LOG_FACILITY, PRI_INFO, "sigHandler: terminate signal received.");
+       Os::Logger::instance().log( LOG_FACILITY, PRI_INFO, "sigHandler: terminate signal received.");
     }
     else
     {
-       OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
+       Os::Logger::instance().log( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
     }
-    OsSysLog::flush();
+    Os::Logger::instance().flush();
 }
 
 
@@ -133,7 +134,7 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-   OsSysLog::initialize(0, "sipxpresence");
+   Os::LoggerHelper::instance().processName = "sipxpresence";
 
 
    //
@@ -155,7 +156,7 @@ void initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
       else
       {
@@ -164,7 +165,7 @@ void initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
 
       fileTarget = workingDirectory +
@@ -175,20 +176,19 @@ void initSysLog(OsConfigDb* pConfig)
    {
       bSpecifiedDirError = false;
       osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data());
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data());
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data());
 
       fileTarget = fileTarget +
          OsPathBase::separator +
          CONFIG_LOG_FILE;
    }
-   OsSysLog::setOutputFile(0, fileTarget);
-
 
    //
    // Get/Apply Log Level
    //
    SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX);
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+   Os::LoggerHelper::instance().initialize(fileTarget);
 
    //
    // Get/Apply console logging
@@ -199,17 +199,17 @@ void initSysLog(OsConfigDb* pConfig)
       consoleLogging.toUpper();
       if (consoleLogging == "ENABLE")
       {
-         OsSysLog::enableConsoleOutput(true);
+        Os::Logger::instance().enableConsoleOutput(true);
          bConsoleLoggingEnabled = true;
       }
    }
 
    osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      Os::Logger::instance().log(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
    }
 }
 
@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
 
    if (!userAgent->isOk())
    {
-      OsSysLog::add(LOG_FACILITY, PRI_EMERG, "SipUserAgent failed to initialize; requesting shutdown");
+      Os::Logger::instance().log(LOG_FACILITY, PRI_EMERG, "SipUserAgent failed to initialize; requesting shutdown");
       gShutdownFlag = TRUE;
    }
 
@@ -359,7 +359,7 @@ int main(int argc, char* argv[])
    delete userAgent;
 
    // Flush the log file
-   OsSysLog::flush();
+   Os::Logger::instance().flush();
 
    // Say goodnight Gracie...
    return 0;

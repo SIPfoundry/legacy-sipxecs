@@ -12,7 +12,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorMapping.h"
 
@@ -60,7 +60,7 @@ SipRedirectorMapping::initialize(OsConfigDb& configDb,
                                  int redirectorNo,
                                  const UtlString& localDomainHost)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::SipRedirectorMapping Loading mapping rules from '%s'",
                  mLogName.data(), mFileName.data());
 
@@ -112,7 +112,7 @@ SipRedirectorMapping::lookUp(
 
    int numUrlMappingPermissions = urlMappingPermissions.getSize();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp "
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp "
                  "got %d UrlMapping Permission requirements for %d contacts",
                  mLogName.data(), numUrlMappingPermissions,
                  urlMappingRegistrations.getSize());
@@ -138,7 +138,7 @@ SipRedirectorMapping::lookUp(
          UtlString permissionKey("permission");
          UtlString urlMappingPermissionStr =
             *((UtlString*) record.findValue(&permissionKey));
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "%s::lookUp checking permissions DB for "
                        "urlMappingPermissions[%d] = '%s'",
                        mLogName.data(), i,
@@ -153,7 +153,7 @@ SipRedirectorMapping::lookUp(
          // than assume that permission is not found
          if (urlMappingPermissionStr.compareTo(ignorePermissionStr, UtlString::ignoreCase) == 0)
          {
-             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                            "%s::lookUp ignoring permission '%s'",
                            mLogName.data(),
                            ignorePermissionStr.data());
@@ -172,7 +172,7 @@ SipRedirectorMapping::lookUp(
 
             bool equal = dbPermissionStr.compareTo(urlMappingPermissionStr, UtlString::ignoreCase) == 0;
  
-            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
             {
                permissionsFound.append(" ");
                permissionsFound.append(dbPermissionStr);
@@ -189,7 +189,7 @@ SipRedirectorMapping::lookUp(
             }
             dbPermissionStr.remove(0);
          }
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "%s::lookUp %d permissions configured for request URI '%s'.  Checking: %s",
                        mLogName.data(), numDBPermissions,
                        requestUri.toString().data(),
@@ -210,7 +210,7 @@ SipRedirectorMapping::lookUp(
    {
       int numUrlMappingRegistrations = urlMappingRegistrations.getSize();
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::lookUp got %d UrlMapping Contacts",
                     mLogName.data(), numUrlMappingRegistrations);
 
@@ -223,11 +223,11 @@ SipRedirectorMapping::lookUp(
             UtlString contactKey("contact");
             UtlString contact= *(dynamic_cast <UtlString*> (record.findValue(&contactKey)));
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contact = '%s'",
                           mLogName.data(), contact.data());
             Url contactUri(contact);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contactUri = '%s'",
                           mLogName.data(), contactUri.toString().data());
             // We no longer check for recursive loops here because we
@@ -235,7 +235,7 @@ SipRedirectorMapping::lookUp(
             UtlString recordRoute;
             UtlString curCallDest;
             if (message.getRecordRouteField(0,&recordRoute)) {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp RecordRouteField = '%s'",
                           mLogName.data(), recordRoute.data());
             }

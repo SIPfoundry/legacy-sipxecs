@@ -38,6 +38,7 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
     protected abstract NatTraversalManager getNatTraversalManager();
 
     /** Return the replication URLs, retrieving them on demand */
+    @Override
     public Location[] getLocations() {
         List<Location> locationList = getHibernateTemplate().loadAll(Location.class);
         Location[] locationArray = new Location[locationList.size()];
@@ -45,14 +46,17 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         return locationArray;
     }
 
+    @Override
     public Location getLocation(int id) {
-        return (Location) getHibernateTemplate().load(Location.class, id);
+        return getHibernateTemplate().load(Location.class, id);
     }
 
+    @Override
     public Location getLocationByFqdn(String fqdn) {
         return loadLocationByUniqueProperty(LOCATION_PROP_NAME, fqdn);
     }
 
+    @Override
     public Location getLocationByAddress(String address) {
         return loadLocationByUniqueProperty("address", address);
     }
@@ -61,21 +65,24 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         final Criterion expression = Restrictions.eq(propName, propValue);
 
         HibernateCallback callback = new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) {
                 Criteria criteria = session.createCriteria(Location.class).add(expression);
                 return criteria.list();
             }
         };
         List<Location> locations = getHibernateTemplate().executeFind(callback);
-        Location location = (Location) singleResult(locations);
+        Location location = singleResult(locations);
 
         return location;
     }
 
+    @Override
     public void storeMigratedLocation(Location location) {
         getHibernateTemplate().saveOrUpdate(location);
     }
 
+    @Override
     public void saveNatLocation(Location location, NatLocation nat) {
         location.setNat(nat);
         getHibernateTemplate().saveOrUpdate(location);
@@ -84,12 +91,14 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         getNatTraversalManager().activateNatLocation(location);
     }
 
+    @Override
     public void saveServerRoleLocation(Location location, ServerRoleLocation role) {
         location.setServerRoles(role);
         getHibernateTemplate().saveOrUpdate(location);
         role.setLocation(location);
     }
 
+    @Override
     public void saveLocation(Location location) {
         if (location.isNew()) {
             if (isFqdnOrIpInUseExceptThis(location)) {
@@ -102,6 +111,16 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
             }
             getHibernateTemplate().update(location);
         }
+    }
+
+    /**
+     * Use thie method when you want to update location ant not to be intercepted by DAO events
+     * @param location
+     */
+    @Override
+    public void updateLocation(Location location) {
+        getHibernateTemplate().update(location);
+        getHibernateTemplate().flush();
     }
 
     /**
@@ -133,6 +152,7 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         return intResult(count) > 0;
     }
 
+    @Override
     public void deleteLocation(Location location) {
         if (location.isPrimary()) {
             throw new UserException("&error.delete.primary", location.getFqdn());
@@ -140,10 +160,12 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         getHibernateTemplate().delete(location);
     }
 
+    @Override
     public Location getPrimaryLocation() {
         return loadLocationByUniqueProperty(LOCATION_PROP_PRIMARY, true);
     }
 
+    @Override
     public List<Location> getLocationsForService(SipxService service) {
         List<Location> locations = new ArrayList<Location>();
         for (Location location : getLocations()) {
@@ -154,6 +176,7 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         return locations;
     }
 
+    @Override
     public Location getLocationByBundle(String bundleName) {
         List<Location> locations = getHibernateTemplate().findByNamedQueryAndNamedParam("locationsByBundle",
                 "locationBundle", bundleName);

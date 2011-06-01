@@ -15,7 +15,7 @@
 // APPLICATION INCLUDES
 #include "os/OsBSem.h"
 #include "os/OsMutex.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "openssl/ssl.h"
 
 // DEFINES

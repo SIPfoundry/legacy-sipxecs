@@ -8,7 +8,7 @@
 
 // INCLUDES
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlHashBagIterator.h"
 #include "xmlparser/tinyxml.h"
 
@@ -51,7 +51,7 @@ void SipxProcessManager::save(SipxProcess* process)
    // called from within SipxProcess::createFromDefinition
    OsLock mutex(mProcessTableLock);
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessManager::save "
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessManager::save "
                  " SipxProcess '%s'", process->data());
    mProcesses.insert(process);
 }
@@ -61,7 +61,7 @@ void SipxProcessManager::save(SipxProcess* process)
 /// Locate a SipxProcess object by name.
 SipxProcess* SipxProcessManager::findProcess(const UtlString& processName)
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::findProcess "
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::findProcess "
                  "searching for '%s'", processName.data()
                  );
 
@@ -77,7 +77,7 @@ void SipxProcessManager::instantiateProcesses(const OsPath& processDefinitionDir
    OsPath    processDefinitionFile;
    OsStatus  iteratorStatus;
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::instantiateProcesses searching %s",
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::instantiateProcesses searching %s",
                  processDefinitionDirectory.data()
                  );
 
@@ -92,7 +92,7 @@ void SipxProcessManager::instantiateProcesses(const OsPath& processDefinitionDir
                                    +OsPath::separator
                                    +processDefinitionFile
                                    );
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::instantiateProcesses reading %s",
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::instantiateProcesses reading %s",
                     processDefinitionPath.data()
                     );
 
@@ -143,7 +143,7 @@ SipxProcessManager::~SipxProcessManager()
       OsTask::delay(100);
    }
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessManager::~ "
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessManager::~ "
                  "delete %zu SipxProcess objects", mProcesses.entries());
 
    mProcesses.destroyAll();

@@ -1,11 +1,18 @@
-/*
+/**
  *
  *
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * $
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
@@ -67,9 +74,9 @@ public class Attendant extends DataSetGenerator {
             String encodedPwd = new String(Base64.encodeBase64(pwd.getBytes()));
             top.put(PASSWD, encodedPwd);
         }
-
-        // The following settings used to be in contact-information.xml
         ImAccount imAccount = new ImAccount(user);
+        top.put(IM_ENABLED, imAccount.isEnabled());
+        // The following settings used to be in contact-information.xml
         top.put(IM_ID, imAccount.getImId());
         top.put(IM_DISPLAY_NAME, imAccount.getImDisplayName());
         AddressBookEntry abe = user.getAddressBookEntry();
@@ -114,6 +121,13 @@ public class Attendant extends DataSetGenerator {
         top.put(CONF_EXIT_IM, user.getSettingValue("im_notification/conferenceExitIM").toString());
         top.put(LEAVE_MESSAGE_BEGIN_IM, user.getSettingValue("im_notification/leaveMsgBeginIM").toString());
         top.put(LEAVE_MESSAGE_END_IM, user.getSettingValue("im_notification/leaveMsgEndIM").toString());
+        //and this one in presencerouting-prefs.xml
+        top.put(VMONDND, imAccount.isForwardOnDnd());
+        //settings from xmpp-account-info.xml
+        top.put(IM_ON_THE_PHONE_MESSAGE, imAccount.getOnThePhoneMessage());
+        top.put(IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
+        top.put(IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
+        top.put(IM_PASSWORD, imAccount.getImPassword());
         getDbCollection().save(top);
     }
 

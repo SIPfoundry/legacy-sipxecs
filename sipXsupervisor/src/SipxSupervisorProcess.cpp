@@ -9,7 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlTokenizer.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
@@ -85,7 +85,7 @@ SipxProcess* SipxSupervisorProcess::createFromDefinition(const OsPath& definitio
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc, errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                         "SipxSupervisorProcess::createFromDefinition "
                            "'name' element content is invalid %s", errorMsg.data() );
                }
@@ -93,7 +93,7 @@ SipxProcess* SipxSupervisorProcess::createFromDefinition(const OsPath& definitio
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc, errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                         "SipxSupervisorProcess::createFromDefinition "
                            "duplicate process name '%s'\n"
                            "  %s\n"
@@ -106,7 +106,7 @@ SipxProcess* SipxSupervisorProcess::createFromDefinition(const OsPath& definitio
             {
                definitionValid = false;
                XmlErrorMsg(processDefinitionDoc, errorMsg);
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                      "SipxSupervisorProcess::createFromDefinition "
                         "required 'name' element is missing %s", errorMsg.data() );
             }
@@ -115,7 +115,7 @@ SipxProcess* SipxSupervisorProcess::createFromDefinition(const OsPath& definitio
             {
                // this should be the special definition for the Supervisor itself.
                definitionValid = false;
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+               Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                      "SipxSupervisorProcess::createFromDefinition "
                         "required 'name' element is not %s",
                      SUPERVISOR_PROCESS_NAME);
@@ -130,7 +130,7 @@ SipxProcess* SipxSupervisorProcess::createFromDefinition(const OsPath& definitio
                   {
                      definitionValid = false;
                      XmlErrorMsg(processDefinitionDoc, errorMsg);
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                     Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                            "SipxSupervisorProcess::createFromDefinition "
                               "'version' element content is invalid %s", errorMsg.data() );
                   }
@@ -139,7 +139,7 @@ SipxProcess* SipxSupervisorProcess::createFromDefinition(const OsPath& definitio
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc, errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                         "SipxSupervisorProcess::createFromDefinition "
                            "required 'version' element is missing %s", errorMsg.data() );
                }
@@ -152,7 +152,7 @@ SipxProcess* SipxSupervisorProcess::createFromDefinition(const OsPath& definitio
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc, errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                  Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                         "SipxSupervisorProcess::createFromDefinition "
                            "required 'resources' element is missing %s", errorMsg.data() );
                }
@@ -199,7 +199,7 @@ SipxProcess* SipxSupervisorProcess::createFromDefinition(const OsPath& definitio
          else
          {
             XmlErrorMsg(processDefinitionDoc, errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                "SipxSupervisorProcess::createFromDefinition "
                "invalid root element '%s' in namespace '%s'\n"
                "should be '%s' in namespace '%s' %s", rootElementName, definitionNamespace,
@@ -210,7 +210,7 @@ SipxProcess* SipxSupervisorProcess::createFromDefinition(const OsPath& definitio
       else
       {
          XmlErrorMsg(processDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
             "SipxSupervisorProcess::createFromDefinition "
             "root element not found in '%s': %s", definitionFile.data(), errorMsg.data() );
       }
@@ -230,28 +230,28 @@ bool SipxSupervisorProcess::isRunning()
 
 bool SipxSupervisorProcess::enable()
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                  "SipxSupervisorProcess::enable: supervisor cannot be enabled");
    return false;
 }
 
 bool SipxSupervisorProcess::disable()
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                  "SipxSupervisorProcess::disable: supervisor cannot be disabled");
    return false;
 }
 
 bool SipxSupervisorProcess::restart()
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                  "SipxSupervisorProcess::restart: supervisor cannot be restarted");
    return false;
 }
 
 void SipxSupervisorProcess::shutdown()
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                  "SipxSupervisorProcess::shutdown: supervisor cannot be shutdown");
 }
 
@@ -265,7 +265,7 @@ void SipxSupervisorProcess::evCommandStopped(const SipxProcessCmd* command, int 
 {
    if (command == mConfigtest)
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                     "SipxSupervisorProcess[%s]::evCommandStopped mConfigtest %s, rc=%d",
                     data(), command->data(), rc);
    }
@@ -292,7 +292,7 @@ void SipxSupervisorProcess::configurationChange(const SipxResource& changedResou
    UtlString changedResourceDescription;
    changedResource.appendDescription(changedResourceDescription);
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                  "SipxSupervisorProcess[%s]::configurationChange(%s)",
                  data(), changedResourceDescription.data());
 
@@ -301,9 +301,9 @@ void SipxSupervisorProcess::configurationChange(const SipxResource& changedResou
    {
       // tell Supervisor to reload its config files
       OsSysLogPriority level = SipXecsService::setLogPriority(SUPERVISOR_CONFIG_SETTINGS_FILE, SUPERVISOR_CONFIG_PREFIX );
-      OsSysLog::add(FAC_SUPERVISOR, level,
+      Os::Logger::instance().log(FAC_SUPERVISOR, level,
                  "Log level set to %s",
-                 OsSysLog::priorityName(level));
+                 Os::Logger::instance().priorityName(level));
    }
    else if ( configFile.contains("alarm-groups.xml") || configFile.contains("sipXalarms-config.xml") )
    {
@@ -316,7 +316,7 @@ void SipxSupervisorProcess::configurationChange(const SipxResource& changedResou
 /// Notify the SipxSupervisorProcess that some configuration change has occurred.
 void SipxSupervisorProcess::configurationVersionChange()
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING,
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_WARNING,
                  "SipxSupervisorProcess[%s]::configurationVersionChange(%s) IGNORED",
                  data(), mConfigVersion.data());
 }

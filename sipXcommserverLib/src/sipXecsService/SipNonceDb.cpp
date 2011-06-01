@@ -14,7 +14,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDateTime.h"
 #include "os/OsTime.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConfigDb.h"
 #include "net/NetMd5Codec.h"
 #include "os/OsLock.h"
@@ -132,7 +132,7 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
          }
          else
          {
-            OsSysLog::add(FAC_SIP,PRI_INFO,
+            Os::Logger::instance().log(FAC_SIP,PRI_INFO,
                           "SipNonceDB::isNonceValid expired nonce '%s': created %ld+%ld < %ld",
                           nonce.data(), nonceCreated, expiredTime, now
                           );
@@ -140,11 +140,11 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
       }
       else
       {
-         OsSysLog::add(FAC_SIP,PRI_ERR,
+         Os::Logger::instance().log(FAC_SIP,PRI_ERR,
                        "SipNonceDB::isNonceValid nonce signature check failed '%s'",
                        nonce.data()
                        );
-         OsSysLog::add(FAC_SIP,PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP,PRI_DEBUG,
                        "SipNonceDB::isNonceValid rcvd signature '%s' calculated signature '%s'",
                        rcvdSignature.data(), msgSignature.data()
                        );
@@ -152,7 +152,7 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
    }
    else
    {
-      OsSysLog::add(FAC_SIP,PRI_ERR,
+      Os::Logger::instance().log(FAC_SIP,PRI_ERR,
                     "SipNonceDb::isNonceValid invalid nonce format '%s'"
                     " length %zu expected %d",
                     nonce.data(), nonce.length(), MD5_SIZE+HEX_TIMESTAMP_LENGTH);
@@ -176,7 +176,7 @@ UtlString SipNonceDb::nonceSignature(const UtlString& callId,
 {
    UtlString signatureValue;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipNonceDb::nonceSignature: callId='%s' fromTag='%s' realm='%s' "
                  "timestamp='%s'",
                  callId.data(), fromTag.data(), realm.data(), timestamp

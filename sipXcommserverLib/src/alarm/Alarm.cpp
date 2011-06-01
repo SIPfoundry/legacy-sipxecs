@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "alarm/Alarm.h"
 
 
@@ -41,7 +41,7 @@ void Alarm::raiseAlarm(UtlString alarmId, UtlString alarmParam)
 // Send an alarm to the Alarm Server with a list of runtime parameters.  Non-blocking.
 void Alarm::raiseAlarm(UtlString alarmId, UtlSList& alarmParams)
 {
-   OsSysLog::add(FAC_ALARM,PRI_DEBUG,"Alarm::raiseAlarm %s", alarmId.data());
+   Os::Logger::instance().log(FAC_ALARM,PRI_DEBUG,"Alarm::raiseAlarm %s", alarmId.data());
 
    // send alarm to Alarm Server via the AlarmRequestTask
    AlarmRequestTask::getInstance()->raiseAlarm(alarmId, alarmParams);

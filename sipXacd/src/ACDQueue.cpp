@@ -127,14 +127,14 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
 
    if (mOverflowType == HUNT_GROUP_TAG && mOverflowDestination != NULL) {
       mOverflowEntry = mOverflowDestination;
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - Overflow to huntgroup. Set mOverflowEntry  = %s",mUriString.data(),mOverflowEntry.data());
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - Overflow to huntgroup. Set mOverflowEntry  = %s",mUriString.data(),mOverflowEntry.data());
    } else if (mOverflowType == QUEUE_TAG && mOverflowDestination != NULL) {
       mOverflowQueue = mOverflowDestination;
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - set mOverflowQueue  = %s",mUriString.data(),mOverflowQueue.data());
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - set mOverflowQueue  = %s",mUriString.data(),mOverflowQueue.data());
    } else if (mOverflowEntry!= NULL && !mOverflowEntry.contains("@")) {
       mOverflowEntry.append("@");
       mOverflowEntry.append(domainName);
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - set mOverflowEntry  = %s",mUriString.data(),mOverflowEntry.data());
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - set mOverflowEntry  = %s",mUriString.data(),mOverflowEntry.data());
    }
 
    // Convert the comma delimited list of ACDAgent URI's to an SList of ACDAgent pointers
@@ -146,7 +146,7 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
    // Adjust various timers
    adjustTimers();
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
                  mUriString.data(), mMaxRingDelay, mMaxWaitTime, mOverflowQueue.data());
 }
 
@@ -204,7 +204,7 @@ ACDQueue::~ACDQueue()
 void ACDQueue::addCall(ACDCall* pCallRef)
 {
    ACDQueueMsg addCallMsg(ACDQueueMsg::ADD_CALL, pCallRef);
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::addCall - postMessage MsgType: %d, MsgSubType: %d", addCallMsg.getMsgType(), addCallMsg.getMsgSubType());
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::addCall - postMessage MsgType: %d, MsgSubType: %d", addCallMsg.getMsgType(), addCallMsg.getMsgSubType());
    postMessage(addCallMsg);
 }
 
@@ -228,7 +228,7 @@ void ACDQueue::addCall(ACDCall* pCallRef)
 void ACDQueue::removeCall(ACDCall* pCallRef)
 {
    ACDQueueMsg removeCallMsg(ACDQueueMsg::REMOVE_CALL, pCallRef);
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::removeCall - post MsgType: %d, MsgSubType: %d", removeCallMsg.getMsgType(), removeCallMsg.getMsgSubType());
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::removeCall - post MsgType: %d, MsgSubType: %d", removeCallMsg.getMsgType(), removeCallMsg.getMsgSubType());
    postMessage(removeCallMsg);
 }
 
@@ -252,7 +252,7 @@ void ACDQueue::removeCall(ACDCall* pCallRef)
 void ACDQueue::callConnected(ACDCall* pCallRef)
 {
    ACDQueueMsg callConnectedMsg(ACDQueueMsg::CALL_CONNECTED, pCallRef);
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::callConnected - postMessage MsgType: %d, MsgSubType: %d", callConnectedMsg.getMsgType(), callConnectedMsg.getMsgSubType());
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::callConnected - postMessage MsgType: %d, MsgSubType: %d", callConnectedMsg.getMsgType(), callConnectedMsg.getMsgSubType());
    postMessage(callConnectedMsg);
 }
 
@@ -276,7 +276,7 @@ void ACDQueue::callConnected(ACDCall* pCallRef)
 void ACDQueue::updateRouteState(ACDCall* pCallRef, ACDCallRouteState::eRouteState state)
 {
    ACDQueueMsg updateRouteStateMsg(ACDQueueMsg::UPDATE_ROUTE_STATE, pCallRef, state);
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteState - postMessage MsgType: %d, MsgSubType: %d", updateRouteStateMsg.getMsgType(), updateRouteStateMsg.getMsgSubType());
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteState - postMessage MsgType: %d, MsgSubType: %d", updateRouteStateMsg.getMsgType(), updateRouteStateMsg.getMsgSubType());
    postMessage(updateRouteStateMsg);
 }
 
@@ -300,7 +300,7 @@ void ACDQueue::updateRouteState(ACDCall* pCallRef, ACDCallRouteState::eRouteStat
 void ACDQueue::queueMaxWaitTime(ACDCall* pCallRef)
 {
    ACDQueueMsg queueMaxWaitTimeMsg(ACDQueueMsg::MAX_WAIT_TIME, pCallRef);
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::queueMaxWaitTime - postMessage MsgType: %d, MsgSubType: %d", queueMaxWaitTimeMsg.getMsgType(), queueMaxWaitTimeMsg.getMsgSubType());
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::queueMaxWaitTime - postMessage MsgType: %d, MsgSubType: %d", queueMaxWaitTimeMsg.getMsgType(), queueMaxWaitTimeMsg.getMsgSubType());
    postMessage(queueMaxWaitTimeMsg);
 }
 
@@ -324,7 +324,7 @@ void ACDQueue::queueMaxWaitTime(ACDCall* pCallRef)
 void ACDQueue::agentAvailable(ACDAgent* pAgentRef)
 {
    ACDQueueMsg agentAvailableMsg(ACDQueueMsg::AGENT_AVAILABLE, pAgentRef);
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::agentAvailable - postMessage MsgType: %d, MsgSubType: %d", agentAvailableMsg.getMsgType(), agentAvailableMsg.getMsgSubType());
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::agentAvailable - postMessage MsgType: %d, MsgSubType: %d", agentAvailableMsg.getMsgType(), agentAvailableMsg.getMsgSubType());
    postMessage(agentAvailableMsg);
 }
 
@@ -354,7 +354,7 @@ void ACDQueue::agentAvailable(ACDAgent* pAgentRef)
 void ACDQueue::setAttributes(ProvisioningAttrList& rRequestAttributes)
 {
    // Set the individual attributes
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::setAttributes(%s)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::setAttributes(%s)",
                  mUriString.data());
 
    // take action only if adminstrative state is STANDBY for some attributes
@@ -436,7 +436,7 @@ void ACDQueue::setAttributes(ProvisioningAttrList& rRequestAttributes)
    // Adjust various timers
    adjustTimers();
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::setAttributes ACDQueue[%s] has been updated - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::setAttributes ACDQueue[%s] has been updated - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
                  mUriString.data(), mMaxRingDelay, mMaxWaitTime, mOverflowQueue.data());
 }
 
@@ -462,7 +462,7 @@ void ACDQueue::buildACDAgentList(void)
    UtlSList         newAgentList;
    ACDAgent *pAgent ;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
       "ACDQueue::buildACDAgentList[%s] mAcdAgentListString='%s'",
          mUriString.data(),
          mAcdAgentListString ? mAcdAgentListString.data() : "(empty)") ;
@@ -484,14 +484,14 @@ void ACDQueue::buildACDAgentList(void)
                mAcdAgentList.append(pAgent);
                // Log the fact he is signed in/out so the stats are correct
                pAgent->logSignIn(this, pAgent->isAvailable(false));
-               OsSysLog::add(FAC_ACD, gACD_DEBUG,
+               Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                   "ACDQueue::buildACDAgentList[%s] Agent='%s' added",
                      mUriString.data(), entry.data()) ;
             }
          }
          else
          {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+            Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
                "ACDQueue::buildACDAgentList[%s] Agent='%s' not found",
                      mUriString.data(), entry.data()) ;
          }
@@ -505,7 +505,7 @@ void ACDQueue::buildACDAgentList(void)
    // Iterate through the ACDAgent list remove ones not in the new list
    while ((pAgent = dynamic_cast<ACDAgent*>(listIterator())) != NULL) {
       if (newAgentList.find(pAgent) == NULL) {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG,
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
             "ACDQueue::buildACDAgentList[%s] Agent='%s' removed",
                   mUriString.data(), pAgent->getUriString()->data()) ;
          mAcdAgentList.remove(pAgent);
@@ -938,7 +938,7 @@ UtlBoolean ACDQueue::handleMessage(OsMsg& rMessage)
    ACDAgent*        pAgentRef;
 
 //   osPrintf("ACDQueue::handleMessage - MsgType: %d, MsgSubType: %d\n", rMessage.getMsgType(), rMessage.getMsgSubType());
-     OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::handleMessage MsgType: %d, MsgSubType: %d", rMessage.getMsgType(), rMessage.getMsgSubType());
+     Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::handleMessage MsgType: %d, MsgSubType: %d", rMessage.getMsgType(), rMessage.getMsgSubType());
    if (rMessage.getMsgType() == OsMsg::USER_START) {
       switch (rMessage.getMsgSubType()) {
          case ACDQueueMsg::ADD_CALL:
@@ -1007,7 +1007,7 @@ UtlBoolean ACDQueue::handleMessage(OsMsg& rMessage)
 
          default:
             // Bad message
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::handleMessage - Received bad message");
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::handleMessage - Received bad message");
             break;
       }
 
@@ -1015,7 +1015,7 @@ UtlBoolean ACDQueue::handleMessage(OsMsg& rMessage)
    }
    else {
       // Otherwise, pass the message to the base for processing.
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::handleMessage MsgType - not USER_START");
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::handleMessage MsgType - not USER_START");
       return false;
    }
 }
@@ -1039,7 +1039,7 @@ UtlBoolean ACDQueue::handleMessage(OsMsg& rMessage)
 void ACDQueue::unroute(ACDCall* pCallRef, bool priority)
 {
    if (mUnroutedCallList.find(pCallRef) != NULL) {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::unroute - ACDCall(%d) is already in unrouted call list",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::unroute - ACDCall(%d) is already in unrouted call list",
                     pCallRef->getCallHandle());
       return ;
    }
@@ -1047,13 +1047,13 @@ void ACDQueue::unroute(ACDCall* pCallRef, bool priority)
    // Add the call to the unrouted call list
    if (priority) {
       // Priority calls go to the head of the queue
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::unroute - ACDCall(%d) is added to the beginning of the queue (priority)",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::unroute - ACDCall(%d) is added to the beginning of the queue (priority)",
                     pCallRef->getCallHandle());
       mUnroutedCallList.insertAt(0, pCallRef);
    }
    else {
       // Others  go to the tail
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::unroute - ACDCall(%d) is added to the queue",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::unroute - ACDCall(%d) is added to the queue",
                     pCallRef->getCallHandle());
       mUnroutedCallList.append(pCallRef);
    }
@@ -1065,14 +1065,14 @@ void ACDQueue::unroute(ACDCall* pCallRef, bool priority)
 
    if (pCallRef->getCurrentCallState() != ACDCall::CONNECTED) {
       pCallRef->answerCall(mWelcomeAudio, mBargeIn);
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::unroute - ACDCall(%d) is being answered",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::unroute - ACDCall(%d) is being answered",
                  pCallRef->getCallHandle());
       return ;
    }
 
    // Start the background audio playing
    pCallRef->playAudio(mQueueAudio, mQueueAudioInterval, mBackgroundAudio);
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::unroute - ACDCall(%d) is already being answered and added to the queue",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::unroute - ACDCall(%d) is already being answered and added to the queue",
               pCallRef->getCallHandle());
 }
 
@@ -1106,7 +1106,7 @@ void ACDQueue::unableToRoute(ACDCall* pCallRef, bool priority)
       }
       else
       {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::unableToRoute - no agents have signed in, drop ACDCall(%d)",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::unableToRoute - no agents have signed in, drop ACDCall(%d)",
                        pCallRef->getCallHandle());
          pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
       }
@@ -1117,7 +1117,7 @@ void ACDQueue::unableToRoute(ACDCall* pCallRef, bool priority)
    // If max-queue-depth is set to -1, do not test
    if ((mMaxQueueDepth != -1) && (mUnroutedCallList.entries() >= static_cast<unsigned>(mMaxQueueDepth))) {
       // The queue is full, overflow the call
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::unableToRoute - no agent is available and the queue is full, overflow ACDCall(%d)",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::unableToRoute - no agent is available and the queue is full, overflow ACDCall(%d)",
                     pCallRef->getCallHandle());
       overflowCall(pCallRef);
    }
@@ -1128,7 +1128,7 @@ void ACDQueue::unableToRoute(ACDCall* pCallRef, bool priority)
          unroute(pCallRef, priority);
       }
       else {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::unableToRoute - no agents have signed in, overflow ACDCall(%d)",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::unableToRoute - no agents have signed in, overflow ACDCall(%d)",
                        pCallRef->getCallHandle());
          overflowCall(pCallRef);
       }
@@ -1153,7 +1153,7 @@ void ACDQueue::unableToRoute(ACDCall* pCallRef, bool priority)
 
 void ACDQueue::routeCall(ACDCall* pCallRef)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::routeCall - ACDCall(%d)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::routeCall - ACDCall(%d)",
       mAcdSchemeString, pCallRef->getCallHandle());
 
    // Build up a list of available agents and test
@@ -1165,7 +1165,7 @@ void ACDQueue::routeCall(ACDCall* pCallRef)
          pCallRef->routeRequest(targetAgentList, mCallConnectScheme, mMaxRingDelay);
       }
       else {
-            OsSysLog::add(FAC_ACD, PRI_ERR, "%s::routeCall - ACDCall(%d) is already in routing call list",
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "%s::routeCall - ACDCall(%d) is already in routing call list",
                           mAcdSchemeString, pCallRef->getCallHandle());
       }
    }
@@ -1202,7 +1202,7 @@ void ACDQueue::addCallMessage(ACDCall* pCallRef)
    if (mOverflowQueue == NULL &&  mOverflowEntry == NULL) {
       // Check whether there is any agents signed in
       if (agentsSignedIn != true) {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::addCallMessage - no agents have signed in and no overflow so drop ACDCall(%d), state %d",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::addCallMessage - no agents have signed in and no overflow so drop ACDCall(%d), state %d",
                        mAcdSchemeString, pCallRef->getCallHandle(), pCallRef->getCurrentCallState());
          // Just reject the call at this stage
          //sipxCallReject(pCallRef->getCallHandle());
@@ -1228,13 +1228,13 @@ void ACDQueue::addCallMessage(ACDCall* pCallRef)
       pCallRef->setRoutePendingAnswer();
       pCallRef->answerCall(mWelcomeAudio, mBargeIn);
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::addCallMessage - ACDCall(%d) is being answered",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::addCallMessage - ACDCall(%d) is being answered",
                     mAcdSchemeString, pCallRef->getCallHandle());
 
       return ;
    }
    else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::addCallMessage - ACDCall(%d) is being routed without being answered",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::addCallMessage - ACDCall(%d) is being routed without being answered",
                     mAcdSchemeString, pCallRef->getCallHandle());
    }
    routeCall(pCallRef);
@@ -1261,13 +1261,13 @@ void ACDQueue::addCallMessage(ACDCall* pCallRef)
 void ACDQueue::overflowCall(ACDCall* pCallRef)
 {
    ACDCall* pOverflowCall = dynamic_cast<ACDCall*>(mUnroutedCallList.first());
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) entering overflowCall routine.",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) entering overflowCall routine.",
                        pCallRef->getCallHandle());
 
    // Determine how to handle the overflow condition
    if ( (mOverflowQueue!= NULL || mOverflowEntry != NULL) && (mMaxQueueDepth != 0) && mFifoOverflow && (pOverflowCall != NULL)) {
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) entering overflowCall routine in the overflow queue %s",pCallRef->getCallHandle(), mOverflowQueue.data() ? mOverflowQueue.data() : NULL);
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) entering overflowCall routine in the overflow queue %s",pCallRef->getCallHandle(), mOverflowQueue.data() ? mOverflowQueue.data() : NULL);
 
       // The queue is configured as a FIFO, so overflow the oldest call and add this one
       // Send the call to the configured overflow queue or overflow entry
@@ -1287,7 +1287,7 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
             pACDRtRec->appendCallEvent(ACDRtRecord::ENTER_QUEUE, mOverflowQueue.data(), pOverflowCall);
          }
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) is being added to the overflow queue %s",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) is being added to the overflow queue %s",
                        pOverflowCall->getCallHandle(), mOverflowQueue.data());
       }
       else if (mOverflowEntry != NULL) {
@@ -1297,7 +1297,7 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
       else {
          // Could not find the overflow queue, drop the call
          pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - could not find the overflow queue so drop ACDCall(%d)", pCallRef->getCallHandle());
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - could not find the overflow queue so drop ACDCall(%d)", pCallRef->getCallHandle());
       }
 
       // Now we add this call to the unrouted list
@@ -1312,7 +1312,7 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
             // We should never come to here, but just in case
             // No overflow queue configured, drop the call
             pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - no overflow is set up so drop ACDCall(%d)",
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - no overflow is set up so drop ACDCall(%d)",
                        pCallRef->getCallHandle());
          }
       }
@@ -1320,7 +1320,7 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
          // Send the call to the configured overflow queue
          ACDQueue* pOverflowQueue;
          pOverflowQueue = mpAcdQueueManager->getAcdQueueReference(mOverflowQueue);
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - sending ACDCall(%d) to overflow queue",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - sending ACDCall(%d) to overflow queue",
                        pCallRef->getCallHandle());
          if (pOverflowQueue != NULL) {
             pOverflowQueue->addCall(pCallRef);
@@ -1337,7 +1337,7 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
          else {
             // Could not find the overflow queue, drop the call
             pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
-            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - ACDCall(%d) has to be dropped due to bad overflow queue",
+            Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - ACDCall(%d) has to be dropped due to bad overflow queue",
                           pCallRef->getCallHandle());
          }
       }
@@ -1364,11 +1364,11 @@ void ACDQueue::transferOverflowCall(ACDCall* pCallRef)
 {
    SIPX_RESULT rc ;
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::transferOverflowCall - ACDCall(%d) to %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::transferOverflowCall - ACDCall(%d) to %s",
                  pCallRef->getCallHandle(),mOverflowEntry.data());
 
    if (pCallRef->getCurrentCallState() != ACDCall::CONNECTED) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::transferOverflowCall - ACDCall(%d) needs to be answered first",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::transferOverflowCall - ACDCall(%d) needs to be answered first",
                  pCallRef->getCallHandle());
       // Clear route state back to IDLE
       pCallRef->resetRouteState();
@@ -1389,7 +1389,7 @@ void ACDQueue::transferOverflowCall(ACDCall* pCallRef)
       if ( rc!= SIPX_RESULT_SUCCESS) {
          // failed to transfer the call to overflow entry, drop the call
          pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::transferOverflowCall - could not transfer the call to desinated address so drop ACDCall(%d)", pCallRef->getCallHandle());
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::transferOverflowCall - could not transfer the call to desinated address so drop ACDCall(%d)", pCallRef->getCallHandle());
 
       }
    }
@@ -1415,7 +1415,7 @@ void ACDQueue::transferOverflowCall(ACDCall* pCallRef)
 void ACDQueue::removeCallMessage(ACDCall* pCallRef)
 {
    // FUTURE
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::removeCallMessage - ACDCall(%d)",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::removeCallMessage - ACDCall(%d)",
                  pCallRef->getCallHandle());
 }
 
@@ -1440,7 +1440,7 @@ void ACDQueue::callConnectedMessage(ACDCall* pCallRef)
 {
    // See if this call is pending a transfer
    if (pCallRef->getXferPendingAnswer() == TRUE) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
          "%s::callConnectedMessage - ACDCall(%d) transfer pending",
              mAcdSchemeString, pCallRef->getCallHandle());
       transferOverflowCall(pCallRef) ;
@@ -1451,7 +1451,7 @@ void ACDQueue::callConnectedMessage(ACDCall* pCallRef)
    if (pCallRef->routePendingAnswer() == FALSE) {
       // Now that the call has connected, give the caller something to listen to
       pCallRef->playAudio(mQueueAudio, mQueueAudioInterval, mBackgroundAudio);
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::callConnectedMessage - ACDCall(%d) has already connected and playing queue audio ...",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::callConnectedMessage - ACDCall(%d) has already connected and playing queue audio ...",
          mAcdSchemeString, pCallRef->getCallHandle());
       return ;
    }
@@ -1479,20 +1479,20 @@ void ACDQueue::callConnectedMessage(ACDCall* pCallRef)
 
 void ACDQueue::agentAvailableMessage(ACDAgent* pAgentRef)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - ACDAgent(%s) is available to take a call",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - ACDAgent(%s) is available to take a call",
                  mAcdSchemeString, pAgentRef->getUriString()->data());
 
    // Pop the oldest call (if any) off the UnroutedCallList
    ACDCall* pCallRef = dynamic_cast<ACDCall*>(mUnroutedCallList.get());
    if (pCallRef == NULL) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - no call is in the queue at this moment for ACDAgent(%s).",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - no call is in the queue at this moment for ACDAgent(%s).",
                     mAcdSchemeString, pAgentRef->getUriString()->data());
       return ;
    }
 
    // Check that the call isn't already in the RoutingCallList
    if (mRoutingCallList.find(pCallRef) != NULL ) {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "%s::agentAvailableMessage - The call %s is already in the routing list",
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "%s::agentAvailableMessage - The call %s is already in the routing list",
                     mAcdSchemeString, pCallRef->getCallIdentity());
       return ;
    }
@@ -1502,14 +1502,14 @@ void ACDQueue::agentAvailableMessage(ACDAgent* pAgentRef)
       // Append the call to the end of the RoutingCallList
       appendRoutingCall(pCallRef);
       // Send it on it's way
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - The call %s is being routed to ACDAgent(%s)",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - The call %s is being routed to ACDAgent(%s)",
                  mAcdSchemeString, pCallRef->getCallIdentity(), pAgentRef->getUriString()->data());
 
       pCallRef->routeRequest(pAgentRef, mCallConnectScheme, mMaxRingDelay);
       return ;
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - ACDAgent(%s) is no longer available to take the call",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::agentAvailableMessage - ACDAgent(%s) is no longer available to take the call",
      mAcdSchemeString, pAgentRef->getUriString()->data());
    // Put the call back on the end of the queue so we don't forget it
    mUnroutedCallList.insertAt(0, pCallRef);
@@ -1553,11 +1553,11 @@ void ACDQueue::updateRouteStateFailed(ACDCall* pCallRef)
          // Route the call to the agent that picked it up
          pCallRef->routeRequest(targetAgentList,mCallConnectScheme,mMaxRingDelay);
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::updateRouteStateFailed - ACDCall(%d) is being picked up by %s",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::updateRouteStateFailed - ACDCall(%d) is being picked up by %s",
              mAcdSchemeString, pCallRef->getCallHandle(),pACDAgent->getUriString()->data());
       }
       else {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::updateRouteStateFailed - ACDCall(%d) could not be picked up because reference to ACDAgent is NULL.",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::updateRouteStateFailed - ACDCall(%d) could not be picked up because reference to ACDAgent is NULL.",
             mAcdSchemeString, pCallRef->getCallHandle());
       }
       return ;
@@ -1566,13 +1566,13 @@ void ACDQueue::updateRouteStateFailed(ACDCall* pCallRef)
 
    UtlSList targetAgentList;
    if (buildTargetAgentList(targetAgentList, pCallRef)) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::updateRouteStateFailed - ACDCall(%d) is being routed again",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::updateRouteStateFailed - ACDCall(%d) is being routed again",
                     mAcdSchemeString, pCallRef->getCallHandle());
       pCallRef->routeRequest(targetAgentList, mCallConnectScheme, mMaxRingDelay);
       return ;
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG,
             "%s::updateRouteStateFailed - ACDCall(%d) no agents available on reroute",
             mAcdSchemeString, pCallRef->getCallHandle());
 
@@ -1612,13 +1612,13 @@ void ACDQueue::updateRouteStateAborted(ACDCall* pCallRef)
          return;
       }
       // No overflow queue configured, drop the call
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateAborted - Dropping call %s",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateAborted - Dropping call %s",
                     pCallRef->getCallIdentity());
 
       pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
    }
    else {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateAborted - Sending call %s to: %s",
+      Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateAborted - Sending call %s to: %s",
                     pCallRef->getCallIdentity(), mOverflowQueue.data());
 
       // Send the call to the configured overflow queue
@@ -1659,7 +1659,7 @@ void ACDQueue::updateRouteStateMessage(ACDCall* pCallRef, ACDCallRouteState::eRo
 {
    switch (state) {
       case ACDCallRouteState::ROUTED:
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: ROUTED\n", pCallRef->getCallIdentity());
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: ROUTED\n", pCallRef->getCallIdentity());
          osPrintf("ACDQueue::updateRouteStateMessage - Call(%s) new state: ROUTED\n", pCallRef->getCallIdentity());
 
          // Record the real-time event here
@@ -1677,18 +1677,18 @@ void ACDQueue::updateRouteStateMessage(ACDCall* pCallRef, ACDCallRouteState::eRo
          break;
 
       case ACDCallRouteState::FAILED:
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: FAILED\n", pCallRef->getCallIdentity());
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: FAILED\n", pCallRef->getCallIdentity());
          osPrintf("ACDQueue::updateRouteStateMessage - Call(%s) new state: FAILED\n", pCallRef->getCallIdentity());
          updateRouteStateFailed(pCallRef);
          break;
 
       case ACDCallRouteState::ABORTED:
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: ABORTED\n", pCallRef->getCallIdentity());
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: ABORTED\n", pCallRef->getCallIdentity());
          updateRouteStateAborted(pCallRef);
          break;
 
       case ACDCallRouteState::TERMINATED:
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: TERMINATED\n", pCallRef->getCallIdentity());
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: TERMINATED\n", pCallRef->getCallIdentity());
 
          // Record the real-time event here
          ACDRtRecord* pACDRtRecord;
@@ -1708,7 +1708,7 @@ void ACDQueue::updateRouteStateMessage(ACDCall* pCallRef, ACDCallRouteState::eRo
          break;
 
       case ACDCallRouteState::DISCOVERED:
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: DISCOVERED\n", pCallRef->getCallIdentity());
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateMessage - Call(%s) new state: DISCOVERED\n", pCallRef->getCallIdentity());
 
          if (mAcdScheme == RING_ALL) {
             // In a RING_ALL scheme, we need to remove the call from the routing list as soon as possible
@@ -1937,7 +1937,7 @@ void ACDQueue::resetRingNoAnswerStates(ACDCall* pCallRef)
    // Find the appropriate RnaList from the map table.
    UtlSList* rnaList = dynamic_cast<UtlSList*>(mCallToRnaListMap.findValue( pCallRef ));
 
-   OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDQueue::resetRingNoAnswerStates - resetting RNA for ACDCall %p : RnaList %p", pCallRef, rnaList );
+   Os::Logger::instance().log(FAC_ACD, PRI_DEBUG, "ACDQueue::resetRingNoAnswerStates - resetting RNA for ACDCall %p : RnaList %p", pCallRef, rnaList );
    if ( rnaList )
    {
        UtlSListIterator listIterator(*rnaList);
@@ -1976,7 +1976,7 @@ void ACDQueue::setRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef, bool
    // First find the position of the Agent within the mAcdAgentList
    ssize_t agentPos;
    agentPos = mAcdAgentList.index( pAgentRef );
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::setRingNoAnswerState - agent %s pos %zd state %d", pAgentRef->getUriString()->data(), agentPos, state );
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::setRingNoAnswerState - agent %s pos %zd state %d", pAgentRef->getUriString()->data(), agentPos, state );
 
    if ( agentPos!=UTL_NOT_FOUND )
    {
@@ -1994,13 +1994,13 @@ void ACDQueue::setRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef, bool
       else
       {
          // Probably used a call to mRoutingCallList.append() rather than ACDQeueue::appendRoutingCall() !!!
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::setRingNoAnswerState - CallRef %p not found", pCallRef);
+         Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::setRingNoAnswerState - CallRef %p not found", pCallRef);
       }
    }
    else
    {
       // Error/Assert/Warn
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::setRingNoAnswerState - Invalid Agent Reference %p", pAgentRef);
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::setRingNoAnswerState - Invalid Agent Reference %p", pAgentRef);
    }
 }
 
@@ -2024,7 +2024,7 @@ bool ACDQueue::getRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef)
    // First find the position of the Agent within the mAcdAgentList
    ssize_t agentPos;
    agentPos = mAcdAgentList.index( pAgentRef );
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::getRingNoAnswerState - agent %s pos %zd", pAgentRef->getUriString()->data(), agentPos);
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue::getRingNoAnswerState - agent %s pos %zd", pAgentRef->getUriString()->data(), agentPos);
 
    if ( agentPos!=UTL_NOT_FOUND )
    {
@@ -2048,7 +2048,7 @@ bool ACDQueue::getRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef)
       }
    }
 
-   OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::getRingNoAnswerState - Invalid Agent Reference %p", pAgentRef);
+   Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::getRingNoAnswerState - Invalid Agent Reference %p", pAgentRef);
    return true; // We want to return a "true" state in the default case in order to "disable" this bad Agent reference.
 }
 
@@ -2058,7 +2058,7 @@ void ACDQueue::appendRoutingCall(ACDCall* pCallRef)
    UtlSList* rnaList = dynamic_cast<UtlSList*>(mCallToRnaListMap.findValue( pCallRef ));
    if ( rnaList )
    {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::appendRoutingCall - ACDCall %p already exists in mCallToRnaListMap", pCallRef);
+      Os::Logger::instance().log(FAC_ACD, PRI_ERR, "ACDQueue::appendRoutingCall - ACDCall %p already exists in mCallToRnaListMap", pCallRef);
       return;
    }
 
@@ -2077,7 +2077,7 @@ void ACDQueue::appendRoutingCall(ACDCall* pCallRef)
       UtlBool* rnaState = new UtlBool(false);
       rnaList->append( rnaState );
    }
-   OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDQueue::appendRoutingCall - Added entry into mCallToRnaListMap for ACDCall %p : RnaList %p : size %zu", pCallRef, rnaList, numOfAgents);
+   Os::Logger::instance().log(FAC_ACD, PRI_DEBUG, "ACDQueue::appendRoutingCall - Added entry into mCallToRnaListMap for ACDCall %p : RnaList %p : size %zu", pCallRef, rnaList, numOfAgents);
 }
 
 void ACDQueue::removeRoutingCall(ACDCall* pCallRef)
@@ -2089,7 +2089,7 @@ void ACDQueue::removeRoutingCall(ACDCall* pCallRef)
    UtlSList* rnaList = dynamic_cast<UtlSList*>(mCallToRnaListMap.findValue( pCallRef ));
    if ( rnaList )
    {
-      OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDQueue::removeRoutingCall - Removed entry into mCallToRnaListMap for ACDCall %p : RnaList %p", pCallRef, rnaList);
+      Os::Logger::instance().log(FAC_ACD, PRI_DEBUG, "ACDQueue::removeRoutingCall - Removed entry into mCallToRnaListMap for ACDCall %p : RnaList %p", pCallRef, rnaList);
       mCallToRnaListMap.removeReference( pCallRef );
       rnaList->destroyAll();
       delete rnaList;
@@ -2097,7 +2097,7 @@ void ACDQueue::removeRoutingCall(ACDCall* pCallRef)
    else
    {
       // Probably used a call to mRoutingCallList.append() rather than ACDQueue::appendRoutingCall() !!!
-      OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDQueue::removeRoutingCall - No entry in mCallToRnaListMap for ACDCall %p", pCallRef);
+      Os::Logger::instance().log(FAC_ACD, PRI_DEBUG, "ACDQueue::removeRoutingCall - No entry in mCallToRnaListMap for ACDCall %p", pCallRef);
    }
 
 }

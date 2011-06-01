@@ -18,7 +18,7 @@
 #include <net/SipOutputProcessor.h>
 #include <net/SipUserAgent.h>
 #include <string>
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsMutex.h"
 #include "os/OsLock.h"
 #include "testlib/SipDbTestContext.h"
@@ -205,7 +205,7 @@ public:
       while(getNextMessageFromAppearanceAgentUnderTest( request, 5 ))
       {
          request.getBytes(&b, &l);
-         OsSysLog::add(FAC_RLS, PRI_DEBUG, "got message %s", b.data());
+         Os::Logger::instance().log(FAC_RLS, PRI_DEBUG, "got message %s", b.data());
          UtlString method;
          request.getRequestMethod(&method);
          if(!request.isResponse() &&
@@ -217,7 +217,7 @@ public:
             regResponse.setResponseData(&request, 202, "Accepted", app1uri);
             SipMessage * dispatchedMessage = new SipMessage(regResponse);
             dispatchedMessage->getBytes(&b, &l);
-            OsSysLog::add(FAC_RLS, PRI_DEBUG, "sent message %s", b.data());
+            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG, "sent message %s", b.data());
             pAppearanceAgentUnderTest->mServerUserAgent.dispatch(dispatchedMessage);
 
             // Deal with the two events separately
@@ -263,8 +263,8 @@ public:
                regNotify.setRawFromField(toField.toString().data());
                sendToAppearanceAgentUnderTest( regNotify );
                regNotify.getBytes(&b, &l);
-               OsSysLog::add(FAC_RLS, PRI_DEBUG, "sent reg NOTIFY to AppAgent");
-               OsSysLog::add(FAC_RLS, PRI_DEBUG, "sent message %s", b.data());
+               Os::Logger::instance().log(FAC_RLS, PRI_DEBUG, "sent reg NOTIFY to AppAgent");
+               Os::Logger::instance().log(FAC_RLS, PRI_DEBUG, "sent message %s", b.data());
             }
             else if (0 == eventField.compareTo(SLA_EVENT_TYPE))
              {
@@ -274,14 +274,14 @@ public:
                 {
                    SipMessage fake(b);
                    fake.getDialogHandle(dialogHandle);
-                   OsSysLog::add(FAC_RLS, PRI_DEBUG, "got SUBSCRIBE(sla) request: dialogHandle %s", dialogHandle.data());
+                   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG, "got SUBSCRIBE(sla) request: dialogHandle %s", dialogHandle.data());
                 }
              }
          }
       }
 
       CPPUNIT_ASSERT( !dialogHandle.isNull() );
-      OsSysLog::add(FAC_RLS, PRI_DEBUG, "we now have an Appearance - test it");
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG, "we now have an Appearance - test it");
       AppearanceGroup* pAppGroup = pAppearanceAgentUnderTest->getAppearanceGroupSet().
          findAppearanceGroup(sharedUri);
       CPPUNIT_ASSERT( pAppGroup );

@@ -9,7 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
@@ -68,7 +68,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
          {
             resourceIsValid = false;
             XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                           "'server' element is empty"
                           " - if present, it must be a machine name or localhost %s",
                           errorMsg.data()
@@ -85,7 +85,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
     {
        resourceIsValid = false;
        XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+       Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                           "no elements are present %s",
                           errorMsg.data()
                           );
@@ -105,7 +105,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
           {
              resourceIsValid = false;
              XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+             Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                            "'dbname' element is empty"
                            " - if present it must contain a valid sql database name"
                            );
@@ -115,7 +115,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
        {
           resourceIsValid = false;
           XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-          OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+          Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                         "'dbname' element is missing %s",
                         errorMsg.data()
                         );
@@ -136,7 +136,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
           {
              resourceIsValid = false;
              XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+             Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                            "'username' element is empty"
                            " - if present, it must be a valid database user name %s",
                            errorMsg.data()
@@ -164,7 +164,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
           {
              resourceIsValid = false;
              XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+             Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                            "'dbdriver' element is empty"
                            " - if present, it must be a valid database driver name %s",
                            errorMsg.data()
@@ -187,7 +187,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
           {
              resourceIsValid = false;
              XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+             Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                            "'userpassword' element is empty"
                            " - if present, it must be a valid password string %s",
                            errorMsg.data()
@@ -219,7 +219,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
                                                             attribute, currentProcess)
                 ))
           {
-             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+             Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                            "invalid attribute '%s'",
                            attribute->Name());
           }
@@ -235,7 +235,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
              sqldbResource->mDbDriver = dbDriver;
              sqldbResource->mServer = serverName;
              sqldbResource->mDbName = databaseName;
-             OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SqldbResource::parse "
+             Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE, "SqldbResource::parse "
                                   "databaseName = %s, username = %s, password = %s, driver = %s, server = %s",
                                   sqldbResource->mDbName.data(),
                                   sqldbResource->mUser.data(),
@@ -276,14 +276,14 @@ bool SqldbResource::isReadyToStart(UtlString& missingResource)
    if (dbHandle)
    {
       odbcDisconnect(dbHandle);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SqldbResource::isReadyToStart "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "SqldbResource::isReadyToStart "
                      "Successfully connected to database '%s'",
                      mDbName.data());
       dbIsReady = true;
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::isReadyToStart "
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::isReadyToStart "
                      "Unable to connect to database '%s'",
                      mDbName.data());
       missingResource = "";

@@ -16,7 +16,7 @@
 #include "utl/UtlHashMapIterator.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlTokenizer.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsFileSystem.h"
 #include "os/OsProcess.h"
 #include "os/OsProcessIterator.h"
@@ -105,7 +105,7 @@ bool ZoneAdminRpcMethod::validCaller(const HttpRequestContext& requestContext,
       {
          // sipXsupervisor says it is one of the allowed peers.
          result = true;
-         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,
                        "ZoneAdminRpcMethod::validCaller '%s' peer authenticated for %s",
                        peerName.data(), callingMethod
                        );
@@ -119,7 +119,7 @@ bool ZoneAdminRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append("'");
          response.setFault(ZoneAdminRpcMethod::UnconfiguredPeer, faultMsg.data());
 
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
                        );
@@ -130,7 +130,7 @@ bool ZoneAdminRpcMethod::validCaller(const HttpRequestContext& requestContext,
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
 
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
                     );
@@ -151,7 +151,7 @@ void ZoneAdminRpcMethod::handleMissingExecuteParam(const char* methodName,
    faultMsg += "' parameter is missing or invalid type";
    status = XmlRpcMethod::FAILED;
    response.setFault(ZoneAdminRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 void ZoneAdminRpcMethod::handleExtraExecuteParam(const char* methodName,
@@ -163,7 +163,7 @@ void ZoneAdminRpcMethod::handleExtraExecuteParam(const char* methodName,
    faultMsg += " has incorrect number of parameters";
    status = XmlRpcMethod::FAILED;
    response.setFault(ZoneAdminRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 bool ZoneAdminRpcMethod::duplicateProcess(const char*     command,
@@ -204,7 +204,7 @@ bool ZoneAdminRpcMethod::isProcessActive(const char* command)
       procStatus = runningProcess.getInfo(procInfo);
       if (procStatus == OS_SUCCESS)
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process commandlines found = %s", procInfo.commandline.data());
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "Process commandlines found = %s", procInfo.commandline.data());
          procInfo.name.data(), procInfo.commandline.data();
          if (procInfo.commandline.contains(command))
          {

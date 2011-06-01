@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.openacd;
@@ -31,7 +32,6 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
 
     void saveExtension(OpenAcdExtension extension);
 
-    void removeExtensions(Collection<Integer> extensionIds);
     void deleteExtension(OpenAcdExtension ext);
 
     OpenAcdExtension getExtensionById(Integer extensionId);
@@ -74,6 +74,16 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
 
     boolean isOpenAcdAgent(User user);
 
+    List<OpenAcdSkillGroup> getSkillGroups();
+
+    OpenAcdSkillGroup getSkillGroupById(Integer skillGroupId);
+
+    OpenAcdSkillGroup getSkillGroupByName(String skillGroupName);
+
+    void saveSkillGroup(OpenAcdSkillGroup skillGroup);
+
+    List<String> removeSkillGroups(Collection<Integer> skillGroupIds);
+
     List<OpenAcdSkill> getSkills();
 
     List<OpenAcdSkill> getDefaultSkills();
@@ -112,7 +122,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
 
     void saveQueueGroup(OpenAcdQueueGroup queueGroup);
 
-    boolean removeQueueGroups(Collection<Integer> queueGroupIds);
+    List<String> removeQueueGroups(Collection<Integer> queueGroupIds);
 
     List<OpenAcdQueue> getQueues();
 
@@ -125,4 +135,5 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
     List<String> removeQueues(Collection<Integer> queueIds);
     public OpenAcdLine newOpenAcdLine();
     public OpenAcdCommand newOpenAcdCommand();
+    public void replicateConfig();
 }

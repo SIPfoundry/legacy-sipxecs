@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.openacd;
@@ -42,7 +43,6 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
@@ -56,6 +56,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private static final String LOCATION = "location";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
     private static final String OPEN_ACD_AGENT_GROUP_WITH_NAME = "openAcdAgentGroupWithName";
+    private static final String OPEN_ACD_SKILL_GROUPWITH_NAME = "openAcdSkillGroupWithName";
     private static final String OPEN_ACD_SKILL_WITH_NAME = "openAcdSkillWithName";
     private static final String OPEN_ACD_SKILL_WITH_ATOM = "openAcdSkillWithAtom";
     private static final String OPEN_ACD_CLIENT_WITH_NAME = "openAcdClientWithName";
@@ -63,6 +64,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private static final String DEFAULT_OPEN_ACD_SKILLS = "defaultOpenAcdSkills";
     private static final String OPEN_ACD_AGENT_BY_USERID = "openAcdAgentByUserId";
     private static final String GROUP_NAME_DEFAULT = "Default";
+    private static final String MAGIC_SKILL_GROUP_NAME = "Magic";
     private static final String LINE_NAME = "line";
     private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
@@ -77,7 +79,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private LocationsManager m_locationsManager;
     private ServiceConfigurator m_serviceConfigurator;
     private SipxProcessContext m_processContext;
-    private DaoEventPublisher m_daoEventPublisher;
 
     private CoreContext m_coreContext;
 
@@ -141,18 +142,10 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         return m_enabled;
     }
 
-    @Override
-    public void removeExtensions(Collection<Integer> extensionIds) {
-        for (Integer id : extensionIds) {
-            OpenAcdExtension ext = getExtensionById(id);
-            deleteExtension(ext);
-            m_daoEventPublisher.publishDelete(ext);
-        }
-        replicateConfig();
-    }
-
     public void deleteExtension(OpenAcdExtension ext) {
         getHibernateTemplate().delete(ext);
+        getHibernateTemplate().flush();
+        replicateConfig();
     }
 
     public void saveExtension(OpenAcdExtension extension) {
@@ -174,11 +167,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         } else {
             getHibernateTemplate().merge(extension);
         }
-        getHibernateTemplate().flush();
-        replicateConfig();
     }
 
-    private void replicateConfig() {
+    public void replicateConfig() {
         SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
                 .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         for (Location location : m_locationsManager.getLocations()) {
@@ -416,6 +407,95 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     @Override
+    public List<OpenAcdSkillGroup> getSkillGroups() {
+        return getHibernateTemplate().loadAll(OpenAcdSkillGroup.class);
+    }
+
+    @Override
+    public OpenAcdSkillGroup getSkillGroupById(Integer skillGroupId) {
+        return getHibernateTemplate().load(OpenAcdSkillGroup.class, skillGroupId);
+    }
+
+    @Override
+    public OpenAcdSkillGroup getSkillGroupByName(String skillGroupName) {
+        List<OpenAcdSkillGroup> skillGroups = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                OPEN_ACD_SKILL_GROUPWITH_NAME, VALUE, skillGroupName);
+        return DataAccessUtils.singleResult(skillGroups);
+    }
+
+    @Override
+    public void saveSkillGroup(OpenAcdSkillGroup skillGroup) {
+        if (StringUtils.isBlank(skillGroup.getName())) {
+            throw new UserException("&blank.skillGroupName.error");
+        }
+        if (skillGroup.isNew() || (!skillGroup.isNew() && isNameChanged(skillGroup))) {
+            checkForDuplicateName(skillGroup);
+        }
+
+        if (!skillGroup.isNew()) {
+            if (isNameChanged(skillGroup)) {
+                // don't rename the Magic skill group
+                OpenAcdSkillGroup magicSkillGroup = getSkillGroupByName(MAGIC_SKILL_GROUP_NAME);
+                if (magicSkillGroup != null && magicSkillGroup.getId().equals(skillGroup.getId())) {
+                    throw new UserException("&msg.err.magicSkillGroupRename");
+                }
+
+                List<OpenAcdSkill> skills = new LinkedList<OpenAcdSkill>();
+                for (OpenAcdSkill skill : skillGroup.getSkills()) {
+                    skills.add(skill);
+                }
+                m_provisioningContext.updateObjects(skills);
+            }
+            getHibernateTemplate().merge(skillGroup);
+        } else {
+            getHibernateTemplate().save(skillGroup);
+        }
+    }
+
+    private boolean isNameChanged(OpenAcdSkillGroup skillGroup) {
+        String oldName = getSkillGroupById(skillGroup.getId()).getName();
+        skillGroup.setOldName(oldName);
+        return !oldName.equals(skillGroup.getName());
+    }
+
+    private void checkForDuplicateName(OpenAcdSkillGroup skillGroup) {
+        String skillGroupName = skillGroup.getName();
+        OpenAcdSkillGroup existingSkillGroup = getSkillGroupByName(skillGroupName);
+        if (existingSkillGroup != null) {
+            throw new UserException("&duplicate.skillGroupName.error", skillGroupName);
+        }
+    }
+
+    @Override
+    public List<String> removeSkillGroups(Collection<Integer> skillGroupIds) {
+        List<OpenAcdSkillGroup> groups = new LinkedList<OpenAcdSkillGroup>();
+        List<OpenAcdSkill> skills = new LinkedList<OpenAcdSkill>();
+        List<String> usedSkillGroups = new ArrayList<String>();
+        for (Integer id : skillGroupIds) {
+            OpenAcdSkillGroup group = getSkillGroupById(id);
+            if (group.getName().equals(MAGIC_SKILL_GROUP_NAME) || containsUsedSkills(group)) {
+                usedSkillGroups.add(group.getName());
+            } else {
+                skills.addAll(group.getSkills());
+                groups.add(group);
+            }
+        }
+        getHibernateTemplate().deleteAll(groups);
+        m_provisioningContext.deleteObjects(skills);
+
+        return usedSkillGroups;
+    }
+
+    private boolean containsUsedSkills(OpenAcdSkillGroup skillGroup) {
+        for (OpenAcdSkill skill : skillGroup.getSkills()) {
+            if (skill.isDefaultSkill() || isSkillInUse(skill)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public List<OpenAcdSkill> getSkills() {
         return getHibernateTemplate().loadAll(OpenAcdSkill.class);
     }
@@ -454,9 +534,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         if (StringUtils.isBlank(skill.getAtom())) {
             throw new UserException("&blank.skillAtom.error");
         }
-        // Check if skill group name is empty
-        if (StringUtils.isBlank(skill.getGroupName())) {
-            throw new UserException("&blank.skillGroupName.error");
+        // Check if skill group is empty
+        if (skill.getGroup() == null) {
+            throw new UserException("&error.requiredSkillGroup");
         }
         // Check for duplicate names before saving the skill
         if (skill.isNew() || (!skill.isNew() && isNameChanged(skill))) {
@@ -484,6 +564,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
             if (skill.isDefaultSkill() || isSkillInUse(skill)) {
                 usedSkills.add(skill.getName());
             } else {
+                OpenAcdSkillGroup group = skill.getGroup();
+                group.removeSkill(skill);
+                getHibernateTemplate().saveOrUpdate(group);
                 skills.add(skill);
             }
         }
@@ -714,24 +797,24 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     @Override
-    public boolean removeQueueGroups(Collection<Integer> queueGroupIds) {
-        boolean affectDefaultAgentGroup = false;
+    public List<String> removeQueueGroups(Collection<Integer> queueGroupIds) {
         List<OpenAcdQueueGroup> groups = new LinkedList<OpenAcdQueueGroup>();
         List<OpenAcdQueue> queues = new LinkedList<OpenAcdQueue>();
+        List<String> usedGroups = new ArrayList<String>();
         for (Integer id : queueGroupIds) {
             OpenAcdQueueGroup group = getQueueGroupById(id);
-            if (!group.getName().equals(GROUP_NAME_DEFAULT)) {
+            if (group.getName().equals(GROUP_NAME_DEFAULT) || containsUsedQueues(group)) {
+                usedGroups.add(group.getName());
+            } else {
                 queues.addAll(group.getQueues());
                 groups.add(group);
-            } else {
-                affectDefaultAgentGroup = true;
             }
         }
         getHibernateTemplate().deleteAll(groups);
         m_provisioningContext.deleteObjects(queues);
         m_provisioningContext.deleteObjects(groups);
 
-        return affectDefaultAgentGroup;
+        return usedGroups;
     }
 
     private boolean isNameChanged(OpenAcdQueueGroup queueGroup) {
@@ -746,6 +829,15 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         if (existingQueueGroup != null) {
             throw new UserException("&duplicate.queueGroupName.error", queueGroupName);
         }
+    }
+
+    private boolean containsUsedQueues(OpenAcdQueueGroup group) {
+        for (OpenAcdQueue queue : group.getQueues()) {
+            if (isUsedByLine(OpenAcdLine.Q + queue.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<OpenAcdQueue> getQueues() {
@@ -903,7 +995,4 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         m_coreContext = coreContext;
     }
 
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
-    }
 }

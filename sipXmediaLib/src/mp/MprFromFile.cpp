@@ -28,7 +28,7 @@
 #include "mp/MpAudioUtils.h"
 #include "mp/MpAudioWaveFileRead.h"
 #include "mp/mpau.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsProtectEventMgr.h"
 
 
@@ -374,7 +374,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
             }
         }
         else
-            OsSysLog::add(FAC_MP, PRI_ERR, "ERROR: Detected audio file is bad.  Must be MONO, 16bit signed wav or u-law au");
+            Os::Logger::instance().log(FAC_MP, PRI_ERR, "ERROR: Detected audio file is bad.  Must be MONO, 16bit signed wav or u-law au");
 
         //remove object used to determine rate, compression, etc.
         delete audioFile;

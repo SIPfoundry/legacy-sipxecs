@@ -13,7 +13,7 @@
 #include "ResourceListFileReader.h"
 #include "ResourceListSet.h"
 #include "main.h"
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <xmlparser/tinystr.h>
 #include <xmlparser/ExtractContent.h>
 #include <xmlparser/TiXmlUtlStringWriter.h>
@@ -192,7 +192,7 @@ void ResourceListUpdater::compare(const char* uri,
          // new ResourceReference's.
          mChanges = true;
          mFirstDifference = mComparedEntries;
-         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                        "ResourceListUpdater::compare "
                        "Difference found at location %d",
                        (int) mFirstDifference);
@@ -215,7 +215,7 @@ void ResourceListUpdater::compare(const char* uri,
                                        mInitialEntries - 1);
       if (!r)
       {
-         OsSysLog::add(FAC_RLS, PRI_WARNING,
+         Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                        "ResourceListUpdater::compare "
                        "Could not add resource '%s' to ResourceList '%s' -- "
                        "probable duplicate resource",
@@ -299,7 +299,7 @@ ResourceListFileReader::~ResourceListFileReader()
 // into the ResourceListSet.
 OsStatus ResourceListFileReader::initialize()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListFileReader::initialize entered");
 
    // The status to return.
@@ -334,7 +334,7 @@ OsStatus ResourceListFileReader::initialize()
          // Get the 'user' values of all the existing resource lists.
          mResourceListSet->getAllResourceLists(rlsList);
 
-         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                        "ResourceListFileReader::initialize "
                        "ResourceList count -- XML: %lu RLS: %lu",
                        (unsigned long) xmlList.entries(),
@@ -369,7 +369,7 @@ OsStatus ResourceListFileReader::initialize()
                if (!user_attribute || *user_attribute == '\0')
                {
                   // User missing or null.
-                  OsSysLog::add(FAC_RLS, PRI_ERR,
+                  Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                                 "user attribute of <list> was missing or null");
                   list_valid = false;
                   ret = OS_FAILED;
@@ -381,7 +381,7 @@ OsStatus ResourceListFileReader::initialize()
                if (!user_cons_attribute || *user_cons_attribute == '\0')
                {
                   // user-cons missing or null.
-                  OsSysLog::add(FAC_RLS, PRI_ERR,
+                  Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                                 "user-cons attribute of <list> was missing or null");
                   list_valid = false;
                   ret = OS_FAILED;
@@ -405,7 +405,7 @@ OsStatus ResourceListFileReader::initialize()
                                                           "");
                      if (!r)
                      {
-                        OsSysLog::add(FAC_RLS, PRI_WARNING,
+                        Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                                       "ResourceListFileReader::initialize "
                                       "ResourceList '%s' already exists -- "
                                       "continuing adding resources to the list",
@@ -446,7 +446,7 @@ OsStatus ResourceListFileReader::initialize()
                         if (!uri_attribute || *uri_attribute == '\0')
                         {
                            // URI missing or null.
-                           OsSysLog::add(FAC_RLS, PRI_ERR,
+                           Os::Logger::instance().log(FAC_RLS, PRI_ERR,
                                          "main "
                                          "uri attribute of <resource> was missing or null");
                            resource_valid = false;
@@ -498,7 +498,7 @@ OsStatus ResourceListFileReader::initialize()
             mResourceListSet->deleteResourceList(userPart->data());
          }
 
-         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                        "ResourceListFileReader::initialize Done loading file '%s'",
                        mFileName.data());
 
@@ -510,7 +510,7 @@ OsStatus ResourceListFileReader::initialize()
       else
       {
          // Report error parsing file.
-         OsSysLog::add(FAC_PARK, PRI_CRIT,
+         Os::Logger::instance().log(FAC_PARK, PRI_CRIT,
                        "main "
                        "Resource list file '%s' could not be parsed.",
                        mFileName.data());
@@ -520,7 +520,7 @@ OsStatus ResourceListFileReader::initialize()
    else
    {
       // Report that there is no file.
-      OsSysLog::add(FAC_PARK, PRI_CRIT,
+      Os::Logger::instance().log(FAC_PARK, PRI_CRIT,
                     "main No resource list file set.");
 
       // Leave the current resource list configuration unchanged.
@@ -529,7 +529,7 @@ OsStatus ResourceListFileReader::initialize()
    // Resume publishing.
    mResourceListSet->resumePublishing();
 
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListFileReader::initialize exited");
 
    return ret;
@@ -565,7 +565,7 @@ void ResourceListFileReader::xmlElemList(UtlSList& list,
             {
                list.append(s);
 
-               OsSysLog::add(FAC_RLS, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                              "ResourceListFileReader::xmlElemList "
                              "<%s> - '%s' added to XML list",
                              element, attribute_value);
@@ -574,7 +574,7 @@ void ResourceListFileReader::xmlElemList(UtlSList& list,
             {
                delete s;
 
-               OsSysLog::add(FAC_RLS, PRI_WARNING,
+               Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                              "ResourceListFileReader::xmlElemList "
                              "Duplicate: <%s> - '%s' found in XML list",
                              element, attribute_value);
@@ -608,14 +608,14 @@ void ResourceListFileReader::listDiff(UtlSList& list1,
          // Delete the unneeded element.
          delete list2_element;
 
-         OsSysLog::add(FAC_PARK, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                        "ResourceListFileReader::listCompare "
                        "'%s' has been found in list2",
                        list1_element->data());
       }
       else
       {
-         OsSysLog::add(FAC_PARK, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
                        "ResourceListFileReader::listCompare "
                        "'%s' has not been found in list2",
                        list1_element->data());

@@ -19,7 +19,6 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="processContext" ref="sipxProcessContext" />
-    <property name="daoEventPublisher" ref="daoEventPublisher"/>
   </bean>
 
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -31,5 +30,30 @@
 
   <bean id="openAcdProvisioningContext" class="org.sipfoundry.sipxconfig.openacd.OpenAcdProvisioningContextImpl">
 	<property name="openAcdContext" ref="openAcdContext"/>
+  </bean>
+
+  <bean id="openAcdSkillGroupMigrationContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroupMigrationContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="openAcdContext" ref="openAcdContext" />
+  </bean>
+
+  <bean id="openAcdSkillGroupMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroupMigrationContext</value>
+    </property>
+    <property name="target">
+      <ref local="openAcdSkillGroupMigrationContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="openAcdSkillGroupMigrationTrigger" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroupMigrationTrigger">
+    <property name="openAcdSkillGroupMigrationContext">
+      <ref local="openAcdSkillGroupMigrationContext" />
+    </property>
+    <property name="taskNames">
+      <list>
+        <value>skill_group_name_migrate_skill_group</value>
+      </list>
+    </property>
   </bean>
 </beans>

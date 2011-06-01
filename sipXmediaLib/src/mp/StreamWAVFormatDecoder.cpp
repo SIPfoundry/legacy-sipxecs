@@ -12,7 +12,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "mp/StreamWAVFormatDecoder.h"
 #include "mp/StreamDataSource.h"
 #include "mp/StreamBufferDataSource.h"

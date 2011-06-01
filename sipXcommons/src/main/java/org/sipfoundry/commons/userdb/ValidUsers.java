@@ -73,6 +73,21 @@ public enum ValidUsers {
         return users;
     }
 
+    public List<User> getUsersWithImEnabled() {
+        List<User> users = new ArrayList<User>();
+        try {
+            DBCursor cursor = getEntityCollection().find(QueryBuilder.start(IM_ENABLED).is(Boolean.TRUE).get());
+            Iterator<DBObject> objects = cursor.iterator();
+            while (objects.hasNext()) {
+                DBObject user = objects.next();
+                users.add(extractUser(user));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
     /**
      * See if a given user_name is valid (aka it can be dialed and reach a user)
      * 
@@ -81,6 +96,9 @@ public enum ValidUsers {
      * @return user found or null
      */
     public User getUser(String userName) {
+        if (userName == null) {
+            return null;
+        }
         DBObject queryUserName = QueryBuilder.start(VALID_USER).is(Boolean.TRUE).and(UID).is(userName).get();
         DBObject result = getEntityCollection().findOne(queryUserName);
         if (result != null) {
@@ -89,7 +107,7 @@ public enum ValidUsers {
 
         // check aliases
         BasicDBObject elemMatch = new BasicDBObject();
-        elemMatch.put(ID, userName);
+        elemMatch.put(ALIAS_ID, userName);
         BasicDBObject alias = new BasicDBObject();
         alias.put("$elemMatch", elemMatch);
         BasicDBObject queryAls = new BasicDBObject();
@@ -103,7 +121,7 @@ public enum ValidUsers {
             BasicDBList aliases = (BasicDBList) aliasResult.get(ALIASES);
             for (int i = 0; i < aliases.size(); i++) {
                 DBObject aliasObj = (DBObject) aliases.get(i);
-                if (getStringValue(aliasObj, ID).equals(userName)) {
+                if (getStringValue(aliasObj, ALIAS_ID).equals(userName)) {
                     return extractValidUserFromAlias(aliasObj);
                 }
             }
@@ -202,7 +220,7 @@ public enum ValidUsers {
             return null;
         }
         User user = new User();
-        String id = getStringValue(aliasObj, ID);
+        String id = getStringValue(aliasObj, ALIAS_ID);
         user.setIdentity(id);
         user.setUserName(id);
         user.setUri(getStringValue(aliasObj, CONTACT));
@@ -215,6 +233,13 @@ public enum ValidUsers {
             return null;
         }
         if (!Boolean.valueOf(obj.get(VALID_USER).toString())) {
+            return null;
+        }
+        return extractUser(obj);
+    }
+
+    private static User extractUser(DBObject obj) {
+        if (obj == null) {
             return null;
         }
 
@@ -254,7 +279,7 @@ public enum ValidUsers {
             for (int i = 0; i < aliasesObj.size(); i++) {
                 DBObject aliasObj = (DBObject) aliasesObj.get(i);
                 if (aliasObj.get(RELATION).toString().equals(ALIAS)) {
-                    aliases.add(aliasObj.get(ID).toString());
+                    aliases.add(aliasObj.get(ALIAS_ID).toString());
                 }
             }
             user.setAliases(aliases);
@@ -290,6 +315,8 @@ public enum ValidUsers {
         user.setVMExitIM(getStringValue(obj, LEAVE_MESSAGE_END_IM));
         user.setJid(getStringValue(obj, IM_ID));
         user.setAltJid(getStringValue(obj, ALT_IM_ID));
+        user.setImPassword(getStringValue(obj, IM_PASSWORD));
+        user.setOnthePhoneMessage(getStringValue(obj, IM_ON_THE_PHONE_MESSAGE));
 
         if (user.isInDirectory()) {
             buildDialPatterns(user);

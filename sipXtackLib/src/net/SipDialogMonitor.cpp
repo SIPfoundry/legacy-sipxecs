@@ -11,7 +11,7 @@
 
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlHashMap.h>
@@ -132,7 +132,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
                                  DIALOG_EVENT_TYPE);
 
       mMonitoredLists.insertKeyAndValue(listName, list);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipDialogMonitor::addExtension insert listName %s and object %p to the resource list",
                     groupName.data(), list);
    }
@@ -156,7 +156,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       list->insertResource(resource);
 
       // Set up the subscription to the URI.
-      OsSysLog::add(FAC_LOG, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_LOG, PRI_DEBUG,
                     "SipDialogMonitor::addExtension Sending out the SUBSCRIBE to contact %s",
                     resourceId.data());
 
@@ -181,7 +181,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       if (!status)
       {
          result = false;
-         OsSysLog::add(FAC_LOG, PRI_ERR,
+         Os::Logger::instance().log(FAC_LOG, PRI_ERR,
                        "SipDialogMonitor::addExtension Subscription failed to contact %s.",
                        resourceId.data());
       }
@@ -190,7 +190,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
          mDialogHandleList.insertKeyAndValue(new UtlString(resourceId),
                                              new UtlString(earlyDialogHandle));
          createDialogState(&earlyDialogHandle);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipDialogMonitor::addExtension Added earlyDialogHandle: %s",
                        earlyDialogHandle.data());
          result = true;
@@ -198,7 +198,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    }
    else
    {
-      OsSysLog::add(FAC_LOG, PRI_WARNING,
+      Os::Logger::instance().log(FAC_LOG, PRI_WARNING,
                     "SipDialogMonitor::addExtension contact %s already exists.",
                     resourceId.data());
    }
@@ -218,7 +218,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
    if (list == NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipDialogMonitor::removeExtension group %s does not exist",
                     groupName.data());
    }
@@ -236,7 +236,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
             dynamic_cast <UtlString *> (mDialogHandleList.findValue(&resourceId));
          if (earlyDialogHandle)
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipDialogMonitor::removeExtension Calling endSubscription(%s)",
                           earlyDialogHandle->data());
             // Terminate the subscription.
@@ -244,7 +244,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
 
             if (!status)
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                              "SipDialogMonitor::removeExtension Unsubscription failed for %s.",
                              resourceId.data());
             }
@@ -254,7 +254,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                           "SipDialogMonitor::removeExtension no dialogHandle for %s.",
                           resourceId.data());
          }
@@ -268,7 +268,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       }
       else
       {
-         OsSysLog::add(FAC_LOG, PRI_WARNING,
+         Os::Logger::instance().log(FAC_LOG, PRI_WARNING,
                        "SipDialogMonitor::removeExtension subscription for contact %s does not exists.",
                        resourceId.data());
       }
@@ -289,12 +289,12 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact,
 {
    if (mDialogEventList.find(&contact) == NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent adding dialogEvent %p for contact '%s'",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent adding dialogEvent %p for contact '%s'",
                     dialogEvent, contact.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent dialogEvent %p for contact '%s' already exists, updating the content.",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent dialogEvent %p for contact '%s' already exists, updating the content.",
                     dialogEvent, contact.data());
 
       // Get the object from the dialog event list
@@ -304,7 +304,7 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact,
       delete oldKey;
       SipDialogEvent* oldDialogEvent = dynamic_cast <SipDialogEvent *> (foundValue);
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent removing the dialogEvent %p for contact '%s'",
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent removing the dialogEvent %p for contact '%s'",
                     oldDialogEvent, contact.data());
 
       if (oldDialogEvent)
@@ -355,7 +355,7 @@ void SipDialogMonitor::publishContent(UtlString& contact,
       bool contentChanged = false;
 
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipDialogMonitor::publishContent listUri %s list %p",
                     listUri->data(), list);
 
@@ -408,7 +408,7 @@ void SipDialogMonitor::subscriptionStateCallback(SipSubscribeClient::Subscriptio
                                                  long expiration,
                                                  const SipMessage* subscribeResponse)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::subscriptionStateCallback is called with responseCode = %d (%s)",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::subscriptionStateCallback is called with responseCode = %d (%s)",
                  responseCode, responseText);
 }
 
@@ -439,7 +439,7 @@ void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage,
    UtlString contact;
    fromUrl.getIdentity(contact);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::handleNotifyMessage receiving a notify message from %s",
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::handleNotifyMessage receiving a notify message from %s",
                  contact.data());
 
    const HttpBody* notifyBody = notifyMessage->getBody();
@@ -459,7 +459,7 @@ void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage,
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipDialogMonitor::handleNotifyMessage receiving an empty notify body from %s",
                     contact.data());
    }
@@ -487,7 +487,7 @@ void SipDialogMonitor::removeStateChangeNotifier(const char* listUri)
 void SipDialogMonitor::notifyStateChange(UtlString& contact,
                                          StateChangeNotifier::Status status)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange "
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange "
                  "AOR = '%s', status = %s",
                  contact.data(),
                  (status == StateChangeNotifier::ON_HOOK ? "ON_HOOK" :
@@ -506,7 +506,7 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact,
       notifier = (StateChangeNotifier *) container->getValue();
       // Report the status to the notifier.
       notifier->setStatus(contactUrl, status);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipDialogMonitor::notifyStateChange setting state to %d",
                     status);
    }
@@ -520,7 +520,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
    // Status to be returned to caller.
    StateChangeNotifier::Status rc;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipDialogMonitor::mergeEventInformation "
                  "earlyDialogHandle = '%s', dialogHandle = '%s'",
                  earlyDialogHandle, dialogHandle);
@@ -540,7 +540,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
       dialogEvent->getState(notify_state);
       if (notify_state.compareTo("full") == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipDialogMonitor::mergeEventInformation "
                        "active_dialog_list elements for handle '%s'",
                        dialogHandle);
@@ -575,7 +575,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
          dialogId.append(dialogHandle);
 
          dialog->getState(state, event, code);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipDialogMonitor::mergeEventInformation "
                        "dialogId '%s' state '%s' event '%s' code '%s'",
                        dialogId.data(), state.data(), event.data(), code.data());
@@ -585,7 +585,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
             // If it is not in active_dialog_list, add it.
             if (!active_dialog_list->contains(&dialogId))
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipDialogMonitor::mergeEventInformation "
                              "adding dialog '%s'",
                              dialogId.data());
@@ -596,7 +596,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
          {
             // Terminated dialog
             // If it is in active_dialog_list, remove it.
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipDialogMonitor::mergeEventInformation "
                           "removing dialog '%s'",
                           dialogId.data());
@@ -606,18 +606,18 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
       delete dialog_itor;
 
       // If debugging, list the active dialog list.
-      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
       {
          UtlHashBagIterator dialog_list_itor(*active_dialog_list);
          UtlString* dialog;
          while ((dialog = dynamic_cast <UtlString*> (dialog_list_itor())))
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipDialogMonitor::mergeEventInformation "
                           "active dialog '%s'",
                           dialog->data());
          }
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipDialogMonitor::mergeEventInformation "
                        "End of list");
       }
@@ -631,7 +631,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
    {
       // This is a late NOTIFY and there are (should be) no notifiers for it,
       // so the return code is arbitrary.
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipDialogMonitor::mergeEventInformation "
                     "No active dialog list found");
       rc = StateChangeNotifier::ON_HOOK;

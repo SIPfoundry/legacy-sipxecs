@@ -68,7 +68,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         Permission permission = new Permission();
         permission.setDescription("description");
         permission.setLabel("abc");
-
+        TestHelper.insertFlat("service/location.db.xml");
         m_manager.addCallPermission(permission);
 
         assertEquals(1, getConnection().getRowCount("permission", "where label = 'abc'"));
@@ -165,7 +165,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testRulesWithCustomPermission() throws Exception {
         m_resetDialPlanTask.reset(true);
-
+        TestHelper.insertFlat("service/location.db.xml");
         Permission permission = new Permission();
         permission.setType(Permission.Type.CALL);
         permission.setLabel("bongo3");

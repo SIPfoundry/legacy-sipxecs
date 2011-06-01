@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.site.openacd;
@@ -93,6 +94,11 @@ public abstract class OpenAcdLines extends BaseComponent {
     }
 
     public void deleteLines() {
-        getOpenAcdContext().removeExtensions(getRowsToDelete());
+        //delete extensions one by one since we want to trigger onDeleteEvent in order to
+        //have delete and mongo write in the same transaction
+        //deleteing bulk and publishing delete event will make 2 separate transactions
+        for (Integer id : getRowsToDelete()) {
+            getOpenAcdContext().deleteExtension(getOpenAcdContext().getExtensionById(id));
+        }
     }
 }

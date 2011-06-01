@@ -92,7 +92,7 @@ SubscribeServerThread::initialize (
     mDefaultSubscribePeriod = defaultSubscribePeriod;
     if ( mMinExpiresTimeint > mDefaultSubscribePeriod )
     {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "SubscribeServerThread::initialize - minimum expiration time (%d)"
                      " > default/maximum expiration time (%d); reset to equal",
                      mMinExpiresTimeint,
@@ -195,7 +195,7 @@ UtlBoolean SubscribeServerThread::insertRow(
       // Critical Section here
       OsLock mutex(mLock);
       // (We must supply a dummy XML version number.)
-      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::insertRow() calling SubscriptionDB::getInstance()->InsertRow()\n") ;
+      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::insertRow() calling SubscriptionDB::getInstance()->InsertRow()\n") ;
       status = SubscribeDB::defaultCollection().collection().insertRow(
          SUBSCRIPTION_COMPONENT_STATUS,
          uri, callid, contact, expires, subscribeCseq, eventTypeKey, eventType,
@@ -370,7 +370,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                            break;
 
                         case STATUS_INVALID_REQUEST:
-                           OsSysLog::add(FAC_SIP, PRI_ERR,
+                           Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription Could Not Be Added "
                                          SIP_BAD_REQUEST_TEXT
@@ -383,7 +383,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                            break;
 
                         case STATUS_FORBIDDEN:
-                           OsSysLog::add(FAC_SIP, PRI_ERR,
+                           Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription Could Not Be Added "
                                          SIP_FORBIDDEN_TEXT
@@ -396,7 +396,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                            break;
 
                         case STATUS_NOT_FOUND:
-                           OsSysLog::add(FAC_SIP, PRI_ERR,
+                           Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription Could Not Be Added "
                                          SIP_NOT_FOUND_TEXT
@@ -409,7 +409,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 
                         case STATUS_BAD_SUBSCRIPTION:
                            // send 481 Subscription Does Not Exist response
-                           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription to be renewed does not exist "
                                          SIP_BAD_SUBSCRIPTION_TEXT
@@ -422,7 +422,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 
                         case STATUS_INTERNAL_ERROR:
                         default:
-                           OsSysLog::add(FAC_SIP, PRI_ERR,
+                           Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription Could Not Be Added "
                                          "Status %d from addSubscription",
@@ -442,7 +442,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                      }
                      else
                      {
-                        OsSysLog::add(FAC_SIP, PRI_CRIT,
+                        Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                                       "SubscribeServerThread::handleMessage()"
                                       " container->getPlugin failed for '%s'",
                                       eventPackage.data()
@@ -465,7 +465,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
             }
             else // no plugin found for this event type
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                              "SubscribeServerThread::handleMessage()"
                              " Request denied - "
                              SIP_BAD_EVENT_TEXT
@@ -479,7 +479,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
             UtlString finalMessageStr;
             ssize_t finalMessageLen;
             finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
                 "Sending final response\n%s",finalMessageStr.data());
             mpSipUserAgent->setUserAgentHeader( finalResponse );
             mpSipUserAgent->send( finalResponse );
@@ -574,13 +574,13 @@ SubscribeServerThread::isAuthorized (
                 // after going thru all permissions find out if all matched or not
                 if( nextPermissionMatched )
                 {
-                   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
+                   Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
                         " All permissions matched - request is AUTHORIZED");
                     retIsAuthorized = TRUE;
                 }
                 else
                 {
-                    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
+                    Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
                         " One or more Permissions did not match - request is UNAUTHORIZED");
                     retIsAuthorized = FALSE;
                 }
@@ -588,14 +588,14 @@ SubscribeServerThread::isAuthorized (
             else
             {
                 // one or more permissions needed by plugin and none in IMDB => UNAUTHORIZED
-                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
+                Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
                     " No Permissions in IMDB - request is UNAUTHORIZED");
                 retIsAuthorized = FALSE;
             }
         }
         else
         {
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
+            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
                 " No Permissions required - request is always AUTHORIZED");
             retIsAuthorized = TRUE;
         }
@@ -619,14 +619,14 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
     // if we are not using a database we must assume authenticated
     if ( !mIsCredentialDB )
     {
-        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
+        Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
             ":: No Credential DB - request is always AUTHENTICATED");
         retIsAuthenticated = TRUE;
     } else
     {
         // realm and auth type should be default for server
         // if URI not defined in DB, the user is not authorized to modify bindings -
-        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated():TRUE realm=\"%s\" ",
+        Os::Logger::instance().log( FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated():TRUE realm=\"%s\" ",
                 mRealm.data());
 
         UtlString requestNonce;
@@ -653,7 +653,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
                                                       requestAuthIndex,
                                                       &requestUserBase) )
         {
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG, 
+            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, 
                           "SubscribeServerThread::isAuthenticated() "
                           "- Authorization header set in message, validate it.\n"
                           "- reqRealm=\"%s\", reqUser=\"%s\", reqUserBase=\"%s\"",
@@ -676,7 +676,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
 
             if (mRealm.compareTo(requestRealm) ) // case sensitive check that realm is correct
             {
-               OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+               Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                              "SubscribeServerThread::isAuthenticated() "
                              "Realm does not match");
             }
@@ -684,7 +684,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
             // See if the nonce is valid - see net/SipNonceDb.cpp
             else if (!mNonceDb.isNonceValid(requestNonce, callId, fromTag, mRealm, nonceExpires))
             {
-                OsSysLog::add(FAC_AUTH, PRI_INFO,
+                Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                               "SubscribeServerThread::isAuthenticated() "
                               "Invalid NONCE: '%s' found for mailboxUrl '%s' "
                               "realm: '%s' user: '%s' "
@@ -703,7 +703,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
                                                      qopType)
                      >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
             {
-                OsSysLog::add(FAC_AUTH, PRI_INFO,
+                Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
                               "SubscribeServerThread::isAuthenticated() "
                               "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
                               requestQop.data(), requestCnonce.data(), requestNonceCount.data());
@@ -737,7 +737,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
                     {
                         // can have multiple credentials for same realm so only break out
                         // when we have a positive match
-                        OsSysLog::add(FAC_AUTH, PRI_DEBUG, 
+                        Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, 
                                       "SubscribeServerThread::isAuthenticated() "
                                       "- request is AUTHENTICATED");
                         // copy the authenticated user/realm for subsequent authorization
@@ -747,7 +747,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
                     }
                     else
                     {
-                        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                        Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
                                       "SubscribeServerThread::isAuthenticated() "
                                       "- digest authorization failed "
                                       "nonce \"%s\", cnonce \"%s\" for "
@@ -761,7 +761,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
                 }
                 else
                 {
-                    OsSysLog::add(FAC_AUTH, PRI_DEBUG, 
+                    Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, 
                                   "SubscribeServerThread::isAuthenticated() "
                                   "- No Credentials for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"",
                         mailboxUrl.toString().data(),
@@ -816,10 +816,10 @@ SubscribeServerThread::isValidDomain(
            (address.compareTo(mDefaultDomainHostFQDN.data(), UtlString::ignoreCase) == 0) )
          && ( (mDefaultDomainPort == PORT_NONE) || (port == mDefaultDomainPort) ) )
     {
-        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - VALID Domain") ;
+        Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - VALID Domain") ;
         return TRUE;
     }
-    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - INVALID Domain") ;
+    Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - INVALID Domain") ;
     return FALSE;
 }
 
@@ -871,7 +871,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
           if (commonExpires < mMinExpiresTimeint)
           {
              returnStatus = STATUS_LESS_THAN_MINEXPIRES;
-             OsSysLog::add( FAC_SIP, PRI_ERR, "addSubscription: "
+             Os::Logger::instance().log( FAC_SIP, PRI_ERR, "addSubscription: "
                             "Expires (%d) less than Minimum (%d)",
                            commonExpires, mMinExpiresTimeint);
              return returnStatus;
@@ -889,7 +889,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
         {
             // remove subscription binding
             // remove all bindings  because one contact value is *
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription -"
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription -"
                 " subscription for url '%s' and event type key '%s' to be removed after sending NOTIFY",
                 toUrl.toString().data(), eventTypeKey.data());
 
@@ -900,7 +900,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
         {
             // Assume the default value
             commonExpires = mDefaultSubscribePeriod;
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription -"
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription -"
                 " No Expires Value, assigning default value (%d)", commonExpires);
         }
     }
@@ -968,7 +968,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     {
        UtlString x;
        bool r = toUrl.getFieldParameter("tag", x);
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription getting to-tag, return %d, value '%s'",
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription getting to-tag, return %d, value '%s'",
                      (int) r, x.data());
     }
     UtlString toTag;
@@ -982,7 +982,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
           SUBSCRIPTION_COMPONENT_STATUS,
           to, from, callId, OsDateTime::getSecsSinceEpoch());
 
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription subscriptionExists(..., '%s', '%s', '%s', %d) = %d",
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription subscriptionExists(..., '%s', '%s', '%s', %d) = %d",
                      to.data(), from.data(),
                      callId.data(), (int) OsDateTime::getSecsSinceEpoch(),
                      exists);
@@ -1000,11 +1000,11 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
        // Add it to the remembered To header value.
        to.append(";tag=");
        to.append(newToTag);
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription generated to-tag '%s'",
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription generated to-tag '%s'",
                      newToTag.data());
     }
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SubscribeServerThread::addSubscription -"
                   " Adding/updating subscription for URI '%s' event type key '%s' duration %d to '%s'",
                   toUrl.toString().data(), eventTypeKey.data(), grantedExpirationTime, contactEntry.data());
@@ -1039,7 +1039,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     else
     {
        // log the error and send error indication to subscriber
-       OsSysLog::add(FAC_SIP, PRI_ERR,
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                      "SubscribeServerThread::addSubscription -"
                      " Could not insert record in Database");
 
@@ -1066,7 +1066,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::removeSubscription
     subscribeMessage->getToUrl(toUrl);
     // remove subscription binding
     // remove all bindings  because one contact value is *
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SubscribeServerThread::removeSubscription -"
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SubscribeServerThread::removeSubscription -"
       " Removing subscription for url %s and callid %s", toUrl.toString().data(), callId.data());
 
     // note that the subscribe's csequence is used
@@ -1086,7 +1086,7 @@ int SubscribeServerThread::removeErrorSubscription (const SipMessage& sipMessage
     sipMessage.getFromField(&from);
     sipMessage.getCallIdField(&callId);
 
-    OsSysLog::add(FAC_SIP, PRI_WARNING,
+    Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                   "SubscribeServerThread::removeErrorSubscription %s",
                   callId.data());
 

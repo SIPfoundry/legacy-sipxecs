@@ -108,7 +108,7 @@ ACDQueue_Linear::ACDQueue_Linear(ACDQueueManager* pAcdQueueManager,
                    pAcdLineList)
 {
    mAcdSchemeString = "ACDQueue_Linear";
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue_Linear::ACDQueue_Linear[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
+   Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "ACDQueue_Linear::ACDQueue_Linear[%s] - MaxRingDelay = %d, MaxWaitTime = %d, Overflow Queue = %s",
                  mUriString.data(), mMaxRingDelay, mMaxWaitTime, mOverflowQueue.data());
 }
 
@@ -222,7 +222,7 @@ bool ACDQueue_Linear::buildTargetAgentList(UtlSList& rTargetAgentList, ACDCall* 
          rTargetAgentList.append(pAgent);
          // Remember the agent chosen
          pCallRef->setLastAgent(pAgent);
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::buildTargetAgentList - agent(%s) is added to the target list",
+         Os::Logger::instance().log(FAC_ACD, gACD_DEBUG, "%s::buildTargetAgentList - agent(%s) is added to the target list",
                        mAcdSchemeString, pAgent->getUriString()->data());
          return true;
       }

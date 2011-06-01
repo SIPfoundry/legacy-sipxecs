@@ -21,7 +21,7 @@
 #include "os/OsStunAgentTask.h"
 #include "os/OsStunQueryAgent.h"
 #include "os/OsLock.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsEvent.h"
 
 // EXTERNAL FUNCTIONS
@@ -545,7 +545,7 @@ void OsStunDatagramSocket::markStunFailure()
     if ((mStunRefreshErrors == STUN_INITIAL_REFRESH_REPORT_THRESHOLD) ||
             (mStunRefreshErrors % STUN_REFRESH_REPORT_THRESHOLD) == 0)
     {
-        OsSysLog::add(FAC_NET, PRI_WARNING,
+        Os::Logger::instance().log(FAC_NET, PRI_WARNING,
                 "STUN failed to obtain binding from %s (attempt=%d)\n",
                 mStunServer.data(), mStunRefreshErrors) ;
 
@@ -570,7 +570,7 @@ void OsStunDatagramSocket::markStunFailure()
         // Shutdown if we never received a valid address
         if (mStunServer.length() > 0)
         {
-            OsSysLog::add(FAC_NET, PRI_ERR,
+            Os::Logger::instance().log(FAC_NET, PRI_ERR,
                 "STUN Aborted; Failed to obtain stun binding from %s (attempt=%d)\n",
                 mStunServer.data(), mStunRefreshErrors) ;
             enableStun(FALSE) ;

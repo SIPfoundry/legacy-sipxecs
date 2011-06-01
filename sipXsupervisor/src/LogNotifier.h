@@ -15,8 +15,9 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/OsStatus.h"
-#include "os/OsSysLogTask.h"
 #include "NotifierBase.h"
+#include "os/OsLogger.h"
+#include "os/OsLoggerHelper.h"
 
 // DEFINES
 // MACROS
@@ -70,7 +71,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   OsSysLogTask* mpOsSysLogTask;           ///< pointer to the log task
+   Os::Logger _alarmLogger;
    size_t        mEventCount;              ///< sequential alarm count
 
    /// Create a task for logging and initialize the alarm log file

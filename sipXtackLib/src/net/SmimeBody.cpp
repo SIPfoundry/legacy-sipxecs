@@ -11,7 +11,7 @@
 // APPLICATION INCLUDES
 #include <net/SmimeBody.h>
 #include <net/HttpMessage.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 //#define ENABLE_OPENSSL_SMIME
 #ifdef ENABLE_OPENSSL_SMIME
@@ -77,7 +77,7 @@ SmimeBody::SmimeBody(const char* bytes,
             // TODO: We could probably put a hack in here to heuristically
             // determine if the encoding is base64 or not based upon the
             // byte values.
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                 "Invalid transport encoding for S/MIME content");
         }
     }
@@ -164,7 +164,7 @@ UtlBoolean SmimeBody::decrypt(const char* derPkcs12,
                             mBody.length(),
                             decryptedData);
 #elif ENABLE_NSS_SMIME
-    OsSysLog::add(FAC_SIP, PRI_ERR, "NSS S/MIME decrypt not implemented");
+    Os::Logger::instance().log(FAC_SIP, PRI_ERR, "NSS S/MIME decrypt not implemented");
 #endif
 
     // Decryption succeeded, so create a HttpBody for the result
@@ -258,7 +258,7 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
         UtlString encryptedData;
 
 #ifdef ENABLE_OPENSSL_SMIME
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
             "SmimeBody::opensslSmimeEncrypt not implemented");
 
 #elif ENABLE_NSS_SMIME
@@ -280,7 +280,7 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
            encryptedData.length() <= 0)
         {
             encryptionSucceeded = FALSE;
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                 "SmimeBody::encrypt no encrypted content");
         }
     }
@@ -433,7 +433,7 @@ UtlBoolean SmimeBody::nssSmimeEncrypt(int numResipientCerts,
     }
 
 #else
-    OsSysLog::add(FAC_SIP, PRI_ERR, "SmimeBody::nssSmimeEncrypt invoked with ENABLE_NSS_SMIME not defined");
+    Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SmimeBody::nssSmimeEncrypt invoked with ENABLE_NSS_SMIME not defined");
 #endif
 
     return(encryptionSucceeded);
@@ -451,7 +451,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
     decryptedData.remove(0);
 
 #ifdef ENABLE_NSS_SMIME
-    OsSysLog::add(FAC_SIP, PRI_ERR, "SmimeBody::nssSmimeDecrypt not implemented");
+    Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SmimeBody::nssSmimeDecrypt not implemented");
 
     ////// BEGIN WARNING: THIS CODE HAS NOT BEEN TESTED AT ALL ///////
 
@@ -476,7 +476,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
     slot = PK11_GetInternalSlot();
     if(slot == NULL)
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, "unable to use slot in NSS dataqbase for S/MIME decryption");
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR, "unable to use slot in NSS dataqbase for S/MIME decryption");
     }
     else
     {
@@ -486,7 +486,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
         if(0) //P12U_UnicodeConversion(NULL, &uniPasswordItem, passwordItem, PR_TRUE,
 			  //    swapUnicode) != SECSuccess)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                 "NSS Unicode conversion failed for PKCS12 object for S/MIME decryption");
         }
         else
@@ -496,7 +496,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
 				    NULL, NULL, NULL, NULL, NULL);
             if(!p12Decoder)
             {
-                OsSysLog::add(FAC_SIP, PRI_ERR,
+                Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "failed to initialize PKCS12 decoder to extract private key for S/MIME decryption");
             }
             else
@@ -509,7 +509,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
                    SEC_PKCS12DecoderVerify(p12Decoder) != SECSuccess)
 
                 {
-                    OsSysLog::add(FAC_SIP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                         "unable to decrypt PKCS12 for S/MIME decryption. Perhaps invalid PKCS12 or PKCS12 password");
                 }
                 else
@@ -518,7 +518,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
                     // decoded PKCS12 into the database
                     if(SEC_PKCS12DecoderImportBags(p12Decoder) != SECSuccess)
                     {
-                        OsSysLog::add(FAC_SIP, PRI_ERR,
+                        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                             "failed to import private key and certificate into NSS database");
                     }
                     else
@@ -532,7 +532,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
                         {
                             // TODO:
                             // Use some NSS util. to convert base64 to binary
-                            OsSysLog::add(FAC_SIP, PRI_ERR,
+                            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                 "NSS decrypt of base64 S/MIME message not implemented");
                         }
                         else
@@ -575,7 +575,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
 
     ////// END WARNING   /////
 #else
-    OsSysLog::add(FAC_SIP, PRI_ERR, "SmimeBody::nssSmimeDecrypt invoked with ENABLE_NSS_SMIME not defined");
+    Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SmimeBody::nssSmimeDecrypt invoked with ENABLE_NSS_SMIME not defined");
 #endif
 
     return(decryptSucceeded);
@@ -606,7 +606,7 @@ UtlBoolean SmimeBody::convertPemToDer(UtlString& pemData,
 	    if (trailer != NULL) {
 		*trailer = '\0';
 	    } else {
-		OsSysLog::add(FAC_SIP, PRI_ERR,
+		Os::Logger::instance().log(FAC_SIP, PRI_ERR,
             "input has header but no trailer\n");
 	    }
 	} else {
@@ -619,7 +619,7 @@ UtlBoolean SmimeBody::convertPemToDer(UtlString& pemData,
     derItem.len = 0;
 	if(ATOB_ConvertAsciiToItem(&derItem, body))
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
             "error converting PEM base64 data to binary");
     }
     else
@@ -628,7 +628,7 @@ UtlBoolean SmimeBody::convertPemToDer(UtlString& pemData,
         conversionSucceeded = TRUE;
     }
 #else
-    OsSysLog::add(FAC_SIP, PRI_ERR,
+    Os::Logger::instance().log(FAC_SIP, PRI_ERR,
         "SmimeBody::convertPemToDer implemented with NSS and OpenSSL disabled");
 #endif
 

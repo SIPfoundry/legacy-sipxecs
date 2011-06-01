@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlRegex.h"
 #include "net/NetMd5Codec.h"
 
@@ -146,7 +146,7 @@ void SipXauthIdentity::remove(SipMessage & message, HeaderName headerName)
    {
       UtlString rUri;
       message.getRequestUri(&rUri);
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipXauthIdentity::remove"
                     ": '%d' occurrances of %s in request to '%s'",
                     idHeaderCount, headerName, rUri.data());
@@ -166,7 +166,7 @@ void SipXauthIdentity::normalize(SipMessage & message,  HeaderName headerName)
    {
       UtlString rUri;
       message.getRequestUri(&rUri);
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipXauthIdentity::remove"
                     ": '%d' occurrances of SipXauthIdentity in request to '%s'",
                     idHeaderCount, rUri.data());
@@ -188,7 +188,7 @@ bool SipXauthIdentity::encodeUri(Url              & uri,
    // Don't proceed if the encapsulated identity is invalid
    if (!mIsValidIdentity)
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "SipXauthIdentity::encodeUri[bound]: encapsulated SipXauthIdentity is invalid");
    }
    else
@@ -214,7 +214,7 @@ bool SipXauthIdentity::encodeUri(Url              & uri,
       encode(value, callId, fromTag, *timestamp);
       uri.setHeaderParameter(SipXauthIdentity::AuthIdentityHeaderName, value.data());
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipXauthIdentity::encodeUri[bound] encoded URI '%s'",
                     uri.toString().data()
                     );
@@ -231,7 +231,7 @@ bool SipXauthIdentity::encodeUri(Url             & uri,     ///< target URI to g
    // Don't proceed if the encapsulated identity is invalid
    if (!mIsValidIdentity)
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "SipXauthIdentity::encodeUri[unbound]: "
                     "encapsulated SipXauthIdentity is invalid");
    }
@@ -253,7 +253,7 @@ bool SipXauthIdentity::encodeUri(Url             & uri,     ///< target URI to g
       encode(value, callId, fromTag, *timestamp, allowUnbound);
       uri.setHeaderParameter(SipXauthIdentity::AuthIdentityHeaderName, value.data());
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipXauthIdentity::encodeUri[unbound] "
                     "encoded URI '%s'",
                     uri.toString().data()
@@ -272,7 +272,7 @@ bool SipXauthIdentity::encodeUri(Url              & uri,
    // Don't proceed if the encapsulated identity is invalid
    if (!mIsValidIdentity)
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "SipXauthIdentity::encodeUri[no msg]: "
                     "encapsulated SipXauthIdentity is invalid");
    }
@@ -296,7 +296,7 @@ bool SipXauthIdentity::encodeUri(Url              & uri,
       encode(value, callId, fromTag, *timestamp);
       uri.setHeaderParameter(SipXauthIdentity::PAssertedIdentityHeaderName, value.data());
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipXauthIdentity::encodeUri[o msg] "
                     "encoded URI '%s'",
                     uri.toString().data()
@@ -316,7 +316,7 @@ bool SipXauthIdentity::insert(SipMessage & message,
    // Don't proceed if the encapsulated identity is invalid
    if (!mIsValidIdentity)
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                     "SipXauthIdentity::insert: "
                     "encapsulated SipXauthIdentity is invalid");
    }
@@ -400,7 +400,7 @@ void SipXauthIdentity::encode(UtlString        & identityValue,
 
    encodedUrl.toString(identityValue);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipXauthIdentity::encode "
                  "identity '%s'",
                  identityValue.data()
@@ -418,7 +418,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
   /**
    * See SipXauthIdentity Encoding comment at the top of the file
    */
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipXauthIdentity::decode "
                  "parse '%s'",
                  identityValue.data()
@@ -459,7 +459,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
                 )
             {
                decodeError = true;
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
+               Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                              "SipXauthIdentity::decode "
                              "'%s' is an unbound identity",
                              identityValue.data()
@@ -473,7 +473,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
                    )
                {
                   decodeError = true;
-                  OsSysLog::add(FAC_SIP, PRI_WARNING,
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                 "SipXauthIdentity::decode "
                                 "'%s' invalid timestamp",
                                 identityValue.data()
@@ -483,7 +483,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
                else if (!signatureRegEx.MatchString(&actualSignatureHash,3))
                {
                   decodeError = true;
-                  OsSysLog::add(FAC_SIP, PRI_WARNING,
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                                 "SipXauthIdentity::decode '%s' missing hash",
                                 identityValue.data()
                                 );
@@ -493,7 +493,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
          else
          {
             decodeError = true;
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "SipXauthIdentity::decode "
                           "'%s' invalid signature format",
                           identityValue.data()
@@ -503,7 +503,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
       else
       {
          decodeError = true;
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipXauthIdentity::decode "
                        "'%s' missing '%s' param",
                        identityValue.data(), SignatureUrlParamName
@@ -513,7 +513,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
    else
    {
       decodeError = true;
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                     "SipXauthIdentity::decode "
                     "'%s' URL parsing failed",
                      identityValue.data()
@@ -530,7 +530,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
          OsDateTime generateDate(OsTime(epochTimestamp,0));
          UtlString generateTimeString;
          generateDate.getIsoTimeStringZ(generateTimeString);
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipXauthIdentity::decode(%s)"
                        " timestamp '%lX' from '%s' too old with interval of '%d' seconds",
                        identityValue.data(), epochTimestamp, generateTimeString.data(),
@@ -564,7 +564,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                        "SipXauthIdentity::decode "
                        "'%s' invalid signature '%s' != '%s'",
                        identityValue.data(), actualSignatureHash.data(), validSignature.data()
@@ -595,7 +595,7 @@ bool SipXauthIdentity::decode(const UtlString& headerName,
    }
    else if (idHeaderCount>1)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipXauthIdentity::decode:"
                     " '%d' occurrences of %s in request to '%s'",
                     idHeaderCount, headerName.data(), rUri.data());
@@ -606,7 +606,7 @@ bool SipXauthIdentity::decode(const UtlString& headerName,
 
    if (foundIdentityHeader)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipXauthIdentity::decode:"
                     " found %s '%s' in request to '%s'",
                     headerName.data(), mIdentity.data(), rUri.data());
@@ -641,7 +641,7 @@ void SipXauthIdentity::setSecret(const char* secret /**< a random value used as 
     */
    if (!sSignatureSecret.isNull() && sSignatureSecret.compareTo(secret))
    {
-      OsSysLog::add(FAC_SIP,PRI_NOTICE,
+      Os::Logger::instance().log(FAC_SIP,PRI_NOTICE,
                     "SipXauthIdentity::setSecret called more than once;\n"
                     " previously signed state will now fail signature checks"
                     );

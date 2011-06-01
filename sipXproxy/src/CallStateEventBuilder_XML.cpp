@@ -9,7 +9,7 @@
 #include <assert.h>
 
 #include "os/OsFS.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsDateTime.h"
 #include "utl/XmlContent.h"
 
@@ -211,7 +211,7 @@ void CallStateEventBuilder_XML::observerEvent(int sequenceNumber, ///< for Obser
       break;
    default:
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "observerEvent: invalid eventCode %d", eventCode);
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "observerEvent: invalid eventCode %d", eventCode);
       eventMethod = InvalidEvent;
       break;
    }
@@ -230,7 +230,7 @@ void CallStateEventBuilder_XML::observerEvent(int sequenceNumber, ///< for Obser
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "observerEvent: %d not allowed.", eventCode);
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "observerEvent: %d not allowed.", eventCode);
    }
 }
 
@@ -264,7 +264,7 @@ void CallStateEventBuilder_XML::callRequestEvent(int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callRequestEvent not allowed.");
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callRequestEvent not allowed.");
    }
 }
 
@@ -298,7 +298,7 @@ void CallStateEventBuilder_XML::callSetupEvent(int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callSetupEvent not allowed.");
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callSetupEvent not allowed.");
    }
 }
 
@@ -336,7 +336,7 @@ void CallStateEventBuilder_XML::callFailureEvent(int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callFailureEvent not allowed.");
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callFailureEvent not allowed.");
    }
 }
 
@@ -362,7 +362,7 @@ void CallStateEventBuilder_XML::callEndEvent(const int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callEndEvent not allowed.");
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callEndEvent not allowed.");
    }
 }
 
@@ -413,7 +413,7 @@ void CallStateEventBuilder_XML::addCallData(const int cseqNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callEndEvent not allowed.");
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callEndEvent not allowed.");
    }
 }
 
@@ -441,7 +441,7 @@ void CallStateEventBuilder_XML::addEventVia(const UtlString& via
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callEndEvent not allowed.");
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::callEndEvent not allowed.");
    }
 }
 
@@ -456,7 +456,7 @@ void CallStateEventBuilder_XML::completeCallEvent()
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::completeCallEvent not allowed.");
+      Os::Logger::instance().log(FAC_SIP, PRI_ERR, "CallStateEventBuilder_XML::completeCallEvent not allowed.");
    }
 }
 

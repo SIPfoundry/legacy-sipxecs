@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.openfire;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -59,7 +58,6 @@ public class XmppAccountInfoTest extends TestCase {
     private ModelFilesContext m_neoconfModelFilesContext;
     private PermissionManagerImpl m_pm;
     private LocationsManager m_locationsManager;
-    private SipxServiceManager m_sipxServiceManager;
     private SipxImbotService m_sipxImbotService = new SipxImbotService();
 
 
@@ -70,7 +68,6 @@ public class XmppAccountInfoTest extends TestCase {
         location.setAddress("192.168.1.2");
         location.setFqdn("puppy.org");
 
-        m_sipxServiceManager = createMock(SipxServiceManager.class);
         m_locationsManager = createMock(LocationsManager.class);
         m_locationsManager.getLocationsForService(m_sipxImbotService);
         expectLastCall().andReturn(Arrays.asList(location)).anyTimes();

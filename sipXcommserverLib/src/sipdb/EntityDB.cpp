@@ -13,7 +13,7 @@
  */
 
 #include "sipdb/EntityDB.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 
 std::string EntityDB::_defaultNamespace = "imdb.entity";
 std::string& EntityDB::defaultNamespace()
@@ -41,22 +41,22 @@ EntityDB::~EntityDB()
 bool EntityDB::findByIdentity(const std::string& identity, EntityRecord& entity) const
 {
     MongoDB::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
-    SYSLOG_INFO("EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _ns);
+    OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _ns);
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
     if (pCursor->more())
     {
-      SYSLOG_DEBUG( identity << " is present in namespace " << _ns);
+      OS_LOG_DEBUG(FAC_ODBC,  identity << " is present in namespace " << _ns);
         entity = pCursor->next();
         return true;
     }
-    SYSLOG_DEBUG( identity << " is NOT present in namespace " << _ns);
+    OS_LOG_DEBUG(FAC_ODBC,  identity << " is NOT present in namespace " << _ns);
     if (!error.empty())
     {
-        SYSLOG_ERROR("MongoDB Exception: (EntityDB::findByIdentity)" << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (EntityDB::findByIdentity)" << error);
     }
 
-    SYSLOG_INFO("EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _ns);
+    OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _ns);
     return false;
 }
 
@@ -66,18 +66,18 @@ bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity) con
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
 
-    SYSLOG_INFO("EntityDB::findByUserId - Finding entity record for " << userId << " from namespace " << _ns);
+    OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Finding entity record for " << userId << " from namespace " << _ns);
 
     if (!error.empty())
     {
-        SYSLOG_ERROR("MongoDB Exception: (EntityDB::findByIdentity)" << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (EntityDB::findByIdentity)" << error);
     }
     if (pCursor->more())
     {
         entity = pCursor->next();
         return true;
     }
-    SYSLOG_INFO("EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _ns);
+    OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _ns);
     return false;
 }
 
@@ -111,18 +111,18 @@ bool EntityDB::findByAliasUserId(const std::string& alias, EntityRecord& entity)
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
 
-    SYSLOG_INFO("EntityDB::findByAliasUserId - Finding entity record for alias " << alias << " from namespace " << _ns);
+    OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Finding entity record for alias " << alias << " from namespace " << _ns);
 
     if (!error.empty())
     {
-        SYSLOG_ERROR("MongoDB Exception: (EntityDB::findByAliasUserId)" << error);
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (EntityDB::findByAliasUserId)" << error);
     }
     if (pCursor->more())
     {
         entity = pCursor->next();
         return true;
     }
-    SYSLOG_INFO("EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _ns);
+    OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _ns);
     return false;
 }
 
@@ -196,4 +196,22 @@ void EntityDB::getAliasContacts (
          }
          isUserIdentity = !entity.realm().empty() && !entity.password().empty();
      }
+}
+
+void EntityDB::getAllEntities(Entities& entities) const
+{
+    MongoDB::BSONObj query;
+
+    std::string error;
+    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+
+    if (!error.empty())
+        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (EntityDB::getAllEntities)" << error);
+
+    while (pCursor->more())
+    {
+        EntityRecord entity;
+        entity = pCursor->next();
+        entities.push_back(entity);
+    }
 }

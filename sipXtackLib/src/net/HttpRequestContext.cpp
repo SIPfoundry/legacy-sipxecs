@@ -14,7 +14,7 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlSListIterator.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <os/OsServerSocket.h>
 #include <net/HttpRequestContext.h>
 #include <net/HttpMessage.h>
@@ -28,7 +28,7 @@
 //#define TEST_DEBUG
 
 #ifdef TEST_DEBUG
-#  include <os/OsSysLog.h>
+#  include <os/OsLogger.h>
 #endif
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -85,7 +85,7 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
    if (mConnection)
    {
       mPeerCertTrusted = mConnection->peerIdentity(&mPeerIdentities);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "HttpRequestContext::_( connection=%p ) %s",
                     connection, mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted"
                     );
@@ -275,7 +275,7 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
    value.remove(0);
 
 #  ifdef TEST_DEBUG
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "HttpRequestContext::getCgiVariable %p (\"%s\",<val>,%d)",
                  &mCgiVariableList, name, occurance
                  );
@@ -300,7 +300,7 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
       nameValuePair = (NameValuePair*) iterator.findNext(matchName);
 
 #     ifdef TEST_DEBUG
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "HttpRequestContext::getCgiVariable(name,val,occ) %p skipping %d '%s' -> '%s'",
                     &mCgiVariableList,
                     fieldIndex,
@@ -312,7 +312,7 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
    delete matchName;
 
 #  ifdef TEST_DEBUG
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "HttpRequestContext::getCgiVariable(name,val,occ) %p stopped at %d '%s' -> '%s'",
                  &mCgiVariableList, fieldIndex,
                  nameValuePair ? nameValuePair->data() : "UNFOUND",
@@ -459,7 +459,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
             NameValueTokenizer::frontBackTrim(newNvPair, " \t\n\r");
 
 #           ifdef TEST_DEBUG
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "HttpRequestContext::parseCgiVariables adding %p '%s' -> '%s'",
                           &cgiVariableList, newNvPair->data(), newNvPair->getValue()
                           );
@@ -503,7 +503,7 @@ bool HttpRequestContext::isTrustedPeer( const UtlString& peername ) const
       peerNames.append(*peer);
       peerNames.append("'");
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "HttpRequestContext::isTrustedPeer('%s')\n %s %s",
                  peername.data(), mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted",
                  peerNames.data()

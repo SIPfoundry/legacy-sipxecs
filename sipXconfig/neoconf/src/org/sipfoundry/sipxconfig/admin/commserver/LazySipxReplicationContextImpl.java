@@ -19,7 +19,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -55,28 +54,34 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         m_worker.start();
     }
 
+    @Override
     public void generateAll() {
         m_target.generateAll();
     }
 
+    @Override
     public void generate(Replicable entity) {
         m_target.generate(entity);
     }
 
+    @Override
     public void remove(Replicable entity) {
         m_target.remove(entity);
     }
 
+    @Override
     public synchronized void replicate(ConfigurationFile conf) {
         m_tasks.add(new ConfTask(conf));
         notifyWorker();
     }
 
+    @Override
     public void replicate(Location location, ConfigurationFile conf) {
         m_tasks.add(new ConfTask(location, conf));
         notifyWorker();
     }
 
+    @Override
     public synchronized void publishEvent(ApplicationEvent event) {
         m_events.add(event);
         // we call notify and not notifyWorker - publishing event is not real work
@@ -103,7 +108,6 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
             ApplicationEvent event = (ApplicationEvent) u.next();
             m_target.publishEvent(event);
         }
-        m_target.publishEvent(new ReplicationsFinishedEvent(this));
         m_events.clear();
     }
 
@@ -219,6 +223,10 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     @Override
     public void resyncSlave(Location location) {
         m_target.resyncSlave(location);
+    }
+    @Override
+    public void replicateLocation(Location location) {
+        m_target.replicateLocation(location);
     }
 
 }

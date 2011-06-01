@@ -15,7 +15,6 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
-import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
@@ -28,7 +27,6 @@ import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class XmppAccountInfo extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/xmpp-account-info-00-00";
@@ -62,13 +60,6 @@ public class XmppAccountInfo extends XmlFile {
         Document document = FACTORY.createDocument();
         final Element accountInfos = document.addElement("xmpp-account-info", NAMESPACE);
 
-        Closure<User> closure = new Closure<User>() {
-            @Override
-            public void execute(User user) {
-                createUserAccount(user, accountInfos);
-            }
-        };
-        forAllUsersDo(m_coreContext, closure);
         createPaUserAccount(accountInfos);
 
         List<Group> groups = m_coreContext.getGroups();

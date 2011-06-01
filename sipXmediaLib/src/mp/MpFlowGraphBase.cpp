@@ -871,7 +871,7 @@ UtlBoolean MpFlowGraphBase::handleAddResource(MpResource* pResource,
    // add the resource to the dictionary
    // $$$ For now we aren't handling the makeNameUnique option, if the name
    // $$$ is not unique, the current code will trigger an assert failure
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleAddResource %s\n",
+   Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleAddResource %s\n",
          					pResource->getName().data());
 
    pKey = new UtlString(pResource->getName());
@@ -1078,7 +1078,7 @@ UtlBoolean MpFlowGraphBase::handleRemoveResource(MpResource* pResource)
    }
 
    // remove the entry from the dictionary for this resource
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleRemoveResource %s\n",
+   Os::Logger::instance().log(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleRemoveResource %s\n",
          						pResource->getName().data());
    pKey = new UtlString(pResource->getName());
    pDictKey = (UtlString*) mResourceDict.remove(pKey);

@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.security;
@@ -30,7 +31,6 @@ import org.acegisecurity.providers.ldap.LdapAuthoritiesPopulator;
 import org.acegisecurity.providers.ldap.authenticator.BindAuthenticator;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
@@ -145,11 +145,10 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         AttrMap attrMap = m_ldapManager.getAttrMap();
 
         String sbase = StringUtils.defaultString(attrMap.getSearchBase());
-        String additionalFilter = StringUtils.EMPTY;
-        if (StringUtils.isNotBlank(attrMap.getFilter())) {
-            additionalFilter = "," + attrMap.getFilter();
-        }
-        String filter = String.format("(%s={0}%s)", attrMap.getIdentityAttributeName(), additionalFilter);
+        //Any additional LDAP filters (RFC 2254) are removed from authentication search because
+        //here the filter is used to specify what LDAP attribute represents the username and it
+        //does not respect RFC2254 guidelines
+        String filter = String.format("(%s={0})", attrMap.getIdentityAttributeName());
 
         FilterBasedLdapUserSearch search = new FilterBasedLdapUserSearch(sbase, filter, dirFactory);
         search.setSearchSubtree(true);
@@ -168,20 +167,28 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
             super(authenticator);
         }
 
+        /**
+         * When the user id introduced in the login form is user's alias, we need to tell LDAP the true user ID
+         * otherwise cannot get authenticated against LDAP using user alias
+         */
         @Override
-        protected UserDetails createUserDetails(LdapUserDetails ldapUser, String username, String password) {
-            UserDetails loadedUser;
+        protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) {
+            UserDetailsImpl user = null;
             try {
-                loadedUser = m_userDetailsService.loadUserByUsername(username);
+                user = (UserDetailsImpl) m_userDetailsService.loadUserByUsername(username);
+                if (user == null) {
+                    throw new AuthenticationServiceException("UserDetailsService returned null, which "
+                        + "is an interface contract violation");
+                }
+                UsernamePasswordAuthenticationToken myAuthentication = new UsernamePasswordAuthenticationToken(
+                        user.getCanonicalUserName(), authentication.getCredentials());
+                //we call the super method to verifiy true username/password ldap authentication
+                //we don't return default LDAP retrieved user, but our sipX user, authenticated against LDAP
+                super.retrieveUser(user.getCanonicalUserName(), myAuthentication);
             } catch (DataAccessException repositoryProblem) {
                 throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
             }
-
-            if (loadedUser == null) {
-                throw new AuthenticationServiceException("UserDetailsService returned null, which "
-                        + "is an interface contract violation");
-            }
-            return loadedUser;
+            return user;
         }
 
         @Override

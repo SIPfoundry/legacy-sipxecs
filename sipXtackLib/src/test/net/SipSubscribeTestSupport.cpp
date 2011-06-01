@@ -11,7 +11,7 @@
 #include "SipSubscribeTestSupport.h"
 
 #include <net/CallId.h>
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 
 /* Support routines for the SipSubscribeServer and SipSubscribeClient tests. */
 
@@ -72,7 +72,7 @@ void createTestSipUserAgent(UtlString& hostIp,
 #define ASSERT(expression) \
    if (!(expression)) \
    { \
-     OsSysLog::add(FAC_UNIT_TEST, PRI_ERR, \
+     Os::Logger::instance().log(FAC_UNIT_TEST, PRI_ERR, \
                    "SipSubscribeTestSupport::runListener " \
                    "ASSERT() failed at %s:%d: " \
                    # expression, __FILE__, __LINE__); \
@@ -119,7 +119,7 @@ bool runListener(OsMsgQ& msgQueue,
       ASSERT(sipMessage);
       int messageType = ((SipMessageEvent*) message)->getMessageStatus();
       ASSERT(messageType == SipMessageEvent::APPLICATION);
-      OsSysLog::add(FAC_UNIT_TEST, PRI_DEBUG,
+      Os::Logger::instance().log(FAC_UNIT_TEST, PRI_DEBUG,
                     "SipSubscribeTestSupport::runListener "
                     "received message: %s",
                     sipMessage->getBytes());

@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "os/OsConfigDb.h"
 #include "os/OsFileSystem.h"
 #include "xmlparser/XmlErrorMsg.h"
@@ -37,7 +37,7 @@ void upgradeFrom3_0()
    UtlString oldProcessDefinitionDirectory =
       SipXecsService::Path(SipXecsService::ConfigurationDirType, "process-old.d");
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"upgradeFrom3_0: searching '%s'",
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG,"upgradeFrom3_0: searching '%s'",
                  oldProcessDefinitionDirectory.data()
                  );
 
@@ -60,7 +60,7 @@ void upgradeFrom3_0()
                                    +OsPath::separator
                                    +oldProcessDefinitionFile
                                    );
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,"upgradeFrom3_0: reading pre-4.0 process def '%s'",
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO,"upgradeFrom3_0: reading pre-4.0 process def '%s'",
                     oldProcessDefinitionPath.data()
                     );
 
@@ -100,33 +100,33 @@ void upgradeFrom3_0()
                      {
                         if (bEnabled)
                         {
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
+                           Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE,
                                  "upgradeFrom3_0: enabling process '%s'", processName.data());
                            newProcess->enable();
                         }
                         else
                         {
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
+                           Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE,
                                  "upgradeFrom3_0: disabling process '%s'", processName.data());
                            newProcess->disable();
                         }
 
                         if (OS_SUCCESS == OsFileSystem::remove(oldProcessDefinitionPath))
                         {
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
+                           Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE,
                                  "upgradeFrom3_0: removing pre-4.0 process def file '%s'",
                                  oldProcessDefinitionPath.data());
                         }
                         else
                         {
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                           Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                                  "upgradeFrom3_0: failed to remove pre-4.0 process def file '%s'",
                                  oldProcessDefinitionPath.data());
                         }
                      }
                      else
                      {
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                        Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                               "upgradeFrom3_0: could not find process '%s'", processName.data());
                         okToRemoveDir = false;
                      }
@@ -160,7 +160,7 @@ void upgradeFrom3_0()
       {
          // Invalid document format.  Log the issue and continue to the next process xml file.
          XmlErrorMsg(processDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+         Os::Logger::instance().log(FAC_SUPERVISOR, PRI_ERR,
                "upgradeFrom3_0: ignoring invalid pre-4.0 process xml file '%s' (%s)",
                oldProcessDefinitionFile.data(), errorMsg.data());
          okToRemoveDir = false;
@@ -170,7 +170,7 @@ void upgradeFrom3_0()
    // remove the old process defn directory (succeeds only if it is empty)
    if (OS_SUCCESS == OsFileSystem::remove(oldProcessDefinitionDirectory))
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
+      Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE,
             "upgradeFrom3_0: all process data has been migrated from "
             "pre-4.0 process def directory '%s', "
             "and the directory has been deleted.",
@@ -182,7 +182,7 @@ void upgradeFrom3_0()
       // Log whether upgrade succeeded or not.
       if ( okToRemoveDir )
       {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_NOTICE,
                   "upgradeFrom3_0: all process data has been migrated from "
                   "pre-4.0 process def directory '%s', "
                   "and the directory may safely be deleted.",
@@ -190,7 +190,7 @@ void upgradeFrom3_0()
       }
       else
       {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_WARNING,
                   "upgradeFrom3_0: some process data could not be migrated from "
                   "pre-4.0 process def directory '%s'. ",
                   oldProcessDefinitionDirectory.data());

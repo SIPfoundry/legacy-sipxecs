@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
+#include <os/OsLogger.h>
 #include <utl/UtlString.h>
 #include <net/Url.h>
 #include <digitmaps/EmergencyRulesUrlMapping.h>

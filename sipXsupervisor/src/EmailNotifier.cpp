@@ -10,7 +10,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "net/MailMessage.h"
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlTokenizer.h"
 #include "AlarmUtils.h"
@@ -109,7 +109,7 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
             body.append(tempStr);
             body.append("\n");
 
-            UtlString sevStr = OsSysLog::priorityName(alarmData->getSeverity());
+            UtlString sevStr = Os::Logger::instance().priorityName(alarmData->getSeverity());
             assembleMsg(mEmailStrSeverity, sevStr, tempStr);
             body.append(tempStr);
             body.append("\n");
@@ -118,7 +118,7 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
             body.append("\n");
             assembleMsg(mEmailStrResolution, alarmData->getResolution(), tempStr);
             body.append(tempStr);
-            OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServer: email body is %s", body.data());
+            Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "AlarmServer: email body is %s", body.data());
 
             message.Body(body);
 
@@ -141,7 +141,7 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
 
 OsStatus EmailNotifier::init(TiXmlElement* emailElement, TiXmlElement* groupElement)
 {
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Created EmailNotifier");
+   Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "Created EmailNotifier");
    TiXmlElement* element;
 
    // Extract the "From" contact from the alarm configuration file
@@ -157,7 +157,7 @@ OsStatus EmailNotifier::init(TiXmlElement* emailElement, TiXmlElement* groupElem
 
       if (!groupName.isNull())
       {
-         OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Processing alarm group name: %s", groupName.data());
+         Os::Logger::instance().log(FAC_ALARM, PRI_DEBUG, "Processing alarm group name: %s", groupName.data());
 
          TiXmlElement* emailElement = element->FirstChildElement("email");
 

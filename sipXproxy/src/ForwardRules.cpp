@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
+#include "os/OsLogger.h"
 #include "utl/UtlString.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
@@ -57,7 +57,7 @@ OsStatus ForwardRules::loadMappings(const UtlString configFileName,
    {
       UtlString parseError = mDoc->ErrorDesc();
 
-      OsSysLog::add( FAC_SIP, PRI_ERR, "ERROR parsing forwardingrules '%s': %s"
+      Os::Logger::instance().log( FAC_SIP, PRI_ERR, "ERROR parsing forwardingrules '%s': %s"
                     ,configFileName.data(), parseError.data());
 
       return OS_NOT_FOUND;
@@ -246,7 +246,7 @@ OsStatus ForwardRules::getRoute(const Url& requestUri,
     TiXmlNode* prevRouteNode = mDoc->FirstChild( XML_TAG_ROUTES);
     if (!prevRouteNode)
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::loadMappings - No child Node for Mappings");
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR, "UrlMapping::loadMappings - No child Node for Mappings");
         return OS_FILE_READ_FAILED;
     }
 
@@ -365,7 +365,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
                          xmlPort == testPort) )
                      {
                         routeMatchFound = true;
-                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "ForwardRules::parseRouteMatchContainer - routeFrom %s matches %s", testHost.data(), pattern.data());
+                        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "ForwardRules::parseRouteMatchContainer - routeFrom %s matches %s", testHost.data(), pattern.data());
                      }
                   }
                   break ;
@@ -600,7 +600,7 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
                }
                catch(const char * ErrorMsg)
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                  Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                                 "Illegal regular expression <fieldPattern>%s</fieldPattern>"
                                 " in forwardingrules.xml: %s",
                                 fieldPatternText->Value() ,ErrorMsg
