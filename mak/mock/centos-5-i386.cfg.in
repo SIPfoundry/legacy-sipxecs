@@ -42,6 +42,12 @@ baseurl=http://kojipkgs.fedoraproject.org/repos/dist-5E-epel-build/latest/i386/
 cost=2000
 enabled=0
 
+[sipxecs]
+name=sipxecs
+baseurl=http://download.sipfoundry.org/pub/sipXecs/@PACKAGE_VERSION@/CentOS_5/i386/
+gpgcheck=0
+enabled=@PULL_MISSING_RPMS@
+
 [build]
 name=build
 baseurl=http://localhost:40100/CentOS_5/i386/
