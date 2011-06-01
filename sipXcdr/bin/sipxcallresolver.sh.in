@@ -35,7 +35,7 @@ fi
 : ${DbPatchDir:=${ConfDir}/cdr}
 : ${DbPatchLog:=${LogDir}/sipcdrpatch.log}
 : ${CallResolverLog:=${LogDir}/sipcallresolver.log}
-: ${CallResolverMain:=@GEM_LIB_DIR@/sipxcallresolver-2.0.0/lib/main.rb}
+: ${CallResolverMain:=@GEM_LOCAL_LIB_DIR@/gems/sipxcallresolver-@sipxcallresolver_VER@/lib/main.rb}
 
 resolverArgs="--confdir ${ConfDir} --logdir ${LogDir}"
 Database=SIPXCDR
@@ -348,10 +348,10 @@ ERROR
 removeOldCronEntry()
 {
     # Remove crontab entry for sipxcallresolver if there is one
-    if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
-       if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then
-          sed -e 's/^.*sipxcallresolver.*$//' @SIPX_SYSCONFDIR@/crontab > @SIPX_SYSCONFDIR@/crontab.tmp
-          mv @SIPX_SYSCONFDIR@/crontab.tmp @SIPX_SYSCONFDIR@/crontab
+    if [ -f @sysconfdir@/crontab ]; then
+       if grep sipxcallresolver @sysconfdir@/crontab >/dev/null; then
+          sed -e 's/^.*sipxcallresolver.*$//' @sysconfdir@/crontab > @sysconfdir@/crontab.tmp
+          mv @sysconfdir@/crontab.tmp @sysconfdir@/crontab
        fi
     fi
 }

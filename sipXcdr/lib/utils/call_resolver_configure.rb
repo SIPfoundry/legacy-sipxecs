@@ -161,10 +161,6 @@ class CallResolverConfigure
     parse_int_param(@config, 'SIP_CALLRESOLVER_MIN_CLEANUP_INTERVAL', 5 * 60 ,60)
   end
 
-  def stunnel_debug
-    @config.fetch('SIP_CALLRESOLVER_STUNNEL_DEBUG', 5)
-  end
-
   def cse_connect_port
     @config.fetch('SIP_CALLRESOLVER_STUNNEL_PORT', 9300)
   end

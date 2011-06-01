@@ -17,5 +17,7 @@ CHECK_POSTGRES
 AC_CONFIG_FILES([
   Makefile
   java-client/Makefile
+  etc/Makefile
+  bin/Makefile
 ])
 AC_OUTPUT

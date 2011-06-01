@@ -26,8 +26,7 @@ plugin_DEPS = \
 # presence jar include other jars. more like a war.
 presence_JAR = sipx-openfire-presence.jar
 presence_FILES = \
-	$(plugin_DEPS) \
-	$(wildcard @SIPX_JAVADIR@/sipXcommons/libhostname.so*) \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(plugin_JAR_PKGS)) \
 	$(plugin_JAR)
 
 $(presence_JAR) : $(plugin_JAR)
@@ -39,14 +38,8 @@ $(presence_JAR) : $(plugin_JAR)
 	  -C $(srcdir) plugin.xml \
 	  lib
 
-$(plugin_JAR) : javac-plugin PluginManifest.txt
-	 jar -cfm $@ PluginManifest.txt -C $(JAVAROOT) .
+$(plugin_JAR) : javac-plugin
+	 jar -cf $@ -C $(JAVAROOT) .
 
-PluginManifest.txt : Makefile
-	echo "$$plugin_manifest_body" > $@
-
-define plugin_manifest_body
-$(manifest_body)
-MessageInterceptorClass: org.sipfoundry.openfire.plugin.presence.DefaultMessagePacketInterceptor
-endef
-export plugin_manifest_body
+clean-local :
+	rm -rf lib

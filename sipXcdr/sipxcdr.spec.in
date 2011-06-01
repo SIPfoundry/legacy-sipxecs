@@ -60,7 +60,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/cdr/*
 %dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/cdr
 %dir %attr(755,root,root) %{sipxpbxvarlib}
-%attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem
+%attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-*.gem
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 %attr(755,root,root) %{_bindir}/sipxcallresolver-agent.sh
 

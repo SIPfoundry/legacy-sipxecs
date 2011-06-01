@@ -16,7 +16,6 @@ $:.unshift(File.dirname(__FILE__))
 # application requires
 require 'call_resolver'
 require 'utils/call_resolver_configure'
-require 'utils/stunnel_connection'
 
 
 def usage()
@@ -101,10 +100,6 @@ def main()
 
   resolver = CallResolver.new(config)
 
-  stunnel_connection = StunnelConnection.new(config)
-
-  stunnel_connection.open()
-
   resolver.check_connections
   if daemon_flag
     resolver.run_resolver
@@ -112,16 +107,12 @@ def main()
     resolver.resolve(start_time, end_time)
   end
 
-rescue
   config.log.error("Exiting because of error: <#{$!}>")
   config.log.error do
     start_line = "\n"
     $!.backtrace.inject("") {|trace, line| "#{trace}\n#{line}" }
   end
-ensure
-  stunnel_connection.close if stunnel_connection
 end
-
 
 if __FILE__ == $0
   main()

@@ -15,7 +15,7 @@ check_SCRIPTS = sipx-upgrade-testsuite
 sipx-upgrade-testsuite : sipx-upgrade shell-unit
 
 EXTRA_DIST = \
-	$(bin_SCRIPTS:=in) \
+	$(bin_SCRIPTS:=.in) \
 	$(noinst_SCRIPTS:=.in)
 
 $(noinst_SCRIPTS) $(bin_SCRIPTS) : % : %.in

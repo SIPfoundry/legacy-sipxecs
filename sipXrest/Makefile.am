@@ -1,3 +1,4 @@
+include config/utility.am
 include config/project.am
 include config/utility.am
 include common.am

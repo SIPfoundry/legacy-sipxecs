@@ -9,11 +9,7 @@ cfg_PKGS = \
 	org.springframework.transaction \
 	xercesImpl
 
-# NOTE: this list of dependencies affects compile and runtime becasue it 
-# is copied into startup script so just be aware what you're affecting.
-plugin_PKGS = \
-	ant \
-	ant-launcher \
+plugin_JAR_PKGS = \
 	com.noelios.restlet \
 	commons-beanutils \
 	commons-collections \
@@ -28,6 +24,13 @@ plugin_PKGS = \
 	ws-commons-util \
 	xmlrpc-client \
 	xmlrpc-server
+
+# NOTE: this list of dependencies affects compile and runtime becasue it 
+# is copied into startup script so just be aware what you're affecting.
+plugin_PKGS = \
+	ant \
+	ant-launcher \
+	$(plugin_JAR_PKGS)
 
 provider_PKGS = \
 	ws-commons-util \
