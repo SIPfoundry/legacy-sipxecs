@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdClient;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeAction;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -54,6 +55,12 @@ public abstract class OpenAcdSkillsList extends BaseComponent {
 
     @Parameter
     public abstract OpenAcdQueue getQueue();
+
+    @Parameter
+    public abstract OpenAcdRecipeAction getRecipeAction();
+
+    @Parameter
+    public abstract Set<OpenAcdSkill> getDefaultRecipeSkills();
 
     public abstract OpenAcdSkill getCurrentSkill();
 
@@ -119,10 +126,23 @@ public abstract class OpenAcdSkillsList extends BaseComponent {
             assignedSkills = getQueue().getSkills();
             initProfileSelections(getQueue().getAgentGroups());
             setGroupedSkills(getOpenAcdContext().getQueueGroupedSkills());
+        } else if (getRecipeAction() != null) {
+            assignedSkills = getRecipeAction().getSkills();
+            if (getRecipeAction().isNew() && assignedSkills.isEmpty()) {
+                assignedSkills = getDefaultRecipeSkills();
+            }
+            setGroupedSkills(getOpenAcdContext().getQueueGroupedSkills());
         }
 
         initSkillsSelections(assignedSkills);
 
+    }
+
+    public boolean getShowLabel() {
+        if (getRecipeAction() != null) {
+            return false;
+        }
+        return true;
     }
 
     private void initQueueSelections(Set<OpenAcdQueue> selectedQueues) {
@@ -216,6 +236,8 @@ public abstract class OpenAcdSkillsList extends BaseComponent {
         } else if (getQueue() != null) {
             getQueue().setSkills(skills);
             getQueue().setAgentGroups(getSelectedProfiles());
+        } else if (getRecipeAction() != null) {
+            getRecipeAction().setSkills(skills);
         }
     }
 
