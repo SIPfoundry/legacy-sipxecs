@@ -96,19 +96,19 @@ public class DnsGeneratorImplTest extends TestCase {
         final ZoneAdminApi api = createStrictMock(ZoneAdminApi.class);
 
         // primary only
-        api.generateDns("primary.ex.org", "primary.ex.org/10.1.1.1 --zone --serial 1 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
+        api.generateDns("primary.ex.org", "primary.ex.org/10.1.1.1 --zone --serial 1 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
         // all 3 locations
         api.generateDns("primary.ex.org",
-            "primary.ex.org/10.1.1.1 -o s2.ex.org/10.1.1.2 -o s3.ex.org/10.1.1.3 -x s2.ex.org/10.1.1.2 --zone --serial 2 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
+            "primary.ex.org/10.1.1.1 -o s2.ex.org/10.1.1.2 -o s3.ex.org/10.1.1.3 -x s2.ex.org/10.1.1.2 --zone --serial 2 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
         // deleting 2nd...
         api.generateDns("primary.ex.org",
-            "primary.ex.org/10.1.1.1 -o s3.ex.org/10.1.1.3 --zone --serial 3 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
+            "primary.ex.org/10.1.1.1 -o s3.ex.org/10.1.1.3 --zone --serial 3 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
         // primary and redundant locations
         api.generateDns("primary.ex.org",
-            "primary.ex.org/10.1.1.1 redund.ex.org/10.1.1.4 -o s3.ex.org/10.1.1.3 --zone --serial 4 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
+            "primary.ex.org/10.1.1.1 redund.ex.org/10.1.1.4 -o s3.ex.org/10.1.1.3 --zone --serial 4 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
         replay(sm, lm, api);
 

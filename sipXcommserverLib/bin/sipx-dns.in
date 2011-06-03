@@ -7,7 +7,6 @@ ExitStatus=0
 SerialNumber=00
 PortTCP=5060
 PortUDP=5060
-PortTLS=5061
 XMPPClientPort=5222
 XMPPServerPort=5269
 ProvideDNS=EXTERNAL
@@ -30,7 +29,6 @@ Usage:
              [ { -z | --zone } [ { -s | --serial } <serial-suffix> ] ]
              [ { -T | --port-TCP } ]
              [ { -U | --port-UDP } ]
-             [ { -S | --port-TLS } ]
              [ { -p | --provide-dns } ]
 
       Output DNS records in BIND format for @SIPXECS_NAME@ services.  
@@ -47,7 +45,6 @@ Usage:
              [ { -x | --xmpp } <system-name>[/<ipaddr>] ] ...
              [ { -T | --port-TCP } ]
              [ { -U | --port-UDP } ]
-             [ { -S | --port-TLS } ]
              [ { -p | --provide-dns } ]
              [ { -v | --verbose } ]
 
@@ -95,10 +92,6 @@ Usage:
     --port-UDP | -U
 
         Specifies a value for the UDP SIP listening port.
-
-    --port-TLS | -S
-
-        Specifies a value for the TLS SIP listening port.
 
     --version | -V
 
@@ -272,18 +265,6 @@ do
             fi
             ;;
 
-        -S|--port-TLS)
-            if [ $# -lt 2 ]
-            then
-                echo "Must specify <Must specify <sipx-listening-TLS-port> with ${1}" 1>&2
-                Action=USAGE
-                break
-            else
-                PortTLS=$2
-                shift # consume the switch ( for n values, consume n-1 )
-            fi
-            ;;
-
         ##
         ## handle an unknown switch
         ##
@@ -453,11 +434,6 @@ _sip._tcp.${SipDomain}. IN      SRV     1 0 ${PortTCP} ${server}.
 ;     priority: 1  weight: 0  port: ${PortUDP}  server: ${server}
 ;
 _sip._udp.${SipDomain}. IN      SRV     1 0 ${PortUDP} ${server}.
-
-; SRV record for domain SIP TLS ${SipDomain} 
-;     priority: 1  weight: 0  port: ${PortTLS}  server: ${server}
-;
-_sip._tls.${SipDomain}. IN      SRV     1 0 ${PortTLS} ${server}.
 EOF
         fi
     done
@@ -790,7 +766,6 @@ validate_domain_srv_records () {
             normName ${protoname} \
             | sed -e 's/_sip\._tcp\./SIP TCP /' \
             | sed -e 's/_sip\._udp\./SIP UDP /' \
-            | sed -e 's/_sip\._tls\./SIP TLS /' \
             `
         target=`normName ${fulltarget}`
 

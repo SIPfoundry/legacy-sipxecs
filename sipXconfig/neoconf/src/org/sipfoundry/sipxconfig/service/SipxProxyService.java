@@ -75,10 +75,6 @@ public class SipxProxyService extends SipxService implements LoggingEntity {
         return getSipPort();
     }
 
-    public String getSipTLSPort() {
-        return getSecureSipPort();
-    }
-
     public boolean isEnabledBridgeProxyRelay() {
         return (Boolean) getSettingTypedValue(ENABLE_BRIDGE_PROXY_RELAY);
     }

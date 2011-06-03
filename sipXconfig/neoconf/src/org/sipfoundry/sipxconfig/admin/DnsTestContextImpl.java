@@ -91,8 +91,6 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
         command.addArgument(((SipxProxyService) proxyService).getSipTCPPort());
         command.addArgument("--port-UDP");
         command.addArgument(((SipxProxyService) proxyService).getSipUDPPort());
-        command.addArgument("--port-TLS");
-        command.addArgument(((SipxProxyService) proxyService).getSipTLSPort());
         return command;
     }
 
