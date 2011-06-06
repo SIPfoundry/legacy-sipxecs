@@ -45,7 +45,8 @@ public class OpenAcdLine extends OpenAcdExtension {
     }
 
     public static FreeswitchAction createVoicemailAction(boolean allow) {
-        return createAction(FreeswitchAction.PredefinedAction.set.toString(), ALLOW_VOICEMAIL + allow);
+        return allow ? createAction(FreeswitchAction.PredefinedAction.set.toString(), ALLOW_VOICEMAIL + allow)
+                : null;
     }
 
     public static FreeswitchAction createQueueAction(String queue) {
