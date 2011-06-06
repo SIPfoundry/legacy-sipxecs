@@ -2,6 +2,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -12,6 +13,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
+import com.mongodb.util.JSON;
 
 public class MongoTestCaseHelper {
     private static String m_host = "localhost";
@@ -26,7 +28,7 @@ public class MongoTestCaseHelper {
         if (m_mongoInstance == null) {
             m_mongoInstance = new Mongo(m_host, m_port);
         }
-        //m_mongoInstance.dropDatabase(dbName);
+        // m_mongoInstance.dropDatabase(dbName);
         DB db = m_mongoInstance.getDB(dbName);
         m_collection = db.getCollection(collectionName);
         return m_collection;
@@ -47,7 +49,7 @@ public class MongoTestCaseHelper {
         ref.put(ID, id);
         TestCase.assertEquals(0, m_collection.find(ref).size());
     }
-    
+
     public static void assertCollectionItemsCount(DBObject ref, int count) {
         TestCase.assertTrue(m_collection.find(ref).size() == count);
     }
@@ -56,24 +58,34 @@ public class MongoTestCaseHelper {
         TestCase.assertEquals(count, m_collection.find().count());
     }
 
-    public static void assertObjectListFieldCount(String id, String listField, int count){
+    public static void assertObjectListFieldCount(String id, String listField, int count) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
         TestCase.assertEquals(1, m_collection.find(ref).size());
         DBObject obj = m_collection.findOne(ref);
         TestCase.assertTrue(obj.containsField(listField));
-        TestCase.assertEquals(count, ((List<DBObject>)obj.get(listField)).size());
-        
+        TestCase.assertEquals(count, ((List<DBObject>) obj.get(listField)).size());
+
     }
-    
+
     public static void assertObjectWithIdFieldValuePresent(Object id, String field, Object value) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
         ref.put(field, value);
         TestCase.assertEquals(1, m_collection.find(ref).count());
     }
-    
+
+    public static void insert(DBObject dbo) {
+        m_collection.insert(dbo);
+    }
+
+    public static void insertJson(String... jsons) {
+        for (String json : jsons) {
+            m_collection.save((DBObject) JSON.parse(json));
+        }
+    }
+
     public static void dropDb(String db) {
-           m_mongoInstance.dropDatabase(db);
+        m_mongoInstance.dropDatabase(db);
     }
 }

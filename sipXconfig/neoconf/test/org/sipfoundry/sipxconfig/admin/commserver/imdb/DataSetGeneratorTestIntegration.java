@@ -59,4 +59,8 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
     public void setAttendantDataSet(Attendant att) {
         m_dataSetGeneratorMap.put(DataSet.ATTENDANT.getName(), att);
     }
+
+    public void setSpeeddialDataSet(SpeedDials sd) {
+        m_dataSetGeneratorMap.put(DataSet.SPEED_DIAL.getName(), sd);
+    }
 }

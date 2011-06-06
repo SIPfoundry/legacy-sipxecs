@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<lists xmlns="http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01">
+  <list user="~~rl~F~user_a" user-cons="~~rl~C~user_a">
+    <name>user_a</name>
+    <resource uri="sip:102@example.org;sipx-noroute=VoiceMail;sipx-userforward=false">
+      <name>beta</name>
+    </resource>
+    <resource uri="sip:104@sipfoundry.org;sipx-noroute=VoiceMail;sipx-userforward=false">
+      <name>gamma</name>
+    </resource>
+  </list>
+  <list user="~~rl~F~user_c" user-cons="~~rl~C~user_c">
+    <name>user_c</name>
+    <resource uri="sip:100@example.org;sipx-noroute=VoiceMail;sipx-userforward=false">
+      <name>delta</name>
+    </resource>
+  </list>
+  <list user="~~rl~F~~~id~xmpprlsclient" user-cons="~~rl~C~~~id~xmpprlsclient">
+    <name>~~id~xmpprlsclient</name>
+    <resource uri="sip:user_name_0@example.org;sipx-noroute=VoiceMail;sipx-userforward=false">
+      <name>user_name_0</name>
+    </resource>
+    <resource uri="sip:user_name_1@example.org;sipx-noroute=VoiceMail;sipx-userforward=false">
+      <name>user_name_1</name>
+    </resource>
+  </list>
+</lists>
