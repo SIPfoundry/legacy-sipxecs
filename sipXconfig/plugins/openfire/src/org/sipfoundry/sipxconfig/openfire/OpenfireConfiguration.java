@@ -17,6 +17,8 @@
 package org.sipfoundry.sipxconfig.openfire;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
@@ -25,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -54,9 +57,9 @@ public class OpenfireConfiguration extends TemplateConfigurationFile {
 
     private static final String PROVIDER_LDAP_VCARD_CLASSNAME = "org.jivesoftware.openfire.ldap.LdapVCardProvider";
 
-    private static final String ADMIN = "admin";
-
     private static final String SEPARATOR = ", ";
+
+    private static final String ADMIN = "admin";
 
     private LdapManager m_ldapManager;
 
@@ -96,23 +99,19 @@ public class OpenfireConfiguration extends TemplateConfigurationFile {
     }
 
     /**
-     * Get authorized usernames. The default is admin. When you have LDAP-Openfire configured different other users
-     * can be added with admin
+     * Get authorized usernames. The defaults are admin and superadmin.
+     * When you have LDAP-Openfire configured different other users
+     * can be added with admin rights.
      */
     private String getAuthorizedUsernames() {
-        List<User> admins = m_coreContext.loadUserByImAdmin();
-        StringBuffer authorizedUsernames = new StringBuffer(ADMIN);
-        if (admins.size() == 1) {
-            authorizedUsernames.append(SEPARATOR);
-            authorizedUsernames.append(admins.get(0).getUserName());
-        } else if (admins.size() > 1) {
-            authorizedUsernames.append(SEPARATOR);
-            for (int i = 0; i < admins.size() - 1; i++) {
-                authorizedUsernames.append(admins.get(i).getUserName()).append(SEPARATOR);
-            }
-            authorizedUsernames.append(admins.get(admins.size() - 1).getUserName());
+        List<User> admins = m_coreContext.loadUserByAdmin();
+        Set<String> authorizedList = new TreeSet<String>();
+        authorizedList.add(ADMIN);
+        authorizedList.add(AbstractUser.SUPERADMIN);
+        for (User user : admins) {
+            authorizedList.add(user.getUserName());
         }
-        return authorizedUsernames.toString();
+        return StringUtils.join(authorizedList, SEPARATOR);
     }
 
     @Required

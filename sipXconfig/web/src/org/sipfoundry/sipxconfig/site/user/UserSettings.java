@@ -77,11 +77,11 @@ public abstract class UserSettings extends PageWithCallback implements PageBegin
         }
 
         User savedUser = getCoreContext().loadUser(getUserId());
-        boolean imAdminChanged = getUser().isImAdmin() != savedUser.isImAdmin();
+        boolean adminChanged = getUser().isAdmin() != savedUser.isAdmin();
 
         CoreContext dao = getCoreContext();
         dao.saveUser(getUser());
-        if (imAdminChanged) {
+        if (adminChanged) {
             getLdapManager().replicateOpenfireConfig();
         }
     }
