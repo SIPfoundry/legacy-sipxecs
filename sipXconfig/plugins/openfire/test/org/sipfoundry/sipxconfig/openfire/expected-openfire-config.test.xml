@@ -21,6 +21,9 @@
 	<port>9094</port>
 	<securePort>9095</securePort>
   </adminConsole>
+  <admin>
+      <authorizedUsernames>admin, 123, 130</authorizedUsernames>
+  </admin>
   <provider>
     <admin>
       <className>org.jivesoftware.openfire.admin.DefaultAdminProvider</className>

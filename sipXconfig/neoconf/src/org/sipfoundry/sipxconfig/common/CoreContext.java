@@ -180,4 +180,6 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
     boolean isImIdUnique(User user);
     List<Group> getAvailableGroups(User user);
     Collection<User> getUsersForBranch(Branch b);
+
+    List<User> loadUserByImAdmin();
 }
