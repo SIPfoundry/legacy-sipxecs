@@ -351,10 +351,15 @@ bool ResourceListSet::addResource(const char* user,
                                 resource_added, resource_cached_created,
                                 no_check_start, no_check_end);
 
+      // TODO: this delay actually denies the subscriptionEventCallbackSync
+      //  and the notifyEventCallbackSync from running, which is used when
+      //  pulling tasks off of the ResourceListTask queue, thus did not
+      //  really do what it was meant to do. I placed the delay in
+      //  ResourceListFileReader.cpp instead,
       if (resource_cached_created)
       {
          // Delay to allow the consequent processing to catch up.
-         OsTask::delay(getResourceListServer()->getChangeDelay());
+         // OsTask::delay(getResourceListServer()->getChangeDelay());
       }
 
       OsSysLog::add(FAC_RLS, PRI_DEBUG,

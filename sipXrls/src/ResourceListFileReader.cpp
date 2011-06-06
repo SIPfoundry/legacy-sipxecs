@@ -221,6 +221,7 @@ void ResourceListUpdater::compare(const char* uri,
                        "probable duplicate resource",
                        uri, mUser.data());
       }
+      OsTask::delay(mResourceListSet->getResourceListServer()->getChangeDelay());
    }
 }
 

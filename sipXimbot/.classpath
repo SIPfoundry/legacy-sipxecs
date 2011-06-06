@@ -24,5 +24,6 @@
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/ws-commons-util.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-httpclient.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-collections.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

@@ -25,6 +25,7 @@
     <pathelement location="${smack.jar}"/>
     <pathelement location="${smackx.jar}"/>
     <pathelement location="${commons-httpclient.jar}"/>
+    <pathelement location="${commons-collections.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 

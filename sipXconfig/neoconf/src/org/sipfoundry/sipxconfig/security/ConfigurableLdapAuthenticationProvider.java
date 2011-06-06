@@ -18,7 +18,6 @@ package org.sipfoundry.sipxconfig.security;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.LdapUserSearch;
@@ -31,7 +30,6 @@ import org.acegisecurity.providers.ldap.LdapAuthoritiesPopulator;
 import org.acegisecurity.providers.ldap.authenticator.BindAuthenticator;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
@@ -119,12 +117,6 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         InitialDirContextFactory dirFactory = getDirFactory(params);
         BindAuthenticator authenticator = new BindAuthenticator(dirFactory);
         authenticator.setUserSearch(getSearch(dirFactory)); // used for user login
-        if (!StringUtils.isEmpty(params.getPrincipal())) {
-            authenticator.setUserDnPatterns(new String[] {
-                params.getPrincipal()
-            // used for binding
-            });
-        }
         LdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
 
         return provider;
@@ -194,15 +186,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         @Override
         protected void additionalAuthenticationChecks(UserDetails userDetails,
                 UsernamePasswordAuthenticationToken authentication) {
-            // passwords are checked in ldap layer
-            // make sure that LDAP bind password is rejected
-            LdapConnectionParams params = m_ldapManager.getConnectionParams();
-            if (ObjectUtils.equals(authentication.getCredentials(), params.getSecret())) {
-                throw new BadCredentialsException(messages.getMessage(
-                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
-                        userDetails.getUsername());
-            }
-            return;
+            // passwords are checked in ldap layer, nothing else to do here
         }
     }
 
