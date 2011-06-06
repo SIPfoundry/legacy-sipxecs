@@ -103,7 +103,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
 
     public void testImAdminUsers() {
         loadDataSet("common/UserImAdmin.db.xml");
-        List<User> users = m_coreContext.loadUserByAdmin();
+        List<User> users = m_coreContext.loadUserByImAdmin();
         assertTrue(users.size() == 1);
         User user = users.get(0);
         assertEquals("123", user.getUserName());

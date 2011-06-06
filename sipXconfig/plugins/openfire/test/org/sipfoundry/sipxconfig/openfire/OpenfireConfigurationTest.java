@@ -86,7 +86,7 @@ public class OpenfireConfigurationTest extends TestCase {
         expectLastCall().andReturn(location).anyTimes();
 
         m_coreContext = createMock(CoreContext.class);
-        m_coreContext.loadUserByAdmin();
+        m_coreContext.loadUserByImAdmin();
         User user1 = new User();
         user1.setUserName("123");
         User user2 = new User();

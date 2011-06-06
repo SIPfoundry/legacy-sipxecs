@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
-import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -39,8 +38,6 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
     /** Instantiates special user that represents sipx service */
     User getSpecialUser(SpecialUserType specialUserType);
 
-    SpecialUser getSpecialUserAsSpecialUser(SpecialUserType specialUserType);
-
     /**
      * Creates (if necessary) initialize instances of special users
      */
@@ -61,8 +58,6 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
     void deleteUsersByUserName(Collection<String> usersName);
 
     User loadUser(Integer id);
-
-    User getUser(Integer id);
 
     /**
      * Loads all users.
@@ -136,7 +131,7 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
 
     void clear();
 
-    List<Group> getGroups();
+    List getGroups();
 
     /**
      * Retrieves user group by name.
@@ -179,7 +174,5 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
 
     boolean isImIdUnique(User user);
     List<Group> getAvailableGroups(User user);
-    Collection<User> getUsersForBranch(Branch b);
-
-    List<User> loadUserByAdmin();
+    List<User> loadUserByImAdmin();
 }
