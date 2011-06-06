@@ -60,4 +60,9 @@ public class OpenAcdLine extends OpenAcdExtension {
     public static FreeswitchAction createPlaybackAction(String path) {
         return createAction(FreeswitchAction.PredefinedAction.playback.toString(), path);
     }
+
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
 }
