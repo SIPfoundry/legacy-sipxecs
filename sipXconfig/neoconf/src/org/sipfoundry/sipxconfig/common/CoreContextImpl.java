@@ -56,6 +56,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
     private static final String QUERY_IM_ID = "imId";
     private static final String QUERY_USER_ID = "userId";
+    private static final String USER_IM_ADMIN = "userImAdmin";
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
@@ -75,13 +76,16 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     /**
      * Implemented by Spring lookup-method injection
      */
+    @Override
     public abstract User newUser();
 
     /**
      * Implemented by Spring lookup-method injection
      */
+    @Override
     public abstract InternalUser newInternalUser();
 
+    @Override
     public boolean getDebug() {
         return m_debug;
     }
@@ -90,6 +94,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         m_debug = debug;
     }
 
+    @Override
     public String getAuthorizationRealm() {
         return m_domainManager.getAuthorizationRealm();
     }
@@ -98,6 +103,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         m_maxUserCount = maxUserCount;
     }
 
+    @Override
     public String getDomainName() {
         return m_domainManager.getDomain().getName();
     }
@@ -114,10 +120,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         m_configFileManager = configFileManager;
     }
 
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
     }
 
+    @Override
     public boolean saveUser(User user) {
         boolean newUserName = user.isNew();
         String dup = checkForDuplicateNameOrAlias(user);
@@ -170,6 +178,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return newUserName;
     }
 
+    @Override
     public String getOriginalUserName(User user) {
         return (String) getOriginalValue(user, USERNAME_PROP_NAME);
     }
@@ -207,11 +216,13 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         }
     }
 
+    @Override
     public void deleteUser(User user) {
         getHibernateTemplate().delete(user);
         m_configFileManager.activateConfigFiles();
     }
 
+    @Override
     public boolean deleteUsers(Collection<Integer> userIds) {
         if (userIds.isEmpty()) {
             // no users to delete => nothing to do
@@ -235,6 +246,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return affectAdmin;
     }
 
+    @Override
     public void deleteUsersByUserName(Collection<String> userNames) {
         if (userNames.isEmpty()) {
             // no users to delete => nothing to do
@@ -261,6 +273,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         final Criterion expression = Restrictions.eq(propName, propValue);
 
         HibernateCallback callback = new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) {
                 Criteria criteria = session.createCriteria(User.class).add(expression);
                 return criteria.list();
@@ -272,16 +285,24 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return user;
     }
 
+    @Override
     public User loadUserByAlias(String alias) {
         return loadUserByNamedQueryAndNamedParam("userByAlias", VALUE, alias);
     }
 
+    @Override
     public User loadUserByConfiguredImId(String imId) {
         return loadUserByNamedQueryAndNamedParam("userByConfiguredImId", VALUE, imId);
     }
 
+    @Override
     public User loadUserByUserNameOrAlias(String userNameOrAlias) {
         return loadUserByNamedQueryAndNamedParam(QUERY_USER_BY_NAME_OR_ALIAS, VALUE, userNameOrAlias);
+    }
+
+    @Override
+    public List<User> loadUserByImAdmin() {
+        return getHibernateTemplate().findByNamedQuery(USER_IM_ADMIN);
     }
 
     private void checkImIdUnique(User user) {
@@ -315,6 +336,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
      * @param user user to test
      * @return name that collides
      */
+    @Override
     public String checkForDuplicateNameOrAlias(User user) {
         String result = null;
 
@@ -394,8 +416,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
      * ignored in the search. The userName property matches either the userName or aliases
      * properties.
      */
+    @Override
     public List<User> loadUserByTemplateUser(final User userTemplate) {
         HibernateCallback callback = new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) {
                 UserLoader loader = new UserLoader(session);
                 return loader.loadUsers(userTemplate);
@@ -405,27 +429,33 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return users;
     }
 
+    @Override
     public List<User> loadUsers() {
         return getHibernateTemplate().loadAll(User.class);
     }
 
+    @Override
     public int getUsersCount() {
         return getUsersInGroupCount(null);
     }
 
     // returns only the number of users created by admin
+    @Override
     public int getAllUsersCount() {
         return getBeansInGroupCount(AbstractUser.class, null);
     }
 
+    @Override
     public int getUsersInGroupCount(Integer groupId) {
         return getBeansInGroupCount(User.class, groupId);
     }
 
+    @Override
     public int getUsersInGroupWithSearchCount(final Integer groupId, final String searchString) {
         int numUsers = 0;
         if (!StringUtils.isEmpty(searchString)) {
             HibernateCallback callback = new HibernateCallback() {
+                @Override
                 public Object doInHibernate(Session session) {
                     UserLoader loader = new UserLoader(session);
                     return loader.countUsers(searchString, groupId);
@@ -439,15 +469,18 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return numUsers;
     }
 
+    @Override
     public List<User> getSharedUsers() {
         Collection sharedUsers = getHibernateTemplate().findByNamedQueryAndNamedParam("sharedUsers", "isShared",
                 true);
         return new ArrayList<User>(sharedUsers);
     }
 
+    @Override
     public List<User> loadUsersByPage(final String search, final Integer groupId, final Integer branchId,
             final int firstRow, final int pageSize, final String orderBy, final boolean orderAscending) {
         HibernateCallback callback = new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) {
                 UserLoader loader = new UserLoader(session);
                 return loader
@@ -458,14 +491,17 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return users;
     }
 
+    @Override
     public List<User> loadUsersByPage(int first, int pageSize) {
         return loadBeansByPage(User.class, first, pageSize);
     }
 
+    @Override
     public List<InternalUser> loadInternalUsers() {
         return getHibernateTemplate().loadAll(InternalUser.class);
     }
 
+    @Override
     public void clear() {
         Collection c = getHibernateTemplate().find(QUERY_USER);
         getHibernateTemplate().deleteAll(c);
@@ -475,6 +511,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
      * Create a superadmin user with an empty pin. This is used to recover from the loss of all
      * users from the database.
      */
+    @Override
     public void createAdminGroupAndInitialUserTask() {
         createAdminGroupAndInitialUser(null);
     }
@@ -488,6 +525,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
      * same. That hack is gone so setting the pintoken to 'password' would no longer work because
      * the password would then be the inverse hash of 'password' rather than 'password'.
      */
+    @Override
     public void createAdminGroupAndInitialUser(String pin) {
         Group adminGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, ADMIN_GROUP_NAME);
         if (adminGroup == null) {
@@ -522,10 +560,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         m_settingDao = settingDao;
     }
 
+    @Override
     public List<Group> getGroups() {
         return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
     }
 
+    @Override
     public List<Group> getAvailableGroups(User user) {
         List<Group> allGroups = getGroups();
         List<Group> availableGroups = new ArrayList<Group>();
@@ -537,6 +577,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return availableGroups;
     }
 
+    @Override
     public Group getGroupById(Integer groupId) {
         List<Group> groups = m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
         for (Group group : groups) {
@@ -548,6 +589,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return null;
     }
 
+    @Override
     public Group getGroupByName(String userGroupName, boolean createIfNotFound) {
         if (createIfNotFound) {
             return m_settingDao.getGroupCreateIfNotFound(USER_GROUP_RESOURCE_ID, userGroupName);
@@ -571,18 +613,21 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return aliases;
     }
 
+    @Override
     public Collection<User> getGroupMembers(Group group) {
         Collection<User> users = getHibernateTemplate().findByNamedQueryAndNamedParam("userGroupMembers",
                 QUERY_PARAM_GROUP_ID, group.getId());
         return users;
     }
 
+    @Override
     public Collection<String> getGroupMembersNames(Group group) {
         Collection<String> userNames = getHibernateTemplate().findByNamedQueryAndNamedParam("userNamesGroupMembers",
                 QUERY_PARAM_GROUP_ID, group.getId());
         return userNames;
     }
 
+    @Override
     public boolean isImIdUnique(User user) {
         ImAccount accountToSave = new ImAccount(user);
         // check ImId to save against persisted ImIds
@@ -612,6 +657,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return true;
     }
 
+    @Override
     public void onDelete(Object entity) {
         if (entity instanceof Group) {
             Group group = (Group) entity;
@@ -648,10 +694,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         }
     }
 
+    @Override
     public void onSave(Object entity) {
 
     }
 
+    @Override
     public boolean isAliasInUse(String alias) {
         // Look for the ID of a user with a user ID, user alias or user ImId matching the
         // specified SIP alias.
@@ -661,6 +709,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return SipxCollectionUtils.safeSize(objs) > 0;
     }
 
+    @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID, VALUE, alias);
@@ -672,16 +721,19 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         DaoUtils.addToGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, User.class, ids);
     }
 
+    @Override
     public void removeFromGroup(Integer groupId, Collection<Integer> ids) {
         DaoUtils.removeFromGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, User.class, ids);
     }
 
+    @Override
     public List<User> getGroupSupervisors(Group group) {
         List<User> objs = getHibernateTemplate().findByNamedQueryAndNamedParam("groupSupervisors",
                 QUERY_PARAM_GROUP_ID, group.getId());
         return objs;
     }
 
+    @Override
     public List<User> getUsersThatISupervise(User supervisor) {
         List<User> objs = getHibernateTemplate().findByNamedQueryAndNamedParam("usersThatISupervise",
                 "supervisorId", supervisor.getId());
@@ -701,6 +753,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
      * @throws ExtensionException if at least one of the aliases does not represent a valid user
      *         with permission enabled
      */
+    @Override
     public void checkForValidExtensions(Collection<String> aliases, PermissionName permission) {
         Collection<String> invalidExtensions = new ArrayList<String>();
         for (String extension : aliases) {
