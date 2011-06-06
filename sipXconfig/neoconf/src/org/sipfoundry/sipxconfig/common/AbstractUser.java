@@ -408,10 +408,6 @@ public abstract class AbstractUser extends BeanWithGroups {
         return hasPermission(PermissionName.SUPERADMIN);
     }
 
-    public boolean isImAdmin() {
-        return hasPermission(PermissionName.IMADMIN);
-    }
-
     private Setting retrieveSettingForSettingPath(String path, String name) {
         Setting setting = getSettings().getSetting(path);
         if (setting == null) {

@@ -22,7 +22,7 @@
 	<securePort>9095</securePort>
   </adminConsole>
   <admin>
-      <authorizedUsernames>admin, 123, 130</authorizedUsernames>
+      <authorizedUsernames>123, 130, admin, superadmin</authorizedUsernames>
   </admin>
   <ldap>
 	<host>localhost</host>

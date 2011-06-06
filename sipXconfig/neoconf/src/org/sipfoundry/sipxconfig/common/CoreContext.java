@@ -181,5 +181,5 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
     List<Group> getAvailableGroups(User user);
     Collection<User> getUsersForBranch(Branch b);
 
-    List<User> loadUserByImAdmin();
+    List<User> loadUserByAdmin();
 }

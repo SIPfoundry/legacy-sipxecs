@@ -59,7 +59,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String QUERY_USER_ID = "userId";
     private static final String SPECIAL_USER_BY_TYPE = "specialUserByType";
     private static final String SPECIAL_USER_TYPE = "specialUserType";
-    private static final String USER_IM_ADMIN = "userImAdmin";
+    private static final String USER_ADMIN = "userAdmin";
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
@@ -311,8 +311,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
-    public List<User> loadUserByImAdmin() {
-        return getHibernateTemplate().findByNamedQuery(USER_IM_ADMIN);
+    public List<User> loadUserByAdmin() {
+        return getHibernateTemplate().findByNamedQuery(USER_ADMIN);
     }
 
     private void checkImIdUnique(User user) {
