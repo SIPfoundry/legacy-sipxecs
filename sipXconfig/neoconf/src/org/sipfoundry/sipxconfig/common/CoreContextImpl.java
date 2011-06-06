@@ -56,7 +56,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
     private static final String QUERY_IM_ID = "imId";
     private static final String QUERY_USER_ID = "userId";
-    private static final String USER_IM_ADMIN = "userImAdmin";
+    private static final String SPECIAL_USER_BY_TYPE = "specialUserByType";
+    private static final String SPECIAL_USER_TYPE = "specialUserType";
+    private static final String USER_ADMIN = "userAdmin";
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
@@ -261,10 +263,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         getHibernateTemplate().deleteAll(users);
     }
 
+    @Override
     public User loadUser(Integer id) {
         return load(User.class, id);
     }
 
+    @Override
     public User loadUserByUserName(String userName) {
         return loadUserByUniqueProperty(USERNAME_PROP_NAME, userName);
     }
@@ -301,8 +305,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
-    public List<User> loadUserByImAdmin() {
-        return getHibernateTemplate().findByNamedQuery(USER_IM_ADMIN);
+    public List<User> loadUserByAdmin() {
+        return getHibernateTemplate().findByNamedQuery(USER_ADMIN);
     }
 
     private void checkImIdUnique(User user) {
@@ -597,6 +601,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return m_settingDao.getGroupByName(USER_GROUP_RESOURCE_ID, userGroupName);
     }
 
+    @Override
     public Collection getAliasMappings() {
         final List aliases = new ArrayList();
         Closure<User> closure = new Closure<User>() {
@@ -717,6 +722,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return bids;
     }
 
+    @Override
     public void addToGroup(Integer groupId, Collection<Integer> ids) {
         DaoUtils.addToGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, User.class, ids);
     }
@@ -777,6 +783,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         }
     }
 
+    @Override
     public User getSpecialUser(SpecialUserType specialUserType) {
         List<SpecialUser> specialUsersOfType = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "specialUserByType", "specialUserType", specialUserType.name());
@@ -791,6 +798,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return newUser;
     }
 
+    @Override
     public void initializeSpecialUsers() {
         for (SpecialUserType type : SpecialUserType.values()) {
             User specialUser = getSpecialUser(type);
