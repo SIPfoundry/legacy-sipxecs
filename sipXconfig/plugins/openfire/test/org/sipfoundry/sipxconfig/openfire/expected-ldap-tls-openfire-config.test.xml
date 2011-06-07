@@ -21,6 +21,9 @@
 	<port>9094</port>
 	<securePort>9095</securePort>
   </adminConsole>
+  <admin>
+      <authorizedUsernames>123, 130, admin, superadmin</authorizedUsernames>
+  </admin>
   <ldap>
 	<host>localhost</host>
 	<port>636</port>

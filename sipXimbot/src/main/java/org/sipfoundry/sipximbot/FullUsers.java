@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Vector;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
@@ -37,7 +39,7 @@ public class FullUsers {
     private static HashMap<String, FullUser> m_userNameMap;
 
     // hashmap in support of find jabber id to user lookup
-    private static HashMap<String, FullUser> m_jidMap;
+    private static CaseInsensitiveMap m_jidMap;
     
     // hashmap in support of confname to user lookup
     private static HashMap<String, FullUser> m_confMap;
@@ -50,7 +52,7 @@ public class FullUsers {
      */
     private FullUsers() {
         m_userNameMap = new HashMap<String, FullUser>();
-        m_jidMap = new HashMap<String, FullUser>();
+        m_jidMap = new CaseInsensitiveMap();
         m_confMap = new HashMap<String, FullUser>();
         m_fullUsers = new Vector<FullUser>(); 
     }
@@ -219,7 +221,7 @@ public class FullUsers {
     }
 
     public FullUser findByjid(String jid) {
-        return m_jidMap.get(jid);
+        return (FullUser) m_jidMap.get(jid);
     }
     
     public FullUser findByConfName(String confName) {

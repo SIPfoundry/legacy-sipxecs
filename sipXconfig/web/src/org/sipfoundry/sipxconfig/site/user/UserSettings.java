@@ -15,6 +15,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
@@ -49,9 +50,13 @@ public abstract class UserSettings extends PageWithCallback implements PageBegin
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
+    @InjectObject("spring:ldapManager")
+    public abstract LdapManager getLdapManager();
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
         User user = getUser();
         if (user != null) {
@@ -71,8 +76,14 @@ public abstract class UserSettings extends PageWithCallback implements PageBegin
             getUser().setImDisplayName(null);
         }
 
+        User savedUser = getCoreContext().loadUser(getUserId());
+        boolean adminChanged = getUser().isAdmin() != savedUser.isAdmin();
+
         CoreContext dao = getCoreContext();
         dao.saveUser(getUser());
+        if (adminChanged) {
+            getLdapManager().replicateOpenfireConfig();
+        }
     }
 
     public String getParentSettingLabel() {

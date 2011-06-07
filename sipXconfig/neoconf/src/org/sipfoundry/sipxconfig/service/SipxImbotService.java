@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang.StringUtils.replace;
 
 public class SipxImbotService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxImbotService";
@@ -61,7 +62,7 @@ public class SipxImbotService extends SipxService implements LoggingEntity {
     }
 
     public String getPersonalAssistantImPassword() {
-        return defaultIfEmpty(getSettingValue(PA_PASSWORD_SETTING), getPersonalAssistantImId());
+        return defaultIfEmpty(replace(getSettingValue(PA_PASSWORD_SETTING), "\\", "\\\\"), getPersonalAssistantImId());
     }
 
     public void initPersonalAssistantPassword() {

@@ -174,4 +174,5 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
 
     boolean isImIdUnique(User user);
     List<Group> getAvailableGroups(User user);
+    List<User> loadUserByAdmin();
 }
