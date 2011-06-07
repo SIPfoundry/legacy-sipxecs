@@ -29,7 +29,7 @@ public class LocationsPageTestUi extends WebTestCase {
     public void testDisplay() {
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("sipx.example.org");
-        assertEquals("Registered", SiteTestHelper.getCellAsText(getTable("locations:list"), 1, 4));
+        assertEquals("Configured [ See State]", SiteTestHelper.getCellAsText(getTable("locations:list"), 1, 4));
         clickLink("editLocationLink");
         assertLinkPresent("link:configureLocation");
         assertLinkPresent("link:configureBundle");
@@ -75,7 +75,7 @@ public class LocationsPageTestUi extends WebTestCase {
         setTextField("location:fqdn", "another.example.org");
         setTextField("location:password", "123");
         clickButton("form:ok");
-        setWorkingForm("Form");
+        setWorkingForm("refreshForm");
         SiteTestHelper.selectRow(tester, 0, true);
         SiteTestHelper.selectRow(tester, 1, true);
         clickButton("locations:delete");
@@ -99,7 +99,7 @@ public class LocationsPageTestUi extends WebTestCase {
 
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        setWorkingForm("Form");
+        setWorkingForm("refreshForm");
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("locations:sendProfiles");
 
@@ -110,7 +110,6 @@ public class LocationsPageTestUi extends WebTestCase {
     public void testNatPanel() {
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("sipx.example.org");
-        assertEquals("Registered", SiteTestHelper.getCellAsText(getTable("locations:list"), 1, 4));
         clickLink("editLocationLink");
         clickLink("link:natLocation");
         setTextField("stunInterval", "abc");

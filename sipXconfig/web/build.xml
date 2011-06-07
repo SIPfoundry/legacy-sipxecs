@@ -195,9 +195,10 @@
         <include name="**/*.jpg"/>
         <include name="**/*.css"/>
         <include name="**/*.xml"/>
-	<include name="**/*.vm"/>
+		<include name="**/*.vm"/>
         <include name="**/*.wsdl"/>
         <include name="**/*.properties"/>
+	<include name="**/*.license"/>
         <include name="**/*.js"/>
         <include name="**/*.ico"/>
       </classes>

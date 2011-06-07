@@ -13,8 +13,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.alias.AliasOwner;
 
-public interface PagingContext extends DialingRuleProvider {
+public interface PagingContext extends DialingRuleProvider, AliasOwner {
     String getPagingPrefix();
 
     void setPagingPrefix(String prefix);

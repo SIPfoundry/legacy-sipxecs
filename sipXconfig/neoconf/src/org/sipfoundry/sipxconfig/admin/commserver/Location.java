@@ -9,17 +9,21 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.EnumUserType;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
@@ -49,7 +53,11 @@ public class Location extends BeanWithId {
     private String m_password = RandomStringUtils.randomAlphanumeric(LOCATION_PASSWORD_LEN);
     private boolean m_primary;
     private boolean m_registered;
+    private State m_state = State.UNCONFIGURED;
+    private Timestamp m_lastAttempt;
     private List<String> m_installedBundles;
+    private Set<String> m_successfulReplications;
+    private Set<String> m_failedReplications;
     private NatLocation m_nat = new NatLocation();
     private ServerRoleLocation m_serverRoles = new ServerRoleLocation();
 
@@ -86,6 +94,22 @@ public class Location extends BeanWithId {
      */
     public List<String> getInstalledBundles() {
         return m_installedBundles;
+    }
+
+    public Set<String> getSuccessfulReplications() {
+        return m_successfulReplications;
+    }
+
+    public void setSuccessfulReplications(Set<String> successfulReplications) {
+        m_successfulReplications = successfulReplications;
+    }
+
+    public Set<String> getFailedReplications() {
+        return m_failedReplications;
+    }
+
+    public void setFailedReplications(Set<String> failedReplications) {
+        m_failedReplications = failedReplications;
     }
 
     public void setInstalledBundles(List<String> installedBundles) {
@@ -310,6 +334,26 @@ public class Location extends BeanWithId {
         m_registered = registered;
     }
 
+    public State getState() {
+        if (!isRegistered()) {
+            return State.UNINITIALIZED;
+        } else {
+            return m_state;
+        }
+    }
+
+    public void setState(State state) {
+        m_state = state;
+    }
+
+    public Timestamp getLastAttempt() {
+        return m_lastAttempt;
+    }
+
+    public void setLastAttempt(Timestamp lastAttempt) {
+        m_lastAttempt = lastAttempt;
+    }
+
     /**
      * Retrieves the list of services installed at this location.
      *
@@ -318,6 +362,7 @@ public class Location extends BeanWithId {
     public Collection<SipxService> getSipxServices() {
         Collection<LocationSpecificService> services = getServices();
         Transformer retrieveService = new Transformer() {
+            @Override
             public Object transform(Object item) {
                 LocationSpecificService lss = (LocationSpecificService) item;
                 return lss.getSipxService();
@@ -384,5 +429,51 @@ public class Location extends BeanWithId {
 
     public boolean isServiceInstalled(SipxService service) {
         return getSipxServices().contains(service);
+    }
+
+    public boolean isInProgressState() {
+        return getState().equals(State.PROGRESS);
+    }
+
+    public boolean isInConfigurationErrorState() {
+        return getState().equals(State.CONFIGURATION_ERROR);
+    }
+
+    public boolean isConfigured() {
+        return getState().equals(State.CONFIGURED);
+    }
+
+    public boolean isInNotFinishedState() {
+        return getState().equals(State.NOT_FINISHED);
+    }
+
+    public boolean isUninitialized() {
+        return getState().equals(State.UNINITIALIZED);
+    }
+
+    public static final class State extends Enum {
+        public static final State CONFIGURATION_ERROR = new State("CONFIGURATION_ERROR");
+        public static final State UNINITIALIZED = new State("UNINITIALIZED");
+        public static final State UNCONFIGURED = new State("UNCONFIGURED");
+        public static final State CONFIGURED = new State("CONFIGURED");
+        public static final State PROGRESS = new State("PROGRESS");
+        public static final State NOT_FINISHED = new State("NOT_FINISHED");
+
+        public State(String name) {
+            super(name);
+        }
+
+        public static State getEnum(String type) {
+            return (State) getEnum(State.class, type);
+        }
+    }
+
+    /**
+     * Used for Hibernate type translation
+     */
+    public static class LocationState extends EnumUserType {
+        public LocationState() {
+            super(State.class);
+        }
     }
 }

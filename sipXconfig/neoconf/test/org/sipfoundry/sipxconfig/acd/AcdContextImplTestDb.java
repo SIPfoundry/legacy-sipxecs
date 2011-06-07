@@ -178,6 +178,24 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         ITable valuesTable = TestHelper.getConnection().createDataSet().getTable("setting_value");
         assertEquals(1, valuesTable.getRowCount());
         assertEquals("INFO", valuesTable.getValue(0, "value"));
+
+        User u = m_coreContext.newUser();
+        u.setUserName("*88");
+        u.setPin("123", "tralala");
+        try {
+            m_coreContext.saveUser(u);
+            fail();
+        } catch (UserException e) {
+
+        }
+
+        u.setUserName("*81");
+        try {
+            m_coreContext.saveUser(u);
+            fail();
+        } catch (UserException e) {
+
+        }
     }
 
     public void testsaveComponentLine() throws Exception {
@@ -228,14 +246,14 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
             fail("Should fail");
         } catch (Exception e) {
             // ok
-        } 
+        }
         line.setName("l5");
         line.setExtension("112");
         m_context.saveComponent(line);
 
         // check if I can saveComponent the same line more than once
         m_context.saveComponent(line);
-        
+
     }
 
     public void testsaveComponentQueue() throws Exception {

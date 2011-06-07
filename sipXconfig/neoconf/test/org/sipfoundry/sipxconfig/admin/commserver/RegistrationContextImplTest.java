@@ -17,6 +17,8 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCase;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -26,7 +28,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
-public class RegistrationContextImplTest extends TestCase {
+public class RegistrationContextImplTest extends MongoTestCase {
     private String m_host = "localhost";
     private int m_port = 27017;
     private Mongo m_mongoInstance;
@@ -47,17 +49,11 @@ public class RegistrationContextImplTest extends TestCase {
         }
     };
 
-    /*
-     * private String[] FIELDS = { "callid", "cseq", "uri", "contact", "expired", "identity",
-     * "expirationTime", "timestamp", "instrument" };
-     */
-
     protected void setUp() throws Exception {
-        if (m_mongoInstance == null) {
-            m_mongoInstance = new Mongo(m_host, m_port);
-        }
-        DB datasetDb = m_mongoInstance.getDB(DBNAME);
-        m_collection = datasetDb.getCollection(COLL_NAME);
+
+        MongoTestCaseHelper.initMongo(DBNAME, COLL_NAME);
+        MongoTestCaseHelper.dropDb(DBNAME);
+        m_collection = MongoTestCaseHelper.initMongo(DBNAME, COLL_NAME);
         DBObject reg1 = new BasicDBObject();
         reg1.put("contact", DATA[0][3]);
         reg1.put("expirationTime", DATA[0][6]);
@@ -101,11 +97,5 @@ public class RegistrationContextImplTest extends TestCase {
         assertEquals(1299762968, ri.getExpires());
         assertEquals("3001@example.org", ri.getUri());
         assertTrue(ri.getContact().indexOf("Doe") > 0);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        m_mongoInstance.dropDatabase(DBNAME);
-        super.tearDown();
     }
 }

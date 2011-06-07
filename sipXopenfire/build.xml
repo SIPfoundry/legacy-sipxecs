@@ -168,6 +168,9 @@
                 <copy file="${sipxcommons.dir}/xmlrpc-client.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
                 <copy file="${sipxcommons.dir}/xmlrpc-common.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
                 <copy file="${sipxcommons.dir}/xmlrpc-server.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
+		<copy file="${sipxcommons.dir}/${sipxcommons.jarname}" todir="${openfire-lib-dir}" />
+		<copy file="${sipxcommons.dir}/${log4j.jarname}" todir="${openfire-lib-dir}" />
+		<copy file="${sipxcommons.dir}/${mongo.jarname}" todir="${openfire-lib-dir}" />
                 <copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${sipxpbx.conf.dir}/database" />
 		        <copy file="${root}/sipxopenfire-setup.sh" todir="${dest.dir}${sipxpbx.libexec.dir}/setup.d" />
 		        <copy file="${src.dir}/etc/sipxopenfire-prompts.properties" todir="${dest.dir}${sipxpbx.conf.dir}/openfire" />

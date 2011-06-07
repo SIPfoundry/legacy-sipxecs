@@ -43,4 +43,5 @@ public interface SipxReplicationContext {
     void remove(Replicable entity);
     void replicateWork(Replicable entity);
     void resyncSlave(Location location);
+    void replicateLocation(Location location);
 }

@@ -35,14 +35,22 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
 
     protected abstract ServiceConfigurator getServiceConfigurator();
 
+    @Override
     public void generate(final Replicable entity) {
         m_replicationManager.replicateEntity(entity);
     }
 
+    @Override
     public void generateAll() {
         m_replicationManager.replicateAllData();
     }
 
+    @Override
+    public void replicateLocation(Location location) {
+        m_replicationManager.replicateLocation(location);
+    }
+
+    @Override
     public void remove(final Replicable entity) {
         m_replicationManager.removeEntity(entity);
     }
@@ -52,6 +60,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         m_replicationManager.resyncSlave(location);
     }
 
+    @Override
     public void replicate(ConfigurationFile file) {
         if (inInitializationPhase()) {
             LOG.debug(IGNORE_REPLICATION_MESSAGE + file.getName());
@@ -62,6 +71,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         replicateWorker(locations, file);
     }
 
+    @Override
     public void replicate(Location location, ConfigurationFile file) {
         if (inInitializationPhase()) {
             LOG.debug(IGNORE_REPLICATION_MESSAGE + file.getName());
@@ -76,6 +86,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
 
     private void replicateWorker(final Location[] locations, final ConfigurationFile file) {
         ReplicateWork work = new ReplicateWork() {
+            @Override
             public boolean replicate() {
                 return m_replicationManager.replicateFile(locations, file);
             }
@@ -130,11 +141,13 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         m_locationsManager = locationsManager;
     }
 
+    @Override
     @Required
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         m_applicationEventPublisher = applicationEventPublisher;
     }
 
+    @Override
     public void publishEvent(ApplicationEvent event) {
         m_applicationEventPublisher.publishEvent(event);
     }

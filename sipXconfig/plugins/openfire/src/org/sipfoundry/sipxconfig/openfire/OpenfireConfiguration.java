@@ -1,19 +1,24 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.openfire;
+
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
@@ -22,6 +27,9 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -49,9 +57,15 @@ public class OpenfireConfiguration extends TemplateConfigurationFile {
 
     private static final String PROVIDER_LDAP_VCARD_CLASSNAME = "org.jivesoftware.openfire.ldap.LdapVCardProvider";
 
+    private static final String SEPARATOR = ", ";
+
+    private static final String ADMIN = "admin";
+
     private LdapManager m_ldapManager;
 
     private SipxServiceManager m_sipxServiceManager;
+
+    private CoreContext m_coreContext;
 
     @Override
     protected VelocityContext setupContext(Location location) {
@@ -79,7 +93,25 @@ public class OpenfireConfiguration extends TemplateConfigurationFile {
             context.put("ldapVcardProvider", PROVIDER_LDAP_VCARD_CLASSNAME);
         }
 
+        context.put("authorizedUsernames", getAuthorizedUsernames());
+
         return context;
+    }
+
+    /**
+     * Get authorized usernames. The defaults are admin and superadmin.
+     * When you have LDAP-Openfire configured different other users
+     * can be added with admin rights.
+     */
+    private String getAuthorizedUsernames() {
+        List<User> admins = m_coreContext.loadUserByAdmin();
+        Set<String> authorizedList = new TreeSet<String>();
+        authorizedList.add(ADMIN);
+        authorizedList.add(AbstractUser.SUPERADMIN);
+        for (User user : admins) {
+            authorizedList.add(user.getUserName());
+        }
+        return StringUtils.join(authorizedList, SEPARATOR);
     }
 
     @Required
@@ -90,6 +122,11 @@ public class OpenfireConfiguration extends TemplateConfigurationFile {
     @Required
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
+    }
+
+    @Required
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
     @Override

@@ -76,4 +76,6 @@ public interface LocationsManager {
      *         isn't installed on any server it will return null.
      */
     Location getLocationByBundle(String bundleName);
+
+    void updateLocation(Location location);
 }

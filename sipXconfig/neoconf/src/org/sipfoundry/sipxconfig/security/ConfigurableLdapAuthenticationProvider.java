@@ -1,23 +1,23 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.security;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.LdapUserSearch;
@@ -30,7 +30,6 @@ import org.acegisecurity.providers.ldap.LdapAuthoritiesPopulator;
 import org.acegisecurity.providers.ldap.authenticator.BindAuthenticator;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
@@ -118,12 +117,6 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         InitialDirContextFactory dirFactory = getDirFactory(params);
         BindAuthenticator authenticator = new BindAuthenticator(dirFactory);
         authenticator.setUserSearch(getSearch(dirFactory)); // used for user login
-        if (!StringUtils.isEmpty(params.getPrincipal())) {
-            authenticator.setUserDnPatterns(new String[] {
-                params.getPrincipal()
-            // used for binding
-            });
-        }
         LdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
 
         return provider;
@@ -193,15 +186,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         @Override
         protected void additionalAuthenticationChecks(UserDetails userDetails,
                 UsernamePasswordAuthenticationToken authentication) {
-            // passwords are checked in ldap layer
-            // make sure that LDAP bind password is rejected
-            LdapConnectionParams params = m_ldapManager.getConnectionParams();
-            if (ObjectUtils.equals(authentication.getCredentials(), params.getSecret())) {
-                throw new BadCredentialsException(messages.getMessage(
-                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
-                        userDetails.getUsername());
-            }
-            return;
+            // passwords are checked in ldap layer, nothing else to do here
         }
     }
 

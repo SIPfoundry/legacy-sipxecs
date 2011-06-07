@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
+
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -63,6 +64,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
     private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
+    private static final String LOCATION_REGISTRATION = "Location registration in db";
+    private static final String DATABASE_REGENERATION = "Database Regeneration";
     private static final String COLON = ":";
     private static final String IP = "ip";
     private static final String DESCRIPTION = "dsc";
@@ -119,6 +122,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         m_auditLogContext = auditLogContext;
     }
 
+
+
     public void dropDb() throws Exception {
         initMongo();
         m_datasetCollection.drop();
@@ -131,6 +136,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
      */
     @Override
     public void replicateAllData() {
+        Location primary = m_locationsManager.getPrimaryLocation();
         try {
             Long start = System.currentTimeMillis();
             dropDb(); // this calls initMongo()
@@ -159,13 +165,18 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             Long end = System.currentTimeMillis();
             LOG.info("Regeneration of database completed in " + (end - start) / 1000 + "s | " + (end - start) / 1000
                     / 60 + " m.");
+
+            m_auditLogContext.logReplicationMongo(DATABASE_REGENERATION, primary);
         } catch (Exception e) {
+            m_auditLogContext.logReplicationMongoFailed(DATABASE_REGENERATION, primary, e);
             LOG.error("Regeneration of database failed", e);
             throw new UserException(e);
         }
     }
 
+    @Override
     public void replicateEntity(Replicable entity) {
+        String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
             initMongo();
@@ -176,22 +187,22 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 replicateEntity(entity, dataSet, top);
             }
             Long end = System.currentTimeMillis();
-            LOG.info("Replication: inserted/updated " + entity.getName() + " in " + (end - start) + "ms");
+            LOG.info("Replication: inserted/updated " + name + " in " + (end - start) + "ms");
         } catch (Exception e) {
-            LOG.error(REPLICATION_FAILED + entity.getName(), e);
+            LOG.error(REPLICATION_FAILED + name, e);
             throw new UserException(REPLICATION_FAILED + entity.getName(), e);
         }
     }
 
     private void replicateEntity(Replicable entity, DataSet dataSet, DBObject top) {
         String beanName = dataSet.getBeanName();
-        final DataSetGenerator generator = (DataSetGenerator) m_beanFactory
+        final DataSetGenerator generator = m_beanFactory
                 .getBean(beanName, DataSetGenerator.class);
         generator.setDbCollection(m_datasetCollection);
         generator.generate(entity, top);
-
     }
 
+    @Override
     public void replicateLocation(Location location) {
         try {
             if (location.isRegistered()) {
@@ -210,12 +221,15 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 node.put(DESCRIPTION, location.getName());
                 node.put(MASTER, location.isPrimary());
                 nodeCollection.save(node);
+                m_auditLogContext.logReplicationMongo(LOCATION_REGISTRATION, location);
             }
         } catch (Exception e) {
+            m_auditLogContext.logReplicationMongoFailed(LOCATION_REGISTRATION, location, e);
             throw new UserException("Cannot register location in mongo db: " + e);
         }
     }
 
+    @Override
     public void removeEntity(Replicable entity) {
         try {
             initMongo();
@@ -239,6 +253,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         }
     }
 
+    @Override
     public void removeLocation(Location location) {
         try {
             if (location.isRegistered()) {
@@ -292,7 +307,9 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         }
     }
 
+    @Override
     public boolean replicateFile(Location[] locations, ConfigurationFile file) {
+
         if (!m_enabled) {
             return true;
         }
@@ -309,8 +326,10 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 file.write(writer, locations[i]);
                 writer.close();
                 success = true;
+                m_auditLogContext.logReplication(file.getName(), locations[i]);
             } catch (IOException e) {
                 LOG.error("Error writing: " + f.getAbsolutePath());
+                m_auditLogContext.logReplicationFailed(file.getName(), locations[i], e);
                 throw new RuntimeException(e);
             }
         }
@@ -334,14 +353,19 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 success = api.replace(getHostname(), file.getPath(), PERMISSIONS, content);
                 if (success) {
                     m_auditLogContext.logReplication(file.getName(), locations[i]);
+                } else {
+                    m_auditLogContext.logReplicationFailed(file.getName(), locations[i], null);
                 }
             } catch (XmlRpcRemoteException e) {
                 LOG.error("File replication failed: " + file.getName(), e);
+                m_auditLogContext.logReplicationFailed(file.getName(), locations[i], e);
             } catch (UnsupportedEncodingException e) {
                 LOG.error("UTF-8 encoding should be always supported.");
+                m_auditLogContext.logReplicationFailed(file.getName(), locations[i], e);
                 throw new RuntimeException(e);
             } catch (IOException e) {
                 LOG.error(e);
+                m_auditLogContext.logReplicationFailed(file.getName(), locations[i], e);
                 throw new RuntimeException(e);
             }
         }
@@ -356,6 +380,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 
+    @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }

@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.service;
@@ -86,7 +87,7 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new DefaultSettings(getLocationsManager().getPrimaryLocation()));
+        addDefaultBeanSettingHandler(new DefaultSettings(getDomainName()));
     }
 
     @Override
@@ -117,10 +118,10 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
 
     public static class DefaultSettings {
 
-        private Location m_location;
+        private String m_domainName;
 
-        public DefaultSettings(Location location) {
-            m_location = location;
+        public DefaultSettings(String domainName) {
+            m_domainName = domainName;
         }
 
         @SettingEntry(path = C_NODE)
@@ -132,7 +133,9 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
         @SettingEntry(path = DIAL_STRING)
         public String getDialString() {
             // change this when installing on different locations will be supported
-            return String.format("{ignore_early_media=true}sofia/%s/$1", m_location.getFqdn());
+            return String.format(
+                    "{ignore_early_media=true}sofia/%s/$1;sipx-noroute=VoiceMail;sipx-userforward=false",
+                    m_domainName);
         }
     }
 }

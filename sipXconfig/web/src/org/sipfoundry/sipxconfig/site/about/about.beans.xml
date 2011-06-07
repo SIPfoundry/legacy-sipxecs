@@ -9,5 +9,6 @@
   </bean>
   <bean id="aboutBean" class="org.sipfoundry.sipxconfig.site.about.AboutBean" scope="prototype">
     <property name="versionInfo" ref="versionInfo"/>
+    <property name="template" value="classpath:/org/sipfoundry/sipxconfig/site/about/AGPL.license"/>
   </bean>
 </beans>

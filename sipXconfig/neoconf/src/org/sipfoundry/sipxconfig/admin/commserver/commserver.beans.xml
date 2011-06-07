@@ -75,6 +75,7 @@
     <property name="forwardingContext" ref="forwardingContext" />
     <property name="externalAliases" ref="externalAliases" />
     <property name="dataSetGenerator" ref="dataSetGenerator" />
+
   </bean>
 
   <bean id="sipxReplicationContextImpl"
@@ -220,6 +221,8 @@
     <property name="coreContext" ref="coreContext" />
     <property name="openAcdContext" ref="openAcdContextImpl" />
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
   </bean>
 
   <bean id="registrationContext"

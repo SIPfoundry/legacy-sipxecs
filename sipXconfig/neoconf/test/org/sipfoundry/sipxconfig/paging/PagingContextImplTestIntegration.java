@@ -96,6 +96,38 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         assertEquals("*88", m_pagingContext.getPagingPrefix());
     }
 
+    public void testSaveCodeConflict() throws Exception {
+        assertEquals("*77", m_pagingContext.getPagingPrefix());
+        PagingGroup pg = m_pagingContext.getPagingGroupById(100);
+        pg.setPageGroupNumber(4);
+        m_pagingContext.savePagingGroup(pg);
+
+        try {
+            m_pagingContext.setPagingPrefix("100");
+            fail();
+        } catch (UserException e) {
+
+        }
+
+        pg.setPageGroupNumber(7);
+        m_pagingContext.savePagingGroup(pg);
+        m_pagingContext.setPagingPrefix("100");
+
+        PagingGroup group = new PagingGroup();
+        group.setPageGroupNumber(4);
+        group.setDescription("test");
+        group.setSound("TadaTada.wav");
+        group.setTimeout(120);
+        group.setPageGroupNumber(4);
+        try {
+            m_pagingContext.savePagingGroup(group);
+            fail();
+        } catch (UserException e) {
+
+        }
+
+    }
+
     public void testSaveSipTraceLevel() throws Exception {
         assertEquals("NONE", m_pagingContext.getSipTraceLevel());
         m_pagingContext.setSipTraceLevel("DEBUG");

@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.openfire;
@@ -24,6 +25,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
@@ -35,6 +38,8 @@ import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import junit.framework.TestCase;
@@ -50,6 +55,8 @@ public class OpenfireConfigurationTest extends TestCase {
     private final AttrMap m_ldapAttrMap = new AttrMap();
 
     private LocationsManager m_locationsManager;
+
+    private CoreContext m_coreContext;
 
     @Override
     protected void setUp() throws Exception {
@@ -78,7 +85,18 @@ public class OpenfireConfigurationTest extends TestCase {
         Location location = TestUtil.createDefaultLocation();
         expectLastCall().andReturn(location).anyTimes();
 
-        replay(m_ldapManager, m_locationsManager);
+        m_coreContext = createMock(CoreContext.class);
+        m_coreContext.loadUserByAdmin();
+        User user1 = new User();
+        user1.setUserName("123");
+        User user2 = new User();
+        user2.setUserName("130");
+        List<User> users = new ArrayList<User>();
+        users.add(user1);
+        users.add(user2);
+        expectLastCall().andReturn(users).anyTimes();
+
+        replay(m_ldapManager, m_locationsManager, m_coreContext);
     }
 
     public void testGenerateOpenfireConfiguration() throws Exception {
@@ -117,6 +135,7 @@ public class OpenfireConfigurationTest extends TestCase {
         configuration.setVelocityEngine(TestHelper.getVelocityEngine());
         configuration.setTemplate("openfire/openfire.vm");
         configuration.setLdapManager(m_ldapManager);
+        configuration.setCoreContext(m_coreContext);
 
         return configuration;
     }

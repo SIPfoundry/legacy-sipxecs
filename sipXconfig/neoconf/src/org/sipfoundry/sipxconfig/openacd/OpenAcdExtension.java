@@ -1,21 +1,23 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -105,10 +107,20 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
 
         AliasMapping nameMapping = new AliasMapping(getName(), SipUri.format(getExtension(),
                 freeswitchService.getAddress(), false), ALIAS_RELATION);
-        mappings.add(nameMapping);
         AliasMapping lineMapping = new AliasMapping(getExtension(), SipUri.format(getExtension(),
                 freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
-        mappings.add(lineMapping);
+        mappings.addAll(Arrays.asList(nameMapping, lineMapping));
+        if (getAlias() != null) {
+            AliasMapping aliasMapping = new AliasMapping(getAlias(), SipUri.format(getExtension(),
+                    freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+            mappings.add(aliasMapping);
+        }
+        if (getDid() != null) {
+            AliasMapping didMapping = new AliasMapping(getDid(), SipUri.format(getExtension(),
+                    freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+            mappings.add(didMapping);
+        }
+
         return mappings;
     }
 

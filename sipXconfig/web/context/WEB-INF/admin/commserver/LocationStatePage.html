@@ -1,0 +1,37 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+	<span jwcid="@Insert" value="ognl:details"/>
+
+	<span jwcid="@If" condition="ognl:previousAttemptNotFinished" renderTag="false">
+		<h3><span key="label.notFinished" /></h3>
+	</span>
+	<span jwcid="@Else">
+	    <span jwcid="@If" condition="ognl:inProgress" renderTag="false">
+		    <h3><span key="label.progress" /></h3>
+	    </span>
+	</span>
+	<span jwcid="@If" condition="ognl:inConfigurationError" renderTag="false">
+		<h3><span key="label.configurationError" /></h3>
+	</span>
+
+	<span jwcid="@If" condition="ognl:configured" renderTag="false">
+		<h3><span key="label.configured" /></h3>
+	</span>
+	<span jwcid="@If" condition="ognl:failed" renderTag="false">
+	    <h3><span key="label.failed" /></h3>
+        <ul>
+            <li jwcid="@For" source="ognl:failedReplications" value="ognl:currentName">
+                <span jwcid="@Insert" value="ognl:currentName" />
+            </li>
+        </ul>
+     </span>
+
+     <span jwcid="@If" condition="ognl:succeded" renderTag="false">
+        <h3><span key="label.succeded" /></h3>
+        <ul>
+            <li jwcid="@For" source="ognl:succededReplications" value="ognl:currentName">
+                <span jwcid="@Insert" value="ognl:currentName" />
+            </li>
+        </ul>
+	  </span>
+	<a class="backLink" jwcid="@DirectLink" listener="listener:returnToServers"><span key="link.back">Go back</span></a>
+</div>

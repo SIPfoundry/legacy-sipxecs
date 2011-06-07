@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2011 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.site.openacd;
@@ -29,6 +30,8 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -133,15 +136,21 @@ public abstract class OpenAcdAgentsPanel extends BaseComponent implements PageBe
             return m_group.getId().toString();
         }
 
+        @Override
         public void actionTriggered(IComponent component, IRequestCycle cycle) {
             Collection<Integer> ids = getSelections().getAllSelected();
             if (ids.isEmpty()) {
                 return;
             }
-            for (Integer id : ids) {
-                OpenAcdAgent agent = getOpenAcdContext().getAgentById(id);
-                agent.setGroup(m_group);
-                getOpenAcdContext().saveAgent(agent);
+            try {
+                for (Integer id : ids) {
+                    OpenAcdAgent agent = getOpenAcdContext().getAgentById(id);
+                    agent.setGroup(m_group);
+                    getOpenAcdContext().saveAgent(agent);
+                }
+            } catch (UserException ex) {
+                IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+                validator.record(new ValidatorException(getMessages().getMessage("msg.cannot.connect")));
             }
         }
     }

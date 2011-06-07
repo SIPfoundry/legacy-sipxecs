@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.openacd;
@@ -796,24 +797,24 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     @Override
-    public boolean removeQueueGroups(Collection<Integer> queueGroupIds) {
-        boolean affectDefaultAgentGroup = false;
+    public List<String> removeQueueGroups(Collection<Integer> queueGroupIds) {
         List<OpenAcdQueueGroup> groups = new LinkedList<OpenAcdQueueGroup>();
         List<OpenAcdQueue> queues = new LinkedList<OpenAcdQueue>();
+        List<String> usedGroups = new ArrayList<String>();
         for (Integer id : queueGroupIds) {
             OpenAcdQueueGroup group = getQueueGroupById(id);
-            if (!group.getName().equals(GROUP_NAME_DEFAULT)) {
+            if (group.getName().equals(GROUP_NAME_DEFAULT) || containsUsedQueues(group)) {
+                usedGroups.add(group.getName());
+            } else {
                 queues.addAll(group.getQueues());
                 groups.add(group);
-            } else {
-                affectDefaultAgentGroup = true;
             }
         }
         getHibernateTemplate().deleteAll(groups);
         m_provisioningContext.deleteObjects(queues);
         m_provisioningContext.deleteObjects(groups);
 
-        return affectDefaultAgentGroup;
+        return usedGroups;
     }
 
     private boolean isNameChanged(OpenAcdQueueGroup queueGroup) {
@@ -828,6 +829,15 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         if (existingQueueGroup != null) {
             throw new UserException("&duplicate.queueGroupName.error", queueGroupName);
         }
+    }
+
+    private boolean containsUsedQueues(OpenAcdQueueGroup group) {
+        for (OpenAcdQueue queue : group.getQueues()) {
+            if (isUsedByLine(OpenAcdLine.Q + queue.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<OpenAcdQueue> getQueues() {

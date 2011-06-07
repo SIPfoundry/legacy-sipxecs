@@ -45,6 +45,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -617,7 +618,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         for (AcdServer server : servers) {
             for (AliasMapping mapping : server.getAliasMappings(m_coreContext.getDomainName())) {
                 if (mapping.getIdentity().equals(alias)) {
-                    bids.add(new BeanId(server.getId(), AcdServer.class));
+                    SipxPresenceService presence = server.getPresenceService();
+                    bids.add(new BeanId(presence.getId(), SipxPresenceService.class));
                 }
             }
         }

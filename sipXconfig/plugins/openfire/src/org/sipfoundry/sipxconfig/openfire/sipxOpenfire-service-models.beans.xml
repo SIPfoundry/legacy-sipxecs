@@ -51,6 +51,7 @@
     <property name="name" value="openfire.xml" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="ldapManager" ref="ldapManager" />
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="openfireApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">

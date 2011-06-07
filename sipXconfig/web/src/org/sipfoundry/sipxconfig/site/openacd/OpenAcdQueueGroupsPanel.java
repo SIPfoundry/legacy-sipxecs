@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.site.openacd;
@@ -18,6 +19,7 @@ package org.sipfoundry.sipxconfig.site.openacd;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -77,10 +79,12 @@ public abstract class OpenAcdQueueGroupsPanel extends BaseComponent implements P
         if (ids.isEmpty()) {
             return;
         }
-        boolean errorMessage = getOpenAcdContext().removeQueueGroups(ids);
-        if (errorMessage) {
+        List<String> groups = getOpenAcdContext().removeQueueGroups(ids);
+        if (!groups.isEmpty()) {
+            String groupNames = StringUtils.join(groups.iterator(), ", ");
+            String errMessage = getMessages().format("msg.err.queueGroupDeletion", groupNames);
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-            validator.record(new ValidatorException(getMessages().getMessage("msg.err.defalutQueueGroupDeletion")));
+            validator.record(new ValidatorException(errMessage));
         }
     }
 }

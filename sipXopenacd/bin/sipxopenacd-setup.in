@@ -1,14 +1,16 @@
 #!/bin/bash
-# Initial Version Copyright (C) 2011 eZuce, Inc., All Rights Reserved.
-# Licensed to the User under the LGPL license.
-# 
-# This library is distributed in the hope that it will be useful, but WITHOUT
+# Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
 # details.
-
-# This "imports" erlang libraries installed in erlang with the embedded erlang VM that 
-# OpenACD has.
 
 erlmongodir=`@SIPX_BINDIR@/find-erlang-lib erlmongo`
 ln -snf $erlmongodir @OPENACD_DIR@/plugin.d/deps/erlmongo 

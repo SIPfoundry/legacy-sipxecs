@@ -2749,7 +2749,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                );
             }
 
-            if(mpDnsDestinations[0].isValidServerT())   // leave redundant check at least for now
+            if(mpDnsDestinations && mpDnsDestinations[0].isValidServerT())   // leave redundant check at least for now
             {
                 int numSrvRecords = 0;
                 int maxSrvRecords = userAgent.getMaxSrvRecords();

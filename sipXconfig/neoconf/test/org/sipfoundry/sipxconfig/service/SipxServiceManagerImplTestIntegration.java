@@ -22,6 +22,10 @@ import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
 public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
@@ -31,6 +35,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     private LocationsManager m_locationsManager;
     private SipxServiceBundle m_managementBundle;
     private SipxServiceBundle m_primarySipRouterBundle;
+    private CoreContext m_coreContext;
 
     public void testGetServiceByBeanId() {
         SipxService service = m_out.getServiceByBeanId(SipxProxyService.BEAN_ID);
@@ -89,7 +94,8 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testStoreSupervisorLogLevel() {
-        SipxSupervisorService service = (SipxSupervisorService)m_out.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
+        SipxSupervisorService service = (SipxSupervisorService) m_out
+                .getServiceByBeanId(SipxSupervisorService.BEAN_ID);
         LoggingManager loggingManagerMock = createMock(LoggingManager.class);
         loggingManagerMock.getEntitiesToProcess();
         expectLastCall().andReturn(new ArrayList<LoggingEntity>()).atLeastOnce();
@@ -98,8 +104,33 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("INFO", service.getLogLevel());
         service.setSipxServiceManager(m_out);
         service.setLogLevel("DEBUG");
-        service = (SipxSupervisorService)m_out.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
+        service = (SipxSupervisorService) m_out.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
         assertEquals("DEBUG", service.getLogLevel());
+    }
+
+    public void testPresenceAliases() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
+        User u = m_coreContext.newUser();
+        u.setUserName("200");
+        m_coreContext.saveUser(u);
+
+        SipxPresenceService presence = (SipxPresenceService) m_out.getServiceByBeanId(SipxPresenceService.BEAN_ID);
+        presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE, "200");
+        try {
+            m_out.storeService(presence);
+            fail();
+        } catch (UserException e) {
+
+        }
+        presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE, "*88888");
+        presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE, "200");
+        try {
+            m_out.storeService(presence);
+            fail();
+        } catch (UserException e) {
+
+        }
+
     }
 
     public void setSipxServiceManagerImpl(SipxServiceManagerImpl sipxServiceManagerImpl) {
@@ -120,5 +151,9 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setPrimarySipRouterBundle(SipxServiceBundle primarySipRouterBundle) {
         m_primarySipRouterBundle = primarySipRouterBundle;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }
