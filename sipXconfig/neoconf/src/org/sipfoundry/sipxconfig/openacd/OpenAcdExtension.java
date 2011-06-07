@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -106,10 +107,20 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
 
         AliasMapping nameMapping = new AliasMapping(getName(), SipUri.format(getExtension(),
                 freeswitchService.getAddress(), false), ALIAS_RELATION);
-        mappings.add(nameMapping);
         AliasMapping lineMapping = new AliasMapping(getExtension(), SipUri.format(getExtension(),
                 freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
-        mappings.add(lineMapping);
+        mappings.addAll(Arrays.asList(nameMapping, lineMapping));
+        if (getAlias() != null) {
+            AliasMapping aliasMapping = new AliasMapping(getAlias(), SipUri.format(getExtension(),
+                    freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+            mappings.add(aliasMapping);
+        }
+        if (getDid() != null) {
+            AliasMapping didMapping = new AliasMapping(getDid(), SipUri.format(getExtension(),
+                    freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+            mappings.add(didMapping);
+        }
+
         return mappings;
     }
 

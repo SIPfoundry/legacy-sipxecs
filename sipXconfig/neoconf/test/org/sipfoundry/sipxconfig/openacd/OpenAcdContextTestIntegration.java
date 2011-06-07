@@ -65,6 +65,8 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
         fs.getFreeswitchSipPort();
         org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
+        fs.getBeanId();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(SipxFreeswitchService.BEAN_ID).anyTimes();
 
         SipxServiceManager sm = EasyMock.createMock(SipxServiceManager.class);
         sm.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
@@ -73,14 +75,21 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         EasyMock.replay(sm);
         org.easymock.classextension.EasyMock.replay(fs);
         
+        m_openAcdContextImpl.setSipxServiceManager(sm);
+        m_openAcdContextImpl.setCoreContext(m_coreContext);
+        
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("example");
         extension.setSipxServiceManager(sm);
         extension.setLocation(location);
+        extension.setAlias("alias");
+        extension.setDid("1234567890");
+        
         m_openAcdContextImpl.saveExtension(extension);
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
-
+        m_openAcdContextImpl.saveExtension(extension);
+        assertEquals(4, m_openAcdContextImpl.getAliasMappings().size());
         // test save extension with same name
         try {
             OpenAcdLine sameNameExtension = new OpenAcdLine();

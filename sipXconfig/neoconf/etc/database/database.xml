@@ -390,6 +390,7 @@
 	<antcall target="openacd-queue-remove-sort" />
 	<antcall target="openacd-add-skill-groups" />
 	<antcall target="location-configured" />
+  	<antcall target="openacd-insert-alias-did" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1232,6 +1233,9 @@
   <target name="location-configured" unless="location-configured">
 	<db-patch patch="location-configured" />
   </target>
+  <target name="openacd-insert-alias-did" unless="openacd-insert-alias-did">
+    <db-patch patch="openacd-insert-alias-did" />
+  </target>	
 
   <!--
     - SUPPORT UTILITIES

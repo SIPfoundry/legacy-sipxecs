@@ -25,6 +25,20 @@
           value="ognl:lineNumber"
           displayName="message:label.extension"/>
       </tr>
+      <tr jwcid="@common/FieldPanel" for="item:alias" label="message:label.alias">
+        <input jwcid="alias@TextField" id="item:alias"
+          maxlength="40"
+          validators="spring-validators:validPhone"
+          value="ognl:alias"
+          displayName="message:label.alias"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="item:did" label="message:label.did">
+        <input jwcid="did@TextField" id="item:did"
+          maxlength="40"
+          validators="spring-validators:validPhone"
+          value="ognl:did"
+          displayName="message:label.did"/>
+      </tr>      
 	  <tr jwcid="@common/FieldPanel" for="item:queue" field="ognl:null"
 		  label="message:label.queue">
 		<span jwcid="queue@openacd/OpenAcdQueueSelect"

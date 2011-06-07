@@ -121,6 +121,11 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
 
     public abstract void setActions(Collection<ActionBean> actions);
 
+    public abstract void setAlias(String alias);
+    public abstract void setDid(String did);
+    public abstract String getAlias();
+    public abstract String getDid();
+
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageEndRender(event);
@@ -134,6 +139,8 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
             setName(line.getName());
             setDescription(line.getDescription());
             setLineNumber(line.getNumberCondition().getExtension());
+            setAlias(line.getAlias());
+            setDid(line.getDid());
         }
 
         List<ActionBean> actionBeans = new LinkedList<ActionBean>();
@@ -211,6 +218,8 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
             line.setName(getName());
             line.setDescription(getDescription());
             line.setLocation(getSipxLocation());
+            line.setAlias(getAlias());
+            line.setDid(getDid());
 
             // add common actions
             line.getNumberCondition().getActions().clear();
