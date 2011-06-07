@@ -244,6 +244,7 @@ void NatMaintainer::sendKeepAliveToEndpoint( const char* pIpAddress, uint16_t po
       
       UtlString branchId = callId;
       branchId.appendNumber( mNextSeqValue, "%d" );
+      mpKeepAliveMessage->setSendProtocol(OsSocket::UDP);
       mpKeepAliveMessage->setTopViaTag( branchId.data(), "branch" );   
       mpSipRouter->sendUdpKeepAlive( *mpKeepAliveMessage, pIpAddress, portNumber );
    }
