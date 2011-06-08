@@ -125,6 +125,8 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
     public abstract void setDid(String did);
     public abstract String getAlias();
     public abstract String getDid();
+    public abstract boolean getAdvanced();
+    public abstract void setAdvanced(boolean adv);
 
     @Override
     public void pageBeginRender(PageEvent event) {
