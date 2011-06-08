@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,15 +25,13 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.commons.lang.StringUtils.trim;
 
-public class SipxAccCodeService extends SipxService implements LoggingEntity, Replicable, AliasProvider,
-        ReplicableProvider {
+public class SipxAccCodeService extends SipxService implements LoggingEntity, Replicable, AliasProvider {
     public static final String BEAN_ID = "sipxAccCodeService";
     public static final String LOG_SETTING = "acccode/log.level";
     public static final String AUTH_CODE_PREFIX = "authcode/SIP_AUTH_CODE_PREFIX";
@@ -226,19 +223,11 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
 
     @Override
     public String getIdentity(String domain) {
-        return SipUri.format(getAuthCodePrefix(), ((SipxFreeswitchService) getSipxServiceManager()
-                    .getServiceByBeanId(SipxFreeswitchService.BEAN_ID)).getDomainName(), false);
+        return getAuthCodePrefix() + "@" + domain;
     }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    @Override
-    public List<Replicable> getReplicables() {
-        List<Replicable> replicables = new ArrayList<Replicable>();
-        replicables.add((SipxAccCodeService) getSipxServiceManager().getServiceByBeanId(this.BEAN_ID));
-        return replicables;
     }
 
     @Override

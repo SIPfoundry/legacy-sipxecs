@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 public abstract class FreeswitchExtension extends BeanWithId {
     private String m_name;
     private String m_description;
+    private String m_alias;
+    private String m_did;
     private Set<FreeswitchCondition> m_conditions;
     private Location m_location;
 
@@ -67,6 +69,22 @@ public abstract class FreeswitchExtension extends BeanWithId {
         if (condition != null) {
             m_conditions.add(condition);
         }
+    }
+
+    public String getAlias() {
+        return m_alias;
+    }
+
+    public void setAlias(String alias) {
+        m_alias = alias;
+    }
+
+    public String getDid() {
+        return m_did;
+    }
+
+    public void setDid(String did) {
+        m_did = did;
     }
 
 }

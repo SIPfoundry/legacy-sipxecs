@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.*;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
@@ -141,6 +142,15 @@ public enum ValidUsers {
     }
 
     public User getUserByJid(String jid) {
+        return getUserByJidObject(jid);
+    }
+
+    public User getUserByInsensitiveJid(String jid) {
+        Pattern insensitiveJid = Pattern.compile(jid, Pattern.CASE_INSENSITIVE);
+        return getUserByJidObject(insensitiveJid);
+    }
+
+    private User getUserByJidObject(Object jid) {
         BasicDBObject jidQuery = new BasicDBObject();
         jidQuery.put(IM_ID, jid);
         BasicDBObject altJidQuery = new BasicDBObject();

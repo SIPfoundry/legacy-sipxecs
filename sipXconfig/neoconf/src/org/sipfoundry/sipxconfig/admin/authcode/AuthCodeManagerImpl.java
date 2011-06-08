@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -299,4 +300,12 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements Auth
         return host + ":" + service.getFreeswitchSipPort();
     }
 
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        replicables.add((SipxAccCodeService) m_sipxServiceManager.getServiceByBeanId(SipxAccCodeService.BEAN_ID));
+
+        replicables.addAll(getAuthCodes());
+        return replicables;
+    }
 }
