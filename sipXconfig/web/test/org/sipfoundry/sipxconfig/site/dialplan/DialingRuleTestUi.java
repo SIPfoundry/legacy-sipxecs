@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
@@ -19,9 +18,6 @@ import org.sipfoundry.sipxconfig.site.gateway.GatewaysTestUi;
  * DialingRuleEditTestUi
  */
 public class DialingRuleTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(DialingRuleTestUi.class);
-    }
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

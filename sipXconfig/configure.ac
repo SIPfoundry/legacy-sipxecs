@@ -30,8 +30,9 @@ AC_ARG_WITH(mrtg-binary-location,[  --with-mrtg-binary-location=PFX   Location w
             mrtg_binary_location="$withval/mrtg", mrtg_binary_location="/usr/bin/mrtg")
 AC_SUBST(MRTG_BINARY, $mrtg_binary_location)
 
-AC_ARG_VAR(TEST_MODE, [Build sipXconfig in test mode w/unsecure test related data access. Default is off])
-test -z $TEST_MODE && TEST_MODE=false
+AC_ARG_ENABLE([testmode], 
+  AC_HELP_STRING([--enable-testmode], [Build project with unit test data in place. !!!NOTE: This is not secure. Default is off]))
+AM_CONDITIONAL([TEST_MODE],[test "x$enable_testmode" = "xyes"])
 
 AC_CONFIG_FILES([
     Makefile

@@ -14,14 +14,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 import net.sourceforge.jwebunit.junit.WebTester;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class EditAutoAttendantTestUi extends WebTestCase {
 
@@ -34,10 +33,6 @@ public class EditAutoAttendantTestUi extends WebTestCase {
             "unchecked", "0", "Operator", ""
         }
     };
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditAutoAttendantTestUi.class);
-    }
 
     protected void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
@@ -66,8 +61,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
 
         setTextField("item:name", "Upload Prompt Test");
         setTextField("item:description", "created by EditAutoAttendantTestUi.testUpload");
-        String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
-        File actualFile = new File(actualFilename);
+        File actualFile = TestHelper.getResourceAsFile(getClass(), PROMPT_TEST_FILE);
         assertTrue(actualFile.exists());
         setTextField("promptUpload", actualFile.getAbsolutePath());
         clickButton("form:apply");
@@ -111,8 +105,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertElementPresent("attendantMenuForm");
 
         setTextField("item:name", "New Attendant");
-        String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
-        File actualFile = new File(actualFilename);
+        File actualFile = TestHelper.getResourceAsFile(getClass(), PROMPT_TEST_FILE);
         assertTrue(actualFile.exists());
         setTextField("promptUpload", actualFile.getAbsolutePath());
 
@@ -156,8 +149,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         clickLink("NewAutoAttendant");
         assertElementPresent("attendantMenuForm");
         setTextField("item:name", "New Attendant1");
-        String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
-        File actualFile = new File(actualFilename);
+        File actualFile = TestHelper.getResourceAsFile(getClass(), PROMPT_TEST_FILE);
         assertTrue(actualFile.exists());
         setTextField("promptUpload", actualFile.getAbsolutePath());
 
@@ -185,8 +177,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertElementPresent("attendantMenuForm");
 
         setTextField("item:name", "New Attendant");
-        String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
-        File actualFile = new File(actualFilename);
+        File actualFile = TestHelper.getResourceAsFile(getClass(), PROMPT_TEST_FILE);
         assertTrue(actualFile.exists());
         setTextField("promptUpload", actualFile.getAbsolutePath());
 
@@ -222,7 +213,6 @@ public class EditAutoAttendantTestUi extends WebTestCase {
     public static final String seedPromptFile(String dir) throws IOException {
         File promptsDir = getCleanPromptsDir(dir);
         copyFileToDirectory(PROMPT_TEST_FILE, promptsDir);
-
         return PROMPT_TEST_FILE;
     }
 
@@ -239,17 +229,25 @@ public class EditAutoAttendantTestUi extends WebTestCase {
     }
 
     private static final File getCleanPromptsDir(String dir) {
-        File promptsDir = new File(SiteTestHelper.getArtificialSystemRootDirectory(), dir);
-        SiteTestHelper.cleanDirectory(promptsDir.getPath());
+        File promptsDir = new File(SiteTestHelper.getTestProperties().getProperty("sysdir.vxml.prompts"), dir);
+        for (String s: new String[] {PROMPT_TEST_FILE}) {
+            File f = new File(promptsDir, s);
+            if (f.exists()) {
+                f.delete();
+            }
+        }
         return promptsDir;
     }
 
     private static final void copyFileToDirectory(String filename, File dir) throws IOException {
         InputStream in = EditAutoAttendantTestUi.class.getResourceAsStream(filename);
-        SiteTestHelper.cleanDirectory(dir.getPath());
-        FileOutputStream out = new FileOutputStream(new File(dir, filename));
-        IOUtils.copy(in, out);
+        File out = new File(dir, filename);
+        if (out.exists()) {
+            out.delete();
+        }
+        FileOutputStream outs = new FileOutputStream(out);
+        IOUtils.copy(in, outs);
         IOUtils.closeQuietly(in);
-        IOUtils.closeQuietly(out);
+        IOUtils.closeQuietly(outs);
     }
 }

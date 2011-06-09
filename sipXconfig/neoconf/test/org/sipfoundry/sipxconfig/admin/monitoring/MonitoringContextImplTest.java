@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MonitoringContextImplTest extends TestCase {
     private MonitoringContextImpl m_monitoringContextImpl;
@@ -48,12 +47,12 @@ public class MonitoringContextImplTest extends TestCase {
 
         m_monitoringContextImpl.setLocationsManager(m_locationsManager);
 
-        File mrtgTempDir = TestUtil.createTempDir("mrtg-temp");
-        FileInputStream mrtgCfgStream = new FileInputStream(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
+        File mrtgTempDir = TestHelper.createTempDir("mrtg-temp");
+        FileInputStream mrtgCfgStream = new FileInputStream(TestHelper.getResourceAsFile(getClass(), "mrtg.cfg"));
         TestHelper.copyStreamToDirectory(mrtgCfgStream, mrtgTempDir.getAbsolutePath(), "mrtg.cfg");
         m_mrtgConfig = new MRTGConfig(new File(mrtgTempDir, "mrtg.cfg").toString());
 
-        m_mrtgTemplateConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg-t.cfg");
+        m_mrtgTemplateConfig = new MRTGConfig(TestHelper.getResourceAsFile(getClass(), "mrtg-t.cfg").getPath());
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
         m_monitoringContextImpl.setMrtgTemplateConfig(m_mrtgTemplateConfig);
         try {
@@ -137,7 +136,7 @@ public class MonitoringContextImplTest extends TestCase {
 
     public void testIntializeConfigFiles() throws Exception {
         // This exposes XCF-2189
-        m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg.test");
+        m_mrtgConfig = new MRTGConfig(TestHelper.getResourceAsFile(getClass(), "mrtg.cfg.test").getPath());
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
         m_monitoringContextImpl.afterPropertiesSet();
     }

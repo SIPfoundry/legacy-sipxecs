@@ -10,13 +10,13 @@
 package org.sipfoundry.sipxconfig.service;
 
 import java.util.Arrays;
+
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class SipxRestConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {
@@ -27,7 +27,7 @@ public class SipxRestConfigurationTest extends SipxServiceTestBase {
         restService.setModelFilesContext(TestHelper.getModelFilesContext());
         initCommonAttributes(restService);
 
-        DomainManager domainManager = TestUtil.getMockDomainManager();
+        DomainManager domainManager = TestHelper.getMockDomainManager();
         domainManager.getAuthorizationRealm();
         EasyMock.expectLastCall().andReturn("example.org");
         EasyMock.replay(domainManager);
@@ -62,7 +62,7 @@ public class SipxRestConfigurationTest extends SipxServiceTestBase {
 
         SipxRestConfiguration out = new SipxRestConfiguration();
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, restService);
+        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, restService);
         out.setSipxServiceManager(sipxServiceManager);
 
         out.setTemplate("sipxrest/sipxrest-config.vm");

@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.speeddial;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
@@ -18,10 +17,6 @@ public class SpeedDialPageTestUi extends WebTestCase {
     private static String USE_GROUP_SPEED_DIALS = "speeddial:groupSync";
     private static String ADD_NUMBER_LINK = "addNumberLink";
     private static String PRESENCE_PERMISSION = "setting:subscribe-to-presence";
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(SpeedDialPageTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

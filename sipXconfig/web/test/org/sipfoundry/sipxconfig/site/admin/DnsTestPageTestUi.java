@@ -9,14 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
+
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class DnsTestPageTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(DnsTestPageTestUi.class);
-    }
 
     @Override
     public void setUp() {

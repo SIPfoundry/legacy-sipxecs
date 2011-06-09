@@ -18,7 +18,7 @@ public abstract class BeanWithSettingsTestCase extends TestCase {
     private ModelFilesContextImpl m_modelFilesContext;
 
     protected void setUp() throws Exception {
-        String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
+        String sysdir = TestHelper.getTestProperties().getProperty("sysdir.etc");
         m_modelFilesContext = new ModelFilesContextImpl();
         m_modelFilesContext.setConfigDirectory(sysdir);
         m_modelFilesContext.setModelBuilder(new XmlModelBuilder(sysdir));

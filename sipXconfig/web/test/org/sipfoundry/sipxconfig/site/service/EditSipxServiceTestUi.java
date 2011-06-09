@@ -9,16 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.service;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditSipxServiceTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditSipxServiceTestUi.class);
-    }
 
     public void initService(String service) {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

@@ -9,16 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class JobStatusPageTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(JobStatusPageTestUi.class);
-    }
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

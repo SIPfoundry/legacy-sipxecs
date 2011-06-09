@@ -5,19 +5,13 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
-import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class EditInternalDialRuleTestUi extends WebTestCase {
     private static final String SIPX_VOICEMAIL_NAME = "Internal Voicemail Server";
     private static final String EXCHANGE_VOICEMAIL_NAME = "Exchange Voicemail Server";
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditInternalDialRuleTestUi.class);
-    }
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

@@ -17,11 +17,9 @@ import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getCellAsText;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getColumnCount;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.home;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.selectRow;
-import static org.sipfoundry.sipxconfig.site.SiteTestHelper.webTestSuite;
 
 import java.util.Arrays;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 import net.sourceforge.jwebunit.junit.WebTester;
@@ -36,10 +34,6 @@ public class GatewaysTestUi extends WebTestCase {
 
     private static final String ALL = "-- all --";
     private static final String BRANCH = "seedBranch0";
-
-    public static Test suite() throws Exception {
-        return webTestSuite(GatewaysTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

@@ -9,6 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.TestHelper.asArray;
+import static org.sipfoundry.sipxconfig.TestHelper.asArrayElems;
+import static org.sipfoundry.sipxconfig.TestHelper.getMockSipxServiceManager;
+import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Disabled;
+import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Failed;
+import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Running;
+import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Starting;
+import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,6 +36,8 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
@@ -31,84 +49,66 @@ import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.TestHelper.asArray;
-import static org.sipfoundry.sipxconfig.TestHelper.asArrayElems;
-import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Disabled;
-import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Failed;
-import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Running;
-import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Starting;
-import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getMockSipxServiceManager;
 
 public class SipxProcessContextImplTest extends TestCase {
     private SipxProcessContextImpl m_processContextImpl;
     private LocationsManager m_locationsManager;
     private SipxServiceManager m_sipxServiceManager;
     private Set<SipxServiceBundle> m_bundleSet = new HashSet<SipxServiceBundle>();
-    SipxRegistrarService m_registrarService;
-    SipxParkService m_parkService;
-    SipxService m_proxyService;
-    SipxPresenceService m_presenceService;
-    SipxAcdService m_acdService;
+    SipxRegistrarService m_registrarService = new SipxRegistrarService();
+    SipxParkService m_parkService = new SipxParkService();
+    SipxService m_proxyService = new SipxProxyService();
+    SipxPresenceService m_presenceService = new SipxPresenceService();
+    SipxAcdService m_acdService = new SipxAcdService();
+    SipxConfigService m_configService = new SipxConfigService();
 
-    private final static SipxService[] PROCESSES = new SipxService[] {
-        new SipxRegistrarService(), new SipxParkService()
+    private final SipxService[] m_processes1 = new SipxService[] {
+        m_registrarService, m_parkService
     };
 
-    private final static SipxService[] PROCESSES_2 = new SipxService[] {
-        new SipxConfigService(), new SipxParkService()
+    private final SipxService[] m_processes_2 = new SipxService[] {
+        m_configService, m_parkService
     };
 
-    private final static SipxService[] PROCESSES_3 = new SipxService[] {
-        new SipxRegistrarService()
+    private final SipxService[] m_processes3 = new SipxService[] {
+        m_registrarService 
     };
 
-    private final static SipxService[] START_PROCESSLIST = new SipxService[] {
-        new SipxPresenceService(),
+    private final SipxService[] m_startProcessList = new SipxService[] {
+        m_presenceService,
     };
 
     @Override
     protected void setUp() throws Exception {
         m_locationsManager = createNiceMock(LocationsManager.class);
-        Location location = TestUtil.createDefaultLocation();
+        Location location = TestHelper.createDefaultLocation();
         SipxServiceBundle bundle = new SipxServiceBundle("primarySipRouter");
         bundle.setBeanName(bundle.getName());
         m_bundleSet = new HashSet<SipxServiceBundle>();
         m_bundleSet.add(bundle);
-        m_registrarService = new SipxRegistrarService();
         m_registrarService.setProcessName("SIPRegistrar");
         m_registrarService.setBundles(m_bundleSet);
         m_registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
 
-        m_proxyService = new SipxProxyService();
         m_proxyService.setProcessName("SIPXProxy");
         m_proxyService.setBeanName(SipxProxyService.BEAN_ID);
         m_proxyService.setBundles(m_bundleSet);
 
-        m_parkService = new SipxParkService();
         m_parkService.setBeanName(SipxParkService.BEAN_ID);
         m_parkService.setProcessName("MediaServer");
         m_parkService.setBundles(m_bundleSet);
 
-        m_presenceService = new SipxPresenceService();
         m_presenceService.setBeanName(SipxPresenceService.BEAN_ID);
         m_presenceService.setProcessName("PresenceServer");
         m_presenceService.setBundles(m_bundleSet);
 
-        m_acdService = new SipxAcdService();
         m_acdService.setBeanName(SipxAcdService.BEAN_ID);
         m_acdService.setProcessName("ACDServer");
-
+        
+        m_configService.setBeanName(SipxConfigService.BEAN_ID);
+        m_configService.setProcessName("ConfigServer");
+        
         location.setServiceDefinitions(Arrays.asList(m_registrarService, m_proxyService, m_parkService));
         ArrayList<String> installedBundles = new ArrayList<String>();
         installedBundles.add("primarySipRouter");
@@ -133,7 +133,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
         m_sipxServiceManager = createNiceMock(SipxServiceManager.class);
         m_sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
-        expectLastCall().andReturn(PROCESSES_2[0]);
+        expectLastCall().andReturn(m_processes_2[0]);
         replay(m_sipxServiceManager);
 
         m_processContextImpl = new SipxProcessContextImpl();
@@ -273,11 +273,11 @@ public class SipxProcessContextImplTest extends TestCase {
         Location location = m_locationsManager.getLocations()[0];
 
         ProcessManagerApi api = createStrictMock(ProcessManagerApi.class);
-        api.stop(host(), asArray(PROCESSES[0].getProcessName(), PROCESSES[1].getProcessName()), block());
+        api.stop(host(), asArray(m_processes1[0].getProcessName(), m_processes1[1].getProcessName()), block());
         expectLastCall().andReturn(null);
-        api.start(host(), asArray(START_PROCESSLIST[0].getProcessName()), block());
+        api.start(host(), asArray(m_startProcessList[0].getProcessName()), block());
         expectLastCall().andReturn(null);
-        api.restart(host(), asArray(PROCESSES[0].getProcessName(), PROCESSES[1].getProcessName()), block());
+        api.restart(host(), asArray(m_processes1[0].getProcessName(), m_processes1[1].getProcessName()), block());
         expectLastCall().andReturn(null);
 
         ApiProvider provider = createMock(ApiProvider.class);
@@ -287,9 +287,9 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.setProcessManagerApiProvider(provider);
         replay(provider, api);
 
-        m_processContextImpl.manageServices(location, Arrays.asList(PROCESSES), Command.STOP);
-        m_processContextImpl.manageServices(location, Arrays.asList(START_PROCESSLIST), Command.START);
-        m_processContextImpl.manageServices(location, Arrays.asList(PROCESSES), Command.RESTART);
+        m_processContextImpl.manageServices(location, Arrays.asList(m_processes1), Command.STOP);
+        m_processContextImpl.manageServices(location, Arrays.asList(m_startProcessList), Command.START);
+        m_processContextImpl.manageServices(location, Arrays.asList(m_processes1), Command.RESTART);
         verify(provider, api);
     }
 
@@ -305,12 +305,11 @@ public class SipxProcessContextImplTest extends TestCase {
         location2.setName("location2");
         location2.setFqdn("location2Fqdn");
         location2.setRegistered(true);
-
         ProcessManagerApi api = createStrictMock(ProcessManagerApi.class);
 
-        api.restart(host(), asArray(PROCESSES_3[0].getProcessName()), block());
+        api.restart(host(), asArray(m_processes3[0].getProcessName()), block());
         expectLastCall().andReturn(null);
-        api.restart(host(), asArray(PROCESSES_2[0].getProcessName(), PROCESSES_2[1].getProcessName()), block());
+        api.restart(host(), asArray(m_processes_2[0].getProcessName(), m_processes_2[1].getProcessName()), block());
         expectLastCall().andReturn(null);
 
         ApiProvider provider = createMock(ApiProvider.class);
@@ -323,15 +322,15 @@ public class SipxProcessContextImplTest extends TestCase {
         replay(provider, api);
 
         Map<Location, List<SipxService>> servicesMap = new HashMap<Location, List<SipxService>>();
-        servicesMap.put(location1, Arrays.asList(PROCESSES_2));
-        servicesMap.put(location2, Arrays.asList(PROCESSES_3));
+        servicesMap.put(location1, Arrays.asList(m_processes_2));
+        servicesMap.put(location2, Arrays.asList(m_processes3));
         m_processContextImpl.manageServices(servicesMap, Command.RESTART);
         verify(provider, api);
     }
 
     public void testManageServices() {
         ProcessManagerApi api = createStrictMock(ProcessManagerApi.class);
-        api.stop(host(), asArray(PROCESSES[0].getProcessName(), PROCESSES[1].getProcessName()), block());
+        api.stop(host(), asArray(m_processes1[0].getProcessName(), m_processes1[1].getProcessName()), block());
         expectLastCall().andReturn(null).times(m_locationsManager.getLocations().length);
         ApiProvider provider = createMock(ApiProvider.class);
         for (Location location : m_locationsManager.getLocations()) {
@@ -342,7 +341,7 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.setProcessManagerApiProvider(provider);
         replay(provider, api);
 
-        m_processContextImpl.manageServices(Arrays.asList(PROCESSES), Command.STOP);
+        m_processContextImpl.manageServices(Arrays.asList(m_processes1), Command.STOP);
         verify(provider, api);
     }
 

@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import static org.sipfoundry.sipxconfig.permission.PermissionName.MUSIC_ON_HOLD;
+import static org.sipfoundry.sipxconfig.permission.PermissionName.PERSONAL_AUTO_ATTENDANT;
+import static org.sipfoundry.sipxconfig.permission.PermissionName.VOICEMAIL;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -86,14 +90,9 @@ import org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.upload.EditUpload;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-
-import static org.sipfoundry.sipxconfig.permission.PermissionName.MUSIC_ON_HOLD;
-import static org.sipfoundry.sipxconfig.permission.PermissionName.PERSONAL_AUTO_ATTENDANT;
-import static org.sipfoundry.sipxconfig.permission.PermissionName.VOICEMAIL;
 
 /**
  * TestPage page
@@ -105,7 +104,6 @@ public abstract class TestPage extends SipxBasePage {
     public static final String EMPTY_STRING = "";
     public static final int SERIAL_NUM_LEN = 12;
 
-    public static final String TEST_LOCATION_FQDN = "sipx.example.org";
     public static final String TEST_LOCATION_NAME = "Remote Location";
 
     // Data for the primary test user
@@ -202,6 +200,9 @@ public abstract class TestPage extends SipxBasePage {
 
     @InjectObject("spring:natTraversalManager")
     public abstract NatTraversalManager getNatTraversalManager();
+    
+    @InjectObject("spring:testPageSetup")
+    public abstract TestPageSetupContext getSetupContext();
 
     @InjectObject("spring:timeZoneManager")
     public abstract TimeZoneManager getTimeZoneManager();
@@ -643,13 +644,7 @@ public abstract class TestPage extends SipxBasePage {
                     + existing.getAbsolutePath());
         }
 
-        Class manageVmTestUiClass;
-        try {
-            manageVmTestUiClass = Class.forName("org.sipfoundry.sipxconfig.site.vm.ManageVoicemailTestUi");
-        } catch (ClassNotFoundException e1) {
-            throw new RuntimeException("Cannot access ui test directory via test class resource");
-        }
-        File original = new File(TestUtil.getTestSourceDirectory(manageVmTestUiClass) + "/mailstore");
+        File original = new File(getSetupContext().getMailstoreSample());
         try {
             FileUtils.copyDirectory(original, existing);
         } catch (IOException e) {

@@ -12,16 +12,12 @@ package org.sipfoundry.sipxconfig.components;
 import java.io.InputStream;
 import java.net.URL;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class SkinServletTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(SkinServletTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

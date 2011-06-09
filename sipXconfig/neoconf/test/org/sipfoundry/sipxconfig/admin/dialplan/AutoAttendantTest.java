@@ -12,9 +12,9 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.io.File;
 import java.io.IOException;
 
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class AutoAttendantTest extends TestCase {
 
@@ -47,13 +47,12 @@ public class AutoAttendantTest extends TestCase {
 
     public void testUpdatePrompt() {
         AutoAttendant aa = new AutoAttendant();
-        String promptPath = TestUtil.getTestSourceDirectory(this.getClass());
-        String newPromptPath = promptPath + "/..";
-        aa.setPromptsDirectory(promptPath);
+        File promptFile = TestHelper.getResourceAsFile(getClass(), "prompt.txt");
+        aa.setPromptsDirectory(TestHelper.getTestOutputDirectory());
         aa.setPrompt("prompt.txt");
         try {
-            aa.updatePrompt(new File(newPromptPath));
-            File f = new File(promptPath + "/prompt.txt");
+            aa.updatePrompt(promptFile.getParentFile());
+            File f = new File(TestHelper.getTestOutputDirectory() + "/prompt.txt");
             assertTrue(f.exists());
             if (f.exists()) {
                 f.delete();

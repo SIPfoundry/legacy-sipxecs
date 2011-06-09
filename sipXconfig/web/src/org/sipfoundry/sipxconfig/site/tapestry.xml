@@ -215,6 +215,10 @@
     <property name="adminSessionTimeout" value="60" />
     <property name="userSessionTimeout" value="30" />
   </bean>
+  
+  <bean id="testPageSetup" class="org.sipfoundry.sipxconfig.site.TestPageSetupContext">
+  	<property name="mailstoreSample" value="${sysdir.webtest.srcdir}/org/sipfoundry/sipxconfig/site/vm/mailstore"/>
+  </bean>
 
   <bean id="editPageProvider" class="org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider" />
   <bean id="skin" class="org.sipfoundry.sipxconfig.site.skin.SkinControl">

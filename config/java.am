@@ -145,7 +145,7 @@ ClassPath = $(subst $(space),:,$1)
 #
 # Example: $(call ClassPathEnv, jar1 jar2)
 #
-ClassPathEnv = CLASSPATH=$(call ClassPath,$1):$$CLASSPATH
+ClassPathEnv = CLASSPATH=$$CLASSPATH:$(call ClassPath,$1)
 
 # Set the CLASSPATH environment variable after using jrepo utility to resolve all 
 # jar files
@@ -179,26 +179,27 @@ javac-% : %-src Makefile
 	  exit 1; \
 	fi
 	test -d $(JAVAROOT) || mkdir -p $(JAVAROOT)
-	$($*_ENV) $(call ClassPathEnv,$($*_DEPS)) $(JAVAC) -d $(JAVAROOT) $(AM_JAVACFLAGS) $($*_JAVACFLAGS) @.$@-files
+	$($*_ENV) $(call ClassPathEnv,$($*_DEPS)) $(JAVAC) -d $(JAVAROOT) $(JAVA_CC_FLAGS) $($*_JAVA_CC_FLAGS) @.$@-files
 	echo timestamp > $@
 
 # Haven't tested this yet, but could be handy at some point.
 JAVADBG = -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=4243
-dbg-% : JAVAFLAGS=$(JAVADBG)
-dbg-% : java-$$*
+dbg-% : export JAVAFLAGS += $(JAVADBG)
+dbg-% : %;
 
 # Construct the first portion of the java command preparing all the standard env. variables and 
 # possible override options.
 #
 # Example:
-#   java-fly : $(bird-source) Makefile
-#            $(call JavaCommand,foo) org.example.Birds --fly $(bird-source)
+#   foo_DEPS = jar1 jar2
+#   some-target : $(some-source) Makefile
+#            $(call JavaCommand,foo) org.example.Birds --some-option $(some-source)
 #
 # WARNING:
 #    correct   : $(call JavaCommand,foo)
 #    incorrect : $(call JavaCommand, foo)
 #
-JavaCommand = $($1_ENV) $(call ClassPathEnv,$($1_DEPS)) $(JAVA) $(AM_JAVAFLAGS) $($1_JAVAFLAGS)
+JavaCommand = $($1_ENV) $(call ClassPathEnv,$($1_DEPS)) $(JAVA) $($1_JAVAFLAGS) $(JAVAFLAGS)
 
 #
 #   U N I T  T E S T
@@ -209,19 +210,59 @@ JavaCommand = $($1_ENV) $(call ClassPathEnv,$($1_DEPS)) $(JAVA) $(AM_JAVAFLAGS) 
 # and optionally (but most likely)
 #  TEST_DEPS
 #
-check :
+check : check-default
+check.list-% check-% : TEST = Test$(call propercase,$*)
+check.list-default check-default : TEST = Test
+check-%  :
 	if [ -n "$(JAVA_TESTS)" ]; then \
 	  $(MAKE) javac-test; \
 	  $(call JavaCommand,test) $(TEST_RUNNER) $(TEST_RUNNER_FLAGS) $(JAVA_TESTS); \
 	fi
 
+# List the tests that will run. Use when overriding test filters to see what tests will be selected to run
+# before actually running them
+# Example:
+#  make check.list TEST_FILTER=org.example.pkg.%Test2
+check.list : check.list-default
+check.list-% :
+	@echo -e $(subst $(space),'\n',$(JAVA_TESTS))
+
+
 # Text based runner in junit 4. Runs 3.x and 4.x unit tests.
 TEST_RUNNER = org.junit.runner.JUnitCore
 
+# Selects all tests with names that in in Test. You don't have to specify package name unless you want to
+# specify a test in a specific package. 
+# DEV NOTE: TESTS name would make more sense as a var name but it's reserved by automake to mean something else.
+#
+# Example to override: 
+#  make check TEST="Test1 Test2"
+TEST = Test
+
+# Uses makes glob filters to select a set of tests. When overriding, you can only have one '%' sign
+# to filter on but you can combine multiple filters
+#  Examples:
+#    make check TEST_FILTER="org.example.pkg2.%Test org.example.pkg1.%Test"
+#    make check TEST_FILTER="%CdrTest org.example.%LogTest"
+TEST_FILTER = $(addprefix %,$(TEST))
+
 # Turns list of java source files into their respective class names
 #  ./com/example/FooTest.java  ->  com.example.FooTest
-#
-JAVA_TESTS = $(subst /,.,$(subst ./,$(empty),$(patsubst %.java,%,$(filter %Test.java,$(test_SRC)))))
+ALL_TESTS = $(subst /,.,$(subst ./,$(empty),$(patsubst %.java,%,$(test_SRC))))
+
+# final lists of tests to run. Useful to overide only if you specify full test package name
+# make check JAVA_TESTS="org.example.Test1 org.example.Test2"
+JAVA_TESTS = $(filter $(TEST_FILTER),$(ALL_TESTS))
+
+style_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,checkstyle-all)
+
+# Check source conforms to proper syntax
+# Add 'style' to precommit target, to check source. By default will check all *.java file below makefile
+# but you can change that by defining style_srcdir to the directory to recurse into
+style :
+	$(call JavaCommand,style) -Dtop.dir=$(top_srcdir)/config/checkstyle com.puppycrawl.tools.checkstyle.Main \
+	  -c $(top_srcdir)/config/checkstyle/checkstyle.xml -r $(firstword $(style_srcdir) $(srcdir))
 
 #
 #   J A R / M A N I F E S T
@@ -286,3 +327,11 @@ java-%-clean :;
 javac-%-clean :
 	! test -d $(JAVAROOT) || rm -rf $(JAVAROOT)
 	! test -f javac-$* || rm javac-$*
+
+JAR_LIBSRC = ~/libsrc
+
+$(JAR_LIBSRC) :
+	mkdir -p $@
+
+# download source for jar files if available
+jar-src : $(JAR_LIBSRC) $(addprefix $(JAR_LIBSRC)/,$(notdir $(JAR_SRCS:=.src)))

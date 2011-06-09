@@ -9,13 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class LoginPageTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(LoginPageTestUi.class);
-    }
 
     @Override
     public void setUp() {

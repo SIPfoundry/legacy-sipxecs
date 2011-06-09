@@ -11,18 +11,18 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 public class TimeManagerImplTest extends TestCase {
     private TimeManagerImpl m_manager;
     @Override
     protected void setUp() throws Exception {
         m_manager = new TimeManagerImpl();
-        m_manager.setBinDirectory(TestUtil.getTestSourceDirectory(TimeManagerImplTest.class));
-        m_manager.setLibExecDirectory(TestUtil.getTestSourceDirectory(TimeManagerImplTest.class));
+        m_manager.setBinDirectory(TestHelper.getSourceDirectory(TimeManagerImplTest.class));
+        m_manager.setLibExecDirectory(TestHelper.getSourceDirectory(TimeManagerImplTest.class));
         m_manager.setNtpConfigFile("tempNtpConfigFile");
     }
 

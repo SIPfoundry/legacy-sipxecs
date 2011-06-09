@@ -5,16 +5,11 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditLocationPageTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditLocationPageTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

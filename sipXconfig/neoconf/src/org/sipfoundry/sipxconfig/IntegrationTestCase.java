@@ -38,12 +38,6 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
 
     protected Map<Object, Map<String, Object>> m_modifiedContextObjectMap;
 
-    static {
-        // triggers creating sipxconfig.properties in classpath so spring app context
-        // is properly configured with test settings
-        TestHelper.initSysDirProperties(TestHelper.getClasspathDirectory());
-    }
-
     public IntegrationTestCase() {
         setAutowireMode(AUTOWIRE_BY_NAME);
     }

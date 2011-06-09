@@ -5,15 +5,11 @@
  */
 package org.sipfoundry.sipxconfig.site.sbc;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class SipTrunkingServerRoleTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(SipTrunkingServerRoleTestUi.class);
-    }
 
     public void testEnableDisableSipTrunkingServerRole() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

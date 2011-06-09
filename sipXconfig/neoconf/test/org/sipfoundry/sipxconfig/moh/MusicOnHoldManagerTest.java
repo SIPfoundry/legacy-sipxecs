@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.moh;
 
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -35,7 +34,6 @@ import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MusicOnHoldManagerTest extends TestCase {
 
@@ -231,7 +229,7 @@ public class MusicOnHoldManagerTest extends TestCase {
             }
             @Override
             public LocationsManager getLocationsManager() {
-                return TestUtil.getMockLocationsManager();
+                return TestHelper.getMockLocationsManager();
             }
         };
 

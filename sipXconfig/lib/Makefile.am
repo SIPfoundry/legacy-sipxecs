@@ -1,3 +1,6 @@
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/config/java.am
+
 jardir = @SIPX_JAVADIR@/sipXconfig
 dist_jar_DATA = \
 	.java-dep \
@@ -12,5 +15,12 @@ EXTRA_DIST = \
 	smartgwt-2.0.jar \
 	smartgwt-skins-2.0.jar
 
+JAR_SRCS = $(call JavaDep,$(srcdir),\
+	tapestry-framework)
 
+$(JAR_LIBSRC)/tapestry-project-%-full.zip :
+	wget http://mirrors.ibiblio.org/apache//tapestry/tapestry-project-$*-full.zip
 
+$(JAR_LIBSRC)/tapestry-framework-%.jar.src : $(JAR_LIBSRC)/tapestry-project-%-full.zip
+	unzip -u $< 'tapestry-project-$*/src/tapestry-*/**'
+	mv tapestry-project-$*/src $@

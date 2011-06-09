@@ -34,7 +34,7 @@ public class JarMessagesSource implements LanguageSupport {
     private static final String LOCALE_PROPERTY = "locale";
     private static final String WEB_INF_STRING = "WEB-INF";
     private static final Log LOG = LogFactory.getLog(JarMessagesSource.class);
-    private static final Resource LANGUAGE_NAME_RESOURCE = new FileResource(
+    private  final Resource LANGUAGE_NAME_RESOURCE = new FileResource(
             "context:/WEB-INF/admin/language.properties");
     private JarMessagesSourceContext m_context;
     private URLClassLoader m_jarClassLoader;

@@ -1,6 +1,8 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
 # 
+OPTIONS = @OPTIONS@
+
 help.sipx=Build all sipx components including autoreconf, configure, all and install targets
 build sipx :
 	$(MAKE) $(foreach P,$(sipx),$(P))
@@ -36,7 +38,7 @@ help.{1|2|6}.configure = Run configure on each project
 %.configure :
 	test -d $(PROJ) || mkdir -p $(PROJ)
 	cd $(PROJ); \
-	  $(SRC)/$(PROJ)/configure --disable-option-checking @CONFIGURE_OPTIONS@
+	  $(SRC)/$(PROJ)/configure $(OPTIONS) $(sipx_OPTIONS) $($(PROJ)_OPTIONS)
 
 help.{1|2|6}.dist = Build archive, typically compressed tar
 %.dist :; $(MAKE) -C $(PROJ) dist

@@ -23,6 +23,12 @@ utility_am_required=
 #
 lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 
+# Capitalize first letter
+#
+# Example:
+#   DogHouse = $(call propercase, dogHouse)
+propercase = $(shell echo $(1) | sed 's/\([a-z]\)/\U\1/')
+
 # Useful when you need a variable to represent the 'space' character
 #
 # Example: Create a PATH

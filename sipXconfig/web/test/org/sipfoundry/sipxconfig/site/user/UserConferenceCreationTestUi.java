@@ -6,21 +6,15 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
-import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.TestPage;
 import org.sipfoundry.sipxconfig.site.conference.ConferenceTestHelper;
 
 public class UserConferenceCreationTestUi extends WebTestCase {
 
     private ConferenceTestHelper m_helper;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(UserConferenceCreationTestUi.class);
-    }
 
     @Override
     protected void setUp() {
@@ -51,7 +45,7 @@ public class UserConferenceCreationTestUi extends WebTestCase {
         clickLink("link:conference");
         checkCheckbox("conferences:enable");
         setTextField("conferences:prefix", "1000");
-        selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
+        selectOption("bridgeSelect", SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         submit("submit:ok");
 
         // Create a new user and assign it to the group.
@@ -66,7 +60,7 @@ public class UserConferenceCreationTestUi extends WebTestCase {
         // Lastly, verify that a conference was created for this user.
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
+        clickLinkWithText(SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         clickLink("link:conferences");
         Table conferenceTable = getTable("conference:list");
         assertEquals(3, conferenceTable.getRowCount()); // the header, the pager and the one conference

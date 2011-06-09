@@ -11,17 +11,12 @@ package org.sipfoundry.sipxconfig.upload;
 
 import java.io.File;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class ManageUploadTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ManageUploadTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();

@@ -9,6 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +23,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
@@ -103,14 +102,14 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         m_parkService.setBeanName(SipxParkService.BEAN_ID);
         m_parkService.setParkServerSipPort("9909");
 
-        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(false, m_registrarService,
+        m_sipxServiceManager = TestHelper.getMockSipxServiceManager(false, m_registrarService,
                 m_proxyService, m_parkService);
         expect(m_sipxServiceManager.getServiceParam("openfire-host")).andReturn("192.168.1.10").anyTimes();
         expect(m_sipxServiceManager.getServiceParam("openfire-xml-rpc-port")).andReturn(49094).anyTimes();
 
         m_out = new SipxRegistrarConfiguration();
 
-        Location primaryLocation = TestUtil.createDefaultLocation();
+        Location primaryLocation = TestHelper.createDefaultLocation();
         Location otherRegistrarLocation = new Location();
         otherRegistrarLocation.setName("Other registrar");
         otherRegistrarLocation.setFqdn("other-registrar.example.org");

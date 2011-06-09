@@ -9,6 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceControl;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.createStrictControl;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.sipfoundry.sipxconfig.TestHelper.getMockDomainManager;
+import static org.sipfoundry.sipxconfig.TestHelper.getMockSipxServiceManager;
+import static org.sipfoundry.sipxconfig.TestHelper.getModelDirectory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,16 +51,6 @@ import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceControl;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.createStrictControl;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getMockDomainManager;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getMockSipxServiceManager;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 public class PhoneTestDriver {
 
@@ -275,7 +275,7 @@ public class PhoneTestDriver {
         phonebookManagerControl.replay();
         phone.setPhonebookManager(phonebookManager);
 
-        String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
+        String sysdir = TestHelper.getTestProperties().getProperty("sysdir.etc");
         phoneContext.getSystemDirectory();
         control.andReturn(sysdir).anyTimes();
 

@@ -14,27 +14,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class PagingGroupsPageTestUi extends WebTestCase {
     private static final String DEFAULT_BEEP_NAME = "beep.wav";
-    private static final String BEEP_DIR = "sipxpage/music";
 
-    private String m_uploadFileName = TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class)
-            + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(PagingGroupsPageTestUi.class);
-    }
+    private String m_uploadFileName;
 
     public void setUp() throws IOException {
-        File beepsDir = new File(SiteTestHelper.getArtificialSystemRootDirectory(), BEEP_DIR);
+        File beepsDir = new File(SiteTestHelper.getTestProperties().getProperty("sipxPageService.audioDir"));
         beepsDir.mkdirs();
         SiteTestHelper.cleanDirectory(beepsDir.getPath());
         InputStream in = getClass().getResourceAsStream(DEFAULT_BEEP_NAME);
@@ -42,6 +35,9 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         IOUtils.copy(in, out);
         IOUtils.closeQuietly(in);
         IOUtils.closeQuietly(out);
+        
+        //any file will do
+        m_uploadFileName = TestHelper.getResourceAsFile(EditAutoAttendantTestUi.class, EditAutoAttendantTestUi.PROMPT_TEST_FILE).getAbsolutePath();
 
         reloadPage();
         deleteAllGroups();

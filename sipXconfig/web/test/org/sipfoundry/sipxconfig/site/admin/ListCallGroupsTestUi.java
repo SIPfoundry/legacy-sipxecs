@@ -9,15 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import junit.framework.Test;
-
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class ListCallGroupsTestUi extends ListWebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ListCallGroupsTestUi.class);
-    }
 
     public ListCallGroupsTestUi() {
         super("ListCallGroups", "resetCallGroupContext", "callgroups");

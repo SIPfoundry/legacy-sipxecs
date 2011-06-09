@@ -9,16 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.search;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EnumEditPageProviderTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EnumEditPageProviderTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();

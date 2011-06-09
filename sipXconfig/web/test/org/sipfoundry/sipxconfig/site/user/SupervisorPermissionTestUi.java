@@ -9,16 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.junit.WebTestCase;
-
 public class SupervisorPermissionTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(SupervisorPermissionTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();

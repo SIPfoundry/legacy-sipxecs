@@ -25,6 +25,7 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.junit.Assert;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
@@ -36,7 +37,6 @@ import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class AuthRulesTest {
     private static final int GATEWAYS_LEN = 5;
@@ -56,7 +56,7 @@ public class AuthRulesTest {
         rules.begin();
         Document doc = rules.getDocument();
 
-        String xml = TestUtil.asString(doc);
+        String xml = TestHelper.asString(doc);
         XMLAssert.assertXMLEqual("<mappings xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00\"/>",
                 xml);
     }
@@ -98,7 +98,7 @@ public class AuthRulesTest {
         authRules.end();
 
         Document document = authRules.getDocument();
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         XMLAssert.assertXpathEvaluatesTo("test rule", "/mappings/hostMatch/name", domDoc);
         XMLAssert.assertXpathEvaluatesTo("test rule description", "/mappings/hostMatch/description", domDoc);
@@ -159,7 +159,7 @@ public class AuthRulesTest {
         authRules.end();
 
         Document document = authRules.getDocument();
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         prefixBuilder = new StringBuilder();
@@ -226,7 +226,7 @@ public class AuthRulesTest {
         authRules.end();
 
         Document document = authRules.getDocument();
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         for (int i = 0; i < gateways.length; i++) {
@@ -281,7 +281,7 @@ public class AuthRulesTest {
         authRules.end();
 
         Document document = authRules.getDocument();
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         for (int i = 0; i < gateways.length; i++) {
@@ -317,7 +317,7 @@ public class AuthRulesTest {
         rules.generateNoAccess(Arrays.asList(gateways));
         String lastHostMatch = "/mappings/hostMatch/";
         Document document = rules.getDocument();
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
         // "no access" match at the end of the file
         for (int i = 0; i < gateways.length; i++) {
             XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), lastHostMatch + "hostPattern["
@@ -361,10 +361,10 @@ public class AuthRulesTest {
         authRules.begin();
         authRules.generate(rule);
         authRules.end();
-        authRules.localizeDocument(TestUtil.createDefaultLocation());
+        authRules.localizeDocument(TestHelper.createDefaultLocation());
 
         Document document = authRules.getDocument();
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         InputStream controlXml = getClass().getResourceAsStream("authrules-internal-target-perm.test.xml");
         XMLAssert.assertXMLEqual(IOUtils.toString(controlXml), domDoc);
@@ -392,10 +392,10 @@ public class AuthRulesTest {
         authRules.begin();
         authRules.generate(rule);
         authRules.end();
-        authRules.localizeDocument(TestUtil.createDefaultLocation());
+        authRules.localizeDocument(TestHelper.createDefaultLocation());
 
         Document document = authRules.getDocument();
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         InputStream controlXml = getClass().getResourceAsStream("authrules-empty.test.xml");
         XMLAssert.assertXMLEqual(IOUtils.toString(controlXml), domDoc);

@@ -49,13 +49,13 @@
     <property name="name" value="tunnel/client.conf"/>
     <property name="velocityEngine" ref="velocityEngine"/>
     <property name="locationsManager" ref="locationsManager"/>
-    <property name="template" value="tunnel/client.conf.vm"/>
+    <property name="template" value="tunnel/tunnel-client.conf.vm"/>
   </bean>
   
   <bean id="tunnelServerConfig" class="org.sipfoundry.sipxconfig.admin.commserver.TunnelServerConfigurationFile" parent="defaultConfigurationFile">
     <property name="name" value="tunnel/server.conf"/>
     <property name="velocityEngine" ref="velocityEngine"/>
-    <property name="template" value="tunnel/server.conf.vm"/>
+    <property name="template" value="tunnel/tunnel-server.conf.vm"/>
   </bean>
 
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.admin.commserver.MongoConfigImpl">

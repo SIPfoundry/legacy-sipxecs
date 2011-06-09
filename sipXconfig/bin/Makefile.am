@@ -17,11 +17,6 @@ setupdir = @SIPX_LIBEXECDIR@/setup.d
 setup_SCRIPTS = \
 	sipxconfig-setup
 
-EXTRA_REPLACE = \
-	MRTG_BINARY \
-	DATE_BINARY \
-	web_PKGS
-
 $(setup_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,$(EXTRA_REPLACE))
 

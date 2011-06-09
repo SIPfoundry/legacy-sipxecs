@@ -6,8 +6,16 @@ AC_PREREQ(2.57)
 
 AC_INIT(sipX, 0.0.4.5.2, sipx-dev@list.sipfoundry.org)
 
-# Pass same ./configure switches all sub-projects. Crude but effective.
-AC_SUBST(CONFIGURE_OPTIONS, $@)
+# Pass standard and sipxecs common params to ./configure switches on all sub-projects.
+# Doesn't have to handle ./configure vars like SIPX_PBXUSER because those
+# can be passed handled 
+OPTIONS=
+for a in $@; do
+  case $a in
+    --prefix*)OPTIONS+=" $a" ;;
+  esac
+done
+AC_SUBST(OPTIONS)
 
 m4_include([config/autoconf-2.66.m4])
 m4_include([config/sipXlib2.m4])

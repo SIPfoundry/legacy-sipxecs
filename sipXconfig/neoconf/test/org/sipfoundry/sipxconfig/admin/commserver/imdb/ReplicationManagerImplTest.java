@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
 public class ReplicationManagerImplTest extends MongoTestCase {
@@ -39,7 +38,7 @@ public class ReplicationManagerImplTest extends MongoTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        m_locationsManager = TestUtil.getMockLocationsManager();
+        m_locationsManager = TestHelper.getMockLocationsManager();
 
         m_out = new ReplicationManagerImpl();
         m_out.setLocationsManager(m_locationsManager);

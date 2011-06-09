@@ -3,6 +3,8 @@
 	<name>sipXconfig-web</name>
 	<comment></comment>
 	<projects>
+		<project>sipxcommons</project>
+		<project>sipXconfig-etc</project>
 		<project>sipXconfig-neoconf</project>
 	</projects>
 	<buildSpec>

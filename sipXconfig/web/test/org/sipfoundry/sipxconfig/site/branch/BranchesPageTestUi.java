@@ -9,12 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.branch;
 
-import junit.framework.Test;
+import static org.apache.commons.lang.StringUtils.EMPTY;
 import net.sourceforge.jwebunit.junit.WebTester;
+
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import static org.apache.commons.lang.StringUtils.EMPTY;
 
 public class BranchesPageTestUi extends ListWebTestCase {
 
@@ -23,10 +22,6 @@ public class BranchesPageTestUi extends ListWebTestCase {
         setPager(true);
         setHasDuplicate(false);
         setExactCheck(false);
-    }
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(BranchesPageTestUi.class);
     }
 
     @Override

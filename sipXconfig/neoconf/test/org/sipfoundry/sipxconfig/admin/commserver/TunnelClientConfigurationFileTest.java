@@ -17,7 +17,7 @@ public class TunnelClientConfigurationFileTest extends TestCase {
     
 	public void testConfig() throws Exception {
 		TunnelClientConfigurationFile f = new TunnelClientConfigurationFile();
-		f.setTemplate("stunnel/stunnel-client.conf.vm.in");
+		f.setTemplate("tunnel/tunnel-client.conf.vm");
 		f.setVelocityEngine(TestHelper.getVelocityEngine());
         
         Location l1 = new Location();

@@ -8,10 +8,10 @@ package org.sipfoundry.sipxconfig.admin;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.RestartNeededService;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class CertificateManagerTestIntegration extends IntegrationTestCase {
     private CertificateManagerImpl m_certificateManagerImpl;
@@ -20,7 +20,7 @@ public class CertificateManagerTestIntegration extends IntegrationTestCase {
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
-        m_certificateManagerImpl.setLibExecDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
+        m_certificateManagerImpl.setLibExecDirectory(TestHelper.getSourceDirectory(this.getClass()));
         m_certificateManagerImpl.setProcessContext(m_sipxProcessContext);
         m_certificateManagerImpl.setSipxServiceManager(m_sipxServiceManager);
     }

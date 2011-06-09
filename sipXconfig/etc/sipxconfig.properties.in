@@ -49,7 +49,7 @@ monitoringContextImpl.enabled=true
 sipxconfig.db.user=@POSTGRESQL_USER@
 
 # are we in a debug build?
-coreContextImpl.debug=@TEST_MODE@
+coreContextImpl.debug=@IS_TEST_MODE@
 
 # name changes to anything starting w/sysdir need to be reflected in
 # VersionInfo class as well
@@ -76,6 +76,7 @@ sysdir.default.firmware=@SIPX_DATADIR@/devicefiles
 sysdir.alarmsStrings=@SIPX_DATADIR@/alarms/
 sipxpbx.mibs.dir=@SIPX_DATADIR@/mibs/
 sysdir.vxml.moh=@SIPX_IVRDATADIR@/moh
+sysdir.webtest.srcdir=@top_srcdir@/web/test
 
 # ACD server defaults - can be changed in UI
 acdServer.port=8110

@@ -9,17 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
-import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.junit.WebTestCase;
-
 public class EditVoicemailTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditVoicemailTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();

@@ -42,7 +42,6 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfigurationTest;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextTestIntegration extends IntegrationTestCase {
@@ -254,7 +253,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         service.setBeanId(SipxFreeswitchService.BEAN_ID);
         service.setLocationsManager(m_locationsManager);
 
-        SipxServiceManager sm = TestUtil.getMockSipxServiceManager(true, service);
+        SipxServiceManager sm = TestHelper.getMockSipxServiceManager(true, service);
         m_openAcdContextImpl.setSipxServiceManager(sm);
 
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("sales");

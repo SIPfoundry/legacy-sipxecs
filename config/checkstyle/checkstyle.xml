@@ -46,7 +46,7 @@
   <!-- Setup exclusions / suppressions                       -->
   <!-- http://checkstyle.sourceforge.net/config.html#Filters -->
   <module name="SuppressionFilter">
-    <property name="file" value="${top.dir}/meta/checkstyle-suppressions.xml"/>
+    <property name="file" value="${top.dir}/checkstyle-suppressions.xml"/>
   </module>
 
   <!-- Checks that property files contain the same keys.         -->
@@ -90,7 +90,7 @@
       <!-- from any directory within a project. See property      -->
       <!-- expansion,                                             -->
       <!-- http://checkstyle.sf.net/config.html#properties        -->
-      <property name="headerFile" value="${top.dir}/meta/java.header"/>
+      <property name="headerFile" value="${top.dir}/java.header"/>
     </module>
     
     <!-- Following interprets the header file as regular expressions. -->

@@ -9,15 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.acd;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class AcdHistoryPageTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(AcdHistoryPageTestUi.class);
-    }
 
     public void testReports() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

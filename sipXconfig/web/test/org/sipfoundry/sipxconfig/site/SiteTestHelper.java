@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.site;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,12 +27,13 @@ import net.sourceforge.jwebunit.html.Row;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 import net.sourceforge.jwebunit.junit.WebTester;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.form.FormConstants;
 import org.junit.Assert;
-import org.sipfoundry.sipxconfig.test.TestUtil;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class SiteTestHelper {
 
@@ -52,26 +52,9 @@ public class SiteTestHelper {
      */
     public static final String ROW_CHECKBOX = "checkbox";
 
-    private static String s_buildDir;
-
-    private static final String BASE_URL_RUNNING_WHEN_RUNNING_FROM_ANT = "http://localhost:9999/sipxconfig";
-
-    /**
-     * Very convenient when running test site from and ("ant run") and testing individual web
-     * tests from eclipse, not whole test suite.
-     */
-    private static String s_baseUrl = BASE_URL_RUNNING_WHEN_RUNNING_FROM_ANT;
-
-    private static String s_artificialSystemRoot;
-
-    public static Test webTestSuite(Class webTestClass) {
-        TestSuite suite = new SipxWebTestSuite(webTestClass);
-
-        JettyTestSetup jetty = new JettyTestSetup(suite);
-        s_baseUrl = jetty.getUrl();
-
-        return jetty;
-    }
+    private static String s_baseUrl = "http://localhost:12000/sipxconfig";
+    
+    private static Properties s_testProps;
 
     static class SipxWebTestSuite extends TestSuite {
         SipxWebTestSuite(Class test) {
@@ -244,29 +227,6 @@ public class SiteTestHelper {
         return s_baseUrl;
     }
 
-    public static String getClasspathDirectory() {
-        return TestUtil.getClasspathDirectory(SiteTestHelper.class);
-    }
-
-    public static String getBuildDirectory() {
-        if (s_buildDir == null) {
-            s_buildDir = TestUtil.getBuildDirectory("web");
-        }
-
-        return s_buildDir;
-    }
-
-    /**
-     * Get the root directory mimicking an installed sipx system. Useful when web pages need to
-     * reference files from other sipx projects. Unittest should copy in seed test files.
-     */
-    public static String getArtificialSystemRootDirectory() {
-        if (null == s_artificialSystemRoot) {
-            s_artificialSystemRoot = TestUtil.getTestOutputDirectory("web") + "/artificial-system-root";
-        }
-        return s_artificialSystemRoot;
-    }
-
     /**
      * Create a dir if it doesn't exists and deletes all contents if it does exist
      */
@@ -285,66 +245,21 @@ public class SiteTestHelper {
         return directory;
     }
 
-    /**
-     * Get the full path and copy file from etc incase there are modiifcations to it
-     *
-     * @param path relative to etc dir e.g. "kphone/phone.xml"
-     * @return full path to config file
-     */
-    public static String getFreshFileInArtificialSystemRoot(String path) {
-        String neopath = TestUtil.getProjectDirectory() + "/../neoconf/etc" + path;
-        String webpath = getArtificialSystemRootDirectory() + "/" + path;
-        try {
-            FileWriter out = new FileWriter(webpath);
-            IOUtils.write(neopath, out);
-            IOUtils.closeQuietly(out);
-            return webpath;
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-    }
-
-    /**
-     * Write out sipxconfig.properties for testing arg 0 - any path in the testing classpath arg 1
-     * - path to artificial root directory arg 2 - where output is generated
-     */
-    public static void main(String[] args) {
-        Properties sysProps = new Properties();
-        s_artificialSystemRoot = args[0];
-        String systemDirectory = cleanDirectory(args[1]);
-        String etcDirectory = systemDirectory + "/etc";
-
-        // generates sipxconfig.properties in classpath (arg 0)
-        TestUtil.setSysDirProperties(sysProps, etcDirectory, args[2]);
-
-        // overwrite several properties that have to have "real" values
-        sysProps.setProperty("localTftp.uploadDirectory", systemDirectory + "/tftproot");
-        sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory + "/parkserver/music");
-        sysProps.setProperty("sipxPageService.audioDir", systemDirectory + "/sipxpage/music");
-        sysProps.setProperty("acdQueue.audioDirectory", systemDirectory + "/acd/audio");
-        sysProps.setProperty("sysdir.vxml.prompts", TestUtil.getTestOutputDirectory("web")
-                + "/artificial-system-root/prompts");
-        TestUtil.saveSysDirProperties(sysProps, args[0]);
-    }
-
-    private static Properties s_sysProps;
-
-    public static String getTftpDirectory() {
-        return getSystemProperties().getProperty("localTftp.uploadDirectory");
-    }
-
-    private static Properties getSystemProperties() {
-        if (s_sysProps == null) {
-            s_sysProps = new Properties();
-            File sipxconfig = new File(getBuildDirectory() + "/tests/war/WEB-INF/classes/sipxconfig.properties");
+    public static Properties getTestProperties() {
+        if (s_testProps == null) {
+            s_testProps = (Properties) TestHelper.getTestProperties().clone();
+            InputStream propsStream = null;
             try {
-                InputStream sipxconfigSteam = new FileInputStream(sipxconfig);
-                s_sysProps.load(sipxconfigSteam);
+                File propsFile = new File(s_testProps.getProperty("SIPX_CONFDIR") + "/sipxconfig.properties");
+                propsStream = new FileInputStream(propsFile);
+                s_testProps.load(propsStream);
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            } finally {
+                IOUtils.closeQuietly(propsStream);                
             }
         }
-        return s_sysProps;
+        return s_testProps;
     }
 
     public static void seedUser(WebTester tester) {

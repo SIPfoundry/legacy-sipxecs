@@ -94,7 +94,7 @@ public class BridgeTest extends BeanWithSettingsTestCase {
         expect(localContex.getCurrentLanguage()).andReturn("fr");
         expect(localContex.getCurrentLanguageDir()).andReturn("stdprompts_fr");
         replay(localContex);
-        String sysdirDoc = TestHelper.getSysDirProperties().getProperty("sysdir.doc");
+        String sysdirDoc = TestHelper.getTestProperties().getProperty("sysdir.doc");
         bridge.setLocalizationContext(localContex);
         bridge.setPromptsDir(sysdirDoc);
         String path = sysdirDoc+System.getProperty("file.separator")+"stdprompts_fr";
@@ -109,7 +109,7 @@ public class BridgeTest extends BeanWithSettingsTestCase {
         expect(localContex.getCurrentLanguage()).andReturn("ja");
         expect(localContex.getCurrentLanguageDir()).andReturn("stdprompts_ja");
         replay(localContex);
-        String sysdirDoc = TestHelper.getSysDirProperties().getProperty("sysdir.doc");
+        String sysdirDoc = TestHelper.getTestProperties().getProperty("sysdir.doc");
         bridge.setLocalizationContext(localContex);
         bridge.setPromptsDir(sysdirDoc);
         String path = sysdirDoc+System.getProperty("file.separator")+"stdprompts";

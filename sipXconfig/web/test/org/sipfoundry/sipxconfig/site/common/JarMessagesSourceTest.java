@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.site.common;
 
 import java.io.File;
-import java.net.URL;
 import java.util.Locale;
 
 import junit.framework.TestCase;
@@ -20,9 +19,11 @@ import org.apache.hivemind.util.FileResource;
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.services.impl.ComponentMessages;
 import org.apache.tapestry.spec.ComponentSpecification;
 import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.admin.configdiag.ConfigurationDiagnosticPage;
 
 public class JarMessagesSourceTest extends TestCase {
@@ -36,9 +37,8 @@ public class JarMessagesSourceTest extends TestCase {
         m_out = new JarMessagesSource();
 
         m_context = new DefaultJarMessagesSourceContext();
-        URL resource = getClass().getClassLoader().getResource("org/sipfoundry/sipxconfig/site/common/JarMessagesSourceTest.class");
-        String path = new File(resource.getFile()).getParent();
-        m_context.setLocalizationPackageRoot(path);
+        File srcFile = TestHelper.getResourceAsFile(getClass(), "sipxconfig_fr.jar");
+        m_context.setLocalizationPackageRoot(srcFile.getParent());
         m_out.setContext(m_context);
 
         Creator creator = new Creator();

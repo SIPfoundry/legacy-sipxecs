@@ -9,15 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
+
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class UserAddressBookTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(UserAddressBookTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

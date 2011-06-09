@@ -9,16 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class SchedulesTableTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(SchedulesTableTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();

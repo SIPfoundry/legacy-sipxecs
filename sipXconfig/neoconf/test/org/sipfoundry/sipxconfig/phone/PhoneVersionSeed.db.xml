@@ -3,7 +3,7 @@
 <dataset>
   <phone serial_number="000010000000"
     phone_id="1000"
-    bean_id="grandstream"
+    bean_id="acmePhone"
     device_version_id="acmePhone1"
-    model_id="gsPhoneBt100" />
+    model_id="acmePhoneStandard" />
 </dataset>

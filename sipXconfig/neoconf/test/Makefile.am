@@ -14,6 +14,8 @@ test_PKGS = \
 	easymock \
 	easymockclassextension \
 	dbunit \
+	jta \
+	c3p0 \
 	junitperf \
 	p6spy \
 	xmlunit \
@@ -29,11 +31,80 @@ test_RESOURCES = \
 
 test_DEPS = \
 	$(JAVAROOT) \
-	../src/classes \
-	$(srcdir)/../src \
+	$(neoconf_SRCDIR) \
+	$(neoconf_JAVAROOT) \
 	$(srcdir) \
+	$(top_srcdir)/etc/sipxpbx \
 	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib, $(test_PKGS)) \
 	@SIPX_JAVADIR@/sipXconfig/agent-bindings.jar \
 	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
 
-test_SRC = $(shell cd $(srcdir); find org -name '*.java')
+test_SRC = $(shell cd $(srcdir); find org \( \
+	 -name '*.java' \
+	 -a -not -name 'ExternalAliasesTest.java' \
+	\) )
+
+javac-test : test.properties sipxconfig.properties
+
+CLEANFILES = test.properties sipxconfig.properties
+
+# send autoconf variables to prop file available to test env.
+sysdir.etc = $(abspath $(top_srcdir)/etc/sipxpbx)
+test.properties : Makefile
+	@echo -e "$(subst $(space),\n,$(foreach V,sysdir.etc $(CommonVariablesNames),$(V)=$($(V))))" > $@
+
+sipxconfig.properties : SIPX_CONFDIR=$(top_srcdir)/etc/sipxpbx
+sipxconfig.properties : $(top_srcdir)/etc/sipxconfig.properties.in Makefile
+	@$(call SearchAndReplace,$<,$@.tmp,$(EXTRA_REPLACE))
+	@echo "$$sipxconfig_properties" | tr -d '\011' >> $@.tmp
+	mv $@.tmp $@
+
+ant_PKGS = \
+	ant \
+	ant-launcher \
+	postgresql
+
+ant_DEPS = $(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(ant_PKGS))
+
+#precommit : check reset check-db reset check-integration
+precommit : reset check-db reset check-integration
+
+reset : reset-db reset-acd reset-cdr
+
+reset-db :
+	if ! `$(PG_SQL) -l | grep SIPXCONFIG_TEST > /dev/null` ; then \
+	  $(PG_CREATEDB) SIPXCONFIG_TEST; \
+	fi
+	cd $(top_srcdir)/etc/sipxpbx/database; \
+	  $(call JavaCommand,ant) org.apache.tools.ant.launch.Launcher \
+	    -Dsipxconfig.db.name=SIPXCONFIG_TEST \
+	    -Dsipxconfig.db.user=$(POSTGRESQL_USER) \
+	    -Dlog.dir=$(abspath $(builddir)) \
+	    -Dtmp.dir=$(abspath $(builddir)) \
+	    -f database.xml unittest-reset
+
+reset-cdr :	    
+	if `$(PG_SQL) -l | grep SIPXCDR_TEST > /dev/null` ; then \
+	  $(PG_DROPDB) SIPXCDR_TEST; \
+	fi
+	$(PG_CREATEDB) SIPXCDR_TEST                                                                                                                       
+	$(PG_SQL) SIPXCDR_TEST -f @SIPX_CONFDIR@/cdr/schema.sql      
+	$(PG_SQL) SIPXCDR_TEST -f $(srcdir)/org/sipfoundry/sipxconfig/cdr/cdr_seed.sql
+
+reset-acd :	    
+	if `$(PG_SQL) -l | grep SIPXACD_HISTORY_TEST > /dev/null` ; then \
+	  $(PG_DROPDB) SIPXACD_HISTORY_TEST; \
+	fi
+	$(PG_CREATEDB) SIPXACD_HISTORY_TEST                                                                                                                       
+	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/schema.sql
+	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/enable_upgrades.sql
+	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/location_fqdn.sql
+	$(PG_SQL) SIPXACD_HISTORY_TEST -f $(srcdir)/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql
+
+# customize spring beans for unit test environment, must include tab as first char
+define sipxconfig_properties
+	dataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCONFIG_TEST
+	cdrDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCDR_TEST
+	acdHistoryDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST
+endef
+export sipxconfig_properties

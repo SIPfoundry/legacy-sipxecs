@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import static org.apache.commons.lang.ArrayUtils.contains;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,13 +22,11 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.apache.commons.lang.ArrayUtils.contains;
 
 public class FtpBackupPlan extends BackupPlan {
     public static final String TYPE = "F";
@@ -37,7 +37,7 @@ public class FtpBackupPlan extends BackupPlan {
 
     @Override
     public File[] doPerform(String binPath) throws IOException, InterruptedException {
-        File rootBackupDir = TestUtil.createTempDir("ftpBackup");
+        File rootBackupDir = TestHelper.createTempDir("ftpBackup");
 
         File backupDir = createBackupDirectory(rootBackupDir);
         File[] backupFiles = executeBackup(backupDir, new File(binPath));

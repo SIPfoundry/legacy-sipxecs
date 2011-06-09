@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
@@ -26,10 +25,6 @@ public class ChangePinTestUi extends WebTestCase {
 
     private static final String MSG_WRONG_PIN = "The current PIN that you entered is incorrect";
     private static final String MSG_PIN_MISMATCH = "The new PIN and confirmed new PIN don't match";
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ChangePinTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

@@ -26,7 +26,7 @@ import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
-import org.sipfoundry.sipxconfig.test.TestUtil;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
@@ -57,7 +57,7 @@ public class VoicemailResourceDownloadTest extends TestCase {
         Voicemail vmail = new Voicemail(vmailDir, "joeuser", "inbox", "007") {
             @Override
             public File getMediaFile() {
-                return new File(TestUtil.getTestSourceDirectory(getClass()), "007.wav");
+                return TestHelper.getResourceAsFile(getClass(), "007.wav");
             }
         };
 

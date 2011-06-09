@@ -8,17 +8,17 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.io.File;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.test.TestUtil;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class InitialConfigTestIntegration extends IntegrationTestCase {
     private InitialConfig m_initialConfig;
 
     public void testGetArchiveStream() throws Exception {
-        if (TestUtil.isWindows()) {
+        if (TestHelper.isWindows()) {
             // tries to run a shell script. ignore test
             return;
         }
-        m_initialConfig.setBinDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
+        m_initialConfig.setBinDirectory(TestHelper.getSourceDirectory(this.getClass()));
         // create initial-config directory
         File file = new File(m_initialConfig.getTmpDirectory() + "/initial-config");
         file.mkdirs();

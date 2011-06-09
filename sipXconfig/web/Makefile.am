@@ -84,9 +84,6 @@ java-gwt : $(gwt_SRC)
 
 
 # W E B
-web_JAVAROOT = $(abspath $(top_builddir)/web/out/WEB-INF/classes)
-web_SRCDIR = $(abspath $(top_srcdir)/web/src)
-
 web_COMPILE_PKGS = \
 	$(web_PKGS) \
 	junit \
@@ -126,14 +123,35 @@ web_RESOURCES = $(shell cd $(srcdir)/src; find . -type f \( \
 	  -o -name '*.ico' \
 	\))
 
+if TEST_MODE
+context_TESTPAGE = 
+else
+context_TESTPAGE = \) -a \( -not -name 'TestPage.*'
+endif
+
+context_SRC = $(shell cd $(srcdir)/context; find . -type f \( \
+	  -name '*.png' \
+	  -o -name '*.gif' \
+	  -o -name '*.application' \
+	  -o -name '*.jpg' \
+	  -o -name '*.page' \
+	  -o -name '*.jwc' \
+	  -o -name '*.properties' \
+	  -o -name '*.html' \
+	  -o -name '*.script' \
+	  -o -name '*.xml' \
+	  $(context_TESTPAGE) \
+	\))
+
 # W A R
 wardir = @SIPX_JAVADIR@/sipXconfig
 war_DATA = sipxconfig.war
 
-# create war, then update because jar won't accept 2 dirs w/WEB-INF dirs in create jar command
-sipxconfig.war : javac-web java-gwt javac-wsdl $(addprefix $(web_JAVAROOT)/,$(web_RESOURCES)) $(WSDD)
+# create war first, then update because 'bug' in jar command won't accept 2 dirs w/WEB-INF dirs in create jar command
+# but will allow update to append to same directory
+sipxconfig.war : javac-web java-gwt javac-wsdl $(addprefix $(web_JAVAROOT)/,$(web_RESOURCES)) $(WSDD) $(addprefix context/,$(context_SRC))
 	jar cf $@.tmp $(call JarInclude,out,.)
-	jar uf $@.tmp $(call JarInclude,$(srcdir)/context,.)
+	cd $(srcdir)/context; jar uf $(abspath $@.tmp) $(context_SRC)
 	mv $@.tmp $@
 
 $(web_JAVAROOT)/% : src/%

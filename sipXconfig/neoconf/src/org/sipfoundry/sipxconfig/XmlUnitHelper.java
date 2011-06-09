@@ -31,7 +31,6 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 import org.dom4j.io.DOMWriter;
 import org.dom4j.io.SAXReader;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 /**
  * Collection of utility function to XMLUnit and DOM4J testing with XMLUnit
@@ -58,10 +57,10 @@ public abstract class XmlUnitHelper {
      *
      * @param doc DOM4J document
      * @return String containing XML document
-     * @deprecated Use {@link TestUtil#asString(Document)} instead
+     * @deprecated Use {@link TestHelper#asString(Document)} instead
      */
     public static String asString(Document doc) {
-        return TestUtil.asString(doc);
+        return TestHelper.asString(doc);
     }
 
     /**
@@ -70,7 +69,7 @@ public abstract class XmlUnitHelper {
      * @param doc
      */
     public static void dumpXml(Document doc) {
-        System.err.println(TestUtil.asString(doc));
+        System.err.println(TestHelper.asString(doc));
     }
 
     /**

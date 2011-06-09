@@ -30,6 +30,7 @@ fi
 : ${RunningUser:=@SIPXPBXUSER@}
 : ${PgUser:=@POSTGRESQL_USER@}
 : ${PgSchema:=${ConfDir}/cdr/schema.sql}
+: ${RemoteUserSql:=${ConfDir}/cdr/cdrremote.sql}
 : ${RubyCmd:=@RUBY@}
 : ${DbVersion:=7}
 : ${DbPatchDir:=${ConfDir}/cdr}
@@ -141,7 +142,7 @@ databaseCommand() {
     case ${1} in
        create)
          createdb -U ${PgUser} --encoding=UNICODE ${Database}
-         ${PsqlCmd} -f ${PgSchema}
+         ${PsqlCmd} -f ${PgSchema} -f ${RemoteUserSql}
        ;;
 
        drop)

@@ -13,7 +13,6 @@ import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class SipxSaaConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {
@@ -25,7 +24,7 @@ public class SipxSaaConfigurationTest extends SipxServiceTestBase {
         saaService.setTcpPort(9910);
         saaService.setUdpPort(9911);
 
-        DomainManager domainManager = TestUtil.getMockDomainManager();
+        DomainManager domainManager = TestHelper.getMockDomainManager();
         domainManager.getAuthorizationRealm();
         EasyMock.expectLastCall().andReturn("example.org");
         EasyMock.replay(domainManager);
@@ -36,7 +35,7 @@ public class SipxSaaConfigurationTest extends SipxServiceTestBase {
 
         SipxSaaConfiguration out = new SipxSaaConfiguration();
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, saaService);
+        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, saaService);
         out.setSipxServiceManager(sipxServiceManager);
 
         out.setTemplate("sipxsaa/sipxsaa-config.vm");

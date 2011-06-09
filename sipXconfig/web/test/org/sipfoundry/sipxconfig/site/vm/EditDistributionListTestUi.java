@@ -9,11 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
-import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class EditDistributionListTestUi extends WebTestCase {
     final String NEW_USER_USERNAME[] = {
@@ -23,10 +21,6 @@ public class EditDistributionListTestUi extends WebTestCase {
     final String NEW_USER_ALIASES[] = {
         "user1, 1111", "user2, 2222"
     };
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditDistributionListTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();

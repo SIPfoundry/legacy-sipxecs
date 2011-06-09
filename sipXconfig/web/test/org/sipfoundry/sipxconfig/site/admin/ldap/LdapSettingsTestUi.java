@@ -17,18 +17,12 @@
 
 package org.sipfoundry.sipxconfig.site.admin.ldap;
 
-import junit.framework.Test;
-import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.admin.AboutDialogTestUi;
-
 import net.sourceforge.jwebunit.api.IElement;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
-public class LdapSettingsTestUi extends WebTestCase {
+import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(AboutDialogTestUi.class);
-    }
+public class LdapSettingsTestUi extends WebTestCase {
 
     @Override
     public void setUp() {

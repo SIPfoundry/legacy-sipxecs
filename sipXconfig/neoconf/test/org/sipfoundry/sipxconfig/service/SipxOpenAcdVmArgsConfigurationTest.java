@@ -19,14 +19,11 @@ package org.sipfoundry.sipxconfig.service;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class SipxOpenAcdVmArgsConfigurationTest extends SipxServiceTestBase {
 
@@ -37,7 +34,7 @@ public class SipxOpenAcdVmArgsConfigurationTest extends SipxServiceTestBase {
         openAcdService.setSettings(settings);
 
         LocationsManager locationsManager = createMock(LocationsManager.class);
-        Location primaryLocation = TestUtil.createDefaultLocation();
+        Location primaryLocation = TestHelper.createDefaultLocation();
         locationsManager.getPrimaryLocation();
         expectLastCall().andReturn(primaryLocation).anyTimes();
 

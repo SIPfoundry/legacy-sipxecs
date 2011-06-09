@@ -15,13 +15,13 @@ import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.test.TestUtil;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class AbstractProfileGeneratorTest extends TestCase {
 
     private static class ProfileGeneratorStub extends AbstractProfileGenerator {
         ProfileGeneratorStub() {
-            setTemplateRoot(TestUtil.getTestSourceDirectory(AbstractProfileGeneratorTest.class));
+            setTemplateRoot(TestHelper.getResourceAsFile(AbstractProfileGeneratorTest.class, "macro_a.test.vm").getParent());
         }
 
         protected void generateProfile(ProfileContext context, OutputStream out)

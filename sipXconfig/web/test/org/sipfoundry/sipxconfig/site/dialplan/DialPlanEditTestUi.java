@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
@@ -20,10 +19,6 @@ import org.sipfoundry.sipxconfig.site.gateway.GatewaysTestUi;
  * DialPlanEditTestUi
  */
 public class DialPlanEditTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(DialPlanEditTestUi.class);
-    }
 
     private static final String[][] NAMES = {
         {

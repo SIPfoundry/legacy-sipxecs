@@ -9,23 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.ldap;
 
-import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import com.mchange.util.AssertException;
-
-import junit.framework.Test;
-import net.sourceforge.jwebunit.junit.WebTestCase;
-
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoUserError;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.home;
-import static org.sipfoundry.sipxconfig.site.SiteTestHelper.webTestSuite;
+import net.sourceforge.jwebunit.junit.WebTestCase;
+
+import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class LdapServerTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return webTestSuite(LdapServerTestUi.class);
-    }
-
     @Override
     public void setUp() {
         getTestContext().setBaseUrl(getBaseUrl());

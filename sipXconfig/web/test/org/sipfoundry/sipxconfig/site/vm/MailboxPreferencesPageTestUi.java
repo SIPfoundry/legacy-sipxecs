@@ -9,16 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class MailboxPreferencesPageTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(MailboxPreferencesPageTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

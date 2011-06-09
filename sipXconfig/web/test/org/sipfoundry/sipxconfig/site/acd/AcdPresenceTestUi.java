@@ -9,17 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.acd;
 
-import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.junit.WebTestCase;
-
 public class AcdPresenceTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(AcdPresenceTestUi.class);
-    }
-
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());

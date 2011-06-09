@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.acd;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Row;
 import net.sourceforge.jwebunit.html.Table;
 
@@ -17,9 +16,6 @@ import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditAcdQueueTestUi extends ListWebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditAcdQueueTestUi.class);
-    }
 
     public EditAcdQueueTestUi() {
         super("listAcdServers", "resetAcdContext", "queue");

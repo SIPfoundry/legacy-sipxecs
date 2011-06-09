@@ -9,6 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -18,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -25,12 +31,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
 
 public class NatTraversalConfigurationTest extends TestCase {
     private SbcManager m_sbcManager;
@@ -50,7 +50,7 @@ public class NatTraversalConfigurationTest extends TestCase {
 
         m_locationsManager = createMock(LocationsManager.class);
         m_locationsManager.getPrimaryLocation();
-        Location location = TestUtil.createDefaultLocation();
+        Location location = TestHelper.createDefaultLocation();
         expectLastCall().andReturn(location).anyTimes();
 
         replay(m_sbcManager, m_locationsManager);
@@ -79,7 +79,7 @@ public class NatTraversalConfigurationTest extends TestCase {
         m_sipxRelayService.setSettingTypedValue("nat/enabled", true);
         m_sipxRelayService.setSettingValue("nat/media-relay-temperament", "Aggressive");
 
-        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(true, sipxProxyService, m_sipxRelayService);
+        m_sipxServiceManager = TestHelper.getMockSipxServiceManager(true, sipxProxyService, m_sipxRelayService);
     }
 
     public void testGenerateNoBehindNat() throws Exception {

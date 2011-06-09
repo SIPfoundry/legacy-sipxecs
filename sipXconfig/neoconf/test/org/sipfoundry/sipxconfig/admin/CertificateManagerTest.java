@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import static org.easymock.classextension.EasyMock.replay;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -24,9 +26,8 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-
-import static org.easymock.classextension.EasyMock.*;
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
@@ -39,26 +40,24 @@ import org.sipfoundry.sipxconfig.service.SipxRecordingService;
 import org.sipfoundry.sipxconfig.service.SipxRestService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class CertificateManagerTest extends TestCase {
 
     private CertificateManagerImpl m_manager;
     private Location m_primaryLocation;
     private static String DELETE = "DELETE";
+    private String m_srcDir;
 
     @Override
     protected void setUp() {
         m_manager = createCertificateManager();
-
-        m_manager.setCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
-        m_manager.setSslDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
-        m_manager.setBinCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
-        m_manager.setSslAuthDirectory(TestUtil.getTestSourceDirectory(this.getClass())
-                + File.separator + "testAuthorities");
-        m_manager.setLibExecDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
-
-        m_primaryLocation = TestUtil.createDefaultLocation();
+        m_srcDir = TestHelper.getResourceAsFile(getClass(), "check-cert.sh").getParent();
+        m_manager.setCertDirectory(m_srcDir);
+        m_manager.setSslDirectory(m_srcDir);
+        m_manager.setBinCertDirectory(m_srcDir);
+        m_manager.setSslAuthDirectory(m_srcDir + "/testAuthorities");
+        m_manager.setLibExecDirectory(m_srcDir);
+        m_primaryLocation = TestHelper.createDefaultLocation();
     }
 
     private CertificateManagerImpl createCertificateManager() {
@@ -107,49 +106,49 @@ public class CertificateManagerTest extends TestCase {
         assertEquals("example.org", prop2.get("serverName"));
 
         // cleanup
-        File propertiesFile = new File(TestUtil.getTestSourceDirectory(this.getClass()), "webCert.properties");
+        File propertiesFile = TestHelper.getResourceAsFile(getClass(), "webCert.properties");
         assertTrue(propertiesFile.delete());
     }
 
     public void testGetCRTFilePath() {
-        assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
+        assertEquals(m_srcDir + File.separator
                 + m_primaryLocation.getFqdn() + "-web.crt", m_manager.getCRTFile(
                         m_primaryLocation.getFqdn()).getPath());
     }
 
     public void testWriteCRTFile() throws Exception {
         String certificate = new String("TEST");
-        m_manager.setCertDirectory(TestUtil.getTestOutputDirectory("neoconf") + File.separator + "certs");
+        m_manager.setCertDirectory(TestHelper.getTestOutputDirectory() + File.separator + "certs");
         m_manager.writeCRTFile(certificate, m_primaryLocation.getFqdn());
         compareFileContents(m_manager.getCRTFile(m_primaryLocation.getFqdn()), certificate);
     }
 
     public void testGetExternalCRTFilePath() {
-        assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
+        assertEquals(m_srcDir + File.separator
                 + "external-key-based-web.crt", m_manager.getExternalCRTFile().getAbsolutePath());
     }
 
     public void testWriteExternalCRTFile() throws Exception {
         String certificate = new String("TEST");
-        m_manager.setCertDirectory(TestUtil.getTestOutputDirectory("neoconf") + File.separator + "certs");
+        m_manager.setCertDirectory(TestHelper.getTestOutputDirectory() + File.separator + "certs");
         m_manager.writeExternalCRTFile(certificate);
         compareFileContents(m_manager.getExternalCRTFile(), certificate);
     }
 
     public void testGetKeyFilePath() {
-        assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
+        assertEquals(m_srcDir + File.separator
                 + m_primaryLocation.getFqdn() + "-web.key", m_manager.getKeyFile(
                         m_primaryLocation.getFqdn()).getPath());
     }
 
     public void testGetExternalKeyFilePath() {
-        assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
+        assertEquals(m_srcDir + File.separator
                 + "external-key-based-web.key", m_manager.getExternalKeyFile().getAbsolutePath());
     }
 
     public void testWriteKeyFile() throws Exception {
         String key = new String("TESTKEY");
-        m_manager.setCertDirectory(TestUtil.getTestOutputDirectory("neoconf") + File.separator + "certs");
+        m_manager.setCertDirectory(TestHelper.getTestOutputDirectory() + File.separator + "certs");
         m_manager.writeKeyFile(key);
         compareFileContents(m_manager.getExternalKeyFile(), key);
     }
@@ -185,7 +184,7 @@ public class CertificateManagerTest extends TestCase {
         File tmpCAFile = m_manager.getCATmpFile("validCA.crt");
         File caFile = m_manager.getCAFile("validCA.crt");
 
-        FileUtils.copyFile(new File(TestUtil.getTestSourceDirectory(this.getClass())
+        FileUtils.copyFile(new File(m_srcDir
                 + File.separator + "validCA.crt"), tmpCAFile);
         FileUtils.copyFile(tmpCAFile, caFile);
         m_manager.deleteCRTAuthorityTmpDirectory();
@@ -242,7 +241,7 @@ public class CertificateManagerTest extends TestCase {
 
         EasyMock.replay(sipxServiceManager, locationsManager, processContext);
 
-        String sslDirectory = TestUtil.getTestOutputDirectory("neoconf") + File.separator + "certs" +
+        String sslDirectory = TestHelper.getTestOutputDirectory() + File.separator + "certs" +
             File.separator + "ssl";
 
         File sslWebCert = new File(sslDirectory + File.separator + "ssl-web.crt");

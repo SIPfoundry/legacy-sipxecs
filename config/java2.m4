@@ -33,3 +33,11 @@ AC_DEFUN([PROG_JAVA_DEP],
   fi
   AC_PATH_PROG(JAVA_DEP, java-dep,,${check_path}:$PATH)
 ])
+
+
+AC_ARG_ENABLE([debug], 
+  AC_HELP_STRING([--enable-debug], [Build project with debug flags. Default is off]))
+if test "x$enable_debug" = "xyes"; then
+  JAVA_CC_FLAGS=-g:source,lines,vars
+fi
+

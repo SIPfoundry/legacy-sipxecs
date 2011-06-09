@@ -12,16 +12,12 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ManageAttendantsTestUi extends WebTestCase {
 
     private static final String SEED_DESCRIPTION = "ManageAttendantsTestUi seed description";
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ManageAttendantsTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -52,8 +48,8 @@ public class ManageAttendantsTestUi extends WebTestCase {
         clickLinkWithText("ManageAttendantsTestUi 1");
         assertElementPresent("attendant:menuItems");
         setTextField("item:name", "Name edited");
-        String file = TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class) + "/"
-                + EditAutoAttendantTestUi.PROMPT_TEST_FILE;
+        String file = TestHelper.getResourceAsFile(EditAutoAttendantTestUi.class,
+                EditAutoAttendantTestUi.PROMPT_TEST_FILE).getPath();
         setTextField("promptUpload", file);
         clickButton("form:ok");
         String[][] expectedData = {
@@ -89,8 +85,8 @@ public class ManageAttendantsTestUi extends WebTestCase {
             clickLink("addAttendant");
             setTextField("item:name", "ManageAttendantsTestUi " + i);
             setTextField("item:description", SEED_DESCRIPTION);
-            String file = TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class) + "/"
-                    + EditAutoAttendantTestUi.PROMPT_TEST_FILE;
+            String file =  TestHelper.getResourceAsFile(EditAutoAttendantTestUi.class,
+                    EditAutoAttendantTestUi.PROMPT_TEST_FILE).getPath();
             setTextField("promptUpload", file);
             clickButton("form:ok");
             SiteTestHelper.assertNoUserError(tester);

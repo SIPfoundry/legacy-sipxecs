@@ -6,9 +6,9 @@
     <property name="locationPath" value="skin.properties" />
   </bean>
 
-  <bean id="initializeTestSystem" class="org.sipfoundry.sipxconfig.site.InitializeTestSystem">
+  <!--bean id="initializeTestSystem" class="org.sipfoundry.sipxconfig.site.InitializeTestSystem">
     <property name="domainManager" ref="domainManager" />
     <property name="replicationManagerImpl" ref="replicationManagerImpl" />
     <property name="locationsMigrationTrigger" ref="locationsMigrationTrigger" />
-  </bean>
+  </bean -->
 </beans>

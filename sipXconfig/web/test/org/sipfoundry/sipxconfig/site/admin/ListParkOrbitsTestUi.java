@@ -11,25 +11,19 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.io.File;
 
-import junit.framework.Test;
-
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ListParkOrbitsTestUi extends ListWebTestCase {
     private File m_tempFile;
 
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ListParkOrbitsTestUi.class);
-    }
-
     public ListParkOrbitsTestUi() throws Exception {
         super("ListParkOrbits", "resetParkOrbitContext", "orbits");
         setHasDuplicate(false);
-        m_tempFile = new File(TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        m_tempFile = TestHelper.getResourceAsFile(EditAutoAttendantTestUi.class,
+                EditAutoAttendantTestUi.PROMPT_TEST_FILE);
     }
 
     public void setUp() {

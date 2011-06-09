@@ -9,11 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+
+import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -22,13 +28,6 @@ import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import junit.framework.TestCase;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
 
 public class SipxServiceTestBase extends TestCase {
     protected void initCommonAttributes(SipxService service) {
@@ -48,7 +47,7 @@ public class SipxServiceTestBase extends TestCase {
     }
 
     protected Location createDefaultLocation() {
-        return TestUtil.createDefaultLocation();
+        return TestHelper.createDefaultLocation();
     }
 
     protected Domain createDefaultDomain() {

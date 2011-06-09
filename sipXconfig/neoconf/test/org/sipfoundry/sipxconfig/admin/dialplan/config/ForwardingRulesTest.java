@@ -56,7 +56,6 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxStatusService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ForwardingRulesTest extends XMLTestCase {
     private SipxServiceManager m_sipxServiceManager;
@@ -72,7 +71,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
 
-        DomainManager domainManager = TestUtil.getMockDomainManager();
+        DomainManager domainManager = TestHelper.getMockDomainManager();
         replay(domainManager);
 
         m_bridgeService = new SipxBridgeService();
@@ -121,7 +120,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         m_statusLocation.addService(m_bridgeService);
         m_bridgeService.setLocationsManager(m_locationsManager);
 
-        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(false, proxyService, m_registrarService,
+        m_sipxServiceManager = TestHelper.getMockSipxServiceManager(false, proxyService, m_registrarService,
                 m_statusService, m_bridgeService);
         m_sipxServiceManager.isServiceInstalled(m_statusLocation.getId(), SipxRegistrarService.BEAN_ID);
         expectLastCall().andReturn(true).anyTimes();
@@ -422,7 +421,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
     private String getGeneratedXmlFileAsString(ConfigurationFile xmlFile) throws Exception {
         StringWriter actualXmlFileWriter = new StringWriter();
-        xmlFile.write(actualXmlFileWriter, TestUtil.createDefaultLocation());
+        xmlFile.write(actualXmlFileWriter, TestHelper.createDefaultLocation());
 
         Reader actualXmlFileReader = new StringReader(actualXmlFileWriter.toString());
         String actualXmlFile = IOUtils.toString(actualXmlFileReader);

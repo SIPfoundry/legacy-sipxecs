@@ -10,16 +10,16 @@
 package org.sipfoundry.sipxconfig.service;
 
 import java.util.Arrays;
+
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class SipxProvisionConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {
@@ -31,7 +31,7 @@ public class SipxProvisionConfigurationTest extends SipxServiceTestBase {
         provisionService.setTftproot(TestHelper.getTestDirectory() + "/tftproot");
         initCommonAttributes(provisionService);
 
-        DomainManager domainManager = TestUtil.getMockDomainManager();
+        DomainManager domainManager = TestHelper.getMockDomainManager();
         domainManager.getAuthorizationRealm();
         EasyMock.expectLastCall().andReturn("example.org");
         EasyMock.replay(domainManager);
@@ -70,7 +70,7 @@ public class SipxProvisionConfigurationTest extends SipxServiceTestBase {
 
         SipxProvisionConfiguration out = new SipxProvisionConfiguration();
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, provisionService);
+        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, provisionService);
         out.setSipxServiceManager(sipxServiceManager);
 
         out.setTemplate("sipxprovision/sipxprovision-config.vm");

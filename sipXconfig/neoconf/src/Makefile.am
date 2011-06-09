@@ -43,3 +43,7 @@ neoconf_DEPS = \
 
 neoconf_SRC = \
 	$(shell cd $(srcdir); find org -type f -name '*.java')
+
+style_srcdir = $(srcdir)/org/sipfoundry
+
+precommit : style

@@ -10,19 +10,13 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
-import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Row;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class ListBridgesTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ListBridgesTestUi.class);
-    }
 
     public void setUp() {
         getTestContext().setBaseUrl(getBaseUrl());
@@ -49,7 +43,7 @@ public class ListBridgesTestUi extends WebTestCase {
 
         Table expected = new Table();
         Row expectedRow =
-            new Row(new Object[]{ "unchecked", TestPage.TEST_LOCATION_FQDN, "Primary server", "0 ( )" });
+            new Row(new Object[]{ "unchecked",SiteTestHelper.getTestProperties().getProperty("DOMAIN"), "Primary server", "0 ( )" });
         expected.appendRow(expectedRow);
         assertTableRowsEqual("bridge:list", 1, expected);
 

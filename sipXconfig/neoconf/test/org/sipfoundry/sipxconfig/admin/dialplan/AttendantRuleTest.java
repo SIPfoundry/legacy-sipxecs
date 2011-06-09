@@ -9,13 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
@@ -29,21 +38,13 @@ import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
 public class AttendantRuleTest extends TestCase {
     private DomainManager m_domainManager;
 
     @Override
     public void setUp() {
-        m_domainManager = TestUtil.getMockDomainManager();
+        m_domainManager = TestHelper.getMockDomainManager();
         replay(m_domainManager);
     }
 
@@ -112,7 +113,7 @@ public class AttendantRuleTest extends TestCase {
         mediaServer.setPort(15060);
 
         LocationsManager locationsManager = createMock(LocationsManager.class);
-        Location serviceLocation = TestUtil.createDefaultLocation();
+        Location serviceLocation = TestHelper.createDefaultLocation();
 
         SipxIvrService service = new SipxIvrService();
         service.setBeanName(SipxIvrService.BEAN_ID);
@@ -123,7 +124,7 @@ public class AttendantRuleTest extends TestCase {
 
         replay(locationsManager);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, service);
+        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, service);
         mediaServer.setSipxServiceManager(sipxServiceManager);
 
         rule.setMediaServer(mediaServer);
