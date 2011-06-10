@@ -7,7 +7,6 @@
     class="org.sipfoundry.sipxconfig.permission.PermissionManagerImpl">
     <property name="modelFilesContext" ref="modelFilesContext" />
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 

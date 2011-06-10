@@ -106,6 +106,7 @@
     <pathelement path="${mime-dir-j-api.jar}" />
     <pathelement path="${mime-dir-j-vcard4j.jar}" />
 	<pathelement path="${mongo.jar}"/>
+  	<pathelement path="${sipxcommons.jar}"/>
     <!-- SOAP -->
     <pathelement path="${jaxrpc.jar}"/>
     <pathelement path="${javamail.jar}"/>

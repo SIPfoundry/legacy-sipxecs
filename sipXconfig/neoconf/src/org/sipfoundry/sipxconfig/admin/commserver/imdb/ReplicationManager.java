@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * Interface to replication.cgi
@@ -43,7 +44,19 @@ public interface ReplicationManager {
     void removeLocation(Location location);
 
     void replicateAllData();
+    void replicateAllData(DataSet ds);
 
     void resyncSlave(Location location);
 
+    /**
+     * Adds this permission to entities that support permissions and do not have it.
+     * Used when adding a permission with default value checked.
+     */
+    void addPermission(Permission perm);
+
+    /**
+     * Removes this permission from entities that have it.
+     * Used when deleting a permission.
+     */
+    void removePermission(Permission perm);
 }

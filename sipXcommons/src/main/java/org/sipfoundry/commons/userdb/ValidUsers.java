@@ -168,6 +168,18 @@ public enum ValidUsers {
         return user;
     }
 
+    public DBCursor getEntitiesWithPermissions() {
+        DBObject query =  QueryBuilder.start(PERMISSIONS).exists(true).get();
+        DBCursor cursor = getEntityCollection().find(query);
+        return cursor;
+    }
+
+    public DBCursor getEntitiesWithPermission(String name) {
+        DBObject query =  QueryBuilder.start(PERMISSIONS).exists(true).and(PERMISSIONS).is(name).get();
+        DBCursor cursor = getEntityCollection().find(query);
+        return cursor;
+    }
+    
     private void addConference(User user, DBObject conference) {
         user.setConfName(getStringValue(conference, CONF_NAME));
         user.setConfNum(getStringValue(conference, CONF_EXT));

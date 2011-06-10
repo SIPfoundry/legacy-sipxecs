@@ -36,7 +36,7 @@ public class PermissionServiceImpl implements PermissionService {
         Permission apiPermission = addPermission.getPermission();
         ApiBeanUtil.toMyObject(m_builder, myPermission, apiPermission);
 
-        m_permissionManager.addCallPermission(myPermission);
+        m_permissionManager.saveCallPermission(myPermission);
     }
 
     public FindPermissionResponse findPermission(FindPermission findPermission) throws RemoteException {
@@ -88,7 +88,7 @@ public class PermissionServiceImpl implements PermissionService {
                 continue;
             }
             if (Boolean.TRUE.equals(managePermission.getDeletePermission())) {
-                m_permissionManager.removeCallPermissions(Collections.singletonList(p.getId()));
+                m_permissionManager.deleteCallPermission(p);
                 continue; // all other edits wouldn't make sense
             }
 
@@ -97,7 +97,7 @@ public class PermissionServiceImpl implements PermissionService {
                 Set properties = ApiBeanUtil.getSpecifiedProperties(managePermission.getEdit());
                 ApiBeanUtil.setProperties(apiPermission, managePermission.getEdit());
                 m_builder.toMyObject(p, apiPermission, properties);
-                m_permissionManager.addCallPermission(p);
+                m_permissionManager.saveCallPermission(p);
             }
         }
     }

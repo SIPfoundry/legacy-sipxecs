@@ -69,7 +69,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         permission.setDescription("description");
         permission.setLabel("abc");
         TestHelper.insertFlat("service/location.db.xml");
-        m_manager.addCallPermission(permission);
+        m_manager.saveCallPermission(permission);
 
         assertEquals(1, getConnection().getRowCount("permission", "where label = 'abc'"));
     }
@@ -82,7 +82,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         permission.setLabel("bongoLabel");
 
         try {
-            m_manager.addCallPermission(permission);
+            m_manager.saveCallPermission(permission);
             fail("");
         } catch (UserException e) {
             // ok - expected dup exception
@@ -90,11 +90,11 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
         Permission permission2 = m_manager.getCallPermission(1002);
         permission2.setDescription("new Description");
-        m_manager.addCallPermission(permission2);
+        m_manager.saveCallPermission(permission2);
         assertEquals(2, getConnection().getRowCount("permission"));
 
         permission2.setLabel("new Label");
-        m_manager.addCallPermission(permission2);
+        m_manager.saveCallPermission(permission2);
         assertEquals(2, getConnection().getRowCount("permission"));
 
         permission2 = m_manager.getCallPermission(1002);
@@ -159,7 +159,8 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         };
         TestHelper.insertFlat("permission/permission.db.xml");
 
-        m_manager.removeCallPermissions(Arrays.asList(names));
+        m_manager.deleteCallPermission(m_manager.load(Permission.class, 1001));
+        m_manager.deleteCallPermission(m_manager.load(Permission.class, 1002));
         assertEquals(0, getConnection().getRowCount("permission"));
     }
 
@@ -170,7 +171,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         permission.setType(Permission.Type.CALL);
         permission.setLabel("bongo3");
 
-        m_manager.addCallPermission(permission);
+        m_manager.saveCallPermission(permission);
 
         CustomDialingRule rule = new CustomDialingRule();
         rule.setName("a2");
@@ -396,7 +397,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         Permission permission = new Permission();
         permission.setDescription("description");
         permission.setLabel("abc");
-        m_manager.addCallPermission(permission);
+        m_manager.saveCallPermission(permission);
 
         assertEquals(3, getConnection().getRowCount("permission"));
 
