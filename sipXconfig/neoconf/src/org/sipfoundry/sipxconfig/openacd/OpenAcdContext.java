@@ -132,7 +132,6 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
 
     void saveQueue(OpenAcdQueue queue);
 
-    // XXX
     OpenAcdRecipeStep getRecipeStepById(Integer recipeStepId);
 
     List<String> removeQueues(Collection<Integer> queueIds);
