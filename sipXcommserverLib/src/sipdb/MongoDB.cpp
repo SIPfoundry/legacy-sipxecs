@@ -210,6 +210,7 @@ bool MongoDB::update(
         if (!pConnection)
             return false;
         pConnection->update(ns, updateQuery, obj, allowInsert, allowMultiple);
+        return true;
     }
     catch(std::exception& e)
     {
@@ -240,6 +241,7 @@ bool MongoDB::updateUnique(
             return false;
         }
         pConnection->update(ns, updateQuery, obj, false, false);
+        return true;
     }
     catch(std::exception& e)
     {
@@ -261,6 +263,7 @@ bool MongoDB::remove(
         if (!pConnection)
             return false;
         pConnection->remove(ns, Query(query), false);
+        return true;
     }
     catch(std::exception& e)
     {
