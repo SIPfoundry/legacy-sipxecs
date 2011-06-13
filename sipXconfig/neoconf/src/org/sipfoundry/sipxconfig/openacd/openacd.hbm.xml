@@ -96,6 +96,10 @@
 	   <key column="openacd_queue_id" />
 	   <many-to-many column="openacd_agent_group_id" class="OpenAcdAgentGroup" />
     </set>
+	<set name="steps" table="openacd_queue_recipe_step" cascade="all,delete-orphan" order-by="openacd_recipe_step_id">
+	  <key column="openacd_queue_id" not-null="true"/>
+	  <one-to-many class="OpenAcdRecipeStep"/>
+	</set>
   </class>
 
   <class name="OpenAcdSkillGroup" table="openacd_skill_group">
@@ -124,6 +128,41 @@
     <property name="defaultSkill" />
 	<many-to-one name="group" class="OpenAcdSkillGroup" column="openacd_skill_group_id" lazy="proxy"
 	  foreign-key="fk_openacd_skill_group"/>
+  </class>
+
+  <class name="OpenAcdRecipeStep" table="openacd_recipe_step">
+    <id name="id" column="openacd_recipe_step_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_recipe_step_seq</param>
+      </generator>
+	</id>
+    <property name="name"/>
+    <property name="description"/>
+    <property name="frequency"/>
+    <many-to-one name="action" class="OpenAcdRecipeAction" column="openacd_recipe_action_id" cascade="all" unique="true"/>
+	<list name="conditions" table="openacd_recipe_condition">
+	  <key column="openacd_recipe_step_id" not-null="true"/>
+	  <index column="index" />
+	  <composite-element class="org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition">
+		<property name="condition" column="condition" not-null="true" type="string"/>
+		<property name="relation" column="relation" not-null="true" type="string"/>
+		<property name="valueCondition" column="value_condition" not-null="true" type="string"/>
+	  </composite-element>
+	</list>
+  </class>
+
+  <class name="OpenAcdRecipeAction" table="openacd_recipe_action">
+    <id name="id" column="openacd_recipe_action_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_recipe_action_seq</param>
+      </generator>
+	</id>
+    <property name="action"/>
+    <property name="actionValue"/>
+    <set name="skills" table="openacd_skill_recipe_action">
+	   <key column="openacd_recipe_action_id" />
+	   <many-to-many column="openacd_skill_id" class="OpenAcdSkill"/>
+    </set>
   </class>
 
   <class name="OpenAcdClient" table="openacd_client">

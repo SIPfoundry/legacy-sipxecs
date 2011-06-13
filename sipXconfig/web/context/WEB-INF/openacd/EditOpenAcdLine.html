@@ -2,6 +2,9 @@
 <span jwcid="@common/ErrorMsg"/>
 <span jwcid="@common/QuickHelp" value="message:quick.help"/>
 <form jwcid="@Form" delegate="bean:validator">
+  <ul class="component-links">
+    <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+  </ul>
   <fieldset>
   <table>
     <tbody>
@@ -25,6 +28,20 @@
           value="ognl:lineNumber"
           displayName="message:label.extension"/>
       </tr>
+      <tr jwcid="@common/FieldPanel" for="item:alias" label="message:label.alias">
+        <input jwcid="alias@TextField" id="item:alias"
+          maxlength="40"
+          validators="spring-validators:validPhone"
+          value="ognl:alias"
+          displayName="message:label.alias"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="item:did" label="message:label.did">
+        <input jwcid="did@TextField" id="item:did"
+          maxlength="40"
+          validators="spring-validators:validPhone"
+          value="ognl:did"
+          displayName="message:label.did"/>
+      </tr>      
 	  <tr jwcid="@common/FieldPanel" for="item:queue" field="ognl:null"
 		  label="message:label.queue">
 		<span jwcid="queue@openacd/OpenAcdQueueSelect"
@@ -49,31 +66,33 @@
       </tr>
     </tbody>
   </table>
-  <h3><span key="section.options">options</span></h3>
-  <div jwcid="@For"
-     source="ognl:actions"
-     value="ognl:actionBean"
-     index="ognl:index">
-    <b><span key="label.action"/></b>
-    <span key="label.application"/>
-    <input jwcid="@Suggest"
+  <div jwcid="@If" condition="ognl:advanced" renderTag="false">
+    <h3><span key="section.options">options</span></h3>
+    <div jwcid="@For"
+      source="ognl:actions"
+      value="ognl:actionBean"
+      index="ognl:index">
+      <b><span key="label.action"/></b>
+      <span key="label.application"/>
+      <input jwcid="@Suggest"
 	     value="ognl:actionBean.action.application"
 		 listSource="ognl:openAcdApplicationNames"
 		 id="ognl:'suggest_'+index"
 		 listener="listener:filterList"/>
-    <span key="label.data"/>
-    <input jwcid="@TextField"
+      <span key="label.data"/>
+      <input jwcid="@TextField"
          id="ognl:'dialplan:data_'+index"
          value="ognl:actionBean.action.data"
          label="message:label.data"/>
-    <a jwcid="linkDelete@LinkSubmit"
-     selected="ognl:removeAction"
-     tag="ognl:actionBean">
-     <span key="button.delete">Delete</span>
-    </a>
+      <a jwcid="linkDelete@LinkSubmit"
+         selected="ognl:removeAction"
+         tag="ognl:actionBean">
+       <span key="button.delete">Delete</span>
+      </a>
+    </div>
+    <a jwcid="@LinkSubmit" listener="listener:addAction"><span key="label.addAction"/></a>
+    <br/>
   </div>
-  <a jwcid="@LinkSubmit" listener="listener:addAction"><span key="label.addAction"/></a>
-  <br/>
   <ul jwcid="@common/FormActions" listener="listener:saveLine" callback="ognl:callback"/>
   </fieldset>
 </form>

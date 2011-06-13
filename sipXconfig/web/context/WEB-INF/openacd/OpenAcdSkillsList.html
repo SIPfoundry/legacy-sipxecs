@@ -1,5 +1,7 @@
+<span jwcid="@If" condition="ognl:showLabel">
   <td>
     <label for="skills"><span key="label.skills"/></label></td>
+</span>
   <td>
     <select jwcid="skills@Select" multiple="ognl:true" size="ognl:skillsSize">
       <span jwcid="@For" source="ognl:groupedSkills.keySet" value="ognl:groupName">

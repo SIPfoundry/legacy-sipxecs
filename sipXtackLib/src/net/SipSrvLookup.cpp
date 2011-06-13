@@ -200,8 +200,12 @@ static int server_compare_prefer_udp(const void* a, const void* b);
 // sort server list so UDP forks will be tried last (TCP preferred)
 static int server_compare_prefer_tcp(const void* a, const void* b);
 
+// sort server list so UDP and TCP forks will be tried last (TLS preferred)
+static int server_compare_prefer_tls(const void* a, const void* b);
+
 static int server_compare(const void* a, const void* b,
-                          OsSocket::IpProtocolSocketType leastPreferredTransport);
+                          OsSocket::IpProtocolSocketType leastPreferredTransport1,
+                          OsSocket::IpProtocolSocketType leastPreferredTransport2);
 /**<
  * Compares two server_t's which represent two servers.
  * Used by qsort to sort the list of server entries into preference
@@ -461,10 +465,15 @@ server_t* SipSrvLookup::servers(const char* domain,
        qsort(serverList, list_length_used, sizeof (server_t),
              server_compare_prefer_udp);
    }
-   else // list order puts TCP before UDP (large requests need this)
+   else if (preferredTransport == OsSocket::TCP)// list order puts TCP before UDP (large requests need this)
    {
        qsort(serverList, list_length_used, sizeof (server_t),
              server_compare_prefer_tcp);
+   }
+   else
+   {
+     qsort(serverList, list_length_used, sizeof (server_t),
+             server_compare_prefer_tls);
    }
 
    // Add ending empty element to list (after sorting the real entries).
@@ -1026,7 +1035,8 @@ int server_compare_prefer_udp(const void* a, const void* b)
 {
     int result;
     result = server_compare(a, b,
-                            OsSocket::TCP);  // TCP is least preferred transport
+                            OsSocket::TCP,
+                            OsSocket::SSL_SOCKET);  // TCP is least preferred transport
     return result;
 }
 
@@ -1035,12 +1045,24 @@ int server_compare_prefer_tcp(const void* a, const void* b)
 {
     int result;
     result = server_compare(a, b,
-                            OsSocket::UDP);  // UDP is least preferred transport
+                            OsSocket::UDP,
+                            OsSocket::SSL_SOCKET);  // UDP is least preferred transport
+    return result;
+}
+
+// sort server list so UDP and TCP forks will be tried last (TLS preferred)
+int server_compare_prefer_tls(const void* a, const void* b)
+{
+    int result;
+    result = server_compare(a, b,
+                            OsSocket::UDP,
+                            OsSocket::TCP);  // UDP is least preferred transport
     return result;
 }
 
 int server_compare(const void* a, const void* b,
-                   OsSocket::IpProtocolSocketType leastPreferredProto)
+                   OsSocket::IpProtocolSocketType leastPreferredProto1,
+                   OsSocket::IpProtocolSocketType leastPreferredProto2)
 {
     int result = 0;
     const server_t* s1 = (const server_t*) a;
@@ -1088,13 +1110,23 @@ int server_compare(const void* a, const void* b,
     // Smaller messages will ask to prefer UDP (TCP is lowest)
     // Large messages will ask to prefer TCP (UDP is lowest)
     // See SipTransaction::getPreferredProtocol.
-    else if (s1->type == leastPreferredProto
-          && s2->type != leastPreferredProto)
+    else if (s1->type == leastPreferredProto1
+          && s2->type != leastPreferredProto1)
     {
         result = 1;
     }
-    else if (s1->type != leastPreferredProto
-          && s2->type == leastPreferredProto)
+    else if (s1->type != leastPreferredProto1
+          && s2->type == leastPreferredProto1)
+    {
+        result = -1;
+    }
+    else if (s1->type == leastPreferredProto2
+          && s2->type != leastPreferredProto2)
+    {
+        result = 1;
+    }
+    else if (s1->type != leastPreferredProto2
+          && s2->type == leastPreferredProto2)
     {
         result = -1;
     }

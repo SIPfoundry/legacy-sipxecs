@@ -25,8 +25,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
@@ -40,6 +42,7 @@ import static org.apache.commons.collections.CollectionUtils.intersection;
 public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService> implements SipxServiceManager,
         ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(SipxServiceManagerImpl.class);
+    private static final String ERROR_ALIAS_IN_USE = "&error.aliasinuse";
 
     private ApplicationContext m_applicationContext;
 
@@ -48,6 +51,8 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     private ModelSource<SipxService> m_serviceModelSource;
 
     private ModelSource<SipxServiceBundle> m_bundleModelSource;
+
+    private AliasManager m_aliasManager;
 
     public SipxService getServiceByBeanId(String beanId) {
         Map<String, SipxService> beanId2Service = buildServiceDefinitionsMap();
@@ -77,6 +82,11 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         if (isRegistrarAliasInUse(registrar, alias)) {
             bids.add(new BeanId(registrar.getId(), SipxRegistrarService.class));
         }
+        /* Evicting all instances of SipxRegistrarService from Hibernate cache is necessary here.
+         * Without this, a org.hibernate.NonUniqueObjectException is thrown when trying to save paging groups.
+         * IMO evicting just the registrar instance loaded above should be sufficient, but it is not.
+        */
+        getHibernateTemplate().getSessionFactory().evict(SipxRegistrarService.class);
         return bids;
     }
 
@@ -168,7 +178,25 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     public void storeService(SipxService service, boolean notifyOnConfigChange) {
-        saveBeanWithSettings(service);
+        if (service instanceof SipxRegistrarService) {
+            SipxRegistrarService registrar = (SipxRegistrarService) service;
+            if (!m_aliasManager.canObjectUseAlias(registrar, registrar.getCallRetrieveCode())) {
+                throw new UserException(ERROR_ALIAS_IN_USE, registrar.getCallRetrieveCode());
+            }
+            if (!m_aliasManager.canObjectUseAlias(registrar, registrar.getDirectedCallPickupCode())) {
+                throw new UserException(ERROR_ALIAS_IN_USE, registrar.getDirectedCallPickupCode());
+            }
+        }
+        if (service instanceof SipxPresenceService) {
+            SipxPresenceService presence = (SipxPresenceService) service;
+            if (!m_aliasManager.canObjectUseAlias(presence, presence.getPresenceSignIn())) {
+                throw new UserException(ERROR_ALIAS_IN_USE, presence.getPresenceSignIn());
+            }
+            if (!m_aliasManager.canObjectUseAlias(presence, presence.getPresenceSignOut())) {
+                throw new UserException(ERROR_ALIAS_IN_USE, presence.getPresenceSignOut());
+            }
+        }
+        saveBeanWithSettings((SipxService) service);
         if (notifyOnConfigChange) {
             service.onConfigChange();
         }
@@ -332,5 +360,9 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             }
         }
         return null;
+    }
+
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
     }
 }

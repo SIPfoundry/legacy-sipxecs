@@ -40,7 +40,7 @@ public enum FullUsers {
 
     public User findByjid(String jid) {
         String id = StringUtils.substringBefore(jid, "@");
-        User user = ValidUsers.INSTANCE.getUserByJid(id);
+        User user = ValidUsers.INSTANCE.getUserByInsensitiveJid(id);
         if (user != null) {
             user.setJid(jid);
         }

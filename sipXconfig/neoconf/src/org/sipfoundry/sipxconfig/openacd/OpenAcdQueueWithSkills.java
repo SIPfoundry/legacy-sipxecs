@@ -21,9 +21,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.mongodb.BasicDBObject;
+
 import org.apache.commons.lang.StringUtils;
 
-public abstract class OpenAcdQueueWithSkills extends OpenAcdConfigObject {
+public abstract class OpenAcdQueueWithSkills extends EnhancedOpenAcdConfigObject {
     private static final String DELIM = ", ";
 
     private Set<OpenAcdSkill> m_skills = new LinkedHashSet<OpenAcdSkill>();
@@ -87,5 +89,10 @@ public abstract class OpenAcdQueueWithSkills extends OpenAcdConfigObject {
         }
 
         return skills;
+    }
+
+    @Override
+    public List<BasicDBObject> getAdditionalObjects() {
+        return null;
     }
 }

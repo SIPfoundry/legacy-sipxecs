@@ -39,6 +39,9 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeAction.ACTION;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition.CONDITION;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep.FREQUENCY;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfigurationTest;
@@ -64,6 +67,8 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
         fs.getFreeswitchSipPort();
         org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
+        fs.getBeanId();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(SipxFreeswitchService.BEAN_ID).anyTimes();
 
         SipxServiceManager sm = EasyMock.createMock(SipxServiceManager.class);
         sm.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
@@ -72,14 +77,21 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         EasyMock.replay(sm);
         org.easymock.classextension.EasyMock.replay(fs);
         
+        m_openAcdContextImpl.setSipxServiceManager(sm);
+        m_openAcdContextImpl.setCoreContext(m_coreContext);
+        
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("example");
         extension.setSipxServiceManager(sm);
         extension.setLocation(location);
+        extension.setAlias("alias");
+        extension.setDid("1234567890");
+        
         m_openAcdContextImpl.saveExtension(extension);
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
-
+        m_openAcdContextImpl.saveExtension(extension);
+        assertEquals(4, m_openAcdContextImpl.getAliasMappings().size());
         // test save extension with same name
         try {
             OpenAcdLine sameNameExtension = new OpenAcdLine();
@@ -900,6 +912,58 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         queueWithSkills.setGroup(defaultQueueGroup);
         queueWithSkills.setSkills(skills);
         m_openAcdContextImpl.saveQueue(queueWithSkills);
+        assertEquals(3, m_openAcdContextImpl.getQueues().size());
+
+        // test save queue with recipe steps
+        OpenAcdRecipeAction recipeAction1 = new OpenAcdRecipeAction();
+        recipeAction1.setAction(ACTION.SET_PRIORITY.toString());
+        recipeAction1.setActionValue("1");
+
+        OpenAcdRecipeCondition recipeCondition1 = new OpenAcdRecipeCondition();
+        recipeCondition1.setCondition(CONDITION.TICK_INTERVAL.toString());
+        recipeCondition1.setRelation("is");
+        recipeCondition1.setValueCondition("6");
+
+        OpenAcdRecipeStep recipeStep1 = new OpenAcdRecipeStep();
+        recipeStep1.setName("RecipeStep1");
+        recipeStep1.setFrequency(FREQUENCY.RUN_ONCE.toString());
+        recipeStep1.setAction(recipeAction1);
+        recipeStep1.addCondition(recipeCondition1);
+
+        OpenAcdRecipeAction recipeAction2 = new OpenAcdRecipeAction();
+        recipeAction2.setAction(ACTION.PRIORITIZE.toString());
+
+        OpenAcdRecipeCondition recipeCondition2 = new OpenAcdRecipeCondition();
+        recipeCondition2.setCondition(CONDITION.CALLS_IN_QUEUE.toString());
+        recipeCondition2.setRelation("less");
+        recipeCondition2.setValueCondition("10");
+
+        OpenAcdRecipeStep recipeStep2 = new OpenAcdRecipeStep();
+        recipeStep2.setName("RecipeStep2");
+        recipeStep2.setFrequency(FREQUENCY.RUN_MANY.toString());
+        recipeStep2.setAction(recipeAction2);
+        recipeStep2.addCondition(recipeCondition1);
+        recipeStep2.addCondition(recipeCondition2);
+
+        OpenAcdQueue queueWithRecipeStep = new OpenAcdQueue();
+        queueWithRecipeStep.setName("QueueRecipe");
+        queueWithRecipeStep.setGroup(defaultQueueGroup);
+        queueWithRecipeStep.addStep(recipeStep1);
+        queueWithRecipeStep.addStep(recipeStep2);
+        m_openAcdContextImpl.saveQueue(queueWithRecipeStep);
+
+        assertEquals(4, m_openAcdContextImpl.getQueues().size());
+        OpenAcdQueue queueRecipe = m_openAcdContextImpl.getQueueByName("QueueRecipe");
+        assertNotNull(queueRecipe);
+        assertEquals(2, queueRecipe.getSteps().size());
+
+        // test remove step from queue
+        queueRecipe.removeStep(recipeStep1);
+        m_openAcdContextImpl.saveQueue(queueWithRecipeStep);
+        assertEquals(1, queueRecipe.getSteps().size());
+
+        // test remove queue with recipe steps
+        m_openAcdContextImpl.removeQueues(Collections.singletonList(queueWithRecipeStep.getId()));
         assertEquals(3, m_openAcdContextImpl.getQueues().size());
 
         // test remove all queues but prevent 'default_queue' deletion

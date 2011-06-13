@@ -38,10 +38,23 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
     }
 
     protected void saveBeanWithSettings(BeanWithSettings bean) {
+        updateBeanValueStorage(bean);
+        if (bean.isNew()) {
+            getHibernateTemplate().save(bean);
+        } else {
+            getHibernateTemplate().merge(bean);
+        }
+    }
+
+    protected void saveOrUpdateBeanWithSettings(BeanWithSettings bean) {
+        updateBeanValueStorage(bean);
+        getHibernateTemplate().saveOrUpdate(bean);
+    }
+
+    private void updateBeanValueStorage(BeanWithSettings bean) {
         Storage origStorage = bean.getValueStorage();
         Storage cleanStorage = clearUnsavedValueStorage(origStorage);
         bean.setValueStorage(cleanStorage);
-        getHibernateTemplate().saveOrUpdate(bean);
     }
 
     protected void deleteBeanWithSettings(BeanWithSettings bean) {

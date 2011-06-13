@@ -205,7 +205,7 @@ namespace Os
       _fstream.close();
       _path = std::string(path_);
       _mode = mode;
-      _fstream.open(_path.string().c_str(), _mode);
+        _fstream.open(_path.string().c_str(), _mode);
       return _fstream.good();
     }
 
@@ -869,7 +869,7 @@ namespace Os
     typedef boost::function<std::string()> TaskCallBack;
 
     LoggerBase() :
-      _flushRate(0),
+      _flushRate(1),
       _enableConsoleOutput(false)
     {
       _pChannel = new TChannel();
@@ -1061,7 +1061,7 @@ namespace Os
         {
           _pChannel->flush();
         }
-        else if (_flushRate && !(++flushCount % _flushRate))
+        else if (_flushRate == 1 || (_flushRate && !(++flushCount % _flushRate)))
         {
           _pChannel->flush();
           if (pAlternateChannel)
@@ -1107,6 +1107,10 @@ namespace Os
       {
         _logRotateStrategy.start(_pChannel);
         return true;
+      }
+      else
+      {
+        std::cerr << "Unable to create log file " << path << "!" << std::endl;
       }
       return false;
     }

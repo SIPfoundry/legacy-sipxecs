@@ -19,12 +19,12 @@ assumeyes=1
 # repos
 [core]
 name=core
-@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/5.5/os/i386
+@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/5/os/i386
 @CENTOS_BASE_URL_OFF@mirrorlist=http://mirrorlist.centos.org/?release=5&arch=i386&repo=os
 
 [update]
 name=updates
-@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/5.5/updates/i386
+@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/5/updates/i386
 @CENTOS_BASE_URL_OFF@mirrorlist=http://mirrorlist.centos.org/?release=5&arch=i386&repo=updates
 
 [groups]
@@ -33,7 +33,7 @@ baseurl=http://buildsys.fedoraproject.org/buildgroups/rhel5/i386/
 
 [extras]
 name=epel
-@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/5.5/extras/i386
+@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/5/extras/i386
 @CENTOS_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&arch=i386
 
 [local]

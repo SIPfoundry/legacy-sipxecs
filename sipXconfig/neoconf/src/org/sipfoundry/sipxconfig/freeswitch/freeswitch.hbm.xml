@@ -12,6 +12,8 @@
     <discriminator column="freeswitch_ext_type" type="character" />
     <property name="name" />
     <property name="description" />
+    <property name="alias" />
+    <property name="did" />
     <set name="conditions" table="freeswitch_condition" cascade="all,delete-orphan" order-by="freeswitch_condition_id">
       <key column="freeswitch_ext_id" not-null="true"/>
       <one-to-many class="FreeswitchCondition"/>

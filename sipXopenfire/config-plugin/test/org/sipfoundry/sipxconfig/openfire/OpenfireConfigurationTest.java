@@ -25,6 +25,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
@@ -36,6 +38,8 @@ import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import junit.framework.TestCase;
@@ -51,6 +55,8 @@ public class OpenfireConfigurationTest extends TestCase {
     private final AttrMap m_ldapAttrMap = new AttrMap();
 
     private LocationsManager m_locationsManager;
+
+    private CoreContext m_coreContext;
 
     @Override
     protected void setUp() throws Exception {
@@ -79,7 +85,18 @@ public class OpenfireConfigurationTest extends TestCase {
         Location location = TestUtil.createDefaultLocation();
         expectLastCall().andReturn(location).anyTimes();
 
-        replay(m_ldapManager, m_locationsManager);
+        m_coreContext = createMock(CoreContext.class);
+        m_coreContext.loadUserByAdmin();
+        User user1 = new User();
+        user1.setUserName("123");
+        User user2 = new User();
+        user2.setUserName("130");
+        List<User> users = new ArrayList<User>();
+        users.add(user1);
+        users.add(user2);
+        expectLastCall().andReturn(users).anyTimes();
+
+        replay(m_ldapManager, m_locationsManager, m_coreContext);
     }
 
     public void testGenerateOpenfireConfiguration() throws Exception {
@@ -118,6 +135,7 @@ public class OpenfireConfigurationTest extends TestCase {
         configuration.setVelocityEngine(TestHelper.getVelocityEngine());
         configuration.setTemplate("openfire/openfire.vm");
         configuration.setLdapManager(m_ldapManager);
+        configuration.setCoreContext(m_coreContext);
 
         return configuration;
     }

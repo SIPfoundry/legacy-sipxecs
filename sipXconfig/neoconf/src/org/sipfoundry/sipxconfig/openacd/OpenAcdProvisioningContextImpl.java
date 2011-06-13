@@ -150,6 +150,9 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
             for (String property : openAcdObject.getProperties()) {
                 object.put(property, getDataValue(openAcdObject, property));
             }
+            if (openAcdObject instanceof EnhancedOpenAcdConfigObject) {
+                object.put("additionalObjects", ((EnhancedOpenAcdConfigObject) openAcdObject).getAdditionalObjects());
+            }
             objects.add(object);
         }
         return objects;

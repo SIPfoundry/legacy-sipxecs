@@ -702,7 +702,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
 
         // Look up the DNS records, create the child transactions,
         // and start pursuing the first child.
-        sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList);
+        sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList, requestCopy);
     }
     else    // It is a response, cancel, dnsChild, or an ack for failure
     {       // these messages do not get dns lookup, do not get protocol change
@@ -2600,7 +2600,8 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
 }
 
 UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
-                                                 SipTransactionList& transactionList)
+                                                 SipTransactionList& transactionList,
+                                                 SipMessage* pRequest)
 {
     // If this is a client transaction requiring DNS lookup
     // and we need to create the children to recurse
@@ -2620,12 +2621,30 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
         else if(mTransactionState < TRANSACTION_CONFIRMED)
         {
             mTransactionState = TRANSACTION_CONFIRMED;
+            UtlString scheme;
+            scheme = "sip";
 
             // Do the DNS lookup for the request destination but first
             // determine whether to force the msg to be sent via TCP.
             OsSocket::IpProtocolSocketType msgSizeProtocol = getPreferredProtocol();
+
+            if (pRequest)
+            {
+              Url requestUri;
+              UtlString requestUriString;
+              pRequest->getRequestUri(&requestUriString);
+              requestUri.fromString(requestUriString, TRUE /* is a request uri */);
+
+              if (requestUri.getScheme() == Url::SipsUrlScheme)
+              {
+                scheme = "sips";
+                msgSizeProtocol = OsSocket::SSL_SOCKET;
+              }
+            }
+
+            
             mpDnsDestinations = SipSrvLookup::servers(mSendToAddress.data(),
-                                                      "sip", // TODO - scheme should be from the request URI
+                                                      scheme.data(), // TODO - scheme should be from the request URI
                                                       mSendToProtocol,
                                                       mSendToPort,
                                                       msgSizeProtocol);
@@ -2749,7 +2768,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                );
             }
 
-            if(mpDnsDestinations[0].isValidServerT())   // leave redundant check at least for now
+            if(mpDnsDestinations && mpDnsDestinations[0].isValidServerT())   // leave redundant check at least for now
             {
                 int numSrvRecords = 0;
                 int maxSrvRecords = userAgent.getMaxSrvRecords();

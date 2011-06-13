@@ -22,6 +22,9 @@
 	<port>9094</port>
 	<securePort>9095</securePort>
   </adminConsole>
+  <admin>
+      <authorizedUsernames>${authorizedUsernames}</authorizedUsernames>
+  </admin>
 #if($isEnableOpenfireConfiguration)
   <ldap>
 	<host>${ldapParams.host}</host>

@@ -944,6 +944,11 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     @Override
+    public OpenAcdRecipeStep getRecipeStepById(Integer recipeStepId) {
+        return getHibernateTemplate().load(OpenAcdRecipeStep.class, recipeStepId);
+    }
+
+    @Override
     public List<Replicable> getReplicables() {
         List<Replicable> replicables = new ArrayList<Replicable>();
         for (OpenAcdExtension ext : getHibernateTemplate().loadAll(OpenAcdExtension.class)) {

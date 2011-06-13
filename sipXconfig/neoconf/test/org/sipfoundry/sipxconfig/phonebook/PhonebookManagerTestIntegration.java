@@ -126,6 +126,11 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testUpdateOnGroupDelete() throws Exception {
         loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
+        loadDataSetXml("domain/DomainSeed.xml");
+        User user1002 = m_coreContext.loadUser(1002);
+        user1002.setPermissionManager(m_permissionManager);
+        User yellowthroat = m_coreContext.loadUser(1001);
+        yellowthroat.setPermissionManager(m_permissionManager);
         Group g = m_coreContext.getGroupByName("warblers", false);
         assertNotNull(g);
         m_settingDao.deleteGroups(Collections.singleton(g.getId()));

@@ -996,7 +996,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void saveGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings) {
-        saveBeanWithSettings(generalPhonebookSettings);
+        saveOrUpdateBeanWithSettings(generalPhonebookSettings);
     }
 
     public GeneralPhonebookSettings getGeneralPhonebookSettings() {
