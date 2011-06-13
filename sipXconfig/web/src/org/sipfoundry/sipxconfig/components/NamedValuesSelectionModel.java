@@ -55,6 +55,14 @@ public class NamedValuesSelectionModel implements IPropertySelectionModel {
         return m_options.length;
     }
 
+    public Object[] getOptions() {
+        return m_options;
+    }
+
+    public String[] getLabels() {
+        return m_labels;
+    }
+
     public Object getOption(int index) {
         return m_options[index];
     }

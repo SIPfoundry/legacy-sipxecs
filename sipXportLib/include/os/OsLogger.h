@@ -205,17 +205,7 @@ namespace Os
       _fstream.close();
       _path = std::string(path_);
       _mode = mode;
-
-      _fstream.exceptions ( T::failbit | T::badbit);
-
-      try
-      {
         _fstream.open(_path.string().c_str(), _mode);
-      }
-      catch(...)
-      {
-        std::cerr << "Fatal file operation error on " << _path << std::endl;
-      }
       return _fstream.good();
     }
 

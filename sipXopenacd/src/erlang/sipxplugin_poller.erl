@@ -82,6 +82,7 @@ get_command_values(Data, Mong) ->
 	if Data =:= [] -> ?DEBUG("No Data", []);
 		true ->
 			% command format { "_id" : ObjectId("4ce62e892957ca4fc97387a1"), "command" : "ADD", "count" : 2, "objects" : []}
+			?DEBUG("Processing Mongo DB Command: ~p", [Data]),
 			[{_, Id}, {_, CmdValue}, {_, Count}, {_, {_, Objects}}] = Data,
 			lists:foreach(fun(Object) ->
 				% objects to process starts with type e.g. "type" : "agent", "name" : "bond", "pin" : "1234"
@@ -227,8 +228,13 @@ process_queue(Queue, Command) ->
 		call_queue_config:destroy_queue(erlang:binary_to_list(Name));
 	Command =:= "UPDATE" ->
 		{_, Oldname} = lists:nth(7, Queue),
-		OldRecipe = element(5, call_queue_config:get_queue(erlang:binary_to_list(Oldname))),
-		call_queue_config:set_queue(erlang:binary_to_list(Oldname), erlang:binary_to_list(Name), binary_to_number(Weight), AllSkills, OldRecipe, erlang:binary_to_list(QueueGroup));
+		{_, {_, RecipeSteps}} = lists:nth(8, Queue),
+		if RecipeSteps =:= [] -> RecipeToSave = [];
+			true ->
+				RecipeToSave = lists:flatmap(fun(X) -> [extract_recipe_step(X)] end, RecipeSteps)
+		end,
+		call_queue_config:set_queue(erlang:binary_to_list(Oldname), erlang:binary_to_list(Name), binary_to_number(Weight), AllSkills, RecipeToSave, erlang:binary_to_list(QueueGroup)),
+		queue_manager:load_queue(erlang:binary_to_list(Name));
 	true -> ?WARNING("Unrecognized command", [])
 	end.
 
@@ -262,6 +268,35 @@ process_log_configuration(Config, Command) ->
 	cpxlog:set_loglevel(lists:append(erlang:binary_to_list(LogDir), "full.log"), LogLevelAtom),
 	cpxlog:set_loglevel(lists:append(erlang:binary_to_list(LogDir), "console.log"), LogLevelAtom).
 
+extract_condition(MongoCondition) ->
+	[{_, Condition}, {_, Relation}, {_, ConditionValue}] = MongoCondition,
+	ConditionAtom = list_to_atom(erlang:binary_to_list(Condition)),
+	RelationAtom = list_to_atom(erlang:binary_to_list(Relation)),
+	if (ConditionAtom =:= client) or (ConditionAtom =:= type) ->
+		ConditionValueAtom = erlang:binary_to_list(ConditionValue);
+	true -> ConditionValueAtom = binary_to_number(ConditionValue)
+	end,
+	if ConditionAtom =:= ticks ->
+		ConditionToSave = {ConditionAtom, ConditionValueAtom};
+	true -> ConditionToSave = {ConditionAtom, RelationAtom, ConditionValueAtom}
+	end,
+	ConditionToSave.
+
+extract_recipe_step(RecipeStep) ->
+	[{_, [{_, RecipeAction}, {_, RecipeActionValue}]}, {_, {_, RecipeConditions}}, {_, RecipeFrequency}, {_, RecipeName}] = RecipeStep,
+	RecipeActionAtom = list_to_atom(erlang:binary_to_list(RecipeAction)),
+	if RecipeActionAtom =:= announce ->
+		RecipeActionValueAtom = erlang:binary_to_list(RecipeActionValue);
+	RecipeActionAtom =:= set_priority ->
+		RecipeActionValueAtom = binary_to_number(RecipeActionValue);
+	(RecipeActionAtom =:= add_skills) or (RecipeActionAtom =:= remove_skills) ->
+		RecipeActionValueAtom = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(RecipeActionValue)), ", "));
+		true -> RecipeActionValueAtom = []
+		end,
+	ActionToSave = {RecipeActionAtom, RecipeActionValueAtom},
+	ConditionList = lists:flatmap(fun(X) -> [extract_condition(X)] end, RecipeConditions),
+	{ConditionList,[ActionToSave],list_to_atom(erlang:binary_to_list(RecipeFrequency)),RecipeName}.
+
 binary_to_number(B) ->
     list_to_number(binary_to_list(B)).
 
@@ -271,3 +306,4 @@ list_to_number(L) ->
         error:badarg ->
             list_to_integer(L)
     end.
+
