@@ -10,11 +10,13 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.springframework.context.ApplicationEvent;
 
 public interface SipxReplicationContext {
     void generateAll();
+    void generateAll(DataSet ds);
 
     /**
      * Replicates configuration to all locations.

@@ -20,7 +20,7 @@ public class PermissionTest extends TestCase {
     public void setUp() {
         m_permission = new Permission();
         m_permission.setType(Permission.Type.CALL);
-        m_permission.setId(15);
+        m_permission.setUniqueId(15);
     }
 
     public void testGetSettingPath() {

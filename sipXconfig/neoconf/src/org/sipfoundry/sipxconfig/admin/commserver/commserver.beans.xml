@@ -223,6 +223,7 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
   </bean>
 
   <bean id="registrationContext"

@@ -17,17 +17,17 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * This context deals with lazy replication of configuration files.
- * Configuration files need to be lazily replicated, however entities do not
- * Until mongo introduction it made sense for both IMDB and config files to be lazily replicated
- * but now with IMDB change to mongo and with the focus shift from Dataset replication to
- * Replicable entity replication lazy does not make sense for entities.
- * TODO: this will have to go away, and only eager replication to exist
+ * This context deals with lazy replication of configuration files. Configuration files need to be
+ * lazily replicated, however entities do not Until mongo introduction it made sense for both IMDB
+ * and config files to be lazily replicated but now with IMDB change to mongo and with the focus
+ * shift from Dataset replication to Replicable entity replication lazy does not make sense for
+ * entities. TODO: this will have to go away, and only eager replication to exist
  */
 public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     private static final Log LOG = LogFactory.getLog(LazySipxReplicationContextImpl.class);
@@ -57,6 +57,12 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     @Override
     public void generateAll() {
         m_target.generateAll();
+    }
+
+    @Override
+    public synchronized void generateAll(DataSet ds) {
+        m_tasks.add(new GenerateDatasetTask(ds));
+        notifyWorker();
     }
 
     @Override
@@ -216,6 +222,26 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         }
     }
 
+    static class GenerateDatasetTask extends ReplicationTask {
+        private DataSet m_ds;
+
+        public GenerateDatasetTask(DataSet ds) {
+            m_ds = ds;
+        }
+
+        @Override
+        public void replicate(SipxReplicationContext replicationContext) {
+            replicationContext.generateAll(m_ds);
+
+        }
+
+        @Override
+        public boolean update(ReplicationTask task) {
+            return false;
+        }
+
+    }
+
     @Override
     public void replicateWork(Replicable entity) {
     }
@@ -224,6 +250,7 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     public void resyncSlave(Location location) {
         m_target.resyncSlave(location);
     }
+
     @Override
     public void replicateLocation(Location location) {
         m_target.replicateLocation(location);
