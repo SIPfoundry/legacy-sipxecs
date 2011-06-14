@@ -19,3 +19,5 @@ test_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig, $(test_PKGS))
 
 test_SRC = $(shell cd $(srcdir); find org -name '*.java')
+
+precommit : check

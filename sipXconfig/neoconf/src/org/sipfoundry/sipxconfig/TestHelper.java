@@ -39,6 +39,8 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -83,12 +85,14 @@ import org.springframework.dao.DataIntegrityViolationException;
  */
 public final class TestHelper {
 
+    private static final Log LOG = LogFactory.getLog(TestHelper.class);
+
     private static final String EXAMPLE_ORG = "example.org";
 
     private static final String EOL = System.getProperty("line.separator");
 
     private static final String FORWARD_SLASH = "/";
-    
+
     private static Properties s_testProps;
 
     private static final DateFormat ENGLISH_DATE = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.FULL,
@@ -118,7 +122,10 @@ public final class TestHelper {
 
         // Activate log configuration on test/log4j.properties
         // System.setProperty("org.apache.commons.logging.Log",
-        // "org.apache.commons.logging.impl.Log4JLogger");        
+        // "org.apache.commons.logging.impl.Log4JLogger");
+    }
+
+    private TestHelper() {
     }
 
     public static ApplicationContext getApplicationContext() {
@@ -151,8 +158,7 @@ public final class TestHelper {
     }
 
     public static ModelFilesContext getModelFilesContext() {
-        String sysdir = getSettingModelContextRoot();
-        return getModelFilesContext(sysdir);
+        return getModelFilesContext(getSystemEtcDir());
     }
 
     public static ModelFilesContext getModelFilesContext(String modelDir) {
@@ -163,49 +169,38 @@ public final class TestHelper {
         return mfc;
     }
 
-    public static XmlModelBuilder getModelBuilder() {
-        ModelFilesContextImpl mfc = new ModelFilesContextImpl();
-        String sysdir = getSettingModelContextRoot();
-        mfc.setConfigDirectory(sysdir);
-        XmlModelBuilder builder = new XmlModelBuilder(sysdir);
-        mfc.setModelBuilder(builder);
-        return builder;
+    public static Setting loadSettings(File file) {
+        ModelBuilder builder = new XmlModelBuilder(file.getParent());
+        return builder.buildModel(file);
     }
 
-    public static String getSettingModelContextRoot() {
-        String sysdir = getTestProperties().getProperty("sysdir.etc");
-        return sysdir;
+    public static Setting loadSettings(String etcDir, String path) {
+        ModelFilesContext mfc = getModelFilesContext(etcDir);
+        Setting s = mfc.loadModelFile(path);
+        return s;
     }
 
     public static Setting loadSettings(String path) {
-        Setting settings = getModelFilesContext().loadModelFile(path);
-        return settings;
+        ModelFilesContext mfc = getModelFilesContext();
+        Setting s = mfc.loadModelFile(path);
+        return s;
     }
 
-    public static Setting loadSettings(Class klass, String resource) {
-        ModelBuilder builder = new XmlModelBuilder("etc");
-        File in = getResourceAsFile(klass, resource);
-        return builder.buildModel(in);
+    public static String getEtcDir() {
+        // requires adding to test.properties in Makefile.am
+        return getTestProperties().getProperty("local.etc.dir");
     }
 
-    public static String getClasspathDirectory() {
-        if (s_classPathDir == null) {
-            s_classPathDir = System.getProperty("classpath.dir");
-            if (s_classPathDir == null) {
-                try {
-                    Class c = Class.forName("org.sipfoundry.sipxconfig.ClearDb");
-                    s_classPathDir = TestHelper.getClasspathDirectory(c);
-                } catch (ClassNotFoundException err) {
-                    throw new RuntimeException("You must set 'classpath.dir' system property where to find resources");
-                }
-            }
-        }
-        return s_classPathDir;
+    public static String getSystemEtcDir() {
+        return getTestProperties().getProperty("SIPX_CONFDIR");
     }
 
     public static VelocityEngine getVelocityEngine() {
+        return getVelocityEngine(getSystemEtcDir());
+    }
+
+    public static VelocityEngine getVelocityEngine(String etcDir) {
         try {
-            String etcDir = getTestProperties().getProperty("sysdir.etc");
             VelocityEngine engine = new VelocityEngine();
             engine.setProperty("resource.loader", "file");
             engine.setProperty("file.resource.loader.path", etcDir);
@@ -217,10 +212,10 @@ public final class TestHelper {
         }
     }
 
-    public static VelocityProfileGenerator getProfileGenerator() {
+    public static VelocityProfileGenerator getProfileGenerator(String etcDir) {
         VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
-        profileGenerator.setVelocityEngine(getVelocityEngine());
-        profileGenerator.setTemplateRoot(getSettingModelContextRoot());
+        profileGenerator.setVelocityEngine(getVelocityEngine(etcDir));
+        profileGenerator.setTemplateRoot(etcDir);
         return profileGenerator;
     }
 
@@ -230,13 +225,12 @@ public final class TestHelper {
      *
      * @param device
      */
-    public static MemoryProfileLocation setVelocityProfileGenerator(Device device) {
+    public static MemoryProfileLocation setVelocityProfileGenerator(Device device, String etcDir) {
         MemoryProfileLocation location = new MemoryProfileLocation();
         VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
-        profileGenerator.setVelocityEngine(getVelocityEngine());
-        profileGenerator.setTemplateRoot(TestHelper.getTestProperties().getProperty("sysdir.etc"));
+        profileGenerator.setVelocityEngine(getVelocityEngine(etcDir));
+        profileGenerator.setTemplateRoot(etcDir);
         device.setProfileGenerator(profileGenerator);
-
         return location;
     }
 
@@ -330,7 +324,7 @@ public final class TestHelper {
 
         private void dumpSqlExceptionMessages(SQLException e) {
             for (SQLException next = e; next != null; next = next.getNextException()) {
-                System.err.println(next.getMessage());
+                LOG.info(next.getMessage());
             }
         }
     }
@@ -388,7 +382,7 @@ public final class TestHelper {
         IOUtils.closeQuietly(to);
         IOUtils.closeQuietly(from);
     }
-    
+
     public static String getSourceDirectory(Class klass) {
         String n = klass.getSimpleName();
         return getResourceAsFile(klass, klass.getSimpleName() + ".java").getParent();
@@ -403,7 +397,6 @@ public final class TestHelper {
      */
     public static File getResourceAsFile(Class klass, String resource) {
         URL url = klass.getResource(resource);
-        String cp = System.getProperty("java.class.path");
         return new File(url.getFile());
     }
 
@@ -427,7 +420,7 @@ public final class TestHelper {
     public static <T> T[] asArray(T... items) {
         return aryEq(items);
     }
-    
+
     public static final boolean isWindows() {
         return File.separatorChar == '\\';
     }
@@ -503,168 +496,21 @@ public final class TestHelper {
     public static Properties getTestProperties() {
         if (s_testProps == null) {
             s_testProps = new Properties();
+            String cp = System.getProperty("java.class.path");
             File propsFile = TestHelper.getResourceAsFile("/test.properties");
             InputStream propsStream = null;
             try {
+                LOG.info("Loading test properties " + propsFile.getPath());
                 propsStream = new FileInputStream(propsFile);
                 s_testProps.load(propsStream);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
-                IOUtils.closeQuietly(propsStream);                
+                IOUtils.closeQuietly(propsStream);
             }
         }
         return s_testProps;
     }
-        
-    /**
-     * Builds directory in which model files for a specified project (neoconf or any of the
-     * plug-ins are located)
-     *
-     */
-    public static String getModelDirectory(String project) {
-        String etcDir = getTestProperties().getProperty("sysdir.etc");
-        return etcDir;
-    }
-
-    /**
-     * Finds the directory in which sipXconfig source is located
-     */
-//    private static String getSourceRootDirectory() {
-//        String projectDirectory = getProjectDirectory();
-//        int lastIndexOf = projectDirectory.lastIndexOf("sipXconfig");
-//        if (lastIndexOf < 0) {
-//            throw new RuntimeException("sipXconfig sources have to be in sipXconfig dir");
-//        }
-//        return projectDirectory.substring(0, lastIndexOf) + "/sipXconfig";
-//    }
-
-//    public static String getProjectDirectory() {
-//        // eclipse
-//        String userDir = System.getProperty("user.dir");
-//        // ant
-//        return System.getProperty("basedir", userDir);
-//    }
-
-    /**
-     * Get the directory all autoconf and ant build output gets sent
-     */
-//    public static String getBuildDirectory(String project) {
-//        try {
-//            String propName = "top.build.dir";
-//            File dir = new File(getProjectDirectory());
-//            while (dir != null) {
-//                File propFile = new File(dir, propName);
-//                if (propFile.exists()) {
-//                    Properties props = new Properties();
-//                    FileInputStream topBuildDirProperties = new FileInputStream(propFile);
-//                    props.load(topBuildDirProperties);
-//                    return props.getProperty(propName) + '/' + project;
-//                }
-//                dir = dir.getParentFile();
-//            }
-//            throw new RuntimeException(String.format("Cannot find %s in any of the parent of %s.", propName,
-//                    getProjectDirectory()));
-//        } catch (IOException ioe) {
-//            throw new RuntimeException("Could not find top build directory", ioe);
-//        }
-//    }
-
-    /**
-     * Create a sysdir.properties file in the classpath. Uses a trick that will only work if unit
-     * tests are unjar-ed. We could do this in ant, but this approach avoids setup and works in
-     * IDEs like Eclipse where bin.eclipse is the classpath.
-     */
-//    public static void setSysDirProperties(Properties sysProps, String etcDirectory, String outputDirectory) {
-//
-//        // HACK: sysdir.bin is not a real directory when testing
-//        final String vxmlDir = outputDirectory + "/vxml";
-//        final String mailstoreDir = outputDirectory + "/mailstore";
-//        final String binDir = outputDirectory + "/bin";
-//        final String tmpDir = outputDirectory + "/tmp";
-//        final String sslDir = outputDirectory + "/ssl";
-//        final String authDir = sslDir + "/authorities";
-//
-//        sysProps.setProperty("sysdir.bin", binDir);
-//        sysProps.setProperty("sysdir.etc", etcDirectory);
-//        sysProps.setProperty("sysdir.data", outputDirectory);
-//        sysProps.setProperty("sysdir.share", outputDirectory);
-//        sysProps.setProperty("sysdir.thirdparty", outputDirectory);
-//        sysProps.setProperty("sysdir.var", outputDirectory);
-//        sysProps.setProperty("sysdir.phone", outputDirectory);
-//        sysProps.setProperty("sysdir.tmp", tmpDir);
-//        sysProps.setProperty("sysdir.log", outputDirectory);
-//        sysProps.setProperty("sysdir.doc", outputDirectory);
-//        sysProps.setProperty("sysdir.mailstore", mailstoreDir);
-//        sysProps.setProperty("sysdir.vxml", vxmlDir);
-//        sysProps.setProperty("sysdir.vxml.prompts", vxmlDir + "/prompts");
-//        sysProps.setProperty("sysdir.vxml.scripts", vxmlDir + "/scripts");
-//        sysProps.setProperty("sysdir.vxml.moh", vxmlDir + "/moh");
-//        sysProps.setProperty("sysdir.user", "sipxpbxuser");
-//        sysProps.setProperty("sysdir.libexec", outputDirectory);
-//        sysProps.setProperty("sysdir.default.firmware", outputDirectory + "/devicefiles");
-//        sysProps.setProperty("sysdir.alarmsStrings", etcDirectory);
-//        sysProps.setProperty("sipxpbx.mibs.dir", etcDirectory);
-//
-//        sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
-//        sysProps.setProperty("acdHistoryDataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
-//        sysProps.setProperty("acdHistoricalStatsImpl.enabled", Boolean.toString(true));
-//        sysProps.setProperty("cdrDataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCDR_TEST");
-//        sysProps.setProperty("localBackupPlan.backupDirectory", outputDirectory + "/backup");
-//        sysProps.setProperty("ftpBackupPlan.backupDirectory", outputDirectory + "/ftpBackup");
-//        sysProps.setProperty("ftpRestore.downloadDirectory", outputDirectory + "/downloadFtpBackup");
-//        sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
-//        sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
-//        sysProps.setProperty("acdContextImpl.enabled", Boolean.toString(true));
-//        sysProps.setProperty("indexTrigger.enabled", Boolean.toString(false));
-//        sysProps.setProperty("upload.uploadRootDirectory", outputDirectory + "/upload");
-//        sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
-//        sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory + "/phonebook");
-//        sysProps.setProperty("audiocodesGatewayModel.configDirectory", etcDirectory);
-//        sysProps.setProperty("audiocodesFxs.configDirectory", etcDirectory);
-//
-//        sysProps.setProperty("monitoringContextImpl.enabled", Boolean.toString(true));
-//        sysProps.setProperty("coreContextImpl.debug", "on");
-//        sysProps.setProperty("sipxconfig.db.user", "postgres");
-//        sysProps.setProperty("acdServer.agentPort", "8120");
-//        sysProps.setProperty("mrtgTemplateConfig.filename", etcDirectory + "/mrtg-t.cfg");
-//        sysProps.setProperty("mrtgConfig.filename", outputDirectory + "/mrtg.cfg");
-//        sysProps.setProperty("jasperReportContextImpl.reportsDirectory", etcDirectory + "/reports");
-//
-//        File vmDir = createDirectory(mailstoreDir, "Could not create voicemail store");
-//        createDirectory(tmpDir, "Could not create tmp directory");
-//        File ssl = createDirectory(sslDir, "Could not create ssl directory");
-//        File auth = createDirectory(authDir, "Could not create auth directory");
-//
-//        sysProps.setProperty("mailboxManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
-//        sysProps.setProperty("certificateManagerImpl.sslDirectory", ssl.getAbsolutePath());
-//        sysProps.setProperty("certificateManagerImpl.sslAuthDirectory", auth.getAbsolutePath());
-//    }
-//
-//    private static File createDirectory(String directoryName, String errorMessage) {
-//        File dir = new File(directoryName);
-//        if (!dir.exists()) {
-//            if (!dir.mkdirs()) {
-//                throw new RuntimeException(errorMessage + dir.getAbsolutePath());
-//            }
-//        }
-//        return dir;
-//    }
-//
-//    public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {
-//        File sysdirPropsFile = new File(classpathDirectory, "sipxconfig.properties");
-//        FileOutputStream sysdirPropsStream;
-//        try {
-//            sysdirPropsStream = new FileOutputStream(sysdirPropsFile);
-//            // store them so spring's application context file find it
-//            // in classpath
-//            sysProps.store(sysdirPropsStream, null);
-//        } catch (FileNotFoundException e) {
-//            throw new RuntimeException("could not create system dir properties file", e);
-//        } catch (IOException e) {
-//            throw new RuntimeException("could not store system dir properties", e);
-//        }
-//    }
 
     public static File createTempDir(String name) throws IOException {
         File createTempFile = File.createTempFile(name, "dir");
@@ -797,5 +643,4 @@ public final class TestHelper {
             return null;
         }
     }
-    
 }

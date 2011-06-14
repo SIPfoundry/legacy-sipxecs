@@ -61,7 +61,7 @@ public class BridgeSbcTest {
         DeviceDefaults deviceDefaults = PhoneTestDriver.getDeviceDefaults();
 
         m_sbc = new BridgeSbc();
-        m_location = TestHelper.setVelocityProfileGenerator(m_sbc);
+        m_location = TestHelper.setVelocityProfileGenerator(m_sbc, TestHelper.getSystemEtcDir());
 
         NatLocation natLocation = new NatLocation();
         natLocation.setPublicAddress("192.168.5.240");

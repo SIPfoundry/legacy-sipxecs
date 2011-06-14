@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-grandstream $(grandstream_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(grandstream_RESOURCES))
+
+style_SRC = $(grandstream_SRC)
+precommit : style

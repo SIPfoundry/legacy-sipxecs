@@ -44,6 +44,6 @@ neoconf_DEPS = \
 neoconf_SRC = \
 	$(shell cd $(srcdir); find org -type f -name '*.java')
 
-style_srcdir = $(srcdir)/org/sipfoundry
-
+style_DEPS = $(neoconf_DEPS)
+style_SRC = $(filter-out org/taha/%,$(neoconf_SRC))
 precommit : style

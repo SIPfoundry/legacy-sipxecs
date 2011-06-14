@@ -15,8 +15,8 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class GrandstreamProfileTest extends TestCase {
 
@@ -73,7 +73,7 @@ public class GrandstreamProfileTest extends TestCase {
         GrandstreamProfileWriter pwtr = new GrandstreamProfileWriter(phone);
         pwtr.write(profile);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream(expectedProfile));
-        String actual = TestUtil.cleanEndOfLines(profile.toString());
+        String actual = TestHelper.cleanEndOfLines(profile.toString());
         assertEquals(expected, actual);
     }
 }

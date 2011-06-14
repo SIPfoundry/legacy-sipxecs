@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-aastra $(aastra_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(aastra_RESOURCES))
+
+style_SRC = $(aastra_SRC)
+precommit : style

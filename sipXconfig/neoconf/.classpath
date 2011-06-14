@@ -2,13 +2,13 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="ECLIPSE_HOME"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/sipxcommons"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/sipXconfig-etc"/>
 	<classpathentry exported="true" kind="var" path="SIPX_JAVADIR/sipXecs/sipXconfig/agent-bindings.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_JAVADIR/sipXecs/sipXconfig/cdr-bindings.jar"/>
-	<classpathentry kind="var" path="SIPXCONFIG_BUILDDIR/neoconf/test"/>
+	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/neoconf/test"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

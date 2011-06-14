@@ -24,3 +24,7 @@ $(WAR_FILE) : javac-cmcprov $(war_RESOURCES)
 	jar -cf $@ \
 	-C out . \
 	-C $(srcdir)/context .
+
+style_SRC = $(cmcprov_SRC)
+style_DEPS = $(call JavaDep,@SIPX_JAVADIR@/sipXcommons,javax.servlet)
+precommit : style

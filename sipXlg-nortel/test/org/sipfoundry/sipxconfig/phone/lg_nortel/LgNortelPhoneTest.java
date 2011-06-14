@@ -77,7 +77,7 @@ public class LgNortelPhoneTest extends TestCase {
         PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,true);
         phone.restart();
 
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     public void testRestartNoLine() throws Exception {
@@ -89,7 +89,7 @@ public class LgNortelPhoneTest extends TestCase {
 
         phone.restart();
 
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     /**
@@ -134,7 +134,7 @@ public class LgNortelPhoneTest extends TestCase {
         LgNortelPhone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         supplyTestData(phone);
 
@@ -154,7 +154,7 @@ public class LgNortelPhoneTest extends TestCase {
         LgNortelPhone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         supplyTestData(phone);
 
@@ -180,7 +180,7 @@ public class LgNortelPhoneTest extends TestCase {
         LgNortelPhone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         supplyTestData(phone);
 
@@ -214,7 +214,7 @@ public class LgNortelPhoneTest extends TestCase {
         phoneContextControl.replay();
 
         {
-            MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+            MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
             phone.getProfileTypes()[0].generate(phone, location);
             String actual = location.toString();
             String actualLines[] = StringUtils.split(actual, "\n");
@@ -230,7 +230,7 @@ public class LgNortelPhoneTest extends TestCase {
         line.setUser(user);
         phone.addLine(line);
         {
-            MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+            MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
             phone.getProfileTypes()[0].generate(phone, location);
             String actual = location.toString();
             String actualLines[] = StringUtils.split(actual, "\n");
@@ -250,7 +250,7 @@ public class LgNortelPhoneTest extends TestCase {
         LgNortelPhone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         User user1 = new User() {
             @Override
@@ -321,7 +321,7 @@ public class LgNortelPhoneTest extends TestCase {
         LgNortelPhone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         supplyTestData(phone);
 
@@ -342,7 +342,7 @@ public class LgNortelPhoneTest extends TestCase {
         LgNortelPhone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         supplyTestData(phone);
 

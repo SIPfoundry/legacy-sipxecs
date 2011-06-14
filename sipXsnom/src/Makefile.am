@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-snom $(snom_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(snom_RESOURCES))
+
+style_SRC = $(snom_SRC)
+precommit : style

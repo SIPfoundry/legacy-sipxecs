@@ -1,4 +1,6 @@
 /*
+ *
+ *
  * Copyright (C) 2010 Avaya, certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
@@ -10,6 +12,8 @@ import java.sql.SQLException;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlWriter;
@@ -23,6 +27,7 @@ import org.springframework.dao.DataIntegrityViolationException;
  * exception.
  */
 public abstract class SipxDatabaseTestCase extends TestCase {
+    private static final Log LOG = LogFactory.getLog(SipxDatabaseTestCase.class);
     public void runBare() throws Throwable {
         try {
             super.runBare();
@@ -42,7 +47,7 @@ public abstract class SipxDatabaseTestCase extends TestCase {
 
     static void dumpSqlExceptionMessages(SQLException e) {
         for (SQLException next = e; next != null; next = next.getNextException()) {
-            System.err.println(next.getMessage());
+            LOG.info(next.getMessage());
         }
     }
 

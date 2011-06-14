@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
 import static org.easymock.EasyMock.expectLastCall;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ public class CounterpathPhoneTest extends TestCase {
         m_phone.setDefaults(new DeviceDefaults());
 
         m_permissionManager = new PermissionManagerImpl();
-        m_permissionManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        m_permissionManager.setModelFilesContext(TestHelper.getModelFilesContext());
     }
 
     public void testGetFileName() throws Exception {
@@ -88,7 +87,7 @@ public class CounterpathPhoneTest extends TestCase {
         EasyMock.replay(locationsManagerMock);
         m_phone.setLocationsManager(locationsManagerMock);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone, TestHelper.getEtcDir());
         m_phone.generateProfiles(location);
         String expected = IOUtils.toString(getClass().getResourceAsStream("cmc-enterprise.ini"));
         System.out.println("((((" + expected + "))))");
@@ -194,7 +193,7 @@ public class CounterpathPhoneTest extends TestCase {
         List<User> users = new ArrayList<User>();
 
         PermissionManagerImpl pManager = new PermissionManagerImpl();
-        pManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        pManager.setModelFilesContext(TestHelper.getModelFilesContext());
 
         User user1 = new User();
         user1.setUserName("juser");
@@ -231,7 +230,7 @@ public class CounterpathPhoneTest extends TestCase {
         EasyMock.replay(locationsManagerMock);
         m_phone.setLocationsManager(locationsManagerMock);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone, TestHelper.getEtcDir());
         m_phone.generateProfiles(location);
         String expected = IOUtils.toString(getClass().getResourceAsStream("cmc-enterprise-without-voicemail-permission.ini"));
 

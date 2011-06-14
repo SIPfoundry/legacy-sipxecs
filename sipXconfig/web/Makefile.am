@@ -158,3 +158,8 @@ $(web_JAVAROOT)/% : src/%
 	test -d $(dir $@) || mkdir -p $(dir $@)
 	cp $^ $@
 
+style_SRC = $(filter-out src/com/%,$(web_SRC))
+style_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(web_PKGS))
+
+precommit : style

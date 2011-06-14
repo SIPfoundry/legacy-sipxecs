@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-counterpath $(counterpath_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(counterpath_RESOURCES))
+
+style_SRC = $(counterpath_SRC)
+precommit : style

@@ -39,7 +39,7 @@ public class CiscoIpPhoneTest extends TestCase {
     }
 
     public void testGenerate7960Profiles() throws Exception {
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone, TestHelper.getEtcDir());
         PhoneTestDriver.supplyVitalEmergencyData(m_phone, "sos");
         m_phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream(

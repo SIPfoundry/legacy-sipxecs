@@ -56,7 +56,7 @@ public class PolycomPhoneTest extends TestCase {
         m_location = new FileSystemProfileLocation();
         m_location.setParentDir(m_root);
 
-        VelocityProfileGenerator profileGenerator = TestHelper.getProfileGenerator();
+        VelocityProfileGenerator profileGenerator = TestHelper.getProfileGenerator(TestHelper.getEtcDir());
         m_phone.setProfileGenerator(profileGenerator);
     }
 
@@ -98,7 +98,7 @@ public class PolycomPhoneTest extends TestCase {
     public void testRestartFailureNoLine() throws Exception {
         m_phone.getLines().clear();
         m_phone.restart();
-        m_tester.sipControl.verify();
+        m_tester.getSipControl().verify();
     }
 
     public void testRestart() throws Exception {
@@ -107,7 +107,7 @@ public class PolycomPhoneTest extends TestCase {
         assertEquals("\"Joe User\"<sip:juser@sipfoundry.org>", uri);
 
         m_phone.restart();
-        m_tester.sipControl.verify();
+        m_tester.getSipControl().verify();
     }
 
     public void testLineDefaults() throws Exception {

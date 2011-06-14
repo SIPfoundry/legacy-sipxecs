@@ -45,7 +45,7 @@ public class HitachiPhoneTest extends TestCase {
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         ProfileContext context = new ProfileContext(phone, "hitachi/user.ini.vm");
         phone.getProfileGenerator().generate(location, context, null, "ignore");

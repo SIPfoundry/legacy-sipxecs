@@ -36,7 +36,7 @@ public class UnidataPhoneTest extends TestCase {
         PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,false);
         phone.restart();
 
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     public void testGenerateTypicalProfile() throws Exception {
@@ -46,7 +46,7 @@ public class UnidataPhoneTest extends TestCase {
         phone.setModel(model);
 
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         ProfileContext context = new ProfileContext(phone, "unidata/unidata.vm");
         phone.getProfileGenerator().generate(location, context, null, "ignore");

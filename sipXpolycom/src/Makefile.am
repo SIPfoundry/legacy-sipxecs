@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-polycom $(polycom_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(polycom_RESOURCES))
+
+style_SRC = $(polycom_SRC)
+precommit : style

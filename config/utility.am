@@ -89,3 +89,10 @@ CommonVariablesNames = \
 SearchAndReplace = \
 	sed $(foreach V,$3 $(CommonVariablesNames), -e 's|@$(V)\@|$($(V))|g') $1 > $2
 
+# Recursive targets. will go to each subdir and run
+precommit : % : %-recurse
+
+%-recurse :
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  test "$$subdir" = . || ($(am__cd) $$subdir && $(MAKE) $(AM_MAKEFLAGS) $*) || eval 'exit 1'; \
+	done

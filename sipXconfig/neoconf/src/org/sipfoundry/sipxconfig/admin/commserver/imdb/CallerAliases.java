@@ -9,7 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import com.mongodb.DBObject;
+import static org.sipfoundry.commons.mongo.MongoConstants.ANONYMOUS;
+import static org.sipfoundry.commons.mongo.MongoConstants.CALLERALIAS;
+import static org.sipfoundry.commons.mongo.MongoConstants.CID_PREFIX;
+import static org.sipfoundry.commons.mongo.MongoConstants.IGNORE_USER_CID;
+import static org.sipfoundry.commons.mongo.MongoConstants.KEEP_DIGITS;
+import static org.sipfoundry.commons.mongo.MongoConstants.TRANSFORM_EXT;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -19,7 +24,7 @@ import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 
-import static org.sipfoundry.commons.mongo.MongoConstants.*;
+import com.mongodb.DBObject;
 
 public class CallerAliases extends DataSetGenerator {
 

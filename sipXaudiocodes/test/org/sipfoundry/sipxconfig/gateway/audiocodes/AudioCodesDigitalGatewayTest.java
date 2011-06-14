@@ -39,8 +39,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         model.setSupportedFeatures(features);
         model.setMaxPorts(4);
         model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
-        String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesGatewayModel.configDirectory");
-        model.setConfigDirectory(configDirectory);
+        model.setConfigDirectory(TestHelper.getEtcDir());
 
         m_gateway = new AudioCodesDigitalGateway();
         m_gateway.setModel(model);
@@ -63,7 +62,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
             m_gateway.addPort(trunk);
         }
         m_gateway.setSerialNumber("001122334455");
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway, TestHelper.getEtcDir());
 
         m_gateway.setSettingValue("SIP_general/SOURCENUMBERMAPIP2TEL","*,0,$$,$$,$$,$$,*,1,*");
         m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED","1");

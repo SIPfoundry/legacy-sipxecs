@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-ipdialog $(ipdialog_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(ipdialog_RESOURCES))
+
+style_SRC = $(ipdialog_SRC)
+precommit : style

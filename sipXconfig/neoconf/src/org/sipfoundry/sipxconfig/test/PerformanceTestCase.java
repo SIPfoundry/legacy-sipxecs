@@ -13,11 +13,11 @@ import junit.framework.TestCase;
 
 public abstract class PerformanceTestCase extends TestCase {
 
-    public static double FAST_MACHINE = 0;           // P4, 3GHz, 2GB RAM
-    public static double SLOW_MACHINE = 10;          // P3, 1GHz, 128MB RAM
-    public static double VERY_SLOW_MACHINE = 1000;   // XT, 16Hz, 640K RAM
+    public static final double FAST_MACHINE = 0;           // P4, 3GHz, 2GB RAM
+    public static final double SLOW_MACHINE = 10;          // P3, 1GHz, 128MB RAM
+    public static final double VERY_SLOW_MACHINE = 1000;   // XT, 16Hz, 640K RAM
 
-    private static double FUDGE = FAST_MACHINE;
+    private static final double FUDGE = FAST_MACHINE;
 
     private boolean m_setup;
 
@@ -30,7 +30,7 @@ public abstract class PerformanceTestCase extends TestCase {
     }
 
     protected static long getTolerance(long time) {
-        return (long)(time + ((FUDGE / 100) * time));
+        return (long) (time + ((FUDGE / 100) * time));
     }
 
     /**

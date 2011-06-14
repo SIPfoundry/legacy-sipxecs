@@ -1,4 +1,6 @@
 /*
+ *
+ *
  * Copyright (C) 2010 Avaya, certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
@@ -23,7 +25,7 @@ public class TestPhone extends Phone {
     }
 
     Setting loadSettings(String resource) {
-        return TestHelper.loadSettings(getClass(), resource);
+        return TestHelper.loadSettings(TestHelper.getResourceAsFile(getClass(), resource));
     }
 
     @Override

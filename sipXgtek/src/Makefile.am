@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-gtek $(gtek_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(gtek_RESOURCES))
+
+style_SRC = $(gtek_SRC)
+precommit : style

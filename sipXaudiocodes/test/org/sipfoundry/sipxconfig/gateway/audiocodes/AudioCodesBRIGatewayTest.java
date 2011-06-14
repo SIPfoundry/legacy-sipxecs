@@ -28,7 +28,7 @@ public class AudioCodesBRIGatewayTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        m_modelFilesContext = TestHelper.getModelFilesContext();
+        m_modelFilesContext = TestHelper.getModelFilesContext(TestHelper.getSystemEtcDir());
         AudioCodesModel model = new AudioCodesModel();
         model.setBeanId("gwAudiocodes");
         model.setModelId("audiocodes");
@@ -40,8 +40,7 @@ public class AudioCodesBRIGatewayTest extends TestCase {
         model.setSupportedFeatures(features);
         model.setMaxPorts(4);
         model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
-        String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesGatewayModel.configDirectory");
-        model.setConfigDirectory(configDirectory);
+        model.setConfigDirectory(TestHelper.getEtcDir());
 
         m_gateway = new AudioCodesBRIGateway();
         m_gateway.setModel(model);
@@ -64,7 +63,7 @@ public class AudioCodesBRIGatewayTest extends TestCase {
             m_gateway.addPort(trunk);
         }
         m_gateway.setSerialNumber("001122334455");
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway, TestHelper.getEtcDir());
 
         m_gateway.setSettingValue("SIP_general/SOURCENUMBERMAPIP2TEL", "*,0,$$,$$,$$,$$,*,1,*");
         m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED", "1");

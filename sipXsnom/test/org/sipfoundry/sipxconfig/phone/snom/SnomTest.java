@@ -49,7 +49,7 @@ public class SnomTest extends TestCase {
 
         SnomPhone phone = preparePhone(model);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-snom-360.xml"));
@@ -66,7 +66,7 @@ public class SnomTest extends TestCase {
 
         SnomPhone phone = preparePhone(model);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-snom-320.xml"));
@@ -84,7 +84,7 @@ public class SnomTest extends TestCase {
 
         SnomM3Phone phone = prepareM3Phone(model);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-snom-m3.cfg"));
@@ -159,7 +159,7 @@ public class SnomTest extends TestCase {
         phoneContextControl.andReturn(m_emptyPhonebook).anyTimes();
         phoneContextControl.replay();
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.setPhoneContext(phoneContext);
         phone.generateProfiles(location);
@@ -197,7 +197,7 @@ public class SnomTest extends TestCase {
         phoneContextControl.andReturn(null).anyTimes();
         phoneContextControl.replay();
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.setPhoneContext(phoneContext);
         phone.generateProfiles(location);

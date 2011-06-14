@@ -23,9 +23,3 @@ SUBDIRS = \
 install-data-hook :
 	$(mkdir_p) $(DESTDIR)@SIPX_VARDIR@/upload
 	$(mkdir_p) $(DESTDIR)@SIPX_VARDIR@/backup
-
-
-precommit :
-	for d in neoconf/src neoconf/test web/src web/test; do \
-	  cd $(abspath $(builddir)/$$d); $(MAKE) precommit; \
-	done

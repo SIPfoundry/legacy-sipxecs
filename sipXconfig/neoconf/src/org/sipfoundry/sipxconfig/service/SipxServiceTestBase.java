@@ -57,7 +57,7 @@ public class SipxServiceTestBase extends TestCase {
     }
 
     public void assertCorrectFileGeneration(ConfigurationFile configuration, String expectedFileName)
-            throws Exception {
+        throws Exception {
         if (configuration instanceof TemplateConfigurationFile) {
             TemplateConfigurationFile t = (TemplateConfigurationFile) configuration;
             t.setVelocityEngine(TestHelper.getVelocityEngine());

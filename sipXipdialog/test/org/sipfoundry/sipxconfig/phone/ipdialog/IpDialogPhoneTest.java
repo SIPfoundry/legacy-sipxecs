@@ -54,7 +54,7 @@ public class IpDialogPhoneTest extends TestCase {
         phone.setModel(model);
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         phone.generateProfiles(location);
         InputStream expectedProfile = getClass().getResourceAsStream("expected-config");
         String expected = IOUtils.toString(expectedProfile);
@@ -72,7 +72,7 @@ public class IpDialogPhoneTest extends TestCase {
         phone.setModel(model);
 
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         Button[] buttons = new Button[] {
             new Button("abc", "123@sipfoundry.org"), new Button("def_def", "456"), new Button("xyz abc", "789"),

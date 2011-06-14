@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-karel $(karel_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(karel_RESOURCES))
+
+style_SRC = $(karel_SRC)
+precommit : style

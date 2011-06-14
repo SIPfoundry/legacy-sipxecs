@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.phone.nortel12x0;
 
 import static org.easymock.EasyMock.expectLastCall;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -34,8 +33,8 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
@@ -114,7 +113,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,true);
         phone.restart();
 
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     public void testRestartNoLine() throws Exception {
@@ -139,7 +138,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         model.setProfileTemplate("nortel12x0/nortel12x0.vm");
         phone.setModel(model);
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         phone.generateProfiles(location);
         InputStream expectedProfile = getClass().getResourceAsStream("expected-config");
         String expected = IOUtils.toString(expectedProfile);
@@ -161,7 +160,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         mohManagerControl.replay();
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
-        pm.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
 
         special_user = new User();
         special_user.setPermissionManager(pm);
@@ -212,7 +211,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         phone.setModel(model);
 
         PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         IMocksControl phoneContextControl = setMockPhoneContextForSpecialUser(phone);
 
@@ -256,7 +255,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         user1.setSipPassword("1234");
 
         PhoneTestDriver.supplyTestData(phone, Collections.singletonList(user1));
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         Button[] buttons = new Button[] {
             new Button("a,b,c", "123@sipfoundry.org"), new Button("def_def", "456"), new Button("xyz abc", "789"),
@@ -317,7 +316,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         phone.setModel(model);
 
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         List< ? extends PhonebookEntry> phonebook = Arrays.asList(new DummyEntry("001"), new DummyEntry("003"),
                 new DummyEntry("005"));
@@ -452,7 +451,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         List<User> users = new ArrayList<User>();
 
         PermissionManagerImpl pManager = new PermissionManagerImpl();
-        pManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        pManager.setModelFilesContext(TestHelper.getModelFilesContext());
 
         User user1 = new User();
         user1.setUserName("juser");
@@ -480,7 +479,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         model.setProfileTemplate("nortel12x0/nortel12x0.vm");
         phone.setModel(model);
         PhoneTestDriver.supplyTestData(phone, users);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         phone.generateProfiles(location);
         InputStream expectedProfile = getClass().getResourceAsStream("expected-config-no-voicemail-permission");
         String expected = IOUtils.toString(expectedProfile);

@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-hitachi $(hitachi_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(hitachi_RESOURCES))
+
+style_SRC = $(hitachi_SRC)
+precommit : style

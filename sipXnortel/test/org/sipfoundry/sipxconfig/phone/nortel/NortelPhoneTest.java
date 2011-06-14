@@ -56,7 +56,7 @@ public class NortelPhoneTest extends TestCase {
         PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone);
         phone.restart();
 
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     public void testRestartNoLine() throws Exception {
@@ -91,7 +91,7 @@ public class NortelPhoneTest extends TestCase {
      */
     public void testGenerateNortel1140() throws Exception {
         Phone phone = createPhone();
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("mac_1140.cfg"));
         String actual = location.toString("SIP001122334455.cfg");
@@ -110,7 +110,7 @@ public class NortelPhoneTest extends TestCase {
         user.setSipPassword("sip32");
         line.setUser(user);
         phone.addLine(line);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("mac_1140_3.2.cfg"));
         String actual = location.toString("SIP001122334455.cfg");

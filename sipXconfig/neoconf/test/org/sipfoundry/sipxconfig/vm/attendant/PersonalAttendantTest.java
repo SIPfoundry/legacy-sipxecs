@@ -31,7 +31,7 @@ public class PersonalAttendantTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        m_profileGenerator = TestHelper.getProfileGenerator();
+        m_profileGenerator = TestHelper.getProfileGenerator(TestHelper.getSystemEtcDir());
     }
 
     public void testGenerateUserProfile() throws Exception {

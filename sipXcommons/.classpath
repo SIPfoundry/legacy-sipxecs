@@ -13,7 +13,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/ant-apache-oro.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ant-apache-regexp.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ant-launcher-1.6.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/antlr-2.7.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/aopalliance-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-2.2.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-commons-2.2.3.jar"/>
@@ -27,8 +26,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/cglib-nodep-2.1_3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/com.noelios.restlet-1.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/com.noelios.restlet.ext.servlet-2.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.8.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-digester-1.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-discovery-0.4.jar"/>
@@ -49,7 +46,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/gdata-client-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gdata-contacts-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gdata-core-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/google-collect-1.0-rc4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guessencoding-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gwt-user-2.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-3.2.7.jar"/>
@@ -139,5 +135,9 @@
 	<classpathentry exported="true" kind="lib" path="lib/xmlunit-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xstream-1.3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/antlr-2.7.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-core-1.8.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/google-collections-1.0.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

@@ -39,14 +39,13 @@ public class AudioCodesFxsGatewayTest extends TestCase {
         model.setSupportedFeatures(features);
         model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
         model.setModelDir("audiocodes");
-        String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesFxs.configDirectory");
-        model.setConfigDirectory(configDirectory);
+        model.setConfigDirectory(TestHelper.getEtcDir());
 
         AudioCodesFxsGateway gateway = new AudioCodesFxsGateway();
         gateway.setModel(model);
         gateway.setDeviceVersion(version);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(gateway);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(gateway, TestHelper.getEtcDir());
 
         User u1 = new User();
         u1.setUserName("juser");

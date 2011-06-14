@@ -65,14 +65,14 @@ public class GrandstreamPhoneTest extends TestCase {
     }
 
     public void testReset() throws Exception {
-        tester.sipControl = EasyMock.createStrictControl();
-        tester.sip = tester.sipControl.createMock(SipService.class);
+        tester.setSipControl(EasyMock.createStrictControl());
+        tester.setSip(tester.getSipControl().createMock(SipService.class));
 
-        tester.sip.sendNotify(EasyMock.eq("sip:juser@sipfoundry.org"), EasyMock.eq("sys-control"), EasyMock
+        tester.getSip().sendNotify(EasyMock.eq("sip:juser@sipfoundry.org"), EasyMock.eq("sys-control"), EasyMock
                 .eq("application/octet-stream"), resetMatcher());
-        tester.sipControl.replay();
+        tester.getSipControl().replay();
 
-        phone.setSipService(tester.sip);
+        phone.setSipService(tester.getSip());
         phone.restart();
     }
 

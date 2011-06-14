@@ -37,13 +37,13 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  * permissions match code.
  *
  * <code>
- * <hostMatch>
- *    <hostPattern>gateway addresses</hostPattern>
- *    <userMatch>
- *      <userPattern>sos</userPattern>
- *      <permissionMatch>name of the permission</permissionMatch>
- *    </userMatch>
- * </hostMatch>
+ * &lt;hostMatch&gt;
+ *    &lt;hostPattern&gt;gateway addresses&lt;/hostPattern&gt;
+ *    &lt;userMatch&gt;
+ *      &lt;userPattern&gt;sos&lt;/userPattern&gt;
+ *      &lt;permissionMatch&gt;name of the permission&lt;/permissionMatch&gt;
+ *    &lt;/userMatch&gt;
+ * &lt;/hostMatch&gt;
  * </code>
  *
  */

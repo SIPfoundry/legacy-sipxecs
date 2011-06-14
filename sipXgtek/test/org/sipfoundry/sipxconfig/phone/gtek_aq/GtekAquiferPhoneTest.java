@@ -34,12 +34,13 @@ public class GtekAquiferPhoneTest extends TestCase {
 
     public void testGenerateTypicalProfile() throws Exception {
         GtekAquiferPhone phone = new GtekAquiferPhone();
+        String s = TestHelper.getEtcDir();
         PhoneModel model = new PhoneModel("gtek-aq");
         model.setProfileTemplate("gtek-aq/config.vm");
         phone.setModel(model);
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.generateProfiles(location);
 
@@ -60,7 +61,7 @@ public class GtekAquiferPhoneTest extends TestCase {
         model.setProfileTemplate("gtek-aq/config.vm");
         phone.setModel(model);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         User user1 = new User() {
             @Override

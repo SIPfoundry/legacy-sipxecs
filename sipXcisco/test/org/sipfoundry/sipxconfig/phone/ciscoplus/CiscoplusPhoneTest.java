@@ -48,7 +48,7 @@ public class CiscoplusPhoneTest extends TestCase {
 
     public void testGenerate7960Profiles() throws Exception {
         PhoneTestDriver.supplyTestData(m_phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone, TestHelper.getEtcDir());
         m_phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("SEP111111111111.cnf.xml"));
         assertEquals(expected, location.toString());
@@ -69,7 +69,7 @@ public class CiscoplusPhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(m_phone, Arrays.asList(new User[] {
             u1, u2
         }));
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone, TestHelper.getEtcDir());
         m_phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("SEP111111111111-2-lines.cnf.xml"));
         assertEquals(expected, location.toString());

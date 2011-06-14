@@ -23,7 +23,7 @@ public class ConditionalSetTest extends TestCase {
     private SettingExpressionEvaluator m_evaluator;
 
     protected void setUp() throws Exception {
-        XmlModelBuilder builder = new XmlModelBuilder(TestHelper.getSettingModelContextRoot());
+        XmlModelBuilder builder = new XmlModelBuilder(".");
         File in = TestHelper.getResourceAsFile(getClass(), "conditionals.xml");
         m_root = (ConditionalSet) builder.buildModel(in);
         m_definitions = new HashSet();

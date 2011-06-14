@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-clearone $(clearone_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(clearone_RESOURCES))
+
+style_SRC = $(clearone_SRC)
+precommit : style

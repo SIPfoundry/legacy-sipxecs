@@ -43,7 +43,7 @@ public class LinksysPhoneTest extends TestCase {
     }
 
     public void testGenerate7960Profiles() throws Exception {
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone, TestHelper.getEtcDir());
         m_phone.generateFiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("spa942.cfg"));
         assertEquals(expected, location.toString());

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import static org.easymock.EasyMock.expectLastCall;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,8 +24,8 @@ import org.dom4j.io.SAXReader;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
@@ -34,9 +36,6 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 /**
  * Tests file phone.cfg generation
@@ -51,11 +50,8 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
     @Override
     protected void setUp() throws Exception {
         phone = new PolycomPhone();
-
-        m_location = new MemoryProfileLocation();
-        VelocityProfileGenerator pg = new VelocityProfileGenerator();
-        pg.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_pg = pg;
+        m_location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
+        m_pg = phone.getProfileGenerator();
     }
 
     /**
@@ -119,7 +115,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         mohManagerControl.replay();
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
-        pm.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        pm.setModelFilesContext(TestHelper.getModelFilesContext(TestHelper.getSystemEtcDir()));
 
         User special_user = new User();
         special_user.setPermissionManager(pm);
@@ -213,7 +209,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         List<User> users = new ArrayList<User>();
 
         PermissionManagerImpl pManager = new PermissionManagerImpl();
-        pManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        pManager.setModelFilesContext(TestHelper.getModelFilesContext(TestHelper.getSystemEtcDir()));
 
         User user1 = new User();
         user1.setUserName("juser");
@@ -260,7 +256,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         List<User> users = new ArrayList<User>();
 
         PermissionManagerImpl pManager = new PermissionManagerImpl();
-        pManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        pManager.setModelFilesContext(TestHelper.getModelFilesContext(TestHelper.getSystemEtcDir()));
 
         m_testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
 

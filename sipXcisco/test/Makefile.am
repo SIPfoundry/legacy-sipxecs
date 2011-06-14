@@ -10,12 +10,7 @@ noinst_DATA = javac-test
 
 test_PKGS = \
 	$(cisco_PKGS) \
-	junit \
-	org.restlet \
-	com.noelios.restlet \
-	dbunit \
-	easymock \
-	easymockclassextension
+	sipxconfig-test
 
 test_DEPS = \
 	$(JAVAROOT) \
@@ -28,3 +23,12 @@ test_JAVAFLAGS = -Dclasspath.dir=$(srcdir) -Dbasedir=$(top_builddir)
 
 test_SRC = $(shell cd $(srcdir); find org -name '*.java')
 test_RESOURCES = $(shell cd $(srcdir); find org -not -name '*.java')
+
+javac-test : test.properties
+
+local.etc.dir = $(abspath $(top_srcdir)/etc)
+test.properties : Makefile
+	@echo -e "$(subst $(space),\n,$(foreach V,local.etc.dir $(CommonVariablesNames),$(V)=$($(V))))" > $@
+
+precommit : check
+

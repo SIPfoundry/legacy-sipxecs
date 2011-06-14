@@ -28,7 +28,7 @@ public class BeanWithSettingTest extends TestCase {
 
     static class BirdWithSettings extends BeanWithSettings {
         protected Setting loadSettings() {
-            return TestHelper.loadSettings(BeanWithSettingTest.class, "birds.xml");
+            return TestHelper.loadSettings(TestHelper.getResourceAsFile(BeanWithSettingTest.class, "birds.xml"));
         }
     }
 }

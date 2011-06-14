@@ -24,6 +24,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import junit.framework.Assert;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -36,6 +38,8 @@ import org.dom4j.io.SAXReader;
  * Collection of utility function to XMLUnit and DOM4J testing with XMLUnit
  */
 public abstract class XmlUnitHelper {
+    private static final Log LOG = LogFactory.getLog(XmlUnitHelper.class);
+
     /**
      * In most cases where we use the xpath it's easier to ignore namespace than to construct
      * proper namespace aware XPatch expression
@@ -69,7 +73,7 @@ public abstract class XmlUnitHelper {
      * @param doc
      */
     public static void dumpXml(Document doc) {
-        System.err.println(TestHelper.asString(doc));
+        LOG.info(TestHelper.asString(doc));
     }
 
     /**
@@ -89,8 +93,7 @@ public abstract class XmlUnitHelper {
         return writer.write(doc);
     }
 
-    public static void style(Reader xsl, Reader xml, Writer out, Map params)
-            throws TransformerException {
+    public static void style(Reader xsl, Reader xml, Writer out, Map params) throws TransformerException {
         Source xmlSource = new javax.xml.transform.stream.StreamSource(xml);
         TransformerFactory factory = TransformerFactory.newInstance();
         Source xslSource = new javax.xml.transform.stream.StreamSource(xsl);

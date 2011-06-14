@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-cisco $(cisco_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(cisco_RESOURCES))
+
+style_SRC = $(cisco_SRC)
+precommit : style

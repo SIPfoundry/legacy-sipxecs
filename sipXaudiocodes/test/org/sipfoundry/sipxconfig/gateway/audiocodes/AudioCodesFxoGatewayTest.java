@@ -45,8 +45,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_model.setSupportedFeatures(features);
         m_model.setMaxPorts(4);
         m_model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
-        String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesGatewayModel.configDirectory");
-        m_model.setConfigDirectory(configDirectory);
+        m_model.setConfigDirectory(TestHelper.getEtcDir());
 
         m_gateway = new AudioCodesFxoGateway();
         m_gateway.setModel(m_model);
@@ -70,7 +69,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         }
 
         m_gateway.setSerialNumber("001122334455");
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway, TestHelper.getEtcDir());
 
         m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
         if((AudioCodesModel.REL_5_8 == version) ||
@@ -101,7 +100,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         }
 
         m_gateway.setSerialNumber("001122334455");
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway, TestHelper.getEtcDir());
 
         m_gateway.generateFiles(location);
         assertTrue(location.toString().length() > 0);

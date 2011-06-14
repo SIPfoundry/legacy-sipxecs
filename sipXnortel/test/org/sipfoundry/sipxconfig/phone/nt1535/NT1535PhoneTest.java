@@ -48,7 +48,7 @@ public class NT1535PhoneTest extends TestCase {
         PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,true);
         phone.restart();
 
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     public void testRestartNoLine() throws Exception {
@@ -59,7 +59,7 @@ public class NT1535PhoneTest extends TestCase {
         PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>(), true);
         phone.restart();
 
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     public void testGenerateSystemProfile() throws Exception {
@@ -68,7 +68,7 @@ public class NT1535PhoneTest extends TestCase {
         phone.setModel(nortelModel);
 
         PhoneTestDriver.supplyTestData(phone);
-        phone.setProfileGenerator(TestHelper.getProfileGenerator());
+        phone.setProfileGenerator(TestHelper.getProfileGenerator(TestHelper.getEtcDir()));
 
         Profile profile = new SystemConfigProfile(phone, "profile");
         assertEquals("1.0/0.1.90S/profile", profile.getName());
@@ -88,7 +88,7 @@ public class NT1535PhoneTest extends TestCase {
         phone.setModel(nt1535);
 
         PhoneTestDriver.supplyTestData(phone);
-        phone.setProfileGenerator(TestHelper.getProfileGenerator());
+        phone.setProfileGenerator(TestHelper.getProfileGenerator(TestHelper.getEtcDir()));
 
         Profile profile = new DeviceConfigProfile(phone, "profile");
         assertEquals("1.0/0.1.90S/profile", profile.getName());

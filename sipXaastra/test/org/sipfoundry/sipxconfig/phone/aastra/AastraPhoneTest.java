@@ -75,7 +75,7 @@ public class AastraPhoneTest extends TestCase {
         PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone);
         phone.restart();
 
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     public void testRestartNoLine() throws Exception {
@@ -120,7 +120,7 @@ public class AastraPhoneTest extends TestCase {
         line.setUser(user);
         phone.addLine(line);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         phone.getProfileTypes()[0].generate(phone, location);
         String actual = location.toString();
         String actualLines[] = StringUtils.split(actual, "\n");
@@ -154,7 +154,7 @@ public class AastraPhoneTest extends TestCase {
 
         phoneContextControl.replay();
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         phone.getProfileTypes()[0].generate(phone, location);
         String actual = location.toString();
         System.err.println(actual);
@@ -183,7 +183,7 @@ public class AastraPhoneTest extends TestCase {
         AastraPhone phone = new AastraPhone();
         phone.setModel(aastraModel);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         supplyTestData(phone);
 
@@ -207,7 +207,7 @@ public class AastraPhoneTest extends TestCase {
         AastraPhone phone = new AastraPhone();
         phone.setModel(aastraModel);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         PhoneTestDriver.supplyTestData(phone, m_lines);
 

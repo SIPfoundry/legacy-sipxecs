@@ -46,7 +46,7 @@ public class KarelPhoneTest extends TestCase {
         phone.setModel(model);
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.generateProfiles(location);
 
@@ -63,7 +63,7 @@ public class KarelPhoneTest extends TestCase {
         model.setProfileTemplate("karel/config.vm");
         phone.setModel(model);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         User user1 = new User() {
             @Override

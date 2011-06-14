@@ -19,19 +19,20 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 /**
- * Generate the following into the mappingrules.xml <code>
- * <hostMatch>
- *   <hostPattern>DOMAIN ALIAS #1 HERE</hostPattern>
- *   <hostPattern>DOMAIN ALIAS #2 HERE</hostPattern>
- *   <userMatch>
- *     <userPattern>.</userPattern>
- *     <permissionMatch>
- *       <transform>
- *         <host>ACTUAL DOMAIN HERE</host>
- *       </transform>
- *     </permissionMatch>
- *   </userMatch>
- * </hostMatch>
+ * Generate the following into the mappingrules.xml
+ * <code>
+ * &lt;hostMatch&gt;
+ *   &lt;hostPattern&gt;DOMAIN ALIAS #1 HERE&lt;/hostPattern&gt;
+ *   &lt;hostPattern&gt;DOMAIN ALIAS #2 HERE&lt;/hostPattern&gt;
+ *   &lt;userMatch&gt;
+ *     &lt;userPattern&gt;.&lt;/userPattern&gt;
+ *     &lt;permissionMatch&gt;
+ *       &lt;transform&gt;
+ *         &lt;host&gt;ACTUAL DOMAIN HERE&lt;/host&gt;
+ *       &lt;/transform&gt;
+ *     &lt;/permissionMatch&gt;
+ *   &lt;/userMatch&gt;
+ * &lt;/hostMatch&gt;
  * </code>
  */
 public class DomainDialingRule extends DialingRule {

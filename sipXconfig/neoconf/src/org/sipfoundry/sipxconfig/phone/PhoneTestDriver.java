@@ -17,7 +17,6 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.sipfoundry.sipxconfig.TestHelper.getMockDomainManager;
 import static org.sipfoundry.sipxconfig.TestHelper.getMockSipxServiceManager;
-import static org.sipfoundry.sipxconfig.TestHelper.getModelDirectory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,9 +51,10 @@ import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
-public class PhoneTestDriver {
+public final class PhoneTestDriver {
+    public static final String SIPFOUNDRY_ORG = "sipfoundry.org";
 
-    public String serialNumber = "0004f200e06b";
+    private static final Map<ServiceDescriptor, String> SERVICES = new HashMap<ServiceDescriptor, String>();
 
     private final IMocksControl m_phoneContextControl;
 
@@ -62,59 +62,22 @@ public class PhoneTestDriver {
 
     private final MusicOnHoldManager m_musicOnHoldManager;
 
-    public SipService sip;
-
-    public IMocksControl sipControl;
-
     private final List<Line> m_lines = new ArrayList<Line>();
 
-    public static PhoneTestDriver supplyTestData(Phone _phone) {
-        return supplyTestData(_phone, true);
+    private SipService m_sip;
+
+    private IMocksControl m_sipControl;
+
+    private String m_serialNumber = "0004f200e06b";
+
+    static {
+        SERVICES.put(UnmanagedService.NTP, "ntp.example.org");
+        SERVICES.put(UnmanagedService.DNS, "10.4.5.1");
+        SERVICES.put(UnmanagedService.SYSLOG, "10.4.5.2");
     }
 
-    public static PhoneTestDriver supplyTestData(Phone phone, boolean phonebookManagementEnabled) {
-        return supplyTestData(phone, phonebookManagementEnabled, false, false, false);
-    }
-
-    public static PhoneTestDriver supplyTestData(Phone _phone, List<User> users) {
-        return new PhoneTestDriver(_phone, users, true, false, false);
-    }
-
-    public static PhoneTestDriver supplyTestData(Phone _phone, List<User> users, boolean sendCheckSyncToMac) {
-        return new PhoneTestDriver(_phone, users, true, false, sendCheckSyncToMac);
-    }
-
-    public static PhoneTestDriver supplyTestData(Phone _phone, boolean phonebookManagementEnabled,
-            boolean speedDial, boolean includeSharedLine, boolean sendCheckSyncToMac) {
-        List<User> users = new ArrayList<User>();
-
-        User firstUser = new User();
-        firstUser.setUserName("juser");
-        firstUser.setFirstName("Joe");
-        firstUser.setLastName("User");
-        firstUser.setSipPassword("1234");
-        firstUser.setIsShared(false);
-        users.add(firstUser);
-
-        if (includeSharedLine) {
-            User secondUser = new User();
-            secondUser.setUserName("sharedUser");
-            secondUser.setFirstName("Shared");
-            secondUser.setLastName("User");
-            secondUser.setSipPassword("1234");
-            secondUser.setIsShared(true);
-            users.add(secondUser);
-        }
-
-        return new PhoneTestDriver(_phone, users, phonebookManagementEnabled, speedDial, sendCheckSyncToMac);
-    }
-
-    public Line getPrimaryLine() {
-        return m_lines.get(0);
-    }
-
-    private PhoneTestDriver(Phone phone, List<User> users, boolean phonebookManagementEnabled,
-            boolean speedDial, boolean sendCheckSyncToMac) {
+    private PhoneTestDriver(Phone phone, List<User> users, boolean phonebookManagementEnabled, boolean speedDial,
+            boolean sendCheckSyncToMac) {
         m_phoneContextControl = createNiceControl();
         m_phoneContext = m_phoneContextControl.createMock(PhoneContext.class);
 
@@ -130,12 +93,12 @@ public class PhoneTestDriver {
 
         m_phoneContextControl.replay();
 
-        phone.setSerialNumber(serialNumber);
+        phone.setSerialNumber(m_serialNumber);
 
         m_musicOnHoldManager = createMock(MusicOnHoldManager.class);
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
-        pm.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        pm.setModelFilesContext(TestHelper.getModelFilesContext(TestHelper.getSystemEtcDir()));
 
         for (User user : users) {
             Line line = phone.createLine();
@@ -147,7 +110,7 @@ public class PhoneTestDriver {
             if (user != null) {
                 user.setPermissionManager(pm);
                 m_musicOnHoldManager.getPersonalMohFilesUri(user.getUserName());
-                expectLastCall().andReturn("sip:~~mh~" + user.getUserName() + "@sipfoundry.org").anyTimes();
+                expectLastCall().andReturn("sip:~~mh~" + user.getUserName() + "@" + SIPFOUNDRY_ORG).anyTimes();
                 user.setSettingTypedValue("moh/audio-source", "PERSONAL_FILES_SRC");
                 user.setMusicOnHoldManager(m_musicOnHoldManager);
             }
@@ -155,19 +118,88 @@ public class PhoneTestDriver {
 
         replay(m_musicOnHoldManager);
 
-        sipControl = createStrictControl();
-        sip = sipControl.createMock(SipService.class);
+        m_sipControl = createStrictControl();
+        m_sip = m_sipControl.createMock(SipService.class);
 
         if (sendCheckSyncToMac) {
-            sip.sendCheckSync(phone.getInstrumentAddrSpec());
+            m_sip.sendCheckSync(phone.getInstrumentAddrSpec());
         } else if (users.size() > 0) {
-            String uri = users.get(0).getAddrSpec("sipfoundry.org");
-            sip.sendCheckSync(uri);
+            String uri = users.get(0).getAddrSpec(SIPFOUNDRY_ORG);
+            m_sip.sendCheckSync(uri);
         }
 
-        sipControl.replay();
-        phone.setSipService(sip);
+        m_sipControl.replay();
+        phone.setSipService(m_sip);
 
+    }
+
+    public static PhoneTestDriver supplyTestData(Phone phone) {
+        return supplyTestData(phone, true);
+    }
+
+    public static PhoneTestDriver supplyTestData(Phone phone, boolean phonebookManagementEnabled) {
+        return supplyTestData(phone, phonebookManagementEnabled, false, false, false);
+    }
+
+    public static PhoneTestDriver supplyTestData(Phone phone, List<User> users) {
+        return new PhoneTestDriver(phone, users, true, false, false);
+    }
+
+    public static PhoneTestDriver supplyTestData(Phone phone, List<User> users, boolean sendCheckSyncToMac) {
+        return new PhoneTestDriver(phone, users, true, false, sendCheckSyncToMac);
+    }
+
+    public static PhoneTestDriver supplyTestData(Phone phone, boolean phonebookManagementEnabled,
+            boolean speedDial, boolean includeSharedLine, boolean sendCheckSyncToMac) {
+        List<User> users = new ArrayList<User>();
+
+        User firstUser = new User();
+        firstUser.setUserName("juser");
+        firstUser.setFirstName("Joe");
+        firstUser.setLastName("User");
+        firstUser.setSipPassword("1234");
+        firstUser.setIsShared(false);
+        users.add(firstUser);
+
+        if (includeSharedLine) {
+            User secondUser = new User();
+            secondUser.setUserName("sharedUser");
+            secondUser.setFirstName("Shared");
+            secondUser.setLastName(firstUser.getLastName());
+            secondUser.setSipPassword(firstUser.getSipPassword());
+            secondUser.setIsShared(true);
+            users.add(secondUser);
+        }
+
+        return new PhoneTestDriver(phone, users, phonebookManagementEnabled, speedDial, sendCheckSyncToMac);
+    }
+
+    public SipService getSip() {
+        return m_sip;
+    }
+
+    public void setSip(SipService sip) {
+        m_sip = sip;
+    }
+
+    public IMocksControl getSipControl() {
+        return m_sipControl;
+    }
+
+    public void setSipControl(IMocksControl sipControl) {
+        m_sipControl = sipControl;
+    }
+
+    public String getSerialNumber() {
+        return m_serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        m_serialNumber = serialNumber;
+    }
+
+    public Line getPrimaryLine() {
+        return m_lines.get(0);
     }
 
     public static DeviceDefaults getDeviceDefaults() {
@@ -186,7 +218,7 @@ public class PhoneTestDriver {
         };
 
         Location defaultLocation = new Location();
-        defaultLocation.setFqdn("pbx.sipfoundry.org");
+        defaultLocation.setFqdn("pbx." + SIPFOUNDRY_ORG);
         defaultLocation.setAddress("192.168.1.1");
         LocationsManager locationsManager = createMock(LocationsManager.class);
         locationsManager.getPrimaryLocation();
@@ -200,29 +232,29 @@ public class PhoneTestDriver {
         // for
         // consistent
         // results
-        defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
+        defaults.setDomainManager(TestHelper.getTestDomainManager(SIPFOUNDRY_ORG));
 
         DomainManager domainManager = getMockDomainManager();
         replay(domainManager);
-        domainManager.getDomain().setSipRealm("realm.sipfoundry.org");
-        domainManager.getDomain().setName("sipfoundry.org");
+        domainManager.getDomain().setSipRealm("realm." + SIPFOUNDRY_ORG);
+        domainManager.getDomain().setName(SIPFOUNDRY_ORG);
         defaults.setDomainManager(domainManager);
 
         MusicOnHoldManager musicOnHoldManager = createMock(MusicOnHoldManager.class);
         musicOnHoldManager.getDefaultMohUri();
-        expectLastCall().andReturn("sip:~~mh~@sipfoundry.org").anyTimes();
+        expectLastCall().andReturn("sip:~~mh~@" + SIPFOUNDRY_ORG).anyTimes();
         defaults.setMusicOnHoldManager(musicOnHoldManager);
         replay(musicOnHoldManager);
         defaults.setLogDirectory("/var/log/sipxpbx");
 
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
         registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
         registrarService.setModelName("sipxregistrar.xml");
         registrarService.setModelDir("sipxregistrar");
 
         SipxService proxyService = new SipxProxyService();
-        proxyService.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
         proxyService.setBeanId(SipxProxyService.BEAN_ID);
         proxyService.setModelName("sipxproxy.xml");
         proxyService.setModelDir("sipxproxy");
@@ -252,14 +284,6 @@ public class PhoneTestDriver {
         defaults.setDialPlanContext(dpContext);
     }
 
-    private static Map<ServiceDescriptor, String> SERVICES;
-    static {
-        SERVICES = new HashMap<ServiceDescriptor, String>();
-        SERVICES.put(UnmanagedService.NTP, "ntp.example.org");
-        SERVICES.put(UnmanagedService.DNS, "10.4.5.1");
-        SERVICES.put(UnmanagedService.SYSLOG, "10.4.5.2");
-    }
-
     public static void supplyVitalTestData(IMocksControl control, PhoneContext phoneContext, Phone phone) {
         supplyVitalTestData(control, true, phoneContext, phone);
     }
@@ -274,17 +298,15 @@ public class PhoneTestDriver {
         phonebookManagerControl.andReturn(phonebookManagementEnabled);
         phonebookManagerControl.replay();
         phone.setPhonebookManager(phonebookManager);
-
-        String sysdir = TestHelper.getTestProperties().getProperty("sysdir.etc");
         phoneContext.getSystemDirectory();
-        control.andReturn(sysdir).anyTimes();
+        control.andReturn(TestHelper.getSystemEtcDir()).anyTimes();
 
         phoneContext.getPhoneDefaults();
         control.andReturn(defaults).anyTimes();
 
         ModelFilesContextImpl mfContext = new ModelFilesContextImpl();
-        mfContext.setConfigDirectory(sysdir);
-        mfContext.setModelBuilder(new XmlModelBuilder(sysdir));
+        mfContext.setConfigDirectory(TestHelper.getEtcDir());
+        mfContext.setModelBuilder(new XmlModelBuilder(TestHelper.getSystemEtcDir()));
         phone.setModelFilesContext(mfContext);
 
         IMocksControl serviceManagerControl = createNiceControl();

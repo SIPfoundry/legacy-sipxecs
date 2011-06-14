@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import static java.lang.String.format;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
@@ -31,12 +32,13 @@ import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalT
 
 public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransactionalTests {
     private static final Log LOG = LogFactory.getLog(IntegrationTestCase.class);
+    private static final String CANNOT_SET_PROP_MSG = "Unable to set property %s on target %s";
 
     private SessionFactory m_sessionFactory;
 
     private HibernateTemplate m_hibernateTemplate;
 
-    protected Map<Object, Map<String, Object>> m_modifiedContextObjectMap;
+    private Map<Object, Map<String, Object>> m_modifiedContextObjectMap;
 
     public IntegrationTestCase() {
         setAutowireMode(AUTOWIRE_BY_NAME);
@@ -45,7 +47,7 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-        m_modifiedContextObjectMap = new HashMap<Object, Map<String,Object>>();
+        m_modifiedContextObjectMap = new HashMap<Object, Map<String, Object>>();
     }
     @Override
     protected void onTearDownInTransaction() throws Exception {
@@ -139,7 +141,7 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
      * @param valueForTest The value to be set in the target for this test
      */
     protected void modifyContext(Object target, String propertyName, Object originalValue, Object valueForTest) {
-        if (! m_modifiedContextObjectMap.containsKey(target)) {
+        if (!m_modifiedContextObjectMap.containsKey(target)) {
             m_modifiedContextObjectMap.put(target, new HashMap<String, Object>());
         }
 
@@ -149,9 +151,9 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         try {
             BeanUtils.setProperty(target, propertyName, valueForTest);
         } catch (IllegalAccessException e) {
-            LOG.error("Unable to set property " + propertyName + " on target " + target, e);
+            LOG.error(format(CANNOT_SET_PROP_MSG, propertyName, target), e);
         } catch (InvocationTargetException e) {
-            LOG.error("Unable to set property " + propertyName + " on target " + target, e);
+            LOG.error(format(CANNOT_SET_PROP_MSG, propertyName, target), e);
         }
     }
 
@@ -167,9 +169,9 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
                     BeanUtils.setProperty(target, propertyName, originalValue);
                     originalValueMap.remove(propertyName);
                 } catch (IllegalAccessException e) {
-                    LOG.error("Unable to set property " + propertyName + " on target " + target, e);
+                    LOG.error(format(CANNOT_SET_PROP_MSG, propertyName, target), e);
                 } catch (InvocationTargetException e) {
-                    LOG.error("Unable to set property " + propertyName + " on target " + target, e);
+                    LOG.error(format(CANNOT_SET_PROP_MSG, propertyName, target), e);
                 }
             }
 

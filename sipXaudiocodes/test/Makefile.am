@@ -15,8 +15,7 @@ EXTRA_DIST = $(test_SRC)
 
 test_PKGS = \
 	$(audiocodes_PKGS) \
-	junit \
-	dbunit
+	sipxconfig-test
 
 test_JAVAFLAGS = -Dclasspath.dir=$(JAVAROOT)
 
@@ -29,3 +28,11 @@ test_DEPS = \
 
 test_SRC = $(shell cd $(srcdir); find org -name '*.java')
 test_RESOURCES = $(shell cd $(srcdir); find org -not -name '*.java')
+
+javac-test : test.properties
+
+local.etc.dir = $(abspath $(top_srcdir)/etc)
+test.properties : Makefile
+	@echo -e "$(subst $(space),\n,$(foreach V,local.etc.dir $(CommonVariablesNames),$(V)=$($(V))))" > $@
+
+precommit : check

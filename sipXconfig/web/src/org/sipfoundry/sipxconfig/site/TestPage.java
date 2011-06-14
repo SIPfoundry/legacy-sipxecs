@@ -200,7 +200,7 @@ public abstract class TestPage extends SipxBasePage {
 
     @InjectObject("spring:natTraversalManager")
     public abstract NatTraversalManager getNatTraversalManager();
-    
+
     @InjectObject("spring:testPageSetup")
     public abstract TestPageSetupContext getSetupContext();
 

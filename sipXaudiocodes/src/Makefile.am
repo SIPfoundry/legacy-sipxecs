@@ -20,3 +20,6 @@ audiocodes_DEPS = \
 
 $(JAR_FILE) : javac-audiocodes
 	jar -cf $@ -C $(JAVAROOT) .
+
+style_SRC = $(audiocodes_SRC)
+precommit : style

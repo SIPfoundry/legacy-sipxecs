@@ -24,7 +24,7 @@ public class BeanValueStorageTest extends TestCase {
     protected void setUp() throws IOException {
         BeanValueStorageTestBean bean = new BeanValueStorageTestBean();
         m_vs = new BeanValueStorage(bean);
-        m_birds = TestHelper.loadSettings(getClass(), "birds.xml");
+        m_birds = TestHelper.loadSettings(TestHelper.getResourceAsFile(getClass(), "birds.xml"));
     }
 
     public void testGetSettingValue() {

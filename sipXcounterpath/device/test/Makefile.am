@@ -9,12 +9,7 @@ noinst_DATA = javac-test
 
 test_PKGS = \
 	$(counterpath_PKGS) \
-	junit \
-	xmlunit \
-	org.springframework.orm \
-	org.springframework.transaction \
-	easymock \
-	easymockclassextension
+	sipxconfig-test
 
 test_DEPS = \
 	$(JAVAROOT) \
@@ -26,3 +21,12 @@ test_DEPS = \
 test_JAVAFLAGS = -Dclasspath.dir=$(srcdir) -Dbasedir=$(top_builddir)
 
 test_SRC = $(shell cd $(srcdir); find org -name '*.java')
+
+javac-test : test.properties
+
+local.etc.dir = $(abspath $(top_srcdir)/etc)
+test.properties : Makefile
+	@echo -e "$(subst $(space),\n,$(foreach V,local.etc.dir $(CommonVariablesNames),$(V)=$($(V))))" > $@
+
+precommit : check
+

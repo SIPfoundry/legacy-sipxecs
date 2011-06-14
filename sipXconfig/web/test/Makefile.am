@@ -70,3 +70,5 @@ test_SRC = \
 
 reset-environment :
 	@SIPX_BINDIR@/sipxconfig.sh -d unittest-reset
+
+precommit : check

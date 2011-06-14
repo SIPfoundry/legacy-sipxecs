@@ -1,3 +1,5 @@
+include $(top_srcdir)/config/utility.am
+
 phonedir = @SIPX_CONFDIR@/audiocodesphone
 dist_phone_DATA = \
 	audiocodesphone/phone.xml \

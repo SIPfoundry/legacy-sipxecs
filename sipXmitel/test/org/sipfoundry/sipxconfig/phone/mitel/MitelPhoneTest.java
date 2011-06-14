@@ -41,7 +41,7 @@ public class MitelPhoneTest extends XMLTestCase {
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.generateProfiles(location);
         InputStream expectedProfile = getClass().getResourceAsStream("mn.txt");

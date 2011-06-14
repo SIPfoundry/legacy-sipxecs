@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-unidata $(unidata_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(unidata_RESOURCES))
+
+style_SRC = $(unidata_SRC)
+precommit : style

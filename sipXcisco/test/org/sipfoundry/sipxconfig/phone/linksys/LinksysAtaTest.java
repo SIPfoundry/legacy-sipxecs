@@ -52,7 +52,7 @@ public class LinksysAtaTest extends TestCase {
 
     public void testGenerate2102Profiles() throws Exception {
         PhoneTestDriver.supplyTestData(m_ata2102);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_ata2102);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_ata2102, TestHelper.getEtcDir());
         m_ata2102.generateFiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("spa2102.cfg"));
         assertEquals(expected, location.toString());
@@ -60,7 +60,7 @@ public class LinksysAtaTest extends TestCase {
 
     public void testGenerate3102Profiles() throws Exception {
         PhoneTestDriver.supplyTestData(m_ata3102);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_ata3102);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_ata3102, TestHelper.getEtcDir());
         m_ata3102.generateFiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("spa3102.cfg"));
         assertEquals(expected, location.toString());
@@ -68,7 +68,7 @@ public class LinksysAtaTest extends TestCase {
 
     public void testGenerate8000Profiles() throws Exception {
         PhoneTestDriver.supplyTestData(m_ata8000);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_ata8000);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_ata8000, TestHelper.getEtcDir());
         m_ata8000.generateFiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("spa8000.cfg"));
         assertEquals(expected, location.toString());

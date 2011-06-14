@@ -3,5 +3,34 @@ sipXconfig_dependency() {
   case $1 in
   tapestry-contrib*)
     pkg_push commons-io;;
+  sipxconfig-test)
+    # packages that sipxconfig related unit tests will need to add to classpath
+    pkg_push \
+       cglib-nodep \
+       com.noelios.restlet \
+       com.noelios.restlet.ext.servlet \
+       commons-beanutils \
+       commons-collections \
+       commons-digester \
+       commons-logging \
+       dbunit \
+       dom4j \
+       easymock \
+       easymockclassextension \
+       hibernate \
+       javax.servlet \
+       jaxen \
+       junit \
+       org.restlet \
+       org.springframework.context \
+       org.springframework.context.support \
+       org.springframework.core \
+       org.springframework.orm \
+       org.springframework.transaction \
+       velocity \
+       velocity-tools-generic \
+       xercesImpl \
+       xmlunit
+    return 1;;
   esac
 }

@@ -23,3 +23,6 @@ $(JAR_FILE) : javac-lgnortel $(lgnortel_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(lgnortel_RESOURCES))
+
+style_SRC = $(lgnortel_SRC)
+precommit : style

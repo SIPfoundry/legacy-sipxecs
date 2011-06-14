@@ -35,7 +35,7 @@ public class IsphoneTest extends TestCase {
 
         IsphonePhone phone = preparePhone(model);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-isphone.xml"));

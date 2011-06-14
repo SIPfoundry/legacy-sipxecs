@@ -34,7 +34,7 @@ public class AcdReportConfigTest extends XMLTestCase {
         AcdHistoricalConfigurationFile acdHistoricalConf = new AcdHistoricalConfigurationFile();
 
         // creates velocity engine for Report component
-        String etcDir = TestHelper.getTestProperties().getProperty("SIPX_CONFDIR") + "/report";
+        String etcDir = TestHelper.getTestProperties().getProperty("sysconfdir") + "/sipxpbx/report";
         assertTrue("sipXacdStatistics was installed", new File(etcDir + "/sipxconfig-report-config.vm").exists());
         VelocityEngine engine = new VelocityEngine();
         engine.setProperty("resource.loader", "file");

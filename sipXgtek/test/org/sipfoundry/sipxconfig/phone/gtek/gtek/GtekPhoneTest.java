@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.phone.gtek;
+package org.sipfoundry.sipxconfig.phone.gtek.gtek;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -15,21 +15,21 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.speeddial.Button;
-import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
-
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.phone.gtek.GtekPhone;
+import org.sipfoundry.sipxconfig.speeddial.Button;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class GtekPhoneTest extends TestCase {
 
@@ -40,7 +40,7 @@ public class GtekPhoneTest extends TestCase {
         phone.setModel(model);
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.generateProfiles(location);
 
@@ -57,7 +57,7 @@ public class GtekPhoneTest extends TestCase {
         model.setProfileTemplate("gtek/config.vm");
         phone.setModel(model);
 
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         User user1 = new User() {
             @Override

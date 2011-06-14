@@ -35,11 +35,8 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
     @Override
     protected void setUp() throws Exception {
         phone = new PolycomPhone();
-
-        m_location = new MemoryProfileLocation();
-        VelocityProfileGenerator pg = new VelocityProfileGenerator();
-        pg.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_pg = pg;
+        m_location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
+        m_pg = phone.getProfileGenerator();
     }
 
     public void testGenerateProfile20() throws Exception {

@@ -49,7 +49,7 @@ public class ClearonePhoneTest extends TestCase {
         String parentDir = TestHelper.getTestDirectory() + "/clearone";
         FileSystemProfileLocation location = new FileSystemProfileLocation();
         location.setParentDir(parentDir);
-        AbstractProfileGenerator profileGenerator = TestHelper.getProfileGenerator();
+        AbstractProfileGenerator profileGenerator = TestHelper.getProfileGenerator(TestHelper.getEtcDir());
         phone.setProfileGenerator(profileGenerator);
 
         phone.generateProfiles(location);

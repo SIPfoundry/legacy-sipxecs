@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-isphone $(isphone_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(isphone_RESOURCES))
+
+style_SRC = $(isphone_SRC)
+precommit : style

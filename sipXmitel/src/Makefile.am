@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-mitel $(mitel_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(mitel_RESOURCES))
+
+style_SRC = $(mitel_SRC)
+precommit : style

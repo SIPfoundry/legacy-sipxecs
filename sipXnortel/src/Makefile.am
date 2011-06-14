@@ -22,3 +22,6 @@ $(JAR_FILE) : javac-nortel $(nortel_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(nortel_RESOURCES))
+
+style_SRC = $(nortel_SRC)
+precommit : style

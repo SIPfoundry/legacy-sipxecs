@@ -64,7 +64,7 @@ public class BridgeSbcConfigurationFileTest extends SipxServiceTestBase {
         sbc.setModelFilesContext(modelFilesContext);
         sbc.setPort(5090);
         sbc.setSipxServiceManager(m_sipxServiceManager);
-        TestHelper.setVelocityProfileGenerator(sbc);
+        TestHelper.setVelocityProfileGenerator(sbc, TestHelper.getSystemEtcDir());
 
         BridgeSbcConfigurationFile out = new BridgeSbcConfigurationFile();
         out.setName("sipxbridge.xml");

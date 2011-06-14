@@ -54,6 +54,6 @@ public class SettingUtilTest extends TestCase {
     }
 
     Setting loadSettings(String resource) {
-        return TestHelper.loadSettings(getClass(), resource);
+        return TestHelper.loadSettings(TestHelper.getResourceAsFile(getClass(), resource));
     }
 }

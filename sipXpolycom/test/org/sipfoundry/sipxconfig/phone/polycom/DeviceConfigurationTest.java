@@ -38,10 +38,8 @@ public class DeviceConfigurationTest extends TestCase {
         phone.setModel(model);
         PhoneTestDriver.supplyTestData(phone);
 
-        m_location = new MemoryProfileLocation();
-        VelocityProfileGenerator pg = new VelocityProfileGenerator();
-        pg.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_pg = pg;
+        m_location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
+        m_pg = phone.getProfileGenerator();
     }
 
     public void testGenerateSyslogProfile() throws Exception {

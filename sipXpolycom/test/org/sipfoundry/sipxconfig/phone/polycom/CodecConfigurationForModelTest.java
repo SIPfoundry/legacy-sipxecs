@@ -19,6 +19,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
@@ -131,7 +132,7 @@ public class CodecConfigurationForModelTest extends TestCase {
         PolycomModel model = new PolycomModel();
         model.setModelId(phoneModelId);
 
-        Document beans_document = XmlUnitHelper.loadDocument(klass, "polycom-models.beans.xml");
+        Document beans_document = XmlUnitHelper.loadDocument(klass, "/sipxplugin.beans.xml");
 
         // Find the bean whose ID matches the specified phone model.
         Node model_bean = beans_document.selectSingleNode(String.format("/beans/bean[@id=\"%s\"]", phoneModelId));

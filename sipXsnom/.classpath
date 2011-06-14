@@ -2,9 +2,10 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXsnom/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
+	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/velocity-1.5.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
