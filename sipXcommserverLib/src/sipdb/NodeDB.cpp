@@ -50,7 +50,7 @@ bool NodeDB::getNodes(Nodes& nodes, Algo algo) const
 
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
-    while (pCursor->more())
+    while (pCursor.get() && pCursor->more())
         nodes.push_back(pCursor->next());
     return pCursor->itcount() != 0;
 }
