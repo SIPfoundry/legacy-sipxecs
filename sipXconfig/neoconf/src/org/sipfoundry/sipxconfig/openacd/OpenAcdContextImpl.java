@@ -159,6 +159,10 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
             throw new NameInUseException(LINE_NAME, extension.getName());
         } else if (!m_aliasManager.canObjectUseAlias(extension, extension.getExtension())) {
             throw new ExtensionInUseException(LINE_NAME, extension.getExtension());
+        } else if (extension.getAlias() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getAlias())) {
+            throw new ExtensionInUseException(LINE_NAME, extension.getAlias());
+        } else if (extension.getDid() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getDid())) {
+            throw new ExtensionInUseException(LINE_NAME, extension.getDid());
         }
 
         removeNullActions(extension);
@@ -211,7 +215,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
         List<OpenAcdLine> lines = getHibernateTemplate().loadAll(OpenAcdLine.class);
         for (OpenAcdLine line : lines) {
-            if (line.getExtension() != null && (line.getExtension().equals(alias) || line.getName().equals(alias))) {
+            if (line.getExtension() != null && (line.getExtension().equals(alias) || line.getName().equals(alias))
+                    || (line.getAlias() != null && line.getAlias().equals(alias)) || (line.getDid() != null
+                    && line.getDid().equals(alias))) {
                 bids.add(new BeanId(line.getId(), OpenAcdLine.class));
             }
         }
@@ -231,6 +237,12 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         for (OpenAcdExtension openAcdExtension : extensions) {
             if (openAcdExtension.getExtension() != null
                     && (openAcdExtension.getExtension().equals(alias) || openAcdExtension.getName().equals(alias))) {
+                return true;
+            }
+            if (openAcdExtension.getAlias() != null && openAcdExtension.getAlias().equals(alias)) {
+                return true;
+            }
+            if (openAcdExtension.getDid() != null && openAcdExtension.getDid().equals(alias)) {
                 return true;
             }
         }
