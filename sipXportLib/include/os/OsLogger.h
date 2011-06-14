@@ -205,8 +205,8 @@ namespace Os
       _fstream.close();
       _path = std::string(path_);
       _mode = mode;
-        _fstream.open(_path.string().c_str(), _mode);
-      return _fstream.good();
+      _fstream.open(_path.string().c_str(), _mode);
+      return _fstream.is_open();
     }
 
     std::streamsize size()
