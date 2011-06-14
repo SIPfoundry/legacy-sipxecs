@@ -60,7 +60,7 @@ AppearanceAgent::AppearanceAgent(const UtlString& domainName,
    mServerUserAgent(
       tcpPort, // sipTcpPort
       udpPort, // sipUdpPort
-      tcpPort, // sipTlsPort
+      tlsPort, // sipTlsPort
       NULL, // publicAddress
       NULL, // defaultUser
       bindIp, // defaultSipAddress
