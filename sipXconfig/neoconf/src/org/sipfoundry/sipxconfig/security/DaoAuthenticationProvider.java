@@ -120,7 +120,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         UserDetails loadedUser;
 
         LdapSystemSettings settings = m_ldapManager.getSystemSettings();
-        if (settings.isLdapOnly() && ! StringUtils.equals(username, AbstractUser.SUPERADMIN)) {
+        if (settings.isConfigured() && settings.isLdapOnly() && ! StringUtils.equals(username, AbstractUser.SUPERADMIN)) {
             throw new AuthenticationServiceException(
                 "Only LDAP authentication is permitted");
         }
