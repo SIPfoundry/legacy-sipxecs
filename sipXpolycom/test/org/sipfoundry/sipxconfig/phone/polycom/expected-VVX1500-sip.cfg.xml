@@ -501,8 +501,20 @@
       />
     </pwd>
     <SRTP
-      sec.srtp.offer.HMAC_SHA1_80=""
-      sec.srtp.offer.HMAC_SHA1_32=""
+      sec.srtp.enable="1"
+      sec.srtp.offer="1"
+      sec.srtp.require="0"
+      sec.srtp.offer.HMAC_SHA1_80="1"
+      sec.srtp.offer.HMAC_SHA1_32="0"
+      sec.srtp.key.lifetime="0"
+      sec.srtp.mki.enabled="0"
+      sec.srtp.sessionParams.noAuth.offer="0"
+      sec.srtp.sessionParams.noAuth.require="0"
+      sec.srtp.sessionParams.noEncrypRTCP.offer="0"
+      sec.srtp.sessionParams.noEncrypRTCP.require="0"
+      sec.srtp.sessionParams.noEncrypRTP.offer="0"
+      sec.srtp.sessionParams.noEncrypRTP.require="0"
+      sec.srtp.requireMatchingTag="1"
     />
   </security>
   <request>
