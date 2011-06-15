@@ -147,7 +147,7 @@ namespace Os
   class LogFileChannelBase : boost::noncopyable
   {
   public:
-    #define default_mode std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::app | std::fstream::ate
+    #define default_mode std::fstream::out | std::fstream::binary | std::fstream::app | std::fstream::ate
 
     LogFileChannelBase() :
       _mode(default_mode)
