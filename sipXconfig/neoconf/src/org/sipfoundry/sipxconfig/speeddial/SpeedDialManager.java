@@ -10,11 +10,13 @@
 package org.sipfoundry.sipxconfig.speeddial;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.common.User;
 
 public interface SpeedDialManager extends DialingRuleProvider {
     String CONTEXT_BEAN_NAME = "speedDialManager";
 
     SpeedDial getSpeedDialForUserId(Integer userId, boolean create);
+    SpeedDial getSpeedDialForUser(User user, boolean create);
 
     SpeedDialGroup getSpeedDialForGroupId(Integer groupId);
 

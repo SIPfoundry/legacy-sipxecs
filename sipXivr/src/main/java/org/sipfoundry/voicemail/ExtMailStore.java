@@ -161,7 +161,7 @@ public class ExtMailStore {
                 
                 while (running) {
     
-                    users = ValidUsers.INSTANCE.getUsers();
+                    users = ValidUsers.INSTANCE.getValidUsers();
                     if (!users.equals(currUsers)) {
     
                         // check for deleted mailboxes

@@ -200,6 +200,10 @@
   <bean id="attendantDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Attendant">
   </bean>
+  <bean id="speeddialDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.SpeedDials">
+    <property name="speedDialManager" ref="speedDialManager" />
+  </bean>
 
   <bean id="aliasCollectorForAA"
     class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
