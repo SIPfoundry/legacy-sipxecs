@@ -73,13 +73,13 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         SipxServiceManager sm = EasyMock.createMock(SipxServiceManager.class);
         sm.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         EasyMock.expectLastCall().andReturn(fs).anyTimes();
-        
+
         EasyMock.replay(sm);
         org.easymock.classextension.EasyMock.replay(fs);
-        
+
         m_openAcdContextImpl.setSipxServiceManager(sm);
         m_openAcdContextImpl.setCoreContext(m_coreContext);
-        
+
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("example");
@@ -87,7 +87,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         extension.setLocation(location);
         extension.setAlias("alias");
         extension.setDid("1234567890");
-        
+
         m_openAcdContextImpl.saveExtension(extension);
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
         m_openAcdContextImpl.saveExtension(extension);
@@ -104,6 +104,45 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             m_openAcdContextImpl.saveExtension(sameNameExtension);
             fail();
         } catch (NameInUseException ex) {
+        }
+
+        OpenAcdLine line2 = new OpenAcdLine();
+        line2.setName("example1");
+        line2.setLocation(location);
+        FreeswitchCondition condition2 = new FreeswitchCondition();
+        condition2.setField("destination_number");
+        condition2.setExpression("^301$");
+        line2.addCondition(condition2);
+        try {
+            line2.setAlias("alias");// existing alias
+            m_openAcdContextImpl.saveExtension(line2);
+            fail();
+        } catch (ExtensionInUseException ex) {
+        }
+        try {
+            line2.setAlias("300");// existing alias
+            m_openAcdContextImpl.saveExtension(line2);
+            fail();
+        } catch (ExtensionInUseException ex) {
+        }
+        try {
+            line2.setAlias("");
+            line2.setDid("alias");
+            m_openAcdContextImpl.saveExtension(line2);
+            fail();
+        } catch (ExtensionInUseException ex) {
+        }
+        try {
+            line2.setDid("300");
+            m_openAcdContextImpl.saveExtension(line2);
+            fail();
+        } catch (ExtensionInUseException ex) {
+        }
+        try {
+            line2.setAlias("alias");// existing alias
+            m_openAcdContextImpl.saveExtension(line2);
+            fail();
+        } catch (ExtensionInUseException ex) {
         }
 
         // test get extension by name
@@ -168,7 +207,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         SipxServiceManager sm = EasyMock.createMock(SipxServiceManager.class);
         sm.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         EasyMock.expectLastCall().andReturn(fs).anyTimes();
-        
+
         EasyMock.replay(sm);
         org.easymock.classextension.EasyMock.replay(fs);
 
@@ -211,7 +250,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             fail();
         } catch (ExtensionInUseException ex) {
         }
-        
+
         // test get extension by name
         OpenAcdCommand savedExtension = (OpenAcdCommand) m_openAcdContextImpl.getExtensionByName("login");
         assertNotNull(command);
@@ -238,9 +277,8 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
             actions.addAll(condition.getActions());
             assertEquals("erlang_sendmsg", actions.get(0).getApplication());
-            assertEquals(
-                    "agent_dialplan_listener  openacd@"+location.getFqdn()+" agent_login ${sip_from_user} pstn ${sip_from_uri}",
-                    actions.get(0).getData());
+            assertEquals("agent_dialplan_listener  openacd@" + location.getFqdn()
+                    + " agent_login ${sip_from_user} pstn ${sip_from_uri}", actions.get(0).getData());
             assertEquals("answer", actions.get(1).getApplication());
             assertNull(actions.get(1).getData());
             assertEquals("sleep", actions.get(2).getApplication());
@@ -249,8 +287,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             assertEquals("NORMAL_CLEARING", actions.get(3).getData());
         }
 
-        
-        
         // test remove extension
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
         m_openAcdContextImpl.deleteExtension(extensionById);

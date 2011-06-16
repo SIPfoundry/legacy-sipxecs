@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
@@ -29,27 +28,21 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> implements
-        PermissionManager {
+public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> implements PermissionManager {
 
     private ModelFilesContext m_modelFilesContext;
 
-    private SipxReplicationContext m_replicationContext;
-
     private SipxServiceManager m_sipxServiceManager;
 
-    public void addCallPermission(Permission permission) {
+    public void saveCallPermission(Permission permission) {
         if (isLabelInUse(permission)) {
             throw new DuplicatePermissionLabelException(permission.getLabel());
         }
-
         getHibernateTemplate().saveOrUpdate(permission);
-        m_replicationContext.generateAll();
     }
 
-    public void removeCallPermissions(Collection<Integer> permissionIds) {
-        removeAll(Permission.class, permissionIds);
-        m_replicationContext.generateAll();
+    public void deleteCallPermission(Permission permission) {
+        getHibernateTemplate().delete(permission);
     }
 
     public Permission getCallPermission(Object id) {
@@ -236,10 +229,6 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         return m_modelFilesContext.loadModelFile("commserver/user-settings.xml");
     }
 
-    public void setReplicationContext(SipxReplicationContext replicationContext) {
-        m_replicationContext = replicationContext;
-    }
-
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
     }
@@ -255,8 +244,8 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     }
 
     private boolean isLabelInUse(Permission permission) {
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "anotherPermissionWithTheSameLabel", new String[] {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("anotherPermissionWithTheSameLabel",
+                new String[] {
                     "id", "label"
                 }, new Object[] {
                     permission.getId(), permission.getLabel()
@@ -281,4 +270,5 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         Collection<Permission> permissions = loadCustomPermissions();
         template.deleteAll(permissions);
     }
+
 }

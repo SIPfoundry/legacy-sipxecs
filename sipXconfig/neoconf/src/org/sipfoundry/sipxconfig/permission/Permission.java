@@ -14,7 +14,6 @@ import java.util.Locale;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
@@ -22,7 +21,7 @@ import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 /**
  * Permission Copy of permission setting names exist in user-setting.xml
  */
-public class Permission implements Comparable<Permission>, PrimaryKeySource {
+public class Permission extends BeanWithId implements Comparable<Permission> {
     public enum Type {
         APPLICATION(APPLICATION_NAME, APPLICATION_PATH), // application permissions
         CALL(CALLHANDLING_NAME, CALL_PERMISSION_PATH), // call permissions
@@ -67,17 +66,7 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
 
     private boolean m_defaultValue;
 
-    private Integer m_id = BeanWithId.UNSAVED_ID;
-
     public Permission() {
-    }
-
-    void setId(Integer id) {
-        m_id = id;
-    }
-
-    public Integer getId() {
-        return m_id;
     }
 
     public static boolean isEnabled(String value) {
@@ -140,7 +129,7 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
     }
 
     public Object getPrimaryKey() {
-        return m_id;
+        return getId();
     }
 
     public Type getType() {

@@ -15,6 +15,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.CID_PREFIX;
 import static org.sipfoundry.commons.mongo.MongoConstants.IGNORE_USER_CID;
 import static org.sipfoundry.commons.mongo.MongoConstants.KEEP_DIGITS;
 import static org.sipfoundry.commons.mongo.MongoConstants.TRANSFORM_EXT;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -47,7 +48,7 @@ public class CallerAliases extends DataSetGenerator {
         } else if (entity instanceof Gateway) {
             Gateway gateway = (Gateway) entity;
             final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
-            top.put("uid", Gateway.UID);
+            top.put(UID, Gateway.UID);
             if (StringUtils.isNotBlank(gatewayInfo.getDefaultCallerAlias())) {
                 top.put(CALLERALIAS, SipUri.fixWithDisplayName(gatewayInfo.getDefaultCallerAlias(),
                         gatewayInfo.getDisplayName(), gatewayInfo.getUrlParameters(), getSipDomain()));

@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +31,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -44,6 +47,7 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.BeanFactory;
@@ -70,6 +74,11 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String IP = "ip";
     private static final String DESCRIPTION = "dsc";
     private static final String MASTER = "mstr";
+    private static final String SECONDS = "s | ";
+    private static final String MINUTES = "m.";
+    private static final String REGENERATION_OF = "Regeneration of ";
+    private static final String ERROR_PERMISSION = "Error updating permission to mongo.";
+
     private Mongo m_mongoInstance;
     private DBCollection m_datasetCollection;
 
@@ -122,8 +131,6 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         m_auditLogContext = auditLogContext;
     }
 
-
-
     public void dropDb() throws Exception {
         initMongo();
         m_datasetCollection.drop();
@@ -163,8 +170,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             extalias.setFiles(m_externalAliases.getFiles());
             replicateEntity(extalias);
             Long end = System.currentTimeMillis();
-            LOG.info("Regeneration of database completed in " + (end - start) / 1000 + "s | " + (end - start) / 1000
-                    / 60 + " m.");
+            LOG.info("Regeneration of database completed in " + (end - start) / 1000 + SECONDS + (end - start) / 1000
+                    / 60 + MINUTES);
 
             m_auditLogContext.logReplicationMongo(DATABASE_REGENERATION, primary);
         } catch (Exception e) {
@@ -196,10 +203,45 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     private void replicateEntity(Replicable entity, DataSet dataSet, DBObject top) {
         String beanName = dataSet.getBeanName();
-        final DataSetGenerator generator = m_beanFactory
-                .getBean(beanName, DataSetGenerator.class);
+        final DataSetGenerator generator = m_beanFactory.getBean(beanName, DataSetGenerator.class);
         generator.setDbCollection(m_datasetCollection);
         generator.generate(entity, top);
+        LOG.debug("Entity " + entity.getName() + "updated.");
+    }
+
+    @Override
+    public void replicateAllData(final DataSet ds) {
+        try {
+            Long start = System.currentTimeMillis();
+            dropDb(); // this calls initMongo()
+            Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
+            for (ReplicableProvider provider : beanMap.values()) {
+                for (Replicable entity : provider.getReplicables()) {
+                    if (!entity.getDataSets().contains(ds)) {
+                        continue;
+                    }
+                    m_dataSetGenerator.setDbCollection(m_datasetCollection);
+                    DBObject top = m_dataSetGenerator.findOrCreate(entity);
+                    replicateEntity(entity, ds, top);
+                }
+            }
+            Closure<User> closure = new Closure<User>() {
+                @Override
+                public void execute(User user) {
+                    m_dataSetGenerator.setDbCollection(m_datasetCollection);
+                    DBObject top = m_dataSetGenerator.findOrCreate(user);
+                    replicateEntity(user, ds, top);
+                }
+            };
+            DaoUtils.forAllUsersDo(m_coreContext, closure);
+            Long end = System.currentTimeMillis();
+            LOG.info(REGENERATION_OF + ds.getName() + " completed in " + (end - start) / 1000 + SECONDS
+                    + (end - start) / 1000 / 60 + MINUTES);
+
+        } catch (Exception e) {
+            LOG.error(REGENERATION_OF + ds.getName() + " failed", e);
+            throw new UserException(e);
+        }
     }
 
     @Override
@@ -304,6 +346,38 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             return new String(encodedPayload, "US-ASCII");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void addPermission(Permission permission) {
+        try {
+            initMongo();
+            DBCursor users = ValidUsers.INSTANCE.getEntitiesWithPermissions();
+            for (DBObject user : users) {
+                Collection<String> prms = (Collection<String>) user.get(MongoConstants.PERMISSIONS);
+                prms.add(permission.getName());
+                user.put(MongoConstants.PERMISSIONS, prms);
+                m_datasetCollection.save(user);
+            }
+        } catch (Exception e) {
+            LOG.error(ERROR_PERMISSION, e);
+            throw new UserException(ERROR_PERMISSION, e);
+        }
+    }
+
+    public void removePermission(Permission permission) {
+        try {
+            initMongo();
+            DBCursor users = ValidUsers.INSTANCE.getEntitiesWithPermission(permission.getName());
+            for (DBObject user : users) {
+                Collection<String> prms = (Collection<String>) user.get(MongoConstants.PERMISSIONS);
+                prms.remove(permission.getName());
+                user.put(MongoConstants.PERMISSIONS, prms);
+                m_datasetCollection.save(user);
+            }
+        } catch (Exception e) {
+            LOG.error(ERROR_PERMISSION, e);
+            throw new UserException(ERROR_PERMISSION, e);
         }
     }
 

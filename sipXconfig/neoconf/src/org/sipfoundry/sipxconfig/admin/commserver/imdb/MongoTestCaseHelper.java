@@ -1,10 +1,7 @@
 /*
- *
- *
  * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the AGPL license.
- *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -19,13 +16,13 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-
+import com.mongodb.util.JSON;
 
 public final class MongoTestCaseHelper {
     public static final String DOMAIN = "mydomain.org";
     public static final String ID = "_id";
-    private static String s_host = "localhost";
-    private static int s_port = 27017;
+    private static final String HOST = "localhost";
+    private static final int PORT = 27017;
     private static Mongo s_mongoInstance;
     private static DBCollection s_collection;
 
@@ -34,9 +31,9 @@ public final class MongoTestCaseHelper {
 
     public static DBCollection initMongo(String dbName, String collectionName) throws UnknownHostException {
         if (s_mongoInstance == null) {
-            s_mongoInstance = new Mongo(s_host, s_port);
+            s_mongoInstance = new Mongo(HOST, PORT);
         }
-        //m_mongoInstance.dropDatabase(dbName);
+        // m_mongoInstance.dropDatabase(dbName);
         DB db = s_mongoInstance.getDB(dbName);
         s_collection = db.getCollection(collectionName);
         return s_collection;
@@ -73,6 +70,7 @@ public final class MongoTestCaseHelper {
         DBObject obj = s_collection.findOne(ref);
         TestCase.assertTrue(obj.containsField(listField));
         TestCase.assertEquals(count, ((List<DBObject>) obj.get(listField)).size());
+
     }
 
     public static void assertObjectWithIdFieldValuePresent(Object id, String field, Object value) {
@@ -80,6 +78,16 @@ public final class MongoTestCaseHelper {
         ref.put(ID, id);
         ref.put(field, value);
         TestCase.assertEquals(1, s_collection.find(ref).count());
+    }
+
+    public static void insert(DBObject dbo) {
+        s_collection.insert(dbo);
+    }
+
+    public static void insertJson(String... jsons) {
+        for (String json : jsons) {
+            s_collection.save((DBObject) JSON.parse(json));
+        }
     }
 
     public static void dropDb(String db) {

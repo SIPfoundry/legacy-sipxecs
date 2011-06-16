@@ -37,9 +37,9 @@ public interface PermissionManager extends DataObjectSource<Permission> {
     /*
      * Calling addCallPermission on existing call Permission object updates the object properties
      */
-    void addCallPermission(Permission permission);
+    void saveCallPermission(Permission permission);
 
-    void removeCallPermissions(Collection<Integer> permissionIds);
+    void deleteCallPermission(Permission permission);
 
     Permission getPermissionByName(String permissionName);
 

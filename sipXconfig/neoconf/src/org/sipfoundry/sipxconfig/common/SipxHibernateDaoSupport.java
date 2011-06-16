@@ -207,6 +207,9 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
 
             Serializable id = (Serializable) m_object.getPrimaryKey();
             Object[] props = ep.getDatabaseSnapshot(id, si);
+            if (props == null) {
+                return null;
+            }
             return props[propIndex];
         }
     }

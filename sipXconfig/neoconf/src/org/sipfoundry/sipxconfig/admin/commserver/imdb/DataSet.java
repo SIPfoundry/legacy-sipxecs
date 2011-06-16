@@ -27,6 +27,7 @@ public class DataSet extends Enum {
     public static final DataSet USER_FORWARD = new DataSet("userforward");
     public static final DataSet USER_STATIC = new DataSet("userstatic");
     public static final DataSet ATTENDANT = new DataSet("attendant");
+    public static final DataSet SPEED_DIAL = new DataSet("speeddial");
 
     public DataSet(String dataSet) {
         super(dataSet);

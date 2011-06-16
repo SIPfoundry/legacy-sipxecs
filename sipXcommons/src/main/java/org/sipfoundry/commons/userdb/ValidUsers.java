@@ -49,7 +49,7 @@ public enum ValidUsers {
     private static int MONGO_PORT = 27017;
     private Mongo m_mongoInstance;
 
-    public List<User> getUsers() {
+    public List<User> getValidUsers() {
         List<User> users = new ArrayList<User>();
         try {
             DBCursor cursor = getEntityCollection().find(QueryBuilder.start(VALID_USER).is(Boolean.TRUE).get());
@@ -72,6 +72,13 @@ public enum ValidUsers {
             e.printStackTrace();
         }
         return users;
+    }
+
+    public DBCursor getUsers() {
+        Pattern userPattern = Pattern.compile("User.*");
+        BasicDBObject query = new BasicDBObject(ID, userPattern);
+        DBCursor cursor = getEntityCollection().find(query);
+        return cursor;
     }
 
     public List<User> getUsersWithImEnabled() {
@@ -168,6 +175,18 @@ public enum ValidUsers {
         return user;
     }
 
+    public DBCursor getEntitiesWithPermissions() {
+        DBObject query =  QueryBuilder.start(PERMISSIONS).exists(true).get();
+        DBCursor cursor = getEntityCollection().find(query);
+        return cursor;
+    }
+
+    public DBCursor getEntitiesWithPermission(String name) {
+        DBObject query =  QueryBuilder.start(PERMISSIONS).exists(true).and(PERMISSIONS).is(name).get();
+        DBCursor cursor = getEntityCollection().find(query);
+        return cursor;
+    }
+    
     private void addConference(User user, DBObject conference) {
         user.setConfName(getStringValue(conference, CONF_NAME));
         user.setConfNum(getStringValue(conference, CONF_EXT));

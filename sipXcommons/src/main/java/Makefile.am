@@ -18,7 +18,7 @@ commons_RESOURCES = \
 
 commons_DEPS = \
 	$(JAVAROOT) \
-	$(call JavaDep, $(top_srcdir)/lib, $(commons_PKGS))
+	$(call JavaDep, $(top_srcdir)/lib, $(commons_PKGS)) \
 	$(commons_runtime_DEPS)
 
 jibx_DEPS = \
@@ -34,7 +34,7 @@ jibx_SCHEMA = \
 	org/sipfoundry/commons/reginfo/reginfo.xsd
 
 java-jibx-clean :
-	find $(JAVAROOT) -name 'JiBX_*' -exec rm {} \;
+	! test -d $(JAVAROOT) || find $(JAVAROOT) -name 'JiBX_*' -exec rm {} \;
 	! test -f java-compile-jibx || rm java-compile-jibx
 
 # NOTE: if you don't clean before rebuild, second set of jibx files are generated.
@@ -42,3 +42,6 @@ java-jibx : javac-commons $(jibx_SRC) $(jibx_SCHEMA)
 	$(MAKE) java-jibx-clean
 	$(call JavaCommand,jibx) org.jibx.binding.Compile $(addprefix $(srcdir)/,$(jibx_SRC))
 	echo timestamp > $@
+	
+clean-local : java-jibx-clean
+CLEANFILES = java-compile-jibx

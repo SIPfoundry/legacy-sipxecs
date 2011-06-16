@@ -94,4 +94,11 @@ public interface MongoConstants {
     static final String TO_URI = "to";
     static final String CALLID = "cid";
     static final String VMONDND = "vmondnd";
+    //speed dials
+    static final String SPEEDDIAL = "spdl";
+    static final String USER = "usr";
+    static final String USER_CONS = "usrcns";
+    static final String URI = "uri";
+    static final String NAME = "name";
+    static final String BUTTONS = "btn";
 }

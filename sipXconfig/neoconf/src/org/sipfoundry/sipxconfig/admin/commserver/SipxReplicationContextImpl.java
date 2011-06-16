@@ -14,6 +14,7 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.job.JobContext;
@@ -43,6 +44,11 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     @Override
     public void generateAll() {
         m_replicationManager.replicateAllData();
+    }
+
+    @Override
+    public void generateAll(DataSet ds) {
+        m_replicationManager.replicateAllData(ds);
     }
 
     @Override

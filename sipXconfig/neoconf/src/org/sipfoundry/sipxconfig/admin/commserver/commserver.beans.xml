@@ -245,6 +245,10 @@
   <bean id="attendantDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Attendant">
   </bean>
+  <bean id="speeddialDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.SpeedDials">
+    <property name="speedDialManager" ref="speedDialManager" />
+  </bean>
 
   <bean id="aliasCollectorForAA"
     class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
@@ -268,6 +272,7 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
   </bean>
 
   <bean id="registrationContext"

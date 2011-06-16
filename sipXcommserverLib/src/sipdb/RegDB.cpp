@@ -357,7 +357,7 @@ void RegDB::replicate()
             if (!error.empty())
                 break;
 
-            while (pCursor->more())
+            while (pCursor.get() && pCursor->more())
             {
                 if (!success)
                     success = true;
