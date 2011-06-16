@@ -90,6 +90,8 @@ fi
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXcommons
 %attr(755,root,root) %{_bindir}/java-dep
+%{_datadir}/sipxecs/schema/spring-beans-2.0.xsd
+%{_datadir}/sipxecs/schema/spring-util-2.0.xsd
 
 %changelog
 

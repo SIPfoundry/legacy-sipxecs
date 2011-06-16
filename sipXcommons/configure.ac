@@ -19,6 +19,7 @@ AC_CONFIG_FILES([
 	src/Makefile
 	bin/Makefile
 	lib/Makefile
+	etc/Makefile
 	src/main/Makefile
 	src/main/java/Makefile
 	src/main/native/Makefile

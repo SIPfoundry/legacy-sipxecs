@@ -1,6 +1,8 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/common.am
 
+all : $(proc_DATA) $(conf_DATA) $(addprefix out/,$(conf_SOURCE))
+
 EXTRA_DIST = \
 	$(addprefix sipxpbx/,$(conf_SOURCE)) \
 	$(proc_DATA:=.in) \
@@ -37,7 +39,6 @@ conf_SOURCE = \
 $(conf_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,$(EXTRA_REPLACE))
 
-
 out/% : sipxpbx/% Makefile
 	@test -d $(@D) || mkdir -p $(@D)
 	@$(call SearchAndReplace,$<,$@,$(EXTRA_REPLACE))
@@ -56,3 +57,24 @@ clean-local :
 	! test -d out || rm -rf out
 
 CLEANFILES = $(proc_DATA) $(conf_DATA)
+
+
+check : validate-xml
+
+setting_2_0.dtd setting_1_0.dtd : sipxpbx/setting.dtd
+	cp $< $@
+
+validate-xml : setting_2_0.dtd setting_1_0.dtd
+	xmllint --noout --schema $(SIPX_DATADIR)/schema/sipXecs-process.xsd $(proc_DATA)
+	xmllint --noout --path . --valid $(addprefix out/,$(SETTINGS_XML))
+
+# easier to remove all non-settings xml files from list then to specify each settings xml file
+SETTINGS_XML = \
+	$(shell cd $(srcdir)/sipxpbx; \
+	  find . \( -name '*.xml' \
+	    -a -not -name appearance-groups.xml \
+	    -a -not -name database.xml \
+	    -a -not -path '*test.d/*' \
+	    -a -not -path '*itspTemplates/*' \
+	  \) \
+	)

@@ -8,4 +8,5 @@ include config/project.am
 SUBDIRS = \
 	 src \
 	lib \
-	bin
+	bin \
+	etc
