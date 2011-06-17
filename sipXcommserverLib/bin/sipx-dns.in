@@ -458,6 +458,11 @@ _sip._udp.${SipDomain}. IN      SRV     1 0 ${PortUDP} ${server}.
 ;     priority: 1  weight: 0  port: ${PortTLS}  server: ${server}
 ;
 _sip._tls.${SipDomain}. IN      SRV     1 0 ${PortTLS} ${server}.
+
+; SRV record for domain SIPS TCP ${SipDomain} 
+;     priority: 1  weight: 0  port: ${PortTLS}  server: ${server}
+;
+_sips._tcp.${SipDomain}. IN      SRV     1 0 ${PortTLS} ${server}.
 EOF
         fi
     done
@@ -791,6 +796,7 @@ validate_domain_srv_records () {
             | sed -e 's/_sip\._tcp\./SIP TCP /' \
             | sed -e 's/_sip\._udp\./SIP UDP /' \
             | sed -e 's/_sip\._tls\./SIP TLS /' \
+            | sed -e 's/_sips\._tcp\./SIPS TCP /' \
             `
         target=`normName ${fulltarget}`
 
