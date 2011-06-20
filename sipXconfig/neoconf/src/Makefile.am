@@ -21,7 +21,7 @@ neoconf_RESOURCES = \
 	  -o -name '*.xsd' \
 	\))
 
-$(JAR_FILE) : javac-neoconf Manifest.txt
+$(JAR_FILE) : javac-neoconf Manifest.txt $(neoconf_RESOURCES)
 	jar cfm $@ Manifest.txt \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(neoconf_RESOURCES))
