@@ -27,18 +27,14 @@ Requires: sipxcommserverlib
 Requires: ruby
 Requires: rubygems
 Requires: rubygem-file-tail
-%if %{_vendor} == redhat
-BuildRequires: vixie-cron
-%endif
-%if %{_vendor} == suse
-BuildRequires: cron
-%endif
 
 %if %{_vendor} == redhat
 # irb is for file-tail gem
 Requires: irb
 %endif
 
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
 
 %description
 Provides a SOAP interface to automatic call distribution records. Ideal

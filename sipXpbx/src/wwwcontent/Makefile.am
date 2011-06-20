@@ -51,4 +51,4 @@ dist_music_DATA = \
 
 install-data-hook:
 	cd $(DESTDIR)$(wwwcontentdir); \
-	  [ -L stdprompts] || $(LN_S) stdprompts_en stdprompts
+	  [ -L stdprompts ] || $(LN_S) stdprompts_en stdprompts

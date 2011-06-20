@@ -12,10 +12,11 @@ else
 INSTALL_TARGET = install
 endif
 
-GEM_NAME=$*
-GEM_VER=$($(subst -,_,$(GEM_NAME))_VER)
+GEM_NAME = $*
+GEM_VER = $($(subst -,_,$(GEM_NAME))_VER)
 GEM_FILE = $(GEM_NAME)-$(GEM_VER).gem
 GEM_SPEC = $(GEM_NAME).gemspec
+GEM_SRC = $($(subst -,_,$(GEM_NAME))_SRC)
 
 # find list "foo bar" in "foo-1.0.gem bar-2.0.gem"
 GEM_MODULES = $(foreach G,$(filter %.gem, $(noinst_DATA)),$(firstword $(call SplitGem,$(G))))
@@ -31,19 +32,19 @@ clean-local : $(addsuffix -clean,$(GEM_MODULES))
 	! test -f $(GEM_SPEC) || rm $(GEM_SPEC)
 	! test -L lib || rm lib
 
-%.gemspec : %.gemspec.in
-	@echo $(GEM_NAME)
-	@$(call SearchAndReplace,$<,$@,GEM_NAME GEM_VER)
-
 #
 #  G E M   P A C K A G E
 #
 
+%.gemspec : %.gemspec.in
+	@$(call SearchAndReplace,$<,$@,GEM_NAME GEM_VER)
+
+# gem file includes version, need to strip that out so GEM_ variables resolve correctly
+%.gem :
+	$(MAKE) $(word 1,$(call SplitGem,$*))-gem
+
 # when srcdir != builddir, gemspecs are inflexible here so symlink in src
-%.gem : private GEM_NAME=$(word 1,$(call SplitGem,$*))
-%.gem : private GEM_VER=$(word 2,$(call SplitGem,$*))
-%.gem : private GEM_SRC=$($(subst -,_,$(GEM_NAME))_SRC)
-%.gem :  $$(GEM_SRC) $$(GEM_SPEC) Makefile
+%-gem :  $$(GEM_SRC) $$(GEM_SPEC) Makefile
 	test -d lib || ln -s $(srcdir)/lib
 	gem build $(GEM_SPEC)
 #
