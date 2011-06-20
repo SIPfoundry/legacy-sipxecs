@@ -30,7 +30,7 @@
   </bean>
 
   <bean id="upload" class="org.sipfoundry.sipxconfig.upload.Upload"
-    singleton="false" parent="beanWithSettings">
+    scope="prototype" parent="beanWithSettings">
     <property name="uploadSpecificationSource" ref="uploadSpecificationSource"/>
   </bean>
 

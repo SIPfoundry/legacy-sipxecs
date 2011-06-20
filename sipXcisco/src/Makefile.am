@@ -24,4 +24,9 @@ $(JAR_FILE) : javac-cisco $(cisco_RESOURCES)
 	  $(call JarInclude,$(srcdir),$(cisco_RESOURCES))
 
 style_SRC = $(cisco_SRC)
-precommit : style
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^

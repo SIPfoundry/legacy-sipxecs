@@ -62,7 +62,7 @@
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.common.User" class="org.sipfoundry.sipxconfig.common.User"
-    singleton="false" parent="beanWithSettings">
+    scope="prototype" parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
     <property name="permissionManager" ref="permissionManager"/>
     <property name="domainManager" ref="domainManager"/>
@@ -71,7 +71,7 @@
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.common.InternalUser" class="org.sipfoundry.sipxconfig.common.InternalUser"
-    singleton="false" parent="org.sipfoundry.sipxconfig.common.User" />
+    scope="prototype" parent="org.sipfoundry.sipxconfig.common.User" />
 
   <!-- DST change monitoring -->
   <bean id="checkDST" class="org.sipfoundry.sipxconfig.common.CheckDST"/>

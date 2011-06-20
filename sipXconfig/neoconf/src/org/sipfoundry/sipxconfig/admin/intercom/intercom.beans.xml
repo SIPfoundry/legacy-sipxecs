@@ -32,7 +32,7 @@
     - I N T E R C O M
   -->
   <bean id="org.sipfoundry.sipxconfig.admin.intercom.Intercom"
-    class="org.sipfoundry.sipxconfig.admin.intercom.Intercom" singleton="false"
+    class="org.sipfoundry.sipxconfig.admin.intercom.Intercom" scope="prototype"
     parent="beanWithSettings">
     <property name="prefix" value="*76" />
     <property name="timeout" value="5000" />

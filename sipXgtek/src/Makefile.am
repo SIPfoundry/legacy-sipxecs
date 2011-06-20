@@ -24,4 +24,9 @@ $(JAR_FILE) : javac-gtek $(gtek_RESOURCES)
 	  $(call JarInclude,$(srcdir),$(gtek_RESOURCES))
 
 style_SRC = $(gtek_SRC)
-precommit : style
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^

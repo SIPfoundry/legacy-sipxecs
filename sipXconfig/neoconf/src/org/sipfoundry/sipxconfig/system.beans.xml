@@ -197,7 +197,7 @@
   </bean>
 
   <!-- springInstantiator will force hibernate to create new objects through Spring -->
-  <bean id="springInstantiator" class="org.sipfoundry.sipxconfig.search.IndexingInterceptor" singleton="false">
+  <bean id="springInstantiator" class="org.sipfoundry.sipxconfig.search.IndexingInterceptor" scope="prototype">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="indexer" ref="fastIndexer" />
     <property name="beanIndexHelper" ref="beanIndexHelper"/>

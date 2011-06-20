@@ -24,4 +24,10 @@ $(JAR_FILE) : javac-karel $(karel_RESOURCES)
 	  $(call JarInclude,$(srcdir),$(karel_RESOURCES))
 
 style_SRC = $(karel_SRC)
-precommit : style
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^
+

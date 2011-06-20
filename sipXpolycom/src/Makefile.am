@@ -24,4 +24,10 @@ $(JAR_FILE) : javac-polycom $(polycom_RESOURCES)
 	  $(call JarInclude,$(srcdir),$(polycom_RESOURCES))
 
 style_SRC = $(polycom_SRC)
-precommit : style
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^
+

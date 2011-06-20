@@ -9,7 +9,7 @@
   </bean>
 
   <bean id="acdServer" class="org.sipfoundry.sipxconfig.acd.AcdServer" parent="acdComponent"
-    singleton="false">
+    scope="prototype">
     <property name="location" ref="location"/>
     <property name="port" value="8110"/>
     <property name="acdContext">
@@ -19,13 +19,13 @@
     <property name="loggingManager" ref="loggingManager"/>
   </bean>
   <bean id="acdAgent" class="org.sipfoundry.sipxconfig.acd.AcdAgent" parent="acdComponent"
-    singleton="false"/>
+    scope="prototype"/>
   <bean id="acdLine" class="org.sipfoundry.sipxconfig.acd.AcdLine" parent="acdComponent"
-    singleton="false"/>
+    scope="prototype"/>
   <bean id="acdQueue" class="org.sipfoundry.sipxconfig.acd.AcdQueue" parent="acdComponent"
-    singleton="false"/>
+    scope="prototype"/>
   <bean id="acdAudio" class="org.sipfoundry.sipxconfig.acd.AcdAudio" parent="acdComponent"
-    singleton="false"/>
+    scope="prototype"/>
 
   <bean id="acdContextImpl" class="org.sipfoundry.sipxconfig.acd.AcdContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>

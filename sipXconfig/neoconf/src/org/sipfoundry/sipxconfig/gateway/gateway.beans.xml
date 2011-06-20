@@ -16,13 +16,13 @@
     <property name="label" value="SIP trunk" />
   </bean>
 
-  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false" parent="beanWithSettings">
+  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" scope="prototype" parent="beanWithSettings">
     <property name="profileGenerator" ref="velocityProfileGenerator" />
     <property name="gatewayModelSource" ref="nakedGatewayModelSource" />
     <property name="defaults" ref="phoneDefaults" />
   </bean>
 
-  <bean id="gwSipTrunk" class="org.sipfoundry.sipxconfig.gateway.SipTrunk" singleton="false" parent="gwGeneric">
+  <bean id="gwSipTrunk" class="org.sipfoundry.sipxconfig.gateway.SipTrunk" scope="prototype" parent="gwGeneric">
     <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
 

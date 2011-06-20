@@ -24,4 +24,9 @@ $(JAR_FILE) : javac-grandstream $(grandstream_RESOURCES)
 	  $(call JarInclude,$(srcdir),$(grandstream_RESOURCES))
 
 style_SRC = $(grandstream_SRC)
-precommit : style
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^

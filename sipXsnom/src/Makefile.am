@@ -24,4 +24,10 @@ $(JAR_FILE) : javac-snom $(snom_RESOURCES)
 	  $(call JarInclude,$(srcdir),$(snom_RESOURCES))
 
 style_SRC = $(snom_SRC)
-precommit : style
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^
+

@@ -25,4 +25,10 @@ $(JAR_FILE) : javac-lgnortel $(lgnortel_RESOURCES)
 	  $(call JarInclude,$(srcdir),$(lgnortel_RESOURCES))
 
 style_SRC = $(lgnortel_SRC)
-precommit : style
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^
+

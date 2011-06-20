@@ -22,4 +22,9 @@ $(JAR_FILE) : javac-audiocodes
 	jar -cf $@ -C $(JAVAROOT) .
 
 style_SRC = $(audiocodes_SRC)
-precommit : style
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^

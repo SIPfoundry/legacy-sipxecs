@@ -10,6 +10,6 @@
 	<property name="vendor" value="acme" />
   </bean>
 
-  <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" singleton="false" parent="gwGeneric">
+  <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" scope="prototype" parent="gwGeneric">
   </bean>
 </beans>

@@ -24,4 +24,9 @@ $(JAR_FILE) : javac-clearone $(clearone_RESOURCES)
 	  $(call JarInclude,$(srcdir),$(clearone_RESOURCES))
 
 style_SRC = $(clearone_SRC)
-precommit : style
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^

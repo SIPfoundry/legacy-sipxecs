@@ -162,4 +162,18 @@ style_SRC = $(filter-out src/com/%,$(web_SRC))
 style_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(web_PKGS))
 
-precommit : style
+precommit : style validate-xml
+
+# Not validating
+#  src/org/sipfoundry/sipxconfig/site/tapestry.xml 
+# because it makes heavy use of SGML's ENTITY and needs to be ported to Schema
+#  see http://www.w3.org/TR/xmlschema-0/#usingEntities
+SPRING_XML = \
+	src/org/sipfoundry/sipxconfig/rest/rest.beans.xml \
+	src/org/sipfoundry/sipxconfig/site/about/about.beans.xml \
+	test/sipxplugin.beans.xml
+
+validate-xml : $(SPRING_XML)
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^
