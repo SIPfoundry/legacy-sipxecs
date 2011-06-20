@@ -1,47 +1,23 @@
-include $(top_srcdir)/config/subdir.am
-
-bin_SCRIPTS = \
-	$(ruby_scripts)
-
-setupbindir = @SIPX_LIBEXECDIR@/setup.d
-setupbin_SCRIPTS = \
-	sipxconfig-setup
-setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
-
-editscripts_IN = \
-	sipx-mrtg-init \
-	sipx-snmp-init \
-	sipx-time-manager
-
-ruby_scripts = \
-	sipx-upgrade-3.6-mailstore \
-	sipx-upgrade-3.6-mailstore-report
-
-ruby_scripts_src = $(foreach f,$(ruby_scripts),$(f).rb)
-
-TESTS = \
-	$(foreach f,$(ruby_scripts),test/$(f)_test.rb)
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(foreach file,$(editscripts_IN),$(file).in) \
-	$(setupbin_IN) \
-	$(ruby_scripts_src)
+	$(bin_SCRIPTS:=.in) \
+	$(setup_SCRIPTS:=.in)
 
-$(setupbin_SCRIPTS) : $(setupbin_IN)
-	@echo "Localize $< -> $@"
-	@${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
+bin_SCRIPTS = \
+	sipxconfig.sh \
+	sipx-mrtg-init \
+	sipx-snmp-init \
+	sipXmrtg.sh \
+	sipx-time-manager \
+	sipx-tunnel
 
-$(ruby_scripts) : $(ruby_scripts_src)
-	@echo "Localize $< -> $@"
-	@${LocalizeSipXconfig} $(srcdir)/$(notdir $@).rb > $@
+setupdir = @SIPX_LIBEXECDIR@/setup.d
+setup_SCRIPTS = \
+	sipxconfig-setup
 
-install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
+$(setup_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@,$(EXTRA_REPLACE))
 
-$(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bindir)/% : %
-	$(INSTALL) -D -m 755 $< $@
-
-$(foreach file,$(editscripts_IN),$(file)) : % : %.in
-	@echo "Localize $< -> $@"
-	$(LocalizeSipXconfig) \
-	-e 's,@MRTG_BINARY\@,@MRTG_BINARY@,g' \
-	-e 's,@DATE_BINARY\@,@DATE_BINARY@,g' $< > $@
+CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS)

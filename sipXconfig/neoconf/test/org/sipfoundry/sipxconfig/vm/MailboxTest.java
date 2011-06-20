@@ -15,12 +15,12 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.sipfoundry.sipxconfig.test.TestUtil;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class MailboxTest extends TestCase {
 
     public void testFilePreferencesFile() {
-        Mailbox mbox = new Mailbox(new File(TestUtil.getTestSourceDirectory(this.getClass())), "200");
+        Mailbox mbox = new Mailbox(new File(TestHelper.getSourceDirectory(this.getClass())), "200");
         assertTrue(mbox.getVoicemailPreferencesFile().isFile());
     }
 

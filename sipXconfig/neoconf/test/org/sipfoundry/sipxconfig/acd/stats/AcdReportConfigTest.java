@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -16,7 +17,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.app.VelocityEngine;
@@ -29,20 +29,16 @@ import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class AcdReportConfigTest extends XMLTestCase {
-    @Override
-    protected void setUp() throws Exception {
-
-    }
 
     public void testReplicateReportConfig() throws Exception {
         AcdHistoricalConfigurationFile acdHistoricalConf = new AcdHistoricalConfigurationFile();
 
         // creates velocity engine for Report component
-        Properties sysdir = TestHelper.getSysDirProperties();
-        String etcDir = sysdir.getProperty("sysdir.etc");
+        String etcDir = TestHelper.getTestProperties().getProperty("sysconfdir") + "/sipxpbx/report";
+        assertTrue("sipXacdStatistics was installed", new File(etcDir + "/sipxconfig-report-config.vm").exists());
         VelocityEngine engine = new VelocityEngine();
         engine.setProperty("resource.loader", "file");
-        engine.setProperty("file.resource.loader.path", etcDir + "/../../report/etc");
+        engine.setProperty("file.resource.loader.path", etcDir);
         engine.init();
 
         acdHistoricalConf.setVelocityEngine(engine);

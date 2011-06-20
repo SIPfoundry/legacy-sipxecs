@@ -9,19 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-
 public class AddPhoneUserTestUi extends WebTestCase {
 
     private PhoneTestHelper m_helper;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(AddPhoneUserTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();

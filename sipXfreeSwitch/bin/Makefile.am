@@ -25,5 +25,5 @@ fssetupbin_SCRIPTS = \
 bin_SCRIPTS = \
     freeswitch.sh
 
-$(bin_SCRIPTS) $(fssetupbin_SCRIPTS) : % : %.in
+$(bin_SCRIPTS) $(fssetupbin_SCRIPTS) : % : %.in Makefile
 	@sed $(LOCALIZE) $< > $@

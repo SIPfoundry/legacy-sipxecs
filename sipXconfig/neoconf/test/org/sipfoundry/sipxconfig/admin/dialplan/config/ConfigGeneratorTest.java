@@ -9,10 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.io.StringWriter;
 import java.util.Collections;
-
-import org.sipfoundry.sipxconfig.service.SipxService;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -28,16 +32,10 @@ import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxStatusService;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 /**
  * ConfigGeneratorTest
@@ -78,7 +76,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
         registrarService.setRegistrarEventSipPort("9906");
         registrarService.setSipPort("9907");
 
-        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(true, proxyService, registrarService, statusService);
+        m_sipxServiceManager = TestHelper.getMockSipxServiceManager(true, proxyService, registrarService, statusService);
     }
 
     public void testGetFileContent() throws Exception {

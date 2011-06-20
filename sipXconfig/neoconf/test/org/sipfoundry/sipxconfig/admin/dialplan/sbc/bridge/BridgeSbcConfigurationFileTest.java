@@ -10,7 +10,9 @@
 
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
 
 import java.util.Collections;
 
@@ -28,7 +30,6 @@ import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class BridgeSbcConfigurationFileTest extends SipxServiceTestBase {
 
@@ -40,7 +41,7 @@ public class BridgeSbcConfigurationFileTest extends SipxServiceTestBase {
         proxyService.setModelName("sipxproxy.xml");
         proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
         proxyService.setBeanName(SipxProxyService.BEAN_ID);
-        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(true, proxyService);
+        m_sipxServiceManager = TestHelper.getMockSipxServiceManager(true, proxyService);
 
         ModelFilesContext modelFilesContext = TestHelper.getModelFilesContext();
         DeviceDefaults deviceDefaults = PhoneTestDriver.getDeviceDefaults();
@@ -63,7 +64,7 @@ public class BridgeSbcConfigurationFileTest extends SipxServiceTestBase {
         sbc.setModelFilesContext(modelFilesContext);
         sbc.setPort(5090);
         sbc.setSipxServiceManager(m_sipxServiceManager);
-        TestHelper.setVelocityProfileGenerator(sbc);
+        TestHelper.setVelocityProfileGenerator(sbc, TestHelper.getSystemEtcDir());
 
         BridgeSbcConfigurationFile out = new BridgeSbcConfigurationFile();
         out.setName("sipxbridge.xml");

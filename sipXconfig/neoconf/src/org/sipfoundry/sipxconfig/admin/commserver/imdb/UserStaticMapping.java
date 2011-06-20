@@ -16,9 +16,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import org.sipfoundry.sipxconfig.common.SipUri;
+import static org.sipfoundry.commons.mongo.MongoConstants.CALLID;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.EVENT;
+import static org.sipfoundry.commons.mongo.MongoConstants.FROM_URI;
+import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.TO_URI;
 
-import static org.sipfoundry.commons.mongo.MongoConstants.*;
+import org.sipfoundry.sipxconfig.common.SipUri;
 
 public class UserStaticMapping extends DataSetRecord {
 

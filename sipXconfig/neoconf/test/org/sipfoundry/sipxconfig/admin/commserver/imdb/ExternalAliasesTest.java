@@ -35,6 +35,7 @@ public class ExternalAliasesTest extends TestCase {
         assertTrue(externalAliases.getAliasMappings().isEmpty());
     }
 
+    // BROKEN. alias object do not have id attribute set. -- Douglas
     public void testRealAliases() {
         ExternalAliases externalAliases = new ExternalAliases();
         URL other = getClass().getResource("alias.test.xml");

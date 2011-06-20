@@ -1,24 +1,14 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
-schemas = \
+schema_DATA = \
 	presence-state.xsd
 
-EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
-
 EXTRA_DIST = \
-	$(EXTRA_DATA)
+	$(schema_DATA:=.in)
 
-install-data-hook : install-schema
+schemadir = @SIPX_DATADIR@/schema
 
-.PHONY : install-schema
-install-schema: $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd))
+$(schema_DATA) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@)
 
-$(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd)): $(DESTDIR)@SIPX_DATADIR@/schema/% : %
-	$(INSTALL) -D -m 644 $< $@
-
-$(foreach xsd,$(schemas),$(xsd)): % : $(srcdir)/%.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-
-DISTCLEANFILES = \
-	$(schemas)
+CLEANFILES = $(schema_DATA)

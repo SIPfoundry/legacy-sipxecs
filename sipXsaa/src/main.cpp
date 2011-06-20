@@ -423,9 +423,8 @@ int main(int argc, char* argv[])
    if (!gShutdownFlag)
    {
       // Initialize the AppearanceAgent.
-      // (Use tcpPort as the TLS port, too.)
       AppearanceAgent saa(domainName, realm, lineMgr,
-                          tcpPort, udpPort, tcpPort, bindIp,
+                          tcpPort, udpPort, PORT_NONE, bindIp,
                           &appearanceGroupFile,
                           refreshInterval,
                           resubscribeInterval, minResubscribeInterval, seizedResubscribeInterval,

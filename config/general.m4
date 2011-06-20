@@ -202,89 +202,7 @@ AC_DEFUN([CHECK_CPPUNIT],
     )
 ])
 
-
-# ============ J D K  =======================
-AC_DEFUN([CHECK_JDK],
-[
-    AC_ARG_VAR(JAVA_HOME, [Java Development Kit])
-
-    TRY_JAVA_HOME=`ls -dr /usr/java/* 2> /dev/null | head -n 1`
-    for dir in $JAVA_HOME $JDK_HOME /usr/lib/jvm/java /usr/lib64/jvm/java /usr/local/jdk /usr/local/java $TRY_JAVA_HOME; do
-        AC_CHECK_FILE([$dir/lib/dt.jar],[jar=$dir/lib/dt.jar])
-        if test x$jar != x; then
-            found_jdk="yes";
-            JAVA_HOME=$dir
-            break;
-        fi
-    done
-
-    if test x_$found_jdk != x_yes; then
-        AC_MSG_ERROR([Cannot find dt.jar in expected location. You may try setting the JAVA_HOME environment variable if you haven't already done so])
-    fi
-
-    AC_SUBST(JAVA, [$JAVA_HOME/jre/bin/java])
-
-    AC_ARG_VAR(JAVAC_OPTIMIZED, [Java compiler option for faster performance. Default is on])
-    test -z $JAVAC_OPTIMIZED && JAVAC_OPTIMIZED=on
-
-    AC_ARG_VAR(JAVAC_DEBUG, [Java compiler option to reduce code size. Default is off])
-    test -z $JAVAC_DEBUG && JAVAC_DEBUG=off
-])
-
-
-# ============ J N I =======================
-AC_DEFUN([CHECK_JNI],
-[
-   AC_REQUIRE([CHECK_JDK])
-
-   JAVA_HOME_INCL=$JAVA_HOME/include
-   AC_CHECK_FILE([$JAVA_HOME_INCL/jni.h],
-       [
-           XFLAGS="-I$JAVA_HOME_INCL -I$JAVA_HOME_INCL/linux";
-           CFLAGS="$XFLAGS $CFLAGS";
-           CXXFLAGS="$XFLAGS $CXXFLAGS";
-
-           ## i386 is a big assumption, TODO: make smarter
-           JAVA_LIB_DIR="$JAVA_HOME/jre/lib/i386";
-
-           ## Effectively LD_LIBRARY_PATH for JVM for unittests or anything else
-           AC_SUBST(JAVA_LIB_PATH, [$JAVA_LIB_DIR:$JAVA_LIB_DIR/client])
-
-           LDFLAGS="$LDFLAGS -L$JAVA_LIB_DIR -ljava -lverify"
-
-           ## Use client flags as only call for this is phone. config server
-           ## should use jre/lib/i386/server, but not a big deal
-           LDFLAGS="$LDFLAGS -L$JAVA_LIB_DIR/client -ljvm"
-       ],
-       AC_MSG_ERROR([Cannot find or validate header file $JAVA_HOME_INCL/jni.h]))
-])
-
-
-# ============ A N T  ==================
-AC_DEFUN([CHECK_ANT],
-[
-   AC_REQUIRE([AC_EXEEXT])
-   AC_REQUIRE([CHECK_JDK])
-   AC_ARG_VAR(ANT, [Ant program])
-
-   test -z $ANT_HOME || ANT_HOME_BIN=$ANT_HOME/bin
-   for dir in $ANT_HOME_BIN $PATH /usr/local/ant/bin; do
-       # only works because unix does not use ant.sh
-       AC_PATH_PROG(ANT, ant$EXEEXT ant.bat, ,$dir)
-       if test x$ANT != x; then
-           found_ant="yes";
-           break;
-       fi
-   done
-
-   if test x_$found_ant != x_yes; then
-       AC_MSG_ERROR([Cannot find ant program. Try setting ANT_HOME environment variable or use 'configure ANT=<path to ant executable>])
-   fi
-
-  AC_SUBST(ANT_FLAGS, '-e -Dtop.build.dir=$(shell cd $(top_builddir) && pwd) -f $(srcdir)/build.xml')
-  AC_SUBST(ANT_CMD, "JAVA_HOME=${JAVA_HOME} ${ANT}")
-])
-
+m4_include([config/check_jdk.m4])
 
 # ============ O P E N S S L ==================
 #
@@ -1099,6 +1017,15 @@ GEMS_HOWTO
   AX_COMPARE_VERSION([$gemVersion],[ge],[$minGemVersion],
        [AC_MSG_RESULT($gemVersion is ok)],
        [AC_MSG_ERROR([gem version must be >= $minGemVersion - found $gemVersion])])
+
+  # We install gems into dir based off ${prefix} so this is not the system ver
+  #  ruby -rubygems -e 'puts Gem::dir'
+  # TODO: Make this more dynamic
+  #   See http://fedoraproject.org/wiki/Packaging:Ruby
+  # Call eval a few times to resolve nested shell vars
+  eval GEM_LOCAL_LIB_DIR=${libdir}/ruby/gems/1.8
+  eval GEM_LOCAL_LIB_DIR=${GEM_LOCAL_LIB_DIR}
+  AC_SUBST(GEM_LOCAL_LIB_DIR)
 ])
 
 # ==================== Rake ====================

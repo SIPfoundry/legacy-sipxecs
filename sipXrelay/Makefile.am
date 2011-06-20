@@ -1,34 +1,26 @@
+include config/utility.am
 include config/project.am
-include ant-targets.am
+include config/utility.am
+include common.am
 
-bin_SCRIPTS = sipxrelay.sh
+SUBDIRS = \
+	src \
+	.
 
 @PACKAGE@_EXTRA_DIST = \
-  README \
-  ant-targets.xml \
-  build.xml \
-  config.properties.in \
-  sipxrelay-process.xml.in \
-  sipxrelay-process.xml \
-  sipxrelay.sh.in \
-  LICENSE \
-  ant-targets.xml \
-  src 
+	$(proc_DATA:=.in) \
+	$(bin_SCRIPTS:=.in)
 
-# BUILT_SOURCES is special autoconf variable to be checked on every make
-BUILT_SOURCES = config.properties
+bin_SCRIPTS = \
+	sipxrelay.sh
 
-SIPX_PROCESS_DEFS = \
-	sipxrelay
+procdir = \
+	$(SIPX_DATADIR)/process.d
 
-config.properties : config.properties.in 
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+proc_DATA = \
+	sipxrelay-process.xml
 
-sipxrelay.sh : sipxrelay.sh.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+$(proc_DATA) $(bin_SCRIPTS) : % : %.in Makefile
+	$(call SearchAndReplace,$<,$@,relay_PKGS)
 
-sipxrelay-process.xml : sipxrelay-process.xml.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+CLEANFILES = $(proc_DATA) $(bin_SCRIPTS)

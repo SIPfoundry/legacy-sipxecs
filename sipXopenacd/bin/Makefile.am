@@ -1,27 +1,25 @@
-EXTRA_DIST = $(bin_SOURCE)
+include $(top_srcdir)/config/utility.am
 
-LOCALIZE_VARS = \
-	$(filter SIPX%,$(.VARIABLES)) \
-	$(filter PACKAGE%,$(.VARIABLES)) \
+EXTRA_DIST = \
+	$(bin_SCRIPTS:=.in) \
+	$(setup_SCRIPTS:=.in)
+
+OPENACD_VARS = \
 	$(filter OPENACD%,$(.VARIABLES))
 
-LOCALIZE = \
-	$(foreach V,$(LOCALIZE_VARS), -e 's|@$(V)\@|$($(V))|g')
+dist_bin_SCRIPTS = \
+	find-erlang-lib
 
 bin_SCRIPTS = \
-	sipxopenacd \
-	find-erlang-lib
+	sipxopenacd
 
-bin_SOURCE = \
-	sipxopenacd.in \
-	sipxopenacd-setup.in \
-	find-erlang-lib
-
-sipxopenacd_setupdir = \
+setupdir = \
 	$(SIPX_LIBEXECDIR)/setup.d
 
-sipxopenacd_setup_SCRIPTS = \
+setup_SCRIPTS = \
 	sipxopenacd-setup
 
-sipxopenacd sipxopenacd-setup : % : %.in
-	@sed $(LOCALIZE) $(srcdir)/$@.in > $@
+$(setup_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace, $<, $@, $(OPENACD_VARS))
+
+CLEANFILES = $(setup_SCRIPTS) $(bin_SCRIPTS)

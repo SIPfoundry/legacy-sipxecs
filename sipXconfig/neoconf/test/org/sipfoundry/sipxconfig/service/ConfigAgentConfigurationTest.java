@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ConfigAgentConfigurationTest extends SipxServiceTestBase {
 
@@ -23,7 +22,7 @@ public class ConfigAgentConfigurationTest extends SipxServiceTestBase {
         Setting portSetting = configAgentService.getSettings().getSetting("configagent-config/CONFIG_SERVER_AGENT_PORT");
         portSetting.setValue("9901");
 
-        SipxServiceManager serviceManager = TestUtil.getMockSipxServiceManager(true, configAgentService);
+        SipxServiceManager serviceManager = TestHelper.getMockSipxServiceManager(true, configAgentService);
 
         ConfigAgentConfiguration out = new ConfigAgentConfiguration();
         out.setTemplate("sipxconfigagent/config-agent.properties.vm");

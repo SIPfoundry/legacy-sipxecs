@@ -17,11 +17,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.postgresql.util.PGInterval;
+import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 
 public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
@@ -56,7 +56,7 @@ public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
         Iterator<Map<String, Object>> i = stats.iterator();
         record = i.next();
         // seed file is in UTC and so it should equal this date which is 5 hours from GMT
-        Date expectedSigninTime = TestUtil.localizeDateTime("12/19/06 8:40:50 AM EST");
+        Date expectedSigninTime = TestHelper.localizeDateTime("12/19/06 8:40:50 AM EST");
         Timestamp actualSigninTime = (Timestamp) record.get("sign_in_time");
         assertTrue(DateUtils.isSameInstant(expectedSigninTime, actualSigninTime));
     }

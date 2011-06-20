@@ -14,10 +14,10 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager.DomainNotInitializedException;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class DomainManagerImplTestIntegration extends IntegrationTestCase {
 
@@ -30,7 +30,7 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         super.onSetUpInTransaction();
 
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
-        Location primaryLocation = TestUtil.createDefaultLocation();
+        Location primaryLocation = TestHelper.createDefaultLocation();
         locationsManager.getPrimaryLocation();
         EasyMock.expectLastCall().andReturn(primaryLocation).anyTimes();
         locationsManager.getLocations();

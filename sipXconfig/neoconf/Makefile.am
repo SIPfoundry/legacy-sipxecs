@@ -1,1 +1,4 @@
-include $(top_srcdir)/ant-targets.am
+include $(top_srcdir)/config/utility.am
+SUBDIRS = \
+	src \
+	test

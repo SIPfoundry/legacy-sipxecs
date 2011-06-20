@@ -5,16 +5,11 @@
  */
 package org.sipfoundry.sipxconfig.site.device;
 
-import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.junit.WebTestCase;
-
 public class TimeZonePageTestUI extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(TimeZonePageTestUI.class);
-    }
 
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

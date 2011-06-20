@@ -8,22 +8,22 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import junit.framework.TestCase;
-
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.same;
 import static org.easymock.classextension.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.verify;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.io.FileUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class DefaultSystemFirmwareInstallTest extends TestCase {
 
@@ -32,9 +32,9 @@ public class DefaultSystemFirmwareInstallTest extends TestCase {
 
     @Override
     protected void setUp() throws IOException {
-        File thisDir = new File(TestUtil.getTestSourceDirectory(getClass()));
+        File thisDir = new File(TestHelper.getSourceDirectory(getClass()));
 
-        m_firmwareDir = TestUtil.createTempDir("firmware-test");
+        m_firmwareDir = TestHelper.createTempDir("firmware-test");
 
         m_defaultSystemFirmwareInstall = new DefaultSystemFirmwareInstall();
         m_defaultSystemFirmwareInstall.setFirmwareDirectory(m_firmwareDir.getPath());

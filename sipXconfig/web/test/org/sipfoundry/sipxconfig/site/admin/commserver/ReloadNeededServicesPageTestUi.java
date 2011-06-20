@@ -16,17 +16,11 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.junit.WebTestCase;
-
 public class ReloadNeededServicesPageTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ReloadNeededServicesPageTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

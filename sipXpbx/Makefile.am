@@ -1,17 +1,7 @@
+include config/utility.am
 include config/project.am
 
-SUBDIRS = . \
-    include \
+SUBDIRS = \
     src \
     bin \
-    etc \
-    meta
-
-install-data-hook :
-	$(INSTALL) -d $(DESTDIR)@wwwdir@/doc
-	$(INSTALL) -d $(DESTDIR)@wwwdir@/conf
-
-@PACKAGE@-dist-hook : rm-cgilib
-
-rm-cgilib:
-	rm -rf $(distdir)/src/cgilib $(distdir)/include/cgilib
+    etc

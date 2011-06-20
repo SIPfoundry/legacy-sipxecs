@@ -9,19 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.util.Arrays;
 
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
 
 public class FreeswitchMediaServerTest extends TestCase {
     private FreeswitchMediaServer m_mediaServer;
@@ -32,7 +33,7 @@ public class FreeswitchMediaServerTest extends TestCase {
         m_mediaServer.setPort(15060);
 
         LocationsManager locationsManager = createMock(LocationsManager.class);
-        Location serviceLocation = TestUtil.createDefaultLocation();
+        Location serviceLocation = TestHelper.createDefaultLocation();
 
         SipxIvrService service = new SipxIvrService();
         service.setBeanName(SipxIvrService.BEAN_ID);
@@ -47,7 +48,7 @@ public class FreeswitchMediaServerTest extends TestCase {
 
         replay(locationsManager, localizationContext);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, service);
+        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, service);
         m_mediaServer.setSipxServiceManager(sipxServiceManager);
         m_mediaServer.setLocalizationContext(localizationContext);
     }
@@ -76,7 +77,7 @@ public class FreeswitchMediaServerTest extends TestCase {
     public static final void configureMediaServer(FreeswitchMediaServer mediaServer) {
         LocationsManager locationsManager = createMock(LocationsManager.class);
 
-        Location serviceLocation = TestUtil.createDefaultLocation();
+        Location serviceLocation = TestHelper.createDefaultLocation();
 
         SipxIvrService mediaService = new SipxIvrService();
         mediaService.setBeanName(SipxIvrService.BEAN_ID);
@@ -86,7 +87,7 @@ public class FreeswitchMediaServerTest extends TestCase {
         expectLastCall().andReturn(Arrays.asList(serviceLocation)).anyTimes();
         replay(locationsManager);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, mediaService);
+        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, mediaService);
         mediaServer.setSipxServiceManager(sipxServiceManager);
     }
 }

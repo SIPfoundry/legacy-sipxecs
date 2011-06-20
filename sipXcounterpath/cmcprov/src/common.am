@@ -1,0 +1,14 @@
+cmcprov_PKGS = \
+	log4j \
+	commons-lang \
+	commons-io \
+	commons-logging \
+	javax.servlet \
+	commons-collections \
+	org.springframework.beans \
+	org.springframework.web \
+	org.springframework.context \
+	org.springframework.core \
+	sipxcommons \
+	sipxconfig \
+	velocity

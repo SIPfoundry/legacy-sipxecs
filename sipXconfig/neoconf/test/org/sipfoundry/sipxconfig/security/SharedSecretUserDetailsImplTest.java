@@ -10,14 +10,15 @@
 package org.sipfoundry.sipxconfig.security;
 
 import junit.framework.TestCase;
+
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.UserDetails;
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class SharedSecretUserDetailsImplTest extends TestCase {
 
@@ -25,7 +26,7 @@ public class SharedSecretUserDetailsImplTest extends TestCase {
 
     @Override
     public void setUp() {
-        m_domainManager= TestUtil.getMockDomainManager();
+        m_domainManager= TestHelper.getMockDomainManager();
         m_domainManager.getSharedSecret();
         EasyMock.expectLastCall().andReturn("secret");
         m_domainManager.getAuthorizationRealm();

@@ -15,17 +15,11 @@ import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertTextFieldEmpty
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertUserError;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.home;
-import static org.sipfoundry.sipxconfig.site.SiteTestHelper.webTestSuite;
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class NewUserTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return webTestSuite(NewUserTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

@@ -1,9 +1,15 @@
-include $(top_srcdir)/config/subdir.am
-
-SIPX_PROCESS_DEFS = \
-	sipxsaa
+include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-	sipxsaa-process.xml.in
+        $(proc_DATA:.xml=.xml.in)
 
+procdir = \
+        $(SIPX_DATADIR)/process.d
 
+proc_DATA = \
+        sipxsaa-process.xml
+
+$(proc_DATA) : % : %.in Makefile
+	@$(call SearchAndReplace, $<, $@)
+
+CLEANFILES = $(proc_DATA)

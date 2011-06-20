@@ -19,14 +19,14 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
  * It is always internal (added to mapping rules) and it usually has the following form:
  *
  * <code>
- * <userMatch>
- *   <userPattern>user part of the SIP URL</userPattern>
- *   <permissionMatch>
- *     <transform>
- *       <url>url of the SIPx server</url>
- *     </transform>
- *   </permissionMatch>
- * </userMatch>
+ * &lt;userMatch&gt;
+ *   &lt;userPattern&gt;user part of the SIP URL&lt;/userPattern&gt;
+ *   &lt;permissionMatch&gt;
+ *     &lt;transform&gt;
+ *       &lt;url&gt;url of the SIPx server&lt;/url&gt;
+ *     &lt;/transform&gt;
+ *   &lt;/permissionMatch&gt;
+ * &lt;/userMatch&gt;
  * </code>
  */
 public abstract class InternalForwardRule extends DialingRule {

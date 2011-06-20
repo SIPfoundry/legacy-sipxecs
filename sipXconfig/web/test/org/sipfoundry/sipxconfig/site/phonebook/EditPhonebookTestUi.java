@@ -9,16 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.phonebook;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditPhonebookTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditPhonebookTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();

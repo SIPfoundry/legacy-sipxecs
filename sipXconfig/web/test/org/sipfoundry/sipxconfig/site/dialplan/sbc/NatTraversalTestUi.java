@@ -5,15 +5,11 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class NatTraversalTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(NatTraversalTestUi.class);
-    }
 
     @Override
     public void setUp() {

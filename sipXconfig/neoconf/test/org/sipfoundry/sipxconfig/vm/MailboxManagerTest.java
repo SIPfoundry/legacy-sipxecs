@@ -9,11 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -21,23 +26,18 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
 
 public class MailboxManagerTest extends TestCase {
     private MailboxManagerImpl m_mgr;
     private User user = new User();
     private static final String FILE_SEPARATOR = "file.separator";
-    public static final File READONLY_MAILSTORE = new File(TestUtil.getTestSourceDirectory(MailboxManagerTest.class));
+    public static final File READONLY_MAILSTORE = new File(TestHelper.getSourceDirectory(MailboxManagerTest.class));
 
     @Override
     protected void setUp() {
         m_mgr = new MailboxManagerImpl();
 
-        String thisDir = TestUtil.getTestSourceDirectory(getClass());
+        String thisDir = TestHelper.getSourceDirectory(getClass());
         m_mgr.setMailstoreDirectory(thisDir);
 
         PermissionManager pManager = createMock(PermissionManager.class);
@@ -64,9 +64,9 @@ public class MailboxManagerTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        File mailstore300 = new File(new StringBuilder(TestUtil.getTestSourceDirectory(MailboxManagerTest.class))
+        File mailstore300 = new File(new StringBuilder(TestHelper.getSourceDirectory(MailboxManagerTest.class))
                 .append(System.getProperty(FILE_SEPARATOR)).append("300").toString());
-        File mailboxprefs300 = new File(new StringBuilder(TestUtil.getTestSourceDirectory(MailboxManagerTest.class))
+        File mailboxprefs300 = new File(new StringBuilder(TestHelper.getSourceDirectory(MailboxManagerTest.class))
                 .append(System.getProperty(FILE_SEPARATOR)).append("300").append(System.getProperty(FILE_SEPARATOR))
                 .append("mailboxprefs.xml").toString());
         if (mailboxprefs300.exists()) {

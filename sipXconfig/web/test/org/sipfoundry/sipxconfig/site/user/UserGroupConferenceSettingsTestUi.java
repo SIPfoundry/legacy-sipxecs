@@ -10,20 +10,14 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.TestPage;
 import org.sipfoundry.sipxconfig.site.conference.ConferenceTestHelper;
 
 public class UserGroupConferenceSettingsTestUi extends WebTestCase {
 
     private ConferenceTestHelper m_helper;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(UserGroupConferenceSettingsTestUi.class);
-    }
 
     @Override
     protected void setUp() {
@@ -50,7 +44,7 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         // Enable conference creation and select the previously created bridge.
         checkCheckbox("conferences:enable");
         setTextField("conferences:prefix", "prefix");
-        selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
+        selectOption("bridgeSelect", SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         submit("submit:ok");
 
         // Go back and delete the bridge.
@@ -93,11 +87,11 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(tester);
 
         setTextField("conferences:prefix", "");
-        selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
+        selectOption("bridgeSelect", SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         submit("submit:apply");
         SiteTestHelper.assertUserError(tester);
 
-        selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
+        selectOption("bridgeSelect", SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         setTextField("conferences:prefix", "prefix");
         submit("submit:apply");
         SiteTestHelper.assertNoUserError(tester);

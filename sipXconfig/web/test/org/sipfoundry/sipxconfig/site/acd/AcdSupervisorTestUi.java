@@ -9,11 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.acd;
 
-import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class AcdSupervisorTestUi extends WebTestCase {
     private static String[] NAVIGATION_LINKS = {
@@ -23,10 +21,6 @@ public class AcdSupervisorTestUi extends WebTestCase {
         "link:callsStats",
         "link:queuesStats"
     };
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(AcdSupervisorTestUi.class);
-    }
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

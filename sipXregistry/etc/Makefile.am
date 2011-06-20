@@ -1,7 +1,15 @@
-## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-  sipXregistry-process.xml.in
+        $(proc_DATA:.xml=.xml.in)
 
-SIPX_PROCESS_DEFS=sipXregistry
+procdir = \
+        $(SIPX_DATADIR)/process.d
+
+proc_DATA = \
+	sipXregistry-process.xml
+
+$(proc_DATA) : % : %.in Makefile
+	@$(call SearchAndReplace, $<, $@)
+
+CLEANFILES = $(proc_DATA)

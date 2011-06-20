@@ -15,8 +15,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
-import org.sipfoundry.sipxconfig.phone.cisco.CiscoModel;
-import org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel;
 
 /**
  * VendorFilteredSelectionModelTest
@@ -38,17 +36,17 @@ public class VendorFilteredSelectionModelTest extends TestCase {
 
         List<PhoneModel> devicesModels = new ArrayList<PhoneModel>();
 
-        ciscoModel1 = new CiscoModel();
+        ciscoModel1 = new PhoneModel();
         ciscoModel1.setBeanId("cisco1");
         ciscoModel1.setLabel("Cisco 1");
         ciscoModel1.setVendor("cisco");
 
-        grandstreamModel1 = new GrandstreamModel();
+        grandstreamModel1 = new PhoneModel();
         grandstreamModel1.setBeanId("grandstream1");
         grandstreamModel1.setLabel("GrandStream 1");
         grandstreamModel1.setVendor("grandstream");
 
-        ciscoModel2 = new CiscoModel();
+        ciscoModel2 = new PhoneModel();
         ciscoModel2.setBeanId("cisco2");
         ciscoModel2.setLabel("Cisco 2");
         ciscoModel2.setVendor("cisco");

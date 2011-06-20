@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  <!-- models -->
+  <bean id="counterpathStandard" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="counterpath" />
+    <property name="label" value="Counterpath" />
+    <property name="maxLineCount" value="5"/>
+    <property name="profileTemplate" value="counterpath/counterpath.ini.vm" />
+    <property name="vendor" value="Counterpath"/>
+    <property name="serialNumberPattern" value="[a-zA-Z0-9]+"/>
+  </bean>
+
+  <bean id="counterpathCMCEnterprise" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhoneModel" parent="counterpathStandard">
+    <property name="label" value="Bria 3.x" />
+  </bean>
+
+  <bean id="counterpath" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone" scope="prototype" parent="abstractPhone">
+    <property name="syswwwdir" value="${sysdir.www}"/>
+    <property name="locationsManager" ref="locationsManager"/>
+  </bean>
+</beans>

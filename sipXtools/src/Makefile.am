@@ -1,10 +1,9 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
 SUBDIRS = \
 	. \
 	man \
 	syslog2siptrace \
-	sipviewer \
 	test
 
 LOCAL_SHELLSCRIPTS = \
@@ -23,7 +22,8 @@ LOCAL_SHELLSCRIPTS = \
 bin_SCRIPTS = \
    $(LOCAL_SHELLSCRIPTS)
 
-EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
+EXTRA_DIST = \
+	$(LOCAL_SHELLSCRIPTS:=.in)
 
 dist_bin_SCRIPTS = \
 	regtimes \
@@ -38,7 +38,7 @@ dist_bin_SCRIPTS = \
 	sipsend \
 	polycom-config
 
-$(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in Makefile
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-	chmod +x $@
+$(LOCAL_SHELLSCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@)
+
+CLEANFILES = $(LOCAL_SHELLSCRIPTS)

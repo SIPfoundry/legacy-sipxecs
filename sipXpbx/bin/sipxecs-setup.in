@@ -78,7 +78,7 @@ def refresh_sipxconfig_db () :
 
 log_init()
 
-log_printout("Start @SIPX_VERSION@")
+log_printout("Start @VERSION@")
 
 screen_init()
 

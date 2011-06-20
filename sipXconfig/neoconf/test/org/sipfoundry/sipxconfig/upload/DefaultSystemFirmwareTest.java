@@ -13,15 +13,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class DefaultSystemFirmwareTest extends TestCase {
 
     public void testGetUploadArgs() {
         String uploadSpec = "testUploadSpec";
-        String rootDir = TestUtil.getTestSourceDirectory(getClass()) + "/firmware-dir/";
+        String rootDir = TestHelper.getSourceDirectory(getClass()) + "/firmware-dir/";
 
         List<String> fileSettings = new ArrayList<String>();
         List<String> uploadFiles = new ArrayList<String>();

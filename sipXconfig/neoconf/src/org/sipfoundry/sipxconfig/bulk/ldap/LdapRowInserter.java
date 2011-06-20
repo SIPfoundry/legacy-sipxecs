@@ -114,13 +114,14 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
                 userGroup.setSettingValue(LDAP_SETTING, "true");
                 user.addGroup(userGroup);
             }
-            m_coreContext.saveUser(user);
 
             if (newUser) {
                 // Execute the automatic assignments for the user.
                 GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
                                                                       m_forwardingContext, m_mailboxManager);
                 groupAutoAssign.assignUserData(user);
+            } else {
+                m_coreContext.saveUser(user);
             }
         } catch (NamingException e) {
             throw new RuntimeException(e);

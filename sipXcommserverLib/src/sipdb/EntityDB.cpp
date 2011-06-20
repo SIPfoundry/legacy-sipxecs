@@ -44,7 +44,7 @@ bool EntityDB::findByIdentity(const std::string& identity, EntityRecord& entity)
     OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _ns);
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
-    if (pCursor->more())
+    if (pCursor.get() && pCursor->more())
     {
       OS_LOG_DEBUG(FAC_ODBC,  identity << " is present in namespace " << _ns);
         entity = pCursor->next();
@@ -72,7 +72,7 @@ bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity) con
     {
         OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (EntityDB::findByIdentity)" << error);
     }
-    if (pCursor->more())
+    if (pCursor.get() && pCursor->more())
     {
         entity = pCursor->next();
         return true;
@@ -117,7 +117,7 @@ bool EntityDB::findByAliasUserId(const std::string& alias, EntityRecord& entity)
     {
         OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (EntityDB::findByAliasUserId)" << error);
     }
-    if (pCursor->more())
+    if (pCursor.get() && pCursor->more())
     {
         entity = pCursor->next();
         return true;
@@ -208,7 +208,7 @@ void EntityDB::getAllEntities(Entities& entities) const
     if (!error.empty())
         OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (EntityDB::getAllEntities)" << error);
 
-    while (pCursor->more())
+    while (pCursor.get() && pCursor->more())
     {
         EntityRecord entity;
         entity = pCursor->next();

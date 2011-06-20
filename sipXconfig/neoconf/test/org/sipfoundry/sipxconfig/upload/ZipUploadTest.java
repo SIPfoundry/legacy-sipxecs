@@ -16,10 +16,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ZipUploadTest extends TestCase {
     private File m_expandDir;
@@ -27,9 +28,8 @@ public class ZipUploadTest extends TestCase {
 
     @Override
     protected void setUp() throws IOException {
-        File thisDir = new File(TestUtil.getTestSourceDirectory(getClass()));
-        m_zipFile = new File(thisDir, "zip-test.zip");
-        m_expandDir = TestUtil.createTempDir("zip-test");
+        m_zipFile = TestHelper.getResourceAsFile(getClass(), "zip-test.zip");
+        m_expandDir = TestHelper.createTempDir("zip-test");
     }
 
     @Override

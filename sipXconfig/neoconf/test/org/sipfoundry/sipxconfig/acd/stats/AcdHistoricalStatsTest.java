@@ -20,7 +20,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.test.TestUtil;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class AcdHistoricalStatsTest extends TestCase {
 
@@ -28,11 +28,11 @@ public class AcdHistoricalStatsTest extends TestCase {
         AcdHistoricalStatsImpl history = new AcdHistoricalStatsImpl();
         assertFalse(history.isEnabled());
 
-        history.setReportScript(TestUtil.getTestSourceDirectory(getClass()) + "/Bogus");
+        String srcDir = TestHelper.getResourceAsFile(getClass(), "AcdHistoricalStatsTest.java").getParent();
+        history.setReportScript(srcDir + "/Bogus");
         assertFalse(history.isEnabled());
 
-        history.setReportScript(TestUtil.getTestSourceDirectory(getClass())
-                + "/AcdHistoricalStatsTest.java");
+        history.setReportScript(srcDir + "/AcdHistoricalStatsTest.java");
         assertTrue(history.isEnabled());
 
         history.setEnabled(true);

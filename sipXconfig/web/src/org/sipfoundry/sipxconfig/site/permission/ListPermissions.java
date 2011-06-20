@@ -66,9 +66,12 @@ public abstract class ListPermissions extends SipxBasePage {
      * Deletes all selected rows (on this screen deletes call groups).
      */
     private void delete() {
-        Collection selectedRows = getRowsToDelete();
+        Collection<Integer> selectedRows = getRowsToDelete();
         if (null != selectedRows) {
-            getPermissionManager().removeCallPermissions(selectedRows);
+            for (Integer id : selectedRows) {
+                getPermissionManager().deleteCallPermission(getPermissionManager().load(Permission.class, id));
+            }
+
         }
     }
 

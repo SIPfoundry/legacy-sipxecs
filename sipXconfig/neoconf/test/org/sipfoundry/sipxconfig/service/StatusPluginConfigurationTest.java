@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.service;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-import org.sipfoundry.sipxconfig.test.TestUtil;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class StatusPluginConfigurationTest extends SipxServiceTestBase {
 
@@ -27,7 +27,7 @@ public class StatusPluginConfigurationTest extends SipxServiceTestBase {
         initCommonAttributes(ivrService);
         ivrService.setBeanName(SipxIvrService.BEAN_ID);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, statusService,
+        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(false, statusService,
                 ivrService);
         replay(sipxServiceManager);
 

@@ -1,0 +1,21 @@
+
+# output from commons compile
+commons_classes = $(abspath $(top_builddir)/src/main/java/classes)
+
+# packages to run commons
+commons_PKGS = \
+	Stun4J \
+	log4j \
+	smackx \
+	xml \
+	junit \
+	postgresql \
+	not-yet-commons \
+	jain-sip-sdp \
+	dnsjava \
+	commons-codec \
+	commons-digester \
+	commons-lang \
+	xmlrpc-client \
+	jce \
+	mongo

@@ -1386,7 +1386,7 @@ def screen_services () :
 
 log_init()
 
-log_printout("Start @SIPX_VERSION@");
+log_printout("Start @VERSION@");
 
 screen_init()
 

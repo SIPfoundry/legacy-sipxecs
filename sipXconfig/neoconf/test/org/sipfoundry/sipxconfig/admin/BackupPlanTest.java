@@ -22,7 +22,6 @@ import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.mail.MailSenderContextImpl;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class BackupPlanTest extends TestCase {
 
@@ -77,11 +76,11 @@ public class BackupPlanTest extends TestCase {
     }
 
     public void testPerform() throws Exception {
-        if (TestUtil.isWindows()) {
+        if (TestHelper.isWindows()) {
             // tries to run a shell script. ignore test
             return;
         }
-        File[] backups = m_backup.doPerform(TestUtil.getTestSourceDirectory(this.getClass()));
+        File[] backups = m_backup.doPerform(TestHelper.getSourceDirectory(this.getClass()));
         assertEquals(2, backups.length);
         assertTrue(backups[0].exists());
         assertTrue(backups[1].exists());

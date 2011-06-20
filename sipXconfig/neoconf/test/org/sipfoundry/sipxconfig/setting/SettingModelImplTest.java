@@ -20,7 +20,7 @@ public class SettingModelImplTest extends TestCase {
 
     public void testAddHandler() throws Exception {
         SettingValue ten = new SettingValueImpl("10");
-        Setting birds = TestHelper.loadSettings(getClass(), "birds.xml");
+        Setting birds = TestHelper.loadSettings(TestHelper.getResourceAsFile(getClass(), "birds.xml"));
         Setting peewee = birds.getSetting("flycatcher/peewee");
         Setting canyonTowhee = birds.getSetting("towhee/canyon");
 

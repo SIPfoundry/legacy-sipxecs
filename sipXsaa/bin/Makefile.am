@@ -1,17 +1,13 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
-editscripts_IN = \
+bin_SCRIPTS = \
     sipxsaa.sh \
     sipx-snapshot-saa
 
 EXTRA_DIST = \
-    $(foreach file,$(editscripts_IN),$(file).in)
+    $(bin_SCRIPTS:=.in)
 
-install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
+$(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@)
 
-$(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bindir)/% : %
-	$(INSTALL) -D -m 755 $< $@
-
-$(foreach file,$(editscripts_IN),$(file)) : % : %.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+CLEANFILES = $(bin_SCRIPTS)

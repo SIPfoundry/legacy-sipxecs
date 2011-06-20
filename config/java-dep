@@ -1,0 +1,142 @@
+#!/bin/bash
+
+# Initial Version Copyright (C) 2011 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+# 
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
+#
+
+# Given a java package, lists the respective jar and all the jars that the
+# package depends on.  Relies on information in .java-dep files that map packages
+# to other packages
+#
+# Example .java-dep file:
+# ====================
+# RepoName=Birds
+# Birds_dependency() {
+#
+#   case $1 in
+#      
+#      crow|crow-2*)
+#        # by specifying more of the package name, you
+#        # can narrow in on a specific package
+#        pkg_push grackle-1.4 finch;;
+#
+#      sparrow)
+#        pkg_push crow goose
+#        # there is no real sparrow package, so abort 
+#        # looking for sparrow jars
+#        return 1;;
+#
+#   esac
+#   
+# }
+# ====================
+# NOTES:
+# - You only have to list jars that depend on other jars
+# - Be aware of glob expressions matching packages you didn't intend. Sub packages
+#   often start with the same name. e.g.  foo-1.0.jar foo-contrib-2.0.jar. Having said
+#   that however, glob list is sorted alphabetically to referencing foo tends to do 
+#   the right thing.
+#
+
+Pkgs=()
+PkgDir=()
+DoExportClasspath=false
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -d)
+      shift
+      PkgDir=($1 ${PkgDir[@]})
+      ;;
+    -e)
+      DoExportClasspath=true
+      ;;
+    -v)
+      Verbose=x
+      ;;
+    *)
+      Pkgs=($1 ${Pkgs[@]})
+      ;;
+  esac
+  shift
+done
+
+# default to current directory
+if [ ${#PkgDir[@]} -eq 0 ]; then
+  PkgDir=( . )
+fi
+
+# load each java-dep definition
+JarRepo=()
+for d in "${PkgDir[@]}"; do
+  RepoName=
+  test $Verbose && echo "Loading dependency map in ${d}"
+  source "${d}/.java-dep"
+  JarRepo=( $RepoName ${JarRepo[@]})
+done
+
+DepList=":"
+
+# take next package from stack
+pkg_shift() {
+  Pkg=${Pkgs[0]}
+  unset Pkgs[0]
+  Pkgs=( ${Pkgs[@]} )
+}
+
+# add more packages to stack
+pkg_push() {
+  Pkgs=( $@ ${Pkgs[@]} )
+}
+
+# Find and add package to list of dependencies
+pkg_add() {
+  for d in "${PkgDir[@]}"; do
+    test $Verbose && echo "checking for ${1} in ${d}"
+    f=`ls -1 ${d}/${1}*.jar 2>/dev/null | sort | head -n 1`
+    if [ -f "$f" ]; then
+	test $Verbose && echo "found jar ${f}"
+	break;
+    fi
+    test $Verbose && echo "not found in ${d}"
+  done
+  if [ ! -f "$f" ]; then
+    echo "Cannot find jar for package ${1}" >&2
+    exit 1
+  fi
+  if [[ $DepList != *:$f:* ]]; then
+    test $Verbose && echo "Adding ${f} to list"
+    DepList="$f:$DepList"
+  else
+    test $Verbose && echo "Duplicate ${f} ignored"
+  fi
+}
+
+# Check each repository for package lists
+while [ ${#Pkgs[@]} -ne 0 ]; do
+  pkg_shift
+  for r in "${JarRepo[@]}"; do
+    # call function to 
+    if ! ${r}_dependency $Pkg; then
+      # function doesn't want continue looking for this package
+      # presumably it's added other packages to stack
+      Pkg=""
+      break
+    fi
+  done
+  test -n "$Pkg" && pkg_add $Pkg
+done
+
+# print/set results
+if ${DoExportClasspath} ; then
+    export CLASSPATH="${DepList}"
+else
+    for f in ${DepList//:/ }; do
+	echo $f
+    done
+fi

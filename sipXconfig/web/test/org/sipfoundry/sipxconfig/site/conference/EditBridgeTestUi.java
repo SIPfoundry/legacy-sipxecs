@@ -9,20 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
-import junit.framework.Test;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class EditBridgeTestUi extends ListWebTestCase {
 
 	private ConferenceTestHelper m_conferenceHelper;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditBridgeTestUi.class);
-    }
 
     public EditBridgeTestUi() {
         super("EditBridge", "resetConferenceBridgeContext", "conference");
@@ -36,7 +29,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
     public void testTabNames() {
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
+        clickLinkWithText(SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         assertLinkPresent("link:config");
         assertLinkPresent("link:conferences");
     }
@@ -50,7 +43,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         clickLink("resetConferenceBridgeContext");
         m_conferenceHelper.createBridge();
         clickLink("ListBridges");
-        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
+        clickLinkWithText(SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         clickLink("link:conferences");
         SiteTestHelper.assertNoUserError(tester);
     }
@@ -87,7 +80,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
 
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
+        clickLinkWithText(SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         clickLink("link:conferences");
 
         // all conferences

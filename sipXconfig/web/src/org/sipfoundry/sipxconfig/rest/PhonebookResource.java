@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.restlet.data.MediaType.APPLICATION_ALL_XML;
+import static org.restlet.data.MediaType.TEXT_XML;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -31,8 +34,6 @@ import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
-
-import static org.restlet.data.MediaType.*;
 
 public class PhonebookResource extends Resource {
     private static final MediaType CSV = new MediaType("text/comma-separated-values");

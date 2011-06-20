@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
@@ -69,18 +69,16 @@ case ${Action} in
      echo $$ > ${pidfile}
 
      JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-     LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXivr/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar @SIPX_JAVADIR@/sipXopenfire/plugins/*.jar`
-     ClassPath=$LibPath:@SIPX_CONFDIR@/sipxivr
-     X509Algorithm=`$JavaCmd \
-       -classpath "$ClassPath" \
-       org.sipfoundry.commons.x509selector.X509Selector`
+     Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @ivr_PKGS@`
+     export CLASSPATH=`echo @SIPX_CONFDIR@/sipxivr @SIPX_JAVADIR@/{sipXivr,sipXopenfire/plugins}/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+     X509Algorithm=`$JavaCmd org.sipfoundry.commons.x509selector.X509Selector`
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@ -Dvar.dir=@SIPX_VARDIR@\
 	 $TrustStoreOpts 				\
 	 $KeyStoreOpts					\
 	 -Djetty.x509.algorithm=$X509Algorithm		\
 	 -Djetty.ssl.password=$TrustStorePassword	\
 	 -Djetty.ssl.keypassword=$KeyStorePassword	\
-         -cp $ClassPath org.sipfoundry.sipxivr.SipXivr \
+         org.sipfoundry.sipxivr.SipXivr \
          $Args
      ;;
 

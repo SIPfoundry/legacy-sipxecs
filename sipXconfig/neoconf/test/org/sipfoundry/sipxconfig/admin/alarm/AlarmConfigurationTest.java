@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 public class AlarmConfigurationTest extends TestCase {
     public void testGenerateAlarms() throws Exception {
         AlarmConfiguration alarmConf = new AlarmConfiguration();
-        alarmConf.setVelocityEngine(TestHelper.getVelocityEngine());
+        alarmConf.setVelocityEngine(TestHelper.getVelocityEngine(TestHelper.getSystemEtcDir()));
         alarmConf.setTemplate("alarms/sipXalarms-config.vm");
 
         Alarm alarm1 = new Alarm();

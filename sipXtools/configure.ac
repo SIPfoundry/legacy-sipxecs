@@ -5,7 +5,6 @@ m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
-CHECK_NSIS
 AC_CONFIG_SRCDIR([src/sipxproc.in])
 AC_PROG_LIBTOOL
 AC_PATH_PROG([BASH], [bash])
@@ -14,15 +13,11 @@ AX_COMPILER_VENDOR
 AC_PROG_CC
 SFAC_INIT_FLAGS
 SFAC_LIB_STACK
-CHECK_JDK
-CHECK_ANT
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
   src/test/Makefile
   src/man/Makefile
-  src/sipviewer/Makefile
   src/syslog2siptrace/Makefile
-  preflight/Makefile
 ])
 AC_OUTPUT

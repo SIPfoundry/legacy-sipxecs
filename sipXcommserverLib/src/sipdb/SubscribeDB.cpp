@@ -46,7 +46,7 @@ void SubscribeDB::getAllRows(Subscriptions& subscriptions)
   std::string error;
   MongoDB::Cursor pCursor = _db.find(_ns, query, error);
 
-  while (pCursor->more())
+  while (pCursor.get() && pCursor->more())
     subscriptions.push_back(Subscription(pCursor->next()));
 
   if (!error.empty())
@@ -164,7 +164,7 @@ bool SubscribeDB::subscriptionExists (
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
 
-    if (pCursor->more())
+    if (pCursor.get() && pCursor->more())
     {
         return pCursor->itcount() > 0;
     }
@@ -222,7 +222,7 @@ void SubscribeDB::getUnexpiredSubscriptions (
         OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
     }
 
-    while (pCursor->more())
+    while (pCursor.get() && pCursor->more())
     {
         subscriptions.push_back(Subscription(pCursor->next()));
     }
@@ -243,7 +243,7 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
         OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
     }
 
-    while (pCursor->more())
+    while (pCursor.get() && pCursor->more())
     {
         std::string contact;
         MongoDB::BSONObj bsonObj = pCursor->next();
@@ -334,7 +334,7 @@ void SubscribeDB::updateToTag(
         OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
     }
 
-    while (pCursor->more())
+    while (pCursor.get() && pCursor->more())
     {
         MongoDB::BSONObj bsonObj = pCursor->next();
         if (bsonObj.hasField(Subscription::fromUri_fld()))
@@ -387,7 +387,7 @@ bool SubscribeDB::findFromAndTo(
         OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::findFromAndTo) - " << error);
     }
 
-    while (pCursor->more())
+    while (pCursor.get() && pCursor->more())
     {
         Subscription row = pCursor->next();
         UtlBoolean r;
@@ -430,7 +430,7 @@ int SubscribeDB::getMaxVersion(const UtlString& uri) const
     }
 
     unsigned int value = 0;
-    while (pCursor->more())
+    while (pCursor.get() && pCursor->more())
     {
         Subscription row = pCursor->next();
         if (value < row.version())

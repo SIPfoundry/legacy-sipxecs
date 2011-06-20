@@ -1,4 +1,4 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
 TESTS = sipx-upgrade-testsuite
 
@@ -6,29 +6,19 @@ bin_SCRIPTS = \
 	sipx-config \
 	sipx-upgrade
 
+noinst_SCRIPTS = \
+	sipx-upgrade-testsuite \
+	shell-unit
+
 check_SCRIPTS = sipx-upgrade-testsuite
 
+sipx-upgrade-testsuite : sipx-upgrade shell-unit
+
 EXTRA_DIST = \
-    $(bin_SCRIPTS) \
-    sipx-upgrade-testsuite.in \
-    shell-unit.in \
-    sipx-upgrade.in
+	$(bin_SCRIPTS:=.in) \
+	$(noinst_SCRIPTS:=.in)
 
-install-exec-hook :
+$(noinst_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@)
 
-sipx-upgrade: $(srcdir)/sipx-upgrade.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade.in > sipx-upgrade
-
-shell-unit: $(srcdir)/shell-unit.in
-	cp $(srcdir)/shell-unit.in shell-unit
-
-$(DESTDIR)$(bindir)/sipx-upgrade: sipx-upgrade
-	$(INSTALL) -D -m 755 $(srcdir)/sipx-upgrade $(DESTDIR)$(bindir)/sipx-upgrade
-
-sipx-upgrade-testsuite: sipx-upgrade shell-unit $(srcdir)/sipx-upgrade-testsuite.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade-testsuite.in > $@
-	chmod +x $@
-
-DISTCLEANFILES = Makefile.in config.h.in
+CLEANFILES = $(bin_SCRIPTS) $(noinst_SCRIPTS)

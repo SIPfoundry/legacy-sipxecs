@@ -1,15 +1,17 @@
-## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
-
-SUBDIRS = sipdb . xsdvalid sipxrestorebinary sipxpackage sipxswadmin sipxzoneadmin sipxtimemanager sipxchangetimezone sipxcdrpostgres test
+SUBDIRS = \
+	sipdb \
+	. \
+	xsdvalid \
+	sipxrestorebinary \
+	sipxpackage \
+	sipxswadmin \
+	sipxzoneadmin \
+	sipxtimemanager \
+	sipxchangetimezone \
+	sipxcdrpostgres \
+	test
 
 INCLUDES = -I$(top_srcdir)/include
-
-SipXscripts = \
-	sipx-utils.sh
-
-EXTRA_DIST = \
-	$(foreach sipxScript,$(SipXscripts),$(sipxScript).in)
 
 lib_LTLIBRARIES = libsipXcommserver.la
 
@@ -68,17 +70,3 @@ libsipXcommserver_la_SOURCES = \
 	 sipXecsService/SipXecsService.cpp \
     sipXecsService/SipNonceDb.cpp \
 	 sipXecsService/SharedSecret.cpp
-
-all: $(foreach sipxScript,$(SipXscripts),$(sipxScript))
-
-install-exec-hook: \
-	$(foreach sipxScript,$(SipXscripts),$(DESTDIR)$(libexecdir)/sipXecs/$(sipxScript))
-
-$(foreach sipxScript,$(SipXscripts),$(DESTDIR)$(libexecdir)/sipXecs/$(sipxScript)) : \
-		$(DESTDIR)$(libexecdir)/sipXecs/% : %
-	$(INSTALL) -D -m 755 $< $@
-
-$(foreach sipxScript,$(SipXscripts),$(sipxScript)) : % : $(srcdir)/%.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-	chmod +x $@

@@ -1,0 +1,39 @@
+cfg_PKGS = \
+	sipxconfig \
+	sipxcommons \
+	velocity \
+	commons-lang \
+	dom4j \
+	org.springframework.beans \
+	org.springframework.core \
+	org.springframework.transaction \
+	xercesImpl
+
+plugin_JAR_PKGS = \
+	com.noelios.restlet \
+	commons-beanutils \
+	commons-collections \
+	commons-digester \
+	dnsjava \
+	dom4j \
+	jain-sip-sdp \
+	log4j \
+	mongo \
+	org.restlet \
+	sipxcommons \
+	ws-commons-util \
+	xmlrpc-client \
+	xmlrpc-server
+
+# NOTE: this list of dependencies affects compile and runtime becasue it 
+# is copied into startup script so just be aware what you're affecting.
+plugin_PKGS = \
+	ant \
+	ant-launcher \
+	$(plugin_JAR_PKGS)
+
+provider_PKGS = \
+	sipxcommons \
+	ws-commons-util \
+	xmlrpc-client \
+	xmlrpc-server

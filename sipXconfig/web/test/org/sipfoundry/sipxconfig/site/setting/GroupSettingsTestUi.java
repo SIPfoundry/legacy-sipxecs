@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
@@ -17,10 +16,6 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.branch.BranchesPageTestUi;
 
 public class GroupSettingsTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(GroupSettingsTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

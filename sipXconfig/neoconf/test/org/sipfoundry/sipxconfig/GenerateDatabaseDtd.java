@@ -26,9 +26,6 @@ public class GenerateDatabaseDtd {
 
     public static void main(String[] args) {
         try {
-            if (args.length > 0) {
-                TestHelper.initSysDirProperties(args[0]);
-            }
             generateDbDtd();
             generateDbXml();
             System.exit(0);

@@ -1,0 +1,361 @@
+# Initial Version Copyright (C) 2011 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+# 
+#############################################################################################
+# Java directories should include this.  This is based on the java support that comes with automake, which
+# is known to be very limited. I've expanded on the java targets and tried to keep automake conventions
+# like inventing variable conventions.
+#
+# It's useful to talk about 4 different types of targets: 
+# I.) Compiling
+# II.) Building a jar
+# III.) Running arbitrary java commands. example: generating java source from WSDL file
+# IV.) Unit testing
+#
+#
+# I.)  C O M P I L I N G
+# =======================
+# Required variables:
+# -----------------------
+# noinst_DATA = javac-foo
+#        noinst_DATA is a special autoconf targets that means autoconf will not try to install anything
+# 	 but will still build something.  This is typical for java projects as you generally install jar
+#        files. 
+#
+#        The segment "javac-" is important to activate the javac compiling targets. Only use "javac-"
+#        when you need to compile java source.
+#
+#        The name "foo" is arbitrary but will control the names of the other variables.
+#        
+#        You can include as many targets in noinst_DATA as you want, even non-javac targets
+#
+# foo_SRC = a.java b.java
+#        This will be used in the call to javac and will build a dependency so if source is changed
+#        make will know to recompile everything.
+#
+#        Normally listing every java file is a pain, so a quick find command is often helpful
+#        
+#               Example:
+#                 noinst_DATA = javac-foo
+#                 foo_SRC = $(shell cd $(srcdir); find -name '*.java')
+#
+# foo_DEPS = jar1.jar jar2.jar dir1
+#        List of jars to put on CLASSPATH required for compiling.  See JavaDep make command for easy
+#        management
+#
+# Optional variables:
+# ----------------------
+# foo_ENV = "VARIABLE1=VALUE1 VARIABLE2=VALUE2"
+#        If your compile target need special environment variables, you can set them here. Good example
+#        maybe JNI projects that need to load shared libraries
+#      
+#       Example:
+#       foo_ENV = ""
+#
+# foo_JAVACFLAGS
+#       If you want to specify certain flags to the compiler
+#
+# foo_JAVAROOT = someplace
+#        Where the class files go
+#
+# javac-foo-clean :
+#         # some clean up code. If you don't override this, make will automatically delete
+#         # javac timestamp file and $(foo_JAVAROOT)
+#
+#
+# II.) B U I L D I N G  A  J A R
+# ===================================
+# Most of this is just support that come with automake already.
+#
+# foodir = /path/to/install/in
+#    This is a automake convention, where "foo" is an arbitrary name and "dir" means this variable
+#    that will have an installation phase.  Again, this is standard automake conventions
+#
+# foo_DATA = jarfile.jar
+#    Standard linking between file to build and "foo" target
+#
+# jarfile.jar : 
+#    jar -cf jarfile.jar -C classes .
+#
+# Recommended Options:
+#----------------------
+# To add a manifest
+#    jarfile.jar : Manifest.txt
+#        jar -cfm jarfile.jar Manifest.txt -C $(foo_JAVAROOT) .
+#
+# To provide a dependency between compile and jarfile so when the source changes and gets recompiled
+# the jar file also gets created.  To do this, the targets to compile and jar need to be in the same
+# Makefile
+#
+#    noinst_DATA = javac-foo
+#    jardir = /some/place
+#    jar_DATA = jarfile.jar
+#    jarfile.jar : javac-foo
+#           jar -cfm jarfile.jar Manifest.txt -C $(foo_JAVAROOT) .
+#
+#
+# III.) R U N N I N G   J A V A
+# ============================================
+#  Modled after javac- targets, you need to define a java- target. Unlike javac- though, you need
+#  to also define that java- actual recipe.  There is a helper command to build most of the 
+#  java target for you
+#     noinst_DATA = java-foo
+#     foo_DEPS = $(foo_JAVAROOT) jarfile.jar
+#     java-foo :
+#           $(call JavaCommand, foo) org.example.Birds
+#
+#  Optional variables:
+#  --------------------
+#   foo_JAVAFLAGS - Flags to pass to java command including profilers and debuggers
+#
+#   foo_ENV - Set the environment variables. See section "I.) Compiling"  for format and example
+#
+#   java-foo-clean :
+#          # some clean up code
+#
+#
+#  IV.) U N I T  T E S T I N G
+#  =============================
+#  Declare the exact target and variables
+#
+#    noinst_DATA = javac-test   
+#    test_DEPS = junit.jar jarfile.jar
+#    test_SRC = SomeTest.java AnotherTest.java
+#
+#############################################################################################
+
+# Require utility.am be included. Do not include it here because having all top-level makefile
+# include nec. files helps readablity.  We have to avoid a network of includes that include other
+# includes
+utility_am_required ?= $(error Please include utility.am)
+$(utility_am_required)
+
+.SECONDEXPANSION:
+
+#
+#   D E P E N D E N C I E S
+#
+# Turn a space separated list into a colon separated value used for classpaths
+#
+# Example: $(call ClassPath, jar1 jar2)
+#
+ClassPath = $(subst $(space),:,$1)
+
+# Turn a space separated list into an environment variable definition.
+#
+# Example: $(call ClassPathEnv, jar1 jar2)
+#
+ClassPathEnv = CLASSPATH=$$CLASSPATH:$(call ClassPath,$1)
+
+# Set the CLASSPATH environment variable after using jrepo utility to resolve all 
+# jar files
+#
+# Example:  
+#    foo_DEPS=$(call JavaDep, dir1 dir2, pkg1 pkg2)
+#
+JavaDep=$(shell @JAVA_DEP@ $(foreach D,$1,-d $(D)) $2)
+
+
+# 
+#   C O M P I L E
+#
+# default location only. Simply define foo_JAVAROOT to send javac of foo elsewhere.
+JAVAROOT = $(firstword $($*_JAVAROOT) classes)
+
+# SECONDEXPANSION will turn $$($$*_SRC) into $(foo_SRC) for target java-compile-foo
+%-src : $$($$*_SRC);
+
+# creates a timestamp file so make knows not to recompile
+# So you can run "make foo"
+javac-% : %-src Makefile
+	@list1='$($*_SRC)'; list2=; if test -n "$$list1"; then \
+	  for p in $$list1; do \
+	    if test -f $$p; then d=; else d="$(srcdir)/"; fi; \
+	    list2="$$list2 $$d$$p"; \
+	  done; \
+	  echo "$$list2" > .$@-files; \
+	else \
+	  echo "No Source found for make variable $(*)_SRC" >&2; \
+	  exit 1; \
+	fi
+	test -d $(JAVAROOT) || mkdir -p $(JAVAROOT)
+	$($*_ENV) $(call ClassPathEnv,$($*_DEPS)) $(JAVAC) -d $(JAVAROOT) $(JAVA_CC_FLAGS) $($*_JAVA_CC_FLAGS) @.$@-files
+	echo timestamp > $@
+
+# Haven't tested this yet, but could be handy at some point.
+JAVADBG = -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=4243
+dbg-% : export JAVAFLAGS += $(JAVADBG)
+dbg-% : %;
+
+# Construct the first portion of the java command preparing all the standard env. variables and 
+# possible override options.
+#
+# Example:
+#   foo_DEPS = jar1 jar2
+#   some-target : $(some-source) Makefile
+#            $(call JavaCommand,foo) org.example.Birds --some-option $(some-source)
+#
+# WARNING:
+#    correct   : $(call JavaCommand,foo)
+#    incorrect : $(call JavaCommand, foo)
+#
+JavaCommand = $($1_ENV) $(call ClassPathEnv,$($1_DEPS)) $(JAVA) $($1_JAVAFLAGS) $(JAVAFLAGS)
+
+#
+#   U N I T  T E S T
+#
+# To "enable" this check define
+#  TEST_SRC - All the source you want compiled for tests to run
+#
+# and optionally (but most likely)
+#  TEST_DEPS
+#
+check : check-default
+check.list-% check-% : TEST = Test$(call propercase,$*)
+check.list-default check-default : TEST = Test
+check-%  :
+	if [ -n "$(JAVA_TESTS)" ]; then \
+	  $(MAKE) javac-test; \
+	  $(call JavaCommand,test) $(TEST_RUNNER) $(TEST_RUNNER_FLAGS) $(JAVA_TESTS); \
+	fi
+
+# When one test influences another causing it to fail, this helps determine which test
+# is breaking another by running a single test in between every other test
+#
+# Example:
+#    make find-bad-default-test BROKEN_TEST=FooTest
+#
+find-bad-%-test : test_JAVAFLAGS = -Dbrokentest=$(filter $(addprefix %,$(BROKEN_TEST)),$(ALL_TESTS))
+find-bad-%-test : check-%;
+
+
+# List the tests that will run. Use when overriding test filters to see what tests will be selected to run
+# before actually running them
+# Example:
+#  make check.list TEST_FILTER=org.example.pkg.%Test2
+check.list : check.list-default
+check.list-% :
+	@echo -e $(subst $(space),'\n',$(JAVA_TESTS))
+
+
+# Text based runner in junit 4. Runs 3.x and 4.x unit tests.
+TEST_RUNNER = org.sipfoundry.commons.util.VerboseJUnitRunner
+
+# Selects all tests with names that in in Test. You don't have to specify package name unless you want to
+# specify a test in a specific package. 
+# DEV NOTE: TESTS name would make more sense as a var name but it's reserved by automake to mean something else.
+#
+# Example to override: 
+#  make check TEST="Test1 Test2"
+TEST = Test
+
+# Uses makes glob filters to select a set of tests. When overriding, you can only have one '%' sign
+# to filter on but you can combine multiple filters
+#  Examples:
+#    make check TEST_FILTER="org.example.pkg2.%Test org.example.pkg1.%Test"
+#    make check TEST_FILTER="%CdrTest org.example.%LogTest"
+TEST_FILTER = $(addprefix %,$(TEST))
+
+# Turns list of java source files into their respective class names
+#  ./com/example/FooTest.java  ->  com.example.FooTest
+ALL_TESTS = $(subst /,.,$(subst ./,$(empty),$(patsubst %.java,%,$(test_SRC))))
+
+# final lists of tests to run. Useful to overide only if you specify full test package name
+# make check JAVA_TESTS="org.example.Test1 org.example.Test2"
+JAVA_TESTS = $(filter $(TEST_FILTER),$(ALL_TESTS))
+
+FIND_BAD_TEST = 
+
+stylecmd_PKGS = \
+	checkstyle \
+	google-collection \
+	commons-beanutils-core \
+	commons-cli \
+	commons-logging \
+	antlr
+
+stylecmd_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(stylecmd_PKGS)) \
+	$(style_DEPS)
+
+# Check source conforms to proper syntax
+# Add 'style' to precommit target, to check source. By default will check all *.java file below makefile
+# but you can change that by defining style_srcdir to the directory to recurse into
+style :
+	$(call JavaCommand,stylecmd) \
+	  -Dtop.dir=$(top_srcdir)/config/checkstyle \
+	  com.puppycrawl.tools.checkstyle.Main \
+	  -c $(top_srcdir)/config/checkstyle/checkstyle.xml \
+	  -r $(addprefix $(srcdir)/,$(style_SRC))
+
+#
+#   J A R / M A N I F E S T
+#
+# To add a standard manifest, just include Manifest.txt in your jar prerequisites and reference
+# Manifest.txt in your jar command
+#
+# Example :
+#  my.jar : Manifest.txt
+#        jar -cfm Manifest.txt $@ foo
+#
+Manifest.txt : Makefile
+	echo "$$manifest_body" > $@
+
+# Standard manifest body, but to override this, follow this example in your makefile.am
+#
+#  Example:
+#  MyManifest.txt :
+#      echo "$$my_manifest" > $@
+#
+#  define my_manifest
+#    $(manifest_body)
+#    MyItem: foo
+#  endef
+#  export my_manifest
+#
+define manifest_body
+Specification-Title: $(PACKAGE_NAME)
+Specification-Version: $(PACKAGE_VERSION)
+Specification-Vendor:  $(PACKAGE_VENDOR)
+Implementation-Title: $(IMPLEMENTATION_TITLE)
+Implementation-Version: $(PACKAGE_REVISION)
+Implementation-Vendor: $(PACKAGE_VENDOR)
+endef
+export manifest_body
+
+# Jar command has a strange CLI interface, in this case:
+#   jar my.jar -C dir file1 file2
+# file1 is found in dir but file2 is found in cwd. So you have to do this
+#   jar my.jar -C dir file1 -C dir file2
+# So here we compensate for this strange behaviour and expand out "dir" for each file and
+# let you chain the lists together
+#
+#  Example:
+#  jar my.jar \
+#    $(call JarInclude,$(JAVAROOT),.) \
+#    $(call JarInclude,$(srcdir),$(resources))
+#
+JarInclude = $(foreach D,$2,-C $(1) $(D))
+
+#
+# M I S C.
+#
+
+# run clean for each java and javac targets
+clean-local : $(foreach T,$(filter javac-% java-%, $(DATA)), $(T)-clean)
+
+# hook
+java-%-clean :;
+
+# default and hook
+javac-%-clean :
+	! test -d $(JAVAROOT) || rm -rf $(JAVAROOT)
+	! test -f javac-$* || rm javac-$*
+
+JAR_LIBSRC = ~/libsrc
+
+$(JAR_LIBSRC) :
+	mkdir -p $@
+
+# download source for jar files if available
+jar-src : $(JAR_LIBSRC) $(addprefix $(JAR_LIBSRC)/,$(notdir $(JAR_SRCS:=.src)))

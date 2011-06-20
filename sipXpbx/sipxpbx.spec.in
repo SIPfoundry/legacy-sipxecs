@@ -11,9 +11,6 @@ Packager: Pingtel <support@pingtel.com>
 Url:      http://www.pingtel.com
 
 BuildRequires: gettext
-BuildRequires: ant-commons-logging
-BuildRequires: ant-junit
-BuildRequires: ant-nodeps
 BuildRequires: java-devel >= 1.6
 BuildRequires: automake
 BuildRequires: gcc-c++

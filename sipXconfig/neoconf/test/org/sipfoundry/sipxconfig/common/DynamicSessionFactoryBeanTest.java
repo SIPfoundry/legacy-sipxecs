@@ -20,14 +20,14 @@ import org.easymock.IMocksControl;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.util.DTDEntityResolver;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxoGateway;
+import org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class DynamicSessionFactoryBeanTest extends TestCase {
 
     public void testXmlMapping() throws Exception {
         DynamicSessionFactoryBean factory = new DynamicSessionFactoryBean();
-        String mapping = factory.xmlMapping(Gateway.class, AudioCodesFxoGateway.class, "gwMediant1000");
+        String mapping = factory.xmlMapping(Gateway.class, AcmeGateway.class, "gwAcme");
         validateXml(mapping);
     }
 
@@ -35,11 +35,11 @@ public class DynamicSessionFactoryBeanTest extends TestCase {
         IMocksControl controlFactory = EasyMock.createControl();
         ListableBeanFactory factory = controlFactory.createMock(ListableBeanFactory.class);
         factory.getBeanNamesForType(Gateway.class);
-        controlFactory.andReturn(new String[] {"gwGeneric", "gwMediant1000"});
+        controlFactory.andReturn(new String[] {"gwGeneric", "gwAcme"});
         factory.getType("gwGeneric");
         controlFactory.andReturn(Gateway.class);
-        factory.getType("gwMediant1000");
-        controlFactory.andReturn(AudioCodesFxoGateway.class);
+        factory.getType("gwAcme");
+        controlFactory.andReturn(AcmeGateway.class);
         controlFactory.replay();
 
         ConfigurationMock config = new ConfigurationMock();
@@ -57,11 +57,11 @@ public class DynamicSessionFactoryBeanTest extends TestCase {
         IMocksControl controlFactory = EasyMock.createControl();
         ListableBeanFactory factory = controlFactory.createMock(ListableBeanFactory.class);
         factory.getBeanNamesForType(Gateway.class);
-        controlFactory.andReturn(new String[] {"gwGeneric", "gwMediant1000"});
+        controlFactory.andReturn(new String[] {"gwGeneric", "gwAcme"});
         factory.getType("gwGeneric");
         controlFactory.andReturn(Gateway.class);
-        factory.getType("gwMediant1000");
-        controlFactory.andReturn(AudioCodesFxoGateway.class);
+        factory.getType("gwAcme");
+        controlFactory.andReturn(AcmeGateway.class);
         controlFactory.replay();
 
         ConfigurationMock config = new ConfigurationMock();
@@ -83,9 +83,9 @@ public class DynamicSessionFactoryBeanTest extends TestCase {
         Document document = xmlReader.read(new StringReader(xml));
 
         assertEquals(Gateway.class.getName(), document.valueOf("/hibernate-mapping/subclass/@extends"));
-        assertEquals(AudioCodesFxoGateway.class.getName(),
+        assertEquals(AcmeGateway.class.getName(),
                 document.valueOf("/hibernate-mapping/subclass/@name"));
-        assertEquals("gwMediant1000",
+        assertEquals("gwAcme",
                 document.valueOf("/hibernate-mapping/subclass/@discriminator-value"));
     }
 

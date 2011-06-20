@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -19,7 +20,6 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.audiocodesphone.AudioCodesPhone.SpeedDialProfile;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class AudioCodesPhoneTest extends TestCase {
 
@@ -31,12 +31,13 @@ public class AudioCodesPhoneTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         m_phone = new AudioCodesPhone();
+        m_phone.setModelFilesContext(TestHelper.getModelFilesContext());
         m_model = new PhoneModel("audiocodesphone");
         m_phone.setModel(m_model);
         m_phone.setModelId("audiocodes-320");
         m_model.setProfileTemplate("audiocodesphone/mac.cfg.vm");
         m_model.setMaxLineCount(4);
-        m_primaryLocation = TestUtil.createDefaultLocation();
+        m_primaryLocation = TestHelper.createDefaultLocation();
         
         m_locationsManager = EasyMock.createMock(LocationsManager.class);
         m_locationsManager.getLocations();
@@ -59,20 +60,20 @@ public class AudioCodesPhoneTest extends TestCase {
     public void testGetFileName() throws Exception {
         m_phone.setModelId("audiocodes-320");
         m_phone.setSerialNumber("0011aabb4455");
-        assertEquals("320HD/0011aabb4455.cfg", m_phone.getProfileFilename());
+        assertEquals("0011aabb4455.cfg", m_phone.getProfileFilename());
     }
 
     public void testRestart() throws Exception {
         PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(m_phone,true,false,false,true);
         m_phone.restart();
 
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     public void testRestartNoLine() throws Exception {
-              PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(m_phone, new ArrayList<User>(), true);
+        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(m_phone, new ArrayList<User>(), true);
         m_phone.restart();
-        testDriver.sipControl.verify();
+        testDriver.getSipControl().verify();
     }
 
     /**
@@ -105,7 +106,7 @@ public class AudioCodesPhoneTest extends TestCase {
     }
 
     public void testGenerateTypicalProfile() throws Exception {
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone, TestHelper.getEtcDir());
 
         supplyTestData(m_phone);
         m_phone.getProfileTypes()[0].generate(m_phone, location);

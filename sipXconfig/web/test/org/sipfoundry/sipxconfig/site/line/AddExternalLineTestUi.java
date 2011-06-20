@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.line;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
@@ -18,10 +17,6 @@ import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
 public class AddExternalLineTestUi extends WebTestCase {
 
     private PhoneTestHelper m_helper;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(AddExternalLineTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         super.setUp();

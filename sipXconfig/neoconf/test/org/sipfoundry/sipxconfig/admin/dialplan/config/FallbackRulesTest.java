@@ -9,6 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +32,7 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
@@ -41,15 +50,6 @@ import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxRlsService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
 
 public class FallbackRulesTest extends XMLTestCase {
 
@@ -105,7 +105,7 @@ public class FallbackRulesTest extends XMLTestCase {
 
         EasyMock.replay(locationsManager);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, parkService, rlsService,
+        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, parkService, rlsService,
                 pageService);
         m_out.setSipxServiceManager(sipxServiceManager);
     }
@@ -161,14 +161,14 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.generate(rule);
         m_out.generate(emergencyRule);
         m_out.end();
-        m_out.localizeDocument(TestUtil.createDefaultLocation());
+        m_out.localizeDocument(TestHelper.createDefaultLocation());
 
         Document document = m_out.getDocument();
 
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
         InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules.test.xml");
         assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
 
@@ -223,13 +223,13 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.generate(rule);
         m_out.generate(emergencyRule);
         m_out.end();
-        m_out.localizeDocument(TestUtil.createDefaultLocation());
+        m_out.localizeDocument(TestHelper.createDefaultLocation());
 
         Document document = m_out.getDocument();
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules-sites.test.xml");
         assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
@@ -293,14 +293,14 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.generate(rule);
         m_out.generate(emergencyRule);
         m_out.end();
-        m_out.localizeDocument(TestUtil.createDefaultLocation());
+        m_out.localizeDocument(TestHelper.createDefaultLocation());
 
         Document document = m_out.getDocument();
 
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules-shared-gateway.test.xml");
         assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
@@ -315,14 +315,14 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.begin();
         m_out.generate(rule);
         m_out.end();
-        m_out.localizeDocument(TestUtil.createDefaultLocation());
+        m_out.localizeDocument(TestHelper.createDefaultLocation());
 
         Document document = m_out.getDocument();
 
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules-no-gateway.test.xml");
         assertEquals(IOUtils.toString(referenceXmlStream), domDoc);

@@ -10,17 +10,11 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class UserGroupExtContactTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(UserGroupExtContactTestUi.class);
-    }
 
     @Override
     protected void setUp() {

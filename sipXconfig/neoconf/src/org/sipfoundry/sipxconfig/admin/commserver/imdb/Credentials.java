@@ -9,7 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import com.mongodb.DBObject;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.sipfoundry.commons.mongo.MongoConstants.AUTHTYPE;
+import static org.sipfoundry.commons.mongo.MongoConstants.PASSTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.PINTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.REALM;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
@@ -19,8 +23,7 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
 
-import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.sipfoundry.commons.mongo.MongoConstants.*;
+import com.mongodb.DBObject;
 
 public class Credentials extends DataSetGenerator {
     public static final String DIGEST = "DIGEST";

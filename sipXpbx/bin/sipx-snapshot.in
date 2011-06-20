@@ -625,7 +625,7 @@ EOF
    echo "$Arguments    "
    echo ""
    echo -n "Version:   "
-   echo "@SIPX_VERSION@"
+   echo "@VERSION@"
    echo ""
    echo -n "Host:      "
    hostname --fqdn

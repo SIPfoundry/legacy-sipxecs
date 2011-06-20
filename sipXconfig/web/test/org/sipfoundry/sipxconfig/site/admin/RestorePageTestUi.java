@@ -12,11 +12,10 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class RestorePageTestUi extends WebTestCase {
     private static final String FIRST_BACKUP = "200706101100";
@@ -30,10 +29,6 @@ public class RestorePageTestUi extends WebTestCase {
     private static final String VOICEMAIL_FILE = "/voicemail.tar.gz";
 
     private static final String BACKUP_FOLDER = "/backup/";
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(RestorePageTestUi.class);
-    }
 
     @Override
     public void setUp() {
@@ -101,7 +96,7 @@ public class RestorePageTestUi extends WebTestCase {
     }
 
     private void buildConfigurationBackup(String folder) {
-        String testFolder = TestUtil.getTestOutputDirectory("web");
+        String testFolder = TestHelper.getTestOutputDirectory();
         String configBackup = testFolder + BACKUP_FOLDER + folder;
         try {
             File file = new File(configBackup);
@@ -116,7 +111,7 @@ public class RestorePageTestUi extends WebTestCase {
     }
 
     private void buildVoicemailBackup(String folder) {
-        String testFolder = TestUtil.getTestOutputDirectory("web");
+        String testFolder = TestHelper.getTestOutputDirectory();
         String voicemailBackup = testFolder + BACKUP_FOLDER + folder;
         try {
             File file = new File(voicemailBackup);

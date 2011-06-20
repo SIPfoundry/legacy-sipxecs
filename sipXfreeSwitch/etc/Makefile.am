@@ -14,7 +14,7 @@ LOCALIZE_VARS = \
 LOCALIZE = \
 	$(foreach V,$(LOCALIZE_VARS), -e 's|@$(V)\@|$($(V))|g')
 
-$(proc_DATA) : % : %.in
+$(proc_DATA) : % : %.in Makefile
 	@sed $(LOCALIZE) $< > $@
 
 DISTCLEANFILES = $(proc_DATA)

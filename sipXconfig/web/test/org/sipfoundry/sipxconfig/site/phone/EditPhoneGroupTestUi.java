@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
@@ -17,10 +16,6 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 public class EditPhoneGroupTestUi extends WebTestCase {
 
     private PhoneTestHelper m_phoneTester;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditPhoneGroupTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

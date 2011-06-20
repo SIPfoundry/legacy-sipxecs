@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.common.User;
@@ -21,10 +20,6 @@ import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
 public class ManageUsersTestUi extends WebTestCase {
 
     private PhoneTestHelper m_helper;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ManageUsersTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

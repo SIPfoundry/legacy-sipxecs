@@ -4,23 +4,140 @@
 	<classpathentry kind="src" output="bin.eclipse/test-classes" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/dnsjava.jar"/>
-	<classpathentry kind="lib" path="lib/junit.jar"/>
-	<classpathentry kind="lib" path="lib/log4j.jar"/>
-	<classpathentry kind="lib" path="lib/jibx-bind.jar"/>
-	<classpathentry kind="lib" path="lib/jibx-run.jar"/>
-	<classpathentry kind="lib" path="lib/dom4j.jar"/>
-	<classpathentry kind="lib" path="lib/commons-digester.jar"/>
-	<classpathentry kind="lib" path="lib/jdom-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/ws-commons-util.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang.jar"/>
-	<classpathentry kind="lib" path="lib/jce.jar"/>
-	<classpathentry kind="lib" path="lib/not-yet-commons-ssl.jar"/>
-	<classpathentry kind="lib" path="lib/jain-sip-sdp.jar" sourcepath="JAIN-SRC"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-client.jar"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-common.jar"/>
-	<classpathentry kind="lib" path="lib/postgresql-jdbc.jar"/>
-	<classpathentry kind="lib" path="lib/mongo-2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdom-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mongo-2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/acegi-security-1.0.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/activation-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ant-1.6.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ant-apache-oro.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ant-apache-regexp.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ant-launcher-1.6.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/aopalliance-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-2.2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-commons-2.2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-util-2.2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis-1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis-schema-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/backport-util-concurrent-3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/bcel-5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/bsf-2.4.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/c3p0-0.9.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cglib-nodep-2.1_3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/com.noelios.restlet-1.1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/com.noelios.restlet.ext.servlet-2.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-digester-1.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-discovery-0.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-fileupload-1.2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io-1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-net-1.4.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-pool-1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cssparser-0.9.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dbunit-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dnsjava-2.0.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/easymock-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/easymockclassextension-2.2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ehcache-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gdata-client-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gdata-contacts-3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gdata-core-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/guessencoding-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gwt-user-2.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-3.2.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/htmlunit-2.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/htmlunit-core-js-2.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/index"/>
+	<classpathentry exported="true" kind="lib" path="lib/iText-2.1.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/j2ee_connector-1_0-fr-class.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jain-sip-sdp-1.2.148.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jakarta-oro-2.0.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jakarta-regexp-1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jasper-compiler-4.1.31.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jasper-runtime-4.1.31.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jasperreports-3.7.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javamail-1.4.2.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javassist-3.7.ga.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javax.servlet.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javax.servlet.jsp.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxen-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxrpc.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jce-jdk13-144.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jettison-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-5.1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jibx-bind-1.1.6a.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jibx-run-1.1.6a.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/js-1.7R1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jstl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jta.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/junitperf-1.9.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jwebunit-core-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jwebunit-htmlunit-plugin-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldapbp.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/logkit-1.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lucene-core-3.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mime-dir-j-api-2.2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mime-dir-j-vcard4j-1.4.1-patch.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/nekohtml-1.9.12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netcomponents-1.3.8a.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/not-yet-commons-ssl-0.3.11.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/odmg-3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ognl-2.7.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.restlet-1.1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.restlet.ext.spring-2.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.aop-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.asm-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.beans-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.context-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.context.support-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.core-3.0.5.RELEASE.jar" sourcepath="/home/dhubler/libsrc/spring-3.0.5.jar.src"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.expression-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.jdbc-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.orm-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.transaction-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.web-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.web.servlet-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/p6spy-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-3.2-20081019.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/postgresql-8.2-504.jdbc3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/regexp-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rome-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/saaj.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/sac-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/saxpath-1.0fcs.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/serializer-2.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.5.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-log4j12-1.5.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/smack-3.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/smackx-3.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-ldap-1.1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-mock-2.0.4.jar" sourcepath="/home/dhubler/libsrc/spring-3.0.5.jar.src"/>
+	<classpathentry exported="true" kind="lib" path="lib/Stun4J.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/velocity-1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/velocity-tools-generic-1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ws-commons-util-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wsdl4j-1.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xalan-2.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xerces_resolver-2.9.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xercesImpl-2.9.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlrpc-2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlrpc-client-3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlrpc-common-3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlrpc-server-3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlunit-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xpp3-1.1.4c.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xstream-1.3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/antlr-2.7.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-core-1.8.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/google-collections-1.0.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

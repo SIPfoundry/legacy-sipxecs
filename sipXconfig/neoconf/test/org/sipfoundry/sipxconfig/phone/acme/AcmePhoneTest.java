@@ -28,7 +28,7 @@ public class AcmePhoneTest extends TestCase {
         phone.setModel(model);
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
 
         phone.generateProfiles(location);
 

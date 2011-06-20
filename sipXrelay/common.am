@@ -1,0 +1,15 @@
+relay_PKGS = \
+	Stun4J \
+	commons-beanutils \
+	commons-collections \
+	commons-digester \
+	commons-logging \
+	dnsjava \
+	jain-sip-sdp \
+	javax.servlet \
+	jetty \
+	log4j \
+	sipxcommons \
+	ws-commons-util \
+	xmlrpc-client \
+	xmlrpc-server

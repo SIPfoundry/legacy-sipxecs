@@ -48,7 +48,7 @@ if ( $Help )
 
 if ( $Version )
 { 
-    print '@SIPX_VERSION@' . "\n";
+    print '@VERSION@' . "\n";
     exit 0;
 }
 

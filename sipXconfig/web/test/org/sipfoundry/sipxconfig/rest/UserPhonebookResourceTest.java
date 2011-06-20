@@ -9,22 +9,21 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.sipfoundry.sipxconfig.phonebook.Phonebook;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+
+import java.util.Collection;
+
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.phonebook.Phonebook;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 
 public class UserPhonebookResourceTest extends UserPhonebookSearchResourceTest {
 
     @Override
     protected void setUp() throws Exception {
-        Collection<Phonebook> phonebooks = TestUtil.getMockAllPhonebooks();
+        Collection<Phonebook> phonebooks = TestHelper.getMockAllPhonebooks();
 
         m_phonebookManager = createMock(PhonebookManager.class);
 

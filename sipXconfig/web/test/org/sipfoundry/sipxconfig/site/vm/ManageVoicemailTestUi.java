@@ -10,13 +10,19 @@
 package org.sipfoundry.sipxconfig.site.vm;
 
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.text.DateFormat;
 import java.util.Locale;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
+
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.test.Creator;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -26,12 +32,6 @@ import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
 import org.sipfoundry.sipxconfig.test.PhonebookTestHelper;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 
 public class ManageVoicemailTestUi extends WebTestCase {
@@ -42,10 +42,6 @@ public class ManageVoicemailTestUi extends WebTestCase {
     private CoreContext m_coreContext;
     private DomainManager m_domainManager;
     private PhonebookTestHelper m_testHelper;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ManageVoicemailTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {
@@ -167,8 +163,8 @@ public class ManageVoicemailTestUi extends WebTestCase {
             "unchecked",
             "Fwd:Voice Message 00000014 \n Voice Message 00000014",
             "200 \n Yellowthroat Warbler - 200",
-            fmt.format(TestUtil.localizeDateTime("2/9/07 6:03:00 PM EST")) + " "
-              + fmt.format(TestUtil.localizeDateTime("2/9/07 3:40:00 PM EST")),
+            fmt.format(TestHelper.localizeDateTime("2/9/07 6:03:00 PM EST")) + " "
+              + fmt.format(TestHelper.localizeDateTime("2/9/07 3:40:00 PM EST")),
             "6 seconds",
             ""
         }};

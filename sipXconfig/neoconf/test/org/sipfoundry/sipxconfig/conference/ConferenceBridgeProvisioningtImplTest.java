@@ -21,10 +21,10 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl;
@@ -34,7 +34,6 @@ import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxRecordingService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ConferenceBridgeProvisioningtImplTest extends TestCase {
     public void testGenerateConfigurationData() throws Exception {
@@ -93,7 +92,7 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         rc.generate(conf);
 
         replay(rc, sc, service, processContext);
-        SipxServiceManager sm = TestUtil.getMockSipxServiceManager(true, service, ivrService, recordingService, imBotService);
+        SipxServiceManager sm = TestHelper.getMockSipxServiceManager(true, service, ivrService, recordingService, imBotService);
 
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
         impl.setReplicationContext(rc);

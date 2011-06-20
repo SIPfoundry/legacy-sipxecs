@@ -10,19 +10,13 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class EditConferenceTestUi extends WebTestCase {
 
     private ConferenceTestHelper m_helper;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditConferenceTestUi.class);
-    }
 
     @Override
     public void setUp() {
@@ -37,7 +31,7 @@ public class EditConferenceTestUi extends WebTestCase {
     public void testSetOwner() {
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
+        clickLinkWithText(SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         clickLink("link:conferences");
         tester.setWorkingForm("refreshForm");
         clickLink("conference:add");
@@ -85,7 +79,7 @@ public class EditConferenceTestUi extends WebTestCase {
     public void testAddConferenceFromBridge() {
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
+        clickLinkWithText(SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         clickLink("link:conferences");
         tester.setWorkingForm("refreshForm");
         clickLink("conference:add");
@@ -96,7 +90,7 @@ public class EditConferenceTestUi extends WebTestCase {
     public void testConferenceValidation() {
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
+        clickLinkWithText(SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         clickLink("link:conferences");
         tester.setWorkingForm("refreshForm");
         clickLink("conference:add");

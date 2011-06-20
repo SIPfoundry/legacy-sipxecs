@@ -18,6 +18,8 @@
     <div jwcid="connectionBlock@Block">           
       <fieldset jwcid="ldapConnectionPanel" />
       <ul class="form-actions">
+        <li><input jwcid="apply@Submit" action="listener:applyConnectionParamsOnFirstStep"
+          value="message:label.apply" /></li>
         <li><input jwcid="applyConnectionParams" type="submit" /></li>
       </ul>
     </div>
@@ -25,12 +27,14 @@
       <fieldset jwcid="ldapObjectClassPanel" />
       <ul class="form-actions">
         <li><input jwcid="applyObjectClassesSelection" type="submit" /></li>
+        <li><input jwcid="cancelObjectClasses@Submit" action="listener:cancel" value="message:label.cancel" /></li>
       </ul>
     </div>
     <div jwcid="attrsBlock@Block">
       <fieldset jwcid="ldapAttrMapPanel" />
       <ul class="form-actions">
         <li><input jwcid="applyAttrMap" type="submit" /></li>
+        <li><input jwcid="cancelAttrMap@Submit" action="listener:cancel" value="message:label.cancel" /></li>
       </ul>
     </div>
     <span jwcid="tabContent"/>

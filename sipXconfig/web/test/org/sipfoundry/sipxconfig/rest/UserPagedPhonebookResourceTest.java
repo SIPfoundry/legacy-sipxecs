@@ -9,6 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,6 +29,7 @@ import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
@@ -32,13 +38,6 @@ import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.easymock.classextension.EasyMock.createMock;
 
 public class UserPagedPhonebookResourceTest extends TestCase {
     protected PhonebookManager m_phonebookManager;
@@ -63,7 +62,7 @@ public class UserPagedPhonebookResourceTest extends TestCase {
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        Collection<Phonebook> phonebooks = TestUtil.getMockPublicPhonebooks();
+        Collection<Phonebook> phonebooks = TestHelper.getMockPublicPhonebooks();
 
         m_phonebookManager = createMock(PhonebookManager.class);
         m_phonebookManager.getPublicPhonebooksByUser(m_user);

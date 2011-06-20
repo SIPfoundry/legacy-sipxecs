@@ -9,8 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import org.sipfoundry.sipxconfig.service.SipxService;
-
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.createNiceMock;
+import static org.easymock.classextension.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.verify;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
@@ -27,24 +30,18 @@ import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxStatusService;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.createNiceMock;
-import static org.easymock.classextension.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.verify;
 
 public class EagerDialPlanActivationManagerTest extends TestCase {
     private ConfigGenerator createConfigGenerator() {
         ConfigGenerator cg = new ConfigGenerator();
 
-        DomainManager domainManager = TestUtil.getMockDomainManager();
+        DomainManager domainManager = TestHelper.getMockDomainManager();
         EasyMock.replay(domainManager);
 
         AuthRules authRules = new AuthRules();
@@ -88,7 +85,7 @@ public class EagerDialPlanActivationManagerTest extends TestCase {
         registrarService.setRegistrarEventSipPort("9906");
         registrarService.setSipPort("9907");
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, proxyService,
+        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, proxyService,
                 registrarService, statusService);
         forwardingRules.setSipxServiceManager(sipxServiceManager);
 

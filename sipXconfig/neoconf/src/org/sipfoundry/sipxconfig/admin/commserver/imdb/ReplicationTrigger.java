@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.Location.State;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
@@ -32,12 +33,13 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
+import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-public class ReplicationTrigger  extends SipxHibernateDaoSupport implements ApplicationListener, DaoEventListener {
+public class ReplicationTrigger extends SipxHibernateDaoSupport implements ApplicationListener, DaoEventListener {
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
 
     private CoreContext m_coreContext;
@@ -45,6 +47,7 @@ public class ReplicationTrigger  extends SipxHibernateDaoSupport implements Appl
     private OpenAcdContext m_openAcdContext;
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
+    private SipxReplicationContext m_lazySipxReplicationContext;
 
     /** no replication at start-up by default */
     private boolean m_replicateOnStartup;
@@ -81,6 +84,8 @@ public class ReplicationTrigger  extends SipxHibernateDaoSupport implements Appl
             generateBranch((Branch) entity);
         } else if (entity instanceof Location) {
             m_replicationManager.replicateLocation((Location) entity);
+        } else if (entity instanceof Permission) {
+            generatePermission((Permission) entity);
         }
     }
 
@@ -102,6 +107,8 @@ public class ReplicationTrigger  extends SipxHibernateDaoSupport implements Appl
                     m_replicationManager.removeEntity(gw);
                 }
             }
+        } else if (entity instanceof Permission) {
+            removePermission((Permission) entity);
         }
     }
 
@@ -117,6 +124,35 @@ public class ReplicationTrigger  extends SipxHibernateDaoSupport implements Appl
         for (User user : m_coreContext.getUsersForBranch(branch)) {
             m_replicationManager.replicateEntity(user);
         }
+    }
+
+    private void generatePermission(Permission permission) {
+        Object originalDefaultValue = getOriginalValue(permission, "defaultValue");
+        if (originalDefaultValue == null) {
+            if (!permission.getDefaultValue()) {
+                return;
+            } else {
+                // We do not need lazy/async here. The operation uses mongo commands and does not
+                // hit PG db.
+                // It will take a matter of seconds and the control is taken safely to the page.
+                // (i.e. we do not need to worry about timeout.)
+                m_replicationManager.addPermission(permission);
+                return;
+            }
+        }
+
+        if ((Boolean) originalDefaultValue == permission.getDefaultValue()) {
+            return;
+        }
+        m_lazySipxReplicationContext.generateAll(DataSet.PERMISSION);
+    }
+
+    private void removePermission(Permission permission) {
+        // We do not need lazy/async here. The operation uses mongo commands and does not hit PG
+        // db.
+        // It will take a matter of seconds and the control is taken safely to the page.
+        // (i.e. we do not need to worry about timeout.)
+        m_replicationManager.removePermission(permission);
     }
 
     /**
@@ -140,10 +176,8 @@ public class ReplicationTrigger  extends SipxHibernateDaoSupport implements Appl
             // AuditLogContext worker's reports
             // such as when firstRun task is executed or occasional replications
             // take place when system is up and running
-            Set<String> failedList = m_auditLogContext
-                    .getReplicationFailedList(location.getFqdn());
-            Set<String> successfulList = m_auditLogContext
-                    .getReplicationSuccededList(location.getFqdn());
+            Set<String> failedList = m_auditLogContext.getReplicationFailedList(location.getFqdn());
+            Set<String> successfulList = m_auditLogContext.getReplicationSuccededList(location.getFqdn());
             // no replication occured for this location
             if ((failedList == null || failedList.isEmpty()) && (successfulList == null || successfulList.isEmpty())) {
                 continue;
@@ -151,8 +185,7 @@ public class ReplicationTrigger  extends SipxHibernateDaoSupport implements Appl
                 // when something failed, we have configuration error - we will
                 // intersect current failures/successes with latest
                 // with this scenario, sendProfiles may never get finished
-                Set<String> prevSuccessfulList = location
-                        .getSuccessfulReplications();
+                Set<String> prevSuccessfulList = location.getSuccessfulReplications();
                 Set<String> prevFailedList = location.getFailedReplications();
                 if (successfulList != null && !successfulList.isEmpty()) {
                     prevSuccessfulList.addAll(successfulList);
@@ -162,16 +195,14 @@ public class ReplicationTrigger  extends SipxHibernateDaoSupport implements Appl
                     prevSuccessfulList.removeAll(failedList);
                     prevFailedList.addAll(failedList);
                 }
-                location.setLastAttempt(new Timestamp(Calendar.getInstance()
-                        .getTimeInMillis()));
+                location.setLastAttempt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
                 location.setState(State.CONFIGURATION_ERROR);
                 location.setSuccessfulReplications(prevSuccessfulList);
                 location.setFailedReplications(prevFailedList);
                 // location is configured only when sendProfiles successfully
                 // finished and nothing failed
             } else if (!m_auditLogContext.isSendProfilesInProgress(location)) {
-                location.setLastAttempt(new Timestamp(Calendar.getInstance()
-                        .getTimeInMillis()));
+                location.setLastAttempt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
                 location.setState(State.CONFIGURED);
                 location.setSuccessfulReplications(successfulList);
                 location.setFailedReplications(new TreeSet<String>());
@@ -196,5 +227,9 @@ public class ReplicationTrigger  extends SipxHibernateDaoSupport implements Appl
 
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {
         m_openAcdContext = openAcdContext;
+    }
+
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_lazySipxReplicationContext = sipxReplicationContext;
     }
 }

@@ -11,18 +11,13 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.io.File;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MusicOnHoldTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(MusicOnHoldTestUi.class);
-    }
-
     private File m_tempFile;
     private File m_wavFile;
 
@@ -30,8 +25,8 @@ public class MusicOnHoldTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
         m_tempFile = File.createTempFile("MusicOnHoldTestUi", null);
-        m_wavFile = new File(TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class) + "/"
-                + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        m_wavFile = TestHelper.getResourceAsFile(EditAutoAttendantTestUi.class,
+                EditAutoAttendantTestUi.PROMPT_TEST_FILE);
     }
 
     public void testDisplay() throws Exception {

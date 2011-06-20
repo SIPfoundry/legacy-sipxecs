@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 
 public class LocalBackupPlanTest extends TestCase {
     private static final String FIRST_BACKUP = "200706101100";
@@ -70,7 +70,7 @@ public class LocalBackupPlanTest extends TestCase {
     }
 
     private String getBackupDir() {
-        return TestUtil.getTestOutputDirectory("neoconf") + "/backup";
+        return TestHelper.getTestOutputDirectory() + "/backup";
     }
 
     private void buildConfigurationBackup(String folder) {

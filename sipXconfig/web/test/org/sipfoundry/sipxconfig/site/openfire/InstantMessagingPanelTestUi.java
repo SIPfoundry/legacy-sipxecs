@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.openfire;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
@@ -24,11 +23,6 @@ public class InstantMessagingPanelTestUi extends WebTestCase {
      * this test. Hence, the tests are disabled for now.
      * ================================================================================
      */
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(InstantMessagingPanelTestUi.class);
-    }
-
 
     public void disabled_setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

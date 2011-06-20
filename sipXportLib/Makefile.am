@@ -1,4 +1,4 @@
-## Process this file with automake to produce Makefile.in
+include config/utility.am
 include config/project.am
 
 @PACKAGE@_EXTRA_DIST = \

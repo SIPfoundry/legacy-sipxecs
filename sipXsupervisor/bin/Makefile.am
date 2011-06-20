@@ -1,10 +1,11 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
 bin_SCRIPTS = \
 	sipxsupervisor.sh
 
-sipxsupervisor.sh: sipxsupervisor.sh.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+$(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@)
 
-EXTRA_DIST = sipxsupervisor.sh.in
+EXTRA_DIST = $(bin_SCRIPTS:=.in)
+
+CLEANFILES = $(bin_SCRIPTS)

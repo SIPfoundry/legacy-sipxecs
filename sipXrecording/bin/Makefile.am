@@ -1,21 +1,12 @@
-include $(top_srcdir)/config/subdir.am
-
-editscripts_IN = \
-    sipxrecording.sh.in
+include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-    $(editscripts_IN)
+    $(bin_SCRIPTS:=.in)
 
-install-exec-hook : editscripts
+bin_SCRIPTS = \
+    sipxrecording.sh
 
-.PHONY : editscripts
-editscripts :
-	@for f in $(editscripts_IN); \
-	do \
-	  target=`basename $$f .in`; \
-     $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
-	  $(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
-	done
+$(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace, $<, $@)
 
-
-
+CLEANFILES = $(bin_SCRIPTS)

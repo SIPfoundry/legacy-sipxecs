@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.common;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxoGateway;
+import org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway;
 import org.springframework.context.ApplicationContext;
 
 public class SpringHibernateInstantiatorTestIntegration
@@ -45,8 +45,8 @@ public class SpringHibernateInstantiatorTestIntegration
     public void testInstantiateSubclass() throws Exception {
         init();
         Integer id = new Integer(5);
-        BeanWithId bean = (BeanWithId) m_instantiator.instantiate(AudioCodesFxoGateway.class, id);
-        assertSame(AudioCodesFxoGateway.class, bean.getClass());
+        BeanWithId bean = (BeanWithId) m_instantiator.instantiate(AcmeGateway.class, id);
+        assertSame(AcmeGateway.class, bean.getClass());
         assertSame(id, bean.getId());
     }
 

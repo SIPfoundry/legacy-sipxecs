@@ -17,13 +17,13 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStatsImpl.ColumnTransformer;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ColumnTransformerTest extends TestCase {
 
     public void testUtcDateConversion() throws Exception {
-        Date signinTime = TestUtil.localizeDateTime("12/19/06 1:40:50 AM GMT0:00");
+        Date signinTime = TestHelper.localizeDateTime("12/19/06 1:40:50 AM GMT0:00");
         Timestamp timeOriginal = new Timestamp(signinTime.getTime());
         Timestamp timeInUtc = new Timestamp(signinTime.getTime());
 

@@ -1,0 +1,51 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary: preflight for sipX
+License: LGPL
+Group:    Productivity/Telephony/SIP/Utilities
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXtools
+
+BuildRequires: automake
+BuildRequires: nsis
+BuildRequires: java-devel >= 1.6
+BuildRequires: sipxcommons >= %version
+
+Source: %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= %version
+Requires: sipxcommons >= %version
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+General utilities for sipXpbx system
+
+%prep
+%setup -q
+
+%build
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make %{_smp_mflags} all
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS LICENSE README %name.configlog
+%{_bindir}/preflight
+%attr(644,sipxchange,sipxchange) %{_localstatedir}/sipxdata/configserver/phone/profile/docroot/00D01EFFFFFE
+%attr(644,sipxchange,sipxchange) %{_localstatedir}/sipxdata/configserver/phone/profile/tftproot/00D01EFFFFFE
+
+
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/preflight

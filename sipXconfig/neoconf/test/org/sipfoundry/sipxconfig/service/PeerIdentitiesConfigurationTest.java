@@ -21,10 +21,7 @@ import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.InternalUser;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class PeerIdentitiesConfigurationTest extends TestCase {
 
@@ -54,7 +51,7 @@ public class PeerIdentitiesConfigurationTest extends TestCase {
         peerIdentitiesConfiguration.setTlsPeerManager(peerManager);
 
         Document document = peerIdentitiesConfiguration.getDocument();
-        String domDoc = TestUtil.asString(document);
+        String domDoc = TestHelper.asString(document);
 
         InputStream referenceXml = PeerIdentitiesConfiguration.class.getResourceAsStream("peeridentities.test.xml");
         assertEquals(IOUtils.toString(referenceXml), domDoc);

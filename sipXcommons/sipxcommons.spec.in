@@ -15,9 +15,6 @@ BuildRequires: java-1_6_0-sun-devel
 %else
 BuildRequires: java-devel >= 1.6
 %endif
-BuildRequires: ant-commons-logging
-BuildRequires: ant-junit
-BuildRequires: ant-nodeps
 BuildRequires: automake
 %if %{_vendor} == redhat
 BuildRequires: shadow-utils
@@ -26,6 +23,9 @@ BuildRequires: shadow-utils
 BuildRequires: pwdutils
 %endif
 BuildRequires: zip
+
+# disable JAR repacking. gwt for one won't repack
+%define __jar_repack %{nil}
 
 Source: %name-%version.tar.gz
 
@@ -89,6 +89,9 @@ fi
 %defattr(644,root,root,755)
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXcommons
+%attr(755,root,root) %{_bindir}/java-dep
+%{_datadir}/sipxecs/schema/spring-beans-2.0.xsd
+%{_datadir}/sipxecs/schema/spring-util-2.0.xsd
 
 %changelog
 

@@ -1,3 +1,4 @@
+include config/utility.am
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 

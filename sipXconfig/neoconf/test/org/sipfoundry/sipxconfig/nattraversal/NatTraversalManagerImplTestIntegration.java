@@ -9,16 +9,13 @@ import java.io.File;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
-import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRelayService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase {
 
@@ -69,7 +66,7 @@ public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase 
     public void testActivateMarkForRestart() throws Exception {
         m_sipxProcessContext.clear();
         assertEquals(0, m_sipxProcessContext.getRestartNeededServices().size());
-        SipxServiceManager serviceManager = TestUtil.getMockSipxServiceManager(
+        SipxServiceManager serviceManager = TestHelper.getMockSipxServiceManager(
                 true, m_sipxRelayService, m_sipxProxyService, m_sipxBridgeService);
         NatTraversal natTraversal = new NatTraversal(serviceManager);
         loadDataSetXml("admin/commserver/seedLocationsAndServices4.xml");
@@ -83,9 +80,12 @@ public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase 
         natTraversal.activateOnLocation(m_locationsManager.getLocation(101), m_serviceConfiguratorImpl);
         assertEquals(3, m_sipxProcessContext.getRestartNeededServices().size());
 
-        // some config files are left behind here, we need to delete them manually
-        File f = new File(TestUtil.getProjectDirectory()+"/etc/nattraversalrules.xml");
-        f.delete();
+        // HACK: some config files are left behind here, we need to delete them manually
+        File f = TestHelper.getResourceAsFile("/nattraversalrules.xml");
+        if (f != null) {
+            // cannot delete file in eclipse, eclipse hasn't refreshed project yet
+            f.delete();
+        }
     }
 
     public void testOneNatTraversalRecord() throws Exception {

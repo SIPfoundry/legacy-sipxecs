@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
@@ -61,12 +61,9 @@ CONFIG_FILES="\
 . @SIPX_LIBEXECDIR@/sipx-utils.sh
 
 JavaCmd=`@SIPX_BINDIR@/sipx-config --java` 
-LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
-ClassPath=$LibPath
-
-X509Algorithm=`$JavaCmd \
-       -classpath "$ClassPath" \
-       org.sipfoundry.commons.x509selector.X509Selector`
+Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @relay_PKGS@`
+export CLASSPATH=`echo @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+X509Algorithm=`$JavaCmd org.sipfoundry.commons.x509selector.X509Selector`
 
 setTruststoreOpts
  
@@ -83,7 +80,7 @@ case ${Action} in
 	 -Djetty.ssl.password=changeit			\
 	 -Djetty.ssl.keypassword=changeit		\
 	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-         -cp $ClassPath org.sipfoundry.sipxrelay.SymmitronServer \
+         org.sipfoundry.sipxrelay.SymmitronServer \
          $Args
      ;;
 
@@ -109,7 +106,7 @@ case ${Action} in
 	 -Djetty.ssl.password=changeit			\
 	 -Djetty.ssl.keypassword=changeit		\
 	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-         -cp $ClassPath org.sipfoundry.sipxrelay.SymmitronServer \
+         org.sipfoundry.sipxrelay.SymmitronServer \
          $Args
      ;;
 

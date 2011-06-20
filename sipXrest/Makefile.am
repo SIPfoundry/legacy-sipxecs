@@ -1,29 +1,27 @@
+include config/utility.am
 include config/project.am
-include ant-targets.am
-
-bin_SCRIPTS = sipxrest.sh 
+include common.am
 
 @PACKAGE@_EXTRA_DIST = \
-  README \
-  ant-targets.xml \
-  build.xml \
-  config.properties.in \
-  sipxrest-process.xml.in \
-  sipxrest.sh.in \
-  LICENSE \
-  ant-targets.xml \
-  src 
+	README \
+	$(proc_DATA:=.in) \
+	$(bin_SCRIPTS:=.in) \
+	LICENSE
 
-# BUILT_SOURCES is special autoconf variable to be checked on every make
-BUILT_SOURCES = config.properties
+SUBDIRS = \
+	src \
+	.
 
-SIPX_PROCESS_DEFS = \
-	sipxrest
+bin_SCRIPTS = \
+	sipxrest.sh
 
-config.properties : config.properties.in 
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+procdir = \
+	$(SIPX_DATADIR)/process.d
 
-sipxrest.sh : sipxrest.sh.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+proc_DATA = \
+	sipxrest-process.xml
+
+$(proc_DATA) $(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@,rest_PKGS)
+
+CLEANFILES = $(proc_DATA)

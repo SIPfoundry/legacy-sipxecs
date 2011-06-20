@@ -1,18 +1,13 @@
-include $(top_srcdir)/config/subdir.am
-
-editscripts_IN = \
-    sipxacccode.sh.in
-
-.PHONY : editscripts
-editscripts :
-	@for f in $(editscripts_IN); \
-	do \
-	  target=`basename $$f .in`; \
-     $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
-	  $(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
-	done
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-    $(editscripts_IN)
+    $(bin_SCRIPTS:=.in)
 
-install-exec-hook : editscripts
+bin_SCRIPTS = \
+    sipxacccode.sh
+
+$(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@,sipxacc_PKGS)
+
+CLEANFILES = $(bin_SCRIPTS)

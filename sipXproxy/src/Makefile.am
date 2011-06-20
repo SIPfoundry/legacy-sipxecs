@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = . cdr test
+SUBDIRS = . test
 
 ## Process this file with automake to produce Makefile.in
 

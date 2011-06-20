@@ -1,3 +1,4 @@
+include config/utility.am
 include config/project.am
 
 SUBDIRS = \
@@ -8,6 +9,3 @@ SUBDIRS = \
 	bin \
 	meta \
 	etc
-
-@PACKAGE@_EXTRA_DIST = \
-    src/cdr

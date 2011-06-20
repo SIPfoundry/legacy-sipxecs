@@ -10,21 +10,18 @@ Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXopenfire
 
 BuildRequires: java-devel >= 1.6
-BuildRequires: ant-commons-logging
-BuildRequires: ant-junit
-BuildRequires: ant-nodeps
 BuildRequires: automake
 BuildRequires: zip
-BuildRequires: sipxcommserverlib
-BuildRequires: sipxcommons
+BuildRequires: sipxcommserverlib >= %version
+BuildRequires: sipxcommons >= %version
+BuildRequires: sipxconfig >= %version
 BuildRequires: sipx-openfire
 
 Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
-
-Requires: sipx-openfire >= 3.6.4
+Requires: sipx-openfire
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -49,29 +46,21 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,sipxchange,sipxchange,755)
-%dir %{_sysconfdir}/sipxpbx/database
-%dir %{_sysconfdir}/sipxpbx/openfire
-%dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire
-%dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/conf
-%dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/lib
-%dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/plugins
-%dir %{_datadir}/sipxecs/process.d
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxopenfire-process.xml
-%attr(755,sipxchange,sipxchange) %{_bindir}/sipxopenfire.sh
-%attr(755,sipxchange,sipxchange) %{_bindir}/sipxopenfire-setup.sh
-%attr(755,sipxchange,sipxchange) %{_bindir}/sipxopenfire-initdb.sql
+%attr(755,root,root) %{_bindir}/sipxopenfire.sh
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxopenfire-setup.sh
-%attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/database/sipxopenfire-initdb.sql
-%attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/sipxopenfire-database.xml
-%attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/openfire/sipxopenfire-prompts.properties
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence.jar
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/conf/openfire.xml
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.enable_openfire_admin_console
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.disable_openfire_admin_console
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/lib/sipx-openfire-vcard-provider.jar
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/lib/ws-commons-util.jar
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/lib/xmlrpc-client.jar
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/lib/xmlrpc-common.jar
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire/lib/xmlrpc-server.jar
+%{_datadir}/sipxecs/process.d/sipxopenfire-process.xml
+%{_sysconfdir}/sipxpbx/database/sipxopenfire-initdb.sql
+%{_sysconfdir}/sipxpbx/sipxopenfire-database.xml
+%config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.properties
+%config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.vm
+%config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.xml
+%config(noreplace) %{_sysconfdir}/sipxpbx/openfire/sipxopenfire.vm
+%config(noreplace) %{_sysconfdir}/sipxpbx/openfire/sipxopenfire-prompts.properties
+%{_datadir}/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence.jar
+%{_datadir}/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar
+%{_datadir}/java/sipXecs/sipXopenfire/conf/openfire.xml
+%{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.enable_openfire_admin_console
+%{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.disable_openfire_admin_console
+%{_datadir}/java/sipXecs/sipXopenfire/lib/*.jar
+%{_datadir}/java/sipXecs/sipXconfig/plugins/cfg-service.jar
 

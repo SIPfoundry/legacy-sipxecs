@@ -11,14 +11,11 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.io.IOException;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
+
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class AlarmsPageTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(AlarmsPageTestUi.class);
-    }
 
     @Override
     public void setUp() {

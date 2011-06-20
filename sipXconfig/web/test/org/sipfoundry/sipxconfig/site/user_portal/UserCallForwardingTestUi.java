@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
@@ -18,9 +17,6 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
  * UserCallForwardingTestUi
  */
 public class UserCallForwardingTestUi extends WebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(UserCallForwardingTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());

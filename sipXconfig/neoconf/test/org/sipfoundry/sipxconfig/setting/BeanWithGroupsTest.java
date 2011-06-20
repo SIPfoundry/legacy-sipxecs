@@ -26,7 +26,7 @@ public class BeanWithGroupsTest extends TestCase {
     static class BirdWithGroups extends BeanWithGroups {
         @Override
         protected Setting loadSettings() {
-            return TestHelper.loadSettings(BeanWithGroupsTest.class, "birds.xml");
+            return TestHelper.loadSettings(TestHelper.getResourceAsFile(BeanWithGroupsTest.class, "birds.xml"));
         }
     }
 

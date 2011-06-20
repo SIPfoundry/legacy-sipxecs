@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -22,9 +24,6 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
 public class OrbitsTest extends XMLTestCase {
     private List<ParkOrbit> m_parkOrbits;
@@ -82,7 +81,7 @@ public class OrbitsTest extends XMLTestCase {
         orbits.setParkOrbitContext(parkOrbitContext);
         String generatedXml = getFileContent(orbits, null);
         // orbits file on windows includes "c:/" etc
-        generatedXml = generatedXml.replaceAll(TestUtil.currentDrive(), "");
+        generatedXml = generatedXml.replaceAll(TestHelper.currentDrive(), "");
         generatedXml = generatedXml.replace('\\', '/');
         InputStream referenceXml = OrbitsTest.class.getResourceAsStream("orbits.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));

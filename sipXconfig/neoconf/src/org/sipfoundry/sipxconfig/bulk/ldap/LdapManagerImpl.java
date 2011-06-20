@@ -102,6 +102,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             SearchControls cons = new SearchControls();
             // only interested in the first result
             cons.setCountLimit(1);
+            // set time limit for this search to 30 sec, should be sufficient even for large LDAPs
+            cons.setTimeLimit(30000);
 
             SchemaMapper mapper = new SchemaMapper();
             cons.setReturningAttributes(mapper.getReturningAttributes());

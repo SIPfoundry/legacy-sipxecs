@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
-import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
@@ -23,10 +22,6 @@ public class UserConferencesTestUi extends WebTestCase {
     private static final String TEST_CONFERENCE_NAME = "200-test-conf";
 
     private ConferenceTestHelper m_helper;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(UserConferencesTestUi.class);
-    }
 
     protected void setUp() throws Exception {
         m_helper = new ConferenceTestHelper(getTester());
@@ -82,7 +77,7 @@ public class UserConferencesTestUi extends WebTestCase {
     private void createTestConference() {
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
+        clickLinkWithText(SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         clickLink("link:conferences");
         setWorkingForm("refreshForm");
         clickLink("conference:add");

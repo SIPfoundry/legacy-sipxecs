@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.site.conference;
 import net.sourceforge.jwebunit.junit.WebTester;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.TestPage;
 
 /**
  * Helper class for tests that require bridges or conferences to be created.
@@ -37,7 +36,7 @@ public class ConferenceTestHelper {
         m_tester.clickLink("link:conference");
         m_tester.checkCheckbox("conferences:enable");
         m_tester.setTextField("conferences:prefix", "1000");
-        m_tester.selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
+        m_tester.selectOption("bridgeSelect", SiteTestHelper.getTestProperties().getProperty("DOMAIN"));
         m_tester.submit("submit:ok");
 	    SiteTestHelper.home(m_tester);
 

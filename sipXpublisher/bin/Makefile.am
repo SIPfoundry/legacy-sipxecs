@@ -1,19 +1,12 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
 
-editscripts_IN = \
-    sipstatus.sh.in
+bin_SCRIPTS = \
+    sipstatus.sh
 
 EXTRA_DIST = \
-    $(editscripts_IN)
+	$(bin_SCRIPTS:=.in)
 
-install-exec-hook : editscripts
+$(bin_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@)
 
-.PHONY : editscripts
-editscripts :
-	@for f in $(editscripts_IN); \
-	do \
-	  target=`basename $$f .in`; \
-     $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
-	  $(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
-	done
-
+CLEANFILES = $(bin_SCRIPTS)

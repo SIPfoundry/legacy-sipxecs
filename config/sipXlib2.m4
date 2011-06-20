@@ -19,6 +19,7 @@ AC_SUBST(SIPX_INTEROP, [${datadir}/sipxecs/interop])
 AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipxecs])
 AC_SUBST(SIPX_JAVADIR, [${datadir}/java/sipXecs])
 AC_SUBST(SIPX_VARDIR,  [${localstatedir}/sipxdata])
+AC_SUBST(SIPX_IVRDATADIR,  [${localstatedir}/sipxdata/mediaserver/data])
 AC_SUBST(SIPX_TMPDIR,  [${localstatedir}/sipxdata/tmp])
 AC_SUBST(SIPX_DBDIR,   [${localstatedir}/sipxdata/sipdb])
 AC_SUBST(SIPX_LOGDIR,  [${localstatedir}/log/sipxpbx])
@@ -38,3 +39,10 @@ test -n "$SIPXPBXGROUP" || SIPXPBXGROUP=$SIPXPBXUSER
 PACKAGE_REVISION=`cd ${srcdir} && ./config/revision-gen ${PACKAGE_VERSION}`
 AC_SUBST(PACKAGE_REVISION)
 AC_DEFINE_UNQUOTED([PACKAGE_REVISION], "${PACKAGE_REVISION}", [Revion number including git SHA])
+
+# automake eats straight "if.." in makefiles as autoconf conditions. this avoids that
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=34051
+AC_SUBST(IF, [if])
+AC_SUBST(IFDEF, [ifdef])
+AC_SUBST(IFNDEF, [ifndef])
+AC_SUBST(ENDIF, [endif])

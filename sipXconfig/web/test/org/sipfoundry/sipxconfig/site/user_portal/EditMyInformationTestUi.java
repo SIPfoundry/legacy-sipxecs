@@ -9,16 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditMyInformationTestUi extends WebTestCase {
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditMyInformationTestUi.class);
-    }
 
     @Override
     public void setUp() {

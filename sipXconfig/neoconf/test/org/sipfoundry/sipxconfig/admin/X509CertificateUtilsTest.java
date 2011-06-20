@@ -12,21 +12,20 @@ package org.sipfoundry.sipxconfig.admin;
 import java.io.File;
 import java.security.cert.X509Certificate;
 
-import org.apache.commons.io.FileUtils;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class X509CertificateUtilsTest extends TestCase {
 
     public void testGetX509Certificate() {
-        File sipxCert = new File(TestUtil.getTestSourceDirectory(this.getClass()), "sipx.crt");
+        File sipxCert =  TestHelper.getResourceAsFile(this.getClass(), "sipx.crt");
         X509Certificate cert = X509CertificateUtils.getX509Certificate(sipxCert.getAbsolutePath());
         assertEquals(
                 "EMAILADDRESS=root@localhost.localdomain, CN=ca.localhost.localdomain, OU=sipXecs, O=localdomain, L=AnyTown, ST=AnyState, C=US",
                 cert.getIssuerDN().getName());
 
-        File equifaxCert = new File(TestUtil.getTestSourceDirectory(this.getClass()), "equifax.crt");
+        File equifaxCert = TestHelper.getResourceAsFile(this.getClass(), "equifax.crt");
         X509Certificate cert1 = X509CertificateUtils.getX509Certificate(equifaxCert.getAbsolutePath());
         assertEquals("OU=Equifax Secure Certificate Authority, O=Equifax, C=US", cert1.getIssuerDN().getName());
 

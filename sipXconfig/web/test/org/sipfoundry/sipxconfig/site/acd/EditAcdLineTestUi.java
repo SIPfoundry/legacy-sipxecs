@@ -9,15 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site.acd;
 
-import junit.framework.Test;
-
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditAcdLineTestUi extends ListWebTestCase {
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditAcdLineTestUi.class);
-    }
 
     public EditAcdLineTestUi() {
         super("listAcdServers", "resetAcdContext", "line");

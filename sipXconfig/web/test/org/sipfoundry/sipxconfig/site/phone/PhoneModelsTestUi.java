@@ -9,17 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class PhoneModelsTestUi extends WebTestCase {
     PhoneTestHelper tester;
-
-    public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(PhoneModelsTestUi.class);
-    }
 
     @Override
     protected void setUp() throws Exception {

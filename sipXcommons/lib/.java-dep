@@ -1,0 +1,48 @@
+RepoName=sipXcommons
+
+# Lists dependencies of all jars in sipXcommons
+
+# Note to Maintainers: 
+# Only list known run-time dependencies. Avoid grouping group jars that simply often used together.
+# otherwise it will be impossible to reference jars separately when desired.
+
+sipXcommons_dependency() {
+  case $1 in
+  axis)
+    pkg_push jaxrpc commons-logging saaj wsdl4j javamail;;
+  jaxrpc)
+    pkg_push commons-discovery;;
+  javamail)
+    pkg_push activation;;
+  jibx-run)
+    pkg_push xpp3;;
+  jibx-bind)
+    pkg_push jibx-run bcel;;
+  jain-sip-sdp)
+    pkg_push log4j;;
+  jetty)
+    pkg_push javax.servlet;;
+  smackx)
+    pkg_push smack;;
+  xmlrpc-client)
+    pkg_push xmlrpc-common;;
+  xmlrpc-server)
+    pkg_push xmlrpc-common  javax.servlet commons-logging;;
+  gdata-contacts)
+    pkg_push gdata-core gdata-client google-collect;;
+  restlet-impl)
+    pkg_push restlet;;
+  jasperreports)
+    pkg_push iText jfreechart jcommon poi xalan;;
+  # technically ehcache is not required but really should be included.
+  hibernate)
+    pkg_push ehcache;;
+  # A StAX implementation for JSON
+  jetticon)
+    pkg_push stax-api;;
+  # A version of vCard4J patched to implement the Mime-Dir and vCard Java API.
+  mime-dir-j-vcard4j)
+    pkg_push xercesImpl xalan javamail javax.servlet mime-dir-j-api;;
+  *);;
+  esac
+}

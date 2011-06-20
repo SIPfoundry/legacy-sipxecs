@@ -1,0 +1,95 @@
+# Require utility.am be included. Do not include it here because having all top-level makefile
+# include nec. files helps readablity.  We have to avoid a network of includes that include other
+# includes
+utility_am_required ?= $(error Please include utility.am)
+$(utility_am_required)
+
+.SECONDEXPANSION:
+
+if IS_RPMBUILD
+INSTALL_TARGET = install-for-rpm
+else
+INSTALL_TARGET = install
+endif
+
+GEM_NAME = $*
+GEM_VER = $($(subst -,_,$(GEM_NAME))_VER)
+GEM_FILE = $(GEM_NAME)-$(GEM_VER).gem
+GEM_SPEC = $(GEM_NAME).gemspec
+GEM_SRC = $($(subst -,_,$(GEM_NAME))_SRC)
+
+# find list "foo bar" in "foo-1.0.gem bar-2.0.gem"
+GEM_MODULES = $(foreach G,$(filter %.gem, $(noinst_DATA)),$(firstword $(call SplitGem,$(G))))
+
+SplitGem = $(shell echo $1 | sed 's/\(.*\)-\([0-9.]\+\)\(\.gem\)*$$/\1 \2/g')
+
+install-exec-hook : $(addsuffix -$(INSTALL_TARGET),$(GEM_MODULES))
+uninstall-hook : $(addsuffix -uninstall,$(GEM_MODULES))
+clean-local : $(addsuffix -clean,$(GEM_MODULES))
+
+%-clean :
+	! test -f $(GEM_FILE) || rm $(GEM_FILE)
+	! test -f $(GEM_SPEC) || rm $(GEM_SPEC)
+	! test -L lib || rm lib
+
+#
+#  G E M   P A C K A G E
+#
+
+%.gemspec : %.gemspec.in
+	@$(call SearchAndReplace,$<,$@,GEM_NAME GEM_VER)
+
+# gem file includes version, need to strip that out so GEM_ variables resolve correctly
+%.gem :
+	$(MAKE) $(word 1,$(call SplitGem,$*))-gem
+
+# when srcdir != builddir, gemspecs are inflexible here so symlink in src
+%-gem :  $$(GEM_SRC) $$(GEM_SPEC) Makefile
+	test -d lib || ln -s $(srcdir)/lib
+	gem build $(GEM_SPEC)
+#
+# G E M   I N S T A L L
+#
+
+# install gems now, this is the final host machine
+%-install : $$(GEM_FILE)
+	$(mkdir_p) $(GEM_LOCAL_LIB_DIR)
+	$(GEM) install \
+	  --install-dir $(GEM_LOCAL_LIB_DIR) \
+	  --local $(GEM_FILE)
+
+# gems are copied into installation and will be installed on host machine
+# later. Therefore not strictly managed by rpm
+%-install-for-rpm : $$(GEM_FILE)
+	$(mkdir_p) $(DESTDIR)@SIPX_VARLIB@
+	$(INSTALL) -m 644 $< $(DESTDIR)@SIPX_VARLIB@
+
+# Generate ruby binding from a wsdl file.
+#
+# Required defined variables 
+#  WSDL - File path or URL to wsdl file
+#
+# Optional defined variables
+#  WSDL_OUTDIR - where to put the generated source. Default: ./lib
+#
+# Example
+# generate-src : $(WSDL)
+#	@echo "$$wsdl2ruby"| ruby
+#
+define wsdl2ruby
+	require 'wsdl/soap/wsdl2ruby'
+	require 'fileutils'
+	worker = WSDL::SOAP::WSDL2Ruby.new
+	worker.location = '$(WSDL)'
+	worker.basedir = '$(firstword $(WSDL_OUTDIR) lib)'
+	options = Hash.new
+	options['classdef'] = nil
+	options['driver'] = nil
+	options['client_skelton'] = nil
+	options['force'] = true
+	worker.opt.update(options)
+	FileUtils::mkdir_p '$(firstword $(WSDL_OUTDIR) lib)'
+	worker.run
+	puts 'done'
+endef
+export wsdl2ruby

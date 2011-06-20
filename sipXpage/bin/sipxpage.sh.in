@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
@@ -35,12 +35,11 @@ pidfile=@SIPX_RUNDIR@/sipxpage.pid
 case ${Action} in
    RUN)
      echo $$ > ${pidfile}
-
      JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-     LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXpage/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
-     ClassPath=$LibPath
+     Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @page_PKGS@`
+     export CLASSPATH=`echo @SIPX_JAVADIR@/sipXpage/*.jar ${Dependencies} | sed -e 's/ /:/g'`
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@ \
-         -cp $ClassPath sipxpage.SipXpage \
+         sipxpage.SipXpage \
          $Args
      ;;
 

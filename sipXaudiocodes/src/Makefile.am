@@ -1,26 +1,30 @@
-JAR_FILE = sipxconfig-audiocodes.jar
+include $(top_srcdir)/config/utility.am
+include $(top_srcdir)/config/java.am
+include $(top_srcdir)/common.am
 
-EXTRA_DIST = org
+EXTRA_DIST = \
+	$(audiocodes_SRC) \
+	$(audiocodes_RESOURCES)
 
-all : $(JAR_FILE)
+noinst_DATA = javac-audiocodes
 
-clean :
-	! test -f $(JAR_FILE) || rm $(JAR_FILE)
-	! test -d classes || rm -rf classes
-
-jardir = @SIPX_JAVADIR@/sipXconfig
-
+jardir = @SIPX_JAVADIR@/sipXconfig/plugins
+JAR_FILE = sipXaudiocodes.jar
 jar_DATA = $(JAR_FILE)
 
-jar_SOURCE = $(shell find $(srcdir)/org -type f -name '*.java')
+audiocodes_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
+audiocodes_RESOURCES = sipxplugin.beans.xml
 
-RUNTIME_CLASSPATH = @SIPX_JAVADIR@/sipXconfig/sipxconfig.jar
+audiocodes_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig,$(audiocodes_PKGS))
 
-# safer to generate each time
-.PHONY: $(JAR_FILE)
-$(JAR_FILE) :
-	test -d classes || mkdir classes
-	javac -classpath $(RUNTIME_CLASSPATH) -sourcepath $(srcdir) -d classes $(jar_SOURCE)
-	jar -cf $@.tmp -C classes .
-	cd $(srcdir); jar -uf $(abspath .)/$@.tmp `find org -type f -not -name '*.java'`
-	mv $@.tmp $@
+$(JAR_FILE) : javac-audiocodes
+	jar -cf $@ -C $(JAVAROOT) .
+
+style_SRC = $(audiocodes_SRC)
+precommit : style validate-xml
+
+validate-xml : sipxplugin.beans.xml
+	xmllint --noout \
+	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
+	$^

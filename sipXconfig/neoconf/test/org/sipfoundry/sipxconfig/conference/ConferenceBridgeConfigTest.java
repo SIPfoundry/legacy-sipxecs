@@ -9,9 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.util.Arrays;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
@@ -24,11 +29,6 @@ import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
 
 public class ConferenceBridgeConfigTest extends TestCase {
     public void testGenerate() throws Exception {
@@ -91,7 +91,7 @@ public class ConferenceBridgeConfigTest extends TestCase {
 
         ivrService.setLocationsManager(locationsManager);
 
-        SipxServiceManager serviceManager = TestUtil.getMockSipxServiceManager(true, ivrService);
+        SipxServiceManager serviceManager = TestHelper.getMockSipxServiceManager(true, ivrService);
 
         ConferenceBridgeContext confContext = createMock(ConferenceBridgeContext.class);
         confContext.getBridgeByServer("test.example.com");

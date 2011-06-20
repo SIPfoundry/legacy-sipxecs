@@ -1,0 +1,16 @@
+spec = Gem::Specification.new do |s|
+  s.platform = Gem::Platform::RUBY
+  s.summary = "@GEM_NAME@ provides CDR generation from logged call state events"
+  s.name = '@GEM_NAME@'
+  s.version = '@GEM_VER@'
+  s.requirements << 'none'
+  s.require_path = 'lib'
+
+  # client_bindings task needs to have completed in a previous
+  # run inorder for this file list to be resolved correctly
+  s.files = Dir.glob("lib/**/*")
+
+  s.description = <<EOF
+@GEM_NAME@ implements call resolution from logged call state events
+EOF
+end

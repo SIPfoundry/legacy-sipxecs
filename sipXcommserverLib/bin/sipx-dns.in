@@ -186,7 +186,7 @@ do
             ;;
 
         -V|--version)
-            echo "@SIPX_VERSION@"
+            echo "@VERSION@"
             exit 0
             ;;
 
