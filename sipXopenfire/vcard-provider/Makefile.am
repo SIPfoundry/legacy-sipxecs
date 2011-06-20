@@ -13,6 +13,8 @@ jardir = @SIPX_JAVADIR@/sipXopenfire/lib
 # but it wouldn't seem like is nec.  Openfire integration i think would benefit from a full 
 # review. --douglas
 jar_PKGS = \
+	log4j \
+	mongo \
 	ws-commons-util \
 	xmlrpc-common \
 	xmlrpc-client \
