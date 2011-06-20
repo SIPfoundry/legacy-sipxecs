@@ -9,25 +9,30 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import junit.framework.TestCase;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.polycom.CodecGroupsTest.CodecGroupType;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
-
-import junit.framework.TestCase;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 /**
  * Checks that each Polycom model is using only the expected codec group.
@@ -38,12 +43,14 @@ public class CodecConfigurationForModelTest extends TestCase {
 
     @SuppressWarnings("unchecked")
     private static List<Element> getModelBeanPropertyElements(Node model_bean, String name) {
-        String xpath = String.format("property[@name=\"%s\"]/set", name);
+        //converting to xsd made xpath  foo/ not work, had to switch to */ 
+        String xpath = String.format("*[@name=\"%s\"]/*", name);
         return ((Element) model_bean.selectSingleNode(xpath)).elements();
     }
 
     private static String getModelBeanPropertyValue(Node model_bean, String name) {
-        String xpath = String.format("property[@name=\"%s\"]/@value", name);
+        //converting to xsd made xpath  foo/ not work, had to switch to */ 
+        String xpath = String.format("*[@name=\"%s\"]/@value", name);
         return model_bean.selectSingleNode(xpath).getStringValue();
     }
 
@@ -53,7 +60,7 @@ public class CodecConfigurationForModelTest extends TestCase {
      *
      * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
      */
-    public void testCodecConfigurationForAllModels() throws DocumentException {
+    public void testCodecConfigurationForAllModels() throws Exception {
 
         assertCodecConfigurationForModel(CodecGroupType.IP_300, "polycom300");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom321");
@@ -73,7 +80,7 @@ public class CodecConfigurationForModelTest extends TestCase {
         assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom335");
     }
 
-    private void assertCodecConfigurationForModel(CodecGroupType codecGroup, String phoneModelId) throws DocumentException {
+    private void assertCodecConfigurationForModel(CodecGroupType codecGroup, String phoneModelId) throws Exception {
 
         // Initialize the phone.
         m_phone = new PolycomPhone();
@@ -127,7 +134,7 @@ public class CodecConfigurationForModelTest extends TestCase {
      *
      * @throws DocumentException
      */
-    public static PolycomModel phoneModelBuilder(String phoneModelId, Class klass) throws DocumentException {
+    public static PolycomModel phoneModelBuilder(String phoneModelId, Class klass) throws Exception {
 
         PolycomModel model = new PolycomModel();
         model.setModelId(phoneModelId);
@@ -135,7 +142,8 @@ public class CodecConfigurationForModelTest extends TestCase {
         Document beans_document = XmlUnitHelper.loadDocument(klass, "/sipxplugin.beans.xml");
 
         // Find the bean whose ID matches the specified phone model.
-        Node model_bean = beans_document.selectSingleNode(String.format("/beans/bean[@id=\"%s\"]", phoneModelId));
+        //converting to xsd made xpath  foo/ not work, had to switch to */ 
+        Node model_bean = beans_document.selectSingleNode(String.format("/beans/*[@id=\"%s\"]", phoneModelId));
         assertNotNull(String.format("Failed to find a bean with ID '%s'.", phoneModelId), model_bean);
 
         // Set the properties.

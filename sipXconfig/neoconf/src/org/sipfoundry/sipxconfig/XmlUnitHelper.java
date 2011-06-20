@@ -120,6 +120,7 @@ public abstract class XmlUnitHelper {
     public static Document loadDocument(Class klass, String name) throws DocumentException {
         InputStream stream = klass.getResourceAsStream(name);
         SAXReader reader = new SAXReader();
+        reader.setValidation(false);
         return reader.read(stream);
     }
 }

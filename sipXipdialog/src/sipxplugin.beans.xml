@@ -15,7 +15,7 @@
     </property>
   </bean>
 
-  <bean id="ipDialog" class="org.sipfoundry.sipxconfig.phone.ipdialog.IpDialogPhone" singleton="false"
+  <bean id="ipDialog" class="org.sipfoundry.sipxconfig.phone.ipdialog.IpDialogPhone" scope="prototype"
     parent="abstractPhone">
   </bean>
 </beans>

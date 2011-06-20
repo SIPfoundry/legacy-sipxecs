@@ -27,6 +27,7 @@ sipXconfig_dependency() {
        org.springframework.core \
        org.springframework.orm \
        org.springframework.transaction \
+       sipxcommons \
        velocity \
        velocity-tools-generic \
        xercesImpl \

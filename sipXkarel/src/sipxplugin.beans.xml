@@ -24,7 +24,7 @@
   </bean>
   
   <!-- implementation -->
-  <bean id="karel-ip11x" class="org.sipfoundry.sipxconfig.phone.karel_ip11x.KarelIP11xPhone" singleton="false" parent="abstractPhone">
+  <bean id="karel-ip11x" class="org.sipfoundry.sipxconfig.phone.karel_ip11x.KarelIP11xPhone" scope="prototype" parent="abstractPhone">
   </bean>
 
   <bean id="karelModelParent" parent="abstractPhoneModel" abstract="true">
@@ -44,6 +44,6 @@
   </bean>
 
   <!-- implementation -->
-  <bean id="karel" class="org.sipfoundry.sipxconfig.phone.karel.KarelPhone" singleton="false" parent="abstractPhone">
+  <bean id="karel" class="org.sipfoundry.sipxconfig.phone.karel.KarelPhone" scope="prototype" parent="abstractPhone">
   </bean>
 </beans>

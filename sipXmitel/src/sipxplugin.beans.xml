@@ -10,6 +10,6 @@
 	<property name="vendor" value="MITEL"/>
   </bean>
   <!-- implementation -->
-  <bean id="mitel" class="org.sipfoundry.sipxconfig.phone.mitel.MitelPhone" singleton="false" parent="abstractPhone">
+  <bean id="mitel" class="org.sipfoundry.sipxconfig.phone.mitel.MitelPhone" scope="prototype" parent="abstractPhone">
   </bean>
 </beans>
