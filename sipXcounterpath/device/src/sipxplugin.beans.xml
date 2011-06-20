@@ -15,7 +15,7 @@
     <property name="label" value="Bria 3.x" />
   </bean>
 
-  <bean id="counterpath" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone" singleton="false" parent="abstractPhone">
+  <bean id="counterpath" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone" scope="prototype" parent="abstractPhone">
     <property name="syswwwdir" value="${sysdir.www}"/>
     <property name="locationsManager" ref="locationsManager"/>
   </bean>

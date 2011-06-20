@@ -217,7 +217,7 @@
       </set>
     </property>
   </bean>
-  <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" singleton="false"
+  <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" scope="prototype"
     parent="abstractPhone">
   </bean>
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
