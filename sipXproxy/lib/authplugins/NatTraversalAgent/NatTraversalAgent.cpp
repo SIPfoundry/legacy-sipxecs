@@ -586,6 +586,7 @@ void NatTraversalAgent::adjustViaForNatTraversal( SipMessage& message, const cha
                     newVia += ";";
                     newVia += viaParams;
                 }
+                break;
                 default:
                     Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                                   "NatTraversalAgent::adjustViaForNatTraversal"

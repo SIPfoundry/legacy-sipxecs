@@ -31,6 +31,9 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class LdapServer extends BaseComponent implements PageBeginRenderListener {
+    private static final String CONNECTION_STAGE = "connection";
+    private static final String OBJECT_CLASSES_STAGE = "objectClasses";
+    private static final String ATTRS_STAGE = "attrs";
 
     public abstract LdapConnectionParams getConnectionParams();
 
@@ -73,11 +76,19 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
         }
 
         if (getStage() == null) {
-            setStage("connection");
+            setStage(CONNECTION_STAGE);
         }
     }
 
     public void applyConnectionParams() {
+        applyConnectionParamsWithStage(OBJECT_CLASSES_STAGE);
+    }
+
+    public void applyConnectionParamsOnFirstStep() {
+        applyConnectionParamsWithStage(CONNECTION_STAGE);
+    }
+
+    private void applyConnectionParamsWithStage(String stage) {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
@@ -88,20 +99,23 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
         // check if we can connect to LDAP - throws user exception if there are any problems
         // Cannot avoid try/catch here - the exception is displayed on a parent page for this tab
         try {
-            ldapManager.verify(connectionParams, attrMap);
-
+            // save system settings even if no valid connection - e.g. if uncheck LDAP configured
+            ldapManager.saveSystemSettings(getSettings());
             // save new connection params
             ldapManager.setConnectionParams(connectionParams);
-            ldapManager.saveSystemSettings(getSettings());
             ldapManager.setAttrMap(attrMap);
-
+            ldapManager.verify(connectionParams, attrMap);
             Schema schema = ldapManager.getSchema(attrMap.getSubschemaSubentry());
             setSchema(schema);
 
-            setStage("objectClasses");
+            setStage(stage);
         } catch (UserException e) {
             validator.record(e, getMessages());
         }
+    }
+
+    public void cancel() {
+        setStage(CONNECTION_STAGE);
     }
 
     public void applyObjectClassesSelection() {
@@ -110,7 +124,7 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
         String[] attributesPool = schema.getAttributesPool(attrMap.getSelectedObjectClasses());
         setSelectedAttributes(attributesPool);
 
-        setStage("attrs");
+        setStage(ATTRS_STAGE);
     }
 
     public IPage applyAttrMap(IRequestCycle cycle) {

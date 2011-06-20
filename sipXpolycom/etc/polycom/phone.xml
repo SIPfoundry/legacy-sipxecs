@@ -1932,17 +1932,89 @@
       </setting>
     </group>
     <group name="srtp">
+      <setting name="enable">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="offer">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="require">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
       <setting name="offer.HMAC_SHA1_80">
         <type>
           <boolean />
         </type>
-        <value />
+        <value>1</value>
       </setting>
       <setting name="offer.HMAC_SHA1_32">
         <type>
           <boolean />
         </type>
-        <value />
+        <value>0</value>
+      </setting>
+      <setting name="key.lifetime">
+        <type>
+          <integer min="0" />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="mki.enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sessionParams.noAuth.offer">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sessionParams.noAuth.require">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sessionParams.noEncrypRTCP.offer">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sessionParams.noEncrypRTCP.require">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sessionParams.noEncrypRTP.offer">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sessionParams.noEncrypRTP.require">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="requireMatchingTag">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
       </setting>
     </group>
   </group>

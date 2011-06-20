@@ -46,7 +46,6 @@ import org.springframework.dao.DataAccessException;
 public class ConfigurableLdapAuthenticationProvider implements AuthenticationProvider, DaoEventListener {
 
     private LdapManager m_ldapManager;
-    private LdapSystemSettings m_settings;
     private LdapAuthenticationProvider m_provider;
     private LdapAuthoritiesPopulator m_authoritiesPopulator;
     private UserDetailsService m_userDetailsService;
@@ -82,12 +81,18 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
 
     @Override
     public Authentication authenticate(Authentication authentication) {
+        if (!m_ldapManager.getSystemSettings().isConfigured()) {
+            return null;
+        }
         initialize();
         return (isEnabled() ? m_provider.authenticate(authentication) : null);
     }
 
     @Override
     public boolean supports(Class authentication) {
+        if (!m_ldapManager.getSystemSettings().isConfigured()) {
+            return false;
+        }
         if (!m_ldapManager.verifyLdapConnection()) {
             return false;
         }
@@ -96,14 +101,13 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
     }
 
     private boolean isEnabled() {
-        return m_provider != null && m_settings.isLdapEnabled() && m_settings.isConfigured();
+        return m_provider != null && m_ldapManager.getSystemSettings().isLdapEnabled();
     }
 
     private void initialize() {
         if (!m_initialized) {
             synchronized (this) {
                 m_provider = createProvider();
-                m_settings = m_ldapManager.getSystemSettings();
                 m_initialized = true;
             }
         }
