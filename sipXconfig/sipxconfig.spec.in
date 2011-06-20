@@ -53,8 +53,6 @@ Requires: sipxpbx >= %version
 Requires: postgresql-server
 Requires: ruby
 Requires: rubygems
-# because jetty config references cmcprov war. nice if it was made dynamic
-Requires: sipxcounterpath >= %version
 
 Obsoletes: sipx-jasperreports-deps
 

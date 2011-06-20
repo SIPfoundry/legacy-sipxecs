@@ -52,6 +52,12 @@ Requires: sipxcdrlog >= %version
 Requires: sipxprovision >= %version
 Requires: sipxacccode >= %version
 
+# because jetty config references cmcprov war. nice if it was made dynamic
+Requires: sipxcounterpath >= %version
+Requires: sipxpolycom >= %version
+Requires: sipxacdstatistics >= %version
+Requires: sipxcdr >= %version
+
 Obsoletes: %{name}-doc
 Source: %name-%version.tar.gz
 
