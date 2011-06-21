@@ -26,7 +26,7 @@
   </bean>
 
   <!-- implementation -->
-  <bean id="hitachi" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiPhone" singleton="false"
+  <bean id="hitachi" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiPhone" scope="prototype"
     parent="abstractPhone">
   </bean>
 </beans>

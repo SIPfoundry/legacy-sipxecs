@@ -43,7 +43,7 @@
   </bean>
 
 
-  <bean id="nortel12x0" class="org.sipfoundry.sipxconfig.phone.nortel12x0.Nortel12x0Phone" singleton="false"
+  <bean id="nortel12x0" class="org.sipfoundry.sipxconfig.phone.nortel12x0.Nortel12x0Phone" scope="prototype"
     parent="abstractPhone">
     <property name="coreContext" ref="coreContext" />
   </bean>
@@ -69,7 +69,7 @@
   </bean>
 
   <!-- implementation -->
-  <bean id="nortel" class="org.sipfoundry.sipxconfig.phone.nortel.NortelPhone" singleton="false"
+  <bean id="nortel" class="org.sipfoundry.sipxconfig.phone.nortel.NortelPhone" scope="prototype"
     parent="abstractPhone">
      <property name="coreContext" ref="coreContext" />
   </bean>
@@ -96,12 +96,12 @@
 
 
   <!-- implementation -->
-  <bean id="nt1535" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Phone" singleton="false"
+  <bean id="nt1535" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Phone" scope="prototype"
     parent="abstractPhone">
   </bean>
 
   <bean id="nt1535Upload" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Upload"
-    singleton="false" parent="upload">
+    scope="prototype" parent="upload">
     <property name="profileDir">
       <value>${sysdir.phone}/profile/tftproot</value>
     </property>

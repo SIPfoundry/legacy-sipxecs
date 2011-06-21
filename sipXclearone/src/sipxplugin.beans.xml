@@ -11,7 +11,7 @@
   </bean>
 
   <!-- implementation -->
-  <bean id="clearone" class="org.sipfoundry.sipxconfig.phone.clearone.ClearonePhone" singleton="false"
+  <bean id="clearone" class="org.sipfoundry.sipxconfig.phone.clearone.ClearonePhone" scope="prototype"
     parent="abstractPhone">
   </bean>
 </beans>

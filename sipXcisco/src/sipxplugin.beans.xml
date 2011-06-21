@@ -42,7 +42,7 @@
     <property name="maxLineCount" value="8" />
   </bean>
 
-  <bean id="ciscoplusPhone" class="org.sipfoundry.sipxconfig.phone.ciscoplus.CiscoplusPhone" singleton="false"
+  <bean id="ciscoplusPhone" class="org.sipfoundry.sipxconfig.phone.ciscoplus.CiscoplusPhone" scope="prototype"
     parent="abstractPhone">
   </bean>
 
@@ -91,7 +91,7 @@
   </bean>
 
   <!-- Cisco 7940, 7960 -->
-  <bean id="ciscoIp" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" singleton="false"
+  <bean id="ciscoIp" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" scope="prototype"
     parent="abstractPhone">
   </bean>
   <bean id="ciscoIpFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
@@ -101,7 +101,7 @@
   </bean>
 
   <!-- CISCO ATA and low-end cisco phones -->
-  <bean id="ciscoAta" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"
+  <bean id="ciscoAta" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" scope="prototype"
     parent="abstractPhone">
     <property name="profileGenerator">
       <bean class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaProfileWriter" />
@@ -114,11 +114,11 @@
     <property name="restartSupported" value="true" />
   </bean>
 
-  <bean id="linksysPhone" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysPhone" singleton="false"
+  <bean id="linksysPhone" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysPhone" scope="prototype"
     parent="abstractPhone">
   </bean>
 
-  <bean id="linksysAta" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysAta" singleton="false"
+  <bean id="linksysAta" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysAta" scope="prototype"
     parent="abstractPhone">
   </bean>
 

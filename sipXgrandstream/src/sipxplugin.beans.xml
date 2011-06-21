@@ -88,7 +88,7 @@
   <bean id="grandstreamProfileGenerator"
     class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamProfileGenerator">
   </bean>
-  <bean id="grandstream" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone" singleton="false"
+  <bean id="grandstream" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone" scope="prototype"
     parent="abstractPhone">
     <property name="profileGenerator" ref="grandstreamProfileGenerator" />
   </bean>

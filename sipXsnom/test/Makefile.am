@@ -10,12 +10,7 @@ noinst_DATA = javac-test
 
 test_PKGS = \
 	$(snom_PKGS) \
-	junit \
-	org.restlet \
-	com.noelios.restlet \
-	dbunit \
-	easymock \
-	easymockclassextension
+	sipxconfig-test
 
 test_DEPS = \
 	$(JAVAROOT) \
