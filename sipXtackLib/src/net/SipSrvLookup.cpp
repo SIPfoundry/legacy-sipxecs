@@ -370,7 +370,7 @@ server_t* SipSrvLookup::servers(const char* domain,
          }
 
          // If TLS transport is acceptable.
-         if (socketType == OsSocket::UNKNOWN ||
+         if ( strcmp(service, "sips") == 0 &&
               socketType == OsSocket::SSL_SOCKET)
          {
             myQueryThreads[SipSrvLookupThread::SRV_TLS]->postMessage(srvLookupArgs);
@@ -392,7 +392,7 @@ server_t* SipSrvLookup::servers(const char* domain,
             myQueryThreads[SipSrvLookupThread::SRV_TCP]->isDone();
          }
          // If TLS SRV query was carried out
-         if (socketType == OsSocket::UNKNOWN ||
+         if (strcmp(service, "sips") == 0 &&
               socketType == OsSocket::SSL_SOCKET)
          {
             myQueryThreads[SipSrvLookupThread::SRV_TLS]->isDone();
