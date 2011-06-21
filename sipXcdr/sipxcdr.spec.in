@@ -29,6 +29,8 @@ Requires: ruby-libs
 Requires: ruby-postgres
 %endif
 
+Obsoletes: sipxproxy-cdr
+
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 

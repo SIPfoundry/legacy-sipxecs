@@ -33,6 +33,9 @@ Requires: rubygem-file-tail
 Requires: irb
 %endif
 
+Obsoletes : sipxconfig-agent
+Obsoletes : sipxconfig-report
+
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
