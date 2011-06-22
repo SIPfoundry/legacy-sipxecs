@@ -371,10 +371,10 @@
       />
     </pwd>
     <SRTP
-      sec.srtp.enable="1"
-      sec.srtp.offer="1"
+      sec.srtp.enable="0"
+      sec.srtp.offer="0"
       sec.srtp.require="0"
-      sec.srtp.offer.HMAC_SHA1_80="1"
+      sec.srtp.offer.HMAC_SHA1_80="0"
       sec.srtp.offer.HMAC_SHA1_32="0"
       sec.srtp.key.lifetime="0"
       sec.srtp.mki.enabled="0"
@@ -384,7 +384,7 @@
       sec.srtp.sessionParams.noEncrypRTCP.require="0"
       sec.srtp.sessionParams.noEncrypRTP.offer="0"
       sec.srtp.sessionParams.noEncrypRTP.require="0"
-      sec.srtp.requireMatchingTag="1"
+      sec.srtp.requireMatchingTag="0"
     />
   </security>
   <request>
