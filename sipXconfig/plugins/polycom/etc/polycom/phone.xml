@@ -1936,13 +1936,13 @@
         <type>
           <boolean />
         </type>
-        <value>1</value>
+        <value>0</value>
       </setting>
       <setting name="offer">
         <type>
           <boolean />
         </type>
-        <value>1</value>
+        <value>0</value>
       </setting>
       <setting name="require">
         <type>
@@ -1954,7 +1954,7 @@
         <type>
           <boolean />
         </type>
-        <value>1</value>
+        <value>0</value>
       </setting>
       <setting name="offer.HMAC_SHA1_32">
         <type>
@@ -2014,7 +2014,7 @@
         <type>
           <boolean />
         </type>
-        <value>1</value>
+        <value>0</value>
       </setting>
     </group>
   </group>
