@@ -2640,6 +2640,17 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                 scheme = "sips";
                 msgSizeProtocol = OsSocket::SSL_SOCKET;
               }
+              else
+              {
+                UtlString transport;
+                requestUri.getUrlParameter("transport", transport);
+                if (transport == "tls" || transport == "TLS")
+                {
+                  scheme = "sips";
+                  msgSizeProtocol = OsSocket::SSL_SOCKET;
+                }
+
+              }
             }
 
             

@@ -3805,9 +3805,21 @@ UtlBoolean SipUserAgent::isMyHostAlias(const Url& route) const
       UtlString scheme;
       route.getUrlType(scheme);
       if (scheme == "sips")
+      {
         hostAlias.append(":5061");
-      else
-        hostAlias.append(":5060");
+      }else
+      {
+        UtlString transport;
+        route.getUrlParameter("transport", transport);
+        if (transport == "tls" || transport == "TLS")
+        {
+          hostAlias.append(":5061");
+        }
+        else
+        {
+          hostAlias.append(":5060");
+        }
+      }
     }
     else
     {
