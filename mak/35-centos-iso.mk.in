@@ -236,13 +236,10 @@ ISO_REMOVE_LIST = \
   libmng-* \
   libmusicbrainz-* \
   libnotify-* \
-  libogg-* \
   liboil-* \
   libraw1394-* \
   libsilc-* \
   libsoup-* \
-  libtheora-* \
-  libvorbis-* \
   libwnck-* \
   libxkbfile-* \
   libxklavier-* \
@@ -366,4 +363,5 @@ ISO_ADD_LIST = \
   yum-basearchonly-* \
   yum-downloadonly-* \
   java-1.6.0-openjdk-1.6* \
-  java-1.6.0-openjdk-devel*
+  java-1.6.0-openjdk-devel* \
+  alsa-lib*
