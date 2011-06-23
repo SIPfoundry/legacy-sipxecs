@@ -51,12 +51,29 @@ Requires: sipxcallcontroller >= %version
 Requires: sipxcdrlog >= %version
 Requires: sipxprovision >= %version
 Requires: sipxacccode >= %version
-
-# because jetty config references cmcprov war. nice if it was made dynamic
-Requires: sipxcounterpath >= %version
-Requires: sipxpolycom >= %version
 Requires: sipxacdstatistics >= %version
 Requires: sipxcdr >= %version
+
+# require each plugin for now that existed before because someone might have
+# preconfigured phones and sipxconfig ui throws exception if implementation
+# is not there
+Requires: sipxaudiocodes >= %version
+Requires: sipxcisco >= %version
+Requires: sipxclearone >= %version
+# counter path required because jetty config references cmcprov war. nice if it was made dynamic
+Requires: sipxcounterpath >= %version
+Requires: sipxgrandstream >= %version
+Requires: sipxgtek >= %version
+Requires: sipxhitachi >= %version
+Requires: sipxipdialog >= %version
+Requires: sipxisphone >= %version
+Requires: sipxkarel >= %version
+Requires: sipxlg-nortel >= %version
+Requires: sipxmitel >= %version
+Requires: sipxnortel >= %version
+Requires: sipxpolycom >= %version
+Requires: sipxsnom >= %version
+Requires: sipxunidata >= %version
 
 Obsoletes: %{name}-doc
 Source: %name-%version.tar.gz
