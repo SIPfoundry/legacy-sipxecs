@@ -19,12 +19,11 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.components.Block;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.presence.PresenceServer;
+import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
@@ -32,12 +31,6 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 public abstract class AdminNavigation extends BaseComponent implements PageBeginRenderListener {
 
     private static final String PLUGIN_MENU = "plugin/PluginMenu";
-
-    @InjectObject("spring:presenceServer")
-    public abstract PresenceServer getPresenceServer();
-
-    @InjectObject("spring:acdContext")
-    public abstract AcdContext getAcdContext();
 
     @InjectObject("spring:monitoringContext")
     public abstract MonitoringContext getMonitoringContext();
@@ -61,6 +54,10 @@ public abstract class AdminNavigation extends BaseComponent implements PageBegin
     public boolean isOpenFireEnabled() {
         // it uses the service name defined in openfire plugin
         return getSipxServiceManager().isServiceInstalled("sipxOpenfireService");
+    }
+
+    public boolean isAcdEnabled() {
+        return getSipxServiceManager().isServiceInstalled(SipxAcdService.BEAN_ID);
     }
 
     public boolean isOpenAcdEnabled() {

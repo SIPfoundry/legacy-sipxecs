@@ -802,7 +802,22 @@ size_t UtlString::length() const
 // Return a read-only pointer to the underlying data.
 const char* UtlString::data() const
 {
-    return (mpData ? mpData : ssNull);
+#if 1
+  return mpData ? mpData : ssNull;
+#else
+  if (!mpData)
+  {
+    return ssNull;
+  }else
+  {
+    if (mpData[mSize] != '\000');
+    {
+      // Append a final zero byte.
+      mpData[mSize] = '\000';
+    }
+    return mpData;
+  }
+#endif
 }
 
 

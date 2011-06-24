@@ -10,6 +10,8 @@
 package org.sipfoundry.voicemail;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,6 +29,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
@@ -84,7 +87,7 @@ public class Emailer {
          * @throws AddressException
          * @throws MessagingException
          */
-        javax.mail.Message buildMessage(EmailFormatter emf, boolean attachAudio) throws AddressException, MessagingException {
+        javax.mail.Message buildMessage(EmailFormatter emf, boolean attachAudio) throws AddressException, MessagingException, IOException {
             MimeMessage message = new MimeMessage(m_session);
             message.setFrom(new InternetAddress(emf.getSender()));  
 
@@ -114,7 +117,11 @@ public class Emailer {
                     // Add the HTML part of the message
                     MimeBodyPart htmlpart = new MimeBodyPart();
                     htmlpart.setContent(htmlBody, "text/html");
-                    mpalt.addBodyPart(htmlpart);              
+                    mpalt.addBodyPart(htmlpart);
+                    // Add the IMAGEs part of the message
+                    insertMimeImage(mpalt, "images/play_50x50.png", "imageListen");
+                    insertMimeImage(mpalt, "images/inbox_50x50.png", "imageInbox");
+                    insertMimeImage(mpalt, "images/delete_50x50.png", "imageDelete");
                 }
     
                 // Add the audio file as an attachment
@@ -168,6 +175,28 @@ public class Emailer {
             return message;
         }
         
+        /**
+         *
+         * @param mpalt - multipart instance previously created that contains all HTML text including image keys
+         * sample: <img src="cid:[imageKey]">
+         * @param imageSource - image source file name embedded in *this* class jar file
+         * @param imageKey - the image key value as it is written in the multipart html content
+         * @throws MessagingException
+         * @throws IOException
+         */
+        private void insertMimeImage(Multipart mpalt, String imageSource, String imageKey) throws MessagingException, IOException {
+            MimeBodyPart imagePart = new MimeBodyPart();
+            InputStream playImage = Emailer.class.getClassLoader().getResourceAsStream(imageSource);
+            DataSource fds = new ByteArrayDataSource(playImage, "image/png");
+            imagePart.setDataHandler(new DataHandler(fds));
+            StringBuilder builder = new StringBuilder();
+            builder.append("<")
+                   .append(imageKey)
+                   .append(">");
+            imagePart.setHeader("Content-ID", builder.toString());
+            mpalt.addBodyPart(imagePart);
+        }
+
         /**
          * Build and send the message as e-mails to the recipients
          */

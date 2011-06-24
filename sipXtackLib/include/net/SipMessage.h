@@ -854,7 +854,8 @@ public:
     //! Using BOTTOM_SUBFIELD as the subfieldIndex returns the last subfield
     //@{
     UtlBoolean getFieldSubfield(const char* fieldName, int subfieldIndex,
-                                UtlString* subfieldValue) const;
+                                UtlString* subfieldValue,
+                                bool validateChars = false) const;
 
     // Modify the value of a specific subfield
     UtlBoolean setFieldSubfield(const char* fieldName,
