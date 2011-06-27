@@ -295,7 +295,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    if ((strcmp(service, "sips") == 0 &&
         (socketType == OsSocket::TCP || socketType == OsSocket::UDP)))
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipSrvLookup::servers Incompatible service '%s' and "
                     "socketType %d",
                     service, socketType);
@@ -323,7 +323,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    // Case 1A: Domain name is a literal IPv6 address.
    else if (domain[0] == '[')
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipSrvLookup::servers IPv6 address '%s'", domain);
       /* Add no elements to the list. */
    }
@@ -935,7 +935,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       if (r == -1)
       {
          // res_query failed, return.
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "DNS query for name '%s', "
                        "type = %d (%s): returned error",
                        name, type,
@@ -951,7 +951,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       if (response == NULL)
       {
          // res_parse failed, return.
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "DNS query for name '%s', "
                        "type = %d (%s): response could not be parsed",
                        name, type,
