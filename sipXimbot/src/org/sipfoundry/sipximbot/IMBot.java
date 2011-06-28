@@ -121,16 +121,16 @@ public class IMBot {
             
             ImbotConfiguration config;
             ConnectionConfiguration conf;
+            config = ImbotConfiguration.get();
+            conf = new ConnectionConfiguration(config.getOpenfireHost(), 5222);
+            conf.setSASLAuthenticationEnabled(false); // disable SASL to cope with cases where XMPP domain != FQDN (XX-7293)
+            Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
+            m_con = new XMPPConnection(conf);   
             
-            for(;;) {
+            int maxAttempts = 10;
+            for(int i = 0;i < maxAttempts;i++) {
                 try {
-                    config = ImbotConfiguration.get();
-                    conf = new ConnectionConfiguration(config.getOpenfireHost(), 5222);
-                    conf.setSASLAuthenticationEnabled(false); // disable SASL to cope with cases where XMPP domain != FQDN (XX-7293)
-                    Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
-                    m_con = new XMPPConnection(conf);   
-                    m_con.connect();
-                    
+                    m_con.connect();                    
                     String username = config.getMyAsstAcct().split("@")[0]; // only keep user part and ditch the @domain part if present
                     m_con.login(username, config.getMyAsstPswd());
                     return true;  
@@ -138,14 +138,17 @@ public class IMBot {
                     // typically get this exception if server is unreachable or login info is wrong
                     // only thing do it is periodically retry just like any other IM client would
 
-                    LOG.error("Could not login to XMPP server " + e.getMessage());     
-                }
+                    LOG.error("Could not login to XMPP server " + e.getMessage());
+                                    }
                 try {
-                    sleep(10000);
+                    long waitTime = ((long)Math.pow(2, i)) * 10;
+                    LOG.info("Waiting " + waitTime + " seconds before attempting another connection to XMPP server.");
+                    sleep(waitTime * 1000);
                 } catch (InterruptedException e) {
                     return false;
                 }
             }
+            throw new RuntimeException("Could not establish connection to XMPP server after " + maxAttempts + " attempts");
         }
         
         public static void AddToRoster(User user) {         
