@@ -12,7 +12,7 @@ onStart() {
     echo "Starting server to allow connections from other systems..."
     stunnel @SIPX_CONFDIR@/tunnel/server.conf >> @SIPX_LOGDIR@/tunnel-server.log 2>&1 &
     # kill 0 will kill all spawned processes
-    trap "kill 0; exit" INT TERM
+    trap "echo 'shutting down'; kill 0; exit" INT TERM
     echo "Waiting for exit..."
     wait
 }
