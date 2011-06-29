@@ -41,7 +41,6 @@ test_DEPS = \
 
 test_SRC = $(shell cd $(srcdir); find org \( \
 	 -name '*.java' \
-	 -a -not -name 'ExternalAliasesTest.java' \
 	\) )
 
 javac-test : test.properties sipxconfig.properties
