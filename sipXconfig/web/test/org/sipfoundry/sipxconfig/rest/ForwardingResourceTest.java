@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.easymock.classextension.EasyMock;
 import org.easymock.internal.matchers.InstanceOf;
 import org.restlet.data.MediaType;
 import org.restlet.resource.InputRepresentation;
@@ -27,6 +28,11 @@ import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingImpl;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 
 import junit.framework.TestCase;
 
@@ -44,6 +50,26 @@ public class ForwardingResourceTest extends TestCase {
     protected void setUp() throws Exception {
         m_user = new User();
         m_user.setUserName("abc");
+        m_user.setUniqueId();
+
+        Setting s = new SettingSet();
+        s.setName("permission/call-handling/Voicemail");
+        Setting s1 = new SettingSet("permission");
+        Setting s2 = new SettingSet("call-handling");
+        Setting s3 = new SettingImpl("Voicemail");
+        BooleanSetting booleanSetting = new BooleanSetting();
+        booleanSetting.setTrueValue("ENABLE");
+        booleanSetting.setFalseValue("DISABLE");
+        s3.setType(booleanSetting);
+        s.addSetting(s1);
+        s1.addSetting(s2);
+        s2.addSetting(s3);
+
+        PermissionManager pManager = EasyMock.createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(s).anyTimes();
+        EasyMock.replay(pManager);
+        m_user.setPermissionManager(pManager);
 
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
@@ -65,7 +91,8 @@ public class ForwardingResourceTest extends TestCase {
         replay(m_forwardingContext);
     }
 
-    public void testRepresentXml() throws Exception {
+    public void testRepresentXmlNoVoicemail() throws Exception {
+        m_user.setVoicemailPermission(false);
         ForwardingResource resource = new ForwardingResource();
         resource.setForwardingContext(m_forwardingContext);
 
@@ -79,7 +106,8 @@ public class ForwardingResourceTest extends TestCase {
         assertEquals(expected, generated);
     }
 
-    public void testRepresentJson() throws Exception {
+    public void testRepresentJsonNoVoicemail() throws Exception {
+        m_user.setVoicemailPermission(false);
         ForwardingResource resource = new ForwardingResource();
         resource.setForwardingContext(m_forwardingContext);
 
@@ -90,6 +118,37 @@ public class ForwardingResourceTest extends TestCase {
 
         String generated = writer.toString();
         String expected = IOUtils.toString(getClass().getResourceAsStream("call-sequence.rest.test.json"));
+        assertEquals(expected, generated);
+    }
+
+    public void testRepresentXmlWithVoicemail() throws Exception {
+        m_user.setVoicemailPermission(true);
+        m_user.hasVoicemailPermission();
+        ForwardingResource resource = new ForwardingResource();
+        resource.setForwardingContext(m_forwardingContext);
+
+        Representation representation = resource.represent(new Variant(MediaType.TEXT_XML));
+
+        StringWriter writer = new StringWriter();
+        representation.write(writer);
+
+        String generated = writer.toString();
+        String expected = IOUtils.toString(getClass().getResourceAsStream("call-sequence.restWithVoicemail.test.xml"));
+        assertEquals(expected, generated);
+    }
+
+    public void testRepresentJsonWithVoicemail() throws Exception {
+        m_user.setVoicemailPermission(true);
+        ForwardingResource resource = new ForwardingResource();
+        resource.setForwardingContext(m_forwardingContext);
+
+        Representation representation = resource.represent(new Variant(MediaType.APPLICATION_JSON));
+
+        StringWriter writer = new StringWriter();
+        representation.write(writer);
+
+        String generated = writer.toString();
+        String expected = IOUtils.toString(getClass().getResourceAsStream("call-sequence.restWithVoicemail.test.json"));
         assertEquals(expected, generated);
     }
 
@@ -105,7 +164,7 @@ public class ForwardingResourceTest extends TestCase {
         forwardingContext.saveCallSequence(callSequence(matcher));
         replay(forwardingContext);
 
-        final InputStream xmlStream = getClass().getResourceAsStream("call-sequence.rest.test.xml");
+        final InputStream xmlStream = getClass().getResourceAsStream("call-sequence.restToStore.test.xml");
         Representation entity = new InputRepresentation(xmlStream, MediaType.TEXT_XML);
 
         ForwardingResource resource = new ForwardingResource();
@@ -142,7 +201,7 @@ public class ForwardingResourceTest extends TestCase {
         forwardingContext.saveCallSequence(callSequence(matcher));
         replay(forwardingContext);
 
-        final InputStream xmlStream = getClass().getResourceAsStream("call-sequence.rest.test.json");
+        final InputStream xmlStream = getClass().getResourceAsStream("call-sequence.restToStore.test.json");
         Representation entity = new InputRepresentation(xmlStream, MediaType.APPLICATION_JSON);
 
         ForwardingResource resource = new ForwardingResource();
