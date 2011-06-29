@@ -442,6 +442,14 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
         return hasPermission(PermissionName.SUPERADMIN);
     }
 
+    public boolean hasVoicemailPermission() {
+        return hasPermission(PermissionName.VOICEMAIL);
+    }
+
+    public void setVoicemailPermission(boolean enabled) {
+        setPermission(PermissionName.VOICEMAIL, enabled);
+    }
+
     private Setting retrieveSettingForSettingPath(String path, String name) {
         Setting setting = getSettings().getSetting(path);
         if (setting == null) {
