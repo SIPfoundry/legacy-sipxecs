@@ -138,4 +138,8 @@
       and u.id != :userId]]>
   </query>
 
+  <query name="userByUserName">
+    <![CDATA[select u from User u where u.userName = :value]]>
+  </query>
+
 </hibernate-mapping>

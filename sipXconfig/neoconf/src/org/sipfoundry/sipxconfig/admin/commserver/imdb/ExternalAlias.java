@@ -36,7 +36,7 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.xml.sax.SAXException;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
-import static org.sipfoundry.commons.mongo.MongoConstants.ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS_ID;
 
 public class ExternalAlias implements Replicable {
     private static final Log LOG = LogFactory.getLog(ExternalAliases.class);
@@ -99,7 +99,7 @@ public class ExternalAlias implements Replicable {
         if (id != null) {
             // strip domain part
             String[] tokens = StringUtils.split(id, "@");
-            mapping.put(ID, tokens[0]);
+            mapping.put(ALIAS_ID, tokens[0]);
             mapping.remove(ALIAS_IDENTITY);
         }
         if (cnt != null) {

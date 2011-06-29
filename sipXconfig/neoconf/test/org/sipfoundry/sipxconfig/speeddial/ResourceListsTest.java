@@ -23,9 +23,14 @@ import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+
 public class ResourceListsTest extends XMLTestCase {
     public final static String DOMAIN = "example.org";
     private CoreContext m_coreContext;
+    private DBCollection m_collection;
 
     @Override
     protected void setUp() throws Exception {
@@ -33,8 +38,8 @@ public class ResourceListsTest extends XMLTestCase {
         m_coreContext.getDomainName();
         expectLastCall().andReturn(DOMAIN).anyTimes();
         replay(m_coreContext);
-        MongoTestCaseHelper.initMongo("imdb", "entity");
-
+        MongoTestCaseHelper.dropDb("imdb");
+        m_collection = MongoTestCaseHelper.initMongo("imdb", "entity");
     }
 
     public void testGenerate() throws Exception {
@@ -55,6 +60,8 @@ public class ResourceListsTest extends XMLTestCase {
 
         String json4 = "{ \"_id\" : \"User4\", \"uid\" : \"user_name_1\", \"imenbld\" : \"true\"}";
         MongoTestCaseHelper.insertJson(json1, json2, json3, json4);
+        Thread.sleep(1000);// sleep 1 second. I get inconsistent results when running the tests,
+                           // as if mongo does not pick up quickly
         ResourceLists rl = new ResourceLists();
         rl.setCoreContext(m_coreContext);
 
@@ -67,12 +74,13 @@ public class ResourceListsTest extends XMLTestCase {
         String json3 = "{ \"_id\" : \"User3\", \"uid\" : \"user_name_0\", \"imenbld\" : \"false\"}";
 
         String json2 = "{ \"_id\" : \"User2\", \"uid\" : \"user_c\", \"imenbld\" : \"false\", " + "\""
-        + MongoConstants.SPEEDDIAL + "\" : { \"" + MongoConstants.USER + "\" : \"~~rl~F~user_c\", \""
-        + MongoConstants.USER_CONS + "\" : \"~~rl~C~user_c\", \"" + MongoConstants.BUTTONS + "\" : [ "
-        + "{\"" + MongoConstants.URI + "\" : \"sip:100@example.org\",\"" + MongoConstants.NAME
-        + "\" : \"delta\"}" + "]}, \"prm\" : [\"Mobile\"" + "]}";
+                + MongoConstants.SPEEDDIAL + "\" : { \"" + MongoConstants.USER + "\" : \"~~rl~F~user_c\", \""
+                + MongoConstants.USER_CONS + "\" : \"~~rl~C~user_c\", \"" + MongoConstants.BUTTONS + "\" : [ "
+                + "{\"" + MongoConstants.URI + "\" : \"sip:100@example.org\",\"" + MongoConstants.NAME
+                + "\" : \"delta\"}" + "]}, \"prm\" : [\"Mobile\"" + "]}";
 
         MongoTestCaseHelper.insertJson(json3, json2);
+        Thread.sleep(1000);
         ResourceLists rl = new ResourceLists();
         rl.setCoreContext(m_coreContext);
 
