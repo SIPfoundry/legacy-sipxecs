@@ -57,6 +57,10 @@ public class RowInserterTest extends TestCase {
         protected void insertRow(DummyType input) {
             m_rows++;
         }
+
+        public void afterInsert() {
+        
+        }
     }
 
     private static class DummyType {

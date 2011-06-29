@@ -4,5 +4,8 @@
   <bean id="rowInserter" abstract="true">
     <property name="transactionManager" ref="transactionManager" />
     <property name="jobContext" ref="jobContext" />
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>    
   </bean>
 </beans>

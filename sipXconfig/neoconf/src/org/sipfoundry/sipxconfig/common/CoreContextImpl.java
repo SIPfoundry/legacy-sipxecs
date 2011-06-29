@@ -276,7 +276,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     @Override
     public User loadUserByUserName(String userName) {
-        return loadUserByUniqueProperty(USERNAME_PROP_NAME, userName);
+        return loadUserByNamedQueryAndNamedParam("userByUserName", VALUE, userName);
     }
 
     private User loadUserByUniqueProperty(String propName, String propValue) {
