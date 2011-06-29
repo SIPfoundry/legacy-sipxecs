@@ -573,7 +573,7 @@ nameserver %s\n\
                 file (resolvFile, 'w').write(resolvContent)
 
             ConfigUrl='https://%s:8443/sipxconfig/initial-config/%s'\
-                       % ( masterSystemName, HostName )
+                       % ( masterSystemAddr, HostName )
 
             log_printout("======= Configuration URL '%s'" % ConfigUrl)
 

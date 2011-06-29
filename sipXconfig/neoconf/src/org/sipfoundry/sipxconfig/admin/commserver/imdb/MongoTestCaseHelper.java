@@ -33,7 +33,7 @@ public final class MongoTestCaseHelper {
         if (s_mongoInstance == null) {
             s_mongoInstance = new Mongo(HOST, PORT);
         }
-        // m_mongoInstance.dropDatabase(dbName);
+        dropDb(dbName);
         DB db = s_mongoInstance.getDB(dbName);
         s_collection = db.getCollection(collectionName);
         return s_collection;
@@ -90,7 +90,10 @@ public final class MongoTestCaseHelper {
         }
     }
 
-    public static void dropDb(String db) {
+    public static void dropDb(String db) throws UnknownHostException {
+        if (s_mongoInstance == null) {
+            initMongo(db, "xxx");
+        }
         s_mongoInstance.dropDatabase(db);
     }
 }

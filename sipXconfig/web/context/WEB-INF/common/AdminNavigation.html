@@ -48,11 +48,11 @@
 					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('topFeaturesMenu')">
 						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('topFeaturesMenu')">Menu items to be added on top of Features main menu</span>
 					</span>
-					<li jwcid="@If" condition="ognl:acdContext.enabled">
+					<li jwcid="@If" condition="ognl:acdEnabled">
 						<a jwcid="@PageLink" id="menu.acd" page="acd/ListAcdServers"><span key="menu.acd">ACD</span></a>
 					</li>
 					<!-- does not used "presenceServer.enabled" because AcdPresenceServer page requires ACD to be available as well -->
-					<li jwcid="@If" condition="ognl: acdContext.enabled">
+					<li jwcid="@If" condition="ognl:acdEnabled">
 						<a jwcid="@PageLink" id="menu.acdPresence" page="acd/AcdPresenceServer"><span key="menu.acdPresence">ACD Presence</span></a>
 					</li>
 					<li jwcid="@If" condition="ognl:openAcdEnabled">
@@ -123,7 +123,7 @@
 					<li jwcid="@If" condition="ognl:monitoringContext.enabled">
 						<a jwcid="@PageLink" id="menu.statistics" page="admin/StatisticsPage"><span key="menu.statistics">Statistics</span></a>
 					</li>
-					<li jwcid="@If" condition="ognl:acdContext.enabled">
+					<li jwcid="@If" condition="ognl:acdEnabled">
 						<a jwcid="@PageLink" id="menu.acdHistory" page="acd/AcdHistoryPage"><span key="menu.acdHistory">ACD Calls</span></a>
 					</li>
 					<li jwcid="@If" condition="ognl:sbcDeviceManager.internalSbcEnabled">

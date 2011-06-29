@@ -8,7 +8,7 @@
       <parameter>--configtest</parameter>
     </configtest>
     <start>
-      <execute>>@SIPX_BINDIR@/sipx-tunnel</execute>
+      <execute>@SIPX_BINDIR@/sipx-tunnel</execute>
     </start>
     <stop>
       <execute>@SIPX_BINDIR@/sipx-tunnel</execute>

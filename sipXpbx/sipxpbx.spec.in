@@ -66,6 +66,11 @@ Requires: gdb
 Requires: glibc-common
 %endif
 
+# for the time being, dns caching server is required.
+Requires: bind
+# there is a reference to ntp in startup script, otherwise just good practice
+Requires: ntp
+
 # sending email - an smtp listener must be running on localhost
 %if %{_vendor} == redhat
 Requires: smtpdaemon

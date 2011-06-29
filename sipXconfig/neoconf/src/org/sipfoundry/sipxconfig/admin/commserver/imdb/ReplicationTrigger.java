@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -86,6 +87,9 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
             m_replicationManager.replicateLocation((Location) entity);
         } else if (entity instanceof Permission) {
             generatePermission((Permission) entity);
+        } else if (entity instanceof SpeedDial) {
+            User u = ((SpeedDial) entity).getUser();
+            m_replicationManager.replicateEntity(u, DataSet.SPEED_DIAL);
         }
     }
 

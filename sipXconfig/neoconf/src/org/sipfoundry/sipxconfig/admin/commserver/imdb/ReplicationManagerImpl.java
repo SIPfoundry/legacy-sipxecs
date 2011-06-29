@@ -78,6 +78,9 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String MINUTES = "m.";
     private static final String REGENERATION_OF = "Regeneration of ";
     private static final String ERROR_PERMISSION = "Error updating permission to mongo.";
+    private static final String REPLICATION_INS_UPD = "Replication: inserted/updated ";
+    private static final String IN = " in ";
+    private static final String MS = " ms ";
 
     private Mongo m_mongoInstance;
     private DBCollection m_datasetCollection;
@@ -170,8 +173,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             extalias.setFiles(m_externalAliases.getFiles());
             replicateEntity(extalias);
             Long end = System.currentTimeMillis();
-            LOG.info("Regeneration of database completed in " + (end - start) / 1000 + SECONDS + (end - start) / 1000
-                    / 60 + MINUTES);
+            LOG.info("Regeneration of database completed in " + (end - start) / 1000 + SECONDS + (end - start)
+                    / 1000 / 60 + MINUTES);
 
             m_auditLogContext.logReplicationMongo(DATABASE_REGENERATION, primary);
         } catch (Exception e) {
@@ -194,7 +197,24 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 replicateEntity(entity, dataSet, top);
             }
             Long end = System.currentTimeMillis();
-            LOG.info("Replication: inserted/updated " + name + " in " + (end - start) + "ms");
+            LOG.info(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
+        } catch (Exception e) {
+            LOG.error(REPLICATION_FAILED + name, e);
+            throw new UserException(REPLICATION_FAILED + entity.getName(), e);
+        }
+    }
+
+    @Override
+    public void replicateEntity(Replicable entity, DataSet dataSet) {
+        String name = (entity.getName() != null) ? entity.getName() : entity.toString();
+        try {
+            Long start = System.currentTimeMillis();
+            initMongo();
+            m_dataSetGenerator.setDbCollection(m_datasetCollection);
+            DBObject top = m_dataSetGenerator.findOrCreate(entity);
+            replicateEntity(entity, dataSet, top);
+            Long end = System.currentTimeMillis();
+            LOG.info(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + name, e);
             throw new UserException(REPLICATION_FAILED + entity.getName(), e);

@@ -13,5 +13,5 @@ AC_ARG_ENABLE(obs, [--enable-obs Enable targets for using the OpenSUSE build ser
     OBS_DIR=obs
   fi
 
-  AC_CONFIG_FILES([mak/15-opensuse-build-service.mk])
+  AC_CONFIG_FILES([mak/15-opensuse-build-service.mk:mak/opensuse-build-service.mk.in])
 ])

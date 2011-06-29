@@ -36,7 +36,7 @@ public interface ReplicationManager {
     boolean replicateFile(Location[] locations, ConfigurationFile file);
 
     void replicateEntity(Replicable entity);
-
+    void replicateEntity(Replicable entity, DataSet ds);
     void removeEntity(Replicable entity);
 
     void replicateLocation(Location location);

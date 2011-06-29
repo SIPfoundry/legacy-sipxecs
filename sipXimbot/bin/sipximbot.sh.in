@@ -43,7 +43,7 @@ case ${Action} in
      JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
      Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @imbot_PKGS@`
      export CLASSPATH=`echo @SIPX_CONFDIR@/sipximbot @SIPX_JAVADIR@/{sipXimbot,sipXopenfire/plugins}/*.jar ${Dependencies} | sed -e 's/ /:/g'`
-     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@ -Dvar.dir=@SIPX_VARDIR@\
+     exec $JavaCmd $SIPXIMBOT_OPTS -Dconf.dir=@SIPX_CONFDIR@ -Dvar.dir=@SIPX_VARDIR@ \
          org.sipfoundry.sipximbot.SipXimbot \
          $Args
      ;;
