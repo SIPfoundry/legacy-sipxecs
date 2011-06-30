@@ -159,6 +159,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                     if (!cs.getRings().isEmpty()) {
                         replicateEntity(cs);
                     }
+                    getHibernateTemplate().clear(); //clear the H session (see XX-9741)
                 }
 
             };
@@ -214,7 +215,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             m_dataSetGenerator.setDbCollection(m_datasetCollection);
             DBObject top = m_dataSetGenerator.findOrCreate(entity);
             replicateEntity(entity, dataSet, top);
-            getHibernateTemplate().clear(); //clear the H session (see XX-9741)
             Long end = System.currentTimeMillis();
             LOG.info(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
         } catch (Exception e) {
