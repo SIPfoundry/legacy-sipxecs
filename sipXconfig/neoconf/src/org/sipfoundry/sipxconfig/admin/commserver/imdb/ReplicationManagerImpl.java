@@ -54,10 +54,11 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 
-public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAware {
+public class ReplicationManagerImpl extends HibernateDaoSupport implements ReplicationManager, BeanFactoryAware {
     private static final int PERMISSIONS = 0644;
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final String HOST = "localhost";
@@ -213,6 +214,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             m_dataSetGenerator.setDbCollection(m_datasetCollection);
             DBObject top = m_dataSetGenerator.findOrCreate(entity);
             replicateEntity(entity, dataSet, top);
+            getHibernateTemplate().clear(); //clear the H session (see XX-9741)
             Long end = System.currentTimeMillis();
             LOG.info(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
         } catch (Exception e) {
