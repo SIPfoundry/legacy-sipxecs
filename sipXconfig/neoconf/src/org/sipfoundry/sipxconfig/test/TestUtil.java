@@ -37,6 +37,10 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 /**
  * Common utility methods for unit testing with neoconf. Somewhat controversial being in codebase,
@@ -140,6 +144,24 @@ public final class TestUtil {
     public static String getModelDirectory(String project) {
         String sourceRoot = getSourceRootDirectory();
         return String.format("%s/%s/etc", sourceRoot, project);
+    }
+
+    public static Setting loadSettings(String project, String path) {
+        Setting settings = getProjectModelFilesContext(project).loadModelFile(path);
+        return settings;
+    }
+
+    public static ModelFilesContext getProjectModelFilesContext(String project) {
+        String sysdir = getModelDirectory(project);
+        return getModelFilesContext(sysdir);
+    }
+
+    public static ModelFilesContext getModelFilesContext(String modelDir) {
+        ModelFilesContextImpl mfc = new ModelFilesContextImpl();
+        mfc.setConfigDirectory(modelDir);
+        XmlModelBuilder builder = new XmlModelBuilder(modelDir);
+        mfc.setModelBuilder(builder);
+        return mfc;
     }
 
     /**
