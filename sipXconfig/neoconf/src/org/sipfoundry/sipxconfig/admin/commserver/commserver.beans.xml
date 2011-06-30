@@ -210,16 +210,6 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases">
   </bean>
 
-  <bean id="aliasCollector"
-    class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
-    <property name="includeProxies" value="true" />
-    <property name="aliasProviderBeanIds">
-      <list>
-        <value>externalAliases</value>
-      </list>
-    </property>
-  </bean>
-
   <bean id="dataSetGenerator" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
   </bean>
@@ -250,20 +240,6 @@
   <bean id="speeddialDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.SpeedDials">
     <property name="speedDialManager" ref="speedDialManager" />
-  </bean>
-
-  <bean id="aliasCollectorForAA"
-    class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
-    <property name="includeProxies" value="false" />
-    <property name="aliasProviderBeanIds">
-      <list>
-        <value>callGroupContext</value>
-        <value>acdContext</value>
-        <value>conferenceBridgeContext</value>
-        <value>externalAliases</value>
-        <value>authCodeManager</value>
-      </list>
-    </property>
   </bean>
 
   <bean id="replicationTrigger"

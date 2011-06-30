@@ -13,12 +13,11 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.User;
 
-public interface AcdContext extends AliasOwner, AliasProvider {
+public interface AcdContext extends AliasOwner {
     public static final String CONTEXT_BEAN_NAME = "acdContext";
 
     List<AcdServer> getServers();

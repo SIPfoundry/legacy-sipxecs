@@ -10,19 +10,13 @@
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.dbunit.dataset.ITable;
-import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
@@ -181,27 +175,6 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(1, tableUserRing.getRowCount());
         assertEquals(testExpiration, tableUserRing.getValue(0, "expiration"));
         assertEquals(AbstractRing.Type.IMMEDIATE.getName(), tableUserRing.getValue(0, "ring_type"));
-    }
-
-    public void testGenerateAliases() throws Exception {
-        Collection<AliasMapping> aliases = m_context.getAliasMappings();
-        assertNotNull(aliases);
-
-        Replicable callGroup = m_context.getCallGroups().get(0);
-        assertNotNull(callGroup);
-
-        Iterator<AliasMapping> i = aliases.iterator();
-        AliasMapping aliasMapping = i.next();
-        assertTrue(aliasMapping.get("id").toString().startsWith("sales"));
-        assertTrue(aliasMapping.get(MongoConstants.CONTACT).toString().startsWith("<sip:default@pingtel.com>;q="));
-
-        aliasMapping = i.next();
-        assertTrue(aliasMapping.get("id").toString().startsWith("401"));
-        assertTrue(aliasMapping.get(MongoConstants.CONTACT).toString().startsWith("sales"));
-
-        aliasMapping = i.next();
-        assertTrue(aliasMapping.get("id").toString().startsWith("123456781"));
-        assertTrue(aliasMapping.get(MongoConstants.CONTACT).toString().startsWith("sales"));
     }
 
     public void testRemoveUser() throws Exception {

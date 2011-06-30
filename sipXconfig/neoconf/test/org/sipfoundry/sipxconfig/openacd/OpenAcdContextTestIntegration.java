@@ -19,7 +19,6 @@ package org.sipfoundry.sipxconfig.openacd;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +32,6 @@ import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -91,7 +89,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         m_openAcdContextImpl.saveExtension(extension);
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
         m_openAcdContextImpl.saveExtension(extension);
-        assertEquals(4, m_openAcdContextImpl.getAliasMappings().size());
         // test save extension with same name
         try {
             OpenAcdLine sameNameExtension = new OpenAcdLine();
@@ -317,16 +314,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertTrue(m_openAcdContextImpl.isAliasInUse("300"));
 
         m_openAcdContextImpl.setCoreContext(m_coreContext);
-
-        Collection<AliasMapping> mappings = (List<AliasMapping>) m_openAcdContextImpl.getAliasMappings();
-        assertEquals(2, mappings.size());
-        Iterator<AliasMapping> iter = mappings.iterator();
-        AliasMapping mapping = iter.next();
-        assertEquals("sales", mapping.getIdentity());
-        assertEquals("sip:300@10.1.1.2", mapping.getContact());
-        mapping = iter.next();
-        assertEquals("300", mapping.getIdentity());
-        assertEquals("sip:300@10.1.1.2:50", mapping.getContact());
     }
 
     public void testOpenAcdAgentGroupCrud() throws Exception {

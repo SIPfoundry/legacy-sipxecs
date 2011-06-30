@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -108,10 +107,6 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
             return true;
         }
         return false;
-    }
-
-    public Collection<AliasMapping> getAliasMappings() {
-        return getSipxFreeswitchService().getAliasMappings(m_coreContext.getDomainName());
     }
 
     public void onDelete(Object entity) {

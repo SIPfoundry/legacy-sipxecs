@@ -28,7 +28,6 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -216,15 +215,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
                 alias);
         Collection bids = BeanId.createBeanIdCollection(ids, Conference.class);
         return bids;
-    }
-
-    public Collection<AliasMapping> getAliasMappings() {
-        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
-        List<Conference> conferences = getHibernateTemplate().loadAll(Conference.class);
-        for (Conference conference : conferences) {
-            aliases.addAll(conference.getAliasMappings(m_coreContext.getDomainName()));
-        }
-        return aliases;
     }
 
     public List<Conference> findConferencesByOwner(User owner) {
