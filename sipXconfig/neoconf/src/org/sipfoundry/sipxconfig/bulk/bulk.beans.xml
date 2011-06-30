@@ -6,6 +6,6 @@
     <property name="jobContext" ref="jobContext" />
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
-    </property>    
+    </property>
   </bean>
 </beans>

@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.restlet.data.MediaType.APPLICATION_JSON;
@@ -52,6 +53,8 @@ public class ForwardingResource extends UserResource {
     public Representation represent(Variant variant) throws ResourceException {
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(getUser());
         CallSequence reprCallSequence = (CallSequence) callSequence.duplicate();
+        User user = reprCallSequence.getUser();
+        reprCallSequence.setWithVoicemail(user.hasVoicemailPermission());
         return new CallSequenceRepresentation(variant.getMediaType(), reprCallSequence);
     }
 
@@ -62,7 +65,6 @@ public class ForwardingResource extends UserResource {
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(getUser());
         final List<AbstractRing> rings = newCallSequence.getRings();
         callSequence.replaceRings(rings);
-        callSequence.setWithVoicemail(newCallSequence.isWithVoicemail());
         m_forwardingContext.saveCallSequence(callSequence);
     }
 
@@ -72,14 +74,17 @@ public class ForwardingResource extends UserResource {
     }
 
     private static class RingTypeConverter implements SingleValueConverter {
+        @Override
         public boolean canConvert(Class type) {
             return type.equals(Type.class);
         }
 
+        @Override
         public Object fromString(String str) {
             return Type.getEnum(str);
         }
 
+        @Override
         public String toString(Object obj) {
             Type type = (Type) obj;
             return type.getName();

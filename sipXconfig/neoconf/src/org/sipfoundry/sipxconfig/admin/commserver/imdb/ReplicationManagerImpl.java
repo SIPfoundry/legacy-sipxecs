@@ -54,10 +54,11 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 
-public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAware {
+public class ReplicationManagerImpl extends HibernateDaoSupport implements ReplicationManager, BeanFactoryAware {
     private static final int PERMISSIONS = 0644;
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final String HOST = "localhost";
@@ -158,6 +159,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                     if (!cs.getRings().isEmpty()) {
                         replicateEntity(cs);
                     }
+                    getHibernateTemplate().clear(); //clear the H session (see XX-9741)
                 }
 
             };
