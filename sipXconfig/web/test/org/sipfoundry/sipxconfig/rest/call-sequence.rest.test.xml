@@ -31,5 +31,6 @@
       <number>204</number>
     </ring>
   </rings>
+  <expiration>27</expiration>
   <withVoicemail>false</withVoicemail>
 </call-sequence>

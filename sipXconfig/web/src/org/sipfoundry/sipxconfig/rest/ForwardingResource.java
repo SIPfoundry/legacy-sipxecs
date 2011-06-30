@@ -10,6 +10,8 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.xstream.XStream;
@@ -26,7 +28,6 @@ import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
-import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
@@ -52,19 +53,18 @@ public class ForwardingResource extends UserResource {
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(getUser());
-        CallSequence reprCallSequence = (CallSequence) callSequence.duplicate();
-        User user = reprCallSequence.getUser();
-        reprCallSequence.setWithVoicemail(user.hasVoicemailPermission());
+        Representable reprCallSequence = new Representable(callSequence);
         return new CallSequenceRepresentation(variant.getMediaType(), reprCallSequence);
     }
 
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
         CallSequenceRepresentation representation = new CallSequenceRepresentation(entity);
-        CallSequence newCallSequence = representation.getObject();
+        Representable reprCallSequence = representation.getObject();
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(getUser());
-        final List<AbstractRing> rings = newCallSequence.getRings();
+        final List<AbstractRing> rings = reprCallSequence.getRings();
         callSequence.replaceRings(rings);
+        callSequence.setCfwdTime(reprCallSequence.getExpiration());
         m_forwardingContext.saveCallSequence(callSequence);
     }
 
@@ -102,9 +102,35 @@ public class ForwardingResource extends UserResource {
         }
     }
 
-    static class CallSequenceRepresentation extends XStreamRepresentation<CallSequence> {
+    static class Representable implements Serializable {
+        private final List<AbstractRing> m_rings = new ArrayList<AbstractRing>();
+        private final int m_expiration;
+        private final boolean m_withVoicemail;
 
-        public CallSequenceRepresentation(MediaType mediaType, CallSequence object) {
+        public Representable(CallSequence callSequence) {
+            m_expiration = callSequence.getCfwdTime();
+            m_rings.addAll(callSequence.getRings());
+            User user = callSequence.getUser();
+            m_withVoicemail = user.hasVoicemailPermission();
+        }
+
+        public List<AbstractRing> getRings() {
+            return m_rings;
+        }
+
+        public int getExpiration() {
+            return m_expiration;
+        }
+
+        public boolean isWithVoicemail() {
+            return m_withVoicemail;
+        }
+
+    }
+
+    static class CallSequenceRepresentation extends XStreamRepresentation<Representable> {
+
+        public CallSequenceRepresentation(MediaType mediaType, Representable object) {
             super(mediaType, object);
         }
 
@@ -115,9 +141,7 @@ public class ForwardingResource extends UserResource {
         @Override
         protected void configureXStream(XStream xstream) {
             xstream.omitField(BeanWithId.class, "m_id");
-            xstream.alias("call-sequence", CallSequence.class);
-            xstream.omitField(CallSequence.class, "m_user");
-            xstream.omitField(CallSequence.class, "m_cfwdTime");
+            xstream.alias("call-sequence", Representable.class);
             xstream.alias("ring", Ring.class);
             xstream.omitField(Ring.class, "m_schedule");
             xstream.omitField(Ring.class, "m_callSequence");
@@ -127,7 +151,7 @@ public class ForwardingResource extends UserResource {
 
         @Override
         protected void configureImplicitCollections(XStream xstream) {
-            xstream.addImplicitCollection(AbstractCallSequence.class, "m_rings", Ring.class);
+            xstream.addImplicitCollection(Representable.class, "m_rings", Ring.class);
         }
     }
 }
