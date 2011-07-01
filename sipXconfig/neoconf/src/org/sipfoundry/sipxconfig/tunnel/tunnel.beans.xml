@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
+  <bean id="tunnelBundle" parent="abstractBundle">
+    <constructor-arg value="tunnel" />
+    <property name="autoEnable" value="true" />
+  </bean>
+
+  <bean id="tunnelService" class="org.sipfoundry.sipxconfig.tunnel.TunnelService" scope="prototype" parent="sipxService">
+    <property name="processName" value="tunnel" />
+    <property name="configurations">
+      <list>
+        <ref bean="tunnelClientConfig" />
+        <ref bean="tunnelServerConfig" />
+      </list>
+    </property>
+    <property name="groupTitleEnabled" value="true" />
+    <property name="bundles">
+      <set>
+        <ref bean="tunnelBundle" />
+      </set>
+    </property>
+    <property name="logDir" value="${sysdir.log}" />
+  </bean>
+
+  <bean id="tunnelClientConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelClientConfigurationFile" parent="defaultConfigurationFile">
+    <property name="name" value="tunnel/client.conf"/>
+    <property name="velocityEngine" ref="velocityEngine"/>
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="template" value="tunnel/tunnel-client.conf.vm"/>
+  </bean>
+  
+  <bean id="tunnelServerConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelServerConfigurationFile" parent="defaultConfigurationFile">
+    <property name="name" value="tunnel/server.conf"/>
+    <property name="velocityEngine" ref="velocityEngine"/>
+    <property name="template" value="tunnel/tunnel-server.conf.vm"/>
+  </bean>
+
+</beans>

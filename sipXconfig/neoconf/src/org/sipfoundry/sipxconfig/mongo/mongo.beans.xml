@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfigImpl">
+    <property name="mongodConfigurationFile">
+      <bean class="org.sipfoundry.sipxconfig.mongo.MongodConfigurationFile" parent="defaultConfigurationFile">
+      	<property name="name" value="../sysconfig/mongod"/>
+        <property name="velocityEngine" ref="velocityEngine" />
+      	<property name="template" value="mongo/mongod.vm"/>
+      </bean>
+    </property>
+  </bean>
+
+</beans>
