@@ -70,6 +70,8 @@
       classpath:/org/sipfoundry/sipxconfig/system.beans.xml
       classpath:/org/sipfoundry/sipxconfig/upload/upload.beans.xml
       classpath:/org/sipfoundry/sipxconfig/vm/vm.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/mongo/mongo.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/tunnel/tunnel.beans.xml
       classpath:/region_na/dialrules.beans.xml
       classpath*:/sipxplugin.beans.xml
     </param-value>
