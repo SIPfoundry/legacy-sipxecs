@@ -165,9 +165,7 @@ JAVAROOT = $(firstword $($*_JAVAROOT) classes)
 # SECONDEXPANSION will turn $$($$*_SRC) into $(foo_SRC) for target java-compile-foo
 %-src : $$($$*_SRC);
 
-# creates a timestamp file so make knows not to recompile
-# So you can run "make foo"
-javac-% : %-src Makefile
+.javac-%-files : $$($$*_SRC)
 	@list1='$($*_SRC)'; list2=; if test -n "$$list1"; then \
 	  for p in $$list1; do \
 	    if test -f $$p; then d=; else d="$(srcdir)/"; fi; \
@@ -178,6 +176,10 @@ javac-% : %-src Makefile
 	  echo "No Source found for make variable $(*)_SRC" >&2; \
 	  exit 1; \
 	fi
+
+# creates a timestamp file so make knows not to recompile
+# So you can run "make foo"
+javac-% : .javac-%-files %-src Makefile
 	test -d $(JAVAROOT) || mkdir -p $(JAVAROOT)
 	$($*_ENV) $(call ClassPathEnv,$($*_DEPS)) $(JAVAC) -d $(JAVAROOT) $(JAVA_CC_FLAGS) $($*_JAVA_CC_FLAGS) @.$@-files
 	echo timestamp > $@
@@ -359,3 +361,6 @@ $(JAR_LIBSRC) :
 
 # download source for jar files if available
 jar-src : $(JAR_LIBSRC) $(addprefix $(JAR_LIBSRC)/,$(notdir $(JAR_SRCS:=.src)))
+
+jdoc-% : .javac-%-files Makefile
+	$(call ClassPathEnv,$($*_DEPS)) javadoc -d html @$<
