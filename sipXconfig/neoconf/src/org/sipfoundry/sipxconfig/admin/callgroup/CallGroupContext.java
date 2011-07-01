@@ -12,10 +12,9 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 
-public interface CallGroupContext extends AliasOwner, AliasProvider {
+public interface CallGroupContext extends AliasOwner {
     public static final String CONTEXT_BEAN_NAME = "callGroupContext";
 
     CallGroup loadCallGroup(Integer id);

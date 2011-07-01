@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
@@ -21,7 +20,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 /**
  * CoreContext
  */
-public interface CoreContext extends DataObjectSource<User>, AliasProvider, AliasOwner {
+public interface CoreContext extends DataObjectSource<User>, AliasOwner {
 
     static final String USER_GROUP_RESOURCE_ID = "user";
     static final String CONTEXT_BEAN_NAME = "coreContext";

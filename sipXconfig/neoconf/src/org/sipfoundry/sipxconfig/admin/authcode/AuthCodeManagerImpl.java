@@ -23,7 +23,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
@@ -276,14 +275,6 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements Auth
         Map<String, String> params = new LinkedHashMap<String, String>();
         params.put("command", "auth");
         return SipUri.format(ACC_CONTACT_NAME, getSipxFreeswitchAddressAndPort(), params);
-    }
-
-    public Collection<AliasMapping> getAliasMappings() {
-        SipxAccCodeService service = (SipxAccCodeService) m_sipxServiceManager
-                .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
-        Collection<AliasMapping> aliasMappings = service.getAliasMappings();
-        LOG.debug("RETURNING AuthCodeManagerImpl::getAliasMapping: " + aliasMappings);
-        return service.getAliasMappings();
     }
 
     private String getSipxFreeswitchAddressAndPort() {

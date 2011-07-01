@@ -12,10 +12,9 @@ package org.sipfoundry.sipxconfig.admin.forwarding;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.common.User;
 
-public interface ForwardingContext extends AliasProvider {
+public interface ForwardingContext {
     static final String CONTEXT_BEAN_NAME = "forwardingContext";
 
     Ring getRing(Integer id);

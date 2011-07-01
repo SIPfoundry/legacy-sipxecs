@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -600,9 +599,4 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.isAliasInUse("123456789"));
     }
 
-    public void testGenerateAliases() throws Exception {
-        TestHelper.insertFlat("acd/lines.db.xml");
-        Collection<AliasMapping> aliases = m_context.getAliasMappings();
-        assertEquals(5, aliases.size());// 2lines, 2 codes, 1 did
-    }
 }

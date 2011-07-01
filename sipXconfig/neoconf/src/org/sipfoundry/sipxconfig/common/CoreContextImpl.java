@@ -22,7 +22,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
@@ -613,20 +612,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             return m_settingDao.getGroupCreateIfNotFound(USER_GROUP_RESOURCE_ID, userGroupName);
         }
         return m_settingDao.getGroupByName(USER_GROUP_RESOURCE_ID, userGroupName);
-    }
-
-    @Override
-    public Collection<AliasMapping> getAliasMappings() {
-        final Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
-        Closure<User> closure = new Closure<User>() {
-            @Override
-            public void execute(User user) {
-                aliases.addAll(user.getAliasMappings(getDomainName()));
-            }
-        };
-        DaoUtils.forAllUsersDo(this, closure);
-
-        return aliases;
     }
 
     @Override

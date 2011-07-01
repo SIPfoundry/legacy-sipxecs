@@ -33,7 +33,6 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -247,18 +246,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
             }
         }
         return false;
-    }
-
-    @Override
-    public Collection<AliasMapping> getAliasMappings() {
-        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
-        List<OpenAcdLine> extensions = getHibernateTemplate().loadAll(OpenAcdLine.class);
-        for (OpenAcdLine extension : extensions) {
-            if (extension.getExtension() != null) {
-                aliases.addAll(extension.getAliasMappings(m_coreContext.getDomainName()));
-            }
-        }
-        return aliases;
     }
 
     public List<OpenAcdAgentGroup> getAgentGroups() {

@@ -44,8 +44,7 @@
 
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces"
-      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext,
-      org.sipfoundry.sipxconfig.admin.commserver.AliasProvider" />
+      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext" />
     <property name="target">
       <ref local="conferenceBridgeContextImpl" />
     </property>

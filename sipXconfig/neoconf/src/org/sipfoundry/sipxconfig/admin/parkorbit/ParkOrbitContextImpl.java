@@ -10,14 +10,12 @@
 package org.sipfoundry.sipxconfig.admin.parkorbit;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
@@ -145,13 +143,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         HibernateTemplate template = getHibernateTemplate();
         Collection orbits = template.loadAll(ParkOrbit.class);
         template.deleteAll(orbits);
-    }
-
-    // Park orbits do not generate any aliases - registrar handles this directly.
-    // Therefore we return the empty collection here, even though park orbit names
-    // and extensions both yield SIP aliases.
-    public Collection<AliasMapping> getAliasMappings() {
-        return Collections.EMPTY_LIST;
     }
 
     public ParkOrbit newParkOrbit() {

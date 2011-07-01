@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
@@ -94,15 +93,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public Ring getRing(Integer id) {
         HibernateTemplate hibernate = getHibernateTemplate();
         return (Ring) hibernate.load(Ring.class, id);
-    }
-
-    public Collection<AliasMapping> getAliasMappings() {
-        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
-        List<CallSequence> sequences = loadAllCallSequences();
-        for (CallSequence sequence : sequences) {
-            aliases.addAll(sequence.getAliasMappings(m_coreContext.getDomainName()));
-        }
-        return aliases;
     }
 
     /**

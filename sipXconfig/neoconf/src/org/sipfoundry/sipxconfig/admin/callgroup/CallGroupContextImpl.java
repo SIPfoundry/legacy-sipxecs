@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -185,20 +184,6 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         for (CallGroup cg : cgs) {
             m_replicationContext.remove(cg);
         }
-    }
-
-    /**
-     * Generate aliases for all call groups
-     */
-    @Override
-    public Collection<AliasMapping> getAliasMappings() {
-        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
-        Collection<CallGroup> callGroups = getCallGroups();
-        for (CallGroup callGroup : callGroups) {
-            aliases.addAll(callGroup.getAliasMappings(m_coreContext.getDomainName()));
-        }
-
-        return aliases;
     }
 
     @Override

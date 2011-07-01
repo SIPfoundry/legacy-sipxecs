@@ -13,11 +13,10 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.User;
 
-public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
+public interface ConferenceBridgeContext extends AliasOwner {
 
     String CONTEXT_BEAN_NAME = "conferenceBridgeContext";
 

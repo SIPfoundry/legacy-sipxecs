@@ -18,7 +18,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
@@ -31,7 +30,7 @@ import org.springframework.beans.factory.annotation.Required;
 import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.commons.lang.StringUtils.trim;
 
-public class SipxAccCodeService extends SipxService implements LoggingEntity, Replicable, AliasProvider {
+public class SipxAccCodeService extends SipxService implements LoggingEntity, Replicable {
     public static final String BEAN_ID = "sipxAccCodeService";
     public static final String LOG_SETTING = "acccode/log.level";
     public static final String AUTH_CODE_PREFIX = "authcode/SIP_AUTH_CODE_PREFIX";

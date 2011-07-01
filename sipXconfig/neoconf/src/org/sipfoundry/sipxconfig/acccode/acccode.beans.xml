@@ -27,8 +27,7 @@
 
   <bean id="authCodeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" 
-              value="org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager,
-                    org.sipfoundry.sipxconfig.admin.commserver.AliasProvider " />
+              value="org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager" />
     <property name="target" ref="authCodeManagerImpl" />
   </bean>
 </beans>
