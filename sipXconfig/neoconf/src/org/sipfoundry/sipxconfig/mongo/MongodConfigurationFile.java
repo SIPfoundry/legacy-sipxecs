@@ -7,9 +7,13 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.commserver;
+package org.sipfoundry.sipxconfig.mongo;
 
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
 
-public class TunnelServerConfigurationFile extends TemplateConfigurationFile {
+public class MongodConfigurationFile extends TemplateConfigurationFile {
+
+    public MongodConfigurationFile() {
+        setTemplate("mongo/mongod.vm");
+    }
 }

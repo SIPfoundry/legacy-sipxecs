@@ -359,3 +359,16 @@ $(JAR_LIBSRC) :
 
 # download source for jar files if available
 jar-src : $(JAR_LIBSRC) $(addprefix $(JAR_LIBSRC)/,$(notdir $(JAR_SRCS:=.src)))
+
+jdoc-% : Makefile
+	@list1='$($*_SRC)'; list2=; if test -n "$$list1"; then \
+	  for p in $$list1; do \
+	    if test -f $$p; then d=; else d="$(srcdir)/"; fi; \
+	    list2="$$list2 $$d$$p"; \
+	  done; \
+	  echo "$$list2" > .$@-files; \
+	else \
+	  echo "No Source found for make variable $(*)_SRC" >&2; \
+	  exit 1; \
+	fi
+	$(call ClassPathEnv,$($*_DEPS)) javadoc -d html @$<

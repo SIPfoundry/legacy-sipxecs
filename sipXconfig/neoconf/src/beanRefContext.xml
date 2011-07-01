@@ -58,7 +58,9 @@
         <value>classpath:/org/sipfoundry/sipxconfig/system.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/upload/upload.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/vm/vm.beans.xml</value>
-	<value>classpath:/region_na/dialrules.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/mongo/mongo.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/tunnel/tunnel.beans.xml</value>
+        <value>classpath:/region_na/dialrules.beans.xml</value>
         <value>classpath*:/sipxplugin.beans.xml</value>
       </list>
     </constructor-arg>

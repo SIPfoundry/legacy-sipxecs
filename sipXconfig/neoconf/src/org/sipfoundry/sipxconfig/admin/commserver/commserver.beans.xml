@@ -23,41 +23,6 @@
     </property>
   </bean>
   
-  <bean id="tunnelBundle" parent="abstractBundle">
-    <constructor-arg value="tunnel" />
-    <property name="autoEnable" value="true" />
-  </bean>
-
-  <bean id="tunnelService" class="org.sipfoundry.sipxconfig.admin.commserver.TunnelService" scope="prototype" parent="sipxService">
-    <property name="processName" value="tunnel" />
-    <property name="configurations">
-      <list>
-        <ref bean="tunnelClientConfig" />
-        <ref bean="tunnelServerConfig" />
-      </list>
-    </property>
-    <property name="groupTitleEnabled" value="true" />
-    <property name="bundles">
-      <set>
-        <ref bean="tunnelBundle" />
-      </set>
-    </property>
-    <property name="logDir" value="${sysdir.log}" />
-  </bean>
-
-  <bean id="tunnelClientConfig" class="org.sipfoundry.sipxconfig.admin.commserver.TunnelClientConfigurationFile" parent="defaultConfigurationFile">
-    <property name="name" value="tunnel/client.conf"/>
-    <property name="velocityEngine" ref="velocityEngine"/>
-    <property name="locationsManager" ref="locationsManager"/>
-    <property name="template" value="tunnel/tunnel-client.conf.vm"/>
-  </bean>
-  
-  <bean id="tunnelServerConfig" class="org.sipfoundry.sipxconfig.admin.commserver.TunnelServerConfigurationFile" parent="defaultConfigurationFile">
-    <property name="name" value="tunnel/server.conf"/>
-    <property name="velocityEngine" ref="velocityEngine"/>
-    <property name="template" value="tunnel/tunnel-server.conf.vm"/>
-  </bean>
-
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.admin.commserver.MongoConfigImpl">
     <property name="mongodConfigurationFile">
       <bean class="org.sipfoundry.sipxconfig.admin.commserver.MongodConfigurationFile" parent="defaultConfigurationFile">
@@ -210,16 +175,6 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases">
   </bean>
 
-  <bean id="aliasCollector"
-    class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
-    <property name="includeProxies" value="true" />
-    <property name="aliasProviderBeanIds">
-      <list>
-        <value>externalAliases</value>
-      </list>
-    </property>
-  </bean>
-
   <bean id="dataSetGenerator" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
   </bean>
@@ -250,20 +205,6 @@
   <bean id="speeddialDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.SpeedDials">
     <property name="speedDialManager" ref="speedDialManager" />
-  </bean>
-
-  <bean id="aliasCollectorForAA"
-    class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
-    <property name="includeProxies" value="false" />
-    <property name="aliasProviderBeanIds">
-      <list>
-        <value>callGroupContext</value>
-        <value>acdContext</value>
-        <value>conferenceBridgeContext</value>
-        <value>externalAliases</value>
-        <value>authCodeManager</value>
-      </list>
-    </property>
   </bean>
 
   <bean id="replicationTrigger"

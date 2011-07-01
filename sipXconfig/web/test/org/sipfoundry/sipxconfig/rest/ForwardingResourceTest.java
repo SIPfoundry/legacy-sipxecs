@@ -16,12 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.easymock.classextension.EasyMock;
 import org.easymock.internal.matchers.InstanceOf;
 import org.restlet.data.MediaType;
 import org.restlet.resource.InputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
@@ -29,10 +29,6 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingImpl;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
-import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 
 import junit.framework.TestCase;
 
@@ -41,8 +37,10 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reportMatcher;
 import static org.easymock.EasyMock.verify;
+import static org.easymock.classextension.EasyMock.createMock;
 
 public class ForwardingResourceTest extends TestCase {
+    private static final String CALL_FWD_TIMER_SETTING = "callfwd/timer";
     private User m_user;
     private ForwardingContext m_forwardingContext;
 
@@ -50,26 +48,15 @@ public class ForwardingResourceTest extends TestCase {
     protected void setUp() throws Exception {
         m_user = new User();
         m_user.setUserName("abc");
-        m_user.setUniqueId();
 
-        Setting s = new SettingSet();
-        s.setName("permission/call-handling/Voicemail");
-        Setting s1 = new SettingSet("permission");
-        Setting s2 = new SettingSet("call-handling");
-        Setting s3 = new SettingImpl("Voicemail");
-        BooleanSetting booleanSetting = new BooleanSetting();
-        booleanSetting.setTrueValue("ENABLE");
-        booleanSetting.setFalseValue("DISABLE");
-        s3.setType(booleanSetting);
-        s.addSetting(s1);
-        s1.addSetting(s2);
-        s2.addSetting(s3);
-
-        PermissionManager pManager = EasyMock.createMock(PermissionManager.class);
+        PermissionManager pManager = createMock(PermissionManager.class);
         pManager.getPermissionModel();
-        expectLastCall().andReturn(s).anyTimes();
-        EasyMock.replay(pManager);
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        pManager.getDefaultInitDelay();
+        expectLastCall().andReturn("25").anyTimes();
+        replay(pManager);
         m_user.setPermissionManager(pManager);
+        m_user.setSettingTypedValue(CALL_FWD_TIMER_SETTING, 27);
 
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
@@ -123,7 +110,6 @@ public class ForwardingResourceTest extends TestCase {
 
     public void testRepresentXmlWithVoicemail() throws Exception {
         m_user.setVoicemailPermission(true);
-        m_user.hasVoicemailPermission();
         ForwardingResource resource = new ForwardingResource();
         resource.setForwardingContext(m_forwardingContext);
 
@@ -172,8 +158,9 @@ public class ForwardingResourceTest extends TestCase {
         resource.storeRepresentation(entity);
 
         CallSequence savedCallSequence = matcher.getArgument();
-
-        assertEquals(m_user, savedCallSequence.getUser());
+        User savedUser = savedCallSequence.getUser();
+        assertEquals(m_user, savedUser);
+        assertEquals(27, savedUser.getSettingTypedValue(CALL_FWD_TIMER_SETTING));
         assertEquals(5, savedCallSequence.getRings().size());
 
         for (int i = 0; i < 5; i++) {
@@ -209,8 +196,9 @@ public class ForwardingResourceTest extends TestCase {
         resource.storeRepresentation(entity);
 
         CallSequence savedCallSequence = matcher.getArgument();
-
-        assertEquals(m_user, savedCallSequence.getUser());
+        User savedUser = savedCallSequence.getUser();
+        assertEquals(27, savedUser.getSettingTypedValue(CALL_FWD_TIMER_SETTING));
+        assertEquals(m_user, savedUser);
         assertEquals(5, savedCallSequence.getRings().size());
 
         for (int i = 0; i < 5; i++) {

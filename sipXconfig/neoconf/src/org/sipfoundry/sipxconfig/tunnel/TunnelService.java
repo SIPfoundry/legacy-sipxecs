@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.commserver;
+package org.sipfoundry.sipxconfig.tunnel;
 
 import org.sipfoundry.sipxconfig.service.SipxService;
 

@@ -22,7 +22,6 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -288,16 +287,6 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("bongo", g2.getName());
 
         assertEquals(2, getConnection().getRowCount("group_storage"));
-    }
-
-    public void testAliases() throws Exception {
-        Collection<AliasMapping> userAliases = m_core.getAliasMappings();
-        assertEquals(0, userAliases.size());
-
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        userAliases = m_core.getAliasMappings();
-        Collection<AliasMapping> mappings = userAliases;
-        assertEquals(2, mappings.size());
     }
 
     public void testClear() throws Exception {

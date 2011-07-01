@@ -1,8 +1,9 @@
-package org.sipfoundry.sipxconfig.admin.commserver;
+package org.sipfoundry.sipxconfig.tunnel;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.tunnel.TunnelService;
 
 public class TunnelServiceTestIntegration extends IntegrationTestCase  {
     

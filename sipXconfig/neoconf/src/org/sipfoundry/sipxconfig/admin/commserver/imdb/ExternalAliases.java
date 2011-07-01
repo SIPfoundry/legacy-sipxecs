@@ -18,9 +18,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 
-public class ExternalAliases implements AliasProvider {
+public class ExternalAliases {
     private static final Log LOG = LogFactory.getLog(ExternalAliases.class);
 
     /** comma separated list of files dataset.alias.addins */
