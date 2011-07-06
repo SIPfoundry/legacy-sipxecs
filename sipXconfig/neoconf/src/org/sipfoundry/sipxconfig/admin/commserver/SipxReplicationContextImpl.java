@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.Serializable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +35,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     private ReplicationManager m_replicationManager;
     private JobContext m_jobContext;
     private LocationsManager m_locationsManager;
+    private ExecutorService m_fileExecutorService = Executors.newFixedThreadPool(5);
 
     protected abstract ServiceConfigurator getServiceConfigurator();
 
@@ -101,22 +104,27 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         doWithJob("File replication: " + file.getName(), work);
     }
 
-    private void doWithJob(String jobName, ReplicateWork work) {
-        Serializable jobId = m_jobContext.schedule(jobName);
-        boolean success = false;
-        try {
-            LOG.info("Start replication: " + jobName);
-            m_jobContext.start(jobId);
-            success = work.replicate();
-        } finally {
-            if (success) {
-                m_jobContext.success(jobId);
-            } else {
-                LOG.warn("Replication failed: " + jobName);
-                // there is not really a good info here - advise user to consult log?
-                m_jobContext.failure(jobId, null, null);
+    private void doWithJob(final String jobName, final ReplicateWork work) {
+        m_fileExecutorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                Serializable jobId = m_jobContext.schedule(jobName);
+                boolean success = false;
+                try {
+                    LOG.info("Start replication: " + jobName);
+                    m_jobContext.start(jobId);
+                    success = work.replicate();
+                } finally {
+                    if (success) {
+                        m_jobContext.success(jobId);
+                    } else {
+                        LOG.warn("Replication failed: " + jobName);
+                        // there is not really a good info here - advise user to consult log?
+                        m_jobContext.failure(jobId, null, null);
+                    }
+                }
             }
-        }
+        });
     }
 
     private boolean inInitializationPhase() {

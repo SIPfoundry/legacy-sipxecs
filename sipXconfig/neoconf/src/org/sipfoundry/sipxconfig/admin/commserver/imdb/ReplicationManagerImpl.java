@@ -15,9 +15,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
@@ -96,6 +102,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private ForwardingContext m_forwardingContext;
     private ExternalAliases m_externalAliases;
     private DataSetGenerator m_dataSetGenerator;
+    private int m_pageSize;
+    private int m_nThreads;
+    private boolean m_useDynamicPageSize;
 
     private void initMongo() throws Exception {
         if (m_mongoInstance == null) {
@@ -140,17 +149,17 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         m_datasetCollection.drop();
     }
 
-    /*
-     * Get all replicable entities and replicate them; this is far better than getting the
-     * DataSet.values and generating for each of them. Treat users differently since we have the
-     * DaoUtils.forAllUsersDo method that should be used.
-     */
-    @Override
-    public void replicateAllData() {
-        Location primary = m_locationsManager.getPrimaryLocation();
-        try {
-            Long start = System.currentTimeMillis();
-            dropDb(); // this calls initMongo()
+    private class Worker implements Callable<Void> {
+        private int m_startIndex;
+        private int m_page;
+
+        public Worker(int index, int pageSize) {
+            m_startIndex = index;
+            m_page = pageSize;
+        }
+
+        @Override
+        public Void call() {
             Closure<User> closure = new Closure<User>() {
                 @Override
                 public void execute(User user) {
@@ -159,11 +168,43 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                     if (!cs.getRings().isEmpty()) {
                         replicateEntity(cs);
                     }
-                    getHibernateTemplate().clear(); //clear the H session (see XX-9741)
+                    getHibernateTemplate().clear(); // clear the H session (see XX-9741)
                 }
 
             };
-            DaoUtils.forAllUsersDo(m_coreContext, closure);
+            DaoUtils.forAllUsersDo(m_coreContext, closure, m_startIndex, m_page);
+            return null;
+        }
+    }
+
+    /*
+     * Get all replicable entities and replicate them; this is far better than getting the
+     * DataSet.values and generating for each of them.
+     * Users are replicated using multiple threads in parallel.
+     * Properties defined in sipxconfig.properties:
+     * m_nThreads - number of parallel threads
+     * m_pageSize - chunk of users to be processed by each thread. (Argument to sql LIMIT)
+     * m_useDynamicPageSize - if set to true users will be processed in chunks of userCount/nThread
+     */
+    @Override
+    public void replicateAllData() {
+        ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
+        Location primary = m_locationsManager.getPrimaryLocation();
+        try {
+            Long start = System.currentTimeMillis();
+            dropDb(); // this calls initMongo()
+            int pageSize = m_pageSize;
+            if (m_useDynamicPageSize) {
+                pageSize = m_coreContext.getAllUsersCount() / m_nThreads + 1;
+            }
+            int pages = new Double(Math.ceil(m_coreContext.getAllUsersCount() / pageSize)).intValue() + 1;
+            List<Future<Void>> futures = new ArrayList<Future<Void>>();
+            for (int i = 0; i < pages; i++) {
+                futures.add(replicationExecutorService.submit(new Worker(i * m_pageSize, pageSize)));
+            }
+            for (Future<Void> future : futures) {
+                future.get();
+            }
             Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
             for (ReplicableProvider provider : beanMap.values()) {
                 for (Replicable entity : provider.getReplicables()) {
@@ -199,7 +240,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                 replicateEntity(entity, dataSet, top);
             }
             Long end = System.currentTimeMillis();
-            LOG.info(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
+            LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + name, e);
             throw new UserException(REPLICATION_FAILED + entity.getName(), e);
@@ -216,7 +257,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             DBObject top = m_dataSetGenerator.findOrCreate(entity);
             replicateEntity(entity, dataSet, top);
             Long end = System.currentTimeMillis();
-            LOG.info(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
+            LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + name, e);
             throw new UserException(REPLICATION_FAILED + entity.getName(), e);
@@ -228,7 +269,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         final DataSetGenerator generator = m_beanFactory.getBean(beanName, DataSetGenerator.class);
         generator.setDbCollection(m_datasetCollection);
         generator.generate(entity, top);
-        LOG.debug("Entity " + entity.getName() + "updated.");
+        LOG.debug("Entity " + entity.getName() + " updated.");
     }
 
     @Override
@@ -497,4 +538,15 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         m_dataSetGenerator = dataSetGenerator;
     }
 
+    public void setPageSize(int pageSize) {
+        m_pageSize = pageSize;
+    }
+
+    public void setUseDynamicPageSize(boolean useDynamicPageSize) {
+        m_useDynamicPageSize = useDynamicPageSize;
+    }
+
+    public void setnThreads(int nThreads) {
+        m_nThreads = nThreads;
+    }
 }

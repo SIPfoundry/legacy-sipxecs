@@ -242,4 +242,14 @@ public final class DaoUtils {
             size = users.size();
         } while (size == PAGE_SIZE);
     }
+
+    public static void forAllUsersDo(CoreContext coreContext, Closure<User> closure, int start, int pageSize) {
+        if (start >= coreContext.getAllUsersCount()) {
+            return;
+        }
+        List<User> users = coreContext.loadUsersByPage(start, pageSize);
+        for (User user : users) {
+            closure.execute(user);
+        }
+    }
 }

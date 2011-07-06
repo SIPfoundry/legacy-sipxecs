@@ -18,6 +18,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -510,7 +511,13 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     @Override
     public List<User> loadUsersByPage(int first, int pageSize) {
-        return loadBeansByPage(User.class, first, pageSize);
+        Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
+                .createSQLQuery("select * from users order by user_id limit :pageSize offset :first")
+                .addEntity(User.class);
+        q.setInteger("first", first);
+        q.setInteger("pageSize", pageSize);
+        List<User> users = q.list();
+        return users;
     }
 
     @Override

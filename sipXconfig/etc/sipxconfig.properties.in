@@ -18,6 +18,12 @@ sipxOpenAcdService.audioDir=@SIPX_VARDIR@/configserver/phone/acd/audio
 
 sipImpl.port=5180
 
+#replication multi-threading
+replicationManagerImpl.nThreads=2
+replicationManagerImpl.pageSize=1000
+replicationManagerImpl.dynamicPageSize=false
+sipxReplicationContextImpl.nThreads=5
+
 # imdb/sipdb location for https access
 localBackupPlan.backupDirectory=@SIPX_VARDIR@/backup
 ftpBackupPlan.backupDirectory=@SIPX_DOWNLOADDIR@
