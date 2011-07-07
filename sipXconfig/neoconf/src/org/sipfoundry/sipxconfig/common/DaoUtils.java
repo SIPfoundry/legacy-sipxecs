@@ -247,9 +247,9 @@ public final class DaoUtils {
         if (start >= coreContext.getAllUsersCount()) {
             return;
         }
-        List<User> users = coreContext.loadUsersByPage(start, pageSize);
-        for (User user : users) {
-            closure.execute(user);
+        List<Integer> users = coreContext.loadUserIdsByPage(start, pageSize);
+        for (Integer id : users) {
+            closure.execute(coreContext.loadUser(id));
         }
     }
 }
