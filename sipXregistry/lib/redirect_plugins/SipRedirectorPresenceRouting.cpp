@@ -122,7 +122,10 @@ UnifiedPresenceContainer* UnifiedPresenceContainer::getInstance( void )
 void UnifiedPresenceContainer::insert( UtlString* pAor, UnifiedPresence* pUnifiedPresence )
 {
     OsLock lock( mMutex );
-    mUnifiedPresences.remove( pAor );
+    UnifiedPresence* pOldUnifiedPresence = (UnifiedPresence*)mUnifiedPresences.remove( pAor );
+    if (pOldUnifiedPresence)
+      delete pOldUnifiedPresence;
+
     mUnifiedPresences.insertKeyAndValue( pAor, pUnifiedPresence );
     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "UnifiedPresenceContainer::insert "
                   "Presence information for '%s':\r\n"
