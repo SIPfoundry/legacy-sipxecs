@@ -203,7 +203,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    {
       logString = bodyString;
    }
-   Os::Logger::instance().log(FAC_XMLRPC, PRI_INFO,
+   Os::Logger::instance().log(FAC_XMLRPC, PRI_DEBUG,
                  "XmlRpcDispatch::processRequest requestBody = \n%s",
                  logString.data());
 
