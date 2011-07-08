@@ -33,12 +33,14 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     private ModelFilesContext m_modelFilesContext;
 
     private SipxServiceManager m_sipxServiceManager;
+    private Set<Permission> m_permissions;
 
     public void saveCallPermission(Permission permission) {
         if (isLabelInUse(permission)) {
             throw new DuplicatePermissionLabelException(permission.getLabel());
         }
         getHibernateTemplate().saveOrUpdate(permission);
+        m_permissions = null;
     }
 
     public void deleteCallPermission(Permission permission) {
@@ -201,11 +203,12 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     }
 
     public Collection<Permission> getPermissions() {
-
-        Set<Permission> permissions = new TreeSet<Permission>();
-        permissions.addAll(getBuiltInPermissions().values());
-        permissions.addAll(loadCustomPermissions());
-        return permissions;
+        if (m_permissions == null) {
+            m_permissions = new TreeSet<Permission>();
+            m_permissions.addAll(getBuiltInPermissions().values());
+            m_permissions.addAll(loadCustomPermissions());
+        }
+        return m_permissions;
     }
 
     public Collection<Permission> getPermissions(Permission.Type type) {

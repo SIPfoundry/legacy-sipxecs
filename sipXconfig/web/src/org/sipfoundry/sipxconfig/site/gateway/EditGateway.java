@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
@@ -176,6 +177,9 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     }
 
     public void saveGateway() {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
         // set sbc device only for SipTrunk

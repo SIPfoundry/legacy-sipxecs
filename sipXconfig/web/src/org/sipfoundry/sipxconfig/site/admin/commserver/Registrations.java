@@ -14,7 +14,6 @@ import java.text.DecimalFormat;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -36,9 +35,6 @@ public abstract class Registrations extends SipxBasePage implements PageBeginRen
 
     @Bean(initializer = "maximumFractionDigits=2,minimumFractionDigits=2")
     public abstract DecimalFormat getTwoDigitDecimal();
-
-    @Persist(value = "session")
-    public abstract boolean getDisplayPrimary();
 
     public abstract void setMetricsProperty(RegistrationMetrics registrationMetrics);
 

@@ -18,10 +18,11 @@ sipxOpenAcdService.audioDir=@SIPX_VARDIR@/configserver/phone/acd/audio
 
 sipImpl.port=5180
 
-#replication multi-threading
+#mongo replication multi-threading
 replicationManagerImpl.nThreads=2
 replicationManagerImpl.pageSize=1000
-replicationManagerImpl.dynamicPageSize=false
+replicationManagerImpl.useDynamicPageSize=false
+#file replication multi-threading
 sipxReplicationContextImpl.nThreads=5
 
 # imdb/sipdb location for https access

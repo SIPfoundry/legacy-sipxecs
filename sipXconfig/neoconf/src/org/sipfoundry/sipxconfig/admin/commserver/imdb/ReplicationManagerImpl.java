@@ -198,9 +198,11 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                 pageSize = m_coreContext.getAllUsersCount() / m_nThreads + 1;
             }
             int pages = new Double(Math.ceil(m_coreContext.getAllUsersCount() / pageSize)).intValue() + 1;
+            LOG.info("Starting regeneration of Mongo imdb on " + m_nThreads
+                    + " threads using chunks of " + pageSize + " users");
             List<Future<Void>> futures = new ArrayList<Future<Void>>();
             for (int i = 0; i < pages; i++) {
-                futures.add(replicationExecutorService.submit(new Worker(i * m_pageSize, pageSize)));
+                futures.add(replicationExecutorService.submit(new Worker(i * pageSize, pageSize)));
             }
             for (Future<Void> future : futures) {
                 future.get();
