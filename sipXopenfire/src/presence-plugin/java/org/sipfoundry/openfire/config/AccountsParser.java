@@ -7,9 +7,7 @@ package org.sipfoundry.openfire.config;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -20,22 +18,16 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
-import org.jivesoftware.openfire.PacketRouter;
 import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupManager;
-import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
-import org.jivesoftware.openfire.muc.MultiUserChatService;
-import org.jivesoftware.openfire.muc.spi.LocalMUCRole;
-import org.jivesoftware.openfire.muc.spi.LocalMUCRoom;
-import org.jivesoftware.openfire.muc.spi.LocalMUCUser;
 import org.jivesoftware.openfire.muc.spi.MUCPersistenceManager;
+import org.sipfoundry.openfire.plugin.presence.SipXBookmarkManager;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePluginException;
 import org.sipfoundry.openfire.plugin.presence.UserAccount;
 import org.xml.sax.InputSource;
 import org.xmpp.packet.JID;
-import org.xmpp.packet.Presence;
 
 public class AccountsParser {
 
@@ -55,7 +47,7 @@ public class AccountsParser {
     private File accountDbFile;
     private static Logger logger = Logger.getLogger(AccountsParser.class);
     private XmppAccountInfo previousXmppAccountInfo = null;
-  
+
     private static Timer timer = new Timer();
 
     static {
@@ -78,7 +70,7 @@ public class AccountsParser {
             }
         }
     }
-    
+
     public void parseAccounts()
     {
         String fileUrl = "file://" + accountDbFileName;
@@ -91,9 +83,9 @@ public class AccountsParser {
         // Make sure that all user accounts can create multi-user chatrooms
         SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
         plugin.setAllowedUsersForChatServices(plugin.getUserAccounts());
-        previousXmppAccountInfo = newAccountInfo;        
+        previousXmppAccountInfo = newAccountInfo;
     }
-    
+
     private void enforceConfigurationDeltas( XmppAccountInfo newAccountInfo, XmppAccountInfo previousXmppAccountInfo )
     {
         setElementsChangeStatusBasedOnPreviousConfiguration( newAccountInfo, previousXmppAccountInfo);
@@ -118,9 +110,9 @@ public class AccountsParser {
                     }
                 }
                 catch( Exception e ){
-                    logger.error("setElementsChangeStatusBasedOnPreviousConfiguration caught " ,e );            
+                    logger.error("setElementsChangeStatusBasedOnPreviousConfiguration caught " ,e );
                 }
-            }        
+            }
         }
     }
 
@@ -148,10 +140,10 @@ public class AccountsParser {
             for( XmppConfigurationElement element : newXmppAccountInfo.getAllElements()){
                 logger.info(element.toString());
             }
-            
+
         }
     }
-    
+
     private void setElementsChangeStatusBasedOnPreviousConfiguration( Map<String, ? extends XmppConfigurationElement> newXmppAccountMap,
             Map<String, ? extends XmppConfigurationElement> previousXmppAccountMap )
     {
@@ -163,20 +155,20 @@ public class AccountsParser {
             if( elementFromPreviousConfig == null ){
                 // element not found in previous configuration, it must  be new
                 elementFromNewConfig.setStatus(XmppAccountStatus.NEW);
-                
+
             }
             else{
                 // the element is not new, check if it has changed
                 if( elementFromNewConfig.equals(elementFromPreviousConfig) == true){
-                    elementFromNewConfig.setStatus(XmppAccountStatus.UNCHANGED);                            
+                    elementFromNewConfig.setStatus(XmppAccountStatus.UNCHANGED);
                 }
                 else{
-                    elementFromNewConfig.setStatus(XmppAccountStatus.MODIFIED);                            
+                    elementFromNewConfig.setStatus(XmppAccountStatus.MODIFIED);
                 }
             }
         }
     }
-        
+
     private void pruneUnwantedXmppUsers( Set<String> xmppUserAccountNamesMasterList )
     {
         SipXOpenfirePlugin plugin =  SipXOpenfirePlugin.getInstance();
@@ -198,7 +190,7 @@ public class AccountsParser {
                             logger.debug("pruneUnwantedXmppUsers removing " + userAccountInOpenfire.getXmppUserName() + " from group "  + group.getName());
                             group.getMembers().remove(jid);
                         }
-                        logger.info("Pruning Unwanted Xmpp User " + userAccountInOpenfire.getXmppUserName() );                    
+                        logger.info("Pruning Unwanted Xmpp User " + userAccountInOpenfire.getXmppUserName() );
                         plugin.destroyUser(XmppAccountInfo.appendDomain(userAccountInOpenfire.getXmppUserName()));
                     }
                     catch( Exception e ){
@@ -221,11 +213,11 @@ public class AccountsParser {
             if (xmppGroupNamesMasterList.contains( groupInOpenfire.getName()) == false) {
                 try{
                     plugin.deleteGroup(groupInOpenfire.getName());
-                    logger.info("Pruning Unwanted Xmpp group " + groupInOpenfire.getName() );                    
+                    logger.info("Pruning Unwanted Xmpp group " + groupInOpenfire.getName() );
                 }
                 catch( Exception e ){
                     logger.error("pruneUnwantedXmppGroups caught ", e );
-                }                
+                }
             }
         }
     }
@@ -253,7 +245,14 @@ public class AccountsParser {
                 } else {
                     logger.info("Pruning Unwanted Xmpp chatroom " + domain + ":" + mucRoomInOpenfire.getName() );
                     mucRoomInOpenfire.destroyRoom(null, "not a managed chat");
-                    MUCPersistenceManager.deleteFromDB(mucRoomInOpenfire);                    
+                    MUCPersistenceManager.deleteFromDB(mucRoomInOpenfire);
+                    // when IM room is deleted, delete bookmark as well if necessary
+                    if (SipXBookmarkManager.isInitialized()) {
+			SipXBookmarkManager manager = SipXBookmarkManager.getInstance();
+			if (manager.getMUCBookmarkID(mucRoomInOpenfire.getName()) != null)  {
+				manager.deleteMUCBookmark(mucRoomInOpenfire.getName());
+			}
+                    }
                 }
             }
         }
@@ -309,7 +308,7 @@ public class AccountsParser {
 
     /*
      * Add the digester rules.
-     * 
+     *
      * @param digester
      */
     private static void addRules(Digester digester) throws Exception {
@@ -325,10 +324,10 @@ public class AccountsParser {
 
         digester.addObjectCreate(groupMemberTag, XmppGroupMember.class.getName());
         digester.addSetNext(groupMemberTag, "addMember");
-        
+
         digester.addObjectCreate(chatRoomTag, XmppChatRoom.class.getName());
         digester.addSetNext(chatRoomTag, "addChatRoom");
-        
+
         currentTag = userTag;
         addCallMethod("password", "setPassword");
         addCallMethod("user-name", "setUserName");
