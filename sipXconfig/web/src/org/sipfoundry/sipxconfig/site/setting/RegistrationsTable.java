@@ -16,7 +16,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
@@ -37,9 +36,6 @@ public abstract class RegistrationsTable extends BaseComponent {
     @Parameter(required = true)
     public abstract Collection getRegistrations();
 
-    @Parameter(required = false)
-    public abstract boolean getDisplayPrimary();
-
     @Bean
     public abstract EvenOdd getRowClass();
 
@@ -59,11 +55,7 @@ public abstract class RegistrationsTable extends BaseComponent {
     }
 
     public String getColumnNames() {
-        IBinding displayPrimary = getBinding("displayPrimary");
         StringBuilder columnNames = new StringBuilder("uri,contact,expires,instrument");
-        if (displayPrimary != null && displayPrimary.getObject().equals(Boolean.TRUE)) {
-            columnNames.append(",primary");
-        }
         return columnNames.toString();
     }
 
