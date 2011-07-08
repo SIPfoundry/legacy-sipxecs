@@ -62,7 +62,27 @@ SipClientTcp::SipClientTcp(OsSocket* socket,
 
 SipClientTcp::~SipClientTcp()
 {
+  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                  "SipClientTcp[%s]::~ called",
+                  mName.data());
    // Tell the associated thread to shut itself down.
+
+  if(mClientSocket)
+  {
+
+        // Close the socket to unblock the run method
+        // in case it is blocked in a waitForReadyToRead or
+        // a read on the mClientSocket.  This should also
+        // cause the run method to exit.
+        if (!mbSharedSocket)
+        {
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipClientTcp[%s]::~ %p socket %p closing %s socket",
+                         mName.data(), this,
+                         mClientSocket, OsSocket::ipProtocolString(mSocketType));
+           mClientSocket->close();
+        }
+
+  }
    waitUntilShutDown();
 }
 
