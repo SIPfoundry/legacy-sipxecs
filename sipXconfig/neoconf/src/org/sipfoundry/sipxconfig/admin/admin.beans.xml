@@ -101,20 +101,6 @@
     <property name="updateApi" ref="updateApi" />
   </bean>
 
-  <bean id="checkForUpdatesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
-    <property name="targetObject" ref="packageUpdateManager" />
-    <property name="targetMethod" value="checkForUpdates" />
-  </bean>
-
-  <bean id="checkForUpdatesTrigger" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-    <property name="fixedRate" value="true" />
-    <!-- wait 10 minutes before checking -->
-    <property name="delay" value="600000" />
-    <!-- once a day -->
-    <property name="period" value="86400000" />
-    <property name="timerTask" ref="checkForUpdatesTask" />
-  </bean>
-
   <bean id="loggingManager" class="org.sipfoundry.sipxconfig.admin.LoggingManagerImpl">
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager" />

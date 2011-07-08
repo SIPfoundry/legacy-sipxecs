@@ -89,7 +89,6 @@
     <property name="scheduledTimerTasks">
       <list>
         <ref bean="scheduledTask" />
-        <ref bean="checkForUpdatesTrigger" />
       </list>
     </property>
   </bean>
