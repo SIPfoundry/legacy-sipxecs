@@ -28,6 +28,7 @@ import org.jivesoftware.openfire.muc.spi.MUCPersistenceManager;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
+import org.sipfoundry.openfire.plugin.presence.SipXBookmarkManager;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePluginException;
 import org.sipfoundry.openfire.plugin.presence.UserAccount;
 import org.xml.sax.InputSource;
@@ -46,9 +47,9 @@ public class AccountsParser {
 
     private static String currentTag = null;
     private static Digester digester;
-    private String accountDbFileName;
+    private final String accountDbFileName;
     private long lastModified;
-    private File accountDbFile;
+    private final File accountDbFile;
     private static Logger logger = Logger.getLogger(AccountsParser.class);
     private XmppAccountInfo previousXmppAccountInfo = null;
 
@@ -236,6 +237,14 @@ public class AccountsParser {
                     logger.info("Pruning Unwanted Xmpp chatroom " + domain + ":" + mucRoomInOpenfire.getName());
                     mucRoomInOpenfire.destroyRoom(null, "not a managed chat");
                     MUCPersistenceManager.deleteFromDB(mucRoomInOpenfire);
+                    MUCPersistenceManager.deleteFromDB(mucRoomInOpenfire);
+                    // when IM room is deleted, delete bookmark as well if necessary
+                    if (SipXBookmarkManager.isInitialized()) {
+                        SipXBookmarkManager manager = SipXBookmarkManager.getInstance();
+                        if (manager.getMUCBookmarkID(mucRoomInOpenfire.getName()) != null)  {
+                            manager.deleteMUCBookmark(mucRoomInOpenfire.getName());
+                        }
+                    }
                 }
             }
         }
@@ -288,7 +297,7 @@ public class AccountsParser {
 
     /*
      * Add the digester rules.
-     * 
+     *
      * @param digester
      */
     private static void addRules(Digester digester) throws Exception {
