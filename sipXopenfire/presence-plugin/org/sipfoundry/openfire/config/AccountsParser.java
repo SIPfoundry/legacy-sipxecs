@@ -237,7 +237,6 @@ public class AccountsParser {
                     logger.info("Pruning Unwanted Xmpp chatroom " + domain + ":" + mucRoomInOpenfire.getName());
                     mucRoomInOpenfire.destroyRoom(null, "not a managed chat");
                     MUCPersistenceManager.deleteFromDB(mucRoomInOpenfire);
-                    MUCPersistenceManager.deleteFromDB(mucRoomInOpenfire);
                     // when IM room is deleted, delete bookmark as well if necessary
                     if (SipXBookmarkManager.isInitialized()) {
                         SipXBookmarkManager manager = SipXBookmarkManager.getInstance();

@@ -1031,9 +1031,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         String conferenceReachabilityInfo    = xmppChatRoom.getConferenceReachabilityInfo();
 
         MultiUserChatService mucService = createChatRoomService(subdomain);
-        MUCRoom mucRoom = mucService.getChatRoom(roomName, new JID(ownerJid)); //creates room if it does not exist
-
         JID jid = new JID(ownerJid);
+        MUCRoom mucRoom = mucService.getChatRoom(roomName, jid); //creates room if it does not exist
+
 
         //update bookmark
         updateBookmark(makeRoomModerated, mucRoom, jid);
