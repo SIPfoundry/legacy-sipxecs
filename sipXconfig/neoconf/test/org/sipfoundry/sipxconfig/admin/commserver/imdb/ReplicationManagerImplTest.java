@@ -9,10 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -24,13 +26,6 @@ import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-
-import static org.easymock.EasyMock.aryEq;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 public class ReplicationManagerImplTest extends TestCase {
 
@@ -45,7 +40,7 @@ public class ReplicationManagerImplTest extends TestCase {
     public void setUp() {
         m_locationsManager = TestUtil.getMockLocationsManager();
 
-        m_out = new ReplicationManagerImpl();
+        m_out = new ReplicationManagerImplMock();
         m_out.setLocationsManager(m_locationsManager);
         m_out.setAuditLogContext(new AuditLogContextImpl());
     }
@@ -54,7 +49,7 @@ public class ReplicationManagerImplTest extends TestCase {
         final FileApi fileApi = createMock(FileApi.class);
 
         String content = "1234";
-        fileApi.replace("sipx.example.org", "/etc/sipxecs/domain-config", 0644, encode(content));
+        fileApi.replace("sipx.example.org", "/etc/sipxecs/domain-config", 0644, encode(content), "final", "001");
         expectLastCall().andReturn(true).times(LOCATIONS.length);
 
         replay(fileApi);
@@ -77,47 +72,16 @@ public class ReplicationManagerImplTest extends TestCase {
         verify(fileApi);
     }
 
-    public void testReplicateData() {
-        final Map<String, String> data[] = new Map[] {
-            new HashMap<String, String>() {
-            }
-        };
-
-        final ImdbApi imdbApi = createMock(ImdbApi.class);
-
-        imdbApi.replace(eq("sipx.example.org"), eq(DataSet.ALIAS.getName()), aryEq(data));
-        expectLastCall().andReturn(true).times(LOCATIONS.length);
-        replay(imdbApi);
-
-        ApiProvider<ImdbApi> provider = new ApiProvider<ImdbApi>() {
-            public ImdbApi getApi(String serviceUrl) {
-                return imdbApi;
-            }
-        };
-
-        m_out.setImdbApiProvider(provider);
-
-        DataSetGenerator file = new DataSetGenerator() {
-
-            @Override
-            protected void addItems(List<Map<String, String>> items) {
-                items.add(data[0]);
-            }
-
-            @Override
-            protected DataSet getType() {
-                return DataSet.ALIAS;
-            }
-
-        };
-
-        m_out.replicateData(LOCATIONS, file);
-
-        verify(imdbApi);
-    }
-
     private String encode(String content) throws UnsupportedEncodingException {
         byte[] encoded = Base64.encodeBase64(content.getBytes("US-ASCII"));
         return new String(encoded, "US-ASCII");
+    }
+
+    private static class ReplicationManagerImplMock extends ReplicationManagerImpl {
+        @Override
+        protected String getSessionId() {
+            return "001";
+        }
+
     }
 }

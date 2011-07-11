@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -29,6 +31,8 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -42,12 +46,16 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private static final String PARAM_USER_ID = "userId";
     private static final String PARAM_USER_GROUP_ID = "userGroupId";
     private static final String PARAM_NAME = "name";
+    private static final String QUERY = "SELECT distinct(u.user_id) as id from Users u "
+            + "right join Ring r on u.user_id = r.user_id WHERE r.enabled='t' ORDER BY u.user_id;";
 
     private CoreContext m_coreContext;
 
     private SipxReplicationContext m_replicationContext;
 
     private DaoEventPublisher m_daoEventPublisher;
+
+    private JdbcTemplate m_jdbcTemplate;
 
     /**
      * Looks for a call sequence associated with a given user.
@@ -104,11 +112,21 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     public Collection getAliasMappings() {
+        final List<Integer> userIds = new LinkedList<Integer>();
         List aliases = new ArrayList();
-        List sequences = loadAllCallSequences();
-        for (Iterator i = sequences.iterator(); i.hasNext();) {
-            CallSequence sequence = (CallSequence) i.next();
-            aliases.addAll(sequence.generateAliases(m_coreContext.getDomainName()));
+        m_jdbcTemplate.query(QUERY, new RowCallbackHandler() {
+
+            @Override
+            public void processRow(ResultSet rs) throws SQLException {
+                userIds.add(rs.getInt("id"));
+            }
+        });
+
+        final String domainName = m_coreContext.getDomainName();
+        for (Integer userId : userIds) {
+            CallSequence sequence = getCallSequenceForUserId(userId);
+            aliases.addAll(sequence.generateAliases(domainName));
+            getSession().clear();
         }
         return aliases;
     }
@@ -118,6 +136,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
      *
      * @return list of CallSequence objects
      */
+    @Deprecated
     private List<CallSequence> loadAllCallSequences() {
         List sequences = getHibernateTemplate().find("from CallSequence cs");
         return sequences;
@@ -341,5 +360,9 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public void clearSchedules() {
         Collection<Schedule> schedules = getHibernateTemplate().loadAll(Schedule.class);
         getHibernateTemplate().deleteAll(schedules);
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate template) {
+        m_jdbcTemplate = template;
     }
 }

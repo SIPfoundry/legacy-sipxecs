@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -33,7 +32,6 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
     private SipxServiceManager m_sipxServiceManager;
-    private SipxProcessContext m_sipxProcessContext;
 
     @Override
     protected void setUp() throws Exception {

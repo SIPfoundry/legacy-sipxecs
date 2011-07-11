@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <value_storage value_storage_id="1"/>
+    <value_storage value_storage_id="3"/>
+    <users first_name="sam" last_name="" user_name="alpha" pintoken="x" user_id="10" value_storage_id="1" user_type="C"/>
+    <users first_name="" last_name="" user_name="alpha1" pintoken="x" user_id="11" user_type="C"/>
+    <users first_name="" last_name="" user_name="alpha2" pintoken="x" user_id="12" value_storage_id="3" user_type="C"/>
+    <setting_value value_storage_id="1" value="test-mwi" path="voicemail/mailbox/external-mwi" />
+    <setting_value value_storage_id="3" value="bb" path="voicemail/mailbox/external-mwi" />
+</dataset>

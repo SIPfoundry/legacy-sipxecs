@@ -43,6 +43,8 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     private LocationsManager m_locationsManager;
 
+    private Domain m_domain;
+
     protected abstract DomainConfiguration createDomainConfiguration();
 
     protected abstract ServiceConfigurator getServiceConfigurator();
@@ -60,6 +62,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     }
 
     public void saveDomain(Domain domain) {
+        m_domain = null;
         if (domain.isNew()) {
             Domain existing = getExistingDomain();
             if (existing != null) {
@@ -72,6 +75,11 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         // As domain change is critical change, force to replicate
         // all affected services' configurations.
         getServiceConfigurator().replicateAllServiceConfig();
+    }
+
+    @Override
+    public void resetDomain() {
+        m_domain = null;
     }
 
     public void replicateDomainConfig(SipxReplicationContext replicationContext, Location location) {
@@ -87,8 +95,11 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     }
 
     protected Domain getExistingDomain() {
-        Collection<Domain> domains = getHibernateTemplate().findByNamedQuery("domain");
-        return (Domain) DataAccessUtils.singleResult(domains);
+        if (m_domain == null) {
+            Collection<Domain> domains = getHibernateTemplate().findByNamedQuery("domain");
+            m_domain = (Domain) DataAccessUtils.singleResult(domains);
+        }
+        return m_domain;
     }
 
     public Localization getExistingLocalization() {
@@ -119,6 +130,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
      */
     public void initializeDomain() {
         try {
+            m_domain = null;
             Properties domainConfig = new Properties();
             File domainConfigFile = new File(m_domainConfigFilename);
             LOG.info("Attempting to load initial domain-config from " + domainConfigFile.getParentFile().getPath()

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <value_storage value_storage_id="1001"/>
+    <address_book_entry address_book_entry_id="1001" email_address="301@sipx.org" />
+    <users first_name="John" last_name="Adams" user_name="301" pintoken="9c78d7b04fa11fe0086eb25933b01af3"
+    user_id="1001" value_storage_id="1001" sip_password="1234" address_book_entry_id="1001" user_type="C"/>
+    <setting_value value_storage_id="1001" value="ENABLE" path="permission/call-handling/AutoAttendant" />
+    <setting_value value_storage_id="1001" value="ENABLE" path="permission/call-handling/Voicemail" />
+    <setting_value value_storage_id="1001" value="DISABLE" path="permission/call-handling/RecordSystemPrompts" />
+    <setting_value value_storage_id="1001" value="imap.host.exampl.com" path="voicemail/imap/host" />
+    <setting_value value_storage_id="1001" value="jdoe" path="voicemail/imap/account" />
+    <setting_value value_storage_id="1001" value="password" path="voicemail/imap/password" />
+    <user_alias user_id="1001" alias="18003010000" />
+    <user_alias user_id="1001" alias="jdoe" />
+
+    <value_storage value_storage_id="1002"/>
+    <address_book_entry address_book_entry_id="1002" email_address="302@sipx.org" alternate_email_address="302@sipxecs.org" />
+    <users first_name="George" last_name="Washington" user_name="302" pintoken="6833fd1fc2dd908dc99a3a457d88b812"
+    user_id="1002" value_storage_id="1002" sip_password="1234" address_book_entry_id="1002" user_type="C"/>
+    <setting_value value_storage_id="1002" value="DISABLE" path="permission/call-handling/AutoAttendant" />
+    <setting_value value_storage_id="1002" value="ENABLE" path="permission/call-handling/Voicemail" />
+    <setting_value value_storage_id="1002" value="ENABLE" path="permission/call-handling/RecordSystemPrompts" />
+    <setting_value value_storage_id="1002" value="1" path="voicemail/mailbox/primary-email-voicemail-notification" />
+    <setting_value value_storage_id="1002" value="1" path="voicemail/mailbox/alternate-email-voicemail-notification" />
+    <setting_value value_storage_id="1002" value="BRIEF" path="voicemail/mailbox/alternate-email-format" />
+    <setting_value value_storage_id="1002" value="1" path="voicemail/mailbox/alternate-email-attach-audio" />
+</dataset>

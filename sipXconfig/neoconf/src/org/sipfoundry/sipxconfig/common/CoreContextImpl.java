@@ -8,6 +8,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,6 +24,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
@@ -37,8 +40,11 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
+import static org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping.createUri;
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
@@ -57,7 +63,25 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String QUERY_IM_ID = "imId";
     private static final String QUERY_USER_ID = "userId";
     private static final String USER_ADMIN = "userAdmin";
+    private static final String QUERY = "SELECT u.user_id, u.user_name, u.first_name, u.last_name, "
+            + "f.value as fax, d.value as fax_did, abe.im_id, i.value as im_enabled, "
+            + "(SELECT count(*) from group_storage gs inner join setting_value sv "
+            + "on gs.group_id = sv.value_storage_id inner join user_group ug "
+            + "on gs.group_id = ug.group_id where gs.resource='user' "
+            + "AND ug.user_id=u.user_id AND sv.path='im/im-account' AND sv.value='1') as group_im_enabled "
+            + "from Users u left join setting_value f on f.value_storage_id = u.value_storage_id "
+            + "AND f.path='voicemail/fax/extension' "
+            + "left join setting_value d on d.value_storage_id = u.value_storage_id "
+            + "AND d.path='voicemail/fax/did' "
+            + "left join setting_value i on i.value_storage_id = u.value_storage_id "
+            + "AND i.path='im/im-account' " + "left join address_book_entry abe on abe.address_book_entry_id = "
+            + "u.address_book_entry_id WHERE u.user_type='C' ORDER BY u.user_id;";
 
+    private static final String FIRST_NAME = "first_name";
+    private static final String LAST_NAME = "last_name";
+    private static final String USER_NAME = "user_name";
+    private static final String ALIAS = "alias";
+    private static final String FAX = "fax";
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
     private DaoEventPublisher m_daoEventPublisher;
@@ -65,6 +89,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private ConfigFileActivationManager m_configFileManager;
     private ApplicationContext m_applicationContext;
     private boolean m_debug;
+    private JdbcTemplate m_jdbcTemplate;
 
     /** limit number of users */
     private int m_maxUserCount = -1;
@@ -165,8 +190,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             user.getAddressBookEntry().setBranchAddress(null);
         }
         if (origUserName != null) {
-            UserChangeEvent userChangeEvent = new UserChangeEvent(this, user.getId(),
-                    origUserName, user.getUserName(), user.getFirstName(), user.getLastName());
+            UserChangeEvent userChangeEvent = new UserChangeEvent(this, user.getId(), origUserName,
+                    user.getUserName(), user.getFirstName(), user.getLastName());
             getHibernateTemplate().update(user);
             m_applicationContext.publishEvent(userChangeEvent);
         } else {
@@ -316,6 +341,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     /**
      * Checks if the inherited branch is the same with the actual branch when they are not null
+     *
      * @param user
      */
     private void checkBranch(User user) {
@@ -602,20 +628,72 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     @Override
     public Collection getAliasMappings() {
         final List aliases = new ArrayList();
-        Closure<User> closure = new Closure<User>() {
+        final String domainName = getDomainName();
+        // add aliases
+        m_jdbcTemplate.query("SELECT u.user_id, u.user_name, u.first_name, "
+                + "u.last_name, a.alias from Users u right join user_alias a on a.user_id = u.user_id "
+                + "WHERE u.user_type='C' ORDER BY u.user_id;", new RowCallbackHandler() {
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        String firstName = rs.getString(FIRST_NAME);
+                        String lastName = rs.getString(LAST_NAME);
+                        String userName = rs.getString(USER_NAME);
+                        Object[] names = {
+                            firstName, lastName
+                        };
+                        String displayName = StringUtils.trimToNull(StringUtils.join(names, ' '));
+                        String contact = SipUri.format(displayName, userName, domainName);
+                        String alias = rs.getString(ALIAS);
+                        if (StringUtils.isNotBlank(alias)) {
+                            String identity = createUri(alias, domainName);
+                            aliases.add(new AliasMapping(identity, contact, ALIAS));
+                        }
+                    }
+                });
+
+        // add im ids, fax numbers and fax did
+        m_jdbcTemplate.query(QUERY, new RowCallbackHandler() {
+
             @Override
-            public void execute(User user) {
-                ImAccount imAccount = new ImAccount(user);
-                // add ImId as an alias only if account enabled
-                String imIdAlias = imAccount.isEnabled() ? imAccount.getImId() : StringUtils.EMPTY;
-                aliases.addAll(user.getAliasMappings(getDomainName(), imIdAlias));
+            public void processRow(ResultSet rs) throws SQLException {
+                String firstName = rs.getString(FIRST_NAME);
+                String lastName = rs.getString(LAST_NAME);
+                String userName = rs.getString(USER_NAME);
+                Object[] names = {
+                    firstName, lastName
+                };
+                String displayName = StringUtils.trimToNull(StringUtils.join(names, ' '));
+                String contact = SipUri.format(displayName, userName, domainName);
+                String enabled = StringUtils.defaultIfEmpty(rs.getString("im_enabled"), StringUtils.EMPTY);
+                int groupsWithIm = rs.getInt("group_im_enabled");
+                String imId = rs.getString("im_id");
+                boolean imEnabled = enabled.equals("1") || (!enabled.equals("0") && groupsWithIm > 0);
+                if (imEnabled) {
+                    if (StringUtils.isNotBlank(imId) && !StringUtils.equals(imId, userName)) {
+                        String imIdentity = createUri(imId, domainName);
+                        aliases.add(new AliasMapping(imIdentity, contact, ALIAS));
+                    }
+                }
+                String faxExtension = rs.getString(FAX);
+                if (StringUtils.isNotEmpty(faxExtension)) {
+                    String faxContactUri = SipUri.format(displayName, AbstractUser.FAX_EXTENSION_PREFIX + userName,
+                            domainName);
+                    String faxIdentity = createUri(faxExtension, domainName);
+                    aliases.add(new AliasMapping(faxIdentity, faxContactUri, FAX));
+                    String faxDid = rs.getString("fax_did");
+                    if (StringUtils.isNotEmpty(faxDid)) {
+                        String didIdentity = createUri(faxDid, domainName);
+                        aliases.add(new AliasMapping(didIdentity, faxContactUri, FAX));
+                    }
+                }
+
             }
-        };
-        DaoUtils.forAllUsersDo(this, closure);
+        });
 
         return aliases;
     }
 
+    @Deprecated
     @Override
     public Collection<User> getGroupMembers(Group group) {
         Collection<User> users = getHibernateTemplate().findByNamedQueryAndNamedParam("userGroupMembers",
@@ -805,5 +883,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 getHibernateTemplate().saveOrUpdate(newSpecialUser);
             }
         }
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate template) {
+        m_jdbcTemplate = template;
     }
 }

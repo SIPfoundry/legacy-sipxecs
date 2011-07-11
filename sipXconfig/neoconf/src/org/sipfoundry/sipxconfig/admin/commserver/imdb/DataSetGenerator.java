@@ -18,8 +18,9 @@ import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-public abstract class DataSetGenerator {
+public abstract class DataSetGenerator extends JdbcDaoSupport {
     private CoreContext m_coreContext;
 
     public void setCoreContext(CoreContext coreContext) {

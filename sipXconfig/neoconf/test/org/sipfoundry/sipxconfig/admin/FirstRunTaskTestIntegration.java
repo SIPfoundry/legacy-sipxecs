@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxServiceManagerImpl;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
@@ -39,6 +40,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     private AdminContext m_adminContext;
     private ServiceConfigurator m_serviceConfigurator;
     private SbcManagerImpl m_sbcManagerImpl;
+    private SipxServiceManagerImpl m_sipxServiceManager;
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
@@ -68,6 +70,10 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_sbcManagerImpl = sbcManagerImpl;
     }
 
+    public void setSipxServiceManagerImpl(SipxServiceManagerImpl servicemanager) {
+        m_sipxServiceManager = servicemanager;
+    }
+
     public void setConferenceBridgeContextImpl(ConferenceBridgeContextImpl bridgeContext) {
         bridgeContext.setProvisioning(new ConferenceBridgeProvisioning() {
             public void deploy(Bridge bridge) {
@@ -85,6 +91,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     }
 
     public void testEnableFirstRunServices() throws Exception {
+        m_sipxServiceManager.resetServicesFromDb();
         Domain domain = new Domain();
         domain.setName("example.org");
         DomainManager domainManager = createMock(DomainManager.class);

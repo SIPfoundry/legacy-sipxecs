@@ -39,6 +39,8 @@ const char* FileRpcMethod::PARAM_NAME_CALLING_HOST = "callingHostname";
 const char* FileRpcMethod::PARAM_NAME_FILE_NAME = "fileName";
 const char* FileRpcMethod::PARAM_NAME_FILE_PERMISSIONS = "filePermissions";
 const char* FileRpcMethod::PARAM_NAME_FILE_DATA = "filedata";
+const char* FileRpcMethod::PARAM_NAME_FILE_STATUS = "status";
+const char* FileRpcMethod::PARAM_NAME_FILE_SESSION_NAME = "sessionId";
 
 
 XmlRpcMethod* FileRpcMethod::get()
@@ -154,7 +156,6 @@ void FileRpcMethod::handleExtraExecuteParam(const char* methodName,
    OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
-
 /*****************************************************************
  **** FileRpcReplaceFile
  *****************************************************************/
@@ -180,6 +181,133 @@ void FileRpcReplaceFile::registerSelf(SipxRpc & sipxRpcImpl)
    registerMethod(METHOD_NAME, FileRpcReplaceFile::get, sipxRpcImpl);
 }
 
+bool FileRpcReplaceFile::executePartialReplace(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status                   ///< XML-RPC method execution status
+)
+{
+  bool result = false;
+  status = XmlRpcMethod::FAILED;
+
+  if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
+  {
+     handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
+     return status;
+  }
+
+  if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
+  {
+     handleMissingExecuteParam(name(), PARAM_NAME_FILE_NAME, response, status);
+     return status;
+  }
+
+  if (!params.at(2) || !params.at(2)->isInstanceOf(UtlInt::TYPE))
+  {
+     handleMissingExecuteParam(name(), PARAM_NAME_FILE_PERMISSIONS, response, status);
+     return status;
+  }
+
+  if (!params.at(3) || !params.at(3)->isInstanceOf(UtlString::TYPE))
+  {
+     handleMissingExecuteParam(name(), PARAM_NAME_FILE_DATA, response, status);
+     return status;
+  }
+
+  if (!params.at(4) || !params.at(4)->isInstanceOf(UtlString::TYPE))
+  {
+     handleMissingExecuteParam(name(), PARAM_NAME_FILE_STATUS, response, status);
+     return status;
+  }
+
+
+  if (!params.at(5) || !params.at(5)->isInstanceOf(UtlString::TYPE))
+  {
+     handleMissingExecuteParam(name(), PARAM_NAME_FILE_SESSION_NAME, response, status);
+     return status;
+  }
+
+  UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
+  UtlString* pFileName = dynamic_cast<UtlString*>(params.at(1));
+  UtlInt* pFilePermissions = dynamic_cast<UtlInt*>(params.at(2));
+  UtlString* pFileData = dynamic_cast<UtlString*>(params.at(3));
+  UtlString* pFileStatus = dynamic_cast<UtlString*>(params.at(4));
+  UtlString* pFileSessionName = dynamic_cast<UtlString*>(params.at(5));
+
+  bool isFinal = (*pFileStatus) == "final";
+  const int  minPermissions = 0100;
+  const int  maxPermissions = 0777;
+
+  UtlBool method_result(true);
+  SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
+
+  if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
+  {
+     // Check the resource permissions.  To be added when available.
+     FileResource* fileResource =
+        FileResourceManager::getInstance()->find(pFileName->data());
+     if (!fileResource)
+     {
+        UtlString faultMsg;
+        faultMsg.append("File '");
+        faultMsg.append(*pFileName);
+        faultMsg.append("' not declared as a resource by any sipXecs process");
+        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
+                      faultMsg.data());
+        result=false;
+        response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+     }
+     else if (!fileResource->isWriteable())
+     {
+        UtlString faultMsg;
+        faultMsg.append("Write access to '");
+        faultMsg.append(*pFileName);
+        faultMsg.append("' denied by process resource ");
+        fileResource->appendDescription(faultMsg);
+        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
+                      faultMsg.data());
+        result=false;
+        response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+     }
+     else if (   ( pFilePermissions->getValue() <= minPermissions )
+              || ( pFilePermissions->getValue() > maxPermissions ))
+     {
+        UtlString faultMsg;
+        faultMsg.appendNumber(pFilePermissions->getValue(),"File permissions %04o");
+        faultMsg.appendNumber(minPermissions,"not within valid range (%04o - ");
+        faultMsg.appendNumber(maxPermissions,"%04o)");
+        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
+                      faultMsg.data());
+        result = false;
+        response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+     }
+     else
+     {
+        // Write out the file.
+        UtlString faultMsg;
+        if((result=replicateFilePartial(*pFileName,*pFilePermissions,*pFileData,faultMsg, *pFileSessionName, isFinal )))
+        {
+           // Construct and set the response.
+           response.setResponse(&method_result);
+           status = XmlRpcMethod::OK;
+
+           // Tell anyone who cares that this changed
+           if (isFinal)
+             fileResource->modified();
+        }
+        else
+        {
+           // Replication failed.
+           response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+        }
+     }
+  }
+
+
+  return result;
+}
+
 bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
                                  UtlSList&                 params,
                                  void*                     userData,
@@ -187,11 +315,17 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
                                  ExecutionStatus&          status)
 {
 
+   if (params.entries() == 6)
+     return executePartialReplace(requestContext, params, userData, response, status);
+
+
    const int  minPermissions = 0100;
    const int  maxPermissions = 0777;
 
    bool result = false;
    status = XmlRpcMethod::FAILED;
+
+
 
    if (4 != params.entries())
    {
@@ -313,7 +447,9 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
    errorMsg.remove(0);
 
    UtlString temporaryLocation(path_and_name);
+
    temporaryLocation += ".new";
+
    OsFile temporaryFile(temporaryLocation);
 
    // create a new file with the specified path and file name except with a .new extension.
@@ -360,6 +496,107 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
                OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
                              errorMsg.data());
             }
+         }
+         else
+         {
+            // Write failed.
+            errorMsg.append("Failed to write to temporary file '");
+            errorMsg.append(temporaryLocation);
+            errorMsg.append("'");
+            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+                          errorMsg.data());
+         }
+      }
+   }
+   else
+   {
+      // Open failed.
+      errorMsg.append("Failed to create temporary file '");
+      errorMsg.append(temporaryLocation);
+      errorMsg.append("'");
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+                    errorMsg.data());
+   }
+
+   return result;
+}
+
+bool FileRpcReplaceFile::replicateFilePartial(UtlString& path_and_name,
+                                       UtlInt&    file_permissions,
+                                       UtlString& file_content,
+                                       UtlString& errorMsg,
+                                       const UtlString& sessionId,
+                                       bool final
+                                       )
+{
+   OsStatus rc;
+   bool     result = false;
+   errorMsg.remove(0);
+
+   UtlString temporaryLocation(path_and_name);
+
+   if (sessionId.isNull())
+     return result;
+
+   temporaryLocation += sessionId;
+
+   OsFile temporaryFile(temporaryLocation);
+
+   // create a new file with the specified path and file name except with a .new extension.
+   if (temporaryFile.open(OsFile::APPEND) == OS_SUCCESS)
+   {
+      UtlString     pdecodedData;
+      size_t bytesRead;
+
+      if ( !NetBase64Codec::decode( file_content, pdecodedData ))
+      {
+         // Write failed.
+         errorMsg.append("Failed to decode file data from base64 for '");
+         errorMsg.append(path_and_name);
+         errorMsg.append("'");
+         OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+                       errorMsg.data());
+      }
+      else
+      {
+         rc = temporaryFile.write(pdecodedData.data(), pdecodedData.length(), bytesRead);
+         
+         errorMsg.append("Partial chunk written to '");
+         errorMsg.append(temporaryLocation);
+         errorMsg.append("'");
+
+         errorMsg.remove(0);
+
+         temporaryFile.close();
+         if (rc == OS_SUCCESS && final)
+         {
+            rc = temporaryFile.rename(path_and_name);
+            if (rc == OS_SUCCESS)
+            {
+               int int_rc;
+               OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "FileRpcReplaceFile::replicateFile"
+                                   " updated file '%s'", path_and_name.data());
+               rc = temporaryFile.remove(TRUE);
+
+               // Change the permissions on the file as indicated.
+               int_rc = chmod( path_and_name.data(), file_permissions.getValue() );
+               result = true;
+            }
+            else
+            {
+               // Write succeeded, but rename failed.
+               errorMsg.append("Failed to rename temporary file from '");
+               errorMsg.append(temporaryLocation);
+               errorMsg.append("' to '");
+               errorMsg.append(path_and_name);
+               errorMsg.append("'");
+               OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+                             errorMsg.data());
+            }
+         }
+         else if(rc == OS_SUCCESS && !final)
+         {
+           result = true;
          }
          else
          {

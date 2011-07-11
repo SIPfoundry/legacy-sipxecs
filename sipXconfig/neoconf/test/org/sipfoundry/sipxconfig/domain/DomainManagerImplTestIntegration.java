@@ -40,8 +40,10 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         modifyContext(m_domainManagerImpl, "locationsManager", m_originalLocationsManager, locationsManager);
     }
 
+    // figure out how to clear domains and uncomment this one
     public void testGetEmptyDomain() throws Exception {
         try {
+            m_out.resetDomain();
             m_out.getDomain();
             fail();
         } catch (DomainNotInitializedException expected) {
@@ -50,12 +52,16 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetDomain() throws Exception {
+        m_out.resetDomain();
         loadDataSetXml("domain/DomainSeed.xml");
         Domain d = m_out.getDomain();
         assertNotNull(d);
     }
 
+    // TODO figure out how to clear domain table and uncomment these unit tests
+    // (are passing when invoked one by one)
     public void testSaveNewDomain() throws Exception {
+        m_out.resetDomain();
         Domain d = new Domain();
         d.setName("robin");
         d.setSipRealm("realm");
@@ -66,9 +72,11 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         ITable actual = ds.getTable("domain");
         ITable expected = getConnection().createDataSet().getTable("domain");
         Assertion.assertEquals(expected, actual);
+        m_out.resetDomain();
     }
 
     public void testUpdateDomain() throws Exception {
+        m_out.resetDomain();
         loadDataSetXml("domain/DomainSeed.xml");
         Domain domain = m_out.getDomain();
         domain.setName("robin");
@@ -81,9 +89,11 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         ITable actual = ds.getTable("domain");
         ITable expected = getConnection().createDataSet().getTable("domain");
         Assertion.assertEquals(expected, actual);
+        m_out.resetDomain();
     }
 
     public void testInitializeDomain() throws Exception {
+        m_out.resetDomain();
         String domainConfigFilename = DomainManagerImplTestIntegration.class.getResource(
                 "initial-domain-config").getFile();
         m_out.setDomainConfigFilename(domainConfigFilename);
@@ -98,6 +108,7 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("alias.example.org", domain.getAliases().iterator().next());
         assertFalse(domain.getAliases().contains("domain.example.org"));
         assertNotNull(domain.getSharedSecret());
+        m_out.resetDomain();
     }
 
     public void setDomainManager(DomainManager domainManager) {

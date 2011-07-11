@@ -63,6 +63,12 @@ protected:
    /// The name of the XML-RPC 'fileData' parameter.
    static const char* PARAM_NAME_FILE_DATA;
 
+   /// The status of a partial file transfer
+   static const char* PARAM_NAME_FILE_STATUS;
+
+   /// The session id of a partial file transfer
+   static const char* PARAM_NAME_FILE_SESSION_NAME;
+
    /// constructor
    FileRpcMethod();
 
@@ -207,12 +213,27 @@ protected:
                         ExecutionStatus& status                   ///< XML-RPC method execution status
                         );
 private:
+   bool executePartialReplace(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status                   ///< XML-RPC method execution status
+                        );
 
    /// Create/Replace the file.
    bool replicateFile(UtlString& path_and_name,
                       UtlInt& file_permissions,
                       UtlString& file_content,  ///< base64 of file contents
                       UtlString& errorMsg       ///< set iff return == false
+                      );
+
+   /// Create/Replace the file.
+   bool replicateFilePartial(UtlString& path_and_name,
+                      UtlInt& file_permissions,
+                      UtlString& file_content,  ///< base64 of file contents
+                      UtlString& errorMsg,       ///< set iff return == false
+                      const UtlString& sessionId = UtlString(),
+                      bool final = true
                       );
 
 };

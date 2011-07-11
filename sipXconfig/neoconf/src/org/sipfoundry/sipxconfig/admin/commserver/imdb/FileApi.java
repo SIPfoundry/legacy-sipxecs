@@ -22,5 +22,6 @@ public interface FileApi {
      * @return true if the specified file was successfully replaced or created. Returns false
      *         otherwise.
      */
-    boolean replace(String hostname, String filename, int filePermissions, String content);
+    boolean replace(String hostname, String filename, int filePermissions, String content, String status,
+            String sessionId);
 }

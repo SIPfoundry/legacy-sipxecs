@@ -69,7 +69,8 @@ const char* ImdbRpcMethod::METHOD_NAME = "ImdbRpc.BASE";
 const char* ImdbRpcMethod::PARAM_NAME_CALLING_HOST = "callingHostname";
 const char* ImdbRpcMethod::PARAM_NAME_IMDB_TABLE = "IMDBTableName";
 const char* ImdbRpcMethod::PARAM_NAME_IMDB_TABLE_DATA = "IMDBTableRecords";
-
+const char* ImdbRpcMethod::PARAM_NAME_IMDB_STATUS = "status";
+const char* ImdbRpcMethod::PARAM_NAME_IMDB_SESSION_NAME = "sessionId";
 
 XmlRpcMethod* ImdbRpcMethod::get()
 {
@@ -311,12 +312,407 @@ void ImdbRpcReplaceTable::registerSelf(SipxRpc & sipxRpcImpl)
    registerMethod(METHOD_NAME, ImdbRpcReplaceTable::get, sipxRpcImpl);
 }
 
+void ImdbRpcReplaceTable::insertPartialRecord(const UtlString& tableName, UtlHashMap* pTableRecord, UtlSList* pTableVector)
+{
+  //
+  //  Do a really crappy copying of objects from the hashmap.
+  //  We do not have any choice.  UtlStuff is not a zero-copy implementation
+  //  STL containers anyone?
+  //
+
+  if ( tableName == CREDENTIAL )
+  {
+
+    UtlString* pUriKey = new UtlString("uri");
+    UtlString* pRealmKey = new UtlString("realm");
+    UtlString* pUserIdKey = new UtlString("userid");
+    UtlString* pPassTokenKey = new UtlString("passtoken");
+    UtlString* pPinTokenKey = new UtlString("pintoken");
+    UtlString* pAuthTypeKey = new UtlString("authtype");
+
+    UtlString* pUri = new UtlString();
+    UtlString* pRealm = new UtlString();
+    UtlString* pUserId = new UtlString();
+    UtlString* pPassToken = new UtlString();
+    UtlString* pPinToken = new UtlString();
+    UtlString* pAuthType = new UtlString();
+
+    *pUri = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pUriKey)));
+    *pRealm = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pRealmKey)));
+    *pUserId = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pUserIdKey)));
+    *pPassToken = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pPassTokenKey)));
+    *pPinToken = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pPinTokenKey)));
+    *pAuthType = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pAuthTypeKey)));
+
+    UtlHashMap* pClonedRecord = new UtlHashMap();
+    pClonedRecord->insertKeyAndValue(pUriKey, pUri);
+    pClonedRecord->insertKeyAndValue(pRealmKey, pRealm);
+    pClonedRecord->insertKeyAndValue(pUserIdKey, pUserId);
+    pClonedRecord->insertKeyAndValue(pPassTokenKey, pPassToken);
+    pClonedRecord->insertKeyAndValue(pPinTokenKey, pPinToken);
+    pClonedRecord->insertKeyAndValue(pAuthTypeKey, pAuthType);
+
+    pTableVector->append(pClonedRecord);
+  }
+  else if ( tableName == ALIAS )
+  {
+    UtlString* pIdentityKey = new UtlString("identity");
+    UtlString* pContactKey = new UtlString("contact");
+    UtlString* pRelationKey = new UtlString("relation");
+
+    UtlString* pIdentity = new UtlString();
+    UtlString* pContact = new UtlString();
+    UtlString* pRelation = new UtlString();
+
+    *pIdentity = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pIdentityKey)));
+    *pContact = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pContactKey)));
+    // For upward compatibility from the old alias format which has no
+    // <relation> value, if the relation value is not provided, use
+    // the null string:
+    UtlString* relationp = dynamic_cast <UtlString*> (pTableRecord->findValue(pRelationKey));
+    if (relationp)
+    {
+       *pRelation = *relationp;
+    }
+
+    UtlHashMap* pClonedRecord = new UtlHashMap();
+    pClonedRecord->insertKeyAndValue(pIdentityKey, pIdentity);
+    pClonedRecord->insertKeyAndValue(pContactKey, pContact);
+    pClonedRecord->insertKeyAndValue(pRelationKey, pRelation);
+    pTableVector->append(pClonedRecord);
+  }
+  else if ( tableName == PERMISSION )
+  {
+    UtlString* pIdentityKey = new UtlString("identity");
+    UtlString* pPermissionKey = new UtlString("permission");
+
+    UtlString* pIdentity = new UtlString();
+    UtlString* pPermission = new UtlString();
+
+    *pIdentity = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pIdentityKey)));
+    *pPermission = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pPermissionKey)));
+
+    UtlHashMap* pClonedRecord = new UtlHashMap();
+    pClonedRecord->insertKeyAndValue(pIdentityKey, pIdentity);
+    pClonedRecord->insertKeyAndValue(pPermissionKey, pPermission);
+    pTableVector->append(pClonedRecord);
+  }
+  else if ( tableName == EXTENSION )
+  {
+    UtlString* pUriKey = new UtlString("uri");
+    UtlString* pExtensionKey = new UtlString("extension");
+
+    UtlString* pUri = new UtlString();
+    UtlString* pExtension = new UtlString();
+
+    *pUri =  *(dynamic_cast <UtlString*> (pTableRecord->findValue(pUriKey))),
+    *pExtension = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pExtensionKey)));
+
+    UtlHashMap* pClonedRecord = new UtlHashMap();
+    pClonedRecord->insertKeyAndValue(pUriKey, pUri);
+    pClonedRecord->insertKeyAndValue(pExtensionKey, pExtension);
+    pTableVector->append(pClonedRecord);
+  }
+  else if ( tableName == USERLOCATION )
+  {
+    UtlString* pIdentityKey = new UtlString("identity");
+    UtlString* pLocationKey = new UtlString("location");
+
+    UtlString* pIdentity = new UtlString();
+    UtlString* pLocation = new UtlString();
+
+    *pIdentity = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pIdentityKey)));
+    *pLocation = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pLocationKey)));
+
+    UtlHashMap* pClonedRecord = new UtlHashMap();
+    pClonedRecord->insertKeyAndValue(pIdentityKey, pIdentity);
+    pClonedRecord->insertKeyAndValue(pLocationKey, pLocation);
+    pTableVector->append(pClonedRecord);
+  }
+  else if ( tableName == USERFORWARD )
+  {
+    UtlString* pIdentityKey = new UtlString("identity");
+    UtlString* pCfwdtimeKey = new UtlString("cfwdtime");
+
+    UtlString* pIdentity = new UtlString();
+    UtlString* pCfwdtime = new UtlString();
+
+    *pIdentity = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pIdentityKey)));
+    *pCfwdtime = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pCfwdtimeKey)));
+
+    UtlHashMap* pClonedRecord = new UtlHashMap();
+    pClonedRecord->insertKeyAndValue(pIdentityKey, pIdentity);
+    pClonedRecord->insertKeyAndValue(pCfwdtimeKey, pCfwdtime);
+    pTableVector->append(pClonedRecord);
+  }
+  else if ( tableName == USERSTATIC )
+  {
+    UtlString* pIdentityKey = new UtlString("identity");
+    UtlString* pEventKey = new UtlString("event");
+    UtlString* pContactKey = new UtlString("contact");
+    UtlString* pFromUriKey = new UtlString("from_uri");
+    UtlString* pToUriKey = new UtlString("to_uri");
+    UtlString* pCallidKey = new UtlString("callid");
+
+    UtlString* pIdentity = new UtlString();
+    UtlString* pEvent = new UtlString();
+    UtlString* pContact = new UtlString();
+    UtlString* pFromUri = new UtlString();
+    UtlString* pToUri = new UtlString();
+    UtlString* pCallid = new UtlString();
+
+    *pIdentity = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pIdentityKey)));
+    *pEvent = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pEventKey)));
+    *pContact = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pContactKey)));
+    *pFromUri = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pFromUriKey)));
+    *pToUri = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pToUriKey)));
+    *pCallid = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pCallidKey)));
+
+    UtlHashMap* pClonedRecord = new UtlHashMap();
+    pClonedRecord->insertKeyAndValue(pIdentityKey, pIdentity);
+    pClonedRecord->insertKeyAndValue(pEventKey, pEvent);
+    pClonedRecord->insertKeyAndValue(pContactKey, pContact);
+    pClonedRecord->insertKeyAndValue(pFromUriKey, pFromUri);
+    pClonedRecord->insertKeyAndValue(pToUriKey, pToUri);
+    pClonedRecord->insertKeyAndValue(pCallidKey, pCallid);
+    pTableVector->append(pClonedRecord);
+  }
+  else if ( tableName == CALLER_ALIAS )
+  {
+    UtlString* pIdentityKey = new UtlString("identity");
+    UtlString* pDomainKey = new UtlString("domain");
+    UtlString* pAliasKey = new UtlString("alias");
+
+    UtlString* pIdentity = new UtlString();
+    UtlString* pDomain = new UtlString();
+    UtlString* pAlias = new UtlString();
+
+    *pIdentity = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pIdentityKey)));
+    *pDomain = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pDomainKey)));
+    *pAlias = *(dynamic_cast <UtlString*> (pTableRecord->findValue(pAliasKey)));
+
+    UtlHashMap* pClonedRecord = new UtlHashMap();
+    pClonedRecord->insertKeyAndValue(pIdentityKey, pIdentity);
+    pClonedRecord->insertKeyAndValue(pDomainKey, pDomain);
+    pClonedRecord->insertKeyAndValue(pAliasKey, pAlias);
+    pTableVector->append(pClonedRecord);
+  }
+}
+
+bool ImdbRpcReplaceTable::executePartialReplace(const HttpRequestContext& requestContext,
+                                     UtlSList& params,
+                                     void* userData,
+                                     XmlRpcResponse& response,
+                                     ExecutionStatus& status)
+{
+  static UtlString credentialSessionId;
+  static UtlString aliasSessionId;
+  static UtlString permissionSessionId;
+  static UtlString extensionSessionId;
+  static UtlString userLocationSessionId;
+  static UtlString userForwardSessionId;
+  static UtlString userStaticSessionId;
+  static UtlString callerAliasSessionId;
+
+
+
+  if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
+  {
+    handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
+    return false;
+  }
+
+  if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
+  {
+    handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE, response, status);
+    return false;
+  }
+
+  if (!params.at(2) || !params.at(2)->isInstanceOf(UtlSList::TYPE))
+  {
+    handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA, response, status);
+    return false;
+  }
+
+  if (!params.at(3) || !params.at(3)->isInstanceOf(UtlString::TYPE))
+  {
+     handleMissingExecuteParam(name(), PARAM_NAME_IMDB_STATUS, response, status);
+     return false;
+  }
+
+
+  if (!params.at(4) || !params.at(4)->isInstanceOf(UtlString::TYPE))
+  {
+     handleMissingExecuteParam(name(), PARAM_NAME_IMDB_SESSION_NAME, response, status);
+     return false;;
+  }
+
+
+  UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
+  UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
+  UtlSList* pIMDBTableData = dynamic_cast<UtlSList*>(params.at(2));
+  UtlString* pIMDBStatus = dynamic_cast<UtlString*>(params.at(3));
+  UtlString* pIMDBSessionName = dynamic_cast<UtlString*>(params.at(4));
+
+
+
+  SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
+ if(!validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
+   return false;
+
+  ImdbResource* imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data());
+ if (!imdbResource || !imdbResource->isWriteable())
+ {
+   UtlString faultMsg;
+   faultMsg.append("IMDB table '");
+                     faultMsg.append(*pIMDBTable);
+                     faultMsg.append("' is not a resource OR is not writable (configAccess='read-only')");
+   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbRpc::replaceFile %s",
+                 faultMsg.data());
+   response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
+   return false;
+ }
+
+
+  OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "ImdbRpcReplaceTable::executePartialReplace queuing %d records for resource %s",
+                 (int)pIMDBTableData->entries(), pIMDBTable->data());
+
+
+  bool result = false;
+
+  bool isFinal = ((*pIMDBStatus) == "final");
+
+  UtlString* pActiveSessionName = 0;
+
+  if ( *pIMDBTable == CREDENTIAL )
+  {
+    pActiveSessionName = &credentialSessionId;
+  }
+  else if ( *pIMDBTable == ALIAS )
+  {
+    pActiveSessionName = &aliasSessionId;
+  }
+  else if ( *pIMDBTable == PERMISSION )
+  {
+    pActiveSessionName = &permissionSessionId;
+  }
+  else if ( *pIMDBTable == EXTENSION )
+  {
+    pActiveSessionName = &extensionSessionId;
+  }
+  else if ( *pIMDBTable == USERLOCATION )
+  {
+    pActiveSessionName = &userLocationSessionId;
+  }
+  else if ( *pIMDBTable == USERFORWARD )
+  {
+    pActiveSessionName = &userForwardSessionId;
+  }
+  else if ( *pIMDBTable == USERSTATIC )
+  {
+    pActiveSessionName = &userStaticSessionId;
+  }
+  else if ( *pIMDBTable == CALLER_ALIAS )
+  {
+    pActiveSessionName = &callerAliasSessionId;
+  }
+  else
+  {
+    UtlString faultMsg;
+    faultMsg.append("IMDB table '");
+                     faultMsg.append(*pIMDBTable);
+                     faultMsg.append("' is not a resource");
+    OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbRpc::replaceFile %s",
+                 faultMsg.data());
+    response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
+    return false;
+  }
+
+
+
+  if ((*pActiveSessionName) != (*pIMDBSessionName))
+  {
+    //
+    // This is a new session.  clear the content of the active vector
+    //
+    // we've validated the caller and the parm types.
+    // steps are to clear the existing table
+    // and then insert each record individually.
+    clearTable( *pIMDBTable );
+    //
+    // Remember the new session id
+    //
+    (*pActiveSessionName) = (*pIMDBSessionName);
+  }
+
+  UtlBool method_result(true);
+  OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "ImdbRpcReplaceTable::executePartialReplace persisting %d records for resource %s",
+                 (int)pIMDBTableData->entries(), pIMDBTable->data());
+
+   UtlSListIterator tableRecordItor(*pIMDBTableData);
+   UtlHashMap*      tableRecord;
+   UtlBoolean insert_result;
+   while ( (tableRecord = dynamic_cast <UtlHashMap*> (tableRecordItor())))
+   {
+      // records are committed as soon as they're added.
+      insert_result = insertTableRecord(*pIMDBTable, *tableRecord);
+      if (   ( FALSE == insert_result )
+          && ( true == method_result.getValue()))
+      {
+         method_result = false; // @TODO this isn't very satisfactory.
+      }
+   }
+
+  if (isFinal)
+  {
+
+     if ( method_result.getValue() == true )
+     {
+       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "ImdbRpcReplaceTable::executePartialReplace finalized persistence for resource %s",
+                  pIMDBTable->data());
+
+        storeTable( *pIMDBTable );
+        imdbResource->modified();
+     }
+     result = true;
+  }
+  else
+  {
+    //
+    // This is a partial recordset
+    //
+    result = true;
+  }
+
+   if (!result)
+   {
+     UtlString faultMsg;
+     faultMsg.append("IMDB table '");
+                       faultMsg.append(*pIMDBTable);
+                       faultMsg.append("' - Unknown error occured while writing to IMDB");
+     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbRpc::replaceFile %s",
+                   faultMsg.data());
+     response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
+   }
+   else
+   {
+     // Construct and set the response.
+     response.setResponse(&method_result);
+     status = XmlRpcMethod::OK;
+   }
+
+  return result;
+}
+
 bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
                                      UtlSList& params,
                                      void* userData,
                                      XmlRpcResponse& response,
                                      ExecutionStatus& status)
 {
+   if (5 == params.entries())
+     return executePartialReplace(requestContext, params, userData, response, status);
+
    bool result = false;
    status = XmlRpcMethod::FAILED;
    UtlString faultMsg;

@@ -32,12 +32,17 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     private ConfigFileActivationManager m_configFileManager;
 
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
-        List<SpeedDial> speeddials = findSpeedDialForUserId(userId);
+        User user = m_coreContext.loadUser(userId);
+        return getSpeedDialForUser(user, create);
+    }
+
+    @Override
+    public SpeedDial getSpeedDialForUser(User user, boolean create) {
+        List<SpeedDial> speeddials = findSpeedDialForUserId(user.getId());
         if (!speeddials.isEmpty()) {
             return speeddials.get(0);
         }
 
-        User user = m_coreContext.loadUser(userId);
         Set<Group> groups = user.getGroups();
         List<SpeedDialGroup> speeddialGroups = new ArrayList<SpeedDialGroup>();
         for (Group group : groups) {
@@ -59,7 +64,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
             return null;
         }
         SpeedDial speedDial = new SpeedDial();
-        speedDial.setUser(m_coreContext.loadUser(userId));
+        speedDial.setUser(user);
         return speedDial;
     }
 

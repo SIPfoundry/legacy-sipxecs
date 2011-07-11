@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <gateway gateway_id="1002" bean_id="gwAcme" model_id="acmeGatewayStandard" name="test gateway 1" address="192.168.0.119"
+    default_caller_alias="545454" anonymous="false" ignore_user_info="false" transform_user_extension="true"
+    add_prefix="4" keep_digits="1" address_port="0" address_transport="none" enable_caller_id="false" shared="true"
+    enabled="true"/>
+
+</dataset>

@@ -57,6 +57,11 @@ public class RowInserterTest extends TestCase {
         protected void insertRow(DummyType input) {
             m_rows++;
         }
+
+        @Override
+        public void afterInsert() {
+            // TODO Auto-generated method stub
+        }
     }
 
     private static class DummyType {

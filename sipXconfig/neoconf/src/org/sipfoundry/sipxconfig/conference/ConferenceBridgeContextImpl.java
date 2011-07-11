@@ -219,11 +219,12 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     }
 
     public Collection getAliasMappings() {
+        final String domain = m_coreContext.getDomainName();
         List conferences = getHibernateTemplate().loadAll(Conference.class);
         final ArrayList list = new ArrayList();
         for (Iterator i = conferences.iterator(); i.hasNext();) {
             Conference conference = (Conference) i.next();
-            list.addAll(conference.generateAliases(m_coreContext.getDomainName()));
+            list.addAll(conference.generateAliases(domain));
         }
         return list;
     }

@@ -49,6 +49,8 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     private ModelSource<SipxServiceBundle> m_bundleModelSource;
 
+    private Collection<SipxService> m_servicesFromDb;
+
     public SipxService getServiceByBeanId(String beanId) {
         Map<String, SipxService> beanId2Service = buildServiceDefinitionsMap();
         SipxService service = beanId2Service.get(beanId);
@@ -101,8 +103,16 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         return restartable;
     }
 
+    // used for tests
+    public void resetServicesFromDb() {
+        m_servicesFromDb = null;
+    }
+
     Collection<SipxService> getServicesFromDb() {
-        return getHibernateTemplate().loadAll(SipxService.class);
+        if (m_servicesFromDb == null) {
+            m_servicesFromDb = getHibernateTemplate().loadAll(SipxService.class);
+        }
+        return m_servicesFromDb;
     }
 
     public boolean isServiceInstalled(Integer locationId, String serviceBeanId) {
@@ -164,6 +174,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     public void storeService(SipxService service) {
+        m_servicesFromDb = null;
         saveBeanWithSettings(service);
         service.onConfigChange();
     }

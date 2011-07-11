@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <value_storage value_storage_id="1001"/>
+    <value_storage value_storage_id="1002"/>
+    <value_storage value_storage_id="1003"/>
+    <value_storage value_storage_id="1004"/>
+    <value_storage value_storage_id="1005"/>
+    <users first_name="" last_name="" user_name="user_a" pintoken="x" user_id="1001" value_storage_id="1001" user_type="C"/>
+    <users first_name="" last_name="" user_name="user_b" pintoken="x" user_id="1002" value_storage_id="1002" user_type="C"/>
+    <users first_name="" last_name="" user_name="user_c" pintoken="x" user_id="1003" value_storage_id="1003" user_type="C"/>
+    <users first_name="" last_name="" user_name="user_name_0" pintoken="x" user_id="1004" value_storage_id="1004" user_type="C"/>
+    <users first_name="" last_name="" user_name="user_name_1" pintoken="x" user_id="1005" value_storage_id="1005" user_type="C"/>
+    <setting_value value_storage_id="1004" value="1" path="im/im-account" />
+    <setting_value value_storage_id="1005" value="1" path="im/im-account" />
+    <speeddial speeddial_id="1" user_id="1001" />
+    <speeddial speeddial_id="2" user_id="1001" />
+    <speeddial speeddial_id="3" user_id="1001" />
+    <speeddial speeddial_id="4" user_id="1002" />
+    <speeddial speeddial_id="5" user_id="1002" />
+    <speeddial speeddial_id="6" user_id="1002" />
+    <speeddial speeddial_id="7" user_id="1003" />
+    <speeddial_button speeddial_id="1" label="alpha" number="100" blf="false" position="1" />
+    <speeddial_button speeddial_id="2" label="beta" number="102" blf="true" position="2" />
+    <speeddial_button speeddial_id="3" label="gamma" number="104@sipfoundry.org" blf="true" position="3" />
+    <speeddial_button speeddial_id="4" label="alpha" number="100" blf="false" position="1" />
+    <speeddial_button speeddial_id="5" label="beta" number="102" blf="false" position="2" />
+    <speeddial_button speeddial_id="6" label="gamma" number="104" blf="false" position="3" />
+    <speeddial_button speeddial_id="7" label="delta" number="100" blf="true" position="1" />
+
+</dataset>

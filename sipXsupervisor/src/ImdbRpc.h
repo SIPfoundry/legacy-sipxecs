@@ -61,6 +61,12 @@ protected:
    /// The name of the XML-RPC 'IMDBTableData' parameter.
    static const char* PARAM_NAME_IMDB_TABLE_DATA;
 
+   /// The status of a partial imdb transfer
+   static const char* PARAM_NAME_IMDB_STATUS;
+
+   /// The session id of a partial imdb transfer
+   static const char* PARAM_NAME_IMDB_SESSION_NAME;
+
    /// constructor
    ImdbRpcMethod();
 
@@ -211,6 +217,15 @@ private:
    /// Clear out all records from an IMDB Table.
    void clearTable( UtlString& tableName);
 
+   /// Execute a partial replacement routine
+   bool executePartialReplace(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status                   ///< XML-RPC method execution status
+                        );
+
+   void insertPartialRecord(const UtlString& tableName, UtlHashMap* pTableRecord, UtlSList* pTableVector);
 };
 
 
