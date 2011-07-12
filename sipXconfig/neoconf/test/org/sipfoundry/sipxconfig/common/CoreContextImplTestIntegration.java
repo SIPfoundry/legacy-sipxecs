@@ -88,8 +88,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         users = m_coreContext.loadUsersByPage(10, 250);
         assertEquals(0, users.size());
 
-        // strangely, 0 is ignored if there are still records to return
-        users = m_coreContext.loadUsersByPage(9, 0);
+        users = m_coreContext.loadUsersByPage(9, 1);
         assertEquals(1, users.size());
     }
 
