@@ -21,24 +21,79 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class KarelIP11xPhoneDefaults {
     private final DeviceDefaults m_defaults;
+    private String m_currentLanguage;
 
-    KarelIP11xPhoneDefaults(DeviceDefaults defaults) {
+    // KarelIP11xPhoneDefaults(DeviceDefaults defaults) {
+    // m_defaults = defaults;
+    // }
+
+    KarelIP11xPhoneDefaults(DeviceDefaults defaults, String currentLanguage) {
         m_defaults = defaults;
+        m_currentLanguage = currentLanguage;
+    }
+
+    @SettingEntry(path = "Lang/WebLanguage")
+    public String getWebLanguage() {
+        return getCurrentLanguage();
+    }
+
+    @SettingEntry(path = "Lang/ActiveWebLanguage")
+    public String getActiveWebLanguage() {
+        return getCurrentLanguage();
+    }
+
+    @SettingEntry(path = "Message/VoiceNumber0")
+    public String getVMLine1() {
+        return m_defaults.getVoiceMail();
+    }
+
+    @SettingEntry(path = "Message/VoiceNumber1")
+    public String getVMLine2() {
+        return m_defaults.getVoiceMail();
+    }
+
+    @SettingEntry(path = "Message/VoiceNumber2")
+    public String getVMLine3() {
+        return m_defaults.getVoiceMail();
+    }
+
+    @SettingEntry(path = "Message/VoiceNumber3")
+    public String getVMLine4() {
+        return m_defaults.getVoiceMail();
+    }
+
+    @SettingEntry(path = "Message/VoiceNumber4")
+    public String getVMLine5() {
+        return m_defaults.getVoiceMail();
+    }
+
+    @SettingEntry(path = "Message/VoiceNumber5")
+    public String getVMLine6() {
+        return m_defaults.getVoiceMail();
     }
 
     @SettingEntry(path = "Time/TimeServer1")
     public String getNtpServer() {
-        return m_defaults.getNtpServer();
+        return m_defaults.getFullyQualifiedDomainName();
     }
-/*
-    @SettingEntry(path = "Time/SummerTime")
-    public boolean isDstEnabled() {
-        return getZone().getUseDaylight();
-    }
-*/
+
     @SettingEntry(path = "Time/TimeZone")
-    public int getTimeZone() {
-        return getTimezoneFromRawOffsetSeconds(getZone().getOffsetInSeconds());
+    public String getTimeZone() {
+        int timeZone;
+        timeZone = getTimezoneFromRawOffsetSeconds(getZone().getOffsetInSeconds());
+        if (timeZone > 0) {
+            return "+" + Integer.toString(timeZone);
+        } else {
+            return Integer.toString(timeZone);
+        }
+    }
+
+    private String getCurrentLanguage() {
+        String webLanguage = "English";
+        if (m_currentLanguage != null && m_currentLanguage.compareTo("tr") == 0) {
+            webLanguage = "Turkish";
+        }
+        return webLanguage;
     }
 
     private DeviceTimeZone getZone() {
