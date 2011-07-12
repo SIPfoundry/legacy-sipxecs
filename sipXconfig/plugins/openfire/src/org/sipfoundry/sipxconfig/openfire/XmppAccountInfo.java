@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.openfire;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -116,22 +115,13 @@ public class XmppAccountInfo extends XmlFile {
                         callInfoEnabled = true;
                     }
                     final User user = new User();
-                    user.setUserName(rs.getString("user_name"));
-                    user.setFirstName(rs.getString("first_name"));
-                    user.setLastName(rs.getString("last_name"));
                     AddressBookEntry abe = new AddressBookEntry();
-                    abe.setImId(rs.getString("im_id"));
+                    populateUser(rs, user, abe);
                     abe.setImPassword(rs.getString("im_password"));
                     abe.setEmailAddress(rs.getString("email_address"));
                     abe.setImDisplayName(rs.getString("im_display_name"));
                     user.setAddressBookEntry(abe);
-                    m_jdbcTemplate.query("select alias from user_alias where user_id="
-                            + rs.getString("user_id") + ";", new RowCallbackHandler() {
-                                @Override
-                                public void processRow(ResultSet rs) throws SQLException {
-                                    user.addAlias(rs.getString("alias"));
-                                }
-                            });
+                    extractAliases(rs, user);
                     createUserAccount(user, onThePhone, sipPresenceEnabled, callInfoEnabled, accountInfos);
                 }
             }
@@ -242,21 +232,30 @@ public class XmppAccountInfo extends XmlFile {
             return;
         }
 
-        Element xmmpGroup = accountInfos.addElement("group");
+        final Element xmmpGroup = accountInfos.addElement("group");
         xmmpGroup.addElement("group-name").setText(group.getName());
         String groupDescription = group.getDescription();
         if (groupDescription != null) {
             xmmpGroup.addElement(DESCRIPTION).setText(groupDescription);
         }
 
-        Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
-        for (User user : groupMembers) {
-            ImAccount imAccount = new ImAccount(user);
-            if (imAccount.isEnabled()) {
-                Element userElement = xmmpGroup.addElement(USER);
-                userElement.addElement(USER_NAME).setText(imAccount.getImId());
-            }
-        }
+        m_jdbcTemplate.query("SELECT u.user_id, u.user_name, u.first_name, u.last_name, abe.im_id from users u "
+                + "inner join user_group g on u.user_id = g.user_id "
+                + "left join address_book_entry abe on abe.address_book_entry_id = u.address_book_entry_id "
+                + "WHERE group_id=" + group.getId() + " AND u.user_type='C' "
+                + "ORDER BY u.user_id;", new RowCallbackHandler() {
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        final User user = new User();
+                        AddressBookEntry abe = new AddressBookEntry();
+                        populateUser(rs, user, abe);
+                        user.setAddressBookEntry(abe);
+                        extractAliases(rs, user);
+                        ImAccount imAccount = new ImAccount(user);
+                        Element userElement = xmmpGroup.addElement(USER);
+                        userElement.addElement(USER_NAME).setText(imAccount.getImId());
+                    }
+                });
 
         Boolean addPersonalAssistant = (Boolean) group.getSettingTypedValue(new BooleanSetting(),
                 "im/add-pa-to-group");
@@ -267,6 +266,23 @@ public class XmppAccountInfo extends XmlFile {
             String paUserName = imbotService.getPersonalAssistantImId();
             userElement.addElement(USER_NAME).setText(paUserName);
         }
+    }
+
+    private void extractAliases(ResultSet rs, final User user) throws SQLException {
+        m_jdbcTemplate.query("select alias from user_alias where user_id="
+                + rs.getString("user_id") + ";", new RowCallbackHandler() {
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        user.addAlias(rs.getString("alias"));
+                    }
+                });
+    }
+
+    private void populateUser(ResultSet rs, User user, AddressBookEntry abe) throws SQLException {
+        user.setUserName(rs.getString("user_name"));
+        user.setFirstName(rs.getString("first_name"));
+        user.setLastName(rs.getString("last_name"));
+        abe.setImId(rs.getString("im_id"));
     }
 
     public void setConfigJdbcTemplate(JdbcTemplate template) {

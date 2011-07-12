@@ -145,6 +145,7 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
 
     Group getGroupById(Integer groupId);
 
+    @Deprecated
     Collection<User> getGroupMembers(Group group);
 
     Collection<String> getGroupMembersNames(Group group);
