@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.tunnel;
  */
 public class RemoteOutgoingTunnel extends AbstractTunnel {
     private int m_portOnRemoteMachine;
+    private String m_remoteMachineAddress;
 
     public RemoteOutgoingTunnel(String name) {
         super(name);
@@ -27,5 +28,13 @@ public class RemoteOutgoingTunnel extends AbstractTunnel {
 
     public void setPortOnRemoteMachine(int portOnRemoteMachine) {
         m_portOnRemoteMachine = portOnRemoteMachine;
+    }
+
+    public String getRemoteMachineAddress() {
+        return m_remoteMachineAddress;
+    }
+
+    public void setRemoteMachineAddress(String remoteMachineAddress) {
+        m_remoteMachineAddress = remoteMachineAddress;
     }
 }

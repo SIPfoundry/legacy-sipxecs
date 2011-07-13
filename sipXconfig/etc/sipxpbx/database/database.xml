@@ -83,6 +83,7 @@
   <property name="migration.log" value="${log.dir}/sipxconfig-2.8-db-migration.log" />
   <property name="tmp.dir" value="${basedir}" />
   <property name="sipxconfig.hostname" value="@sipxconfig.hostname@" />
+  <property name="message.oldversion" value="Migration from this version of the database is no longer supported.  You need to install a previous version first, then this version"/>
 
   <target name="patches">
     <!-- ANT BUG: sql task has issues when output=absolute file path -->
@@ -94,10 +95,11 @@
     <delete file="${tmp.dir}/patches.properties" />
   </target>
 
-  <!-- sets flag if any initialization needs to be done -->
+  <!--  
+   - sets flag if any initialization needs to be done
+   -->
   <target name="tasks">
-    <sipx-sql print="yes" output="${tmp.dir}/tasks.properties"
-      showheaders="no">
+    <sipx-sql print="yes" output="${tmp.dir}/tasks.properties" showheaders="no">
       select 'initialize=true' from initialization_task having count(*)
       > 0;
     </sipx-sql>
@@ -168,19 +170,11 @@
 
   <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version1" description="upgrade from version 0" unless="version2">
-    <antcall target="conference_name_uniqueness" />
-    <antcall target="upload" />
-    <antcall target="grandstreamV2" />
-    <antcall target="upload_deployed" />
-    <antcall target="attendant_schedule" />
-    <sipx-version version="2" />
+    <fail message="${message.oldversion}"/>
   </target>
 
   <target name="version2" description="upgrade from version 1" unless="version3">
-    <antcall target="attendant_settings" />
-    <antcall target="group-names-no-spaces" />
-    <antcall target="attendant_defaults" />
-    <sipx-version version="3" />
+    <fail message="${message.oldversion}"/>
   </target>
 
   <target name="version3" description="upgrade from version 2" unless="version4">
@@ -538,51 +532,6 @@
 
   <target name="caller-alias-2" unless="caller-alias-2">
     <db-patch patch="caller-alias-2" />
-  </target>
-
-  <target name="attendant_defaults" unless="attendant_defaults">
-    <!-- remove spaces to enable things like auto-completion -->
-    <sipx-sql>
-      insert into initialization_task (name) values
-      ('attendant_defaults');
-    </sipx-sql>
-    <mark-patch-applied patch="attendant_defaults" />
-  </target>
-
-  <target name="group-names-no-spaces" unless="group-names-no-spaces">
-    <!-- remove spaces to enable things like auto-completion -->
-    <sipx-sql>
-      update group_storage set name = replace(name, ' ', '-');
-    </sipx-sql>
-    <mark-patch-applied patch="group-names-no-spaces" />
-  </target>
-
-  <target name="attendant_settings" unless="attendant_settings">
-    <db-patch patch="attendant_settings" />
-  </target>
-
-  <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
-    <sipx-sql>
-      alter table meetme_conference add constraint conference_name_key
-      unique(name);
-    </sipx-sql>
-    <mark-patch-applied patch="conference_name_uniqueness" />
-  </target>
-
-  <target name="upload" unless="upload">
-    <db-patch patch="upload" />
-  </target>
-
-  <target name="grandstreamV2" unless="grandstreamV2">
-    <db-patch patch="grandstreamV2" />
-  </target>
-
-  <target name="upload_deployed" unless="upload_deployed">
-    <db-patch patch="upload_deployed" />
-  </target>
-
-  <target name="attendant_schedule" unless="attendant_schedule">
-    <db-patch patch="attendant_schedule" />
   </target>
 
   <target name="schema" unless="schema">

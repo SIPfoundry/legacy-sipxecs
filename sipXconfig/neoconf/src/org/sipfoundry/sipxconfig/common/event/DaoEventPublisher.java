@@ -16,7 +16,7 @@ public interface DaoEventPublisher {
     public void publishDelete(Object entity);
 
     /**
-     * Call this to notify listeners that entity is about to be saved or updated
+     * Call this to notify listeners that entity was saved or updated
      */
     public void publishSave(Object entity);
 

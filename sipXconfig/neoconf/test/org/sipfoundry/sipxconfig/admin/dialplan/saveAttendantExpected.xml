@@ -11,7 +11,6 @@
     value_storage_id="[null]"
     group_id="[null]"
     description="aa description"
-    extension="[null]"
     prompt="thankyou_goodbye.wav"/>
     
     <attendant_menu_item
