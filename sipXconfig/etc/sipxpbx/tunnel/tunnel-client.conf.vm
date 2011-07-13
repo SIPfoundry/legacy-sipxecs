@@ -9,23 +9,8 @@ debug = 5
 output = @SIPX_LOGDIR@/stunnel-client.log
 pid = @SIPX_RUNDIR@/stunnel-client.pid
 
-#foreach($tp in $tunnelProviders)
-#foreach($t in $tp.clientSideTunnels)
-[$t.name]
-accept = $t.incomingPort
-connect = ${thisLocation.fqdn}:${t.remotePort}
-#end
-#end
-
-
-
-[mongod-primary]
-accept = 27019
-connect = ${primary.fqdn}:27018
-#foreach($location in $locations)
-
-[mongod-${velocityCount}]
-#set($lport = $velocityCount + 27019) 
-accept = ${lport}
-connect = ${location.fqdn}:27018
+#foreach($t in ${tunnels})
+[${t.Name}]
+accept = ${t.LocalhostPort}
+connect = ${t.RemoteMachineAddress}:${t.PortOnRemoteMachine}
 #end

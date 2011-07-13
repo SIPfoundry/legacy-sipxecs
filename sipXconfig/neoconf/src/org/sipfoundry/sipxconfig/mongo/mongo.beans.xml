@@ -12,5 +12,8 @@
       </bean>
     </property>
   </bean>
+  
+  <bean id="mongoTunnnel" class="org.sipfoundry.sipxconfig.mongo.MongoTunnelProvider">  
+  </bean>
 
 </beans>

@@ -64,6 +64,7 @@ public class Location extends BeanWithId {
     private Collection<LocationSpecificService> m_services;
     private DaoEventPublisher m_daoEventPublisher;
     private Branch m_branch;
+    private boolean m_setFqdnOrIpChangedOnSave;
 
     public String getName() {
         return m_name;
@@ -227,6 +228,21 @@ public class Location extends BeanWithId {
         }
 
         return serviceForBeanId;
+    }
+
+    /**
+     * Package protected as only LocationsManagerImpl should determine this.
+     */
+    void fqdnOrIpHasChangedOnSave() {
+        m_setFqdnOrIpChangedOnSave = true;
+    }
+
+    /**
+     * DAOEventListeners might only care is an IP address or FQDN changed.  If so, allow them to check the status
+     * of that flag.
+     */
+    public boolean hasFqdnOrIpChangedOnSave() {
+        return m_setFqdnOrIpChangedOnSave;
     }
 
     public void removeService(LocationSpecificService service) {

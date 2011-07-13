@@ -23,7 +23,10 @@ JAR_SRCS = $(call JavaDep,$(srcdir),\
 	org.restlet \
 	junit \
 	spring-mock \
-	$(foreach M,$(SPRING),org.springframework.$M))
+	$(foreach M,$(SPRING),org.springframework.$(M)))
+
+foo :
+	echo $(SPRING)
 
 $(JAR_LIBSRC)/junit-%.jar.src :
 	wget https://github.com/downloads/KentBeck/junit/junit-$*-src.jar
