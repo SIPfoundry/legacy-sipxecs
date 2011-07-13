@@ -94,7 +94,7 @@
   </bean>
 
   <bean id="userGroupSettingsListener" class="org.sipfoundry.sipxconfig.common.event.PersonalAttendantSettingListener">
-    <property name="coreContext" ref="coreContext"/>
     <property name="mailboxManager" ref="mailboxManager"/>
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 </beans>

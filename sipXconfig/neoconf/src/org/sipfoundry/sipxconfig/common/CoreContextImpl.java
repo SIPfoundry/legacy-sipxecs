@@ -684,35 +684,11 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     public void onDelete(Object entity) {
         if (entity instanceof Group) {
             Group group = (Group) entity;
-            getHibernateTemplate().update(group);
             if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
-                Collection<User> users = getGroupMembers(group);
-                for (User user : users) {
-                    Object[] ids = new Object[] {
-                        group.getId()
-                    };
-                    DataCollectionUtil.removeByPrimaryKey(user.getGroups(), ids);
-                    Set supervisors = user.getSupervisorForGroups();
-                    if (supervisors != null) {
-                        DataCollectionUtil.removeByPrimaryKey(supervisors, ids);
-                    }
-
-                    saveUser(user);
-                }
-
-                Collection<User> groupSupervisors = getGroupSupervisors(group);
-                for (User user : groupSupervisors) {
-                    Set supervisors = user.getSupervisorForGroups();
-                    if (supervisors != null) {
-                        Object[] ids = new Object[] {
-                            group.getId()
-                        };
-                        DataCollectionUtil.removeByPrimaryKey(supervisors, ids);
-                    }
-
-                    saveUser(user);
-                }
-                // TODO
+                List<String> sqlUpdates= new ArrayList<String>();
+                sqlUpdates.add("DELETE FROM user_group where group_id=" + group.getId() + ";");
+                sqlUpdates.add("DELETE FROM supervisor where group_id=" + group.getId() + ";");
+                m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
             }
         }
     }
