@@ -16,6 +16,9 @@ import org.springframework.context.ApplicationEvent;
  * need initialization in the database.  Initialization tasks are considered
  * completed on successfully sending the event, no need to mark the task complete.
  *
+ * NOTE: DO NOT Initialization Tasks for migration anymore.  Please write PLSQL code. See discussion
+ * on mailing list, but essentially they are the best solution for long term success.
+ *
  * Example:
  * <code>
  * public class MySpringLoadedClass implements ApplicationListener {

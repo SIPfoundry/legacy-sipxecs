@@ -240,29 +240,6 @@
     <property name="target" ref="autoAttendantManagerImpl" />
   </bean>
 
-  <bean id="attendantMigrationContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContextImpl">
-    <property name="dialPlanContext" ref="dialPlanContext" />
-    <property name="autoAttendantManager" ref="autoAttendantManager" />
-    <property name="sessionFactory" ref="sessionFactory" />
-  </bean>
-
-  <bean id="attendantMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContext" />
-    <property name="target">
-      <ref local="attendantMigrationContextImpl" />
-    </property>
-  </bean>
-
-  <bean id="attendantMigrationTrigger" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationTrigger">
-    <property name="attendantMigrationContext" ref="attendantMigrationContext" />
-    <property name="taskNames">
-      <list>
-        <value>dial_plan_migrate_attendant_rules</value>
-        <value>attendant_defaults</value>
-      </list>
-    </property>
-  </bean>
-
   <bean id="createAttendantTask" class="org.sipfoundry.sipxconfig.admin.dialplan.CreateAttendantTask">
     <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="dialPlanContext" ref="dialPlanContext" />

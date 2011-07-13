@@ -9,8 +9,11 @@ create table version_history(
 /**
  * CHANGE VERSION HERE ----------------------------> X <------------------
  *
+ * DEPRECATED
  * For sipXconfig v3.0, the database version is 1.
  * For sipXconfig v3.2, the database version is 2.
+ * 
+ * SUPPORTED
  * For sipXconfig v3.3-r6543, the database version is 3.
  * For sipXconfig v3.5-r7552, the database version is 4.
  * For sipXconfig v3.7-r7934, the database version is 5.
@@ -88,7 +91,6 @@ create table dialing_rule (
 create table auto_attendant (
    auto_attendant_id int4 not null,
    name varchar(255) unique,
-   extension varchar(255),
    prompt varchar(255),
    system_id varchar(255),
    description varchar(255),
