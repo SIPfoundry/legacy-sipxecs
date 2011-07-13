@@ -180,6 +180,10 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         if (!TapestryUtils.isValid(this)) {
             return;
         }
+        saveValid();
+    }
+
+    public void saveValid() {
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
         // set sbc device only for SipTrunk

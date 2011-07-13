@@ -20,30 +20,32 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.TestHelper;
 
 public class TunnelClientConfigurationFileTest extends TunnelConfigurationTestBase {
-    
+
     @Test
-	public void config() throws IOException {
-		TunnelClientConfigurationFile f = new TunnelClientConfigurationFile();
-		f.setTemplate("tunnel/tunnel-client.conf.vm");
-		f.setVelocityEngine(TestHelper.getVelocityEngine());
-        
+    public void config() throws IOException {
+        TunnelClientConfigurationFile f = new TunnelClientConfigurationFile();
+        f.setTemplate("tunnel/tunnel-client.conf.vm");
+        f.setVelocityEngine(TestHelper.getVelocityEngine());
+
         RemoteOutgoingTunnel t1 = new RemoteOutgoingTunnel("t1");
         t1.setLocalhostPort(1234);
         t1.setRemoteMachineAddress("t1.example.org");
         t1.setPortOnRemoteMachine(4321);
-                
+
         RemoteOutgoingTunnel t2 = new RemoteOutgoingTunnel("t2");
         t2.setLocalhostPort(2345);
         t2.setRemoteMachineAddress("t2.example.org");
         t2.setPortOnRemoteMachine(5432);
-        
-        Collection<RemoteOutgoingTunnel> tunnels = Arrays.asList(new RemoteOutgoingTunnel[] {t1, t2});
+
+        Collection<RemoteOutgoingTunnel> tunnels = Arrays.asList(new RemoteOutgoingTunnel[] {
+            t1, t2
+        });
         TunnelProvider p = createMock(TunnelProvider.class);
         p.getClientSideTunnels(eq(Collections.singletonList(m_remoteLocation)), same(m_thisLocation));
-        expectLastCall().andReturn(tunnels).once();                        
+        expectLastCall().andReturn(tunnels).once();
         replay(p);
 
-        m_tunnelManager.setProviders(Collections.singletonList(p));        
+        m_tunnelManager.setProviders(Collections.singletonList(p));
 
         f.setTunnelManager(m_tunnelManager);
         f.setLocationsManager(m_locationManager);
@@ -52,8 +54,8 @@ public class TunnelClientConfigurationFileTest extends TunnelConfigurationTestBa
         f.write(actual, m_thisLocation);
 
         verify(p);
-		
+
         InputStream expected = getClass().getResourceAsStream("stunnel-client.conf");
-        assertEquals(IOUtils.toString(expected), actual.toString());		
-	}
+        assertEquals(IOUtils.toString(expected), actual.toString());
+    }
 }

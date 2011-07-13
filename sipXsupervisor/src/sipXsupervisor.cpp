@@ -67,17 +67,18 @@ void cleanup()
     }
     rc = write(fdin[1], "\n", 1);
 
+    
+    // Shut down all processes
+    SipxProcessManager::getInstance()->shutdown();
+
+    cAlarmServer::getInstance()->cleanup();
+
     // Stop handling xmlrpc requests
     if ( pSipxRpcImpl )
     {
         delete pSipxRpcImpl;
         pSipxRpcImpl = NULL;
     }
-
-    // Shut down all processes
-    SipxProcessManager::getInstance()->shutdown();
-
-    cAlarmServer::getInstance()->cleanup();
 
     Os::Logger::instance().log(FAC_SUPERVISOR,PRI_ALERT,"Execution Completed.");
 

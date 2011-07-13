@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.permission;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +41,8 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         m_context = (DialPlanContext) app.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
         m_resetDialPlanTask = (ResetDialPlanTask) app.getBean("resetDialPlanTask");
         TestHelper.cleanInsert("ClearDb.xml");
+        m_manager.setCustomPermissions(null);
+        m_manager.setPermissions(null);
     }
 
     public void testGetCallPermission() throws Exception {
@@ -123,6 +124,8 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         }
 
         TestHelper.insertFlat("permission/permission.db.xml");
+        // set null here to simulate save
+        m_manager.setCustomPermissions(null);
         permissions = m_manager.getPermissions(Permission.Type.CALL);
         assertEquals(size + 2, permissions.size());
 
@@ -148,6 +151,8 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         Collection<Setting> settingsBefore = setting.getSetting(Permission.CALL_PERMISSION_PATH).getValues();
 
         TestHelper.insertFlat("permission/permission.db.xml");
+        // set null here to simulate save
+        m_manager.setCustomPermissions(null);
         setting = m_manager.getPermissionModel();
         Collection<Setting> settingsAfter = setting.getSetting(Permission.CALL_PERMISSION_PATH).getValues();
         assertEquals(settingsBefore.size() + 2, settingsAfter.size());
@@ -265,7 +270,9 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         }
 
         TestHelper.insertFlat("permission/permission.db.xml");
-
+        // set null here to simulate save
+        m_manager.setCustomPermissions(null);
+        m_manager.setPermissions(null);
         permissions = m_manager.getPermissions();
         assertEquals(size + 2, permissions.size());
 

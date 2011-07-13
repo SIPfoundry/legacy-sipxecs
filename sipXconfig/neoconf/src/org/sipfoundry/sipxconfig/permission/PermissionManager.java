@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.permission;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
@@ -64,4 +65,15 @@ public interface PermissionManager extends DataObjectSource<Permission> {
 
     //used only for tests
     void setModelFilesContext(ModelFilesContext modelFilesContext);
+
+    /**
+     * For use in tests only
+     * @param customPermissions
+     */
+    public void setCustomPermissions(Collection<Permission> customPermissions);
+    /**
+     * For use in tests only
+     * @param customPermissions
+     */
+    public void setPermissions(Set<Permission> permissions);
 }

@@ -28,7 +28,6 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
         Location primaryLocation = TestHelper.createDefaultLocation();
         locationsManager.getPrimaryLocation();
@@ -42,6 +41,7 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testGetEmptyDomain() throws Exception {
         try {
+            m_out.setNullDomain();
             m_out.getDomain();
             fail();
         } catch (DomainNotInitializedException expected) {
@@ -56,6 +56,7 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testSaveNewDomain() throws Exception {
+        m_out.setNullDomain();
         Domain d = new Domain();
         d.setName("robin");
         d.setSipRealm("realm");

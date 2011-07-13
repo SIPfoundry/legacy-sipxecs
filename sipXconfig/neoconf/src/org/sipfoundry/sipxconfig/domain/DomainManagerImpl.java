@@ -38,13 +38,10 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
     private static final String SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
-
     private String m_domainConfigFilename;
-
     private LocationsManager m_locationsManager;
-
+    private Domain m_domain;
     protected abstract DomainConfiguration createDomainConfiguration();
-
     protected abstract ServiceConfigurator getServiceConfigurator();
 
     /**
@@ -80,6 +77,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         // As domain change is critical change, force to replicate
         // all affected services' configurations.
         getServiceConfigurator().replicateAllServiceConfig();
+        m_domain = null;
     }
 
     public void replicateDomainConfig(SipxReplicationContext replicationContext, Location location) {
@@ -95,8 +93,11 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     }
 
     protected Domain getExistingDomain() {
-        Collection<Domain> domains = getHibernateTemplate().findByNamedQuery("domain");
-        return (Domain) DataAccessUtils.singleResult(domains);
+        if (m_domain == null) {
+            Collection<Domain> domains = getHibernateTemplate().findByNamedQuery("domain");
+            m_domain = (Domain) DataAccessUtils.singleResult(domains);
+        }
+        return m_domain;
     }
 
     public Localization getExistingLocalization() {
@@ -184,5 +185,17 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         }
 
         return aliases;
+    }
+
+    /**
+     * For use in tests only.
+     */
+    public void setNullDomain() {
+        Collection<Domain> domains = getHibernateTemplate().loadAll(Domain.class);
+        if (!domains.isEmpty()) {
+            getHibernateTemplate().deleteAll(domains);
+            getHibernateTemplate().flush();
+        }
+        m_domain = null;
     }
 }

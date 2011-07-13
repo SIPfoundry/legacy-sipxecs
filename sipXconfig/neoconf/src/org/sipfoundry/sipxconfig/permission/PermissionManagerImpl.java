@@ -34,6 +34,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
 
     private SipxServiceManager m_sipxServiceManager;
     private Set<Permission> m_permissions;
+    private Collection<Permission> m_customPermissions;
 
     public void saveCallPermission(Permission permission) {
         if (isLabelInUse(permission)) {
@@ -41,6 +42,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         }
         getHibernateTemplate().saveOrUpdate(permission);
         m_permissions = null;
+        m_customPermissions = null;
     }
 
     public void deleteCallPermission(Permission permission) {
@@ -197,7 +199,10 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
      */
     private Collection<Permission> loadCustomPermissions() {
         if (getSessionFactory() != null) {
-            return getHibernateTemplate().loadAll(Permission.class);
+            if (m_customPermissions == null) {
+                m_customPermissions = getHibernateTemplate().loadAll(Permission.class);
+            }
+            return m_customPermissions;
         }
         return Collections.emptyList();
     }
@@ -274,4 +279,18 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         template.deleteAll(permissions);
     }
 
+    /**
+     * For use in tests only
+     * @param customPermissions
+     */
+    public void setCustomPermissions(Collection<Permission> customPermissions) {
+        m_customPermissions = customPermissions;
+    }
+    /**
+     * For use in tests only
+     * @param customPermissions
+     */
+    public void setPermissions(Set<Permission> permissions) {
+        m_permissions = permissions;
+    }
 }

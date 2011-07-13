@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     private static final String QUERY_ADDRESS = "select device.address from sbc_device device, sbc sbc "
@@ -20,8 +21,10 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
 
     private SbcManager m_sbcManager;
     private SbcDeviceManager m_sbcDeviceManager;
+    private DomainManager m_domainManager;
 
     public void testCreateDefaultSbc() throws Exception {
+        m_domainManager.setNullDomain();
         loadDataSetXml("admin/dialplan/sbc/domain.xml");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
@@ -190,5 +193,9 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
         m_sbcDeviceManager = sbcDeviceManager;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }
