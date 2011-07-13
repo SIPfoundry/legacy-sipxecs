@@ -151,7 +151,7 @@ const char* AlarmRpcRaiseAlarm::METHOD_NAME = "Alarm.raiseAlarm";
 
 const char* AlarmRpcRaiseAlarm::name()
 {
-   return METHOD_NAME;
+   return AlarmRpcRaiseAlarm::METHOD_NAME;
 }
 
 AlarmRpcRaiseAlarm::AlarmRpcRaiseAlarm()
@@ -165,7 +165,7 @@ XmlRpcMethod* AlarmRpcRaiseAlarm::get()
 
 void AlarmRpcRaiseAlarm::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, AlarmRpcRaiseAlarm::get, sipxRpcImpl);
+   registerMethod(AlarmRpcRaiseAlarm::METHOD_NAME, AlarmRpcRaiseAlarm::get, sipxRpcImpl);
 }
 
 bool AlarmRpcRaiseAlarm::execute(const HttpRequestContext& requestContext,

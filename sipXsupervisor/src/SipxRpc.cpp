@@ -79,6 +79,8 @@ SipxRpc::~SipxRpc()
 
    if ( mpXmlRpcDispatch != NULL )
    {
+     Os::Logger::instance().log(FAC_ALARM, PRI_INFO,
+                        "SipxRpc::~SipxRpc: removing all registered XML-RPC methods.");
       mpXmlRpcDispatch->removeAllMethods();
    }
 }
