@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DialNow>
 </DialNow>
+<contactData>
+  <groupinfo></groupinfo>
+  <group>
+  </group>
+  <blacklist></blacklist>
+</contactData>
+
 
 [ account ]
 path = /config/voip/sipAccount0.cfg
-Enable = 
-Label = 
+Enable = 1
+Label = juser Joe
 DisplayName = Joe User
-AuthName = juser/0004f200e06b
+AuthName = juser
 UserName = juser
 password = 1234
 SIPServerHost = sipfoundry.org
@@ -22,8 +29,8 @@ SubscribeMWI = 1
 SubscribeMWIExpire = 3600
 CIDSource = 0
 Enable 100Rel = 0
-VOICE_MAIL_NUM = 
 srtp_encryption = 0
+MusicServerUri = sip:~~mh~juser@sipfoundry.org:5060
 
 [ DTMF ]
 path = /config/voip/sipAccount0.cfg
@@ -110,6 +117,20 @@ PayloadType = G726-40
 priority = 0
 rtpmap = 104
 
+
+[ account ]
+path = /config/voip/sipAccount1.cfg
+Enable = 0
+
+[ account ]
+path = /config/voip/sipAccount2.cfg
+Enable = 0
+
+[ account ]
+path = /config/voip/sipAccount3.cfg
+Enable = 0
+
+
 [ WAN ]
 path = /config/Network/Network.cfg
 WANType = 
@@ -148,7 +169,7 @@ PC_PORT_PRIORITY = 0
 [ Time ]
 path = /config/Setting/Setting.cfg
 TimeZone = -5
-TimeServer1 = ntp.example.org
+TimeServer1 = pbx.sipfoundry.org
 TimeServer2 = cn.pool.ntp.org
 Interval = 1000
 SummerTime = 2
@@ -183,9 +204,18 @@ path = /config/Features/Phone.cfg
 Call_Waiting = 1
 Call_WaitingTone = 1
 
+[ Message ]
+path = /config/Features/Message.cfg
+VoiceNumber0 = 101
+VoiceNumber1 = 101
+VoiceNumber2 = 101
+VoiceNumber3 = 101
+VoiceNumber4 = 101
+VoiceNumber5 = 101
+
 [ DialNow ]
 path = /tmp/dialnow.xml
-server_address = tftp://sipfoundry.org/0004f200e06b_dialnow.xml
+server_address = tftp://pbx.sipfoundry.org/0004f200e06b/dialnow.xml
 
 [ RemotePhoneBook0 ]
 path = /config/Setting/Setting.cfg
@@ -196,6 +226,10 @@ Name =
 path = /config/Setting/Setting.cfg
 URL = 
 Name = 
+
+[ ContactList ]
+path = /tmp/download.cfg
+server_address = tftp://pbx.sipfoundry.org/0004f200e06b/contactData1.xml
 
 [ AdminPassword ]
 path = /config/Setting/autop.cfg

@@ -15,13 +15,14 @@ String REGISTRATION_SERVER_SETTING = "account/SIPServerHost";
 
 <!-- <group name="account"> -->
   <group name="account">
-<!--  <profileName>/config/voip/sipAccount0.cfg</profileName>	
+<!--  <profileName>/config/voip/sipAccount0.cfg</profileName>
       produced dynamically via config.vm; sipAccount0.cfg, sipAccount1.cfg, sipAccount2.cfg
 -->
     <setting name="Enable">
       <type>
         <boolean />
       </type>
+      <value>1</value>
     </setting>
     <setting name="Label">
       <type>
@@ -141,20 +142,21 @@ String REGISTRATION_SERVER_SETTING = "account/SIPServerHost";
       <value>0</value>
     </setting>
 
-    <setting name="VOICE_MAIL_NUM">
-      <type>
-        <string />
-      </type>
-    </setting>
     <setting name="srtp_encryption">
       <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
+
+    <setting name="MusicServerUri">
+      <type>
+        <string />
+      </type>
+    </setting>
   </group>
 
-  
+
   <!-- <group name="DTMF"> -->
   <group name="DTMF">
     <setting name="DTMFInbandTransfer">
@@ -176,7 +178,7 @@ String REGISTRATION_SERVER_SETTING = "account/SIPServerHost";
       </type>
       <value>1</value>
     </setting>
-  
+
   <setting name="InfoType">
       <type>
         <enum>

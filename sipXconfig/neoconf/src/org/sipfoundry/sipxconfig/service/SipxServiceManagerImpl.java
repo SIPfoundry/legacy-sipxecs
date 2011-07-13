@@ -83,10 +83,12 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         if (isRegistrarAliasInUse(registrar, alias)) {
             bids.add(new BeanId(registrar.getId(), SipxRegistrarService.class));
         }
-        /* Evicting all instances of SipxRegistrarService from Hibernate cache is necessary here.
-         * Without this, a org.hibernate.NonUniqueObjectException is thrown when trying to save paging groups.
-         * IMO evicting just the registrar instance loaded above should be sufficient, but it is not.
-        */
+        /*
+         * Evicting all instances of SipxRegistrarService from Hibernate cache is necessary here.
+         * Without this, a org.hibernate.NonUniqueObjectException is thrown when trying to save
+         * paging groups. IMO evicting just the registrar instance loaded above should be
+         * sufficient, but it is not.
+         */
         getHibernateTemplate().getSessionFactory().evict(SipxRegistrarService.class);
         return bids;
     }
@@ -369,5 +371,12 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
+    }
+
+    /**
+     * For use in tests only.
+     */
+    public void resetServicesFromDb() {
+        m_servicesFromDb = null;
     }
 }

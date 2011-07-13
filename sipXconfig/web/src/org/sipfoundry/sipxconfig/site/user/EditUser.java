@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import java.util.Set;
+
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -20,8 +22,8 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
@@ -58,7 +60,7 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
             return;
         }
         User user = getUser();
-        EditGroup.saveGroups(getSettingDao(), user.getGroups());
+        saveGroups(getSettingDao(), user.getGroups());
         String oldUserName = getCoreContext().getOriginalUserName(user);
         String newUserName = user.getUserName();
         boolean userNameChanged = getCoreContext().saveUser(user);
@@ -86,4 +88,13 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
             setCallback(new PageCallback(ManageUsers.PAGE));
         }
     }
+
+    public static void saveGroups(SettingDao dao, Set<Group> groups) {
+        for (Group group : groups) {
+            if (group.isNew()) {
+                dao.saveGroup(group);
+            }
+        }
+    }
+
 }

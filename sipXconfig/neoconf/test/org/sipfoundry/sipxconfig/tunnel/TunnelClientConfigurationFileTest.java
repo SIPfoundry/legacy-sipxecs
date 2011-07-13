@@ -50,6 +50,7 @@ public class TunnelClientConfigurationFileTest extends TestCase {
         assertEquals(IOUtils.toString(expected), actual.toString());
 		
 		verify(lm);
+	    assert true;
 	}
 
 	private static <T> T[] array(T... items) {

@@ -37,7 +37,7 @@ public class EditGatewayTest extends TestCase {
         Gateway g = new Gateway();
         g.setUniqueId();
 
-        IMocksControl contextControl = EasyMock.createStrictControl();
+        IMocksControl contextControl = EasyMock.createControl();
         GatewayContext context = contextControl.createMock(GatewayContext.class);
 
         context.saveGateway(g);
@@ -46,7 +46,7 @@ public class EditGatewayTest extends TestCase {
         PropertyUtils.write(m_editGatewayPage, "gatewayContext", context);
         m_editGatewayPage.setGateway(g);
         m_editGatewayPage.setGatewayModel(new GatewayModel("xxx", "xxx"));
-        m_editGatewayPage.saveGateway();
+        m_editGatewayPage.saveValid();
 
         contextControl.verify();
     }
@@ -80,7 +80,7 @@ public class EditGatewayTest extends TestCase {
         m_editGatewayPage.setRuleId(rule.getId());
         m_editGatewayPage.pageBeginRender(null);
         m_editGatewayPage.setGatewayModel(new GatewayModel("xxx", "xxx"));
-        m_editGatewayPage.saveGateway();
+        m_editGatewayPage.saveValid();
 
         dialPlanContextControl.verify();
         contextControl.verify();

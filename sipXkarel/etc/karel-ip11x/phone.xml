@@ -166,12 +166,85 @@
 <!-- <group name="Time"> -->
   <group name="Time">
     <profileName>/config/Setting/Setting.cfg</profileName>
-
     <setting name="TimeZone">
       <type>
-        <integer min="-12" max="12" />
+        <enum>
+          <option>
+            <value>+11</value>
+          </option>
+          <option>
+            <value>+10</value>
+          </option>
+          <option>
+            <value>+9</value>
+          </option>
+          <option>
+            <value>+8</value>
+          </option>
+          <option>
+            <value>+7</value>
+          </option>
+          <option>
+            <value>+6</value>
+          </option>
+          <option>
+            <value>+5</value>
+          </option>
+          <option>
+            <value>+4</value>
+          </option>
+          <option>
+            <value>+3</value>
+          </option>
+          <option>
+            <value>+2</value>
+          </option>
+          <option>
+            <value>+1</value>
+          </option>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>-1</value>
+          </option>
+          <option>
+            <value>-2</value>
+          </option>
+          <option>
+            <value>-3</value>
+          </option>
+          <option>
+            <value>-4</value>
+          </option>
+          <option>
+            <value>-5</value>
+          </option>
+          <option>
+            <value>-6</value>
+          </option>
+          <option>
+            <value>-7</value>
+          </option>
+          <option>
+            <value>-8</value>
+          </option>
+          <option>
+            <value>-9</value>
+          </option>
+          <option>
+            <value>-10</value>
+          </option>
+          <option>
+            <value>-11</value>
+          </option>
+          <option>
+            <value>-12</value>
+          </option>
+        </enum>
       </type>
     </setting>
+
     <setting name="TimeServer1">
       <type>
         <string />
@@ -437,6 +510,41 @@
     </setting>
   </group>
   
+  <!-- <group name="Message"> -->
+  <group name="Message">
+    <profileName>/config/Features/Message.cfg</profileName>
+    <setting name="VoiceNumber0">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="VoiceNumber1">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="VoiceNumber2">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="VoiceNumber3">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="VoiceNumber4">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="VoiceNumber5">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+
   
 <!-- <group name="DialNow"> -->
   <group name="DialNow">
@@ -573,7 +681,16 @@
     </setting>
   </group>
 
-  
+  <!-- <group name="ContactList"> -->
+  <group name="ContactList">
+    <profileName>/tmp/download.cfg</profileName>
+    <setting name="server_address">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+
 <!-- <group name="AdminPassword"> -->
   <group name="AdminPassword">
     <profileName>/config/Setting/autop.cfg</profileName>

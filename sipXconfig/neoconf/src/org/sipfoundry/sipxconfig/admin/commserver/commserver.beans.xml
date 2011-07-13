@@ -23,16 +23,6 @@
     </property>
   </bean>
   
-  <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.admin.commserver.MongoConfigImpl">
-    <property name="mongodConfigurationFile">
-      <bean class="org.sipfoundry.sipxconfig.admin.commserver.MongodConfigurationFile" parent="defaultConfigurationFile">
-      	<property name="name" value="../sysconfig/mongod"/>
-        <property name="velocityEngine" ref="velocityEngine" />
-      	<property name="template" value="mongo/mongod.vm"/>
-      </bean>
-    </property>
-  </bean>
-
   <bean id="locationsMigrationTrigger"
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsMigrationTrigger">
     <property name="locationsManager">
