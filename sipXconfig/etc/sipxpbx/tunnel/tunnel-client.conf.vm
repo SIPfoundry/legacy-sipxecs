@@ -16,9 +16,6 @@ accept = $t.incomingPort
 connect = ${thisLocation.fqdn}:${t.remotePort}
 #end
 #end
-
-
-
 [mongod-primary]
 accept = 27019
 connect = ${primary.fqdn}:27018

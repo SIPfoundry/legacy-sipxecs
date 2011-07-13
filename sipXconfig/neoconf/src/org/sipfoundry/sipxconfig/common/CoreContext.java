@@ -181,4 +181,12 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner {
     Collection<User> getUsersForBranch(Branch b);
 
     List<User> loadUserByAdmin();
+
+    /**
+     * Loads user ids in chunks. Uses plain SQL to do that.
+     * @param first
+     * @param pageSize
+     * @return
+     */
+    List<Integer> loadUserIdsByPage(int first, int pageSize);
 }

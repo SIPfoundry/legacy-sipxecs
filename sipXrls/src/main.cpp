@@ -421,10 +421,9 @@ int main(int argc, char* argv[])
    if (!gShutdownFlag)
    {
       // Initialize the ResourceListServer.
-      // (Use tcpPort as the TLS port, too.)
       ResourceListServer rls(domainName, realm, lineMgr,
                              DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
-                             tcpPort, udpPort, tcpPort, bindIp,
+                             tcpPort, udpPort, PORT_NONE, bindIp,
                              &resourceListFile,
                              resubscribeInterval, minResubscribeInterval,
                              RLS_PUBLISH_DELAY,

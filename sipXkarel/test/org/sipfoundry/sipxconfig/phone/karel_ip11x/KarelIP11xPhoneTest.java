@@ -16,8 +16,6 @@
 package org.sipfoundry.sipxconfig.phone.karel_ip11x;
 
 import java.io.InputStream;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 import junit.framework.TestCase;
 
@@ -47,4 +45,3 @@ public class KarelIP11xPhoneTest extends TestCase {
         assertEquals(expected, location.toString());
     }
 }
-

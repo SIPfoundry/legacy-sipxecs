@@ -41,4 +41,9 @@ public interface DomainManager extends DialingRuleProvider {
             super("System was not initialized properly");
         }
     }
+
+    /**
+     * For use in tests only.
+     */
+    public void setNullDomain();
 }

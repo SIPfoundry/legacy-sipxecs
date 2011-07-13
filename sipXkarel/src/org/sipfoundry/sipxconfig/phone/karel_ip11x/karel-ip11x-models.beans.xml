@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- models -->
+  <bean id="karel_IP11xModelParent" parent="abstractPhoneModel" abstract="true">
+    <property name="beanId" value="karel-ip11x" />
+    <property name="profileTemplate" value="karel-ip11x/config.vm" />
+    <property name="vendor" value="KAREL" />
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="karelIP116" parent="karel_IP11xModelParent">
+    <property name="label" value="Karel IP116" />
+    <property name="maxLineCount" value="6" />
+  </bean>
+
+  <bean id="karelIP112" parent="karel_IP11xModelParent">
+    <property name="label" value="Karel IP112" />
+    <property name="maxLineCount" value="3" />
+  </bean>
+
+  <bean id="karelIP111" parent="karel_IP11xModelParent">
+    <property name="label" value="Karel IP111" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+
+  <!-- implementation -->
+  <bean id="karel-ip11x" class="org.sipfoundry.sipxconfig.phone.karel_ip11x.KarelIP11xPhone" singleton="false" parent="abstractPhone">
+    <property name="localizationContext" ref="localizationContext" />
+  </bean>
+
+  <bean id="karelIP11xModelConfiguration" class="org.sipfoundry.sipxconfig.phone.karel_ip11x.KarelIP11xModelConfiguration" singleton="false" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="template" value="karel-ip11x/model.vm" />
+    <property name="directory">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+    <property name="name" value="karelIP11xModelConfiguration.cfg" />
+    <property name="firmware2Model">
+        <props>
+            <prop key="karelIP111Firmware">IP111</prop>
+            <prop key="karelIP112Firmware">IP112</prop>
+            <prop key="karelIP116Firmware">IP116</prop>
+        </props>
+    </property>
+    <property name="model2ConfigFile">
+        <props>
+            <prop key="IP111">y000000000007.cfg</prop>
+            <prop key="IP112">y000000000005.cfg</prop>
+            <prop key="IP116">y000000000000.cfg</prop>
+        </props>
+    </property>
+  </bean>
+
+  <bean id="karelIP11xUpload" class="org.sipfoundry.sipxconfig.phone.karel_ip11x.KarelIP11xUpload" singleton="false" parent="upload">
+    <property name="profileLocation">
+      <value>${sysdir.etc}</value>
+    </property>
+    <property name="configuration" ref="karelIP11xModelConfiguration"/>
+  </bean>
+
+  <bean id="abstractKarelIP11xFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification" abstract="true">
+    <property name="modelFilePath" value="karel-ip11x/upload.xml" />
+    <property name="beanId" value="karelIP11xUpload" />
+  </bean>
+
+  <bean id="karelIP111Firmware" parent="abstractKarelIP11xFirmware">
+    <property name="label" value="Karel IP111" />
+  </bean>
+
+  <bean id="karelIP112Firmware" parent="abstractKarelIP11xFirmware">
+    <property name="label" value="Karel IP112" />
+  </bean>
+
+  <bean id="karelIP116Firmware" parent="abstractKarelIP11xFirmware">
+    <property name="label" value="Karel IP116" />
+  </bean>
+
+</beans>

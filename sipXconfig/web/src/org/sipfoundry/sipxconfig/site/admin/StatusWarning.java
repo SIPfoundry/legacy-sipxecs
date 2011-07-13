@@ -17,7 +17,6 @@ import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReloadNeededServicesPage;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartNeededServicesPage;
-import org.sipfoundry.sipxconfig.site.admin.softwareupdates.SoftwareUpdatesPage;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class StatusWarning extends BaseComponent {
@@ -57,8 +56,7 @@ public abstract class StatusWarning extends BaseComponent {
      * @return true if warning should be shown
      */
     public boolean showPackageUpdateWarning() {
-        return getPackageUpdateManager().getState() == PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE
-                && !SoftwareUpdatesPage.PAGE.equals(getPage().getPageName());
+        return getPackageUpdateManager().getState() == PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
 
     }
 

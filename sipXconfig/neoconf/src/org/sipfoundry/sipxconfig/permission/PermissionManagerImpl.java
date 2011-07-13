@@ -33,12 +33,16 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     private ModelFilesContext m_modelFilesContext;
 
     private SipxServiceManager m_sipxServiceManager;
+    private Set<Permission> m_permissions;
+    private Collection<Permission> m_customPermissions;
 
     public void saveCallPermission(Permission permission) {
         if (isLabelInUse(permission)) {
             throw new DuplicatePermissionLabelException(permission.getLabel());
         }
         getHibernateTemplate().saveOrUpdate(permission);
+        m_permissions = null;
+        m_customPermissions = null;
     }
 
     public void deleteCallPermission(Permission permission) {
@@ -195,17 +199,21 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
      */
     private Collection<Permission> loadCustomPermissions() {
         if (getSessionFactory() != null) {
-            return getHibernateTemplate().loadAll(Permission.class);
+            if (m_customPermissions == null) {
+                m_customPermissions = getHibernateTemplate().loadAll(Permission.class);
+            }
+            return m_customPermissions;
         }
         return Collections.emptyList();
     }
 
     public Collection<Permission> getPermissions() {
-
-        Set<Permission> permissions = new TreeSet<Permission>();
-        permissions.addAll(getBuiltInPermissions().values());
-        permissions.addAll(loadCustomPermissions());
-        return permissions;
+        if (m_permissions == null) {
+            m_permissions = new TreeSet<Permission>();
+            m_permissions.addAll(getBuiltInPermissions().values());
+            m_permissions.addAll(loadCustomPermissions());
+        }
+        return m_permissions;
     }
 
     public Collection<Permission> getPermissions(Permission.Type type) {
@@ -271,4 +279,18 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         template.deleteAll(permissions);
     }
 
+    /**
+     * For use in tests only
+     * @param customPermissions
+     */
+    public void setCustomPermissions(Collection<Permission> customPermissions) {
+        m_customPermissions = customPermissions;
+    }
+    /**
+     * For use in tests only
+     * @param customPermissions
+     */
+    public void setPermissions(Set<Permission> permissions) {
+        m_permissions = permissions;
+    }
 }

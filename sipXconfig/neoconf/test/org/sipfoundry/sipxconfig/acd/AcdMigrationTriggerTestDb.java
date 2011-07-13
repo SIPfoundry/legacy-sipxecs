@@ -22,16 +22,18 @@ import org.springframework.context.ApplicationContext;
 public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
     private ApplicationContext m_applicationContext;
     private AcdContext m_context;
+    private SipxServiceManager m_serviceManager;
 
     @Override
     protected void setUp() throws Exception {
         m_applicationContext = TestHelper.getApplicationContext();
         m_context = (AcdContext) TestHelper.getApplicationContext().getBean(AcdContext.CONTEXT_BEAN_NAME);
+        m_serviceManager = (SipxServiceManager) TestHelper.getApplicationContext().getBean(SipxServiceManager.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
     public void testMigrateLineExtensions() throws Exception {
-        TestHelper.insertFlat("acd/migrate_lines.db.xml");
+       TestHelper.insertFlat("acd/migrate_lines.db.xml");
 
         assertEquals(2, getConnection().getRowCount("setting_value"));
         assertEquals(0, getConnection().getRowCount("acd_line", "where extension = '2222'"));
@@ -61,6 +63,7 @@ public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
     }
 
     public void testMigrateAcdServers() throws Exception {
+        m_serviceManager.resetServicesFromDb();
         TestHelper.insertFlat("acd/migrate_acd_servers.db.xml");
 
         // test below rely on the fact that 14 is service ID of ACD service

@@ -15,6 +15,7 @@ import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.speeddial.ResourceLists;
 
@@ -27,8 +28,10 @@ public class SpeedDialsTestIntegration extends IntegrationTestCase {
     private SpeedDials m_speedDials;
     private CoreContext m_coreContext;
     private ResourceLists m_resourceLists;
+    private DomainManager m_domainManager;
 
     public void testGenerateResourceLists() throws Exception {
+        m_domainManager.setNullDomain();
         loadDataSetXml("domain/DomainSeed.xml");
         loadDataSet("admin/commserver/imdb/speeddials.db.xml");
         MongoTestCaseHelper.initMongo("imdb", "entity");
@@ -76,5 +79,9 @@ public class SpeedDialsTestIntegration extends IntegrationTestCase {
 
     public void setResourceListGenerator(ResourceLists resourceLists) {
         m_resourceLists = resourceLists;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2010 Karel Elektronik, A.S. All rights reserved.
+ * Copyright (C) 2010 Karel Electronics Corp. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,17 +15,20 @@
  */
 package org.sipfoundry.sipxconfig.phone.karel_ip11x;
 
-import org.sipfoundry.sipxconfig.common.User;
+import java.text.MessageFormat;
+import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
-
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class KarelIP11xPhone extends Phone {
@@ -33,25 +36,52 @@ public class KarelIP11xPhone extends Phone {
     private static final String USER_ID_SETTING = "account/UserName";
     private static final String AUTH_USER_ID_SETTING = "account/AuthName";
     private static final String DISPLAY_NAME_SETTING = "account/DisplayName";
+    private static final String LABEL_SETTING = "account/Label";
     private static final String PASSWORD_SETTING = "account/password";
     private static final String REGISTRATION_SERVER_SETTING = "account/SIPServerHost";
+    private static final String MOH_SERVER_SETTING = "account/MusicServerUri";
+    private static final String SPACE_CHAR = " ";
+
+    private String m_phonebookFilename = "{0}/contactData1.xml";
+    private String m_dialNowFilename = "{0}/dialnow.xml";
+
+    private LocalizationContext m_localizationContext;
+
+    public void setLocalizationContext(LocalizationContext localizationContext) {
+        m_localizationContext = localizationContext;
+    }
 
     @Override
     public void initializeLine(Line line) {
-        KarelIP11xPhoneDefaults defaults = new KarelIP11xPhoneDefaults(getPhoneContext().getPhoneDefaults());
+	String currentLanguage = null;
+	if (m_localizationContext != null) {
+            currentLanguage = m_localizationContext.getCurrentLanguage();
+        }
+        KarelIP11xPhoneDefaults defaults = new KarelIP11xPhoneDefaults(getPhoneContext().getPhoneDefaults(),
+                currentLanguage);
         addDefaultBeanSettingHandler(defaults);
         line.addDefaultBeanSettingHandler(new KarelIP11xLineDefaults(line));
     }
 
     @Override
     public void initialize() {
-        KarelIP11xPhoneDefaults defaults = new KarelIP11xPhoneDefaults(getPhoneContext().getPhoneDefaults());
+	String currentLanguage = null;
+	if (m_localizationContext != null) {
+            currentLanguage = m_localizationContext.getCurrentLanguage();
+        }
+        KarelIP11xPhoneDefaults defaults = new KarelIP11xPhoneDefaults(getPhoneContext().getPhoneDefaults(),
+                currentLanguage);
         addDefaultBeanSettingHandler(defaults);
     }
 
     @Override
     public String getProfileFilename() {
         return getSerialNumber() + ".cfg";
+    }
+
+    @Override
+    public void restart() {
+        sendCheckSyncToFirstLine();
     }
 
     public static class KarelIP11xLineDefaults {
@@ -61,6 +91,23 @@ public class KarelIP11xPhone extends Phone {
             m_line = line;
         }
 
+        @SettingEntry(path = LABEL_SETTING)
+        public String getLabelString() {
+            String labelName = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                labelName = m_line.getUserName();
+                if (user.getFirstName() != null) {
+                    if (user.getFirstName().length() > 5) {
+                        labelName = labelName + SPACE_CHAR + user.getFirstName().substring(0, 5);
+                    } else {
+                        labelName = labelName + SPACE_CHAR + user.getFirstName();
+                    }
+                }
+            }
+            return labelName;
+        }
+
         @SettingEntry(path = USER_ID_SETTING)
         public String getUserName() {
             return m_line.getUserName();
@@ -68,7 +115,7 @@ public class KarelIP11xPhone extends Phone {
 
         @SettingEntry(path = AUTH_USER_ID_SETTING)
         public String getAuthUserName() {
-            return m_line.getAuthenticationUserName();
+            return m_line.getUserName();
         }
 
         @SettingEntry(path = DISPLAY_NAME_SETTING)
@@ -96,6 +143,20 @@ public class KarelIP11xPhone extends Phone {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
         }
+
+        @SettingEntry(path = MOH_SERVER_SETTING)
+        public String getMusicOnHoldUri() {
+            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
+            String mohUri;
+            User u = m_line.getUser();
+            if (u != null) {
+                mohUri = u.getMusicOnHoldUri();
+            } else {
+                mohUri = defaults.getMusicOnHoldUri();
+            }
+            return mohUri + ":5060";
+        }
+
     }
 
     /**
@@ -128,15 +189,11 @@ public class KarelIP11xPhone extends Phone {
         return getProfileFilename();
     }
 
-//  DialNow support
-    public String getDialNowFilename() {
-        return getSerialNumber() + "_dialnow.xml";
-    }
-
     @Override
     public Profile[] getProfileTypes() {
         Profile[] profileTypes = new Profile[] {
-            new PhoneProfile(getPhoneFilename()), new DialNowProfile(getDialNowFilename())
+            new PhoneProfile(getPhoneFilename()), new DialNowProfile(getDialNowFilename()),
+            new PhonebookProfile(getPhonebookFilename())
         };
         return profileTypes;
     }
@@ -158,6 +215,11 @@ public class KarelIP11xPhone extends Phone {
         }
     }
 
+    public ProfileContext getPhonebook() {
+        Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
+        return new KarelIP11xPhonebook(entries);
+    }
+
     static class DialNowProfile extends Profile {
         public DialNowProfile(String name) {
             super(name, MIME_TYPE_PLAIN);
@@ -173,5 +235,38 @@ public class KarelIP11xPhone extends Phone {
             KarelIP11xPhone phone = (KarelIP11xPhone) device;
             return new DialNowConfiguration(phone);
         }
+    }
+
+    static class PhonebookProfile extends Profile {
+        public PhonebookProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            KarelIP11xPhone phone = (KarelIP11xPhone) device;
+            return phone.getPhonebook();
+        }
+    }
+
+    public void setPhonebookFilename(String phonebookFilename) {
+        m_phonebookFilename = phonebookFilename;
+    }
+
+    public String getPhonebookFilename() {
+        return MessageFormat.format(m_phonebookFilename, getSerialNumber());
+    }
+
+    public void setDialNowFilename(String dialnowFilename) {
+        m_dialNowFilename = dialnowFilename;
+    }
+
+    public String getDialNowFilename() {
+        return MessageFormat.format(m_dialNowFilename, getSerialNumber());
     }
 }

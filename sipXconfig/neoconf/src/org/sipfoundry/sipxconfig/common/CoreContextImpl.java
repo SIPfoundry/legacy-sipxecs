@@ -18,6 +18,8 @@ import java.util.TreeSet;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -59,6 +61,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String SPECIAL_USER_BY_TYPE = "specialUserByType";
     private static final String SPECIAL_USER_TYPE = "specialUserType";
     private static final String USER_ADMIN = "userAdmin";
+    private static final String FIRST = "first";
+    private static final String PAGE_SIZE = "pageSize";
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
@@ -510,7 +514,25 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     @Override
     public List<User> loadUsersByPage(int first, int pageSize) {
-        return loadBeansByPage(User.class, first, pageSize);
+        Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
+                .createSQLQuery("select * from users where user_type='C' "
+                + "order by user_id limit :pageSize offset :first")
+                .addEntity(User.class);
+        q.setInteger(FIRST, first);
+        q.setInteger(PAGE_SIZE, pageSize);
+        List<User> users = q.list();
+        return users;
+    }
+
+    @Override
+    public List<Integer> loadUserIdsByPage(int first, int pageSize) {
+        Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
+                .createSQLQuery("select user_id from users order by user_id limit :pageSize offset :first")
+                .addScalar("user_id", Hibernate.INTEGER);
+        q.setInteger(FIRST, first);
+        q.setInteger(PAGE_SIZE, pageSize);
+        List<Integer> users = q.list();
+        return users;
     }
 
     @Override

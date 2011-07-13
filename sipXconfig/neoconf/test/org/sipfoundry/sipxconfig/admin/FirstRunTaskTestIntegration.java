@@ -11,7 +11,9 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.util.Collection;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManagerImpl;
@@ -24,6 +26,7 @@ import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
@@ -37,7 +40,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     private DomainManager m_domainManager;
     private CoreContext m_coreContext;
     private AdminContext m_adminContext;
-    private ServiceConfigurator m_serviceConfigurator;
+    private SipxServiceManager m_sipxServiceManager;
     private SbcManagerImpl m_sbcManagerImpl;
 
     public void setDomainManager(DomainManager domainManager) {
@@ -60,10 +63,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_firstRun = firstRun;
     }
 
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
-    }
-
     public void setSbcManagerImpl(SbcManagerImpl sbcManagerImpl) {
         m_sbcManagerImpl = sbcManagerImpl;
     }
@@ -81,7 +80,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_firstRun.setAdminContext(m_adminContext);
         m_firstRun.setDomainManager(m_domainManager);
         m_firstRun.setCoreContext(m_coreContext);
-        m_firstRun.setServiceConfigurator(m_serviceConfigurator);
+        m_firstRun.setSipxServiceManager(m_sipxServiceManager);
     }
 
     public void testEnableFirstRunServices() throws Exception {
@@ -95,12 +94,20 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         CoreContext coreContext = createNiceMock(CoreContext.class);
         AlarmContext alarmContext = createNiceMock(AlarmContext.class);
 
-        replay(domainManager, adminContext, coreContext, alarmContext);
+        AlarmServerManager alarmServer = createMock(AlarmServerManager.class);
+        alarmServer.deployAlarms();
+        EasyMock.expectLastCall().anyTimes();
+        
+        replay(domainManager, adminContext, coreContext, alarmContext, alarmServer);
 
+        m_sipxServiceManager.resetServicesFromDb();
+        
         m_sbcManagerImpl.setDomainManager(domainManager);
         m_firstRun.setDomainManager(domainManager);
         m_firstRun.setAdminContext(adminContext);
         m_firstRun.setCoreContext(coreContext);
+        m_firstRun.setSipxServiceManager(m_sipxServiceManager);
+        m_firstRun.setAlarmServerManager(alarmServer);
 
         loadDataSetXml("admin/commserver/seedLocationsAndServices5.xml");
         m_firstRun.runTask();
@@ -122,5 +129,9 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         // the only auto-enabled bundle should be redundantSipRouter for secondary location
         assertEquals(1, secondaryLocation.getInstalledBundles().size());
 
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 }

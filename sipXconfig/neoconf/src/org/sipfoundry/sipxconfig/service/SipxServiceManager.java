@@ -76,4 +76,8 @@ public interface SipxServiceManager extends AliasOwner {
     Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles);
 
     Object getServiceParam(String paramName);
+    /**
+     * For use in tests only.
+     */
+    public void resetServicesFromDb();
 }

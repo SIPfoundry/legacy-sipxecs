@@ -2,34 +2,34 @@
 #set($rtp = $ps.getSetting('DialNow'))
 <?xml version="1.0" encoding="UTF-8"?>
 <DialNow>
-#if($rtp.getSetting('Rule1').Value != "")
+#if($rtp.getSetting('Rule1') && $rtp.getSetting('Rule1').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule1').Value" LineID="$!rtp.getSetting('LineID1').Value"/>
 #end
-#if($rtp.getSetting('Rule2').Value != "")
+#if($rtp.getSetting('Rule2') && $rtp.getSetting('Rule2').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule2').Value" LineID="$!rtp.getSetting('LineID2').Value"/>
 #end
-#if($rtp.getSetting('Rule3').Value != "")
+#if($rtp.getSetting('Rule3') && $rtp.getSetting('Rule3').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule3').Value" LineID="$!rtp.getSetting('LineID3').Value"/>
 #end
-#if($rtp.getSetting('Rule4').Value != "")
+#if($rtp.getSetting('Rule4') && $rtp.getSetting('Rule4').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule4').Value" LineID="$!rtp.getSetting('LineID4').Value"/>
 #end
-#if($rtp.getSetting('Rule5').Value != "")
+#if($rtp.getSetting('Rule5') && $rtp.getSetting('Rule5').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule5').Value" LineID="$!rtp.getSetting('LineID5').Value"/>
 #end
-#if($rtp.getSetting('Rule6').Value != "")
+#if($rtp.getSetting('Rule6') && $rtp.getSetting('Rule6').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule6').Value" LineID="$!rtp.getSetting('LineID6').Value"/>
 #end
-#if($rtp.getSetting('Rule7').Value != "")
+#if($rtp.getSetting('Rule7') && $rtp.getSetting('Rule7').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule7').Value" LineID="$!rtp.getSetting('LineID7').Value"/>
 #end
-#if($rtp.getSetting('Rule8').Value != "")
+#if($rtp.getSetting('Rule8') && $rtp.getSetting('Rule8').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule8').Value" LineID="$!rtp.getSetting('LineID8').Value"/>
 #end
-#if($rtp.getSetting('Rule9').Value != "")
+#if($rtp.getSetting('Rule9') && $rtp.getSetting('Rule9').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule9').Value" LineID="$!rtp.getSetting('LineID9').Value"/>
 #end
-#if($rtp.getSetting('Rule10').Value != "")
+#if($rtp.getSetting('Rule10') && $rtp.getSetting('Rule10').Value)
 <Data DialNowRule="$!rtp.getSetting('Rule10').Value" LineID="$!rtp.getSetting('LineID10').Value"/>
 #end
 </DialNow>

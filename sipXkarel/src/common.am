@@ -1,6 +1,7 @@
 karel_PKGS = \
 	log4j \
 	commons-lang \
+	commons-logging \
 	commons-io \
 	commons-collections \
 	org.springframework.beans \
