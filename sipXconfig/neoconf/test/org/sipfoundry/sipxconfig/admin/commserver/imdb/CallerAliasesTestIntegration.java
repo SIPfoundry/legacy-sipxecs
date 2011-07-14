@@ -30,7 +30,7 @@ public class CallerAliasesTestIntegration extends IntegrationTestCase {
         loadDataSet("gateway/seed_ds_gateway.db.xml");
         loadDataSet("common/UserSearchSeed.xml");
         List<Map<String, String>> callerAliases = ((DataSetGenerator) m_aliases).generate();
-        assertEquals(11, callerAliases.size());
+        assertEquals(10, callerAliases.size());
         Map<String, String> gw1Alias = callerAliases.get(0);
         assertNull(gw1Alias.get("identity"));
         assertEquals("192.168.0.119;sipxecs-lineid=1002", gw1Alias.get("domain"));
@@ -41,10 +41,15 @@ public class CallerAliasesTestIntegration extends IntegrationTestCase {
         assertEquals("192.168.0.119;sipxecs-lineid=1002", user.get("domain"));
         assertEquals("sip:41@example.org", user.get("alias"));
 
+        Map<String, String> user2 = callerAliases.get(2);
+        assertEquals("userseed2@example.org", user2.get("identity"));
+        assertEquals("192.168.0.119;sipxecs-lineid=1002", user2.get("domain"));
+        assertEquals("sip:42@example.org", user2.get("alias"));
+
         Map<String, String> user3 = callerAliases.get(3);
         assertEquals("userseed3@example.org", user3.get("identity"));
         assertEquals("192.168.0.119;sipxecs-lineid=1002", user3.get("domain"));
-        assertEquals("sip:41@example.org", user3.get("alias"));
+        assertEquals("sip:43@example.org", user3.get("alias"));
     }
 
     public void setCalleraliasDataSet(CallerAliases callerAliases) {

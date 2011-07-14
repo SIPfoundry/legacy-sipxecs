@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -47,29 +48,18 @@ public class CallerAliases extends DataSetGenerator {
         List<Gateway> gateways = m_gatewayContext.getGateways();
         final String sipDomain = getSipDomain();
 
-        for (Gateway gateway : gateways) {
-            final String gatewayAddr = gateway.getGatewayAddress();
-            final String gatewayAddrWithLineID = gatewayAddr + ";sipxecs-lineid=" + gateway.getId().toString();
-            // add default entry for the gateway
-            final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
-            String callerAliasUri = getGatewayCallerAliasUri(sipDomain, gatewayInfo);
-            addItem(items, gatewayAddrWithLineID, callerAliasUri);
-
-            // only add user aliases is overwrite is not set
-            if (gatewayInfo.isIgnoreUserInfo() || gatewayInfo.isEnableCallerId()) {
-                continue;
-            }
-            final User user = getCoreContext().newUser();
+        final List<UserWrapper> users = new LinkedList<UserWrapper>();
+        if (gateways.size() > 0) {
             List<Group> groups = getCoreContext().getGroups();
             final Map<Integer, Group> groupsMap = new HashMap<Integer, Group>();
             for (Group group : groups) {
                 groupsMap.put(group.getId(), group);
             }
-
             getJdbcTemplate().query(QUERY, new RowCallbackHandler() {
 
                 @Override
                 public void processRow(ResultSet rs) throws SQLException {
+                    final User user = getCoreContext().newUser();
                     String userId = rs.getString("user_id");
                     String userName = rs.getString("user_name");
                     String firstName = rs.getString("first_name");
@@ -105,13 +95,31 @@ public class CallerAliases extends DataSetGenerator {
                             .getSetting(UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS).getDefaultValue());
                     String externalNumber = StringUtils.defaultIfEmpty(rs.getString("external_number"), user
                             .getSettings().getSetting(UserCallerAliasInfo.EXTERNAL_NUMBER).getDefaultValue());
-                    String userCallerAliasUri = getCallerAliasUri(gatewayInfo, anonymous.equals("1"),
-                            externalNumber, user);
-                    String identity = AliasMapping.createUri(userName, sipDomain);
-                    addItem(items, gatewayAddrWithLineID, userCallerAliasUri, identity);
+                    UserWrapper wrapper = new UserWrapper(user, anonymous, externalNumber);
+                    users.add(wrapper);
                 }
             });
+        }
 
+        for (Gateway gateway : gateways) {
+            final String gatewayAddr = gateway.getGatewayAddress();
+            final String gatewayAddrWithLineID = gatewayAddr + ";sipxecs-lineid=" + gateway.getId().toString();
+            // add default entry for the gateway
+            final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
+            String callerAliasUri = getGatewayCallerAliasUri(sipDomain, gatewayInfo);
+            addItem(items, gatewayAddrWithLineID, callerAliasUri);
+
+            // only add user aliases is overwrite is not set
+            if (gatewayInfo.isIgnoreUserInfo() || gatewayInfo.isEnableCallerId()) {
+                continue;
+            }
+
+            for (UserWrapper userWrapper : users) {
+                String userCallerAliasUri = getCallerAliasUri(gatewayInfo, userWrapper.getAnonymous().equals("1"),
+                        userWrapper.getExternalNo(), userWrapper.getUser());
+                String identity = AliasMapping.createUri(userWrapper.getUser().getUserName(), sipDomain);
+                addItem(items, gatewayAddrWithLineID, userCallerAliasUri, identity);
+            }
         }
     }
 
@@ -179,5 +187,29 @@ public class CallerAliases extends DataSetGenerator {
 
     public void setAnonymousAlias(String anonymousAlias) {
         m_anonymousAlias = anonymousAlias;
+    }
+
+    private static class UserWrapper {
+        private User m_user;
+        private String m_anonymous;
+        private String m_externalNo;
+
+        public UserWrapper(User user, String anonymous, String externalNo) {
+            m_user = user;
+            m_anonymous = anonymous;
+            m_externalNo = externalNo;
+        }
+
+        public User getUser() {
+            return m_user;
+        }
+
+        public String getAnonymous() {
+            return m_anonymous;
+        }
+
+        public String getExternalNo() {
+            return m_externalNo;
+        }
     }
 }
