@@ -138,6 +138,16 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(0, tableUserRing.getRowCount());
     }
 
+    public void testRemoveCallGroupByAlias() throws Exception {
+        m_context.removeCallGroupByAlias("sales");
+        m_context.removeCallGroupByAlias("eng");
+        // table should be empty now
+        ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");
+        assertEquals(0, tableCallGroup.getRowCount());
+        ITable tableUserRing = TestHelper.getConnection().createDataSet().getTable("user_ring");
+        assertEquals(0, tableUserRing.getRowCount());
+    }
+
     public void testDuplicateCallGroups() throws Exception {
         List ids = Arrays.asList(new Integer[] {
             new Integer(1001), new Integer(1002)

@@ -25,6 +25,8 @@ public interface CallGroupContext extends AliasOwner {
 
     void removeCallGroups(Collection<Integer> ids);
 
+    void removeCallGroupByAlias(String alias);
+
     void duplicateCallGroups(Collection ids);
 
     void removeUser(Integer userId);

@@ -217,6 +217,13 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="RemoveCallGroup">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="callGroup" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
 
       <!-- P A R K   O R B I T -->
       <xsd:element name="GetParkOrbitsResponse">
@@ -386,6 +393,10 @@
   <message name="addCallGroupRequest">
     <part name="addCallGroup" element="tns:AddCallGroup" />
   </message>
+  <message name="removeCallGroupResponse" />
+  <message name="removeCallGroupRequest">
+    <part name="removeCallGroup" element="tns:RemoveCallGroup" />
+  </message>
   <message name="getCallGroupsResponse">
     <part name="getCallGroups" element="tns:GetCallGroupsResponse" />
   </message>
@@ -396,6 +407,10 @@
       <input message="tns:addCallGroupRequest" />
       <output message="tns:addCallGroupResponse" />
     </operation>
+    <operation name="removeCallGroup">
+      <input message="tns:removeCallGroupRequest" />
+      <output message="tns:removeCallGroupResponse" />
+    </operation>
     <operation name="getCallGroups">
       <input message="tns:getCallGroupsRequest" />
       <output message="tns:getCallGroupsResponse" />
@@ -405,6 +420,15 @@
   <binding name="CallGroupServiceSoapBinding" type="tns:CallGroupService">
     <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
     <operation name="addCallGroup">
+      <soapbind:operation />
+      <input>
+        <soapbind:body use="literal" />
+      </input>
+      <output>
+        <soapbind:body use="literal" />
+      </output>
+    </operation>
+    <operation name="removeCallGroup">
       <soapbind:operation />
       <input>
         <soapbind:body use="literal" />
