@@ -16,6 +16,7 @@ import static org.easymock.EasyMock.replay;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
@@ -87,7 +88,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         StatusPluginConfiguration statusPluginConfiguration = new StatusPluginConfiguration();
         statusPluginConfiguration.setName("status-pluing.xml");
 
-        service.setConfigurations(Arrays.asList(sipxStatusConfiguration, statusPluginConfiguration));
+        service.setConfigurations(new HashSet(Arrays.asList(sipxStatusConfiguration, statusPluginConfiguration)));
 
         m_out.storeService(service);
         assertNotNull(m_out.getServiceByBeanId(SipxStatusService.BEAN_ID));

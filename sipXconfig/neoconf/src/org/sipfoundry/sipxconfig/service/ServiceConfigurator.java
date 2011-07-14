@@ -41,10 +41,11 @@ public interface ServiceConfigurator {
 
     /**
      * Replicates configuration for all the services on a specific location.
+     * Restarts all services that require restart.
      *
      * @param locationToActivate
      */
-    public void replicateLocation(Location location);
+    public void replicateLocationAndRestart(Location location);
 
     /**
      * Replicates configuration for all the services for all the locations

@@ -15,8 +15,8 @@ import static org.easymock.classextension.EasyMock.createNiceMock;
 import static org.easymock.classextension.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.verify;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -109,7 +109,7 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         Location location = new Location();
 
         SipxFreeswitchService service = createNiceMock(SipxFreeswitchService.class);
-        expect(service.getConfigurations(true)).andReturn(new ArrayList());
+        expect(service.getConfigurations(true)).andReturn(new HashSet());
         service.afterReplication(location);
         expectLastCall().once();
         replay(service);

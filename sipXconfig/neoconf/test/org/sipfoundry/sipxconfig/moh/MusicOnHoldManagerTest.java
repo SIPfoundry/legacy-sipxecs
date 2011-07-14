@@ -15,8 +15,8 @@ import static org.easymock.classextension.EasyMock.createMock;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -67,7 +67,7 @@ public class MusicOnHoldManagerTest extends TestCase {
     public void testReplicateMohConfiguration() {
         LocalStreamConfiguration localStreamConfiguration = new LocalStreamConfiguration();
         localStreamConfiguration.setName("/test/localconf.xml");
-        List<ConfigurationFile> configurationFiles = new ArrayList<ConfigurationFile>();
+        Set<ConfigurationFile> configurationFiles = new HashSet<ConfigurationFile>();
         configurationFiles.add(localStreamConfiguration);
 
         SipxFreeswitchService service = new SipxFreeswitchService();
