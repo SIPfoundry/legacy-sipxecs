@@ -97,6 +97,11 @@ public class ContactInformationConfig extends XmlFile {
     private CoreContext m_coreContext;
 
     @Override
+    public boolean isLocationDependent() {
+        return false;
+    }
+
+    @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
         final Element contactInfos = document.addElement("contact-info", NAMESPACE);

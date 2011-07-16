@@ -28,6 +28,11 @@ public class PresenceRoutingConfiguration extends XmlFile {
     private JdbcTemplate m_jdbcTemplate;
 
     @Override
+    public boolean isLocationDependent() {
+        return false;
+    }
+
+    @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
         final Element userPrefs = document.addElement("presenceRoutingPrefs", NAMESPACE);

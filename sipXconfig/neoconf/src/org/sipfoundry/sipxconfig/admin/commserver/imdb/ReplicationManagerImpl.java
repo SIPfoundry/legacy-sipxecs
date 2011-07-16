@@ -40,6 +40,8 @@ public class ReplicationManagerImpl implements ReplicationManager {
     private static final String FILE_START = "Start Replication of file %s with session id %s";
     private static final String FILE_WRITE_LAST = "Writing %d (last) chunk of %s with session id %s";
     private static final String FILE_WRITE_CHUNK = "Writing %d chunk of %s with session id %s";
+    private static final String EXCEPTION_LOG = "IOException for stream writer";
+    private static final String UTF_8 = "UTF-8";
 
     private static final String PARTIAL = "partial";
     private static final String FINAL = "final";
@@ -152,6 +154,33 @@ public class ReplicationManagerImpl implements ReplicationManager {
         if (!m_enabled) {
             return true;
         }
+
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+        // if content same for all locations generate only once
+        if (!file.isLocationDependent()) {
+            boolean shouldReplicate = false;
+            // check if we have at least one location to replicate file
+            for (Location location : locations) {
+                if (location.isRegistered() && file.isReplicable(location)) {
+                    shouldReplicate = true;
+                    break;
+                }
+            }
+            if (shouldReplicate) {
+                // generate content only once - same for all locations (we do have at least one)
+                try {
+                    LOG.debug("Generate content for " + file.getName());
+                    Writer writer = new OutputStreamWriter(outStream, UTF_8);
+                    file.write(writer, null);
+                    writer.close();
+                } catch (IOException e) {
+                    LOG.error(EXCEPTION_LOG, e);
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
         boolean success = false;
         for (int i = 0; i < locations.length; i++) {
             if (!locations[i].isRegistered()) {
@@ -163,10 +192,15 @@ public class ReplicationManagerImpl implements ReplicationManager {
                 continue;
             }
             try {
-                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-                Writer writer = new OutputStreamWriter(outStream, "UTF-8");
-                file.write(writer, locations[i]);
-                writer.close();
+                if (file.isLocationDependent()) {
+                    // regenerate content for each location
+                    outStream = new ByteArrayOutputStream();
+                    LOG.debug("Generate location dependent content for " + file.getName()
+                            + " on location " + locations[i].getFqdn());
+                    Writer writer = new OutputStreamWriter(outStream, UTF_8);
+                    file.write(writer, locations[i]);
+                    writer.close();
+                }
 
                 String sessionId = getSessionId();
                 FileApi api = m_fileApiProvider.getApi(locations[i].getProcessMonitorUrl());
@@ -207,7 +241,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
                 LOG.error("UTF-8 encoding should be always supported.");
                 throw new RuntimeException(e);
             } catch (IOException e) {
-                LOG.error("IOException for stream writer", e);
+                LOG.error(EXCEPTION_LOG, e);
                 throw new RuntimeException(e);
             }
         }

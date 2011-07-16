@@ -46,6 +46,11 @@ public class ResourceLists extends XmlFile {
     private JdbcTemplate m_jdbcTemplate;
 
     @Override
+    public boolean isLocationDependent() {
+        return false;
+    }
+
+    @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
         final Element lists = document.addElement("lists", NAMESPACE);
