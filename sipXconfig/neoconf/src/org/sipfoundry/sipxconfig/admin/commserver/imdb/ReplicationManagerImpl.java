@@ -49,6 +49,10 @@ public class ReplicationManagerImpl implements ReplicationManager {
     private ApiProvider<ImdbApi> m_imdbApiProvider;
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
+    // replicate by default 25000 records chunk data set
+    private int m_dataSetChunkSize = 25000;
+    // replicate by default 5M chunk file
+    private int m_fileChunkSize = 5000000;
 
     public void setFileApiProvider(ApiProvider<FileApi> fileApiProvider) {
         m_fileApiProvider = fileApiProvider;
@@ -103,7 +107,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
                     int recordsSize = records.size();
                     while (index < recordsSize) {
                         List<Map<String, String>> recordsToReplicate = DataCollectionUtil.getPage(records, index,
-                                25000);
+                                m_dataSetChunkSize);
                         index = index + recordsToReplicate.size();
                         if (index == recordsSize) {
                             status = FINAL;
@@ -169,7 +173,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
                 LOG.info(String.format(FILE_START, file.getName(), sessionId));
                 byte[] payloadBytes = outStream.toByteArray();
                 int offset = 0;
-                int buffer = 5000000;
+                int buffer = m_fileChunkSize;
                 String content;
                 while (offset < payloadBytes.length) {
                     byte[] outputBytes;
@@ -217,6 +221,14 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
+    }
+
+    public void setDataSetChunkSize(int chunkSize) {
+        m_dataSetChunkSize = chunkSize;
+    }
+
+    public void setFileChunkSize(int chunkSize) {
+        m_fileChunkSize = chunkSize;
     }
 
     private String getHostname() {
