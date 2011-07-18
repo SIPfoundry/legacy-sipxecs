@@ -1,3 +1,5 @@
+SUBDIRS = testlib .
+
 INCLUDES = -I$(top_srcdir)/include
 
 # Define values used in local database unit tests. This only
@@ -21,10 +23,8 @@ endif
 #  Have to be ported to mongodb
 #	testsuite 
 
-TESTS = \
-	sipx_config_value_test
-
-check_PROGRAMS = testsuite
+TESTS = testsuite$(EXEEXT)
+check_PROGRAMS = testsuite$(EXEEXT)
 
 testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
@@ -40,23 +40,25 @@ testsuite_CXXFLAGS = \
     $(db_CXXFLAGS)
 
 testsuite_LDADD = \
-   ../libsipXcommserver.la
+	@SIPXUNIT_LIBS@ \
+   ../libsipXcommserver.la \
+   testlib/libsipXcommserverTest.la
 
 # FAILING - leaks semaphores and eventually buildserver will proceed to fail here
 # see XCS-78
 #    RegistryDbTest.cpp
 
 testsuite_SOURCES = \
-    ResultSetRpcTest.cpp \
-    MappingRulesUrlMappingTest.cpp \
-    AuthRulesUrlMappingTest.cpp \
-    FallbackRulesUrlMappingTest.cpp \
-    LocationDbTest.cpp \
-    UserLocationDbTest.cpp \
-	 SipXecsServiceTest.cpp \
-	 SharedSecretTest.cpp \
-	 SipNonceDbTest.cpp \
-    $(db_FILES)
+	MongoDbTest.cpp \
+	ResultSetRpcTest.cpp \
+	MappingRulesUrlMappingTest.cpp \
+	AuthRulesUrlMappingTest.cpp \
+	FallbackRulesUrlMappingTest.cpp \
+	SipXecsServiceTest.cpp \
+	SharedSecretTest.cpp \
+	$(db_FILES)
+
+testsuite_SOURCES_test = MongoDbTest.cpp
 
 EXTRA_DIST = \
 	sharedsecret/domain-config \

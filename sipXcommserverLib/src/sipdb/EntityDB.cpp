@@ -30,7 +30,7 @@ MongoDB::Collection<EntityDB>& EntityDB::defaultCollection()
 EntityDB::EntityDB(
     MongoDB& db,
     const std::string& ns) :
-    MongoDB::DBInterface(db, ns)
+    MongoDB::DBInterface(db, "", ns)
 {
 }
 

@@ -32,7 +32,7 @@ MongoDB::Collection<SubscribeDB>& SubscribeDB::defaultCollection()
 SubscribeDB::SubscribeDB(
     MongoDB& db,
     const std::string& ns) :
-    MongoDB::DBInterface(db, ns)
+    MongoDB::DBInterface(db, "", ns)
 {
 }
 
