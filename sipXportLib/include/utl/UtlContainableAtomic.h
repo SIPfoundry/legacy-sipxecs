@@ -43,6 +43,7 @@ class UtlContainableAtomic : public UtlContainable
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+  virtual ~UtlContainableAtomic();
 /* ============================ CREATORS ================================== */
 
     /// Calculate a hash code for this object.
