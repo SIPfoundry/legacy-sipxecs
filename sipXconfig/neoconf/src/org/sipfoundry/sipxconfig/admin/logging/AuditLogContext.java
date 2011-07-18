@@ -34,6 +34,8 @@ public interface AuditLogContext {
 
     void logReplication(String dataName, Location location);
 
+    void logReplicationFailed(String dataName, Location location);
+
     void logConfigChange(CONFIG_CHANGE_TYPE changeType, String configType, String configName);
 
     void logProcessStateChange(PROCESS_STATE_CHANGE stateChange, String processName, Location location);

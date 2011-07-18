@@ -26,6 +26,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.DnsGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.logging.ReplicationBean;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -60,6 +61,9 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
 
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject("spring:replicationBean")
+    public abstract ReplicationBean getReplicationBean();
 
     @InjectPage(EditLocationPage.PAGE)
     public abstract EditLocationPage getEditLocationPage();
@@ -135,6 +139,7 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
                 continue;
             }
 
+            getReplicationBean().removeFlag(locationToActivate.getFqdn());
             getServiceConfigurator().replicateLocation(locationToActivate);
             getServiceConfigurator().enforceRole(locationToActivate);
 

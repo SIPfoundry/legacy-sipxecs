@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.springframework.beans.factory.annotation.Required;
 
 public class AuditLogContextImpl implements AuditLogContext {
 
@@ -22,12 +23,24 @@ public class AuditLogContextImpl implements AuditLogContext {
     private static final String CONFIG_CHANGE_EVENT = "ConfigChange";
     private static final String PROCESS_STATE_CHANGE_EVENT = "ProcessStateChange";
 
+    private static final String TO = " to ";
+
     private static final Log AUDIT_LOG = LogFactory.getLog("org.sipfoundry.sipxconfig.auditlog");
+
+    private ReplicationBean m_replicationBean;
 
     @Override
     public void logReplication(String dataName, Location location) {
         MDC.put(EVENT_TYPE, REPLICATION_EVENT);
-        log("Replicated " + dataName + " to " + location.getFqdn());
+        log("Replicated " + dataName + TO + location.getFqdn());
+    }
+
+    @Override
+    public void logReplicationFailed(String dataName, Location location) {
+        MDC.put(EVENT_TYPE, REPLICATION_EVENT);
+        String fqdn = location.getFqdn();
+        logFailed("Cannot Replicate " + dataName + TO + fqdn);
+        m_replicationBean.createFlagFailed(fqdn);
     }
 
     @Override
@@ -65,5 +78,14 @@ public class AuditLogContextImpl implements AuditLogContext {
 
     private void log(String message) {
         AUDIT_LOG.info(message);
+    }
+
+    private void logFailed(String message) {
+        AUDIT_LOG.error(message);
+    }
+
+    @Required
+    public void setReplicationBean(ReplicationBean replicationBean) {
+        m_replicationBean = replicationBean;
     }
 }
