@@ -228,6 +228,13 @@ rm -rf $RPM_BUILD_ROOT
 %{upgrade_archive_dir}/%{this_archive}
 
 # Install configserver config files, directory only is created by pbx
+#
+# NOTE: Need to declare both
+#    %dir %attr(755,sipxchange,sipxchange) /somedir
+#    %config(noreplace) %/somedir/somefile
+# otherwise /somedir will have root permissions
+# see http://lists.rpm.org/pipermail/rpm-list/2011-July/000946.html
+
 %defattr(644,sipxchange,sipxchange,755)
 %config(noreplace) %{sipxpbxconf}/sipxconfig-jetty.xml
 %config(noreplace) %{sipxpbxconf}/log4j.properties
@@ -236,43 +243,79 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/VM_global_library.vm
 %config(noreplace) %{sipxpbxconf}/setting.dtd
 %config(noreplace) %{sipxpbxconf}/setting.xsl
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/acme
 %config(noreplace) %{sipxpbxconf}/acme/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/acmePhone
 %config(noreplace) %{sipxpbxconf}/acmePhone/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/acd
 %config(noreplace) %{sipxpbxconf}/acd/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/alarms
 %config(noreplace) %{sipxpbxconf}/alarms/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/commserver
 %config(noreplace) %{sipxpbxconf}/commserver/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/freeswitch
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/database
 %config(noreplace) %{sipxpbxconf}/database/*
-%config(noreplace) %{sipxpbxconf}/region_*/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/region_na
+%config(noreplace) %{sipxpbxconf}/region_na/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/nattraversal
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxbridge
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxconference
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxconfig
 %config(noreplace) %{sipxpbxconf}/sipxconfig/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipximbot
 %config(noreplace) %{sipxpbxconf}/sipximbot/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/scsimbot
 %config(noreplace) %{sipxpbxconf}/scsimbot/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxivr
 %config(noreplace) %{sipxpbxconf}/sipxivr/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxproxy
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxacccode
 %config(noreplace) %{sipxpbxconf}/sipxacccode/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxregistrar
 %config(noreplace) %{sipxpbxconf}/sipxregistrar/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxcallresolver
 %config(noreplace) %{sipxpbxconf}/sipxcallresolver/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxconfigagent
 %config(noreplace) %{sipxpbxconf}/sipxconfigagent/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxpresence
 %config(noreplace) %{sipxpbxconf}/sipxpresence/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxstatus
 %config(noreplace) %{sipxpbxconf}/sipxstatus/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxpark
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxpage
 %config(noreplace) %{sipxpbxconf}/sipxpage/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxrecording
 %config(noreplace) %{sipxpbxconf}/sipxrecording/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxrls
 %config(noreplace) %{sipxpbxconf}/sipxrls/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxvxml
 %config(noreplace) %{sipxpbxconf}/sipxvxml/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/test.d
 %config(noreplace) %{sipxpbxconf}/test.d/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/unmanagedPhone
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mailbox
 %config(noreplace) %{sipxpbxconf}/mailbox/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxsaa
 %config(noreplace) %{sipxpbxconf}/sipxsaa/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxrest
 %config(noreplace) %{sipxpbxconf}/sipxrest/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxprovision
 %config(noreplace) %{sipxpbxconf}/sipxprovision/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/openacd
 %config(noreplace) %{sipxpbxconf}/openacd/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/tunnel
 %config(noreplace) %{sipxpbxconf}/tunnel/*
-%config(noreplace) %{_localstatedir}/sipxdata/reports/*
 
+%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/reports
+%config(noreplace) %{_localstatedir}/sipxdata/reports/*
 %dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/upload
 %dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/backup
 %dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/configserver/web-cert
