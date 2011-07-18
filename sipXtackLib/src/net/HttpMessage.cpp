@@ -1154,7 +1154,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
    #else
    if (body)
    {
-        OsSysLog::add(FAC_HTTP, PRI_WARNING,
+        Os::Logger::instance().log(FAC_HTTP, PRI_WARNING,
             "HttpMessage::read "
             "!!!MEMORY LEAK!!! method is non-reentrant.");
    }
