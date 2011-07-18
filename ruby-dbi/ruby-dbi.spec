@@ -4,14 +4,13 @@
 
 Name: ruby-dbi
 Version: 0.1.1
-Release: 2
+Release: 3
 
 License: BSD
 Group: Development/Languages/Ruby
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 BuildRequires: ruby ruby-devel
-BuildArch: noarch
 
 URL: http://rubyforge.org/projects/ruby-dbi
 Source: http://rubyforge.org/frs/download.php/12368/dbi-0.1.1.tar.gz
@@ -50,6 +49,9 @@ DESTDIR="%{buildroot}" ruby setup.rb install
 %doc examples/ test/
 
 %changelog
+* Mon Jul 18 2011 Douglas Hubler <dhubler@ezuce.com> - dbi-3
+- Make arch dependent as %{libdir} varies from by arch and that is where files get installed, correctly or not.
+
 * Tue Nov 15 2006 Damian Krzeminski <damian@pingtel.com> - dbi-2
 - Install in ruby lib directory and not in site_ruby directory.
 
