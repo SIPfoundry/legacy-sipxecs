@@ -24,17 +24,27 @@
     </property>
     <property name="logDir" value="${sysdir.log}" />
   </bean>
-
-  <bean id="tunnelClientConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelClientConfigurationFile" parent="defaultConfigurationFile">
-    <property name="name" value="tunnel/client.conf"/>
+  
+  <bean id="tunnelManager" class="org.sipfoundry.sipxconfig.tunnel.TunnelManagerImpl">
+	<property name="locationsManager" ref="locationsManager"/>
+	<property name="replicationManager" ref="replicationManagerImpl"/>
+	<property name="clientFile" ref="tunnelClientConfig"/>
+	<property name="serverFile" ref="tunnelServerConfig"/>
+  </bean>
+  
+  <bean id="tunnelConfig" abstract="true" parent="defaultConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine"/>
+    <property name="tunnelManager" ref="tunnelManager"/>
     <property name="locationsManager" ref="locationsManager"/>
+  </bean>
+  
+  <bean id="tunnelClientConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelClientConfigurationFile" parent="tunnelConfig">
+    <property name="name" value="tunnel/client.conf"/>
     <property name="template" value="tunnel/tunnel-client.conf.vm"/>
   </bean>
   
-  <bean id="tunnelServerConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelServerConfigurationFile" parent="defaultConfigurationFile">
+  <bean id="tunnelServerConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelServerConfigurationFile" parent="tunnelConfig">
     <property name="name" value="tunnel/server.conf"/>
-    <property name="velocityEngine" ref="velocityEngine"/>
     <property name="template" value="tunnel/tunnel-server.conf.vm"/>
   </bean>
 

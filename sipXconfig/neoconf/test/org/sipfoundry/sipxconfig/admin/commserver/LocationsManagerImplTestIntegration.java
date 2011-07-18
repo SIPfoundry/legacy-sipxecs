@@ -123,12 +123,15 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         loadDataSetXml("admin/commserver/clearLocations.xml");
         Location location = new Location();
         location.setName("test location");
+        location.setPrimary(true);
+        location.setFqdn("location.example.org");
         location.setAddress("192.168.1.2");
         location.setFqdn("localhost");
         location.setRegistered(true);
 
         Location location2 = new Location();
         location2.setName("test location");
+        location2.setFqdn("location2.example.org");
         location2.setAddress("192.168.1.3");
         location2.setFqdn("localhost1");
         location2.setRegistered(false);
@@ -192,6 +195,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setAddress("10.1.1.1");
         location.setFqdn("localhost");
         location.setRegistered(true);
+        location.setPrimary(true);
         m_out.saveLocation(location);
         
         Location location2 = new Location();
@@ -205,14 +209,14 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(2, locationsBeforeDelete.length);
         MongoTestCaseHelper.assertCollectionCount(1);
 
-        Location locationToDelete = m_out.getLocation(locationsBeforeDelete[0].getId());
+        Location locationToDelete = m_out.getLocationByAddress("10.1.1.2");
         m_out.deleteLocation(locationToDelete);
 
         Location[] locationsAfterDelete = m_out.getLocations();
         assertEquals(1, locationsAfterDelete.length);
-        assertEquals("localhost1", locationsAfterDelete[0].getFqdn());
+        assertEquals("localhost", locationsAfterDelete[0].getFqdn());
 
-        MongoTestCaseHelper.assertCollectionCount(0);
+        MongoTestCaseHelper.assertCollectionCount(1);
     }
 
     public void testDeleteWithServices() throws Exception {

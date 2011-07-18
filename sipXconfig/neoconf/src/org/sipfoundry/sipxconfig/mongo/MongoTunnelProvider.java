@@ -10,6 +10,7 @@ package org.sipfoundry.sipxconfig.mongo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -23,8 +24,8 @@ import org.sipfoundry.sipxconfig.tunnel.TunnelProvider;
  */
 public class MongoTunnelProvider implements TunnelProvider {
     private int m_localPort = 27017;
-    private int m_tunnelPortToMaster = 27018;
-    private int m_tunnelStartingPortToSecondary = 27019;
+    private int m_incomingPort = 27018;
+    private int m_primaryPort = 27019;
 
     /**
      * @return The port number mongod runs on
@@ -41,23 +42,23 @@ public class MongoTunnelProvider implements TunnelProvider {
      * @return The local port that will lead to the mongo master server
      */
     public int getTunnelPortToMaster() {
-        return m_tunnelPortToMaster;
+        return m_incomingPort;
     }
 
-    public void setTunnelPortToMaster(int tunnelPortToMaster) {
-        m_tunnelPortToMaster = tunnelPortToMaster;
+    public void setTunnelPortToMaster(int incomingPort) {
+        m_incomingPort = incomingPort;
     }
 
     /**
      * @return The local port that will lead to the first in a possible list of mongo server that are
      * *not* the master.  Port numbers will increase by one the number of non-master servers you have
      */
-    public int getTunnelStartingPortToSecondary() {
-        return m_tunnelStartingPortToSecondary;
+    public int getPrimaryPort() {
+        return m_primaryPort;
     }
 
-    public void setTunnelStartingPortToSecondary(int tunnelStartingPortToSecondary) {
-        m_tunnelStartingPortToSecondary = tunnelStartingPortToSecondary;
+    public void setPrimaryPort(int primaryPort) {
+        m_primaryPort = primaryPort;
     }
 
     @Override
@@ -69,15 +70,23 @@ public class MongoTunnelProvider implements TunnelProvider {
         }
 
         List<RemoteOutgoingTunnel> tunnels = new ArrayList<RemoteOutgoingTunnel>();
-        RemoteOutgoingTunnel primary = new RemoteOutgoingTunnel("mongod-primary");
-        primary.setLocalhostPort(m_tunnelStartingPortToSecondary);
-        primary.setPortOnRemoteMachine(m_tunnelPortToMaster);
-        tunnels.add(primary);
-
-        for (int i = 0; i < otherLocations.size(); i++) {
-            RemoteOutgoingTunnel additional = new RemoteOutgoingTunnel("mongod-" + i);
-            additional.setLocalhostPort(m_tunnelStartingPortToSecondary + i + 1);
-            additional.setPortOnRemoteMachine(m_tunnelPortToMaster);
+        Iterator<Location> otherLocationsIterator = otherLocations.iterator();
+        for (int i = 0; otherLocationsIterator.hasNext();) {
+            Location otherLocation = otherLocationsIterator.next();
+            String name;
+            int port;
+            if (otherLocation.isPrimary()) {
+                name = "mongod-primary";
+                port = m_primaryPort;
+            } else {
+                name = "mongod-" + i;
+                port = m_primaryPort + (i + 1);
+                i++;
+            }
+            RemoteOutgoingTunnel additional = new RemoteOutgoingTunnel(name);
+            additional.setLocalhostPort(port);
+            additional.setPortOnRemoteMachine(m_incomingPort);
+            additional.setRemoteMachineAddress(otherLocation.getAddress());
             tunnels.add(additional);
         }
 
@@ -94,8 +103,8 @@ public class MongoTunnelProvider implements TunnelProvider {
 
         List<AllowedIncomingTunnel> tunnels = new ArrayList<AllowedIncomingTunnel>();
         AllowedIncomingTunnel primary = new AllowedIncomingTunnel("mongod");
-        primary.setLocalhostPort(m_tunnelPortToMaster);
-        primary.setAllowedConnectionsPort(m_localPort);
+        primary.setLocalhostPort(m_localPort);
+        primary.setAllowedConnectionsPort(m_incomingPort);
         tunnels.add(primary);
         return tunnels;
     }

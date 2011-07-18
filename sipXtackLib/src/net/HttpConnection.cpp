@@ -84,7 +84,6 @@ HttpConnection::~HttpConnection()
 /* ============================ MANIPULATORS ============================== */
 int HttpConnection::run(void* runArg)
 {
-    HttpMessage request;
     bool bConnected = true;
 
     if (!mpRequestSocket || !mpRequestSocket->isOk())
@@ -94,6 +93,10 @@ int HttpConnection::run(void* runArg)
 
     while(!isShuttingDown() && mpRequestSocket && mpRequestSocket->isOk() && bConnected)
     {
+        //
+        // Moved inside the loop so that destructor of the request is called for every iteration
+        //
+        HttpMessage request;
         // Read a http request from the socket
         if (mpRequestSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS))
         {

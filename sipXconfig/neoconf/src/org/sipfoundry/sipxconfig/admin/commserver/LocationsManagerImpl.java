@@ -104,11 +104,14 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
             if (isFqdnOrIpInUseExceptThis(location)) {
                 throw new UserException(DUPLICATE_FQDN_OR_IP, location.getFqdn(), location.getAddress());
             }
+            location.fqdnOrIpHasChangedOnSave();
             getHibernateTemplate().save(location);
         } else {
-            if (isFqdnOrIpChanged(location) && isFqdnOrIpInUseExceptThis(location)) {
+            boolean isFqdnOrIpChanged = isFqdnOrIpChanged(location);
+            if (isFqdnOrIpChanged && isFqdnOrIpInUseExceptThis(location)) {
                 throw new UserException(DUPLICATE_FQDN_OR_IP, location.getFqdn(), location.getAddress());
             }
+            location.fqdnOrIpHasChangedOnSave();
             getHibernateTemplate().update(location);
         }
     }
@@ -130,7 +133,7 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
      * sure). If no ip/fqdn change occurs, no user exception is thrown no matter if there is at
      * least one more location with the same ip or fqdn
      */
-    private boolean isFqdnOrIpChanged(Location location) {
+    public boolean isFqdnOrIpChanged(Location location) {
         List count = getHibernateTemplate().findByNamedQueryAndNamedParam("sameLocationWithSameFqdnOrIp",
                 new String[] {
                     LOCATION_PROP_ID, LOCATION_PROP_NAME, LOCATION_PROP_IP

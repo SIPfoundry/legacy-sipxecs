@@ -391,7 +391,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public void updateConfAudio() {
         SipxFreeswitchService service = getSipxFreeswitchService();
-        List< ? extends ConfigurationFile> configurationFiles = service.getConfigurations();
+        Set< ? extends ConfigurationFile> configurationFiles = service.getConfigurations();
         for (ConfigurationFile configurationFile : configurationFiles) {
             if (configurationFile instanceof ConferenceConfiguration) {
                 m_replicationContext.replicate(configurationFile);

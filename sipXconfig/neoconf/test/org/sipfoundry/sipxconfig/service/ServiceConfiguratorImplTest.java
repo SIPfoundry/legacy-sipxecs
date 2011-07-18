@@ -13,6 +13,9 @@ package org.sipfoundry.sipxconfig.service;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -39,7 +42,9 @@ public class ServiceConfiguratorImplTest extends TestCase {
         ConfigurationFile b = new DummyConfig("b", false);
         ConfigurationFile c = new DummyConfig("c", true);
 
-        service.setConfigurations(asList(a, b, c));
+        Set<ConfigurationFile> configurationFiles = new HashSet<ConfigurationFile>();
+        configurationFiles.addAll(asList(a, b, c));
+        service.setConfigurations(configurationFiles);
 
         ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
         SipxProcessContext pc = createMock(SipxProcessContext.class);
@@ -72,7 +77,9 @@ public class ServiceConfiguratorImplTest extends TestCase {
         ConfigurationFile b = new DummyConfig("b", false);
         ConfigurationFile c = new DummyConfig("c", true);
 
-        service.setConfigurations(asList(a, b, c));
+        Set<ConfigurationFile> configurationFiles = new HashSet<ConfigurationFile>();
+        configurationFiles.addAll(asList(a, b, c));
+        service.setConfigurations(configurationFiles);
 
         ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
         SipxProcessContext pc = createMock(SipxProcessContext.class);
@@ -105,7 +112,9 @@ public class ServiceConfiguratorImplTest extends TestCase {
         ConfigurationFile b = new DummyConfig("b", false);
         ConfigurationFile c = new DummyConfig("c", true);
 
-        service.setConfigurations(asList(a, b, c));
+        Set<ConfigurationFile> configurationFiles = new HashSet<ConfigurationFile>();
+        configurationFiles.addAll(asList(a, b, c));
+        service.setConfigurations(configurationFiles);
 
         ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
         SipxProcessContext pc = createMock(SipxProcessContext.class);
@@ -133,7 +142,9 @@ public class ServiceConfiguratorImplTest extends TestCase {
         ConfigurationFile b = new DummyConfig("b", false);
         ConfigurationFile c = new DummyConfig("c", true);
 
-        service.setConfigurations(asList(a, b, c));
+        Set<ConfigurationFile> configurationFiles = new HashSet<ConfigurationFile>();
+        configurationFiles.addAll(asList(a, b, c));
+        service.setConfigurations(configurationFiles);
 
         ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
         SipxProcessContext pc = createMock(SipxProcessContext.class);
@@ -161,7 +172,9 @@ public class ServiceConfiguratorImplTest extends TestCase {
         ConfigurationFile b = new DummyConfig("b", false);
         ConfigurationFile c = new DummyConfig("c", true);
 
-        service.setConfigurations(asList(a, b, c));
+        Set<ConfigurationFile> configurationFiles = new HashSet<ConfigurationFile>();
+        configurationFiles.addAll(asList(a, b, c));
+        service.setConfigurations(configurationFiles);
 
         ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
         SipxProcessContext pc = createMock(SipxProcessContext.class);
@@ -189,7 +202,9 @@ public class ServiceConfiguratorImplTest extends TestCase {
         ConfigurationFile b = new DummyConfig("b", false);
         ConfigurationFile c = new DummyConfig("c", true);
 
-        service.setConfigurations(asList(a, b, c));
+        Set<ConfigurationFile> configurationFiles = new HashSet<ConfigurationFile>();
+        configurationFiles.addAll(asList(a, b, c));
+        service.setConfigurations(configurationFiles);
 
         ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
         SipxProcessContext pc = createMock(SipxProcessContext.class);
@@ -228,7 +243,9 @@ public class ServiceConfiguratorImplTest extends TestCase {
         ConfigurationFile b = new DummyConfig("b", false);
         ConfigurationFile c = new DummyConfig("c", true);
 
-        service.setConfigurations(asList(a, b, c));
+        Set<ConfigurationFile> configurationFiles = new HashSet<ConfigurationFile>();
+        configurationFiles.addAll(asList(a, b, c));
+        service.setConfigurations(configurationFiles);
 
         ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
         SipxServiceManager sm = createMock(SipxServiceManager.class);
@@ -245,13 +262,13 @@ public class ServiceConfiguratorImplTest extends TestCase {
         }).anyTimes();
 
         SipxSupervisorService sipxSupervisorService = new SipxSupervisorService();
-        sipxSupervisorService.setConfigurations(asList(a, b, c));
+        sipxSupervisorService.setConfigurations(configurationFiles);
         sm.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
         expectLastCall().andReturn(sipxSupervisorService).anyTimes();
 
         AlarmContext alarmContext = createMock(AlarmContext.class);
         SipxAlarmService alarmService = new SipxAlarmService();
-        alarmService.setConfigurations(asList(a, b, c));
+        alarmService.setConfigurations(configurationFiles);
         alarmService.setAlarmContext(alarmContext);
         sm.getServiceByBeanId(SipxAlarmService.BEAN_ID);
         expectLastCall().andReturn(alarmService).anyTimes();

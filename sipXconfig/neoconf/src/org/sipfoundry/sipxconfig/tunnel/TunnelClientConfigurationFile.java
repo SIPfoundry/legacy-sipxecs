@@ -9,27 +9,23 @@
  */
 package org.sipfoundry.sipxconfig.tunnel;
 
-import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
-public class TunnelClientConfigurationFile extends TemplateConfigurationFile {
-    private LocationsManager m_locationsManager;
+public class TunnelClientConfigurationFile extends AbstractTunnelConfiguration {
 
-    @Override
-    protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(location);
-        context.put("primary", m_locationsManager.getPrimaryLocation());
-        context.put("locations", m_locationsManager.getLocations());
-        return context;
-    }
-
-    public LocationsManager getLocationsManager() {
-        return m_locationsManager;
-    }
-
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
+    /**
+     * Collect all the client-side tunnel configs from all the providers
+     */
+    protected Collection<? extends AbstractTunnel> getTunnels(Location location) {
+        List<RemoteOutgoingTunnel> tunnels = new ArrayList<RemoteOutgoingTunnel>();
+        List<Location> otherLocations = getOtherLocations(location);
+        for (TunnelProvider p : getTunnelManager().getTunnelProviders()) {
+            tunnels.addAll(p.getClientSideTunnels(otherLocations, location));
+        }
+        return tunnels;
     }
 }

@@ -1134,7 +1134,32 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
    // Remember to empty the list of parsed header values, as we will use it
    // to parse the headers on the HTTP response we are going to read.
    mNameValues.destroyAll();
-
+   
+   //
+   // HEY YOU! 
+   //
+   // If you are not me (Joegen) and you are reading this note, destorying mNameValues contents above
+   // is not enough.  "body" member (yes not mBody) will also leak!  So we must check it for nullity here
+   // and delete it if it's non-NULL.  Reason why I did not do it yet is because I am not sure whether
+   // external code actually deletes is explicitly when trying to recycle and HttpMessage.  If you have
+   // time to confirm that that is not so, then un-ifdef the code below. For now we just warn with extreme
+   // prejudice.
+   //
+   #if 0
+   if (body)
+   {
+       delete body;
+       body = 0;
+   }
+   #else
+   if (body)
+   {
+        OsSysLog::add(FAC_HTTP, PRI_WARNING,
+            "HttpMessage::read "
+            "!!!MEMORY LEAK!!! method is non-reentrant.");
+   }
+   #endif
+   
    //the following code if enabled will test the effect of messages coming in a
    //fragmented way.  This should NOT be enabled in a released build as
    //performance will be severely affected.

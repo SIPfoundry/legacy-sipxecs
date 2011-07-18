@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,7 +41,7 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
     private String m_beanId;
     private String m_modelName;
     private String m_modelDir;
-    private List< ? extends ConfigurationFile> m_configurations;
+    private Set< ? extends ConfigurationFile> m_configurations;
     private List<SipxService> m_affectedServices;
     private String m_sipPort;
     private String m_logDir;
@@ -122,13 +123,13 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
         return m_serviceManager;
     }
 
-    public void setConfigurations(List< ? extends ConfigurationFile> configurations) {
+    public void setConfigurations(Set< ? extends ConfigurationFile> configurations) {
         m_configurations = configurations;
     }
 
-    public List< ? extends ConfigurationFile> getConfigurations() {
+    public Set< ? extends ConfigurationFile> getConfigurations() {
         if (m_configurations == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.EMPTY_SET;
         }
 
         return m_configurations;
@@ -150,12 +151,12 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
      * @param safeOnly if true return only configurations that do not require restart
      * @return collection of configuration files
      */
-    public List< ? extends ConfigurationFile> getConfigurations(boolean safeOnly) {
-        List< ? extends ConfigurationFile> all = getConfigurations();
+    public Set< ? extends ConfigurationFile> getConfigurations(boolean safeOnly) {
+        Set< ? extends ConfigurationFile> all = getConfigurations();
         if (!safeOnly) {
             return all;
         }
-        List<ConfigurationFile> safe = new ArrayList<ConfigurationFile>();
+        Set<ConfigurationFile> safe = new HashSet<ConfigurationFile>();
         for (ConfigurationFile configurationFile : all) {
             if (!configurationFile.isRestartRequired()) {
                 safe.add(configurationFile);
