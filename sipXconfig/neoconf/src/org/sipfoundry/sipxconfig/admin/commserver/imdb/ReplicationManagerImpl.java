@@ -107,18 +107,23 @@ public class ReplicationManagerImpl implements ReplicationManager {
                     String status = PARTIAL;
                     int index = 0;
                     int recordsSize = records.size();
-                    while (index < recordsSize) {
-                        List<Map<String, String>> recordsToReplicate = DataCollectionUtil.getPage(records, index,
-                                m_dataSetChunkSize);
-                        index = index + recordsToReplicate.size();
-                        if (index == recordsSize) {
-                            status = FINAL;
-                        }
-                        LOG.debug(String.format(DATA_SET_WRITE, type.getName(), index, sessionId, status));
-                        success = api.replace(getHostname(), type.getName(),
-                                recordsToReplicate.toArray(new Map[recordsToReplicate.size()]), status, sessionId);
-                        if (!success) {
-                            break;
+                    // replicate file is there is no record so resource to be created
+                    if (recordsSize == 0) {
+                        success = api.replace(getHostname(), type.getName(), records.toArray(new Map[records.size()]));
+                    } else {
+                        while (index < recordsSize) {
+                            List<Map<String, String>> recordsToReplicate = DataCollectionUtil.getPage(records, index,
+                                    m_dataSetChunkSize);
+                            index = index + recordsToReplicate.size();
+                            if (index == recordsSize) {
+                                status = FINAL;
+                            }
+                            LOG.debug(String.format(DATA_SET_WRITE, type.getName(), index, sessionId, status));
+                            success = api.replace(getHostname(), type.getName(),
+                                    recordsToReplicate.toArray(new Map[recordsToReplicate.size()]), status, sessionId);
+                            if (!success) {
+                                break;
+                            }
                         }
                     }
 
