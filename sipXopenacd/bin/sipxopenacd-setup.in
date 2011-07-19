@@ -13,4 +13,4 @@
 # details.
 
 erlmongodir=`@SIPX_BINDIR@/find-erlang-lib erlmongo`
-ln -snf $erlmongodir @OPENACD_DIR@/plugin.d/deps/erlmongo 
+ln -snf $erlmongodir @OPENACD_DIR@/plugin.d/erlmongo
