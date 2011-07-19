@@ -112,6 +112,7 @@ void RegDB::expireOldBindings(
             "expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
 
     MongoDB::BSONObj update = BSON("$set" << BSON(
+        "timestamp" << timeNow <<
         "expired" << true <<
         "cseq" << cseq));
 
@@ -137,17 +138,41 @@ void RegDB::expireAllBindings(
             "expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
 
     MongoDB::BSONObj update = BSON("$set" << BSON(
+         "timestamp" << timeNow <<
         "expired" << true <<
         "cseq" << cseq));
 
     std::string error;
-    if (!_db.update(_ns, query, update, error))
+    if (!_db.update(_ns, query, update, error, false, true))
     {
         //
         // Log error string here
         //
         std::cerr << error;
     }
+}
+
+void RegDB::expireAllBindings(unsigned int timeNow)
+{
+  std::string serverId = _localAddress;
+        serverId += "/";
+        serverId += _ns;
+        
+  MongoDB::BSONObj query = BSON("expirationTime" << BSON_GREATER_THAN_EQUAL(0) <<
+    "localAddress" << serverId);
+
+
+  MongoDB::BSONObj update = BSON("$set" << BSON(
+    "timestamp" << timeNow <<
+    "expired" << true));
+  std::string error;
+  if (!_db.update(_ns, query, update, error, false, true))
+  {
+      //
+      // Log error string here
+      //
+      std::cerr << error;
+  }
 }
 
 
@@ -304,8 +329,26 @@ bool RegDB::getAllBindings(Bindings& bindings)
 
 bool RegDB::getAllOldBindings(int timeNow, Bindings& bindings)
 {
-    MongoDB::BSONObj query = BSON(
-        "expirationTime" << BSON_LESS_THAN(timeNow));
+    MongoDB::BSONObj query = BSON( "expirationTime" << BSON_LESS_THAN(timeNow) );
+
+    std::string error;
+    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+    if (pCursor.get() && pCursor->more())
+    {
+        while (pCursor->more())
+        {
+            RegBinding binding(pCursor->next());
+            if (binding.getCallId() != "#")
+                bindings.push_back(binding);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool RegDB::getAllExpiredBindings(Bindings& bindings)
+{
+  MongoDB::BSONObj query = BSON( "expired" << true);
 
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
@@ -342,6 +385,10 @@ void RegDB::updateReplicationTimeStamp()
         MongoDB::DBInterface::Ptr pNode = *iter;
 
         std::string id = pNode->getInternalAddress() + "/" + pNode->getNameSpace();
+
+        if (isNodeDisabled(id))
+            continue;
+
         int timeStamp = _nodeTimeStamps[id];
 
         MongoDB::BSONObj query = BSON(
@@ -377,15 +424,21 @@ void RegDB::replicate()
     {
         MongoDB::DBInterface::Ptr pNode = *iter;
         bool success = false;
+        std::string id = pNode->getInternalAddress() + "/" + pNode->getNameSpace();
+        
+        if (isNodeDisabled(id))
+              continue;
+
         for (MongoDB::DBInterfaceSet::iterator nodeIter = _replicationNodes.begin();
             nodeIter != _replicationNodes.end(); nodeIter++)
         {
-            std::string id = pNode->getInternalAddress() + "/" + pNode->getNameSpace();
-            int timeStamp = _nodeTimeStamps[id];
+            MongoDB::DBInterface::Ptr peerNode = *nodeIter;
+            std::string peerId = peerNode->getInternalAddress() + "/" + peerNode->getNameSpace();
+            int timeStamp = _nodeTimeStamps[peerId];
 
             MongoDB::BSONObj query = BSON(
             "timestamp" << BSON_GREATER_THAN (timeStamp) <<
-            "localAddress" << id);
+            "localAddress" << peerId);
             std::string error;
 
             MongoDB::Cursor pCursor = pNode->db().find(pNode->getNameSpace(), query, error);
@@ -566,4 +619,24 @@ bool RegDB::clearAllBindings()
 }
 
 
+void RegDB::disableNode(const std::string& nodeId)
+{
+  _disabledNodesMutex.lock();
+  _disabledNodes.insert(nodeId);
+  _disabledNodesMutex.unlock();
+}
 
+void RegDB::enableNode(const std::string& nodeId)
+{
+  _disabledNodesMutex.lock();
+  _disabledNodes.erase(nodeId);
+  _disabledNodesMutex.unlock();
+}
+
+bool RegDB::isNodeDisabled(const std::string& nodeId) const
+{
+  _disabledNodesMutex.lock();
+  bool disabled = _disabledNodes.find(nodeId) != _disabledNodes.end();
+  _disabledNodesMutex.unlock();
+  return disabled;
+}

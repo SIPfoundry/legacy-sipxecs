@@ -61,6 +61,8 @@ public:
         unsigned int cseq,
         unsigned int timeNow);
 
+    void expireAllBindings(unsigned int timeNow);
+
     void expireAllBindings(
         const std::string& identity,
         const std::string& callId,
@@ -96,6 +98,8 @@ public:
 
     bool getAllOldBindings(int timeNow, Bindings& binding);
 
+    bool getAllExpiredBindings(Bindings& bindings);
+
     bool getAllBindings(Bindings& binding);
 
     bool cleanAndPersist(int currentExpireTime, const std::string& nodeConfig = std::string(), bool nodeFetch = true);
@@ -116,10 +120,15 @@ protected:
 public:
     bool addReplicationNode(const std::string& nodeAddress);
     bool addReplicationNode(const std::string& nodeAddress, const std::string& internalAddress, const std::string& ns);
+    void disableNode(const std::string& nodeId);
+    void enableNode(const std::string& nodeId);
+    bool isNodeDisabled(const std::string& nodeId) const;
 private:
     MongoDB::DBInterfaceSet _replicationNodes;
     std::string _localAddress;
     std::map<std::string, int> _nodeTimeStamps;
+    std::set<std::string> _disabledNodes;
+    mutable MongoDB::Mutex _disabledNodesMutex;
     int _st_mtime;
     static std::string _defaultNamespace;
 };

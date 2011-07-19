@@ -299,6 +299,116 @@ public:
     CPPUNIT_ASSERT(_pRegDbHA3->collection().getAllBindings(bindings));
     std::cout << "HA3 records after replication " << bindings.size() << std::endl;
     CPPUNIT_ASSERT(bindings.size() == 1500);
+
+
+    //
+    // Insert new registrations to db 3
+    //
+    for (int i = 2; i <= 2000; i++)
+    {
+      timeNow = (int) OsDateTime::getSecsSinceEpoch();
+      RegBinding::Ptr binding = RegBinding::Ptr(new RegBinding());
+      bool expired = i % 2;
+
+      int user = i + 3000;
+      std::ostringstream contact;
+      contact << "sip:" << user << "@host.sipfoundry.org";
+      binding->setContact(contact.str());
+
+      binding->setLocalAddress("host3/sipXcommserverLib.registrar3");
+
+      if (!expired)
+        binding->setExpirationTime(timeNow + 3600);
+      else
+        binding->setExpirationTime(timeNow - 3600);
+
+
+      binding->setPath("sip:sipfoundry.org");
+
+      binding->setInstrument("instrument-test");
+
+      std::ostringstream callId;
+      callId << "call-id-reg3" << i << "@sipfoundry.org";
+      binding->setCallId(callId.str());
+
+      binding->setCseq(i);
+
+      std::ostringstream identity;
+      identity << user << "@sipfoundry.org";
+      binding->setIdentity(identity.str());
+
+      _pRegDbHA3->collection().updateBinding(binding);
+    }
+
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    //
+    // Call replication to db1 so that it fetches the new records from db3
+    //
+    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json");
+
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    //
+    // Now disable DB3 from both DB1 an DB2
+    //
+    _pRegDbHA1->collection().disableNode("host3/sipXcommserverLib.registrar3");
+    _pRegDbHA2->collection().disableNode("host3/sipXcommserverLib.registrar3");
+
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    //
+    // Call replication for db2 so that it fetches the records only from db1
+    //
+    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json");
+
+    bindings.clear();
+    CPPUNIT_ASSERT(_pRegDbHA1->collection().getAllBindings(bindings));
+    std::cout << "HA1 records after replication while db3 is disabled " << bindings.size() << std::endl;
+    CPPUNIT_ASSERT(bindings.size() == 2000);
+
+    bindings.clear();
+    CPPUNIT_ASSERT(_pRegDbHA2->collection().getAllBindings(bindings));
+    std::cout << "HA2 records after replication while db3 is disabled " << bindings.size() << std::endl;
+    CPPUNIT_ASSERT(bindings.size() == 2000);
+
+    //
+    // Reenable DB3 from both DB1 an DB2
+    //
+    _pRegDbHA1->collection().enableNode("host3/sipXcommserverLib.registrar3");
+    _pRegDbHA2->collection().enableNode("host3/sipXcommserverLib.registrar3");
+
+    //
+    // Expire all bindings from db3
+    //
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _pRegDbHA3->collection().expireAllBindings(timeNow);
+
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json");
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json");
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json");
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json");
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json");
+    timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json");
+
+    bindings.clear();
+    CPPUNIT_ASSERT(_pRegDbHA1->collection().getAllExpiredBindings(bindings));
+    std::cout << "HA1 expired records after replication while db3 expired all records " << bindings.size() << std::endl;
+    CPPUNIT_ASSERT(bindings.size() == 1000);
+
+    bindings.clear();
+    CPPUNIT_ASSERT(_pRegDbHA2->collection().getAllExpiredBindings(bindings));
+    std::cout << "HA2 expired records after replication while db3 expired all records " << bindings.size() << std::endl;
+    CPPUNIT_ASSERT(bindings.size() == 1000);
+
+    bindings.clear();
+    CPPUNIT_ASSERT(_pRegDbHA3->collection().getAllExpiredBindings(bindings));
+    std::cout << "HA3 expired records after replication while db3 expired all records " << bindings.size() << std::endl;
+    CPPUNIT_ASSERT(bindings.size() == 1000);
+    
   }
 
   void testRegistarOperations()
