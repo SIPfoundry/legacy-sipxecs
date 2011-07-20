@@ -22,13 +22,13 @@ sipx = \
   sipXcdrLog \
   sipXfreeSwitch \
   sipXcdr \
-  sipXconfig \
-  sipXopenfire \
   sipXtools \
   sipXpark \
   sipXpresence \
   sipXrls \
   sipXpbx \
+  sipXconfig \
+  sipXopenfire \
   sipXaudiocodes \
   sipXimbot \
   sipXivr \
