@@ -7,7 +7,9 @@ compiled_files = $(source_files:.erl=.beam)
 
 EXTRA_DIST = $(source_files) sipxplugin.app.in
 
-sipxpluginbindir = @OPENACD_DIR@/plugin.d/sipxplugin/ebin
+PLUGIN_DIR = @OPENACD_DIR@/plugin.d
+
+sipxpluginbindir = $(PLUGIN_DIR)/sipxplugin/ebin
 sipxpluginbin_DATA = $(compiled_files) sipxplugin.app
 CLEANFILES = $(compiled_files)
 
@@ -17,6 +19,10 @@ sipxplugin.app : sipxplugin.app.in
 	  -e 's|@VERSION\@|@VERSION@|g' \
 	  -e 's|@PACKAGE_REVISION\@|@PACKAGE_REVISION@|g' \
 	$< > $@
+
+install-exec-hook :
+	test -d $(DESTDIR)$(PLUGIN_DIR) || mkdir -p $(DESTDIR)$(PLUGIN_DIR)
+	cd $(DESTDIR)$(PLUGIN_DIR); ln -snf ./sipxplugin/ebin/sipxplugin.app sipxplugin.app 
 
 %.beam : %.erl
 	$(ERLC) $(OPENACD_ERLCFLAGS) $(ERL_FLAGS) $<
