@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -156,13 +157,13 @@ public class XmppAccountInfo extends XmlFile {
             xmmpGroup.addElement(DESCRIPTION).setText(groupDescription);
         }
 
-        Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
-        for (User user : groupMembers) {
-            ImAccount imAccount = new ImAccount(user);
-            if (imAccount.isEnabled()) {
-                Element userElement = xmmpGroup.addElement(USER);
-                userElement.addElement(USER_NAME).setText(imAccount.getImId());
-            }
+        //use mongo here since it's much faster
+        //downside: in case of bulk generation of users (send profiles, group)
+        //file must be generated after all users are generated
+        List<String> imIds = ValidUsers.INSTANCE.getAllImIdsInGroup(group.getName());
+        for (String imId : imIds) {
+            Element userElement = xmmpGroup.addElement(USER);
+            userElement.addElement(USER_NAME).setText(imId);
         }
 
         Boolean addPersonalAssistant = (Boolean) group.getSettingTypedValue(new BooleanSetting(),

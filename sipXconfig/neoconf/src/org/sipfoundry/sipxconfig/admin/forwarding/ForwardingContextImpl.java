@@ -156,7 +156,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
         @Override
         protected void onUserGroupSave(Group group) {
-            notifyCommserver(getCallSequencesForGroup(group));
         }
     }
 

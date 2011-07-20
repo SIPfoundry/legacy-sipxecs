@@ -45,10 +45,6 @@ public class SipxOpenfireDaoListener implements DaoEventListener {
         if (entity instanceof User) {
             return true;
         }
-        if (entity instanceof Group) {
-            Group group = (Group) entity;
-            return User.GROUP_RESOURCE_ID.equals(group.getResource());
-        }
         if (entity instanceof Conference) {
             return true;
         }

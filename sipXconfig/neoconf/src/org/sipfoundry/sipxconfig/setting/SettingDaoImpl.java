@@ -98,8 +98,6 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
                 throw new UserException("&msg.error.renameAdminGroup");
             }
         }
-
-        m_configFileManager.activateConfigFiles();
         getHibernateTemplate().saveOrUpdate(group);
     }
 

@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 /**
@@ -124,6 +125,7 @@ public class User extends AbstractUser implements Replicable {
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(UID, getUserName());
         props.put(CONTACT, getContactUri(domain));
+        props.put(GROUPS, getGroupsNames().split(" "));
         return props;
     }
 }

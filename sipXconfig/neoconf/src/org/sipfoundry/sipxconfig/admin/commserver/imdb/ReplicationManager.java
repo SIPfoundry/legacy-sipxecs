@@ -13,6 +13,7 @@ import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 /**
  * Contains method that deal with the replication of files and of Replicable entities.
@@ -95,4 +96,6 @@ public interface ReplicationManager {
      * Removes this permission from entities that have it. Used when deleting a permission.
      */
     void removePermission(Permission perm);
+
+    void replicateGroup(Group group);
 }

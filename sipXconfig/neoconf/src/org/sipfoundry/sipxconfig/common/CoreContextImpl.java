@@ -39,6 +39,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import static org.springframework.dao.support.DataAccessUtils.intResult;
@@ -63,6 +64,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String USER_ADMIN = "userAdmin";
     private static final String FIRST = "first";
     private static final String PAGE_SIZE = "pageSize";
+    private static final String SEMICOLON = ";";
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
@@ -70,7 +72,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private AliasManager m_aliasManager;
     private ConfigFileActivationManager m_configFileManager;
     private ApplicationContext m_applicationContext;
+    private JdbcTemplate m_jdbcTemplate;
     private boolean m_debug;
+
 
     /** limit number of users */
     private int m_maxUserCount = -1;
@@ -644,12 +648,33 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
+    public Collection<User> getGroupMembersByPage(int gid, int first, int pageSize) {
+        Query q = getHibernateTemplate()
+                .getSessionFactory()
+                .getCurrentSession()
+                .createSQLQuery(
+                        "select * from users join user_group on user_group.user_id=users.user_id "
+                        + "where user_group.group_id=:gid limit :pageSize offset :first").addEntity(User.class);
+        q.setInteger("gid", gid);
+        q.setInteger(FIRST, first);
+        q.setInteger(PAGE_SIZE, pageSize);
+        List<User> users = q.list();
+        return users;
+    }
+
+    @Override
     public Collection<String> getGroupMembersNames(Group group) {
         Collection<String> userNames = getHibernateTemplate().findByNamedQueryAndNamedParam("userNamesGroupMembers",
                 QUERY_PARAM_GROUP_ID, group.getId());
         return userNames;
     }
 
+    @Override
+    public int getGroupMembersCount(int groupId) {
+        return m_jdbcTemplate.queryForInt(
+                "select count(users.user_id) from users join user_group on user_group.user_id=users.user_id "
+                + "where user_group.group_id=" + groupId);
+    }
     @Override
     public boolean isImIdUnique(User user) {
         ImAccount accountToSave = new ImAccount(user);
@@ -685,9 +710,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         if (entity instanceof Group) {
             Group group = (Group) entity;
             if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
-                List<String> sqlUpdates= new ArrayList<String>();
-                sqlUpdates.add("DELETE FROM user_group where group_id=" + group.getId() + ";");
-                sqlUpdates.add("DELETE FROM supervisor where group_id=" + group.getId() + ";");
+                List<String> sqlUpdates = new ArrayList<String>();
+                sqlUpdates.add("DELETE FROM user_group where group_id=" + group.getId() + SEMICOLON);
+                sqlUpdates.add("DELETE FROM supervisor where group_id=" + group.getId() + SEMICOLON);
                 m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
             }
         }
@@ -836,5 +861,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             replicables.add(user);
         }
         return replicables;
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        m_jdbcTemplate = jdbcTemplate;
     }
 }

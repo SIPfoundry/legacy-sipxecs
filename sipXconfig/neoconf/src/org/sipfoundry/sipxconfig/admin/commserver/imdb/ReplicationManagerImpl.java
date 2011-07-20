@@ -54,6 +54,7 @@ import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.BeanFactory;
@@ -76,7 +77,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
     private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
     private static final String LOCATION_REGISTRATION = "Location registration in db";
-    private static final String DATABASE_REGENERATION = "Database Regeneration";
+    private static final String DATABASE_REGENERATION = "Database regeneration";
+    private static final String GROUP_REGENERATION = "Group regeneration";
     private static final String COLON = ":";
     private static final String IP = "ip";
     private static final String DESCRIPTION = "dsc";
@@ -105,6 +107,19 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private int m_pageSize;
     private int m_nThreads;
     private boolean m_useDynamicPageSize;
+
+    private Closure<User> m_userClosure = new Closure<User>() {
+        @Override
+        public void execute(User user) {
+            replicateEntity(user);
+            CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
+            if (!cs.getRings().isEmpty()) {
+                replicateEntity(cs);
+            }
+            getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+        }
+
+    };
 
     private void initMongo() throws Exception {
         if (m_mongoInstance == null) {
@@ -149,30 +164,54 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         m_datasetCollection.drop();
     }
 
-    private class Worker implements Callable<Void> {
+    private class ReplicationWorker implements Callable<Void> {
         private int m_startIndex;
         private int m_page;
+        private Closure<User> m_closure = m_userClosure;
 
-        public Worker(int index, int pageSize) {
+        private ReplicationWorker() {
+        }
+
+        public ReplicationWorker(int index, int pageSize) {
             m_startIndex = index;
             m_page = pageSize;
         }
 
+        public ReplicationWorker(int index, int pageSize, Closure<User> closure) {
+            m_startIndex = index;
+            m_page = pageSize;
+            m_closure = closure;
+        }
+
         @Override
         public Void call() {
-            Closure<User> closure = new Closure<User>() {
-                @Override
-                public void execute(User user) {
-                    replicateEntity(user);
-                    CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
-                    if (!cs.getRings().isEmpty()) {
-                        replicateEntity(cs);
-                    }
-                    getHibernateTemplate().clear(); // clear the H session (see XX-9741)
-                }
+            DaoUtils.forAllUsersDo(m_coreContext, m_closure, m_startIndex, m_page);
+            return null;
+        }
 
-            };
-            DaoUtils.forAllUsersDo(m_coreContext, closure, m_startIndex, m_page);
+        public int getStartIndex() {
+            return m_startIndex;
+        }
+
+        public int getPage() {
+            return m_page;
+        }
+
+        public Closure<User> getClosure() {
+            return m_closure;
+        }
+    }
+
+    private class AllGroupMembersReplicationWorker extends ReplicationWorker {
+        private Group m_group;
+
+        public AllGroupMembersReplicationWorker(Group group, int i, int pageSize) {
+            super(i, pageSize);
+            m_group = group;
+        }
+        @Override
+        public Void call() {
+            DaoUtils.forAllGroupMembersDo(m_coreContext, m_group, getClosure(), getStartIndex(), getPage());
             return null;
         }
     }
@@ -202,7 +241,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                     + " threads using chunks of " + pageSize + " users");
             List<Future<Void>> futures = new ArrayList<Future<Void>>();
             for (int i = 0; i < pages; i++) {
-                futures.add(replicationExecutorService.submit(new Worker(i * pageSize, pageSize)));
+                futures.add(replicationExecutorService.submit(new ReplicationWorker(i * pageSize, pageSize)));
             }
             for (Future<Void> future : futures) {
                 future.get();
@@ -305,6 +344,38 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
         } catch (Exception e) {
             LOG.error(REGENERATION_OF + ds.getName() + " failed", e);
+            throw new UserException(e);
+        }
+    }
+
+    @Override
+    public void replicateGroup(Group group) {
+        ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
+        Location primary = m_locationsManager.getPrimaryLocation();
+        try {
+            Long start = System.currentTimeMillis();
+            initMongo();
+            int pageSize = m_pageSize;
+            if (m_useDynamicPageSize) {
+                pageSize = m_coreContext.getGroupMembersCount(group.getId()) / m_nThreads + 1;
+            }
+            int pages = new Double(Math.ceil(m_coreContext.getAllUsersCount() / pageSize)).intValue() + 1;
+            LOG.info("Starting regeneration of group " + group.getName());
+            List<Future<Void>> futures = new ArrayList<Future<Void>>();
+            for (int i = 0; i < pages; i++) {
+                futures.add(replicationExecutorService.submit(
+                        new AllGroupMembersReplicationWorker(group, i * pageSize, pageSize)));
+            }
+            for (Future<Void> future : futures) {
+                future.get();
+            }
+            Long end = System.currentTimeMillis();
+            LOG.info("Regeneration of group completed in " + (end - start) / 1000 + SECONDS + (end - start)
+                    / 1000 / 60 + MINUTES);
+            m_auditLogContext.logReplicationMongo(GROUP_REGENERATION, primary);
+        } catch (Exception e) {
+            m_auditLogContext.logReplicationMongoFailed(GROUP_REGENERATION, primary, e);
+            LOG.error("Regeneration of group failed", e);
             throw new UserException(e);
         }
     }

@@ -83,17 +83,28 @@ public enum ValidUsers {
 
     public List<User> getUsersWithImEnabled() {
         List<User> users = new ArrayList<User>();
-        try {
-            DBCursor cursor = getEntityCollection().find(QueryBuilder.start(IM_ENABLED).is(Boolean.TRUE).get());
-            Iterator<DBObject> objects = cursor.iterator();
-            while (objects.hasNext()) {
-                DBObject user = objects.next();
-                users.add(extractUser(user));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        DBCursor cursor = getEntityCollection().find(QueryBuilder.start(IM_ENABLED).is(Boolean.TRUE).get());
+        Iterator<DBObject> objects = cursor.iterator();
+        while (objects.hasNext()) {
+            DBObject user = objects.next();
+            users.add(extractUser(user));
         }
         return users;
+    }
+
+    /**
+     * Returns a list of all im ids (of users with im enabled)
+     * @return
+     */
+    public List<String> getAllImIdsInGroup(String group) {
+        List<String> imIds = new ArrayList<String>();
+        DBCursor cursor = getEntityCollection().find(QueryBuilder.start(GROUPS).is(group).and(IM_ENABLED).is(Boolean.TRUE).get());
+        Iterator<DBObject> objects = cursor.iterator();
+        while (objects.hasNext()) {
+            DBObject user = objects.next();
+            imIds.add(user.get(IM_ID).toString());
+        }
+        return imIds;
     }
 
     /**

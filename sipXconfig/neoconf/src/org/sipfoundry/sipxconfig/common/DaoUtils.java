@@ -243,6 +243,16 @@ public final class DaoUtils {
         } while (size == PAGE_SIZE);
     }
 
+    /**
+     * Executes the given closure for all users.
+     *
+     * Whenever something needs to be done for all users this method (rather than loadUsers should
+     * be used) since it does not load all users in the memory.
+     *
+     * It offers more flexibility, it allows specify start and limit.
+     *
+     * @param closure the closure to perform
+     */
     public static void forAllUsersDo(CoreContext coreContext, Closure<User> closure, int start, int pageSize) {
         if (start >= coreContext.getAllUsersCount()) {
             return;
@@ -250,6 +260,17 @@ public final class DaoUtils {
         List<Integer> users = coreContext.loadUserIdsByPage(start, pageSize);
         for (Integer id : users) {
             closure.execute(coreContext.loadUser(id));
+        }
+    }
+
+    public static void forAllGroupMembersDo(CoreContext coreContext, Group group,
+            Closure<User> closure, int start, int pageSize) {
+        if (start >= coreContext.getGroupMembersCount(group.getId())) {
+            return;
+        }
+        Collection<User> users = coreContext.getGroupMembersByPage(group.getId(), start, pageSize);
+        for (User user : users) {
+            closure.execute(user);
         }
     }
 }
