@@ -11,8 +11,10 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,7 +38,7 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
      */
     private static final int DEFAULT_SLEEP_INTERVAL = 7000;
 
-    private final List<ReplicationTask> m_tasks = new ArrayList<ReplicationTask>();
+    private final Set<ReplicationTask> m_tasks = new HashSet<ReplicationTask>();
 
     private final List m_events = new ArrayList();
 
@@ -82,7 +84,7 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     }
 
     @Override
-    public void replicate(Location location, ConfigurationFile conf) {
+    public synchronized void replicate(Location location, ConfigurationFile conf) {
         m_tasks.add(new ConfTask(location, conf));
         notifyWorker();
     }
@@ -117,11 +119,11 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         m_events.clear();
     }
 
-    private synchronized List<ReplicationTask> getTasks() {
+    private synchronized Set<ReplicationTask> getTasks() {
         if (m_tasks.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
-        List<ReplicationTask> tasks = new ArrayList<ReplicationTask>(m_tasks.size());
+        Set<ReplicationTask> tasks = new HashSet<ReplicationTask>(m_tasks.size());
         for (ReplicationTask task : m_tasks) {
             addOrUpdateTask(tasks, task);
         }
@@ -129,7 +131,7 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         return tasks;
     }
 
-    private void addOrUpdateTask(List<ReplicationTask> tasks, ReplicationTask task) {
+    private void addOrUpdateTask(Set<ReplicationTask> tasks, ReplicationTask task) {
         for (ReplicationTask t : tasks) {
             if (t.update(task)) {
                 // no need to add anything - existing task updated
@@ -179,9 +181,9 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
 
     static class ConfTask extends ReplicationTask {
         /**
-         * list of locations to replicate configuration on null means all locations here...
+         * set of locations to replicate configuration on null means all locations here...
          */
-        private List<Location> m_locations;
+        private Set<Location> m_locations;
         private final ConfigurationFile m_conf;
 
         public ConfTask(ConfigurationFile conf) {
@@ -190,7 +192,7 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
 
         public ConfTask(Location location, ConfigurationFile conf) {
             m_conf = conf;
-            m_locations = new ArrayList<Location>();
+            m_locations = new HashSet<Location>();
             m_locations.add(location);
         }
 

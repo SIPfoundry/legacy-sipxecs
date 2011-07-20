@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -65,7 +66,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
 
     public void replicateMohConfiguration() {
         SipxFreeswitchService service = getSipxFreeswitchService();
-        List< ? extends ConfigurationFile> configurationFiles = service.getConfigurations();
+        Set< ? extends ConfigurationFile> configurationFiles = service.getConfigurations();
 
         for (ConfigurationFile configurationFile : configurationFiles) {
             if (configurationFile instanceof LocalStreamConfiguration) {

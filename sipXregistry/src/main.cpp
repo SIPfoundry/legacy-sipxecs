@@ -29,6 +29,7 @@
 // DEFINES
 #define CONFIG_SETTINGS_FILE  "registrar-config"
 #define CONFIG_LOG_FILE       "sipregistrar.log"
+#define CONFIG_NODE_FILE      "node.json"
 #define CONFIG_LOG_DIR        SIPX_LOGDIR
 #define CONFIG_ETC_DIR        SIPX_CONFDIR
 
@@ -207,6 +208,10 @@ main(int argc, char* argv[] )
       OsPathBase::separator +
       CONFIG_SETTINGS_FILE;
 
+   UtlString nodeFile =  workingDirectory +
+      OsPathBase::separator +
+      CONFIG_NODE_FILE;
+
    bool configLoaded = ( configDb->loadFromFile(fileName) == OS_SUCCESS );
    if (!configLoaded)
    {
@@ -240,6 +245,8 @@ main(int argc, char* argv[] )
    // object uses the IMDB so it is important to shut this thread
    // cleanly before the signal handler exits
    SipRegistrar* registrar = SipRegistrar::getInstance(configDb);
+
+   registrar->setNodeConfig(nodeFile.data());
 
    registrar->start();
 

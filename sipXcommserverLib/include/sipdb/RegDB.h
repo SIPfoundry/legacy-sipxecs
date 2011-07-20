@@ -16,10 +16,13 @@
 #define	RegDB_H
 
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+
 #include "sipdb/RegBinding.h"
-#include "sipdb/NodeDB.h"
 #include "boost/noncopyable.hpp"
-#include "NodeDB.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -58,6 +61,8 @@ public:
         unsigned int cseq,
         unsigned int timeNow);
 
+    void expireAllBindings(unsigned int timeNow);
+
     void expireAllBindings(
         const std::string& identity,
         const std::string& callId,
@@ -93,7 +98,13 @@ public:
 
     bool getAllOldBindings(int timeNow, Bindings& binding);
 
-    bool cleanAndPersist(int currentExpireTime);
+    bool getAllExpiredBindings(Bindings& bindings);
+
+    bool getAllBindings(Bindings& binding);
+
+    bool cleanAndPersist(int currentExpireTime, const std::string& nodeConfig = std::string(), bool nodeFetch = true);
+
+    bool clearAllBindings();
 
     static std::string& defaultNamespace();
 
@@ -105,13 +116,20 @@ public:
 protected:
     void updateReplicationTimeStamp();
     void replicate();
-    void fetchNodes();
+    void fetchNodes(const std::string& nodeConfig);
+public:
     bool addReplicationNode(const std::string& nodeAddress);
+    bool addReplicationNode(const std::string& nodeAddress, const std::string& internalAddress, const std::string& ns);
+    void disableNode(const std::string& nodeId);
+    void enableNode(const std::string& nodeId);
+    bool isNodeDisabled(const std::string& nodeId) const;
 private:
     MongoDB::DBInterfaceSet _replicationNodes;
     std::string _localAddress;
     std::map<std::string, int> _nodeTimeStamps;
-    bool _firstIncrement;
+    std::set<std::string> _disabledNodes;
+    mutable MongoDB::Mutex _disabledNodesMutex;
+    int _st_mtime;
     static std::string _defaultNamespace;
 };
 

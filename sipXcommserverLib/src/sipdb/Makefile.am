@@ -34,8 +34,6 @@ libsipdb_la_SOURCES =  \
    MongoDB.cpp \
    EntityDB.cpp \
    EntityRecord.cpp \
-   NodeDB.cpp \
-   NodeRecord.cpp \
    RegBinding.cpp \
    RegDB.cpp \
    Subscription.cpp \

@@ -65,7 +65,7 @@ public:
     class Collection
     {
     public:
-        Collection(const std::string& ns, const std::string& server = "localhost") :
+        Collection(const std::string& ns, const std::string& server = "localhost:27017") :
             _pDb(MongoDB::acquireServer(server)),
             _collection(*_pDb, ns){}
         T& collection(){ return _collection; }
@@ -80,7 +80,7 @@ public:
     {
     public:
         typedef boost::shared_ptr<DBInterface> Ptr;
-        DBInterface(MongoDB& db, const std::string& ns) : _db(db), _ns(ns){}
+        DBInterface(MongoDB& db, const std::string& internalAddress, const std::string& ns) : _db(db), _ns(ns), _internalAddress(internalAddress){}
         const std::string& getNameSpace() const { return _ns; };
         MongoDB& db() { return _db; }
         MongoDB::Cursor items()
@@ -92,9 +92,12 @@ public:
                 query,
                 error);
         }
+
+        const std::string& getInternalAddress() const { return _internalAddress; }
     protected:
         MongoDB& _db;
         std::string _ns;
+        std::string _internalAddress;
     };
 
     class DBInterfaceSet : public std::vector<DBInterface::Ptr>
@@ -111,10 +114,16 @@ public:
 
         bool attachNode(const std::string& nodeAddress)
         {
+          return attachNode(nodeAddress, nodeAddress, _ns);
+        }
+
+        bool attachNode(const std::string& nodeAddress, const std::string& internalAddress, const std::string& ns)
+        {
             MongoDB::Ptr pNode = MongoDB::acquireServer(nodeAddress);
             if (!pNode)
                 return false;
-            push_back(DBInterface::Ptr(new DBInterface(*(pNode.get()), _ns)));
+
+            push_back(DBInterface::Ptr(new DBInterface(*(pNode.get()), internalAddress, ns)));
             _nodes.push_back(pNode);
             return true;
         }
@@ -177,6 +186,8 @@ public:
         const std::string& ns,
         const BSONObj& query,
         std::string& error);
+
+    bool removeAll(const std::string& ns);
 
     void createInitialPool(size_t initialCount = 10, bool autoReconnect = true);
 

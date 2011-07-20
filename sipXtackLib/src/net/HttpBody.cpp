@@ -226,11 +226,14 @@ HttpBody* HttpBody::copy() const
 }
 
 // Pseudo factory
-HttpBody* HttpBody::createBody(const char* bodyBytes,
+HttpBody* HttpBody::createBody(const char* bodyBytes_,
                                ssize_t bodyLength,
                                const char* contentType,
                                const char* contentEncoding)
 {
+    UtlString buff(bodyBytes_, bodyLength);
+    const char* bodyBytes = buff.data();
+    
     HttpBody* body = NULL;
 
     UtlString contentTypeString;

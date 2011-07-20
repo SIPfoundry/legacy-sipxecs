@@ -40,7 +40,9 @@ MongoDB::MongoDB() :
 {
 }
 
-MongoDB::MongoDB(const std::string& server)
+MongoDB::MongoDB(const std::string& server) :
+  _server(server),
+  _autoReconnect(true)
 {
 }
 
@@ -71,10 +73,16 @@ void MongoDB::createInitialPool(size_t initialCount, bool autoReconnect)
     {
         mongo::DBClientConnection* pConnection = new mongo::DBClientConnection(autoReconnect);
         if (_server.empty())
-            _server = "localhost";
+            _server = "localhost:27017";
 
         std::string errorMessage;
-        if (pConnection->connect(_server, errorMessage))
+
+
+        if (_server.find(":") == std::string::npos)
+            _server += ":27017";
+
+        mongo::HostAndPort hostPort(_server);
+        if (pConnection->connect(hostPort, errorMessage))
         {
             _queue.push(Client(pConnection));
         }
@@ -82,6 +90,7 @@ void MongoDB::createInitialPool(size_t initialCount, bool autoReconnect)
         {
             delete pConnection;
         }
+
     }
 }
 
@@ -99,7 +108,12 @@ MongoDB::Client MongoDB::acquire()
     {
         mongo::DBClientConnection* pConnection = new mongo::DBClientConnection(_autoReconnect);
         std::string errorMessage;
-        if (pConnection->connect(_server, errorMessage))
+
+        if (_server.find(":") == std::string::npos)
+          _server += ":27017";
+
+        mongo::HostAndPort hostPort(_server);
+        if (pConnection->connect(hostPort, errorMessage))
         {
             return Client(pConnection);
         }
@@ -108,6 +122,7 @@ MongoDB::Client MongoDB::acquire()
             delete pConnection;
             return Client();
         }
+
     }
     return Client();
 }
@@ -271,5 +286,13 @@ bool MongoDB::remove(
         return false;
     }
     return false;
+}
+
+bool MongoDB::removeAll(const std::string& ns)
+{
+    mutex_lock lock(_mutex);
+    BSONObj query;
+    std::string error;
+    return remove(ns, query, error);
 }
 

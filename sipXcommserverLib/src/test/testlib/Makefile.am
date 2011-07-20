@@ -8,9 +8,7 @@ INCLUDES = \
 	-I$(top_builddir)
 
 libsipXcommserverTest_la_SOURCES =  \
-	FileTestContext.cpp \
-	SipDbTestContext.cpp \
-	RegistrationDbTestContext.cpp
+	FileTestContext.cpp
 
 libsipXcommserverTest_la_LIBADD = \
 	@SIPXUNIT_LIBS@

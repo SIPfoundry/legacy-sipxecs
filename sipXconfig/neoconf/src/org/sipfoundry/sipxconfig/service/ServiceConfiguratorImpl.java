@@ -9,18 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import static java.util.Collections.singleton;
+import static org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command.RESTART;
+import static org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command.START;
+import static org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command.STOP;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import static java.util.Collections.singleton;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,14 +44,13 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import static org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command.START;
-import static org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command.STOP;
-
 /**
  *
  */
 public class ServiceConfiguratorImpl implements ServiceConfigurator, ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(ServiceConfiguratorImpl.class);
+    private static final String INTERRUPT_EXCEPTION = "Unexpected Interupt when replicating services";
+    private static final String EXECUTE_EXCEPTION = "Unexpected error when replicating services";
     private SipxReplicationContext m_replicationContext;
     private SipxProcessContext m_sipxProcessContext;
     private ConfigVersionManager m_configVersionManager;
@@ -75,7 +78,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
         if (!location.isRegistered()) {
             return;
         }
-        List< ? extends ConfigurationFile> configurations = service.getConfigurations();
+        Set< ? extends ConfigurationFile> configurations = service.getConfigurations();
         boolean serviceRequiresRestart = replicateConfigurations(location, configurations);
         m_configVersionManager.setConfigVersion(service, location);
         if (serviceRequiresRestart) {
@@ -107,7 +110,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
      */
     @Override
     public void replicateServiceConfig(SipxService service, boolean noRestartOnly) {
-        List< ? extends ConfigurationFile> configurations = service.getConfigurations(noRestartOnly);
+        Set< ? extends ConfigurationFile> configurations = service.getConfigurations(noRestartOnly);
         replicateServiceConfig(service, configurations);
     }
 
@@ -119,7 +122,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
     @Override
     public void replicateServiceConfig(Location location, SipxService service, boolean noRestartOnly,
             boolean notifyService) {
-        List< ? extends ConfigurationFile> configurations = service.getConfigurations(noRestartOnly);
+        Set< ? extends ConfigurationFile> configurations = service.getConfigurations(noRestartOnly);
         boolean restartRequired = replicateConfigurations(location, configurations);
         if (restartRequired) {
             m_sipxProcessContext.markServicesForRestart(singleton(service));
@@ -130,15 +133,57 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
     }
 
     @Override
-    public void replicateLocation(Location location) {
+    public void replicateLocationAndRestart(Location location) {
+        if (!location.isRegistered()) {
+            return;
+        }
+        Set<SipxService> servicesToRestart = new HashSet<SipxService>();
+        Set<ConfigurationFile> configurations = new HashSet<ConfigurationFile>();
+        for (LocationSpecificService service : location.getServices()) {
+            Set<? extends ConfigurationFile> serviceConfigurations = service.getSipxService().getConfigurations();
+            for (ConfigurationFile configurationFile : serviceConfigurations) {
+                if (configurationFile.isRestartRequired()) {
+                    servicesToRestart.add(service.getSipxService());
+                }
+            }
+            configurations.addAll(serviceConfigurations);
+        }
+        ExecutorService executorService = Executors.newFixedThreadPool(configurations.size());
+        ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>(configurations.size());
+        for (final ConfigurationFile configuration : configurations) {
+            futures.add(executorService.submit(new Callable<Void>() {
+                public Void call() throws InterruptedException {
+                    m_replicationContext.replicate(configuration);
+                    return null;
+                }
+            }));
+        }
+        //replicateConfigurations(location, configurations);
+        try {
+            for (Future<Void> future : futures) {
+                future.get();
+            }
+        } catch (InterruptedException exception) {
+            LOG.error(INTERRUPT_EXCEPTION, exception);
+        } catch (ExecutionException exception) {
+            LOG.error(EXECUTE_EXCEPTION, exception);
+        }
+        m_sipxProcessContext.manageServices(location, servicesToRestart, RESTART);
+        if (!location.isPrimary()) {
+            m_replicationContext.resyncSlave(location);
+        }
+    }
+
+    /**
+     * Replicate all services on this location and mark for restart services that require restart.
+     * @param location
+     */
+    private void replicateLocationAndMarkForRestart(Location location) {
         if (!location.isRegistered()) {
             return;
         }
         for (LocationSpecificService service : location.getServices()) {
             replicateServiceConfig(location, service.getSipxService());
-        }
-        if (!location.isPrimary()) {
-            m_replicationContext.resyncSlave(location);
         }
     }
 
@@ -151,7 +196,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
         initLocations();
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
-            replicateLocation(location);
+            replicateLocationAndMarkForRestart(location);
         }
     }
 
@@ -171,7 +216,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
         service.afterReplication(null);
     }
 
-    private boolean replicateConfigurations(Location location, List< ? extends ConfigurationFile> configurations) {
+    private boolean replicateConfigurations(Location location, Set< ? extends ConfigurationFile> configurations) {
         boolean serviceRequiresRestart = false;
         for (ConfigurationFile configuration : configurations) {
             m_replicationContext.replicate(location, configuration);
@@ -211,9 +256,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
                 }
             }
         } catch (InterruptedException exception) {
-            LOG.error("Unexpected Interupt when replicating services", exception);
+            LOG.error(INTERRUPT_EXCEPTION, exception);
         } catch (ExecutionException exception) {
-            LOG.error("Unexpected error when replicating services", exception);
+            LOG.error(EXECUTE_EXCEPTION, exception);
         }
 
         m_sipxProcessContext.manageServices(location, locationStatus.getToBeStarted(), START);
@@ -301,8 +346,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
             // service replication
             initLocation(locationToActivate);
 
-            replicateLocation(locationToActivate);
-            enforceRole(locationToActivate);
+            replicateLocationAndRestart(locationToActivate);
+            //enforceRole(locationToActivate);
 
             if (locationToActivate.isPrimary()) {
                 m_dnsGenerator.generate();
@@ -311,8 +356,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
             // login to acd historical database used in sipxconfig-reports
             // for creating acd historical reports
             m_replicationContext.replicate(m_acdHistoricalConfiguration);
+            replicateDialPlans();
         }
-        replicateDialPlans();
     }
 
     /**

@@ -131,6 +131,9 @@ public:
     /// Get the proxy port for the domain
     int domainProxyPort() const;
 
+    void setNodeConfig(const std::string& nodeConfig);
+    const std::string& getNodeConfig() const;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -175,6 +178,7 @@ private:
    int mProxyNormalPort;
    UtlString mBindIp;    /// Local Ip address to bind on
 
+   std::string _nodeConfig;
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();
    void sendToRegistrarServer(OsMsg& eventMessage);
@@ -188,5 +192,19 @@ private:
    /// Create and start the server that handles "reg" events.
    void startEventServer();
 };
+
+//
+// Inlines
+//
+
+ inline void SipRegistrar::setNodeConfig(const std::string& nodeConfig)
+ {
+   _nodeConfig = nodeConfig;
+ }
+
+ inline const std::string& SipRegistrar::getNodeConfig() const
+ {
+   return _nodeConfig;
+ }
 
 #endif  // _SipRegistrar_h_

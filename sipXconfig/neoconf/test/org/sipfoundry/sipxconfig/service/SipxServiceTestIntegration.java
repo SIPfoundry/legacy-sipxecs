@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
@@ -21,7 +22,7 @@ public class SipxServiceTestIntegration extends IntegrationTestCase {
     private SipxStatusService m_statusService;
 
     public void testGetConfigurations() {
-        List configurations = m_statusService.getConfigurations();
+        Set configurations = m_statusService.getConfigurations();
         assertEquals(3, configurations.size());
     }
 

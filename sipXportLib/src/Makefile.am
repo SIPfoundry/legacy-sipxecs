@@ -148,7 +148,10 @@ libsipXport_la_SOURCES =  \
     xmlparser/tinyxml.cpp \
     xmlparser/tinyxmlerror.cpp \
     xmlparser/tinyxmlparser.cpp \
-    xmlparser/TiXmlIterator.cpp
+    xmlparser/TiXmlIterator.cpp \
+	json/json_spirit_reader.cpp \
+	json/json_spirit_value.cpp \
+	json/json_spirit_writer.cpp
 
 
 EXTRA_DIST= \

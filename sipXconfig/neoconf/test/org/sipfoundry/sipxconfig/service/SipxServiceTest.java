@@ -100,12 +100,11 @@ public class SipxServiceTest extends TestCase {
         ConfigurationFile b = new DummyConfig("b", false);
         ConfigurationFile c = new DummyConfig("c", true);
 
-        proxyService.setConfigurations(Arrays.asList(a, b, c));
+        proxyService.setConfigurations(new HashSet(Arrays.asList(a, b, c)));
         assertEquals(3, proxyService.getConfigurations().size());
         assertEquals(3, proxyService.getConfigurations(false).size());
         assertEquals(1, proxyService.getConfigurations(true).size());
 
-        assertSame(b, proxyService.getConfigurations(true).get(0));
     }
 
     public void testGetFqdn() {
@@ -148,5 +147,5 @@ public class SipxServiceTest extends TestCase {
         public void write(Writer writer, Location location) throws IOException {
         }
     }
-    
+
 }

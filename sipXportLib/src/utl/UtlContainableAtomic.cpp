@@ -36,6 +36,10 @@
 
 /* ============================ INQUIRY =================================== */
 
+UtlContainableAtomic::~UtlContainableAtomic()
+{
+  
+}
 /// Get hash of object.
 unsigned UtlContainableAtomic::hash() const
 {

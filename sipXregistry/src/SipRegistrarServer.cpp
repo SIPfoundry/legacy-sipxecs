@@ -107,7 +107,12 @@ SipRegistrarServer::initialize(
     int localPort;
     mSipUserAgent->getLocalAddress(&localAddress, &localPort);
     if (!localAddress.isNull())
-        _dataStore.regDB().setLocalAddress(localAddress.data());
+    {
+        std::string serverId = localAddress.data();
+        serverId += "/";
+        serverId += "RegDataStore::_bindingsNameSpace";
+        _dataStore.regDB().setLocalAddress(serverId);
+    }
 
     // Initialize the normal (non-NATed) minimum and maximum expiry values
     UtlString tempExpiresString;
@@ -1403,7 +1408,7 @@ void SipRegistrarServer::cleanAndPersist()
       
    }
 
-   _dataStore.regDB().cleanAndPersist(oldestTimeToKeep);
+   _dataStore.regDB().cleanAndPersist(oldestTimeToKeep, mRegistrar.getNodeConfig());
 
 }
 
