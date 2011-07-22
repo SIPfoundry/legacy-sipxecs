@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.im.ImAccount;
@@ -45,7 +44,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
-        DaoEventListener, ApplicationContextAware, ReplicableProvider {
+       ApplicationContextAware, ReplicableProvider {
 
     public static final String ADMIN_GROUP_NAME = "administrators";
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
@@ -648,6 +647,13 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
+    public Collection<Integer> getGroupMembersIds(Group group) {
+        return m_jdbcTemplate.queryForList(
+                "select users.user_id from users join user_group on user_group.user_id=users.user_id where "
+                + "user_group.group_id=" + group.getId(), Integer.class);
+    }
+
+    @Override
     public Collection<User> getGroupMembersByPage(int gid, int first, int pageSize) {
         Query q = getHibernateTemplate()
                 .getSessionFactory()
@@ -703,24 +709,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         }
 
         return true;
-    }
-
-    @Override
-    public void onDelete(Object entity) {
-        if (entity instanceof Group) {
-            Group group = (Group) entity;
-            if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
-                List<String> sqlUpdates = new ArrayList<String>();
-                sqlUpdates.add("DELETE FROM user_group where group_id=" + group.getId() + SEMICOLON);
-                sqlUpdates.add("DELETE FROM supervisor where group_id=" + group.getId() + SEMICOLON);
-                m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
-            }
-        }
-    }
-
-    @Override
-    public void onSave(Object entity) {
-
     }
 
     @Override

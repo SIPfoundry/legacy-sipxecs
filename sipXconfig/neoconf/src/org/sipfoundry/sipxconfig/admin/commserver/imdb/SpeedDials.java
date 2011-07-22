@@ -42,27 +42,26 @@ public class SpeedDials extends DataSetGenerator {
             return;
         }
         User user = (User) entity;
-        SpeedDial speedDial = m_speedDialManager.getSpeedDialForUser(user, false);
-        if (speedDial == null) {
-            return;
-        }
         DBObject speedDialDBO = new BasicDBObject();
-        speedDialDBO.put(USER, speedDial.getResourceListId(false));
-        speedDialDBO.put(USER_CONS, speedDial.getResourceListId(true));
-        List<DBObject> buttonsList = new ArrayList<DBObject>();
-        List<Button> buttons = speedDial.getButtons();
-        for (Button button : buttons) {
-            if (!button.isBlf()) {
-                continue;
+        SpeedDial speedDial = m_speedDialManager.getSpeedDialForUser(user, false);
+        if (speedDial != null) {
+            speedDialDBO.put(USER, speedDial.getResourceListId(false));
+            speedDialDBO.put(USER_CONS, speedDial.getResourceListId(true));
+            List<DBObject> buttonsList = new ArrayList<DBObject>();
+            List<Button> buttons = speedDial.getButtons();
+            for (Button button : buttons) {
+                if (!button.isBlf()) {
+                    continue;
+                }
+                DBObject buttonDBO = new BasicDBObject();
+                buttonDBO.put(URI, buildUri(button, getSipDomain()));
+                String name = StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber());
+                buttonDBO.put(NAME, name);
+                buttonsList.add(buttonDBO);
             }
-            DBObject buttonDBO = new BasicDBObject();
-            buttonDBO.put(URI, buildUri(button, getSipDomain()));
-            String name = StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber());
-            buttonDBO.put(NAME, name);
-            buttonsList.add(buttonDBO);
-        }
-        if (!buttonsList.isEmpty()) {
-            speedDialDBO.put(BUTTONS, buttonsList);
+            if (!buttonsList.isEmpty()) {
+                speedDialDBO.put(BUTTONS, buttonsList);
+            }
         }
         top.put(SPEEDDIAL, speedDialDBO);
         getDbCollection().save(top);

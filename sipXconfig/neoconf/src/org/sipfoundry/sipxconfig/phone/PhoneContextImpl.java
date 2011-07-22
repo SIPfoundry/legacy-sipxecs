@@ -276,20 +276,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     public void onDelete(Object entity) {
         Class c = entity.getClass();
-        if (Group.class.equals(c)) {
-            Group group = (Group) entity;
-            getHibernateTemplate().update(group);
-            if (Phone.GROUP_RESOURCE_ID.equals(group.getResource())) {
-                Collection<Phone> phones = getPhonesByGroupId(group.getId());
-                for (Phone phone : phones) {
-                    Object[] ids = new Object[] {
-                        group.getId()
-                    };
-                    DataCollectionUtil.removeByPrimaryKey(phone.getGroups(), ids);
-                    storePhone(phone);
-                }
-            }
-        } else if (User.class.equals(c)) {
+        if (User.class.equals(c)) {
             User user = (User) entity;
             Collection<Phone> phones = getPhonesByUserId(user.getId());
             for (Phone phone : phones) {

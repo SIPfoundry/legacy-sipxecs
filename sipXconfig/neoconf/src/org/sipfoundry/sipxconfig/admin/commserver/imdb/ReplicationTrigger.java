@@ -47,6 +47,14 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
+/**
+ * This class aggregates some of the conditions that will trigger a replication. Initially it was meant to
+ * aggregate conditions for Mongo replication but others were added.
+ * The main methods are the event listeners methods onSave() and onDelete().
+ * See {@link DaoEventDispatcher} to understand sipXecs event system, namely the order in which events
+ * are triggered and methods processed.
+ * The replication methods will throw a {@link UserException} which will veto the save/delete operation.
+ */
 public class ReplicationTrigger extends SipxHibernateDaoSupport implements ApplicationListener, DaoEventListener {
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
     private static final String OPENFIRE_SERVICE_BEANID = "sipxOpenfireService";
@@ -123,7 +131,16 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
         if (entity instanceof Replicable) {
             m_replicationManager.removeEntity((Replicable) entity);
         } else if (entity instanceof Group) {
-            return;
+            //It is important to replicate asynch since large groups might take a while to replicate
+            //and we want to return control to the page immadiately.
+            ExecutorService groupReplicationExec = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory());
+            groupReplicationExec.submit(new Runnable() {
+                @Override
+                public void run() {
+                    generateGroup((Group) entity);
+                }
+            });
+            groupReplicationExec.shutdown();
         } else if (entity instanceof Branch) {
             generateBranch((Branch) entity);
         } else if (entity instanceof Location) {
@@ -161,6 +178,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
         }
     }
 
+    //TODO: we need to replicate only 1 DS here, and do it async, maybe
     private void generateBranch(Branch branch) {
         for (User user : m_coreContext.getUsersForBranch(branch)) {
             m_replicationManager.replicateEntity(user);
@@ -190,8 +208,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
 
     private void removePermission(Permission permission) {
         // We do not need lazy/async here. The operation uses mongo commands and does not hit PG
-        // db.
-        // It will take a matter of seconds and the control is taken safely to the page.
+        // db. It will take a matter of seconds and the control is taken safely to the page.
         // (i.e. we do not need to worry about timeout.)
         m_replicationManager.removePermission(permission);
     }

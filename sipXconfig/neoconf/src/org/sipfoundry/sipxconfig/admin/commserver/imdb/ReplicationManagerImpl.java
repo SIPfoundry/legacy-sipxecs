@@ -65,6 +65,11 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 
+/**
+ * This class manages all effective replications.The replication is triggered by {@link ReplicationTrigger} or
+ * {@link SipxReplicationContext}, but the ReplicationManager takes care of all the work load needed to
+ * replicate {@link Replicable}s in Mongo and {@link ConfigurationFile}s on different locations.
+ */
 public class ReplicationManagerImpl extends HibernateDaoSupport implements ReplicationManager, BeanFactoryAware {
     private static final int PERMISSIONS = 0644;
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
@@ -121,6 +126,22 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     };
 
+    //the difference between the user and the group closures is that for group members
+    //we need to replicate only some datasets and not all.
+    //also, callsequences need not be replicated (there are no callsequnces for groups)
+    private Closure<User> m_userGroupClosure = new Closure<User>() {
+        @Override
+        public void execute(User user) {
+            replicateEntity(user, DataSet.ATTENDANT, DataSet.PERMISSION, DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL,
+                    DataSet.USER_FORWARD, DataSet.USER_LOCATION, DataSet.USER_STATIC);
+            getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+        }
+
+    };
+
+    /**
+     * Instantiates the Mongo DB on primary using defaults. It also instantiates the DB and the collection.
+     */
     private void initMongo() throws Exception {
         if (m_mongoInstance == null) {
             try {
@@ -135,6 +156,12 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Instantiates the Mongo DB on a different location
+     * @param location
+     * @return
+     * @throws Exception
+     */
     private Mongo initMongo(Location location) throws Exception {
         try {
             Mongo mongoInstance = new Mongo(location.getAddress(), PORT);
@@ -164,6 +191,11 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         m_datasetCollection.drop();
     }
 
+    /*
+     * Callable used in the async replication of a large group of entities, namely all users.
+     * We use Callable and not Runnable, b/c we need to wait for the termination of the threads
+     * calling it.
+     */
     private class ReplicationWorker implements Callable<Void> {
         private int m_startIndex;
         private int m_page;
@@ -202,6 +234,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /*
+     * Callble used for the replication of members in a group
+     */
     private class AllGroupMembersReplicationWorker extends ReplicationWorker {
         private Group m_group;
 
@@ -211,7 +246,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
         @Override
         public Void call() {
-            DaoUtils.forAllGroupMembersDo(m_coreContext, m_group, getClosure(), getStartIndex(), getPage());
+            DaoUtils.forAllGroupMembersDo(m_coreContext, m_group, m_userGroupClosure, getStartIndex(), getPage());
             return null;
         }
     }
@@ -224,6 +259,11 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * m_nThreads - number of parallel threads
      * m_pageSize - chunk of users to be processed by each thread. (Argument to sql LIMIT)
      * m_useDynamicPageSize - if set to true users will be processed in chunks of userCount/nThread
+     */
+    /**
+     * Replicate all replicable entities. Users require special treatment, because large number of users may be present
+     * which may present performance issues.
+     * This method will print out replication time.
      */
     @Override
     public void replicateAllData() {
@@ -246,6 +286,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             for (Future<Void> future : futures) {
                 future.get();
             }
+            //get the rest of Replicables and replicate them
             Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
             for (ReplicableProvider provider : beanMap.values()) {
                 for (Replicable entity : provider.getReplicables()) {
@@ -268,6 +309,10 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Replicates a single entity. It retrieves the {@link DataSet}s defined in {@link Replicable.getDataSets()}
+     * and generates the datasets for the entity.
+     */
     @Override
     public void replicateEntity(Replicable entity) {
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
@@ -288,15 +333,20 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Replicates an array of {@link DataSet}s for a given {@link Replicable}
+     */
     @Override
-    public void replicateEntity(Replicable entity, DataSet dataSet) {
+    public void replicateEntity(Replicable entity, DataSet... dataSet) {
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
             initMongo();
             m_dataSetGenerator.setDbCollection(m_datasetCollection);
             DBObject top = m_dataSetGenerator.findOrCreate(entity);
-            replicateEntity(entity, dataSet, top);
+            for (int i = 0; i < dataSet.length; i++) {
+                replicateEntity(entity, dataSet[i], top);
+            }
             Long end = System.currentTimeMillis();
             LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
         } catch (Exception e) {
@@ -313,6 +363,10 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         LOG.debug("Entity " + entity.getName() + " updated.");
     }
 
+    /**
+     * Replicate only a specified DataSet for all entities.
+     */
+    //TODO: figure out if we need to use parallel processing.
     @Override
     public void replicateAllData(final DataSet ds) {
         try {
@@ -348,6 +402,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Replicate a {@link Group}
+     */
     @Override
     public void replicateGroup(Group group) {
         ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
@@ -380,6 +437,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Replicate a Location. That means just register a location in Mongo node DB.
+     */
     @Override
     public void replicateLocation(Location location) {
         try {
@@ -407,6 +467,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Removes an entity from Mongo imdb
+     */
     @Override
     public void removeEntity(Replicable entity) {
         try {
@@ -431,6 +494,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Unregisters Location from node db.
+     */
     @Override
     public void removeLocation(Location location) {
         try {
@@ -452,6 +518,13 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * This method will issue a sync command to the selected secondary (i.e. mongo slave)
+     * THis is used in order to force the slave to pickup latest changes. It will do so if
+     * and only if the slave is "stale". Check out Mongo documentation for more info.
+     */
+    //TODO: figure out another method to resync slaves, maybe issue a supervisor command
+    //to delete mongo dbs to force a full replication on the slave
     @Override
     public void resyncSlave(Location location) {
         try {
@@ -485,6 +558,11 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Adds the specified Permission to all entities supporting permissions.
+     * Used only when a new permission with default "checked" is added.
+     * Much faster than using replicateAllData(DataSet.PERMISSION)
+     */
     public void addPermission(Permission permission) {
         try {
             initMongo();
@@ -501,6 +579,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Removes the specified Permission from the entities that have it.
+     */
     public void removePermission(Permission permission) {
         try {
             initMongo();
@@ -517,6 +598,12 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    /**
+     * Replicates the file on all locations.
+     * For the primary location it will simply write it to disk, for secondaries it will send it to
+     * the supervisor, old school way.
+     */
+    //TODO: make sure disk full is considered for primary, also (see XX-9555)
     @Override
     public boolean replicateFile(Location[] locations, ConfigurationFile file) {
 

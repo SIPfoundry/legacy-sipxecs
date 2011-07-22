@@ -43,7 +43,7 @@ public interface ReplicationManager {
      * @param entity
      * @param ds
      */
-    void replicateEntity(Replicable entity, DataSet ds);
+    void replicateEntity(Replicable entity, DataSet... ds);
 
     /**
      * Removes from MongoDB (imdb.entity) a single Replicable entity

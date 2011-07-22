@@ -134,8 +134,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
         assertEquals(actualUser.getUserName(), expected);
     }
 
-    //TODO: enable the test when checking delete group
-    public void _testDeleteUserGroups() throws Exception {
+    public void testDeleteUserGroups() throws Exception {
         TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         m_settingDao.deleteGroups(Collections.singletonList(new Integer(1001)));
         // link table references removed

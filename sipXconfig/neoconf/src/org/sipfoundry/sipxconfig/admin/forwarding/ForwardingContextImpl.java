@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.common.event.ScheduleDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
-import org.sipfoundry.sipxconfig.common.event.UserGroupSaveDeleteListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -117,10 +116,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return new OnUserDelete();
     }
 
-    public UserGroupSaveDeleteListener createUserGroupSaveDeleteListener() {
-        return new OnUserGroupDelete();
-    }
-
     public ScheduleDeleteListener createScheduleDeleteListener() {
         return new OnScheduleDelete();
     }
@@ -130,32 +125,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         protected void onUserDelete(User user) {
             removeCallSequenceForUserId(user.getId());
             removeSchedulesForUserID(user.getId());
-        }
-    }
-
-    private class OnUserGroupDelete extends UserGroupSaveDeleteListener {
-        @Override
-        protected void onUserGroupDelete(Group group) {
-            List<UserGroupSchedule> schedules = getSchedulesForUserGroupId(group.getId());
-            if (schedules != null && schedules.size() > 0) {
-                // get all rings for the schedules, set all on always
-                List<Ring> ringsToModify = new ArrayList<Ring>();
-                for (UserGroupSchedule ugSchedule : schedules) {
-                    List<Ring> rings = getRingsForScheduleId(ugSchedule.getId());
-                    for (Ring ring : rings) {
-                        // set schedule on always
-                        ring.setSchedule(null);
-                        ringsToModify.add(ring);
-                    }
-                }
-                getHibernateTemplate().saveOrUpdateAll(ringsToModify);
-                getHibernateTemplate().deleteAll(schedules);
-            }
-            notifyCommserver(getCallSequencesForGroup(group));
-        }
-
-        @Override
-        protected void onUserGroupSave(Group group) {
         }
     }
 
@@ -189,8 +158,8 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     private Collection<CallSequence> getCallSequencesForGroup(Group group) {
         Collection<CallSequence> ids = new HashSet<CallSequence>();
-        for (User user : m_coreContext.getGroupMembers(group)) {
-            ids.add(getCallSequenceForUser(user));
+        for (Integer id : m_coreContext.getGroupMembersIds(group)) {
+            ids.add(getCallSequenceForUserId(id));
         }
         return ids;
     }

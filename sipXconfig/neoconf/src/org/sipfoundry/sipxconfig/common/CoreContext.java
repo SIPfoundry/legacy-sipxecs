@@ -193,4 +193,6 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner {
     Collection<User> getGroupMembersByPage(int gid, int first, int pageSize);
 
     int getGroupMembersCount(int groupId);
+
+    Collection<Integer> getGroupMembersIds(Group group);
 }
