@@ -20,6 +20,7 @@
     <property name="debug" value="false" />
     <property name="domainManager" ref="domainManager"/>
     <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
   <!--
   - C O R E  C O N T E X T
@@ -94,7 +95,7 @@
   </bean>
 
   <bean id="userGroupSettingsListener" class="org.sipfoundry.sipxconfig.common.event.PersonalAttendantSettingListener">
-    <property name="coreContext" ref="coreContext"/>
     <property name="mailboxManager" ref="mailboxManager"/>
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 </beans>

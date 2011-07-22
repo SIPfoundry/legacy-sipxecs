@@ -86,6 +86,10 @@
     </property>
   </bean>
 
+  <bean id="configJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    <property name="dataSource" ref="dataSource" />
+  </bean>
+
   <!--
     - T R A N S A C T I O N  S U P P O R T
   -->

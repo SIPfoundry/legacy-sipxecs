@@ -150,7 +150,6 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
             List<SpeedDialGroup> speedDialGroups = findSpeedDialForGroupId(user.getId());
             if (!speedDialGroups.isEmpty()) {
                 getHibernateTemplate().deleteAll(speedDialGroups);
-                activateResourceList();
             }
         }
     }

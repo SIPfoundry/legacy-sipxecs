@@ -206,6 +206,10 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
+    <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
   </bean>
 
   <bean id="registrationContext"

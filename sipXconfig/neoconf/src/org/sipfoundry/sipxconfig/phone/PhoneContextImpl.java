@@ -9,9 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.collections.Predicate;
@@ -47,6 +50,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import static org.apache.commons.collections.CollectionUtils.select;
@@ -80,6 +85,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private DaoEventPublisher m_daoEventPublisher;
 
+    private JdbcTemplate m_jdbcTemplate;
+
     @Required
     public void setPhonebookManager(PhonebookManager phonebookManager) {
         m_phonebookManager = phonebookManager;
@@ -108,6 +115,10 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     @Required
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate template) {
+        m_jdbcTemplate = template;
     }
 
     /**
@@ -265,20 +276,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     public void onDelete(Object entity) {
         Class c = entity.getClass();
-        if (Group.class.equals(c)) {
-            Group group = (Group) entity;
-            getHibernateTemplate().update(group);
-            if (Phone.GROUP_RESOURCE_ID.equals(group.getResource())) {
-                Collection<Phone> phones = getPhonesByGroupId(group.getId());
-                for (Phone phone : phones) {
-                    Object[] ids = new Object[] {
-                        group.getId()
-                    };
-                    DataCollectionUtil.removeByPrimaryKey(phone.getGroups(), ids);
-                    storePhone(phone);
-                }
-            }
-        } else if (User.class.equals(c)) {
+        if (User.class.equals(c)) {
             User user = (User) entity;
             Collection<Phone> phones = getPhonesByUserId(user.getId());
             for (Phone phone : phones) {
@@ -372,12 +370,19 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection<Integer> getPhoneIdsByUserGroupId(int groupId) {
-        Group group = m_coreContext.getGroupById(groupId);
-        Collection<User> users = m_coreContext.getGroupMembers(group);
+        final List<Integer> userIds = new LinkedList<Integer>();
+        m_jdbcTemplate.query("SELECT u.user_id from users u inner join user_group g "
+                + "on u.user_id = g.user_id WHERE group_id=" + groupId + " AND u.user_type='C' "
+                + "ORDER BY u.user_id;", new RowCallbackHandler() {
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        userIds.add(rs.getInt("user_id"));
+                    }
+                });
         Collection<Integer> ids = new ArrayList<Integer>();
 
-        for (User user : users) {
-            Collection<Phone> phones = getPhonesByUserId(user.getId());
+        for (Integer userId : userIds) {
+            Collection<Phone> phones = getPhonesByUserId(userId);
             ids.addAll(DataCollectionUtil.extractPrimaryKeys(phones));
         }
         return ids;

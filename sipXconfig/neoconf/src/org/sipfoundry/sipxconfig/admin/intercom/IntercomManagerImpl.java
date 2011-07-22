@@ -20,9 +20,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.IntercomRule;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.EntityDeleteListener;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -110,24 +108,4 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
         m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
-    private class OnGroupDelete extends EntityDeleteListener<Group> {
-        public OnGroupDelete() {
-            super(Group.class);
-        }
-
-        protected void onEntityDelete(Group group) {
-            List<Intercom> intercoms = loadIntercoms();
-            for (Intercom intercom : intercoms) {
-                Set<Group> groups = intercom.getGroups();
-                if (groups.remove(group)) {
-                    getHibernateTemplate().update(intercom);
-                }
-            }
-        }
-
-    }
-
-    public EntityDeleteListener<Group> createGroupDeleteListener() {
-        return new OnGroupDelete();
-    }
 }

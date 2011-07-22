@@ -80,6 +80,7 @@ public interface MongoConstants {
     static final String AUTHTYPE = "authtp";
     static final String IDENTITY = "ident";
     static final String UID = "uid";
+    static final String GROUPS = "gr";
     static final String VALID_USER = "vld";
     static final String CONF_EXT = "cnfext";
     static final String CONF_NAME = "cnfnm";

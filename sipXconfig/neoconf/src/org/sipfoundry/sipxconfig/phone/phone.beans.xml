@@ -25,6 +25,7 @@
     <property name="phonebookManager" ref="phonebookManager" />
     <property name="speedDialManager" ref="speedDialManager" />
     <property name="daoEventPublisher" ref="daoEventPublisher"/>
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 
   <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

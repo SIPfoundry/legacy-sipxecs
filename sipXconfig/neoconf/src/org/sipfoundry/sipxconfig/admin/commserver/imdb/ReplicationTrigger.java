@@ -14,12 +14,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.Location.State;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.branch.Branch;
@@ -34,14 +37,27 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
+/**
+ * This class aggregates some of the conditions that will trigger a replication. Initially it was meant to
+ * aggregate conditions for Mongo replication but others were added.
+ * The main methods are the event listeners methods onSave() and onDelete().
+ * See {@link DaoEventDispatcher} to understand sipXecs event system, namely the order in which events
+ * are triggered and methods processed.
+ * The replication methods will throw a {@link UserException} which will veto the save/delete operation.
+ */
 public class ReplicationTrigger extends SipxHibernateDaoSupport implements ApplicationListener, DaoEventListener {
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
+    private static final String OPENFIRE_SERVICE_BEANID = "sipxOpenfireService";
 
     private CoreContext m_coreContext;
     private ReplicationManager m_replicationManager;
@@ -49,6 +65,10 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
     private SipxReplicationContext m_lazySipxReplicationContext;
+    private ConfigFileActivationManager m_configFileManager;
+    private SipxServiceManager m_serviceManager;
+    private ServiceConfigurator m_serviceConfigurator;
+    private SipxProcessContext m_sipxProcessContext;
 
     /** no replication at start-up by default */
     private boolean m_replicateOnStartup;
@@ -72,15 +92,28 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     }
 
     @Override
-    public void onSave(Object entity) {
+    public void onSave(final Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.replicateEntity((Replicable) entity);
             if (entity instanceof OpenAcdExtension) {
+                //unfortunately we need to flush here, otherwise we get inconsistent data
+                //in sipX_context.xml
                 getHibernateTemplate().flush();
                 m_openAcdContext.replicateConfig();
             }
         } else if (entity instanceof Group) {
-            generateGroup((Group) entity);
+            //flush is necessary here in order to get consistent data
+            getHibernateTemplate().flush();
+            //It is important to replicate asynch since large groups might take a while to replicate
+            //and we want to return control to the page immadiately.
+            ExecutorService groupReplicationExec = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory());
+            groupReplicationExec.submit(new Runnable() {
+                @Override
+                public void run() {
+                    generateGroup((Group) entity);
+                }
+            });
+            groupReplicationExec.shutdown();
         } else if (entity instanceof Branch) {
             generateBranch((Branch) entity);
         } else if (entity instanceof Location) {
@@ -94,11 +127,20 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     }
 
     @Override
-    public void onDelete(Object entity) {
+    public void onDelete(final Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.removeEntity((Replicable) entity);
         } else if (entity instanceof Group) {
-            generateGroup((Group) entity);
+            //It is important to replicate asynch since large groups might take a while to replicate
+            //and we want to return control to the page immadiately.
+            ExecutorService groupReplicationExec = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory());
+            groupReplicationExec.submit(new Runnable() {
+                @Override
+                public void run() {
+                    generateGroup((Group) entity);
+                }
+            });
+            groupReplicationExec.shutdown();
         } else if (entity instanceof Branch) {
             generateBranch((Branch) entity);
         } else if (entity instanceof Location) {
@@ -116,14 +158,27 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
         }
     }
 
+    /**
+     * Sequence of replication actions that need to be performed when a group is saved.
+     * Order of the sequence is important - files must be replicated after group members.
+     * @param group
+     */
     private void generateGroup(Group group) {
         if ("user".equals(group.getResource())) {
-            for (User user : m_coreContext.getGroupMembers(group)) {
-                m_replicationManager.replicateEntity(user);
+            m_replicationManager.replicateGroup(group);
+            m_configFileManager.activateConfigFiles();
+            //We need to replicate 2 OF configs (moved control from plugin to config to control the order)
+            //We can do that only by replicating the service. We unmark the service for restart as none of
+            //the config that changes requires restart
+            if (m_serviceManager.isServiceInstalled(OPENFIRE_SERVICE_BEANID)) {
+                SipxService instantMessagingService = m_serviceManager.getServiceByBeanId(OPENFIRE_SERVICE_BEANID);
+                m_serviceConfigurator.replicateServiceConfig(instantMessagingService);
+                m_sipxProcessContext.unmarkServicesToRestart(m_sipxProcessContext.getRestartNeededServices());
             }
         }
     }
 
+    //TODO: we need to replicate only 1 DS here, and do it async, maybe
     private void generateBranch(Branch branch) {
         for (User user : m_coreContext.getUsersForBranch(branch)) {
             m_replicationManager.replicateEntity(user);
@@ -153,8 +208,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
 
     private void removePermission(Permission permission) {
         // We do not need lazy/async here. The operation uses mongo commands and does not hit PG
-        // db.
-        // It will take a matter of seconds and the control is taken safely to the page.
+        // db. It will take a matter of seconds and the control is taken safely to the page.
         // (i.e. we do not need to worry about timeout.)
         m_replicationManager.removePermission(permission);
     }
@@ -171,7 +225,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
             updateLocations();
         }
     }
-
+    //TODO: This has to be moved in some manager
     private void updateLocations() {
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
@@ -235,5 +289,21 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_lazySipxReplicationContext = sipxReplicationContext;
+    }
+    @Required
+    public void setRlsConfigFilesActivator(ConfigFileActivationManager configFileManager) {
+        m_configFileManager = configFileManager;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager serviceManager) {
+        m_serviceManager = serviceManager;
+    }
+
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
+    }
+
+    public void setSipxProcessContext(SipxProcessContext sipxProcessContext) {
+        m_sipxProcessContext = sipxProcessContext;
     }
 }

@@ -15,10 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.Transformer;
-import org.apache.commons.collections.functors.ChainedTransformer;
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -26,8 +23,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
-import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * Use hibernate to perform database operations
@@ -37,46 +33,66 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
     private static final String NAME_PARAM = "name";
     private static final String GROUP_ID = "groupId";
     private static final String BRANCH = "branch";
+    private static final String SEMICOLON = ";";
+    private static final String CLOSED_BRACKET = ")";
+    private static final String WHERE_CLAUSE = "where schedule.group_id=";
 
     private DaoEventPublisher m_daoEventPublisher;
 
-    private ConfigFileActivationManager m_configFileManager;
+    private JdbcTemplate m_jdbcTemplate;
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
-    }
-
-    @Required
-    public void setRlsConfigFilesActivator(ConfigFileActivationManager configFileManager) {
-        m_configFileManager = configFileManager;
     }
 
     public Group getGroup(Integer groupId) {
         return (Group) getHibernateTemplate().load(Group.class, groupId);
     }
 
+    /*
+     * (non-Javadoc)
+     * Use plain sql for increased efficiency when deleting user groups.
+     * A thing to note is that this method breaks the convention established by DaoEventDispatcher,
+     * namely publish delete event first, then proceed with the actual delete. It will actually
+     * manually delete from DB the group associations and the group and then the delete event is published.
+     * In the case of groups now, only ReplicationTrigger will trigger the delete sequence, all other
+     * event listeners that listened to group deletes were removed, and control moved in this method.
+     * This was the price to pay for increased efficiency in saving large groups.
+     */
     public boolean deleteGroups(Collection<Integer> groupIds) {
-        BeanWithId.IdToBean idToBean = new BeanWithId.IdToBean(getHibernateTemplate(), Group.class);
-        Transformer publishDelete = new Transformer() {
-            public Object transform(Object input) {
-                m_daoEventPublisher.publishDelete(input);
-                return input;
-            }
-        };
-        Transformer loadAndPublish = ChainedTransformer.getInstance(idToBean, publishDelete);
+        List<String> sqlUpdates = new ArrayList<String>();
         boolean affectAdmin = false;
         Group adminGroup = getGroupByName(User.GROUP_RESOURCE_ID, CoreContextImpl.ADMIN_GROUP_NAME);
-        List groups = new ArrayList(groupIds.size());
+        List<Group> groups = new ArrayList<Group>(groupIds.size());
         for (Integer groupId : groupIds) {
             Group group = loadGroup(groupId);
             if (group != adminGroup) {
-                groups.add(loadAndPublish.transform(groupId));
+                groups.add(group);
+                sqlUpdates.add("DELETE FROM user_group where group_id=" + group.getId() + SEMICOLON);
+                sqlUpdates.add("DELETE FROM supervisor where group_id=" + group.getId() + SEMICOLON);
+                sqlUpdates.add("update ring set schedule_id=null where schedule_id=(select schedule_id from schedule "
+                        + WHERE_CLAUSE + group.getId() + CLOSED_BRACKET + SEMICOLON);
+                sqlUpdates.add("delete from schedule_hours where schedule_id = (select schedule_id from schedule "
+                        + WHERE_CLAUSE + group.getId() + CLOSED_BRACKET + SEMICOLON);
+                sqlUpdates.add("delete from schedule where schedule.group_id= " + group.getId()
+                        + SEMICOLON);
+                sqlUpdates.add("delete from speeddial_group_button where speeddial_id=(select speeddial_id from "
+                        + "speeddial_group where speeddial_group.group_id="
+                        + group.getId() + CLOSED_BRACKET + SEMICOLON);
+                sqlUpdates.add("delete from speeddial_group where group_id=" + group.getId() + SEMICOLON);
+                sqlUpdates.add("DELETE FROM intercom_phone_group where group_id=" + group.getId() + SEMICOLON);
+                sqlUpdates.add("delete from phone_group where group_id=" + group.getId() + SEMICOLON);
+                sqlUpdates.add("delete from phonebook_member where group_id=" + group.getId() + SEMICOLON);
+                sqlUpdates.add("delete from phonebook_consumer where group_id=" + group.getId() + SEMICOLON);
+                sqlUpdates.add("DELETE FROM group_storage where group_id=" + group.getId() + SEMICOLON);
             } else {
                 affectAdmin = true;
             }
         }
-        m_configFileManager.activateConfigFiles();
-        getHibernateTemplate().deleteAll(groups);
+        m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
+        for (Group group : groups) {
+            m_daoEventPublisher.publishDelete(group);
+        }
         return affectAdmin;
     }
 
@@ -98,8 +114,6 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
                 throw new UserException("&msg.error.renameAdminGroup");
             }
         }
-
-        m_configFileManager.activateConfigFiles();
         getHibernateTemplate().saveOrUpdate(group);
     }
 
@@ -272,5 +286,9 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
             saveGroup(g);
         }
         return g;
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        m_jdbcTemplate = jdbcTemplate;
     }
 }
