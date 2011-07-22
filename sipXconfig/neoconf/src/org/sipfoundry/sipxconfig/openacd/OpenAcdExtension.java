@@ -106,7 +106,7 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
                 .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
 
         AliasMapping nameMapping = new AliasMapping(getName(), SipUri.format(getExtension(),
-                freeswitchService.getAddress(), false), ALIAS_RELATION);
+                freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort(), false), ALIAS_RELATION);
         AliasMapping lineMapping = new AliasMapping(getExtension(), SipUri.format(getExtension(),
                 freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
         mappings.addAll(Arrays.asList(nameMapping, lineMapping));
