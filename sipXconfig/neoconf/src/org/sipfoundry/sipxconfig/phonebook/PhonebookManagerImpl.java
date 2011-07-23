@@ -463,7 +463,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     private User getUserForEntry(PhonebookEntry entry) {
-        return m_coreContext.loadUserByUserName(entry.getNumber());
+        return m_coreContext.loadUserByUserNameOrAlias(entry.getNumber());
     }
 
     /*

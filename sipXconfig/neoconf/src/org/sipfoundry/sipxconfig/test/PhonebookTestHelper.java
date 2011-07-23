@@ -126,7 +126,7 @@ public class PhonebookTestHelper {
     public void configureCoreContextMock(CoreContext coreContextMock) {
         for (PhonebookEntry entry : getPhonebookEntries()) {
             String number = entry.getNumber();
-            coreContextMock.loadUserByUserName(number);
+            coreContextMock.loadUserByUserNameOrAlias(number);
             EasyMock.expectLastCall().andReturn(getUserByUsername(number)).anyTimes();
         }
     }
