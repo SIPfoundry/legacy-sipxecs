@@ -117,8 +117,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         @Override
         public void execute(User user) {
             replicateEntity(user);
-            CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
-            if (!cs.getRings().isEmpty()) {
+            if (m_forwardingContext.isCallSequenceReplicable(user)) {
+                CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
                 replicateEntity(cs);
             }
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
