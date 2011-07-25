@@ -278,12 +278,12 @@ public:
 
    
     timeNow = (int) OsDateTime::getSecsSinceEpoch();
-    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json");
-    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json");
-    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json");
-    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json");
-    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json");
-    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json");
+    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json", true);
+    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json", true);
+    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json", true);
+    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json", true);
+    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json", true);
+    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json", true);
 
     bindings.clear();
     CPPUNIT_ASSERT(_pRegDbHA1->collection().getAllBindings(bindings));
@@ -344,7 +344,7 @@ public:
     //
     // Call replication to db1 so that it fetches the new records from db3
     //
-    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json");
+    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json", true);
 
     timeNow = (int) OsDateTime::getSecsSinceEpoch();
     //
@@ -357,7 +357,7 @@ public:
     //
     // Call replication for db2 so that it fetches the records only from db1
     //
-    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json");
+    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json", true);
 
     bindings.clear();
     CPPUNIT_ASSERT(_pRegDbHA1->collection().getAllBindings(bindings));
@@ -382,17 +382,17 @@ public:
     _pRegDbHA3->collection().expireAllBindings(timeNow);
 
     timeNow = (int) OsDateTime::getSecsSinceEpoch();
-    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json");
+    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json", true);
     timeNow = (int) OsDateTime::getSecsSinceEpoch();
-    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json");
+    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json", true);
     timeNow = (int) OsDateTime::getSecsSinceEpoch();
-    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json");
+    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json", true);
     timeNow = (int) OsDateTime::getSecsSinceEpoch();
-    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json");
+    _pRegDbHA1->collection().cleanAndPersist(timeNow, "node.json", true);
     timeNow = (int) OsDateTime::getSecsSinceEpoch();
-    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json");
+    _pRegDbHA2->collection().cleanAndPersist(timeNow, "node.json", true);
     timeNow = (int) OsDateTime::getSecsSinceEpoch();
-    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json");
+    _pRegDbHA3->collection().cleanAndPersist(timeNow, "node.json", true);
 
     bindings.clear();
     CPPUNIT_ASSERT(_pRegDbHA1->collection().getAllExpiredBindings(bindings));
@@ -591,7 +591,7 @@ public:
     //
     // Clean and persist contacts
     //
-    CPPUNIT_ASSERT(_pRegDb->collection().cleanAndPersist(timeNow));
+    CPPUNIT_ASSERT(_pRegDb->collection().cleanAndPersist(timeNow, false));
     bindings.clear();
     CPPUNIT_ASSERT(!_pRegDb->collection().getAllOldBindings(timeNow, bindings));
     CPPUNIT_ASSERT(bindings.size() == 0);
