@@ -78,9 +78,8 @@ java-gwt : $(gwt_SRC)
 		org.sipfoundry.sipxconfig.userportal.contact_information
 	@echo timestamp > $@
 
-#  TODO: Account for this somehow
-# 		<move file="${output}/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/org.sipfoundry.sipxconfig.userportal.user_phonebook_search.nocache.js" tofile="${output}/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js" />
-# 		<move file="${output}/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js" tofile="${output}/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js" />
+	mv out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/org.sipfoundry.sipxconfig.userportal.user_phonebook_search.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js
+	mv out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js
 
 
 # W E B
