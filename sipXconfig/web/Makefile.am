@@ -56,7 +56,7 @@ $(WSDD) : javac-wsdl $(WSDL) $(WSDD_XSLT)
 # G W T
 gwt_PKGS = \
 	gwt-user \
-	gwt-dev-linux \
+	gwt-dev \
 	smartgwt \
 	smartgwt-skins
 

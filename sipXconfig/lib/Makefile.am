@@ -12,8 +12,8 @@ dist_jar_DATA = \
 
 # only used at compile time, so do not install at this time
 EXTRA_DIST = \
-	smartgwt-2.0.jar \
-	smartgwt-skins-2.0.jar
+	smartgwt-2.5.jar \
+	smartgwt-skins-2.5.jar
 
 JAR_SRCS = $(call JavaDep,$(srcdir),\
 	tapestry-framework)
