@@ -16,6 +16,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -41,6 +43,8 @@ public class UserServiceImpl implements UserService {
 
     private MailboxManager m_mailboxManager;
 
+    private BranchManager m_branchManager;
+
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
@@ -57,6 +61,10 @@ public class UserServiceImpl implements UserService {
         m_mailboxManager = mailboxManager;
     }
 
+    public void setBranchManager(BranchManager manager) {
+        m_branchManager = manager;
+    }
+
     public void addUser(AddUser addUser) throws RemoteException {
         org.sipfoundry.sipxconfig.common.User myUser = m_coreContext.newUser();
         User apiUser = addUser.getUser();
@@ -67,6 +75,9 @@ public class UserServiceImpl implements UserService {
             myUser.addGroup(g);
         }
         myUser.setPin(addUser.getPin(), m_coreContext.getAuthorizationRealm());
+        if (apiUser.getBranchName() != null) {
+            myUser.setBranch(m_branchManager.getBranch(apiUser.getBranchName()));
+        }
         boolean newUsername = m_coreContext.saveUser(myUser);
         updateMailbox(myUser.getUserName(), apiUser.getEmailAddress(), newUsername);
     }
@@ -137,6 +148,14 @@ public class UserServiceImpl implements UserService {
                 Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, removeGroup);
                 if (g != null) {
                     DataCollectionUtil.removeByPrimaryKey(myUsers[i].getGroups(), g.getPrimaryKey());
+                }
+            }
+
+            String branchName = manageUser.getUpdateBranch();
+            if (branchName != null) {
+                Branch branch = m_branchManager.getBranch(branchName);
+                if (branch != null) {
+                    myUsers[i].setBranch(branch);
                 }
             }
 

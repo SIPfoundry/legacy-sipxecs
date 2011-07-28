@@ -22,9 +22,10 @@ public class UserBuilder extends SimpleBeanBuilder {
     private static final String ALIASES_PROP = org.sipfoundry.sipxconfig.common.User.ALIASES_PROP;
     private static final String GROUPS_PROP = BeanWithGroups.GROUPS_PROP;
     private static final String PERMISSIONS_PROP = "permissions";
+    private static final String BRANCH_NAME = "branchName";
 
     private static final String[] IGNORE_LIST = {
-        ALIASES_PROP, GROUPS_PROP, PERMISSIONS_PROP
+        ALIASES_PROP, GROUPS_PROP, PERMISSIONS_PROP, BRANCH_NAME
     };
 
     public UserBuilder() {
