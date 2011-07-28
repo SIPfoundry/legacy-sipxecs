@@ -33,6 +33,7 @@
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="userBuilder" ref="userBuilder" />
     <property name="settingDao" ref="settingDao" />
+    <property name="branchManager" ref="branchManager" />
   </bean>
 
   <bean id="SystemService" class="org.sipfoundry.sipxconfig.api.SystemServiceImpl">
