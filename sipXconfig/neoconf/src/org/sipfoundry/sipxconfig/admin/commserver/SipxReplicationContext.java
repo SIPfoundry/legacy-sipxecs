@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.springframework.context.ApplicationEvent;
@@ -16,7 +18,11 @@ import org.springframework.context.ApplicationEvent;
 public interface SipxReplicationContext {
     void generate(DataSet dataSet);
 
+    void generate(DataSet dataSet, List<Location> locations);
+
     void generateAll();
+
+    void generateAll(List<Location> locations);
 
     /**
      * Replicates configuration to all locations.

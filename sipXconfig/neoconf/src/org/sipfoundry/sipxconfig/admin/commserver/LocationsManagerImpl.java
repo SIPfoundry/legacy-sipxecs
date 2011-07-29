@@ -48,6 +48,10 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return locationArray;
     }
 
+    public List<Location> getLocationsList() {
+        return getHibernateTemplate().loadAll(Location.class);
+    }
+
     public Location getLocation(int id) {
         return (Location) getHibernateTemplate().load(Location.class, id);
     }

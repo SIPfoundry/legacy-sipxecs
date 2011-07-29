@@ -12,8 +12,10 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Asset;
@@ -129,12 +131,16 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
 
     public void generateProfiles() {
         Collection<Integer> selectedLocations = getSelections().getAllSelected();
-        if (!selectedLocations.isEmpty()) {
-            // HACK: push dataSets and files that are not the part of normal service replication
-            getServiceConfigurator().initLocations();
-        }
+        List<Location> locations = new LinkedList<Location>();
         for (Integer id : selectedLocations) {
-            Location locationToActivate = getLocationsManager().getLocation(id);
+            locations.add(getLocationsManager().getLocation(id));
+        }
+
+        if (!locations.isEmpty()) {
+            // HACK: push dataSets and files that are not the part of normal service replication
+            getServiceConfigurator().initLocations(locations);
+        }
+        for (Location locationToActivate : locations) {
             if (!locationToActivate.isRegistered()) {
                 continue;
             }
@@ -147,6 +153,13 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
                 getDnsGenerator().generate();
             }
         }
+
+        List<String> locationNames = new ArrayList<String>();
+        for (Location location : locations) {
+            locationNames.add(location.getFqdn());
+        }
+        String msg = getMessages().format("msg.profilesSent", StringUtils.join(locationNames, ", "));
+        getValidator().recordSuccess(msg);
     }
 
     public List<BreadCrumb> getBreadCrumbs() {

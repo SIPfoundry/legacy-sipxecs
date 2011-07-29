@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,6 +50,14 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     protected abstract ServiceConfigurator getServiceConfigurator();
 
     public void generate(DataSet dataSet) {
+        generate(dataSet, m_locationsManager.getLocationsList(), false);
+    }
+
+    public void generate(DataSet dataSet, final List<Location> locations) {
+        generate(dataSet, locations, true);
+    }
+
+    private void generate(DataSet dataSet, final List<Location> locations, boolean onEachLocation) {
         if (inInitializationPhase()) {
             LOG.debug(IGNORE_REPLICATION_MESSAGE + dataSet.getName());
             return;
@@ -58,20 +67,32 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
                 .getBean(beanName, DataSetGenerator.class);
         ReplicateWork work = new ReplicateWork() {
             public boolean replicate() {
-                return m_replicationManager.replicateData(m_locationsManager.getLocations(), generator);
+                return m_replicationManager.replicateData(locations.toArray(new Location[locations.size()]),
+                        generator);
             }
         };
         doWithJob("Data replication: " + dataSet.getName(), work);
         // replication valid users when aliases are replicated
         if (DataSet.ALIAS.equals(dataSet)) {
-            replicate(m_validUsersConfig);
+            if (onEachLocation) {
+                for (Location location : locations) {
+                    replicate(location, m_validUsersConfig);
+                }
+            } else {
+                replicate(m_validUsersConfig);
+            }
         }
     }
 
     public void generateAll() {
+        generateAll(m_locationsManager.getLocationsList());
+    }
+
+    @Override
+    public void generateAll(List<Location> locations) {
         for (Iterator<DataSet> i = DataSet.iterator(); i.hasNext();) {
             DataSet dataSet = i.next();
-            generate(dataSet);
+            generate(dataSet, locations);
         }
     }
 

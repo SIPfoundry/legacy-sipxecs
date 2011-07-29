@@ -52,10 +52,23 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         notifyWorker();
     }
 
+    public synchronized void generate(DataSet dataSet, List<Location> locations) {
+        m_tasks.add(new DataSetTask(dataSet, locations));
+        notifyWorker();
+    }
+
     public synchronized void generateAll() {
         List<DataSet> dataSets = DataSet.getEnumList();
         for (DataSet dataSet : dataSets) {
             m_tasks.add(new DataSetTask(dataSet));
+        }
+        notifyWorker();
+    }
+
+    public synchronized void generateAll(List<Location> locations) {
+        List<DataSet> dataSets = DataSet.getEnumList();
+        for (DataSet dataSet : dataSets) {
+            m_tasks.add(new DataSetTask(dataSet, locations));
         }
         notifyWorker();
     }
@@ -166,14 +179,25 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
 
     static class DataSetTask extends ReplicationTask {
         private final DataSet m_ds;
+        private final List<Location> m_locations;
 
         DataSetTask(DataSet ds) {
             m_ds = ds;
+            m_locations = null;
+        }
+
+        DataSetTask(DataSet ds, List<Location> locations) {
+            m_ds = ds;
+            m_locations = locations;
         }
 
         @Override
         public void replicate(SipxReplicationContext replicationContext) {
-            replicationContext.generate(m_ds);
+            if (m_locations != null) {
+                replicationContext.generate(m_ds, m_locations);
+            } else {
+                replicationContext.generate(m_ds);
+            }
         }
 
         @Override
