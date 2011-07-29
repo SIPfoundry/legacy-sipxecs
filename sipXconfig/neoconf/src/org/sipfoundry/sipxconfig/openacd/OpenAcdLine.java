@@ -23,10 +23,14 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 
 public class OpenAcdLine extends OpenAcdExtension {
+    public static final Integer FS = new Integer(1);
+    public static final Integer ACD = new Integer(2);
+    public static final Integer AGENT = new Integer(3);
     public static final String Q = "queue=";
     public static final String BRAND = "brand=";
     public static final String DESTINATION_NUMBER = "destination_number";
     public static final String ALLOW_VOICEMAIL = "allow_voicemail=";
+    public static final String ERLANG_ANSWER = "erlang_answer=false";
     public static final String EMPTY_STRING = "";
     public static final String OPEN_ACD = "openacd@";
 
@@ -47,6 +51,16 @@ public class OpenAcdLine extends OpenAcdExtension {
     public static FreeswitchAction createVoicemailAction(boolean allow) {
         return allow ? createAction(FreeswitchAction.PredefinedAction.set.toString(), ALLOW_VOICEMAIL + allow)
                 : null;
+    }
+
+    public static FreeswitchAction createAnswerAction(Integer type) {
+        if (type == FS) {
+            return createAction(FreeswitchAction.PredefinedAction.answer.toString(), null);
+        } else if (type == AGENT) {
+            return createAction(FreeswitchAction.PredefinedAction.set.toString(), ERLANG_ANSWER);
+        } else {
+            return null;
+        }
     }
 
     public static FreeswitchAction createQueueAction(String queue) {

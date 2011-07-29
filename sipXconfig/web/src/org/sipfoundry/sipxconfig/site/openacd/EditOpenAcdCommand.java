@@ -170,7 +170,8 @@ public abstract class EditOpenAcdCommand extends PageWithCallback implements Pag
 
             // add common actions
             cmd.getNumberCondition().getActions().clear();
-            cmd.getNumberCondition().addAction(OpenAcdCommand.createAnswerAction(true));
+            cmd.getNumberCondition().addAction(
+                    OpenAcdCommand.createAction(FreeswitchAction.PredefinedAction.answer.toString(), null));
 
             for (ActionBean actionBean : getActions()) {
                 cmd.getNumberCondition().addAction((FreeswitchAction) actionBean.getAction().duplicate());

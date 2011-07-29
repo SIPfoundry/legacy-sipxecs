@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -42,7 +43,14 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
 
 public abstract class EditOpenAcdLine extends PageWithCallback implements PageBeginRenderListener {
+    public static final Integer FS = OpenAcdLine.FS;
+
+    public static final Integer ACD = OpenAcdLine.ACD;
+
+    public static final Integer AGENT = OpenAcdLine.AGENT;
+
     public static final String PAGE = "openacd/EditOpenAcdLine";
+
     private static final String SLASH = "/";
 
     @InjectObject("spring:openAcdContext")
@@ -83,9 +91,10 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
 
     public abstract void setAllowVoicemail(boolean allow);
 
-    public abstract boolean isAnswerSupervision();
+    @InitialValue(value = "@org.sipfoundry.sipxconfig.site.openacd.EditOpenAcdLine@FS")
+    public abstract Integer getAnswerSupervisionType();
 
-    public abstract void setAnswerSupervision(boolean answer);
+    public abstract void setAnswerSupervisionType(Integer type);
 
     public abstract ActionBean getActionBean();
 
@@ -147,11 +156,15 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
         }
 
         List<ActionBean> actionBeans = new LinkedList<ActionBean>();
+        boolean isFsSet = false;
+        boolean isAgentSet = false;
         for (FreeswitchAction action : actions) {
             String application = action.getApplication();
             String data = action.getData();
             if (StringUtils.equals(application, FreeswitchAction.PredefinedAction.answer.toString())) {
-                setAnswerSupervision(true);
+                isFsSet = true;
+            } else if (StringUtils.contains(data, OpenAcdLine.ERLANG_ANSWER)) {
+                isAgentSet = true;
             } else if (StringUtils.contains(data, OpenAcdLine.Q)) {
                 if (getSelectedQueue() == null) {
                     String queueName = StringUtils.removeStart(data, OpenAcdLine.Q);
@@ -174,6 +187,14 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
                 actionBeans.add(new ActionBean(action));
             }
         }
+        if (isFsSet) {
+            setAnswerSupervisionType(FS);
+        } else if (isAgentSet) {
+            setAnswerSupervisionType(AGENT);
+        } else {
+            setAnswerSupervisionType(ACD);
+        }
+
         if (getActions() == null) {
             setActions(actionBeans);
         }
@@ -226,7 +247,7 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
 
             // add common actions
             line.getNumberCondition().getActions().clear();
-            line.getNumberCondition().addAction(OpenAcdLine.createAnswerAction(isAnswerSupervision()));
+            line.getNumberCondition().addAction(OpenAcdLine.createAnswerAction(getAnswerSupervisionType()));
             line.getNumberCondition().addAction(OpenAcdLine.createVoicemailAction(isAllowVoicemail()));
             if (getSelectedQueue() == null) {
                 throw new UserException(getMessages().getMessage("error.requiredQueue"));
