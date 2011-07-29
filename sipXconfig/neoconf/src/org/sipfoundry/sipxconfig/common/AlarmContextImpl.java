@@ -10,14 +10,21 @@
 package org.sipfoundry.sipxconfig.common;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.AlarmApi;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.logging.FailedReplicationEvent;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
-public class AlarmContextImpl implements AlarmContext {
+public class AlarmContextImpl implements AlarmContext, ApplicationListener {
+    private static final Log LOG = LogFactory.getLog(AlarmContextImpl.class);
+
     private ApiProvider<AlarmApi> m_alarmApiProvider;
     private LocationsManager m_locationsManager;
 
@@ -49,6 +56,18 @@ public class AlarmContextImpl implements AlarmContext {
             }
         } catch (XmlRpcRemoteException e) {
             throw new UserException(e.getCause());
+        }
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof FailedReplicationEvent) {
+            FailedReplicationEvent failedEvent = (FailedReplicationEvent) event;
+            try {
+                raiseAlarm("REPLICATION_FAILED", failedEvent.getFqdn());
+            } catch (UserException ex) {
+                //When exeption is thrown during raiseAlarm
+                LOG.error("ERROR during raise Alarm ", ex);
+            }
         }
     }
 

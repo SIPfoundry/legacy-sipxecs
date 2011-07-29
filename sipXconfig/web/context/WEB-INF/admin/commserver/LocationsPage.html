@@ -20,6 +20,11 @@
             listener="listener:editLocation" parameters="ognl:currentRow.id">
           <span jwcid="@Insert" value="ognl:currentRow.fqdn"/>
         </span>
+        <span jwcid="@If" condition="ognl:acdServerPresent">
+        </span>
+        <span jwcid="@If" condition="ognl:replicationBean.isFailed(currentRow.fqdn)">
+            [<span  jwcid="@Insert" class="user-error" value="message:replication.failed" renderTag="false"/>]
+        </span>
       </span>
       <span jwcid="registeredColumnValue@Block">
         <span jwcid="@common/EnabledColumn" value="ognl:currentRow.registered" keyPrefix="label.status"/>

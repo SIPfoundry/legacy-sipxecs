@@ -133,6 +133,10 @@ public class ReplicationManagerImpl implements ReplicationManager {
                 } catch (XmlRpcRemoteException e) {
                     success = false;
                     LOG.error("Data replication failed: " + type.getName(), e);
+                } finally {
+                    if (!success) {
+                        m_auditLogContext.logReplicationFailed(type.getName(), location);
+                    }
                 }
             }
         }
@@ -248,6 +252,10 @@ public class ReplicationManagerImpl implements ReplicationManager {
             } catch (IOException e) {
                 LOG.error(EXCEPTION_LOG, e);
                 throw new RuntimeException(e);
+            } finally {
+                if (!success) {
+                    m_auditLogContext.logReplicationFailed(file.getName(), locations[i]);
+                }
             }
         }
         return success;
