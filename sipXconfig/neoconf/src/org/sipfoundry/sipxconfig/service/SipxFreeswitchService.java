@@ -132,7 +132,9 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
         } else {
             Location[] locations = getLocationsManager().getLocations();
             for (Location l : locations) {
-                reloadXmlWithRetries(l);
+                if (getSipxServiceManager().isServiceInstalled(l.getId(), BEAN_ID)) {
+                    reloadXmlWithRetries(l);
+                }
             }
         }
     }
