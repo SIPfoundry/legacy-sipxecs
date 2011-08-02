@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
@@ -18,6 +19,8 @@ public interface LocationsManager {
     String CONTEXT_BEAN_NAME = "locationsManager";
 
     Location[] getLocations();
+
+    List<Location> getLocationsList();
 
     Location getLocation(int id);
 
@@ -82,4 +85,6 @@ public interface LocationsManager {
      *         isn't installed on any server it will return null.
      */
     Location getLocationByBundle(String bundleName);
+
+    void updateLocationsStatus(Collection<Integer> ids, boolean registered);
 }

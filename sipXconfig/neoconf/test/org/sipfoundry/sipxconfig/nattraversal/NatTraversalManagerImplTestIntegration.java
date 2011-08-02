@@ -73,10 +73,10 @@ public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase 
         assertEquals(5, m_sipxProcessContext.getRestartNeededServices().size());
         m_sipxProcessContext.clear();
         natTraversal.activateOnLocation(m_locationsManager.getLocation(100), m_serviceConfiguratorImpl);
-        assertEquals(4, m_sipxProcessContext.getRestartNeededServices().size());
+        assertEquals(3, m_sipxProcessContext.getRestartNeededServices().size());
         m_sipxProcessContext.clear();
         natTraversal.activateOnLocation(m_locationsManager.getLocation(101), m_serviceConfiguratorImpl);
-        assertEquals(3, m_sipxProcessContext.getRestartNeededServices().size());
+        assertEquals(2, m_sipxProcessContext.getRestartNeededServices().size());
     }
 
     public void testOneNatTraversalRecord() throws Exception {

@@ -10,8 +10,10 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -21,6 +23,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import static org.springframework.dao.support.DataAccessUtils.intResult;
@@ -33,8 +36,10 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private static final String LOCATION_PROP_IP = "ipAddress";
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
+    private static final String REG_UPDATE_SQL = "UPDATE location SET registered=%s WHERE location_id in (%s);";
 
     private DaoEventPublisher m_daoEventPublisher;
+    private JdbcTemplate m_jdbcTemplate;
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
@@ -46,6 +51,10 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         Location[] locationArray = new Location[locationList.size()];
         locationList.toArray(locationArray);
         return locationArray;
+    }
+
+    public List<Location> getLocationsList() {
+        return getHibernateTemplate().loadAll(Location.class);
     }
 
     public Location getLocation(int id) {
@@ -82,7 +91,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     public void storeNatLocation(Location location, NatLocation nat) {
         location.setNat(nat);
         getHibernateTemplate().saveOrUpdate(location);
-        //There is a 1-1 relation between Nat and Location
+        // There is a 1-1 relation between Nat and Location
         nat.setLocation(location);
         m_daoEventPublisher.publishSave(nat);
     }
@@ -111,11 +120,11 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     }
 
     /**
-     * Need to verify if existing fqdn or ip are about to be changed in order to be
-     * in sync with potential situations for versions before 4.1.6 when an user may have
-     * at least two locations with the same fqdn or ip. (This situation probably will never
-     * appear but we have to be sure). If no ip/fqdn change occurs, no user exception is thrown
-     * no matter if there is at least one more location with the same ip or fqdn
+     * Need to verify if existing fqdn or ip are about to be changed in order to be in sync with
+     * potential situations for versions before 4.1.6 when an user may have at least two locations
+     * with the same fqdn or ip. (This situation probably will never appear but we have to be
+     * sure). If no ip/fqdn change occurs, no user exception is thrown no matter if there is at
+     * least one more location with the same ip or fqdn
      */
     private boolean isFqdnOrIpChanged(Location location) {
         List count = getHibernateTemplate().findByNamedQueryAndNamedParam("sameLocationWithSameFqdnOrIp",
@@ -153,11 +162,12 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     /**
      * Convenience method used only in tests for resetting primary location when needed
+     *
      * @see TestPage.resetPrimaryLocation
      */
     public void deletePrimaryLocation() {
         Location location = getPrimaryLocation();
-        if  (location != null) {
+        if (location != null) {
             m_daoEventPublisher.publishDelete(location);
             getHibernateTemplate().delete(location);
         } else {
@@ -182,5 +192,16 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
             return null;
         }
         return locations.get(0);
+    }
+
+    @Override
+    public void updateLocationsStatus(Collection<Integer> ids, boolean registered) {
+        if (ids != null && ids.size() > 0) {
+            m_jdbcTemplate.update(String.format(REG_UPDATE_SQL, registered, StringUtils.join(ids, ",")));
+        }
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate template) {
+        m_jdbcTemplate = template;
     }
 }

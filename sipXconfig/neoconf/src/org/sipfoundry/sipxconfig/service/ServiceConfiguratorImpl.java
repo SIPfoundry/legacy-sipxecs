@@ -69,7 +69,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         boolean serviceRequiresRestart = replicateConfigurations(location, configurations);
         m_configVersionManager.setConfigVersion(service, location);
         if (serviceRequiresRestart) {
-            m_sipxProcessContext.markServicesForRestart(singleton(service));
+            m_sipxProcessContext.markServicesForRestart(location, singleton(service));
         }
         service.afterReplication(location);
     }
@@ -217,27 +217,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     }
 
     public void initLocations() {
-        Location[] locations = m_locationsManager.getLocations();
-        if (locations.length == 0) {
-            // nothing to do
-            return;
-        }
-        for (Location location : locations) {
-            if (!location.isRegistered()) {
-                continue;
-            }
-            m_domainManager.replicateDomainConfig(m_replicationContext, location);
-            // supervisor is always installed, never on the list of standard services
-            SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
-            replicateServiceConfig(location, supervisorService);
-
-            // replicate alarm server
-            SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
-            replicateServiceConfig(location, alarmService);
-        }
-
-        generateDataSets();
-        replicateDialPlans();
+        initLocations(m_locationsManager.getLocationsList());
     }
 
     /**
@@ -252,6 +232,11 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         m_dialPlanActivationManager.replicateDialPlan(false);
     }
 
+    @Deprecated
+    private void replicateDialPlans(List<Location> locations) {
+        m_dialPlanActivationManager.replicateDialPlan(false, locations);
+    }
+
     /**
      * Replicates all data sets eagerly.
      *
@@ -259,8 +244,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
      * sets in the same thread as the one used for pushing configuration files. It ensures the all
      * the resources are replicated before sipXconfig attempts to start the service.
      */
-    private void generateDataSets() {
-        m_replicationContext.generateAll();
+    private void generateDataSets(List<Location> locations) {
+        m_replicationContext.generateAll(locations);
     }
 
     @Required
@@ -308,6 +293,31 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
 
     public void markServiceForRestart(Collection< ? extends SipxService> services) {
         m_sipxProcessContext.markServicesForRestart(services);
+    }
+
+    @Override
+    public void initLocations(List<Location> locations) {
+        if (locations.size() == 0) {
+            // nothing to do
+            return;
+        }
+        for (Location location : locations) {
+            if (!location.isRegistered()) {
+                continue;
+            }
+            m_domainManager.replicateDomainConfig(m_replicationContext, location);
+            // supervisor is always installed, never on the list of standard services
+            SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
+            replicateServiceConfig(location, supervisorService);
+
+            // replicate alarm server
+            SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
+            replicateServiceConfig(location, alarmService);
+        }
+
+        generateDataSets(locations);
+        replicateDialPlans(locations);
+
     }
 
 }
