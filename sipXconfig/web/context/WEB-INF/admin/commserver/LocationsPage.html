@@ -44,6 +44,18 @@
           value="message:button.delete" />
         <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
       </li>
+      <li>
+        <input id="locations:unregister"
+          jwcid="unregister@Submit"
+          action="listener:unregisterLocations"
+          value="message:button.unregister" />
+      </li>
+      <li>
+        <input id="locations:register"
+          jwcid="register@Submit"
+          action="listener:registerLocations"
+          value="message:button.register" />
+      </li>
     </ul>
   </form>
 </div>

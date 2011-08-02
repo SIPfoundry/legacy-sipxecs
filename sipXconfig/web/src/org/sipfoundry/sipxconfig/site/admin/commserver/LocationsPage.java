@@ -129,6 +129,20 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
         setLocations(null);
     }
 
+    public void unregisterLocations() {
+        getLocationsManager().updateLocationsStatus(getSelections().getAllSelected(), false);
+
+        // update locations list
+        setLocations(null);
+    }
+
+    public void registerLocations() {
+        getLocationsManager().updateLocationsStatus(getSelections().getAllSelected(), true);
+
+        // update locations list
+        setLocations(null);
+    }
+
     public void generateProfiles() {
         Collection<Integer> selectedLocations = getSelections().getAllSelected();
         List<Location> locations = new LinkedList<Location>();
