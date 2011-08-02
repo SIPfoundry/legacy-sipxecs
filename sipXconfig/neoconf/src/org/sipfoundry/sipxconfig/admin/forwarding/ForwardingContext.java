@@ -21,7 +21,7 @@ public interface ForwardingContext {
 
     CallSequence getCallSequenceForUser(User user);
 
-    //void removeCallSequenceForUserId(Integer userId);
+    // void removeCallSequenceForUserId(Integer userId);
 
     CallSequence getCallSequenceForUserId(Integer userId);
 
@@ -46,4 +46,12 @@ public interface ForwardingContext {
     void clear();
 
     void clearSchedules();
+
+    /**
+     * Returns true if the call sequence has rings, which would qualify it to be replicated.
+     * Uses a simple plain sql select to determine that, which makes it very fast.
+     * @param user
+     * @return
+     */
+    boolean isCallSequenceReplicable(User user);
 }

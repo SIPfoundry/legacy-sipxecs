@@ -78,7 +78,7 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
         return actions;
     }
 
-    protected static FreeswitchAction createAction(String application, String data) {
+    public static FreeswitchAction createAction(String application, String data) {
         FreeswitchAction action = new FreeswitchAction();
         action.setApplication(application);
         action.setData(data);
@@ -90,13 +90,6 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
         condition.setField(OpenAcdLine.DESTINATION_NUMBER);
         condition.setExpression(EMPTY_STRING);
         return condition;
-    }
-
-    public static FreeswitchAction createAnswerAction(boolean answer) {
-        if (!answer) {
-            return null;
-        }
-        return createAction(FreeswitchAction.PredefinedAction.answer.toString(), null);
     }
 
     @Override

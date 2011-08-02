@@ -55,9 +55,35 @@
       <tr jwcid="@common/FieldPanel" for="item:allowvm" label="message:label.allowvm">
         <input jwcid="allowvm@Checkbox" type="checkbox" id="item:allowvm" value="ognl:allowVoicemail"/>
       </tr>
-      <tr jwcid="@common/FieldPanel" for="item:answersuper" label="message:label.answersuper">
-        <input jwcid="answersuper@Checkbox" type="checkbox" id="item:answersuper" value="ognl:answerSupervision"/>
-      </tr>
+	  <tr>
+		<td><label for="answerSupervisionGroup"><span key="label.answersuper"/></label></td>
+	  </tr>
+	  <span jwcid="answerSupervisionGroup@RadioGroup" selected="ognl:answerSupervisionType">
+		<tr>
+		  <td>
+			<span jwcid="fsRadio@Radio" value="ognl:@org.sipfoundry.sipxconfig.site.openacd.EditOpenAcdLine@FS" />
+		  </td>
+		  <td>
+			<span jwcid="fsRadioLabel@FieldLabel" field="component:fsRadio" displayName="message:label.fs"/>
+		  </td>
+		</tr>
+		<tr>
+		  <td>
+			<span jwcid="acdRadio@Radio" value="ognl:@org.sipfoundry.sipxconfig.site.openacd.EditOpenAcdLine@ACD" />
+		  </td>
+		  <td>
+			<span jwcid="acdRadioLabel@FieldLabel" field="component:acdRadio" displayName="message:label.acd"/>
+		  </td>
+		</tr>
+		<tr>
+		  <td>
+			<span jwcid="agentRadio@Radio" value="ognl:@org.sipfoundry.sipxconfig.site.openacd.EditOpenAcdLine@AGENT" />
+		  </td>
+		  <td>
+			<span jwcid="agentRadioLabel@FieldLabel" field="component:agentRadio" displayName="message:label.agent"/>
+		  </td>
+		</tr>
+      </span>
       <tr>
         <td><label for="welcome"><span key="label.welcome"/></label></td>
         <td><span jwcid="welcome@common/AssetSelectorMultiple" asset="ognl:welcomeMessage" assetDir="ognl:sipxOpenAcdService.audioDir"

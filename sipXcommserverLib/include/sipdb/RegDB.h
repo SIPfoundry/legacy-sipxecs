@@ -44,7 +44,20 @@ public:
     typedef std::vector<RegBinding> Bindings;
     typedef MongoDB::Collection<RegDB> RegDBCollection;
     typedef boost::shared_ptr<RegDBCollection> Ptr;
-    
+
+    //
+    // Nodes database
+    //
+
+    class NodesDb : MongoDB::DBInterface
+    {
+    public:
+      NodesDb(MongoDB& db, const std::string& ns = "node.nodes") :
+         MongoDB::DBInterface(db, "", ns)
+      {
+      }
+    };
+
     RegDB(
         MongoDB& db,
         const std::string& ns = RegDB::_defaultNamespace);
@@ -102,7 +115,9 @@ public:
 
     bool getAllBindings(Bindings& binding);
 
-    bool cleanAndPersist(int currentExpireTime, const std::string& nodeConfig = std::string(), bool nodeFetch = true);
+    bool cleanAndPersist(int currentExpireTime, bool nodeFetch);
+
+    bool cleanAndPersist(int currentExpireTime, const std::string& json, bool nodeFetch);
 
     bool clearAllBindings();
 
@@ -116,7 +131,9 @@ public:
 protected:
     void updateReplicationTimeStamp();
     void replicate();
-    void fetchNodes(const std::string& nodeConfig);
+    void fetchNodesFromJson(const std::string& nodeConfig);
+    void fetchNodesFromMongo();
+
 public:
     bool addReplicationNode(const std::string& nodeAddress);
     bool addReplicationNode(const std::string& nodeAddress, const std::string& internalAddress, const std::string& ns);
@@ -130,6 +147,7 @@ private:
     std::set<std::string> _disabledNodes;
     mutable MongoDB::Mutex _disabledNodesMutex;
     int _st_mtime;
+    MongoDB::Collection<NodesDb>* _pNodesDb;
     static std::string _defaultNamespace;
 };
 

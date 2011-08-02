@@ -18,6 +18,8 @@
 #include "os/OsLogger.h"
 #include <json/json_spirit.h>
 
+
+
 std::string RegDB::_defaultNamespace = "node.registrar";
 std::string& RegDB::defaultNamespace()
 {
@@ -32,13 +34,15 @@ MongoDB::Collection<RegDB>& RegDB::defaultCollection()
 
 RegDB::RegDB(MongoDB& db, const std::string& ns) :
     MongoDB::DBInterface(db, "", ns),
-    _replicationNodes(ns)
+    _replicationNodes(ns),
+    _pNodesDb(0)
 {
-  _st_mtime = 0;
+  _st_mtime = -1;
 }
 
 RegDB::~RegDB()
 {
+  delete _pNodesDb;
 }
 
 void RegDB::updateBinding(RegBinding& binding)
@@ -459,10 +463,10 @@ void RegDB::replicate()
     }
 }
 
-bool RegDB::cleanAndPersist(int currentExpireTime, const std::string& nodeConfig, bool nodeFetch)
+bool RegDB::cleanAndPersist(int currentExpireTime, bool nodeFetch)
 {
     if (nodeFetch)
-      fetchNodes(nodeConfig);
+      fetchNodesFromMongo();
     
     updateReplicationTimeStamp();       
     replicate();
@@ -472,7 +476,49 @@ bool RegDB::cleanAndPersist(int currentExpireTime, const std::string& nodeConfig
     return _db.remove(_ns, query, error);
 }
 
-void RegDB::fetchNodes(const std::string& nodeConfig)
+
+bool RegDB::cleanAndPersist(int currentExpireTime, const std::string& json, bool nodeFetch )
+{
+  if (nodeFetch)
+      fetchNodesFromJson(json);
+    
+    updateReplicationTimeStamp();
+    replicate();
+
+    MongoDB::BSONObj query = BSON("expirationTime" << BSON_LESS_THAN(currentExpireTime));
+    std::string error;
+    return _db.remove(_ns, query, error);
+}
+
+bool RegDB::clearAllBindings()
+{
+  return _db.removeAll(_ns);
+}
+
+
+void RegDB::disableNode(const std::string& nodeId)
+{
+  _disabledNodesMutex.lock();
+  _disabledNodes.insert(nodeId);
+  _disabledNodesMutex.unlock();
+}
+
+void RegDB::enableNode(const std::string& nodeId)
+{
+  _disabledNodesMutex.lock();
+  _disabledNodes.erase(nodeId);
+  _disabledNodesMutex.unlock();
+}
+
+bool RegDB::isNodeDisabled(const std::string& nodeId) const
+{
+  _disabledNodesMutex.lock();
+  bool disabled = _disabledNodes.find(nodeId) != _disabledNodes.end();
+  _disabledNodesMutex.unlock();
+  return disabled;
+}
+
+void RegDB::fetchNodesFromJson(const std::string& nodeConfig)
 {
   if (nodeConfig.empty())
     return;
@@ -485,17 +531,13 @@ void RegDB::fetchNodes(const std::string& nodeConfig)
   }
 
 
-  if (st.st_mtime == _st_mtime)
+  if (st.st_mtime == _st_mtime && !_replicationNodes.empty())
     return;
 
-  if (_st_mtime)
-  {
-    //
-    // This is a reload attempt due to an in-process change of the node configuration
-    //
-    _replicationNodes.clear();
-    _nodeTimeStamps.clear();
-  }
+
+  _replicationNodes.clear();
+  _nodeTimeStamps.clear();
+
 
   _st_mtime = st.st_mtime;
 
@@ -548,7 +590,7 @@ void RegDB::fetchNodes(const std::string& nodeConfig)
     for (size_t j = 0; j < obj.size(); j++)
     {
       const json::Pair& pair = obj[j];
-      
+
       if (pair.name_ == "node.server")
       {
         server = pair.value_.get_str();
@@ -613,30 +655,59 @@ void RegDB::fetchNodes(const std::string& nodeConfig)
   }
 }
 
-bool RegDB::clearAllBindings()
+
+void RegDB::fetchNodesFromMongo()
 {
-  return _db.removeAll(_ns);
+  std::string ns = _ns + "nodes";
+  if (!_pNodesDb)
+    _pNodesDb = new MongoDB::Collection<NodesDb>(ns);
+
+  MongoDB::BSONObj query = BSON( "lastUpdated" << BSON_GREATER_THAN(0));
+
+  std::string error;
+  MongoDB::Cursor pCursor = _pNodesDb->db().find(ns, query, error);
+  int lastUpdated = 0;
+  if (pCursor.get() && pCursor->more())
+  {
+      const MongoDB::BSONObj& bson = pCursor->next();
+      if (bson.hasField("lastUpdated"))
+        lastUpdated = bson.getIntField("lastUpdated");
+  }
+
+  if (lastUpdated == _st_mtime && !_replicationNodes.empty())
+    return;
+
+  _replicationNodes.clear();
+  _nodeTimeStamps.clear();
+  _st_mtime = lastUpdated;
+
+  MongoDB::BSONObj queryServers;
+  MongoDB::Cursor pServersCursor = _pNodesDb->db().find(ns, queryServers, error);
+  while (pServersCursor.get() && pServersCursor->more())
+  {
+      const MongoDB::BSONObj& bson = pServersCursor->next();
+      std::string server;
+      std::string internalAddress;
+      std::string collection;
+      if (bson.hasField("server"))
+        server = bson.getIntField("server");
+      else
+        continue;
+      if (bson.hasField("internalAddress"))
+        internalAddress = bson.getIntField("internalAddress");
+      else
+        continue;
+      
+      if (bson.hasField("collection"))
+        collection = bson.getIntField("collection");
+
+      if (!server.empty() && !internalAddress.empty())
+      {
+        if (collection.empty())
+          collection = _ns;
+        OS_LOG_INFO(FAC_ODBC, "Adding replication node " << server << ":" << internalAddress << ":" << collection);
+        addReplicationNode(server, internalAddress, collection);
+      }
+  }
 }
 
-
-void RegDB::disableNode(const std::string& nodeId)
-{
-  _disabledNodesMutex.lock();
-  _disabledNodes.insert(nodeId);
-  _disabledNodesMutex.unlock();
-}
-
-void RegDB::enableNode(const std::string& nodeId)
-{
-  _disabledNodesMutex.lock();
-  _disabledNodes.erase(nodeId);
-  _disabledNodesMutex.unlock();
-}
-
-bool RegDB::isNodeDisabled(const std::string& nodeId) const
-{
-  _disabledNodesMutex.lock();
-  bool disabled = _disabledNodes.find(nodeId) != _disabledNodes.end();
-  _disabledNodesMutex.unlock();
-  return disabled;
-}

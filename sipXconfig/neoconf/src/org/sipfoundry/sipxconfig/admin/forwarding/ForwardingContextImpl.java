@@ -25,7 +25,9 @@ import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -40,7 +42,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private static final String PARAM_NAME = "name";
 
     private CoreContext m_coreContext;
-
+    private JdbcTemplate m_jdbcTemplate;
     private DaoEventPublisher m_daoEventPublisher;
 
     /**
@@ -305,5 +307,19 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public void clearSchedules() {
         Collection<Schedule> schedules = getHibernateTemplate().loadAll(Schedule.class);
         getHibernateTemplate().deleteAll(schedules);
+    }
+
+    @Override
+    public boolean isCallSequenceReplicable(User user) {
+        try {
+            m_jdbcTemplate.queryForInt("select ring_id from ring where user_id=" + user.getId());
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        m_jdbcTemplate = jdbcTemplate;
     }
 }

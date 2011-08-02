@@ -137,7 +137,21 @@ public class EmailFormatter {
     }
     
     public String fmt(String text, Object[] args) {
-        return MessageFormat.format(m_bundle.getString(text), args);
+        String value = "";
+        if (text == null) {
+            return value;
+        }
+        if (m_bundle.containsKey(text)) {
+            value = m_bundle.getString(text);
+        } else {
+            // fallback in values within packed properties file
+            Locale locale = m_mailbox.getUser().getLocale();
+            if (locale == null) {
+                locale = Locale.getDefault();
+            }
+            value = ResourceBundle.getBundle(EMAIL_FORMATS_BUNDLE, locale).getString(text);
+        }
+        return MessageFormat.format(value, args);
     }
 
     

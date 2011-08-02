@@ -63,7 +63,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String USER_ADMIN = "userAdmin";
     private static final String FIRST = "first";
     private static final String PAGE_SIZE = "pageSize";
-    private static final String SEMICOLON = ";";
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;

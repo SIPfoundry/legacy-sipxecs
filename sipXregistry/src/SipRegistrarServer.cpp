@@ -1408,7 +1408,10 @@ void SipRegistrarServer::cleanAndPersist()
       
    }
 
-   _dataStore.regDB().cleanAndPersist(oldestTimeToKeep, mRegistrar.getNodeConfig());
+   if (mRegistrar.getNodeConfig().empty())
+      _dataStore.regDB().cleanAndPersist(oldestTimeToKeep, true);
+   else
+     _dataStore.regDB().cleanAndPersist(oldestTimeToKeep, mRegistrar.getNodeConfig(), true);
 
 }
 
