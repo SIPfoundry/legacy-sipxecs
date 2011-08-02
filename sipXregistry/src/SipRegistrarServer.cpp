@@ -363,7 +363,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     RegistrationDB* imdb = mRegistrar.getRegistrationDB();
 
     sLockMutex.acquire();
-    bool isOutOfSequece_ = !imdb->isOutOfSequence(toUrl, registerCallidStr, registerCseqInt);
+    bool isOutOfSequece_ = imdb->isOutOfSequence(toUrl, registerCallidStr, registerCseqInt);
     sLockMutex.release();
 
     // Check that this call-id and cseq are newer than what we have in the db
