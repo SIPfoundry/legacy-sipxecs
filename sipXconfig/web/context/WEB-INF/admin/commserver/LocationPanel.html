@@ -1,3 +1,8 @@
+<span jwcid="@If" condition="ognl:locationBean.isRegistered()" renderTag="false">
+  <ul class="component-links">
+    <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+  </ul>
+</span>
   <table>
     <tbody>
       <tr jwcid="@common/FieldPanel"
@@ -46,6 +51,36 @@
           displayName="message:label.password"/>
       </tr>
       <tr jwcid="@branch/BranchSelection" branch="ognl:locationBean.branch"/>
+  <div jwcid="@If" condition="ognl:advanced && locationBean.registered" renderTag="false">
+      <tr>
+      <td colspan="2">
+        <h3><span key="title.advanced" /></h3>
+      </td>
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        for="location:callTraffic"
+        label="message:label.callTraffic"
+        field="component:callTraffic"
+        description="message:description.callTraffic" >
+        <input jwcid="callTraffic@Checkbox"
+          id="location:callTraffic"
+          value="ognl:locationBean.callTraffic"
+          displayName="message:label.callTraffic"/>
+      </tr>
+    <div jwcid="@If" condition="ognl:!locationBean.primary" renderTag="false">
+      <tr jwcid="@common/FieldPanel"
+        for="location:config"
+        label="message:label.replicateConfig"
+        field="component:config"
+        description="message:description.replicateConfig" >
+        <input jwcid="config@Checkbox"
+          id="location:config"
+          value="ognl:locationBean.replicateConfig"
+          displayName="message:label.replicateConfig"/>
+      </tr>
+    </div>
+  </div>
     </tbody>
   </table>
+
 <ul jwcid="@common/FormActions" listener="listener:saveLocation" callback="ognl:callback"/>

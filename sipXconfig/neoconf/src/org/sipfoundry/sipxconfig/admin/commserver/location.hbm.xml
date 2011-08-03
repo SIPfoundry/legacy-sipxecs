@@ -15,6 +15,8 @@
     <property name="password" />
     <property name="primary" column="primary_location" />
     <property name="registered" />
+    <property name="callTraffic" />
+    <property name="replicateConfig" />
     <property name="state" column="state" type="org.sipfoundry.sipxconfig.admin.commserver.Location$LocationState" />
     <property name="lastAttempt" />
     <bag name="services" cascade="all,delete-orphan" inverse="true">

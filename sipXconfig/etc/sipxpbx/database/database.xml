@@ -386,6 +386,7 @@
 	<antcall target="location-configured" />
   	<antcall target="openacd-insert-alias-did" />
 	<antcall target="openacd-add-queue-recipe" />
+    <antcall target="location-active" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1188,6 +1189,9 @@
   </target>	
   <target name="openacd-add-queue-recipe" unless="openacd-add-queue-recipe">
 	<db-patch patch="openacd-add-queue-recipe" />
+  </target>
+  <target name="location-active" unless="location-active">
+	<db-patch patch="location-active" />
   </target>
 
   <!--

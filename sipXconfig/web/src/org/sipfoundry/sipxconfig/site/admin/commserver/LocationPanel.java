@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class LocationPanel extends BaseComponent {
+    private boolean m_advanced;
+
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
@@ -34,5 +36,13 @@ public abstract class LocationPanel extends BaseComponent {
         }
         Location location = getLocationBean();
         getLocationsManager().saveLocation(location);
+    }
+
+    public boolean isAdvanced() {
+        return m_advanced;
+    }
+
+    public void setAdvanced(boolean advanced) {
+        m_advanced = advanced;
     }
 }

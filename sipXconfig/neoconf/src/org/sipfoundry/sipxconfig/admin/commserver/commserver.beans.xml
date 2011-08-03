@@ -75,6 +75,7 @@
     <property name="forwardingContext" ref="forwardingContext" />
     <property name="externalAliases" ref="externalAliases" />
     <property name="dataSetGenerator" ref="dataSetGenerator" />
+    <property name="tunnelManager" ref="tunnelManager"/>
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
