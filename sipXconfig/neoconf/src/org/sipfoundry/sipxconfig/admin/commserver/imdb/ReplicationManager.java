@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -97,5 +98,26 @@ public interface ReplicationManager {
      */
     void removePermission(Permission perm);
 
+    /**
+     * Replicate a {@link Group}. Uses parallel processing
+     */
     void replicateGroup(Group group);
+
+    /**
+     * Replicate a {@link Branch}
+     */
+    void replicateBranch(Branch branch);
+
+    /**
+     * Deletes a branch. It uses mongo to retrieve members, rather than DaoUtils.
+     * It is done like this b/c after a branch is deleted, the associations are removed,
+     * so no members would be retrieved.
+     */
+    void deleteBranch(Branch branch);
+    /**
+     * Deletes a group. It uses mongo to retrieve members, rather than DaoUtils.
+     * It is done like this b/c after a branch is deleted, the associations are removed,
+     * so no members would be retrieved.
+     */
+    void deleteGroup(Group group);
 }

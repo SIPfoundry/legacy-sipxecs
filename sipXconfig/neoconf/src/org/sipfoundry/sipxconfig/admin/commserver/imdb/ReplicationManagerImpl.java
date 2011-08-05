@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +48,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.branch.Branch;
 
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -94,6 +96,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private static final String LOCATION_REGISTRATION = "Location registration in db";
     private static final String DATABASE_REGENERATION = "Database regeneration";
     private static final String GROUP_REGENERATION = "Group regeneration";
+    private static final String BRANCH_REGENERATION = "Branch regeneration";
     private static final String COLON = ":";
     private static final String IP = "ip";
     private static final String DESCRIPTION = "dsc";
@@ -106,6 +109,10 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private static final String IN = " in ";
     private static final String MS = " ms ";
     private static final String STUNNEL_COLLECTION = "registrarnode";
+    private static final DataSet[] GROUP_DATASETS = {DataSet.ATTENDANT, DataSet.PERMISSION,
+        DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL,
+        DataSet.USER_FORWARD, DataSet.USER_LOCATION, DataSet.USER_STATIC};
+    private static final DataSet[] BRANCH_DATASETS = {DataSet.USER_LOCATION};
 
     private Mongo m_mongoInstance;
     private DB m_datasetDb;
@@ -145,8 +152,16 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private Closure<User> m_userGroupClosure = new Closure<User>() {
         @Override
         public void execute(User user) {
-            replicateEntity(user, DataSet.ATTENDANT, DataSet.PERMISSION, DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL,
-                    DataSet.USER_FORWARD, DataSet.USER_LOCATION, DataSet.USER_STATIC);
+            replicateEntity(user, GROUP_DATASETS);
+            getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+        }
+
+    };
+
+    private Closure<User> m_branchClosure = new Closure<User>() {
+        @Override
+        public void execute(User user) {
+            replicateEntity(user, BRANCH_DATASETS);
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
 
@@ -216,18 +231,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         private int m_page;
         private Closure<User> m_closure = m_userClosure;
 
-        private ReplicationWorker() {
-        }
-
-        public ReplicationWorker(int index, int pageSize) {
+        public ReplicationWorker(int index, int pageSize, Object arg) {
             m_startIndex = index;
             m_page = pageSize;
-        }
-
-        public ReplicationWorker(int index, int pageSize, Closure<User> closure) {
-            m_startIndex = index;
-            m_page = pageSize;
-            m_closure = closure;
         }
 
         @Override
@@ -244,25 +250,40 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             return m_page;
         }
 
-        public Closure<User> getClosure() {
-            return m_closure;
-        }
     }
 
     /*
-     * Callble used for the replication of members in a group
+     * Callable used for the replication of members in a group
      */
     private class AllGroupMembersReplicationWorker extends ReplicationWorker {
         private Group m_group;
 
-        public AllGroupMembersReplicationWorker(Group group, int i, int pageSize) {
-            super(i, pageSize);
+        public AllGroupMembersReplicationWorker(int i, int pageSize, Group group) {
+            super(i, pageSize, null);
             m_group = group;
         }
 
         @Override
         public Void call() {
             DaoUtils.forAllGroupMembersDo(m_coreContext, m_group, m_userGroupClosure, getStartIndex(), getPage());
+            return null;
+        }
+    }
+
+    /*
+     * Callable used for the replication of users in a branch
+     */
+    private class AllBranchMembersReplicationWorker extends ReplicationWorker {
+        private Branch m_branch;
+
+        public AllBranchMembersReplicationWorker(int i, int pageSize, Branch branch) {
+            super(i, pageSize, null);
+            m_branch = branch;
+        }
+
+        @Override
+        public Void call() {
+            DaoUtils.forAllBranchMembersDo(m_coreContext, m_branch, m_branchClosure, getStartIndex(), getPage());
             return null;
         }
     }
@@ -283,25 +304,10 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      */
     @Override
     public void replicateAllData() {
-        ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
         Location primary = m_locationsManager.getPrimaryLocation();
         try {
-            Long start = System.currentTimeMillis();
-            dropDb(); // this calls initMongo()
-            int pageSize = m_pageSize;
-            if (m_useDynamicPageSize) {
-                pageSize = m_coreContext.getAllUsersCount() / m_nThreads + 1;
-            }
-            int pages = new Double(Math.ceil(m_coreContext.getAllUsersCount() / pageSize)).intValue() + 1;
-            LOG.info("Starting regeneration of Mongo imdb on " + m_nThreads + " threads using chunks of " + pageSize
-                    + " users");
-            List<Future<Void>> futures = new ArrayList<Future<Void>>();
-            for (int i = 0; i < pages; i++) {
-                futures.add(replicationExecutorService.submit(new ReplicationWorker(i * pageSize, pageSize)));
-            }
-            for (Future<Void> future : futures) {
-                future.get();
-            }
+            int membersCount = m_coreContext.getAllUsersCount();
+            doParallelAsyncReplication(membersCount, ReplicationWorker.class, null);
             // get the rest of Replicables and replicate them
             Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
             for (ReplicableProvider provider : beanMap.values()) {
@@ -313,10 +319,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             ExternalAlias extalias = new ExternalAlias();
             extalias.setFiles(m_externalAliases.getFiles());
             replicateEntity(extalias);
-            Long end = System.currentTimeMillis();
-            LOG.info("Regeneration of database completed in " + (end - start) / 1000 + SECONDS + (end - start)
-                    / 1000 / 60 + MINUTES);
-
             //replicate locations
             for (int i = 0; i < m_locationsManager.getLocations().length; i++) {
                 replicateLocation(m_locationsManager.getLocations()[i]);
@@ -422,39 +424,103 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
-    /**
-     * Replicate a {@link Group}
-     */
+
     @Override
     public void replicateGroup(Group group) {
-        ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
         Location primary = m_locationsManager.getPrimaryLocation();
         try {
-            Long start = System.currentTimeMillis();
-            initMongo();
-            int pageSize = m_pageSize;
-            if (m_useDynamicPageSize) {
-                pageSize = m_coreContext.getGroupMembersCount(group.getId()) / m_nThreads + 1;
-            }
-            int pages = new Double(Math.ceil(m_coreContext.getAllUsersCount() / pageSize)).intValue() + 1;
-            LOG.info("Starting regeneration of group " + group.getName());
-            List<Future<Void>> futures = new ArrayList<Future<Void>>();
-            for (int i = 0; i < pages; i++) {
-                futures.add(replicationExecutorService.submit(new AllGroupMembersReplicationWorker(group, i
-                        * pageSize, pageSize)));
-            }
-            for (Future<Void> future : futures) {
-                future.get();
-            }
-            Long end = System.currentTimeMillis();
-            LOG.info("Regeneration of group completed in " + (end - start) / 1000 + SECONDS + (end - start) / 1000
-                    / 60 + MINUTES);
+            int membersCount = m_coreContext.getGroupMembersCount(group.getId());
+            doParallelAsyncReplication(membersCount, AllGroupMembersReplicationWorker.class, group);
             m_auditLogContext.logReplicationMongo(GROUP_REGENERATION, primary);
         } catch (Exception e) {
             m_auditLogContext.logReplicationMongoFailed(GROUP_REGENERATION, primary, e);
             LOG.error("Regeneration of group failed", e);
             throw new UserException(e);
         }
+    }
+
+
+    @Override
+    public void replicateBranch(Branch branch) {
+        Location primary = m_locationsManager.getPrimaryLocation();
+        try {
+            int membersCount = m_coreContext.getBranchMembersCount(branch.getId());
+            doParallelAsyncReplication(membersCount, AllBranchMembersReplicationWorker.class, branch);
+            m_auditLogContext.logReplicationMongo(BRANCH_REGENERATION, primary);
+        } catch (Exception e) {
+            m_auditLogContext.logReplicationMongoFailed(BRANCH_REGENERATION, primary, e);
+            LOG.error("Regeneration of branch failed", e);
+            throw new UserException(e);
+        }
+    }
+
+
+    @Override
+    public void deleteBranch(Branch branch) {
+        try {
+            LOG.info("Starting regeneration of branch members.");
+            initMongo();
+            DBCursor users = ValidUsers.INSTANCE.getUsersInBranch(branch.getName());
+            for (DBObject user : users) {
+                String uid = user.get(MongoConstants.UID).toString();
+                User u = m_coreContext.loadUserByUserName(uid);
+                replicateEntity(u, BRANCH_DATASETS);
+                getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+            }
+            LOG.info("End of regeneration of branch members.");
+        } catch (Exception e) {
+            LOG.error(ERROR_PERMISSION, e);
+            throw new UserException(ERROR_PERMISSION, e);
+        }
+    }
+
+    @Override
+    public void deleteGroup(Group group) {
+        try {
+            LOG.info("Starting regeneration of group members.");
+            initMongo();
+            DBCursor users = ValidUsers.INSTANCE.getUsersInGroup(group.getName());
+            for (DBObject user : users) {
+                String uid = user.get(MongoConstants.UID).toString();
+                User u = m_coreContext.loadUserByUserName(uid);
+                replicateEntity(u, GROUP_DATASETS);
+                getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+            }
+            LOG.info("End of regeneration of group members.");
+        } catch (Exception e) {
+            LOG.error(ERROR_PERMISSION, e);
+            throw new UserException(ERROR_PERMISSION, e);
+        }
+    }
+
+    private void doParallelAsyncReplication(int membersCount, Class<? extends ReplicationWorker> cls, Object type)
+        throws Exception {
+        ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
+        Long start = System.currentTimeMillis();
+        initMongo();
+        int pageSize = m_pageSize;
+        if (m_useDynamicPageSize) {
+            pageSize = membersCount / m_nThreads + 1;
+        }
+        int pages = new Double(Math.ceil(membersCount
+                / pageSize)).intValue() + 1;
+        Constructor<? extends ReplicationWorker> ct = (Constructor< ? extends ReplicationWorker>)
+            cls.getConstructors()[0];
+        List<Future<Void>> futures = new ArrayList<Future<Void>>();
+        LOG.info("Starting async parallel regeneration of mongo group of "
+                + membersCount + " entities on " + m_nThreads
+                + " threads using chunks of " + pageSize
+                + " users");
+        for (int i = 0; i < pages; i++) {
+            ReplicationWorker worker = ct.newInstance(this, i * pageSize, pageSize, type);
+            futures.add(replicationExecutorService.submit(worker));
+        }
+        for (Future<Void> future : futures) {
+            future.get();
+        }
+        Long end = System.currentTimeMillis();
+        LOG.info("Regeneration of entities finished in " + (end - start) / 1000 + SECONDS + (end - start) / 1000
+                / 60 + MINUTES);
     }
 
     /**

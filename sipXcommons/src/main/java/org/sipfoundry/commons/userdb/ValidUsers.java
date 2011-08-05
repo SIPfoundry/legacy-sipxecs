@@ -197,7 +197,19 @@ public enum ValidUsers {
         DBCursor cursor = getEntityCollection().find(query);
         return cursor;
     }
-    
+
+    public DBCursor getUsersInBranch(String name) {
+        DBObject query =  QueryBuilder.start(USER_LOCATION).is(name).get();
+        DBCursor cursor = getEntityCollection().find(query);
+        return cursor;
+    }
+
+    public DBCursor getUsersInGroup(String name) {
+        DBObject query =  QueryBuilder.start(GROUPS).is(name).get();
+        DBCursor cursor = getEntityCollection().find(query);
+        return cursor;
+    }
+
     private void addConference(User user, DBObject conference) {
         user.setConfName(getStringValue(conference, CONF_NAME));
         user.setConfNum(getStringValue(conference, CONF_EXT));

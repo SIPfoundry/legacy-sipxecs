@@ -289,7 +289,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         assertNotNull(g.getBranch());
         assertEquals("branch1", g.getBranch().getName());
 
-        m_branchManager.deleteBranch(g.getBranch());
+        m_branchManager.deleteBranches(Collections.singletonList(g.getBranch().getId()));
 
         g = m_context.getGateway(1003);
         assertNotNull(g);

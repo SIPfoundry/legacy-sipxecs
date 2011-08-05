@@ -88,9 +88,6 @@ public abstract class BranchTable extends BaseComponent implements PageBeginRend
 
     public void deleteBranch() {
         BranchManager branchManager = getBranchManager();
-        for (Object id : getSelections().getAllSelected()) {
-            Integer branchid = (Integer) id;
-            branchManager.deleteBranch(branchManager.getBranch(branchid));
-        }
+        branchManager.deleteBranches(getSelections().getAllSelected());
     }
 }
