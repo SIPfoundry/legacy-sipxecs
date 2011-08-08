@@ -70,16 +70,16 @@ gwt_DEPS = \
 gwt_JAVACFLAGS = -Xmx512m -Xms256m
 
 java-gwt : $(gwt_SRC)
-#	$(call JavaCommand,gwt) com.google.gwt.dev.Compiler \
-#		-style PRETTY \
-#		-war \
-#		out/gwt \
-#		org.sipfoundry.sipxconfig.userportal.user_phonebook_search \
-#		org.sipfoundry.sipxconfig.userportal.contact_information
-#	@echo timestamp > $@
+	$(call JavaCommand,gwt) com.google.gwt.dev.Compiler \
+		-style PRETTY \
+		-war \
+		out/gwt \
+		org.sipfoundry.sipxconfig.userportal.user_phonebook_search \
+		org.sipfoundry.sipxconfig.userportal.contact_information
+	@echo timestamp > $@
 
-#	mv out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/org.sipfoundry.sipxconfig.userportal.user_phonebook_search.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js
-#	mv out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js
+	mv out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/org.sipfoundry.sipxconfig.userportal.user_phonebook_search.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js
+	mv out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js
 
 
 # W E B
