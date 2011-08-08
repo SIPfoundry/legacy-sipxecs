@@ -54,8 +54,10 @@ using namespace std ;
 // STATIC VARIABLE INITIALIZATIONS
 // GLOBAL VARIABLE INITIALIZATIONS
 OsServerTask* pServerTask   = NULL;
+#if 0
+// No loner needed.  IMDB is history
 OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
-
+#endif
 /* ============================ FUNCTIONS ================================= */
 
 /**
