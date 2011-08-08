@@ -89,6 +89,9 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         return location;
     }
 
+    /**
+     * Stores location without publishing events. Used for migrating locations.
+     */
     @Override
     public void storeMigratedLocation(Location location) {
         getHibernateTemplate().saveOrUpdate(location);

@@ -65,6 +65,8 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             primaryLocation.setName("Primary server");
             primaryLocation.setPrimary(true);
             primaryLocation.setRegistered(true);
+            //primaryLocation.setCallTraffic(true);
+            //primaryLocation.setReplicateConfig(true);
             String primaryLocationFqdn = getFqdnForPrimaryLocation();
             primaryLocation.setFqdn(primaryLocationFqdn);
             primaryLocation.setAddress(getAddressForPrimary(primaryLocationFqdn));
