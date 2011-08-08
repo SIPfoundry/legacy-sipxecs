@@ -291,7 +291,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     public void saveAlarmGroup(AlarmGroup group) {
         saveAlarmGroup(group, true);
     }
-    
+
     @Override
     public String getMibsDirectory() {
         return m_mibsDirectory;
