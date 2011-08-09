@@ -39,7 +39,6 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
     private ServiceConfigurator m_serviceConfigurator;
-    private DnsGenerator m_dnsGenerator;
     protected abstract NatTraversalManager getNatTraversalManager();
 
     /** Return the replication URLs, retrieving them on demand */
@@ -219,7 +218,4 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         m_serviceConfigurator = serviceConfigurator;
     }
 
-    public void setDnsGenerator(DnsGenerator dnsGenerator) {
-        m_dnsGenerator = dnsGenerator;
-    }
 }

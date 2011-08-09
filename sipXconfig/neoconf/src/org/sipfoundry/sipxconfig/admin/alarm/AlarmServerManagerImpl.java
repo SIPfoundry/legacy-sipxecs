@@ -151,11 +151,16 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         m_mibsDirectory = mibsDirectory;
     }
 
+    /**
+     * Creates the alarm server if it does not exist.
+     * Checks if the 'default' alarm group has email contact(s).
+     * Used ony on FirstRunTask.
+     */
     public void deployAlarms() {
         getAlarmServer();
-        // Check if the 'default' alarm group has email contact(s)
-        updateDefaultAlarmGroup();
-        replicateAlarmService();
+        //we don't need to replicate since it will be done anyway in initLocations()
+        //a strange race condition will trigger some NPEs
+        updateDefaultAlarmGroup(false);
     }
 
     public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms) {
@@ -190,13 +195,13 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         return server;
     }
 
-    private void updateDefaultAlarmGroup() {
+    private void updateDefaultAlarmGroup(boolean replicate) {
         AlarmGroup defaultAlarmGroup = getAlarmGroupByName(GROUP_NAME_DEFAULT);
         List<String> addresses = defaultAlarmGroup.getEmailAddresses();
         if (CollectionUtils.isEmpty(addresses)) {
             addresses.add(m_sipxUser + DEFAULT_HOST);
             defaultAlarmGroup.setEmailAddresses(addresses);
-            saveAlarmGroup(defaultAlarmGroup);
+            saveAlarmGroup(defaultAlarmGroup, replicate);
         }
     }
 
@@ -256,7 +261,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         }
     }
 
-    public void saveAlarmGroup(AlarmGroup group) {
+    public void saveAlarmGroup(AlarmGroup group, boolean replicate) {
         if (group.isNew()) {
             // check if new object
             checkForDuplicateNames(group);
@@ -277,10 +282,16 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
             }
             getHibernateTemplate().merge(group);
         }
-
-        replicateAlarmService();
+        if (replicate) {
+            replicateAlarmService();
+        }
     }
 
+    @Override
+    public void saveAlarmGroup(AlarmGroup group) {
+        saveAlarmGroup(group, true);
+    }
+    
     @Override
     public String getMibsDirectory() {
         return m_mibsDirectory;
