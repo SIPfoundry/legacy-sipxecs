@@ -725,11 +725,10 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     /**
      * Replicates the file on all locations. For the primary location it will simply write it to
      * disk, for secondaries it will send it to the supervisor, old school way.
+     * It will save the file into a temporary file to safeguard against potential disk full issues.
      */
-    // TODO: make sure disk full is considered for primary, also (see XX-9555)
     @Override
     public boolean replicateFile(Location[] locations, ConfigurationFile file) {
-
         if (!m_enabled) {
             return true;
         }
@@ -739,12 +738,15 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                 continue;
             }
             LOG.info("Writing " + file.getName() + " to primary location: " + locations[i].getFqdn());
-            File f = new File(file.getPath());
+            String tmpPath = file.getPath() + ".tmp";
+            //save as a temp file, then rename it
+            File f = new File(tmpPath);
             try {
                 f.createNewFile();
                 FileWriter writer = new FileWriter(f);
                 file.write(writer, locations[i]);
                 writer.close();
+                f.renameTo(new File(file.getPath()));
                 success = true;
                 m_auditLogContext.logReplication(file.getName(), locations[i]);
             } catch (IOException e) {
