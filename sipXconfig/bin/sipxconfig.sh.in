@@ -78,6 +78,24 @@ databaseCommand() {
 
     JavaOpts="$SIPXCONFIG_OPTS"
 
+    string=1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+    pass=""
+    primary_not_exists=true
+    declare -i location_count
+
+    ip_addr=`nslookup $PRIMARY_HOSTNAME | awk '{if (NR==5) print $NF}'`
+
+    for i in {1..8};do
+      pos=$((RANDOM%${#string}))
+      pass+="${string:$pos:1}"
+    done
+    location_count=`psql -U postgres -c 'select count(location_id) from location where primary_location=TRUE' SIPXCONFIG -t 2> /dev/null`
+
+
+    if [ "$location_count" -gt 0 ]; then
+      primary_not_exists=false
+    fi
+
     # XCF-1275 - Do not want to suppress output if there is an error
     # however want to be quiet if everything is ok for clean rpm install
     # output
@@ -94,6 +112,9 @@ databaseCommand() {
         -Dtmp.dir=${TmpDir} \
         -Dsipxconfig.db.user=${PostgresUser} \
         -Dsipxconfig.hostname=$PRIMARY_HOSTNAME \
+        -Dprimary.ip.addr=$ip_addr \
+        -Dprimary.password=$pass \
+        -Dprimary.not.exists=$primary_not_exists \
         -f ${DatabaseProject} \
         $@`
 

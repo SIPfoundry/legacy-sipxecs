@@ -23,21 +23,6 @@
     </property>
   </bean>
   
-  <bean id="locationsMigrationTrigger"
-    class="org.sipfoundry.sipxconfig.admin.commserver.LocationsMigrationTrigger">
-    <property name="locationsManager">
-      <ref local="locationsManager" />
-    </property>
-    <property name="configDirectory" value="${sysdir.etc}"/>
-    <property name="topologyFilename" value="topology.xml"/>
-    <property name="networkPropertiesFilename" value="sipxconfig-netif" />
-    <property name="taskNames">
-      <list>
-        <value>migrate_locations</value>
-      </list>
-    </property>
-  </bean>
-
   <bean id="zoneAdminApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="ZoneAdminRpc." />
     <property name="secure" value="true" />

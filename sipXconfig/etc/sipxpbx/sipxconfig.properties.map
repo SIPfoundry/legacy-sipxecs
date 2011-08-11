@@ -37,7 +37,6 @@ sipImpl.port : sip.port
 - : sip.hostName
 - : sip.hostIpAddress
 - : sfLogLayout.hostName
-- : locationsMigrationTrigger.localIpAddress
 - : phoneDefaults.tftpServer
 - : phoneDefaults.authorizationRealm
 - : phoneDefaults.fullyQualifiedDomainName

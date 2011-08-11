@@ -39,7 +39,6 @@ import org.sipfoundry.sipxconfig.admin.WaitingListener;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsMigrationTrigger;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl;
@@ -206,9 +205,6 @@ public abstract class TestPage extends SipxBasePage {
 
     @InjectObject("spring:timeZoneManager")
     public abstract TimeZoneManager getTimeZoneManager();
-
-    @InjectObject("spring:locationsMigrationTrigger")
-    public abstract LocationsMigrationTrigger getLocationsMigrationTrigger();
 
     @InjectObject("spring:autoAttendantManager")
     public abstract AutoAttendantManager getAutoAttendantManager();
