@@ -216,7 +216,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         m_auditLogContext = auditLogContext;
     }
 
-    public void dropDb() throws Exception {
+    public void dropDatasetDb() throws Exception {
         initMongo();
         m_datasetCollection.drop();
     }
@@ -306,6 +306,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     public void replicateAllData() {
         Location primary = m_locationsManager.getPrimaryLocation();
         try {
+            dropDatasetDb();
             int membersCount = m_coreContext.getAllUsersCount();
             doParallelAsyncReplication(membersCount, ReplicationWorker.class, null);
             // get the rest of Replicables and replicate them
@@ -393,7 +394,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     public void replicateAllData(final DataSet ds) {
         try {
             Long start = System.currentTimeMillis();
-            dropDb(); // this calls initMongo()
+            initMongo();
             Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
             for (ReplicableProvider provider : beanMap.values()) {
                 for (Replicable entity : provider.getReplicables()) {
