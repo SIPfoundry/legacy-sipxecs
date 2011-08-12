@@ -20,6 +20,11 @@
             listener="listener:editLocation" parameters="ognl:currentRow.id">
           <span jwcid="@Insert" value="ognl:currentRow.fqdn"/>
         </span>
+        <span jwcid="@If" condition="ognl:acdServerPresent">
+        </span>
+        <span jwcid="@If" condition="ognl:replicationBean.isFailed(currentRow.fqdn)">
+            [<span  jwcid="@Insert" class="user-error" value="message:replication.failed" renderTag="false"/>]
+        </span>
       </span>
       <span jwcid="registeredColumnValue@Block">
         <span jwcid="@common/EnabledColumn" value="ognl:currentRow.registered" keyPrefix="label.status"/>
@@ -38,6 +43,18 @@
           action="listener:deleteLocations"
           value="message:button.delete" />
         <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+      <li>
+        <input id="locations:unregister"
+          jwcid="unregister@Submit"
+          action="listener:unregisterLocations"
+          value="message:button.unregister" />
+      </li>
+      <li>
+        <input id="locations:register"
+          jwcid="register@Submit"
+          action="listener:registerLocations"
+          value="message:button.register" />
       </li>
     </ul>
   </form>

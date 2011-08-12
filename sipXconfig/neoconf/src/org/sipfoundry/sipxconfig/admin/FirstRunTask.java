@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.admin.logging.ReplicationBean;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
@@ -50,6 +51,7 @@ public class FirstRunTask implements ApplicationListener {
     private PagingContext m_pagingContext;
     private SbcManager m_sbcManager;
     private AlarmServerManager m_alarmServerManager;
+    private ReplicationBean m_replicationBean;
 
     public void runTask() {
         LOG.info("Executing first run tasks...");
@@ -82,6 +84,7 @@ public class FirstRunTask implements ApplicationListener {
             if (!location.isRegistered()) {
                 continue;
             }
+            m_replicationBean.removeFlag(location.getFqdn());
             location.initBundles(m_sipxServiceManager);
             location.resetBundles(m_sipxServiceManager);
             m_locationsManager.storeLocation(location);
@@ -199,5 +202,10 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
         m_alarmServerManager = alarmServerManager;
+    }
+
+    @Required
+    public void setReplicationBean(ReplicationBean replicationBean) {
+        m_replicationBean = replicationBean;
     }
 }

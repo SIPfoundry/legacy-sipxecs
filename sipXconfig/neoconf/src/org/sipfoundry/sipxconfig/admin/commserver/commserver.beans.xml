@@ -12,6 +12,7 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -162,6 +163,7 @@
   <bean id="dataSetGenerator" abstract="true"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
     <property name="coreContext" ref="coreContext" />
+    <property name="dataSource" ref="dataSource" />
   </bean>
 
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
@@ -179,21 +181,19 @@
   </bean>
 
   <bean id="aliasDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"
-    dependency-check="objects">
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases">
     <property name="aliasProvider">
       <ref local="aliasCollector" />
     </property>
   </bean>
   <bean id="credentialDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials">
-    <property name="callGroupContext" ref="callGroupContext" />
   </bean>
   <bean id="permissionDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions">
     <property name="callGroupContext" ref="callGroupContext" />
   </bean>
-  <bean id="caller-aliasDataSet" parent="dataSetGenerator"
+  <bean id="calleraliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="anonymousAlias"
@@ -204,7 +204,6 @@
   </bean>
   <bean id="userforwardDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserForward">
-    <property name="forwardingContext" ref="forwardingContext" />
   </bean>
   <bean id="userstaticDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserStatic">
@@ -227,8 +226,9 @@
   <bean id="validUsersConfig" parent="defaultConfigurationFile"
     class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig">
     <property name="name" value="validusers.xml" />
-    <property name="coreContext" ref="coreContext" />
     <property name="domainManager" ref="domainManager" />
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
+    <property name="coreContext" ref="coreContext" />
     <property name="aliasProvider">
       <ref local="aliasCollectorForAA" />
     </property>
@@ -265,10 +265,10 @@
   <bean id="contactInformationConfig" parent="defaultConfigurationFile"
     class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationConfig">
     <property name="name" value="contact-information.xml" />
-    <property name="coreContext" ref="coreContext" />
-    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
     <property name="restartRequired" value="false" />
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="contactInformationDaoListener" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener">

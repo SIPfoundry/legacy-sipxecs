@@ -82,6 +82,10 @@ public abstract class AbstractConfigurationFile implements ConfigurationFile {
         return m_restartRequired;
     }
 
+    public boolean isLocationDependent() {
+        return true;
+    }
+
     /**
      * Retrieves configuration file content as string
      *

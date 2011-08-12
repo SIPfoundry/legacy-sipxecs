@@ -9,24 +9,29 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.AbstractUser;
-import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
+import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
+import org.springframework.jdbc.core.RowCallbackHandler;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class Credentials extends DataSetGenerator {
-    private CallGroupContext m_callGroupContext;
+    private static final String QUERY = "SELECT first_name, last_name, user_name, sip_password, pintoken "
+            + "from users WHERE user_type='C' ORDER BY user_id;";
+    private static final String CALL_GROUP_QUERY = "SELECT name, sip_password from call_group where enabled=true";
+    private static final String PINTOKEN = "pintoken";
+    private static final String SIP_PASSWORD = "sip_password";
 
     @Override
     protected DataSet getType() {
@@ -39,13 +44,23 @@ public class Credentials extends DataSetGenerator {
         CoreContext coreContext = getCoreContext();
         final String realm = coreContext.getAuthorizationRealm();
 
-        Closure<User> closure = new Closure<User>() {
+        getJdbcTemplate().query(QUERY, new RowCallbackHandler() {
+
             @Override
-            public void execute(User user) {
-                addUser(items, user, domainName, realm);
+            public void processRow(ResultSet rs) throws SQLException {
+                String firstName = rs.getString("first_name");
+                String lastName = rs.getString("last_name");
+                String userName = rs.getString("user_name");
+                String sipPassword = rs.getString(SIP_PASSWORD);
+                String pintoken = rs.getString(PINTOKEN);
+                Object[] names = {
+                    firstName, lastName
+                };
+                String displayName = StringUtils.trimToNull(StringUtils.join(names, ' '));
+                String contact = SipUri.format(displayName, userName, domainName);
+                addCredentialsItem(items, contact, userName, sipPassword, pintoken, realm);
             }
-        };
-        forAllUsersDo(getCoreContext(), closure);
+        });
 
         List<InternalUser> internalUsers = getCoreContext().loadInternalUsers();
         for (InternalUser user : internalUsers) {
@@ -56,19 +71,23 @@ public class Credentials extends DataSetGenerator {
             addSpecialUser(items, specialUserType, domainName, realm);
         }
 
-        List<CallGroup> callGroups = m_callGroupContext.getCallGroups();
-        for (CallGroup callGroup : callGroups) {
-            if (callGroup.isEnabled()) {
-                addCallGroup(items, callGroup, domainName, realm);
+        getJdbcTemplate().query(CALL_GROUP_QUERY, new RowCallbackHandler() {
+
+            @Override
+            public void processRow(ResultSet rs) throws SQLException {
+                String name = rs.getString("name");
+                String sipPassword = rs.getString(SIP_PASSWORD);
+                addCallGroup(items, sipPassword, name, domainName, realm);
             }
-        }
+        });
     }
 
-    void addCallGroup(List<Map<String, String>> items, CallGroup callGroup, String domainName, String realm) {
-        String uri = SipUri.format(null, callGroup.getName(), domainName);
-        String sipPassword = callGroup.getSipPassword();
-        String sipPasswordHash = callGroup.getSipPasswordHash(realm);
-        addCredentialsItem(items, uri, callGroup.getName(), sipPassword, sipPasswordHash, realm);
+    void addCallGroup(List<Map<String, String>> items, String sipPassword, String name, String domainName,
+            String realm) {
+        String uri = SipUri.format(null, name, domainName);
+        String password = StringUtils.defaultString(sipPassword);
+        String sipPasswordHash = Md5Encoder.digestPassword(name, realm, password);
+        addCredentialsItem(items, uri, name, sipPassword, sipPasswordHash, realm);
     }
 
     private void addSpecialUser(List<Map<String, String>> items, SpecialUserType specialUserType, String domainName,
@@ -91,11 +110,8 @@ public class Credentials extends DataSetGenerator {
         item.put("realm", realm);
         item.put("userid", name);
         item.put("passtoken", defaultString(sipPassword));
-        item.put("pintoken", pintoken);
+        item.put(PINTOKEN, pintoken);
         item.put("authtype", "DIGEST");
     }
 
-    public void setCallGroupContext(CallGroupContext callGroupContext) {
-        m_callGroupContext = callGroupContext;
-    }
 }

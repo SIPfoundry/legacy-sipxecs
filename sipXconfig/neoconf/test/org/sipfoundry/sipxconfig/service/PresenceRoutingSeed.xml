@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <value_storage value_storage_id="1001"/>
+    <value_storage value_storage_id="1003"/>
+
+    <users first_name="" last_name="" user_name="201" pintoken="x" user_id="1001" value_storage_id="1001" user_type="C"/>
+    <users first_name="" last_name="" user_name="202" pintoken="x" user_id="1002" user_type="C"/>
+    <users first_name="" last_name="" user_name="203" pintoken="x" user_id="1003" value_storage_id="1003" user_type="C"/>
+    <users first_name="" last_name="" user_name="204" pintoken="x" user_id="1004" user_type="C"/>
+    <setting_value value_storage_id="1001" value="1" path="im/fwd-vm-on-dnd" />
+    <setting_value value_storage_id="1003" value="1" path="im/fwd-vm-on-dnd" />
+
+</dataset>

@@ -9,17 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.common.User;
-
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
+import org.springframework.jdbc.core.RowCallbackHandler;
 
 public class UserStatic extends DataSetGenerator {
-    public static final String EXTERNAL_MWI = "voicemail/mailbox/external-mwi";
+
+    private static final String QUERY = "SELECT user_name, v.value as ext_mwi "
+            + "FROM users u left join setting_value v on u.value_storage_id = v.value_storage_id "
+            + "WHERE u.user_type='C' AND v.path='voicemail/mailbox/external-mwi' ORDER BY u.user_id;";
 
     @Override
     protected DataSet getType() {
@@ -29,27 +31,25 @@ public class UserStatic extends DataSetGenerator {
     @Override
     protected void addItems(final List<Map<String, String>> items) {
         final String domainName = getSipDomain();
-        Closure<User> closure = new Closure<User>() {
+        getJdbcTemplate().query(QUERY, new RowCallbackHandler() {
+
             @Override
-            public void execute(User user) {
-                addUser(items, user, domainName);
+            public void processRow(ResultSet rs) throws SQLException {
+                String userName = rs.getString("user_name");
+                String extMwi = rs.getString("ext_mwi");
+                addUser(items, userName, domainName, extMwi);
             }
-        };
-        forAllUsersDo(getCoreContext(), closure);
+        });
     }
 
-    protected void addUser(List<Map<String, String>> items, User user, String domainName) {
-        String externalMwi = user.getSettingValue(EXTERNAL_MWI);
-        if (externalMwi != null) {
-            Map<String, String> item = addItem(items);
-            String userName = user.getUserName();
-            String identity = userName + "@" + domainName;
-            item.put("identity", identity);
-            item.put("event", "message-summary");
-            item.put("contact", SipUri.format(externalMwi, domainName, false));
-            item.put("from_uri", SipUri.format("IVR", domainName, false));
-            item.put("to_uri", SipUri.format(userName, domainName, false));
-            item.put("callid", "static-mwi-" + identity);
-        }
+    protected void addUser(List<Map<String, String>> items, String userName, String domainName, String extMwi) {
+        Map<String, String> item = addItem(items);
+        String identity = userName + "@" + domainName;
+        item.put("identity", identity);
+        item.put("event", "message-summary");
+        item.put("contact", SipUri.format(extMwi, domainName, false));
+        item.put("from_uri", SipUri.format("IVR", domainName, false));
+        item.put("to_uri", SipUri.format(userName, domainName, false));
+        item.put("callid", "static-mwi-" + identity);
     }
 }

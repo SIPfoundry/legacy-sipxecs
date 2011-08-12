@@ -315,7 +315,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                              )
 {
     // Critical Section here
-    OsLock lock(sLockMutex);
+    //OsLock lock(sLockMutex);
 
     RegisterStatus returnStatus = REGISTER_SUCCESS;
     UtlBoolean removeAll = FALSE;
@@ -362,8 +362,12 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 
     RegistrationDB* imdb = mRegistrar.getRegistrationDB();
 
+    sLockMutex.acquire();
+    bool isOutOfSequece_ = imdb->isOutOfSequence(toUrl, registerCallidStr, registerCseqInt);
+    sLockMutex.release();
+
     // Check that this call-id and cseq are newer than what we have in the db
-    if (! imdb->isOutOfSequence(toUrl, registerCallidStr, registerCseqInt))
+    if (!isOutOfSequece_)
     {
         // ****************************************************************
         // We now make two passes over all the contacts - the first pass
@@ -653,6 +657,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         && 1 == contactIndexCount
                         )
                     {
+                        sLockMutex.acquire();
                         // Expires: 0 && Contact: * - clear all contacts
                         imdb->expireAllBindings( toUrl
                                                 ,registerCallidStr
@@ -661,6 +666,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                 ,primaryName()
                                                 ,mDbUpdateNumber
                                                 );
+                        sLockMutex.release();
                     }
                     else
                     {
@@ -760,6 +766,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             UtlString pathValue(*(UtlString*)record.findValue(&gPathKey));
                             UtlString contact_instrument(*(UtlString*)record.findValue(&gContactInstrumentKey));
 
+                            sLockMutex.acquire();
                             imdb->updateBinding( toUrl, contact, qvalue
                                                 ,registerCallidStr, registerCseqInt
                                                 ,expirationTime
@@ -770,14 +777,17 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                 ,mDbUpdateNumber
                                                 ,contact_instrument
                                                 );
+                            sLockMutex.release();
 
                         } // iterate over good contact entries
 
                         // If there were any bindings not dealt with explicitly in this
                         // message that used the same callid, then expire them.
+                        sLockMutex.acquire();
                         imdb->expireOldBindings( toUrl, registerCallidStr, registerCseqInt,
                                                  timeNow, primaryName(),
                                                  mDbUpdateNumber );
+                        sLockMutex.release();
                     }
                     else
                     {
@@ -856,11 +866,6 @@ SipRegistrarServer::applyUpdatesToDirectory(
    UtlString altErrorMsg;
    errorMsg = errorMsg ? errorMsg : &altErrorMsg;
 
-   // Critical Section here
-   OsLock lock(sLockMutex);
-
-   // Pointer to the registration DB.
-   RegistrationDB* imdb = mRegistrar.getRegistrationDB();
    // Set to true if an error is found in the updates list.
    bool error_found = false;
    // Record the peer that is the primary for these updates.
@@ -962,7 +967,7 @@ SipRegistrarServer::applyUpdatesToDirectory(
           * The last return value will be the final max known update
           * number and will be the return value of this function.
           */
-         maxUpdateNumber = updateOneBinding(reg, peer, imdb);
+         maxUpdateNumber = updateOneBinding(reg, peer, mRegistrar.getRegistrationDB());
       }
 
       // Garbage-collect and persist the database.
@@ -981,6 +986,9 @@ Int64 SipRegistrarServer::updateOneBinding(
    RegistrarPeer* peer,    // NULL if it's the local registrar
    RegistrationDB* imdb)
 {
+  // Critical Section here
+   OsLock lock(sLockMutex);
+
    assert(reg);
    assert(imdb);
 

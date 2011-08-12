@@ -10,8 +10,6 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
@@ -30,14 +28,12 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
-import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "user/NewUser";
 
-    private static final Log LOG = LogFactory.getLog(NewUser.class);
     private static final int SIP_PASSWORD_LEN = 8;
 
     @Bean
@@ -74,7 +70,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         CoreContext core = getCoreContext();
         User user = getUser();
         user.setImId(user.getUserName());
-        EditGroup.saveGroups(getSettingDao(), user.getGroups());
+        EditUser.saveGroups(getSettingDao(), user.getGroups());
 
         // Execute the automatic assignments for the user.
         GroupAutoAssign groupAutoAssign = new GroupAutoAssign(getConferenceBridgeContext(), getCoreContext(),

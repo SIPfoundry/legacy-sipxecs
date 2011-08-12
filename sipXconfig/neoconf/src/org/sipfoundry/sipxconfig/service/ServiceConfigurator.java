@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
@@ -66,6 +67,8 @@ public interface ServiceConfigurator {
      * to be present before sipXconfig attempts to restart the services.
      */
     public void initLocations();
+
+    public void initLocations(List<Location> locations);
 
     public void markServiceForRestart(SipxService service);
 

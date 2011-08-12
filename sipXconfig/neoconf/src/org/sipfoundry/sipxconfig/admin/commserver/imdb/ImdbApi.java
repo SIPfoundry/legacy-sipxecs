@@ -12,6 +12,9 @@ import java.util.Map;
 
 public interface ImdbApi {
 
+    boolean replace(String hostname, String tableName, Map<String, ? >[] records, String status,
+            String sessionId);
+
     boolean replace(String hostname, String tableName, Map<String, ? >[] records);
 
     List<Map<String, ? >> read(String hostname, String tableName);

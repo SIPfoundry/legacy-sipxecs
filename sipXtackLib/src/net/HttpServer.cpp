@@ -51,7 +51,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-const int HttpServer::MAX_PERSISTENT_HTTP_CONNECTIONS = 5; ///< this should be a parameter
+const int HttpServer::MAX_PERSISTENT_HTTP_CONNECTIONS = 20; ///< this should be a parameter
 
 #ifdef _VXWORKS
 #   define O_BINARY 0

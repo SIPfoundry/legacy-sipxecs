@@ -17,13 +17,14 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-public abstract class RowInserter<T> implements Closure {
+public abstract class RowInserter<T> extends HibernateDaoSupport implements Closure {
     public enum RowStatus {
         FAILURE, SUCCESS, WARNING_PIN_RESET;
     }
@@ -62,6 +63,11 @@ public abstract class RowInserter<T> implements Closure {
     }
 
     protected abstract void insertRow(T input);
+
+    public void afterInsert() {
+        getHibernateTemplate().flush();
+        getHibernateTemplate().clear();
+    }
 
     /**
      * Should be used to verify data format. If it returns falls insertData is not called. This is
@@ -111,6 +117,7 @@ public abstract class RowInserter<T> implements Closure {
             case SUCCESS:
                 insertRow(m_input);
                 m_jobContext.success(m_id);
+                afterInsert();
                 break;
             case FAILURE:
                 String errorMessage = "Invalid data format when importing: "

@@ -9,22 +9,35 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.springframework.jdbc.core.RowCallbackHandler;
 
 public class CallerAliases extends DataSetGenerator {
+    private static final String QUERY = "SELECT u.user_id, u.first_name, u.last_name, u.user_name, "
+            + "v.value as anonymous, sv.value as external_number, "
+            + "(SELECT count(*) from user_group where user_id = u.user_id) as groups, "
+            + "(SELECT count(*) from user_alias where user_id = u.user_id) as aliases FROM users u "
+            + "left join setting_value v on u.value_storage_id = v.value_storage_id "
+            + "AND v.path='caller-alias/anonymous-caller-alias' "
+            + "left join setting_value sv on u.value_storage_id = sv.value_storage_id "
+            + "AND sv.path='caller-alias/external-number' WHERE u.user_type='C' ORDER BY u.user_id;";
+    private static final String ALIAS = "alias";
     private GatewayContext m_gatewayContext;
 
     private String m_anonymousAlias;
@@ -34,6 +47,59 @@ public class CallerAliases extends DataSetGenerator {
         // FIXME: use only gateways that are used in dialplan...
         List<Gateway> gateways = m_gatewayContext.getGateways();
         final String sipDomain = getSipDomain();
+
+        final List<UserWrapper> users = new LinkedList<UserWrapper>();
+        if (gateways.size() > 0) {
+            List<Group> groups = getCoreContext().getGroups();
+            final Map<Integer, Group> groupsMap = new HashMap<Integer, Group>();
+            for (Group group : groups) {
+                groupsMap.put(group.getId(), group);
+            }
+            getJdbcTemplate().query(QUERY, new RowCallbackHandler() {
+
+                @Override
+                public void processRow(ResultSet rs) throws SQLException {
+                    final User user = getCoreContext().newUser();
+                    String userId = rs.getString("user_id");
+                    String userName = rs.getString("user_name");
+                    String firstName = rs.getString("first_name");
+                    String lastName = rs.getString("last_name");
+                    user.setUserName(userName);
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+
+                    int groupsCount = rs.getInt("groups");
+                    user.setGroups(new TreeSet<Group>());
+                    if (groupsCount > 0) {
+                        // add groups to this user model
+                        getJdbcTemplate().query("SELECT u.group_id from user_group u inner join group_storage s "
+                                + "on u.group_id = s.group_id WHERE user_id=" + userId
+                                + " AND s.resource='user';", new RowCallbackHandler() {
+                                    @Override
+                                    public void processRow(ResultSet rs) throws SQLException {
+                                        user.addGroup(groupsMap.get(rs.getInt("group_id")));
+                                    }
+                                });
+                    }
+                    int aliasesCount = rs.getInt("aliases");
+                    if (!user.hasNumericUsername() && aliasesCount > 0) {
+                        getJdbcTemplate().query("select alias from user_alias where user_id=" + userId + ";",
+                                new RowCallbackHandler() {
+                                    @Override
+                                    public void processRow(ResultSet rs) throws SQLException {
+                                        user.addAlias(rs.getString(ALIAS));
+                                    }
+                                });
+                    }
+                    String anonymous = StringUtils.defaultIfEmpty(rs.getString("anonymous"), user.getSettings()
+                            .getSetting(UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS).getDefaultValue());
+                    String externalNumber = StringUtils.defaultIfEmpty(rs.getString("external_number"), user
+                            .getSettings().getSetting(UserCallerAliasInfo.EXTERNAL_NUMBER).getDefaultValue());
+                    UserWrapper wrapper = new UserWrapper(user, anonymous, externalNumber);
+                    users.add(wrapper);
+                }
+            });
+        }
 
         for (Gateway gateway : gateways) {
             final String gatewayAddr = gateway.getGatewayAddress();
@@ -48,16 +114,12 @@ public class CallerAliases extends DataSetGenerator {
                 continue;
             }
 
-            Closure<User> closure = new Closure<User>() {
-                @Override
-                public void execute(User user) {
-                    String userCallerAliasUri = getCallerAliasUri(gatewayInfo, user);
-                    String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
-                    addItem(items, gatewayAddrWithLineID, userCallerAliasUri, identity);
-                }
-
-            };
-            forAllUsersDo(getCoreContext(), closure);
+            for (UserWrapper userWrapper : users) {
+                String userCallerAliasUri = getCallerAliasUri(gatewayInfo, userWrapper.getAnonymous().equals("1"),
+                        userWrapper.getExternalNo(), userWrapper.getUser());
+                String identity = AliasMapping.createUri(userWrapper.getUser().getUserName(), sipDomain);
+                addItem(items, gatewayAddrWithLineID, userCallerAliasUri, identity);
+            }
         }
     }
 
@@ -77,16 +139,16 @@ public class CallerAliases extends DataSetGenerator {
         return null;
     }
 
-    private String getCallerAliasUri(GatewayCallerAliasInfo gatewayInfo, User user) {
-        UserCallerAliasInfo info = new UserCallerAliasInfo(user);
-        if (info.isAnonymous()) {
+    private String getCallerAliasUri(GatewayCallerAliasInfo gatewayInfo, boolean isAnonymous,
+            String definedExternalNumber, User user) {
+        if (isAnonymous) {
             return m_anonymousAlias;
         }
         // try transforming in gateway
         String externalNumber = gatewayInfo.getTransformedNumber(user);
         if (externalNumber == null) {
             // get number defined by user
-            externalNumber = info.getExternalNumber();
+            externalNumber = definedExternalNumber;
         }
         if (externalNumber != null) {
             // if we found the number we can return it
@@ -106,7 +168,7 @@ public class CallerAliases extends DataSetGenerator {
             item.put("identity", identity);
         }
         item.put("domain", domain);
-        item.put("alias", alias);
+        item.put(ALIAS, alias);
         return item;
     }
 
@@ -125,5 +187,29 @@ public class CallerAliases extends DataSetGenerator {
 
     public void setAnonymousAlias(String anonymousAlias) {
         m_anonymousAlias = anonymousAlias;
+    }
+
+    private static class UserWrapper {
+        private User m_user;
+        private String m_anonymous;
+        private String m_externalNo;
+
+        public UserWrapper(User user, String anonymous, String externalNo) {
+            m_user = user;
+            m_anonymous = anonymous;
+            m_externalNo = externalNo;
+        }
+
+        public User getUser() {
+            return m_user;
+        }
+
+        public String getAnonymous() {
+            return m_anonymous;
+        }
+
+        public String getExternalNo() {
+            return m_externalNo;
+        }
     }
 }

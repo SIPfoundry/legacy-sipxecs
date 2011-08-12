@@ -13,6 +13,9 @@ package org.sipfoundry.sipxconfig.service;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -84,7 +87,15 @@ public class ServiceConfiguratorImplTest extends TestCase {
         rc.replicate(same(location), same(c));
         cvm.setConfigVersion(same(service), same(location));
 
-        pc.markServicesForRestart(singleton(service));
+        LocationsManager lm = createMock(LocationsManager.class);
+        List<Location> locations = new ArrayList<Location>();
+        Location location1 = new Location();
+        location1.setRegistered(true);
+        location1.setServices(singleton(new LocationSpecificService(service)));
+        locations.add(location1);
+        lm.getLocationsList();
+        expectLastCall().andReturn(locations).anyTimes();
+        pc.markServicesForRestart(location1, singleton(service));
 
         replay(pc, rc, cvm);
 
@@ -239,9 +250,16 @@ public class ServiceConfiguratorImplTest extends TestCase {
         DialPlanActivationManager dm = createMock(DialPlanActivationManager.class);
         DomainManager domainManager = createMock(DomainManager.class);
 
+        lm.getLocationsList();
+        List<Location> locations = new ArrayList<Location>();
+        locations.add(location1);
+        locations.add(location2);
+        locations.add(location3);
+        expectLastCall().andReturn(locations).anyTimes();
+
         lm.getLocations();
         expectLastCall().andReturn(new Location[] {
-            location1, location2, location3
+                location1, location2, location3
         }).anyTimes();
 
         SipxSupervisorService sipxSupervisorService = new SipxSupervisorService();
@@ -256,10 +274,10 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sm.getServiceByBeanId(SipxAlarmService.BEAN_ID);
         expectLastCall().andReturn(alarmService).anyTimes();
 
-        rc.generateAll();
+        rc.generateAll(locations);
         expectLastCall().anyTimes();
 
-        dm.replicateDialPlan(false);
+        dm.replicateDialPlan(false, locations);
         expectLastCall().times(1);
 
         rc.replicate(same(location1), same(a));
@@ -282,10 +300,18 @@ public class ServiceConfiguratorImplTest extends TestCase {
         cvm.setConfigVersion(same(sipxSupervisorService), same(location2));
         cvm.setConfigVersion(same(alarmService), same(location2));
 
-        pc.markServicesForRestart(singleton(service));
-        expectLastCall().times(3);
-        pc.markServicesForRestart(singleton(sipxSupervisorService));
-        expectLastCall().times(3);
+        pc.markServicesForRestart(location1, singleton(service));
+        expectLastCall();
+        pc.markServicesForRestart(location2, singleton(service));
+        expectLastCall();
+        pc.markServicesForRestart(location3, singleton(service));
+        expectLastCall();
+        pc.markServicesForRestart(location1, singleton(sipxSupervisorService));
+        expectLastCall();
+        pc.markServicesForRestart(location2, singleton(sipxSupervisorService));
+        expectLastCall();
+        pc.markServicesForRestart(location3, singleton(sipxSupervisorService));
+        expectLastCall();
 
         domainManager.replicateDomainConfig(rc, location1);
         domainManager.replicateDomainConfig(rc, location2);

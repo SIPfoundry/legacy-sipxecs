@@ -35,6 +35,9 @@ public class DataSet extends Enum {
      * @return name that is used in spring to register the bean of this type
      */
     public String getBeanName() {
+        if (getName().equals(CALLER_ALIAS.getName())) {
+            return "calleraliasDataSet";
+        }
         return getName() + "DataSet";
     }
 

@@ -75,21 +75,21 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity {
     public void validate() {
         String extension = this.getSettingValue(SipxAccCodeService.AUTH_CODE_PREFIX);
         if (!m_aliasManager.canObjectUseAlias(this, extension)) {
-            LOG.info("SipxAccCodeService::validate() canObjectUseAlias() failed.  extension:" + extension);
+            LOG.error("SipxAccCodeService::validate() canObjectUseAlias() failed.  extension:" + extension);
             throw new NameInUseException(EXTENSION, extension);
         }
 
         String aliases = this.getSettingValue(SipxAccCodeService.AUTH_CODE_ALIASES);
         for (String alias : getAliasesSet(aliases)) {
             if (!m_aliasManager.canObjectUseAlias(this, alias)) {
-                LOG.info("SipxAccCodeService::apply() failed alias check.  alias:" + alias);
+                LOG.error("SipxAccCodeService::apply() failed alias check.  alias:" + alias);
                 throw new NameInUseException("alias", alias);
             }
         }
     }
     /** get the aliases from a space-delimited string */
     public Set<String> getAliasesSet(String aliasesString) {
-        LOG.info(String.format("SipxAccCodeService::getAliasesString(): input:%s:", aliasesString));
+        LOG.debug(String.format("SipxAccCodeService::getAliasesString(): input:%s:", aliasesString));
 
         Set<String> aliasesSet = new LinkedHashSet<String>(0);
 
@@ -99,7 +99,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity {
                 aliasesSet.add(trim(alias));
             }
         }
-        LOG.info(String.format("SipxAccCodeService::getAliasesString(): retun set :%s:",  aliasesSet));
+        LOG.debug(String.format("SipxAccCodeService::getAliasesString(): retun set :%s:",  aliasesSet));
         return aliasesSet;
     }
 

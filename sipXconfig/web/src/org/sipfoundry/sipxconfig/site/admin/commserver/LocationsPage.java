@@ -12,8 +12,10 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Asset;
@@ -26,6 +28,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.DnsGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.logging.ReplicationBean;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -60,6 +63,9 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
 
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject("spring:replicationBean")
+    public abstract ReplicationBean getReplicationBean();
 
     @InjectPage(EditLocationPage.PAGE)
     public abstract EditLocationPage getEditLocationPage();
@@ -123,18 +129,37 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
         setLocations(null);
     }
 
+    public void unregisterLocations() {
+        getLocationsManager().updateLocationsStatus(getSelections().getAllSelected(), false);
+
+        // update locations list
+        setLocations(null);
+    }
+
+    public void registerLocations() {
+        getLocationsManager().updateLocationsStatus(getSelections().getAllSelected(), true);
+
+        // update locations list
+        setLocations(null);
+    }
+
     public void generateProfiles() {
         Collection<Integer> selectedLocations = getSelections().getAllSelected();
-        if (!selectedLocations.isEmpty()) {
-            // HACK: push dataSets and files that are not the part of normal service replication
-            getServiceConfigurator().initLocations();
-        }
+        List<Location> locations = new LinkedList<Location>();
         for (Integer id : selectedLocations) {
-            Location locationToActivate = getLocationsManager().getLocation(id);
+            locations.add(getLocationsManager().getLocation(id));
+        }
+
+        if (!locations.isEmpty()) {
+            // HACK: push dataSets and files that are not the part of normal service replication
+            getServiceConfigurator().initLocations(locations);
+        }
+        for (Location locationToActivate : locations) {
             if (!locationToActivate.isRegistered()) {
                 continue;
             }
 
+            getReplicationBean().removeFlag(locationToActivate.getFqdn());
             getServiceConfigurator().replicateLocation(locationToActivate);
             getServiceConfigurator().enforceRole(locationToActivate);
 
@@ -142,6 +167,13 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
                 getDnsGenerator().generate();
             }
         }
+
+        List<String> locationNames = new ArrayList<String>();
+        for (Location location : locations) {
+            locationNames.add(location.getFqdn());
+        }
+        String msg = getMessages().format("msg.profilesSent", StringUtils.join(locationNames, ", "));
+        getValidator().recordSuccess(msg);
     }
 
     public List<BreadCrumb> getBreadCrumbs() {

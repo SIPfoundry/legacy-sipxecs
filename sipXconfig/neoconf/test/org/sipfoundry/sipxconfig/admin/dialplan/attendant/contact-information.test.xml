@@ -28,7 +28,6 @@
       <country>USA</country>
       <state>GA</state>
       <zip>90211</zip>
-      <officeDesignation>17</officeDesignation>
     </officeAddress>
     <conferences>
       <conference>
@@ -37,10 +36,10 @@
         <pin>1234</pin>
       </conference>
     </conferences>
-    <conferenceEntryIM>true</conferenceEntryIM>
-    <conferenceExitIM>false</conferenceExitIM>
-    <leaveMsgBeginIM>false</leaveMsgBeginIM>
-    <leaveMsgEndIM>false</leaveMsgEndIM>
+    <conferenceEntryIM>1</conferenceEntryIM>
+    <conferenceExitIM>0</conferenceExitIM>
+    <leaveMsgBeginIM>0</leaveMsgBeginIM>
+    <leaveMsgEndIM>0</leaveMsgEndIM>
   </user>
   <user>
     <userName>201</userName>
@@ -49,10 +48,10 @@
     <homeAddress/>
     <officeAddress/>
     <conferences/>
-    <conferenceEntryIM>true</conferenceEntryIM>
-    <conferenceExitIM>false</conferenceExitIM>
-    <leaveMsgBeginIM>false</leaveMsgBeginIM>
-    <leaveMsgEndIM>false</leaveMsgEndIM>
+    <conferenceEntryIM>1</conferenceEntryIM>
+    <conferenceExitIM>0</conferenceExitIM>
+    <leaveMsgBeginIM>0</leaveMsgBeginIM>
+    <leaveMsgEndIM>0</leaveMsgEndIM>
   </user>
   <user>
     <userName>Jagr</userName>
@@ -61,9 +60,9 @@
     <homeAddress/>
     <officeAddress/>
     <conferences/>
-    <conferenceEntryIM>true</conferenceEntryIM>
-    <conferenceExitIM>false</conferenceExitIM>
-    <leaveMsgBeginIM>false</leaveMsgBeginIM>
-    <leaveMsgEndIM>false</leaveMsgEndIM>
+    <conferenceEntryIM>1</conferenceEntryIM>
+    <conferenceExitIM>0</conferenceExitIM>
+    <leaveMsgBeginIM>0</leaveMsgBeginIM>
+    <leaveMsgEndIM>0</leaveMsgEndIM>
   </user>
 </contact-info>

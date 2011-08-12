@@ -12,6 +12,7 @@
     <property name="coreContext" ref="coreContextImpl" />
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 
   <bean id="forwardingContextUserDelete" factory-bean="forwardingContextImpl" factory-method="createUserDeleteListener" />
