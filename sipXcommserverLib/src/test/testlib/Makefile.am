@@ -1,5 +1,5 @@
 
-lib_LTLIBRARIES = libsipXcommserverTest.la
+noinst_LTLIBRARIES = libsipXcommserverTest.la
 
 libsipXcommserverTest_la_LDFLAGS = -static # no version info for static libs
 
