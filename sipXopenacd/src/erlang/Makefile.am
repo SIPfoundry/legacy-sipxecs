@@ -20,3 +20,6 @@ sipxplugin.app : sipxplugin.app.in
 
 %.beam : %.erl
 	$(ERLC) $(OPENACD_ERLCFLAGS) $(ERL_FLAGS) $<
+
+install-exec-hook:
+	cd $(DESTDIR)$(OPENACD_DIR)/plugin.d && ln -s sipxplugin/ebin/sipxplugin.app
