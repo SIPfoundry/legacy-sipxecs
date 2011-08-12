@@ -21,11 +21,8 @@ sipxplugin.app : sipxplugin.app.in
 	$< > $@
 
 install-exec-hook :
-	test -d $(DESTDIR)$(PLUGIN_DIR) || mkdir -p $(DESTDIR)$(PLUGIN_DIR)
-	cd $(DESTDIR)$(PLUGIN_DIR); ln -snf ./sipxplugin/ebin/sipxplugin.app sipxplugin.app 
+	$(INSTALL) -d 644 $(DESTDIR)$(PLUGIN_DIR)
+	cd $(DESTDIR)$(PLUGIN_DIR) && ln -snf ./sipxplugin/ebin/sipxplugin.app sipxplugin.app 
 
 %.beam : %.erl
 	$(ERLC) $(OPENACD_ERLCFLAGS) $(ERL_FLAGS) $<
-
-install-exec-hook:
-	cd $(DESTDIR)$(OPENACD_DIR)/plugin.d && ln -s sipxplugin/ebin/sipxplugin.app
