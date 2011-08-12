@@ -102,4 +102,10 @@ public interface MongoConstants {
     static final String URI = "uri";
     static final String NAME = "name";
     static final String BUTTONS = "btn";
+    //node registrar
+    static final String SERVER = "server";
+    static final String INTERNAL_ADDRESS = "internalAddress";
+    static final String ENABLED = "active";
+    static final String TIMESTAMP = "lastUpdated";
+    static final String NEXT_NODE = "next";
 }

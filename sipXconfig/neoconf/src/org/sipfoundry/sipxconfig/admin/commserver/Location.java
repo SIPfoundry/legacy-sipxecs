@@ -53,6 +53,8 @@ public class Location extends BeanWithId {
     private String m_password = RandomStringUtils.randomAlphanumeric(LOCATION_PASSWORD_LEN);
     private boolean m_primary;
     private boolean m_registered;
+    private boolean m_callTraffic;
+    private boolean m_replicateConfig;
     private State m_state = State.UNCONFIGURED;
     private Timestamp m_lastAttempt;
     private List<String> m_installedBundles;
@@ -474,6 +476,7 @@ public class Location extends BeanWithId {
         public static final State CONFIGURED = new State("CONFIGURED");
         public static final State PROGRESS = new State("PROGRESS");
         public static final State NOT_FINISHED = new State("NOT_FINISHED");
+        public static final State DISABLED = new State("DISABLED");
 
         public State(String name) {
             super(name);
@@ -491,5 +494,21 @@ public class Location extends BeanWithId {
         public LocationState() {
             super(State.class);
         }
+    }
+
+    public boolean isCallTraffic() {
+        return m_callTraffic;
+    }
+
+    public void setCallTraffic(boolean callTraffic) {
+        m_callTraffic = callTraffic;
+    }
+
+    public boolean isReplicateConfig() {
+        return m_replicateConfig;
+    }
+
+    public void setReplicateConfig(boolean replicateConfig) {
+        m_replicateConfig = replicateConfig;
     }
 }

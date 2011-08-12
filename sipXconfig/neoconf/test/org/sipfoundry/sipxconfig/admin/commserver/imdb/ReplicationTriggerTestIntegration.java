@@ -9,18 +9,21 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.util.Collections;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import org.easymock.EasyMock;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger.BranchDeleteWorker;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
@@ -35,20 +38,14 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 import com.mongodb.BasicDBObject;
 
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
     private ReplicationTrigger m_trigger;
-    private SipxReplicationContext m_originalSipxReplicationContext;
     private SettingDao m_dao;
     private CoreContext m_coreContext;
     private BranchManager m_branchManager;
     private TlsPeerManager m_tlsPeerManager;
     private PermissionManager m_permissionManager;
-    private ForwardingContext m_forwardingContext;
     private ReplicationManagerImpl m_replicationManager;
     private static String DBNAME = "imdb";
     private static String COLL_NAME = "entity";
@@ -77,16 +74,12 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_coreContext = coreContext;
     }
 
-    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
-        m_originalSipxReplicationContext = sipxReplicationContext;
-    }
-
     public void setBranchManager(BranchManager branchManager) {
         m_branchManager = branchManager;
     }
 
-    //disabled this test due to the fact that CoreContext.getGroupMembersCount()
-    //uses plain sql and for some reason the db is empty
+    // disabled this test due to the fact that CoreContext.getGroupMembersCount()
+    // uses plain sql and for some reason the db is empty
     public void _testUpdateUserGroup() throws Exception {
         loadDataSet("admin/commserver/imdb/UserGroupSeed2.db.xml");
         loadDataSetXml("domain/DomainSeed.xml");
@@ -151,77 +144,34 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_trigger.setReplicationManager(m_replicationManager);
     }
 
-    /**
-     * Tests that replication is triggered when branch with users deleted
-     */
     /*
-     * public void testDeleteBranchWithUser() throws Exception {
-     * loadDataSet("branch/attached_branches.db.xml");
-     * 
-     * SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-     * replicationContext.generate(DataSet.USER_LOCATION);
-     * replicationContext.replicate(m_contactInformationConfig); replay(replicationContext);
-     * m_contactInformationDaoListener.setSipxReplicationContext(replicationContext);
-     * m_trigger.setReplicationContext(replicationContext);
-     * 
-     * Collection<Integer> allSelected = new ArrayList<Integer>(); allSelected.add(1000);
-     * m_branchManager.deleteBranches(allSelected);
-     * 
-     * verify(replicationContext); }
+     * This test simulates the actions that will be triggered if a branch is deleted.
+     * It just simulates, b/c the async invocation poses some problems for Junit
      */
+    public void testSimulatedDeleteBranch() throws Exception {
+        loadDataSet("branch/attached_branches.db.xml");
+        Branch b = m_branchManager.getBranch(1000);
+        User u = m_coreContext.loadUser(1000);
+        m_replicationManager.replicateEntity(u, DataSet.USER_LOCATION);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1000", MongoConstants.USER_LOCATION, "branch1");
 
-    /**
-     * Tests that replication is triggered when branch with users is saved
-     */
-    /*
-     * public void testSaveBranchWithUser() throws Exception {
-     * loadDataSet("branch/attached_branches.db.xml");
-     * 
-     * SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-     * replicationContext.generate(DataSet.USER_LOCATION);
-     * replicationContext.replicate(m_contactInformationConfig); replay(replicationContext);
-     * m_contactInformationDaoListener.setSipxReplicationContext(replicationContext);
-     * m_trigger.setReplicationContext(replicationContext);
-     * 
-     * Branch branch = m_branchManager.getBranch(1000);
-     * 
-     * m_branchManager.saveBranch(branch);
-     * 
-     * verify(replicationContext); }
-     */
-
-    /**
-     * Tests that no replication when branch without users is deleted
-     */
-    /*
-     * public void testDeleteBranchesWithoutUser() throws Exception {
-     * loadDataSet("branch/branches.db.xml");
-     * 
-     * SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-     * replay(replicationContext); m_trigger.setReplicationContext(replicationContext);
-     * 
-     * m_branchManager.deleteBranches(Arrays.asList(1, 2, 3, 4, 5));
-     * 
-     * verify(replicationContext); }
-     */
-
-    /**
-     * Tests that no replication is done when branch without users is saved
-     */
-    /*
-     * public void testSaveBranchesWithoutUser() throws Exception {
-     * 
-     * SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-     * replay(replicationContext); m_trigger.setReplicationContext(replicationContext);
-     * 
-     * //Save new branch Branch newBranch = new Branch(); newBranch.setName("testBranch");
-     * m_branchManager.saveBranch(newBranch); flush();
-     * 
-     * //Save an existing branch Branch existingBranch = m_branchManager.getBranch("testBranch");
-     * m_branchManager.saveBranch(existingBranch); flush();
-     * 
-     * verify(replicationContext); }
-     */
+        //verify that the replication is triggered
+        ExecutorService executorService = EasyMock.createMock(ExecutorService.class);
+        executorService.submit(EasyMock.isA(BranchDeleteWorker.class));
+        EasyMock.expectLastCall().andReturn(null);
+        executorService.shutdown();
+        replay(executorService);
+        m_trigger.setExecutorService(executorService);
+        m_branchManager.deleteBranches(Collections.singletonList(b.getId()));
+        
+        verify(executorService);
+        //verify that the user-branch relationship no longer exists and correct
+        //entry is inserted in mongo
+        evict(u);
+        User u1 = m_coreContext.loadUser(1000);
+        m_replicationManager.replicateEntity(u1, DataSet.USER_LOCATION);
+        MongoTestCaseHelper.assertObjectWithIdFieldValueNotPresent("User1000", MongoConstants.USER_LOCATION, "branch1");
+    }
 
     public void setTlsPeerManager(TlsPeerManager peerManager) {
         m_tlsPeerManager = peerManager;
@@ -229,10 +179,6 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
-    }
-
-    public void setForwardingContext(ForwardingContext forwardingContext) {
-        m_forwardingContext = forwardingContext;
     }
 
     public void setReplicationManagerImpl(ReplicationManagerImpl replicationManager) {

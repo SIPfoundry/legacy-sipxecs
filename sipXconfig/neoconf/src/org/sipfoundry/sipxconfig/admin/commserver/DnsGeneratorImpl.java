@@ -64,14 +64,14 @@ public class DnsGeneratorImpl implements DnsGenerator, DaoEventListener {
 
         // First list the servers that have a SIP Router role
         for (Location location : locations) {
-            if (location.isServiceInstalled(proxyService)) {
+            if (location.isServiceInstalled(proxyService) && location.isCallTraffic()) {
                 cmd.format("%s/%s ", location.getFqdn(), location.getAddress());
             }
         }
 
         // Next list the servers that do not have a SIP Router role
         for (Location location : locations) {
-            if (!location.isServiceInstalled(proxyService)) {
+            if (!location.isServiceInstalled(proxyService) || !location.isCallTraffic()) {
                 cmd.format("-o %s/%s ", location.getFqdn(), location.getAddress());
             }
         }

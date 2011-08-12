@@ -63,6 +63,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String USER_ADMIN = "userAdmin";
     private static final String FIRST = "first";
     private static final String PAGE_SIZE = "pageSize";
+    private static final String USER_ID = "user_id";
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
@@ -530,7 +531,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     public List<Integer> loadUserIdsByPage(int first, int pageSize) {
         Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
                 .createSQLQuery("select user_id from users order by user_id limit :pageSize offset :first")
-                .addScalar("user_id", Hibernate.INTEGER);
+                .addScalar(USER_ID, Hibernate.INTEGER);
         q.setInteger(FIRST, first);
         q.setInteger(PAGE_SIZE, pageSize);
         List<Integer> users = q.list();
@@ -653,17 +654,18 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
-    public Collection<User> getGroupMembersByPage(int gid, int first, int pageSize) {
+    public Collection<Integer> getGroupMembersByPage(int gid, int first, int pageSize) {
         Query q = getHibernateTemplate()
                 .getSessionFactory()
                 .getCurrentSession()
                 .createSQLQuery(
-                        "select * from users join user_group on user_group.user_id=users.user_id "
-                        + "where user_group.group_id=:gid limit :pageSize offset :first").addEntity(User.class);
+                        "select users.user_id from users join user_group on user_group.user_id=users.user_id "
+                        + "where user_group.group_id=:gid limit :pageSize offset :first")
+                        .addScalar(USER_ID, Hibernate.INTEGER);
         q.setInteger("gid", gid);
         q.setInteger(FIRST, first);
         q.setInteger(PAGE_SIZE, pageSize);
-        List<User> users = q.list();
+        List<Integer> users = q.list();
         return users;
     }
 
@@ -680,6 +682,34 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 "select count(users.user_id) from users join user_group on user_group.user_id=users.user_id "
                 + "where user_group.group_id=" + groupId);
     }
+
+    @Override
+    public int getBranchMembersCount(int branchId) {
+        return m_jdbcTemplate.queryForInt(
+                "select count (users.user_id) from users left outer join "
+                + "user_group on users.user_id=user_group.user_id "
+                + " left outer join group_storage on user_group.group_id=group_storage.group_id "
+                + " where group_storage.branch_id=" + branchId + " or users.branch_id=" + branchId);
+    }
+
+    @Override
+    public Collection<Integer> getBranchMembersByPage(int bid, int first, int pageSize) {
+        Query q = getHibernateTemplate()
+                .getSessionFactory()
+                .getCurrentSession()
+                .createSQLQuery(
+                        "select users.user_id from users left outer join user_group on "
+                        + "users.user_id=user_group.user_id "
+                        + "left outer join group_storage on user_group.group_id=group_storage.group_id "
+                        + "where group_storage.branch_id=:branchId or users.branch_id=:branchId "
+                        + "limit :pageSize offset :first").addScalar(USER_ID, Hibernate.INTEGER);
+        q.setInteger("branchId", bid);
+        q.setInteger(FIRST, first);
+        q.setInteger(PAGE_SIZE, pageSize);
+        List<Integer> users = q.list();
+        return users;
+    }
+
     @Override
     public boolean isImIdUnique(User user) {
         ImAccount accountToSave = new ImAccount(user);

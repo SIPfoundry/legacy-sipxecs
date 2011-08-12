@@ -64,23 +64,39 @@ public class DnsGeneratorImplTest extends TestCase {
         l1.setFqdn("primary.ex.org");
         l1.setPrimary(true);
         l1.setServiceDefinitions(sipxServices);
+        l1.setCallTraffic(true);
+        l1.setReplicateConfig(true);
 
         Location l2 = new Location();
         l2.setUniqueId();
         l2.setAddress("10.1.1.2");
         l2.setFqdn("s2.ex.org");
         l2.setServiceDefinitions(sipxIMServices);
+        l2.setCallTraffic(true);
+        l2.setReplicateConfig(true);
 
         Location l3 = new Location();
         l3.setUniqueId();
         l3.setAddress("10.1.1.3");
         l3.setFqdn("s3.ex.org");
+        l3.setCallTraffic(true);
+        l3.setReplicateConfig(true);
 
         Location l4 = new Location();
         l4.setUniqueId();
         l4.setAddress("10.1.1.4");
         l4.setFqdn("redund.ex.org");
         l4.setServiceDefinitions(sipxServices);
+        l4.setCallTraffic(true);
+        l4.setReplicateConfig(true);
+
+        Location l5 = new Location();
+        l5.setUniqueId();
+        l5.setAddress("10.1.1.5");
+        l5.setFqdn("s5.ex.org");
+        l4.setServiceDefinitions(sipxServices);
+        l5.setCallTraffic(false);
+        l5.setReplicateConfig(true);
 
         // DNS generator calls getLocations three times each time it's called.
         LocationsManager lm = createMock(LocationsManager.class);
@@ -92,23 +108,34 @@ public class DnsGeneratorImplTest extends TestCase {
         expectLastCall().andReturn(array(l1, l2, l3)).times(2);
         lm.getLocations();
         expectLastCall().andReturn(array(l1, l3, l4));
+        lm.getLocations();
+        expectLastCall().andReturn(array(l1, l3, l5));
 
         final ZoneAdminApi api = createStrictMock(ZoneAdminApi.class);
 
         // primary only
-        api.generateDns("primary.ex.org", "primary.ex.org/10.1.1.1 --zone --serial 1 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
+        api.generateDns("primary.ex.org",
+                "primary.ex.org/10.1.1.1 --zone --serial 1 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
 
         // all 3 locations
-        api.generateDns("primary.ex.org",
-            "primary.ex.org/10.1.1.1 -o s2.ex.org/10.1.1.2 -o s3.ex.org/10.1.1.3 -x s2.ex.org/10.1.1.2 --zone --serial 2 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
+        api.generateDns(
+                "primary.ex.org",
+                "primary.ex.org/10.1.1.1 -o s2.ex.org/10.1.1.2 -o s3.ex.org/10.1.1.3 -x s2.ex.org/10.1.1.2 --zone --serial 2 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
 
         // deleting 2nd...
-        api.generateDns("primary.ex.org",
-            "primary.ex.org/10.1.1.1 -o s3.ex.org/10.1.1.3 --zone --serial 3 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
+        api.generateDns(
+                "primary.ex.org",
+                "primary.ex.org/10.1.1.1 -o s3.ex.org/10.1.1.3 --zone --serial 3 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
 
         // primary and redundant locations
-        api.generateDns("primary.ex.org",
-            "primary.ex.org/10.1.1.1 redund.ex.org/10.1.1.4 -o s3.ex.org/10.1.1.3 --zone --serial 4 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
+        api.generateDns(
+                "primary.ex.org",
+                "primary.ex.org/10.1.1.1 redund.ex.org/10.1.1.4 -o s3.ex.org/10.1.1.3 --zone --serial 4 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
+
+        // primary and redundant locations, l5 has call traffic disabled
+        api.generateDns(
+                "primary.ex.org",
+                "primary.ex.org/10.1.1.1 -o s3.ex.org/10.1.1.3 -o s5.ex.org/10.1.1.5 --zone --serial 5 --provide-dns --port-TCP 5061 --port-UDP 5061 --port-TLS 5061");
 
         replay(sm, lm, api);
 
@@ -133,6 +160,8 @@ public class DnsGeneratorImplTest extends TestCase {
         impl.generateWithout(l2);
 
         // primary and redundant locations
+        impl.generate();
+
         impl.generate();
 
         verify(sm, lm, api);

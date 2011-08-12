@@ -108,7 +108,10 @@ protected:
     // The last update number assigned to a registration.  Equals zero if no
     // local registrations have been processed yet.
 
+#if 0
+// This is no longer needed because all mongo operations are thread-safe
     static OsMutex sLockMutex;
+#endif
 
     /// An additional contact to be added to all success responses, if not null.
     UtlString mAdditionalContact;

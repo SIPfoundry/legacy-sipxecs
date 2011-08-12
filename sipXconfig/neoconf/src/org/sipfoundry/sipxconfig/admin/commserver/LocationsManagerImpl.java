@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -22,6 +24,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
@@ -35,12 +38,20 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
     private static final String LOCATION_PROP_IP = "ipAddress";
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
+    private ServiceConfigurator m_serviceConfigurator;
     protected abstract NatTraversalManager getNatTraversalManager();
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
     public Location[] getLocations() {
         List<Location> locationList = getHibernateTemplate().loadAll(Location.class);
+        Collections.sort(locationList, new Comparator<Location>() {
+
+            @Override
+            public int compare(Location o1, Location o2) {
+                return o1.getId() - o2.getId();
+            }
+        });
         Location[] locationArray = new Location[locationList.size()];
         locationList.toArray(locationArray);
         return locationArray;
@@ -77,6 +88,9 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         return location;
     }
 
+    /**
+     * Stores location without publishing events. Used for migrating locations.
+     */
     @Override
     public void storeMigratedLocation(Location location) {
         getHibernateTemplate().saveOrUpdate(location);
@@ -105,13 +119,24 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
                 throw new UserException(DUPLICATE_FQDN_OR_IP, location.getFqdn(), location.getAddress());
             }
             location.fqdnOrIpHasChangedOnSave();
+            location.setCallTraffic(true);
+            location.setReplicateConfig(true);
             getHibernateTemplate().save(location);
         } else {
             boolean isFqdnOrIpChanged = isFqdnOrIpChanged(location);
             if (isFqdnOrIpChanged && isFqdnOrIpInUseExceptThis(location)) {
                 throw new UserException(DUPLICATE_FQDN_OR_IP, location.getFqdn(), location.getAddress());
             }
+            if (location.isCallTraffic() && !location.isReplicateConfig()) {
+                throw new UserException("&error.replication.config", location.getFqdn(), location.getAddress());
+            }
+            if (location.isPrimary() && !location.isReplicateConfig()) {
+                throw new UserException("&error.primary.config", location.getFqdn(), location.getAddress());
+            }
             location.fqdnOrIpHasChangedOnSave();
+            if (getOriginalValue(location, "replicateConfig").equals(Boolean.FALSE) && location.isReplicateConfig()) {
+                m_serviceConfigurator.sendProfiles(Collections.singletonList(location));
+            }
             getHibernateTemplate().update(location);
         }
     }
@@ -188,4 +213,9 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         }
         return locations.get(0);
     }
+
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
+    }
+
 }

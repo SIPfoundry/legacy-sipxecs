@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId.IdToBean;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
@@ -268,9 +269,20 @@ public final class DaoUtils {
         if (start >= coreContext.getGroupMembersCount(group.getId())) {
             return;
         }
-        Collection<User> users = coreContext.getGroupMembersByPage(group.getId(), start, pageSize);
-        for (User user : users) {
-            closure.execute(user);
+        Collection<Integer> users = coreContext.getGroupMembersByPage(group.getId(), start, pageSize);
+        for (int id : users) {
+            closure.execute(coreContext.loadUser(id));
+        }
+    }
+
+    public static void forAllBranchMembersDo(CoreContext coreContext, Branch branch,
+            Closure<User> closure, int start, int pageSize) {
+        if (start >= coreContext.getBranchMembersCount(branch.getId())) {
+            return;
+        }
+        Collection<Integer> users = coreContext.getBranchMembersByPage(branch.getId(), start, pageSize);
+        for (int id : users) {
+            closure.execute(coreContext.loadUser(id));
         }
     }
 }

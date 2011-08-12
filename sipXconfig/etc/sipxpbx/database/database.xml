@@ -82,7 +82,10 @@
   <property name="log.dir" value="${basedir}" />
   <property name="migration.log" value="${log.dir}/sipxconfig-2.8-db-migration.log" />
   <property name="tmp.dir" value="${basedir}" />
-  <property name="sipxconfig.hostname" value="@sipxconfig.hostname@" />
+  <property name="c" value="@sipxconfig.hostname@" />
+  <property name="primary.ip.addr" value="@primary.ip.addr@" />
+  <property name="primary.password" value="@primary.password@" />
+  <property name="primary.not.exists" value="@primary.not.exists@" />
   <property name="message.oldversion" value="Migration from this version of the database is no longer supported.  You need to install a previous version first, then this version"/>
 
   <target name="patches">
@@ -386,6 +389,8 @@
 	<antcall target="location-configured" />
   	<antcall target="openacd-insert-alias-did" />
 	<antcall target="openacd-add-queue-recipe" />
+    <antcall target="location-active" />
+    <antcall target="init-location" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1189,7 +1194,23 @@
   <target name="openacd-add-queue-recipe" unless="openacd-add-queue-recipe">
 	<db-patch patch="openacd-add-queue-recipe" />
   </target>
-
+  <target name="location-active" unless="location-active">
+	<db-patch patch="location-active" />
+  </target>
+  <!--
+  This target initializes the location. Parameters are passed by sipxconfig.sh
+  -->
+  <target name="init-location" unless="init-location">
+    <condition property="execute-init-location-sql">
+        <equals arg1="${primary.not.exists}" arg2="true"/>
+    </condition>
+    <antcall target="init-location-sql" />
+  </target>
+  <target name="init-location-sql" if="execute-init-location-sql">
+    <sipx-sql>
+        insert into location(location_id,name,fqdn,ip_address,password,primary_location,registered,stun_address) values(nextval('location_seq'),'Primary Server','${sipxconfig.hostname}','${primary.ip.addr}','${primary.password}',TRUE,TRUE,'stun.ezuce.com');
+    </sipx-sql>
+  </target>
   <!--
     - SUPPORT UTILITIES
   -->

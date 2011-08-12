@@ -66,6 +66,7 @@ public class ReplicationManagerImplTest extends MongoTestCase {
 
         for (int i = 0; i < LOCATIONS.length; i++) {
             LOCATIONS[i].setRegistered(true);
+            LOCATIONS[i].setReplicateConfig(true);
         }
         LOCATIONS[0].setPrimary(true);
         m_out.replicateFile(LOCATIONS, file);

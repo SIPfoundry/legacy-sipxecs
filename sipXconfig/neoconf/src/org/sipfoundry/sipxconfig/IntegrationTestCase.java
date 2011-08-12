@@ -126,6 +126,10 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         m_hibernateTemplate.flush();
     }
 
+    protected void evict(Object o) {
+        m_hibernateTemplate.evict(o);
+    }
+
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
         m_hibernateTemplate = new HibernateTemplate();

@@ -80,6 +80,13 @@ public final class MongoTestCaseHelper {
         TestCase.assertEquals(1, s_collection.find(ref).count());
     }
 
+    public static void assertObjectWithIdFieldValueNotPresent(Object id, String field, Object value) {
+        DBObject ref = new BasicDBObject();
+        ref.put(ID, id);
+        ref.put(field, value);
+        TestCase.assertEquals(0, s_collection.find(ref).count());
+    }
+
     public static void insert(DBObject dbo) {
         s_collection.insert(dbo);
     }

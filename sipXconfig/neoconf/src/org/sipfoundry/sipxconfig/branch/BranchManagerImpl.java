@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
-
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -22,11 +20,15 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implements BranchManager {
 
     private static final String NAME_PROP_NAME = "name";
+    private DaoEventPublisher m_daoEventPublisher;
+    private JdbcTemplate m_jdbcTemplate;
 
     @Override
     public Branch getBranch(Integer branchId) {
@@ -61,30 +63,31 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         }
     }
 
-    /**
-     * deletes the given branch and publishes event to trigger user location replication if branch
-     * contains users (event contains branch name)
-     */
-    public void deleteBranch(Branch branch) {
-        deleteBranches(singletonList(branch.getId()));
-    }
-
-    /**
-     * deletes the given branches and publishes a single event to trigger user location
-     * replication if any branch contains users (event contains names for branches with users)
+    /*
+     * (non-Javadoc)
+     * Use plain sql for increased efficiency when deleting user groups.
+     * A thing to note is that this method breaks the convention established by DaoEventDispatcher,
+     * namely publish delete event first, then proceed with the actual delete. It will actually
+     * manually delete from DB the group associations and the group and then the delete event is published.
+     * In the case of groups now, only ReplicationTrigger will trigger the delete sequence, all other
+     * event listeners that listened to group deletes were removed, and control moved in this method.
+     * This was the price to pay for increased efficiency in saving large groups.
      */
     public void deleteBranches(Collection<Integer> branchIds) {
+        List<String> sqlUpdates = new ArrayList<String>();
         Collection<Branch> branches = new ArrayList<Branch>(branchIds.size());
         for (Integer id : branchIds) {
             Branch branch = getBranch(id);
             branches.add(branch);
+            sqlUpdates.add("update users set branch_id=null where branch_id=" + id);
+            sqlUpdates.add("update group_storage set branch_id=null where branch_id=" + id);
+            sqlUpdates.add("delete from branch where branch_id=" + id);
+            getHibernateTemplate().evict(branch);
         }
-
-        getHibernateTemplate().deleteAll(branches);
-        //for (Branch branch : branches) {
-
-        //}
-
+        m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
+        for (Branch branch : branches) {
+            m_daoEventPublisher.publishDelete(branch);
+        }
     }
 
     public List<Branch> getBranches() {
@@ -118,4 +121,11 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         removeAll(Branch.class);
     }
 
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        m_jdbcTemplate = jdbcTemplate;
+    }
 }

@@ -29,7 +29,6 @@ public class DataSetGenerator extends AbstractDataSetGenerator {
 
         DBObject search = new BasicDBObject();
         search.put(ID, id);
-        // DBObject cursor = collection.findOne(search);
         DBObject top = collection.findOne(search);
         if (top == null) {
             top = new BasicDBObject();

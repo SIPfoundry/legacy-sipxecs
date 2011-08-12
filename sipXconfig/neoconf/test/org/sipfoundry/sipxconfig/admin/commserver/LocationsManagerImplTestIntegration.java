@@ -135,15 +135,37 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location2.setAddress("192.168.1.3");
         location2.setFqdn("localhost1");
         location2.setRegistered(false);
-        
+
         m_out.saveLocation(location);
         m_out.saveLocation(location2);
-        
+
         Location[] dbLocations = m_out.getLocations();
         assertEquals(2, dbLocations.length);
         assertEquals("test location", dbLocations[0].getName());
         assertEquals("192.168.1.2", dbLocations[0].getAddress());
         assertEquals("localhost", dbLocations[0].getFqdn());
+        assertTrue(dbLocations[0].isCallTraffic());
+        assertTrue(dbLocations[0].isReplicateConfig());
+        assertTrue(dbLocations[1].isReplicateConfig());
+        assertTrue(dbLocations[1].isReplicateConfig());
+
+        // test conditions on offline options
+        try {
+            dbLocations[1].setCallTraffic(true);
+            dbLocations[1].setReplicateConfig(false);
+            m_out.saveLocation(dbLocations[1]);
+            fail();
+        } catch (UserException e) {
+        }
+        try {
+            dbLocations[0].setReplicateConfig(false);
+            m_out.saveLocation(dbLocations[0]);
+            fail();
+        } catch (UserException e) {
+        }
+        dbLocations[1].setCallTraffic(false);
+        dbLocations[1].setReplicateConfig(false);
+        m_out.saveLocation(dbLocations[1]);
 
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent(dbLocations[0].getId(), "ip", "192.168.1.2");
         MongoTestCaseHelper.assertObjectWithIdNotPresent(dbLocations[1].getId());
@@ -197,7 +219,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setRegistered(true);
         location.setPrimary(true);
         m_out.saveLocation(location);
-        
+
         Location location2 = new Location();
         location2.setName("test location2");
         location2.setAddress("10.1.1.2");

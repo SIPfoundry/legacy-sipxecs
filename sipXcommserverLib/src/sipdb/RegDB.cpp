@@ -658,7 +658,7 @@ void RegDB::fetchNodesFromJson(const std::string& nodeConfig)
 
 void RegDB::fetchNodesFromMongo()
 {
-  std::string ns = _ns + "nodes";
+  std::string ns = "imdb.nodes";
   if (!_pNodesDb)
     _pNodesDb = new MongoDB::Collection<NodesDb>(ns);
 

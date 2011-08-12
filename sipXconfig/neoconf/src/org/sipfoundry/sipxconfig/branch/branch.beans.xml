@@ -7,6 +7,8 @@
   -->
   <bean id="branchManagerImpl" class="org.sipfoundry.sipxconfig.branch.BranchManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 
   <bean id="branchManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

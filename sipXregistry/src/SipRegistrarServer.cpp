@@ -84,7 +84,10 @@ const RegEx InstanceUrnUuidMac(
 // Static Initializers
 
 
+#if 0
+// This is no longer needed because all mongo operations are thread-safe
 OsMutex         SipRegistrarServer::sLockMutex(OsMutex::Q_FIFO);
+#endif
 
 SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     OsServerTask("SipRegistrarServer", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
@@ -292,8 +295,10 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                              ,RegistrationExpiryIntervals*& pExpiryIntervals
                                              )
 {
-    // Critical Section here
+#if 0
+    // This is no longer needed because all mongo operations is thread-safe
     OsLock lock(sLockMutex);
+#endif
 
     RegisterStatus returnStatus = REGISTER_SUCCESS;
     UtlBoolean removeAll = FALSE;

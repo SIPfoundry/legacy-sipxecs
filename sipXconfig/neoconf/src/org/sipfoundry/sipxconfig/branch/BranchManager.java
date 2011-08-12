@@ -23,8 +23,6 @@ public interface BranchManager extends DataObjectSource<Branch> {
 
     void saveBranch(Branch branch);
 
-    void deleteBranch(Branch branch);
-
     void deleteBranches(Collection<Integer> allSelected);
 
     List<Branch> getBranches();

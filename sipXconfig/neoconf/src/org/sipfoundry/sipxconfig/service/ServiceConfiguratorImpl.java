@@ -158,7 +158,6 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
                 }
             }));
         }
-        //replicateConfigurations(location, configurations);
         try {
             for (Future<Void> future : futures) {
                 future.get();

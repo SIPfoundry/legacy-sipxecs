@@ -13,10 +13,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.dbunit.dataset.ITable;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+
+import java.util.Collections;
 
 public class BranchManagerImplTestIntegration extends IntegrationTestCase {
 
@@ -63,7 +67,7 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
 
         Branch branch1 = m_branchManager.getBranch("branch1");
         assertNotNull(branch1);
-        m_branchManager.deleteBranch(branch1);
+        m_branchManager.deleteBranches(Collections.singletonList(branch1.getId()));
         assertNull(m_branchManager.getBranch("branch1"));
     }
 
@@ -76,7 +80,7 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
         assertSame(branch1, m_coreContext.loadUser(1000).getBranch());
         assertSame(branch1, m_locationManager.getLocation(1000).getBranch());
 
-        m_branchManager.deleteBranch(branch1);
+        m_branchManager.deleteBranches(Collections.singletonList(branch1.getId()));
 
         assertNull(m_branchManager.getBranch("branch1"));
     }
