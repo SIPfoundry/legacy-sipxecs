@@ -11,12 +11,15 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.AbstractUser;
@@ -25,6 +28,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -37,6 +41,7 @@ public class Permissions extends DataSetGenerator {
             + "v.value as nineoodialing, sv.value as autoattendant, sp.value as international, "
             + "si.value as local, sd.value as long_distance, sm.value as mobile, sr.value as record_prompts, "
             + "st.value as toll_free, svm.value as voicemail, se.value as exchange, sf.value as freeswitch "
+            + "%s  "
             + "FROM users u left join setting_value v on u.value_storage_id = v.value_storage_id "
             + "AND v.path='permission/call-handling/900Dialing' "
             + "left join setting_value sv on u.value_storage_id = sv.value_storage_id "
@@ -59,12 +64,15 @@ public class Permissions extends DataSetGenerator {
             + "AND se.path='permission/voicemail-server/ExchangeUMVoicemailServer' "
             + "left join setting_value sf on u.value_storage_id = sf.value_storage_id "
             + "AND sf.path='permission/voicemail-server/FreeswitchVoicemailServer' "
+            + "%s "
             + "WHERE u.user_type='C' ORDER BY u.user_id;";
     private static final String FREESWITCH = "freeswitch";
     private static final String EXCHANGE = "exchange";
     private static final String IDENTITY = "identity";
     private static final String PERMISSION = "permission";
+    private static final Log LOG = LogFactory.getLog(Permissions.class);
     private CallGroupContext m_callGroupContext;
+    private PermissionManager m_permissionManager;
 
     /**
      * Adds: <code>
@@ -102,7 +110,26 @@ public class Permissions extends DataSetGenerator {
         for (Group group : groups) {
             groupsMap.put(group.getId(), group);
         }
-        getJdbcTemplate().query(QUERY, new RowCallbackHandler() {
+
+        StringBuilder customPermsSelect = new StringBuilder();
+        StringBuilder customPermsJoin = new StringBuilder();
+
+        final Collection<Permission> permissions =  m_permissionManager.getPermissions();
+        for (Permission p : permissions) {
+            if (!p.isBuiltIn()) {
+                customPermsSelect
+                    .append(", ").append(p.getName()).append(".value as ").append(p.getName());
+                customPermsJoin
+                    .append("left join setting_value ").append(p.getName())
+                    .append(" on u.value_storage_id = ").append(p.getName())
+                    .append(".value_storage_id AND ").append(p.getName())
+                    .append(".path='").append(p.getSettingPath()).append("'");
+            }
+        }
+
+        String query = String.format(QUERY, customPermsSelect.toString(),  customPermsJoin.toString());
+        LOG.debug(query);
+        getJdbcTemplate().query(query, new RowCallbackHandler() {
 
             @Override
             public void processRow(ResultSet rs) throws SQLException {
@@ -157,6 +184,13 @@ public class Permissions extends DataSetGenerator {
                 addPermission(items, rs, "record_prompts",
                         getDefaultCallHandlingValue(userModel, PermissionName.RECORD_SYSTEM_PROMPTS),
                         PermissionName.RECORD_SYSTEM_PROMPTS.getName(), uri);
+
+                for (Permission p : permissions) {
+                    if (!p.isBuiltIn()) {
+                        String defaultValue = userModel.getSettings().getSetting(p.getSettingPath()).getDefaultValue();
+                        addPermission(items, rs, p.getName(), defaultValue, p.getName(), uri);
+                    }
+                }
 
                 // add voicemail server permissions
                 String vmUri = getVmUri(userName, domain);
@@ -266,5 +300,13 @@ public class Permissions extends DataSetGenerator {
 
     public void setCallGroupContext(CallGroupContext callGroupContext) {
         m_callGroupContext = callGroupContext;
+    }
+
+    public PermissionManager getPermissionManager() {
+        return m_permissionManager;
+    }
+
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
     }
 }
