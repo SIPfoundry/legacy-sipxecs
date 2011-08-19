@@ -133,7 +133,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
     }
 
     @Override
-    public void replicateLocationAndRestart(Location location) {
+    public void replicateLocationAndRestart(final Location location) {
         if (!location.isRegistered()) {
             return;
         }
@@ -153,12 +153,17 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
         for (final ConfigurationFile configuration : configurations) {
             futures.add(executorService.submit(new Callable<Void>() {
                 public Void call() throws InterruptedException {
-                    m_replicationContext.replicate(configuration);
+                    if (location.isPrimary()) {
+                        m_replicationContext.replicate(configuration);
+                    } else {
+                        m_replicationContext.replicate(location, configuration);
+                    }
                     return null;
                 }
             }));
         }
         try {
+            executorService.shutdown();
             for (Future<Void> future : futures) {
                 future.get();
             }

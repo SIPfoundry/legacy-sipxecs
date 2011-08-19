@@ -95,7 +95,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
     private static final String LOCATION_REGISTRATION = "Location registration in db";
     private static final String DATABASE_REGENERATION = "Database regeneration";
-    private static final String GROUP_REGENERATION = "Group regeneration";
     private static final String BRANCH_REGENERATION = "Branch regeneration";
     private static final String COLON = ":";
     private static final String IP = "ip";
@@ -432,9 +431,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         try {
             int membersCount = m_coreContext.getGroupMembersCount(group.getId());
             doParallelAsyncReplication(membersCount, AllGroupMembersReplicationWorker.class, group);
-            //m_auditLogContext.logReplicationMongo(GROUP_REGENERATION, primary);
+            LOG.info("Regeneration of group complete");
         } catch (Exception e) {
-            //m_auditLogContext.logReplicationMongoFailed(GROUP_REGENERATION, primary, e);
             LOG.error("Regeneration of group failed", e);
             throw new UserException(e);
         }
