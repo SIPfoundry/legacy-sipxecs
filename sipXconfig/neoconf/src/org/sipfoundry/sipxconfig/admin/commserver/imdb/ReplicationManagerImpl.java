@@ -432,9 +432,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         try {
             int membersCount = m_coreContext.getGroupMembersCount(group.getId());
             doParallelAsyncReplication(membersCount, AllGroupMembersReplicationWorker.class, group);
-            m_auditLogContext.logReplicationMongo(GROUP_REGENERATION, primary);
+            //m_auditLogContext.logReplicationMongo(GROUP_REGENERATION, primary);
         } catch (Exception e) {
-            m_auditLogContext.logReplicationMongoFailed(GROUP_REGENERATION, primary, e);
+            //m_auditLogContext.logReplicationMongoFailed(GROUP_REGENERATION, primary, e);
             LOG.error("Regeneration of group failed", e);
             throw new UserException(e);
         }
