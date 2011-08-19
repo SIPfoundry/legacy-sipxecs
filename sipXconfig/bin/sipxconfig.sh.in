@@ -82,8 +82,12 @@ databaseCommand() {
     pass=""
     primary_not_exists=true
     declare -i location_count
-
+    #try to get ip from dns, then fron eth0
     ip_addr=`nslookup $PRIMARY_HOSTNAME | awk '{if (NR==5) print $NF}'`
+    if [ -z "$ip_addr"]; then
+     str=`ifconfig eth0 | awk '{if (NR==2) print $2}'`;
+     ip_addr=${str:5};
+    fi
 
     for i in {1..8};do
       pos=$((RANDOM%${#string}))
