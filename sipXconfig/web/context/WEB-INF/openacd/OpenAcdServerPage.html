@@ -10,7 +10,7 @@
 	<span jwcid="@openacd/OpenAcdClientsPanel"/>
   </span>
   <span jwcid="linesTab@Block">
-    <span jwcid="@openacd/OpenAcdLines" sipxLocation="ognl:sipxLocation"/>
+    <span jwcid="@openacd/OpenAcdLines"/>
   </span>
   <span jwcid="queueGroupsTab@Block">
 	<span jwcid="@common/QuickHelp" value="message:quick.help.queueGroups"/>
@@ -36,7 +36,8 @@
 	<span jwcid="@openacd/OpenAcdSkillsPanel" />
   </span>
   <span jwcid="commandsTab@Block">
-	<span jwcid="@openacd/OpenAcdCommands" sipxLocation="ognl:sipxLocation"/>
+	<span jwcid="@common/QuickHelp" value="message:quick.help.commands"/>
+	<span jwcid="@openacd/OpenAcdCommands"/>
   </span>
   <span jwcid="settingsTab@Block">
 	<form jwcid="@Form" delegate="bean:validator">

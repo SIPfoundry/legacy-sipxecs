@@ -244,7 +244,6 @@ public abstract class ServicesTable extends BaseComponent {
             }
         }
         if (page instanceof OpenAcdServerPage) {
-            ((OpenAcdServerPage) page).setSipxLocation(getLocationsManager().getLocation(locationId));
             ((OpenAcdServerPage) page).setTab("settings");
         } else if (page instanceof EditSipxService) {
             EditSipxService servicePage = (EditSipxService) page;

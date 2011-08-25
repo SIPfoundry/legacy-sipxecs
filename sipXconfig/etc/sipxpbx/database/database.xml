@@ -391,6 +391,7 @@
 	<antcall target="openacd-add-queue-recipe" />
     <antcall target="location-active" />
     <antcall target="init-location" />
+    <antcall target="openacd-insert-commands" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1211,6 +1212,10 @@
         insert into location(location_id,name,fqdn,ip_address,password,primary_location,registered,stun_address) values(nextval('location_seq'),'Primary Server','${sipxconfig.hostname}','${primary.ip.addr}','${primary.password}',TRUE,TRUE,'stun.ezuce.com');
     </sipx-sql>
   </target>
+  <target name="openacd-insert-commands" unless="openacd-insert-commands">
+	<db-patch patch="openacd-insert-commands" />
+  </target>
+
   <!--
     - SUPPORT UTILITIES
   -->

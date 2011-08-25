@@ -10,6 +10,7 @@
       </generator>
     </id>
     <discriminator column="freeswitch_ext_type" type="character" />
+    <property name="enabled" />
     <property name="name" />
     <property name="description" />
     <property name="alias" />
@@ -18,8 +19,6 @@
       <key column="freeswitch_ext_id" not-null="true"/>
       <one-to-many class="FreeswitchCondition"/>
     </set>
-	<many-to-one name="location" column="location_id" unique="true"
-      class="org.sipfoundry.sipxconfig.admin.commserver.Location" />
   </class>
 
   <class name="FreeswitchCondition" table="freeswitch_condition">

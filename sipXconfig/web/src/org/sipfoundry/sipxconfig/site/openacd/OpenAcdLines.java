@@ -26,9 +26,7 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.callback.PageCallback;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
@@ -42,11 +40,6 @@ public abstract class OpenAcdLines extends BaseComponent {
 
     public abstract void setCurrentRow(OpenAcdLine e);
 
-    @Parameter(required = true)
-    public abstract Location getSipxLocation();
-
-    public abstract void setSipxLocation(Location location);
-
     public abstract Collection<Integer> getRowsToDelete();
 
     @InjectPage(EditOpenAcdLine.PAGE)
@@ -56,7 +49,7 @@ public abstract class OpenAcdLines extends BaseComponent {
     public abstract SelectMap getSelections();
 
     public Set<OpenAcdLine> getOpenAcdLines() {
-        return getOpenAcdContext().getLines(getSipxLocation());
+        return getOpenAcdContext().getLines();
     }
 
     public abstract void setLines(Set<OpenAcdLine> l);
@@ -76,17 +69,15 @@ public abstract class OpenAcdLines extends BaseComponent {
         OpenAcdLine ext = (OpenAcdLine) getOpenAcdContext().getExtensionById(id);
         EditOpenAcdLine page = getEditLinePage();
         page.setOpenAcdLineId(ext.getId());
-        page.setSipxLocation(ext.getLocation());
         page.setActions(null);
         page.setWelcomeMessage(null);
         page.setCallback(new PageCallback(this.getPage()));
         return page;
     }
 
-    public IPage addLine(Location l) {
+    public IPage addLine() {
         EditOpenAcdLine page = getEditLinePage();
         page.setOpenAcdLineId(null);
-        page.setSipxLocation(l);
         page.setActions(null);
         page.setWelcomeMessage(null);
         page.setCallback(new PageCallback(this.getPage()));

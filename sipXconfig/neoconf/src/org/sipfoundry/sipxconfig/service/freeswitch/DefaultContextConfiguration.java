@@ -7,6 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.service.freeswitch;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.velocity.VelocityContext;
@@ -14,6 +16,7 @@ import org.sipfoundry.sipxconfig.acccode.AccCodeContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionCollector;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
@@ -40,7 +43,13 @@ public class DefaultContextConfiguration extends SipxServiceConfiguration {
             boolean acccodeActive = true;
             context.put("acccode", acccodeActive);
         }
-        context.put("freeswitchExtensions", m_freeswitchExtensionCollector.getExtensions());
+        List<FreeswitchExtension> freeswitchExtensions = new ArrayList<FreeswitchExtension>();
+        for (FreeswitchExtension extension : m_freeswitchExtensionCollector.getExtensions()) {
+            if (extension.isEnabled()) {
+                freeswitchExtensions.add(extension);
+            }
+        }
+        context.put("freeswitchExtensions", freeswitchExtensions);
         return context;
     }
 

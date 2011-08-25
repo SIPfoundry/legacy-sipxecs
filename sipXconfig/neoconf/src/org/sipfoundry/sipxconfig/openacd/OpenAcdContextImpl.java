@@ -52,7 +52,6 @@ import org.springframework.dao.support.DataAccessUtils;
 public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, DaoEventListener {
 
     private static final String VALUE = "value";
-    private static final String LOCATION = "location";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
     private static final String OPEN_ACD_AGENT_GROUP_WITH_NAME = "openAcdAgentGroupWithName";
     private static final String OPEN_ACD_SKILL_GROUPWITH_NAME = "openAcdSkillGroupWithName";
@@ -101,9 +100,8 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     @Override
-    public Set<OpenAcdLine> getLines(Location location) {
-        List<OpenAcdLine> openacdLines = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "openAcdLinesByLocationId", LOCATION, location);
+    public Set<OpenAcdLine> getLines() {
+        List<OpenAcdLine> openacdLines = getHibernateTemplate().loadAll(OpenAcdLine.class);
         Set<OpenAcdLine> lines = new HashSet<OpenAcdLine>();
         for (OpenAcdLine ext : openacdLines) {
             if (ext.getExtension() != null) {
@@ -113,9 +111,8 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         return lines;
     }
 
-    public Set<OpenAcdCommand> getCommands(Location location) {
-        List<OpenAcdCommand> openacdCommands = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "openAcdCommandsByLocationId", LOCATION, location);
+    public Set<OpenAcdCommand> getCommands() {
+        List<OpenAcdCommand> openacdCommands = getHibernateTemplate().loadAll(OpenAcdCommand.class);
         Set<OpenAcdCommand> comms = new HashSet<OpenAcdCommand>();
         for (OpenAcdCommand ext : openacdCommands) {
             if (ext.getExtension() != null) {
@@ -144,7 +141,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     public void deleteExtension(OpenAcdExtension ext) {
         getHibernateTemplate().delete(ext);
         getHibernateTemplate().flush();
-        replicateConfig();
+        if (ext.isEnabled()) {
+            replicateConfig();
+        }
     }
 
     public void saveExtension(OpenAcdExtension extension) {

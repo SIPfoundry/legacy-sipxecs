@@ -27,7 +27,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -50,6 +49,10 @@ public abstract class EditOpenAcdCommand extends PageWithCallback implements Pag
     @InjectObject("spring:sipxOpenAcdService")
     public abstract SipxOpenAcdService getSipxOpenAcdService();
 
+    public abstract boolean isEnabled();
+
+    public abstract void setEnabled(boolean enabled);
+
     public abstract String getName();
 
     public abstract void setName(String name);
@@ -69,11 +72,6 @@ public abstract class EditOpenAcdCommand extends PageWithCallback implements Pag
     public abstract int getIndex();
 
     public abstract void setIndex(int i);
-
-    @Persist
-    public abstract Location getSipxLocation();
-
-    public abstract void setSipxLocation(Location locationId);
 
     @Persist
     public abstract Integer getOpenAcdCommandId();
@@ -102,11 +100,12 @@ public abstract class EditOpenAcdCommand extends PageWithCallback implements Pag
         List<FreeswitchAction> actions = null;
 
         if (getOpenAcdCommandId() == null) {
-            actions = OpenAcdCommand.getDefaultActions(getSipxLocation());
+            actions = OpenAcdCommand.getDefaultActions(getLocationsManager().getPrimaryLocation());
         } else {
             OpenAcdCommand line = (OpenAcdCommand) getOpenAcdContext().getExtensionById(getOpenAcdCommandId());
             actions = line.getLineActions();
             setName(line.getName());
+            setEnabled(line.isEnabled());
             setDescription(line.getDescription());
             setLineNumber(line.getNumberCondition().getExtension());
         }
@@ -165,8 +164,8 @@ public abstract class EditOpenAcdCommand extends PageWithCallback implements Pag
             }
 
             cmd.setName(getName());
+            cmd.setEnabled(isEnabled());
             cmd.setDescription(getDescription());
-            cmd.setLocation(getSipxLocation());
 
             // add common actions
             cmd.getNumberCondition().getActions().clear();

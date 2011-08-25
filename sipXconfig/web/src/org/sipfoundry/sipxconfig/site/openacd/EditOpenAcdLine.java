@@ -29,7 +29,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -105,11 +104,6 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
     public abstract void setIndex(int i);
 
     @Persist
-    public abstract Location getSipxLocation();
-
-    public abstract void setSipxLocation(Location locationId);
-
-    @Persist
     public abstract Integer getOpenAcdLineId();
 
     public abstract void setOpenAcdLineId(Integer id);
@@ -144,7 +138,7 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
         List<FreeswitchAction> actions = null;
 
         if (getOpenAcdLineId() == null) {
-            actions = OpenAcdLine.getDefaultActions(getSipxLocation());
+            actions = OpenAcdLine.getDefaultActions(getLocationsManager().getPrimaryLocation());
         } else {
             OpenAcdLine line = (OpenAcdLine) getOpenAcdContext().getExtensionById(getOpenAcdLineId());
             actions = line.getLineActions();
@@ -241,7 +235,6 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
 
             line.setName(getName());
             line.setDescription(getDescription());
-            line.setLocation(getSipxLocation());
             line.setAlias(getAlias());
             line.setDid(getDid());
 
