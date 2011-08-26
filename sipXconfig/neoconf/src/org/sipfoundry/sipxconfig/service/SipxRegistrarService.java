@@ -12,15 +12,18 @@ import java.util.Arrays;
 
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxRegistrarService";
-
     public static final String LOG_SETTING = "logging/SIP_REGISTRAR_LOG_LEVEL";
+    private static final String ERROR_ALIAS_IN_USE = "&error.aliasinuse";
 
     private String m_registrarEventSipPort;
     private String m_proxyServerSipHostport;
+    private AliasManager m_aliasManager;
 
     public String getRegistrarEventSipPort() {
         return m_registrarEventSipPort;
@@ -47,6 +50,14 @@ public class SipxRegistrarService extends SipxService implements LoggingEntity {
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
             getSettings(), presenceService.getSettings()
         }));
+        if (!m_aliasManager.canObjectUseAlias(this, getCallRetrieveCode())) {
+            getSipxServiceManager().resetServicesFromDb();
+            throw new UserException(ERROR_ALIAS_IN_USE, getCallRetrieveCode());
+        }
+        if (!m_aliasManager.canObjectUseAlias(this, getDirectedCallPickupCode())) {
+            getSipxServiceManager().resetServicesFromDb();
+            throw new UserException(ERROR_ALIAS_IN_USE, getDirectedCallPickupCode());
+        }
     }
 
     public String getDirectedCallPickupCode() {
@@ -87,5 +98,9 @@ public class SipxRegistrarService extends SipxService implements LoggingEntity {
             return "rr." + fqdn;
         }
         return String.format("%s:%s;transport=tcp", fqdn, getSipPort());
+    }
+
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
     }
 }

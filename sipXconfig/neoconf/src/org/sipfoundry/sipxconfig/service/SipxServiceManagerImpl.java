@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +26,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
@@ -42,8 +41,6 @@ import static org.apache.commons.collections.CollectionUtils.intersection;
 public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService> implements SipxServiceManager,
         ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(SipxServiceManagerImpl.class);
-    private static final String ERROR_ALIAS_IN_USE = "&error.aliasinuse";
-
     private ApplicationContext m_applicationContext;
 
     private LocationsManager m_locationsManager;
@@ -52,7 +49,6 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     private ModelSource<SipxServiceBundle> m_bundleModelSource;
 
-    private AliasManager m_aliasManager;
     private Collection<SipxService> m_servicesFromDb;
 
     public SipxService getServiceByBeanId(String beanId) {
@@ -79,7 +75,17 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection<BeanId> bids = new ArrayList<BeanId>();
-        SipxRegistrarService registrar = (SipxRegistrarService) getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        SipxRegistrarService registrar = null;
+        Collection<SipxService> services = getHibernateTemplate().loadAll(SipxService.class);
+        for (SipxService sipxService : services) {
+            if (sipxService instanceof SipxRegistrarService) {
+                registrar = (SipxRegistrarService) sipxService;
+                break;
+            }
+        }
+        if (registrar == null) {
+            return Collections.EMPTY_LIST;
+        }
         if (isRegistrarAliasInUse(registrar, alias)) {
             bids.add(new BeanId(registrar.getId(), SipxRegistrarService.class));
         }
@@ -184,24 +190,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     public void storeService(SipxService service, boolean notifyOnConfigChange) {
-        if (service instanceof SipxRegistrarService) {
-            SipxRegistrarService registrar = (SipxRegistrarService) service;
-            if (!m_aliasManager.canObjectUseAlias(registrar, registrar.getCallRetrieveCode())) {
-                throw new UserException(ERROR_ALIAS_IN_USE, registrar.getCallRetrieveCode());
-            }
-            if (!m_aliasManager.canObjectUseAlias(registrar, registrar.getDirectedCallPickupCode())) {
-                throw new UserException(ERROR_ALIAS_IN_USE, registrar.getDirectedCallPickupCode());
-            }
-        }
-        if (service instanceof SipxPresenceService) {
-            SipxPresenceService presence = (SipxPresenceService) service;
-            if (!m_aliasManager.canObjectUseAlias(presence, presence.getPresenceSignIn())) {
-                throw new UserException(ERROR_ALIAS_IN_USE, presence.getPresenceSignIn());
-            }
-            if (!m_aliasManager.canObjectUseAlias(presence, presence.getPresenceSignOut())) {
-                throw new UserException(ERROR_ALIAS_IN_USE, presence.getPresenceSignOut());
-            }
-        }
+        service.validate();
         m_servicesFromDb = null;
         saveBeanWithSettings((SipxService) service);
         if (notifyOnConfigChange) {
@@ -369,12 +358,9 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         return null;
     }
 
-    public void setAliasManager(AliasManager aliasManager) {
-        m_aliasManager = aliasManager;
-    }
-
     /**
-     * For use in tests only.
+     * Use this method in order to force a reload of services.
+     * This method need to be called in case that validation of services fail.
      */
     public void resetServicesFromDb() {
         m_servicesFromDb = null;

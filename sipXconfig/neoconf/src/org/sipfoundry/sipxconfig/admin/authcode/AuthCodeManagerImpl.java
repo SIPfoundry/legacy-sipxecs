@@ -223,8 +223,17 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements Auth
 
     @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        SipxAccCodeService service = (SipxAccCodeService) m_sipxServiceManager
-                .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
+        SipxAccCodeService service = null;
+        Collection<SipxService> services = getHibernateTemplate().loadAll(SipxService.class);
+        for (SipxService sipxService : services) {
+            if (sipxService instanceof SipxAccCodeService) {
+                service = (SipxAccCodeService) sipxService;
+                break;
+            }
+        }
+        if (service == null) {
+            return Collections.EMPTY_LIST;
+        }
         Set<String> aliases = service.getAliasesAsSet();
         aliases.add(service.getAuthCodeAliases());
         for (String serviceAlias : aliases) {

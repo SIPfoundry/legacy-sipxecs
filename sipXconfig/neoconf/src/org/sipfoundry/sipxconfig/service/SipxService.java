@@ -329,7 +329,10 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile(m_modelName, m_modelDir);
+        if (getModelFilesContext() != null) {
+            return getModelFilesContext().loadModelFile(m_modelName, m_modelDir);
+        }
+        return null;
     }
 
     @Override

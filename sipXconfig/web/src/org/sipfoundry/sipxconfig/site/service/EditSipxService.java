@@ -61,7 +61,6 @@ public abstract class EditSipxService extends PageWithCallback implements PageBe
 
     public void apply() {
         SipxService service = getSipxService();
-        service.validate();
         getSipxServiceManager().storeService(service);
         getServiceConfigurator().replicateServiceConfig(service);
     }

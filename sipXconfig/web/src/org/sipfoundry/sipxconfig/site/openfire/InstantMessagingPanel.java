@@ -51,7 +51,6 @@ public abstract class InstantMessagingPanel extends BaseComponent implements Pag
     public void apply() {
         if (TapestryUtils.isValid(this)) {
             SipxService service = getSipxService();
-            service.validate();
             getSipxServiceManager().storeService(service);
             getServiceConfigurator().replicateServiceConfig(service);
         }

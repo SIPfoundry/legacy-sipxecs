@@ -169,10 +169,6 @@ public abstract class AuthCodesPage extends SipxBasePage implements PageBeginRen
             return;
         }
         SipxService service = getSipxService();
-
-        //acc code service will validate extension and aliases
-        service.validate();
-
         getSipxServiceManager().storeService(service);
         getServiceConfigurator().replicateServiceConfig(service);
 

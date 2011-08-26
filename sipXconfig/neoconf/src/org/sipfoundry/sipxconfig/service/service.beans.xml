@@ -91,7 +91,6 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="serviceModelSource" ref="sipxServiceModelSource" />
     <property name="bundleModelSource" ref="sipxBundleModelSource" />
-    <property name="aliasManager" ref="aliasManagerImpl" />
   </bean>
 
   <bean id="sipxServiceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -187,6 +186,7 @@
       </list>
     </property>
     <property name="domainManager" ref="domainManager" />
+    <property name="aliasManager" ref="aliasManagerImpl" />
     <property name="bundles">
       <set>
         <ref bean="primarySipRouterBundle" />
@@ -241,6 +241,7 @@
         <ref bean="acdBundle" />
       </set>
     </property>
+    <property name="aliasManager" ref="aliasManagerImpl" />
   </bean>
 
   <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration" scope="prototype"

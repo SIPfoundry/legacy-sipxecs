@@ -56,7 +56,6 @@ public abstract class CallRateLimitPage extends PageWithCallback implements Page
             return;
         }
         SipxService service = getService();
-        service.validate();
         getSipxServiceManager().storeService(service);
         getServiceConfigurator().replicateServiceConfig(service);
     }

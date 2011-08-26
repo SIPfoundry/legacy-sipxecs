@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.User;
@@ -37,6 +38,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     private SipxServiceBundle m_managementBundle;
     private SipxServiceBundle m_primarySipRouterBundle;
     private CoreContext m_coreContext;
+    private AliasManager m_aliasManager;
 
     public void testGetServiceByBeanId() {
         SipxService service = m_out.getServiceByBeanId(SipxProxyService.BEAN_ID);
@@ -114,8 +116,9 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         User u = m_coreContext.newUser();
         u.setUserName("200");
         m_coreContext.saveUser(u);
-
         SipxPresenceService presence = (SipxPresenceService) m_out.getServiceByBeanId(SipxPresenceService.BEAN_ID);
+        presence.setSipxServiceManager(m_out);
+        presence.setAliasManager(m_aliasManager);
         presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE, "200");
         try {
             m_out.storeService(presence);
@@ -131,7 +134,13 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         } catch (UserException e) {
 
         }
-
+        presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE, "*88888");
+        presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE, "*9999");
+        try {
+            m_out.storeService(presence);
+        } catch (UserException e) {
+            fail();
+        }
     }
 
     public void setSipxServiceManagerImpl(SipxServiceManagerImpl sipxServiceManagerImpl) {
@@ -156,5 +165,9 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+    
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
     }
 }

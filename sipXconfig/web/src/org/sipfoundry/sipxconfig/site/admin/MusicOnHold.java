@@ -67,7 +67,6 @@ public abstract class MusicOnHold extends SipxBasePage implements PageBeginRende
             return;
         }
         SipxService service = getSipxService();
-        service.validate();
         getSipxServiceManager().storeService(service);
     }
 }

@@ -77,7 +77,8 @@ public interface SipxServiceManager extends AliasOwner {
 
     Object getServiceParam(String paramName);
     /**
-     * For use in tests only.
+     * Use this method in order to force a reload of services.
+     * This method need to be called in case that validation of services fail.
      */
     public void resetServicesFromDb();
 }

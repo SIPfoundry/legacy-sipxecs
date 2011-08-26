@@ -614,14 +614,16 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
                 VALUE, alias);
         Collection<BeanId> bids = BeanId.createBeanIdCollection(ids, AcdLine.class);
 
-        List<AcdServer> servers = getServers();
-        for (AcdServer server : servers) {
-            for (AliasMapping mapping : server.getAliasMappings(m_coreContext.getDomainName())) {
-                if (mapping.getIdentity().equals(alias)) {
-                    SipxPresenceService presence = server.getPresenceService();
-                    bids.add(new BeanId(presence.getId(), SipxPresenceService.class));
-                }
+        SipxPresenceService presence = null;
+        Collection<SipxService> services = getHibernateTemplate().loadAll(SipxService.class);
+        for (SipxService sipxService : services) {
+            if (sipxService instanceof SipxPresenceService) {
+                presence = (SipxPresenceService) sipxService;
+                break;
             }
+        }
+        if (presence.getPresenceSignIn().equals(alias) || presence.getPresenceSignOut().equals(alias)) {
+            bids.add(new BeanId(presence.getId(), SipxPresenceService.class));
         }
         return bids;
     }

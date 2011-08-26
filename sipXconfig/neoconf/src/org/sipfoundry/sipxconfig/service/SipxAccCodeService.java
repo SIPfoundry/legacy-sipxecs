@@ -17,7 +17,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.NameInUseException;
+import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.StringUtils.split;
@@ -36,8 +37,8 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     public static final String AUTH_CODE_PREFIX = "authcode/SIP_AUTH_CODE_PREFIX";
     public static final String AUTH_CODE_ALIASES = "authcode/SIP_AUTH_CODE_ALIASES";
     private static final Log LOG = LogFactory.getLog(SipxAccCodeService.class);
-    private static final String EXTENSION = "extension";
     private static final String ALIAS_RELATION = "alias";
+    private static final String ERROR_ALIAS_IN_USE = "&error.aliasinuse";
 
     private AliasManager m_aliasManager;
     private CoreContext m_coreContext;
@@ -83,17 +84,17 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
      **/
     @Override
     public void validate() {
-        String extension = this.getSettingValue(SipxAccCodeService.AUTH_CODE_PREFIX);
+        String extension = getSettingValue(SipxAccCodeService.AUTH_CODE_PREFIX);
         if (!m_aliasManager.canObjectUseAlias(this, extension)) {
-            LOG.info("SipxAccCodeService::validate() canObjectUseAlias() failed.  extension:" + extension);
-            throw new NameInUseException(EXTENSION, extension);
+            getSipxServiceManager().resetServicesFromDb();
+            throw new ExtensionInUseException("Auth code", extension);
         }
 
-        String aliases = this.getSettingValue(SipxAccCodeService.AUTH_CODE_ALIASES);
+        String aliases = getSettingValue(SipxAccCodeService.AUTH_CODE_ALIASES);
         for (String alias : getAliasesSet(aliases)) {
             if (!m_aliasManager.canObjectUseAlias(this, alias)) {
-                LOG.info("SipxAccCodeService::apply() failed alias check.  alias:" + alias);
-                throw new NameInUseException("alias ", alias);
+                getSipxServiceManager().resetServicesFromDb();
+                throw new UserException(ERROR_ALIAS_IN_USE, alias);
             }
         }
     }
