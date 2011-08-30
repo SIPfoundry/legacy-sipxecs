@@ -201,155 +201,86 @@ public class FaxRx {
         } catch (IOException e) {
             e.printStackTrace();
             return;
-        } finally {
-            if (faxReceive.rxSuccess()) {
+        }
 
-                // construct a reasonable faxInfo string to be used as part of the email
-                // subject and instant message.
-                String name = null;
-                String number = null;
 
-                EmailFormatter emf = EmailFormatter.getEmailFormatter(EmailFormats.FORMAT_BRIEF, m_ivrConfig,
-                        m_mailbox, null);
+        finally {
 
-                if (faxReceive.getRemoteStationId() != null) {
-                    name = faxReceive.getRemoteStationId();
-                } else {
-                    if (!m_fses.getVariable("channel-caller-id-name").equals("unknown")) {
-                        name = m_fses.getVariable("channel-caller-id-name");
-                    }
+            // construct a reasonable faxInfo string to be used as part of the email
+            // subject and instant message. Send email even if faxReceive.rxSuccess() false
+            // as there could be incomplete faxes - act as a fax machine
+            String name = null;
+            String number = null;
+
+            EmailFormatter emf = EmailFormatter.getEmailFormatter(EmailFormats.FORMAT_BRIEF, m_ivrConfig, m_mailbox,
+                    null);
+
+            if (faxReceive.getRemoteStationId() != null) {
+                name = faxReceive.getRemoteStationId();
+            } else {
+                if (!m_fses.getVariable("channel-caller-id-name").equals("unknown")) {
+                    name = m_fses.getVariable("channel-caller-id-name");
                 }
+            }
 
-                if (!m_fses.getVariable("channel-caller-id-number").equals("0000000000")) {
-                    number = m_fses.getVariable("channel-caller-id-number");
-                }
+            if (!m_fses.getVariable("channel-caller-id-number").equals("0000000000")) {
+                number = m_fses.getVariable("channel-caller-id-number");
+            }
 
-                faxInfo = faxReceive.faxTotalPages() + " " + emf.fmt("page_fax_from") + " ";
-                if (name != null) {
-                    faxInfo += name + " ";
-                }
+            faxInfo = faxReceive.faxTotalPages() + " " + emf.fmt("page_fax_from") + " ";
+            if (name != null) {
+                faxInfo += name + " ";
+            }
 
-                if (number != null) {
-                    faxInfo += "(" + number + ")";
-                }
+            if (number != null) {
+                faxInfo += "(" + number + ")";
+            }
 
-                if (name == null && number == null) {
-                    faxInfo += emf.fmt("an_unknown_sender");
-                }
+            if (name == null && number == null) {
+                faxInfo += emf.fmt("an_unknown_sender");
+            }
 
-                // need to send to at least one email address
-                boolean sent = false;
-                String faxSubject = emf.fmt("Your") + " " + faxInfo;
+            // need to send to at least one email address
+            boolean sent = false;
+            String faxSubject = emf.fmt("Your") + " " + faxInfo;
 
-                if (user.getEmailFormat() != EmailFormats.FORMAT_NONE) {
+            if (user.getEmailFormat() != EmailFormats.FORMAT_NONE) {
+                sendEmail(user.getEmailAddress(), faxPathName, emf, faxSubject);
+                sent = true;
+            }
+
+            if (user.getAltEmailFormat() != EmailFormats.FORMAT_NONE) {
+                sendEmail(user.getAltEmailAddress(), faxPathName, emf, faxSubject);
+                sent = true;
+            }
+
+            // need to send to at least one email address so let's be more aggressive
+
+            if (!sent) {
+                if (user.getEmailAddress() != null) {
                     sendEmail(user.getEmailAddress(), faxPathName, emf, faxSubject);
                     sent = true;
                 }
+            }
 
-                if (user.getAltEmailFormat() != EmailFormats.FORMAT_NONE) {
+            if (!sent) {
+                // need to send to at least one email address so let's be even more aggressive
+                if (user.getAltEmailAddress() != null) {
                     sendEmail(user.getAltEmailAddress(), faxPathName, emf, faxSubject);
-                    sent = true;
+                } else {
+                    // didn't send anywhere !!
+                    LOG.error("Fax Receive: No email address for user " + user.getUserName());
                 }
+            }
 
-                // need to send to at least one email address so let's be more aggressive
-
-                if (!sent) {
-                    if (user.getEmailAddress() != null) {
-                        sendEmail(user.getEmailAddress(), faxPathName, emf, faxSubject);
-                        sent = true;
-                    }
-                }
-
-                if (!sent) {
-                    // need to send to at least one email address so let's be even more aggressive
-                    if (user.getAltEmailAddress() != null) {
-                        sendEmail(user.getAltEmailAddress(), faxPathName, emf, faxSubject);
-                    } else {
-                        // didn't send anywhere !!
-                        LOG.error("Fax Receive: No email address for user " + user.getUserName());
-                    }
-                }
-
-                sendIM(user, emf.fmt("You_received_a") + " " + faxInfo + ".");
-
+            if (faxReceive.rxSuccess()) {
                 LOG.debug("Fax received successfully " + faxInfo);
+                sendIM(user, emf.fmt("You_received_a") + " " + faxInfo + ".");
             } else {
                 LOG.error("Fax receive failed from " + m_fses.getVariable("channel-caller-id-number")
-                        + faxReceive.rxSuccess() + ". Error text: " + faxReceive.getResultText() + ". Error code: "
+                        + ". Error text: " + faxReceive.getResultText() + ". Error code: "
                         + faxReceive.getResultCode());
-
-                // we don't really want to delete it
-                // faxPathName.delete();
-
-                // construct a reasonable faxInfo string to be used as part of the email
-                // subject and instant message.
-                String name = null;
-                String number = null;
-
-                EmailFormatter emf = EmailFormatter.getEmailFormatter(EmailFormats.FORMAT_BRIEF, m_ivrConfig,
-                        m_mailbox, null);
-
-                if (faxReceive.getRemoteStationId() != null) {
-                    name = faxReceive.getRemoteStationId();
-                } else {
-                    if (!m_fses.getVariable("channel-caller-id-name").equals("unknown")) {
-                        name = m_fses.getVariable("channel-caller-id-name");
-                    }
-                }
-
-                if (!m_fses.getVariable("channel-caller-id-number").equals("0000000000")) {
-                    number = m_fses.getVariable("channel-caller-id-number");
-                }
-
-                faxInfo = faxReceive.faxTotalPages() + " " + emf.fmt("page_fax_from") + " ";
-                if (name != null) {
-                    faxInfo += name + " ";
-                }
-
-                if (number != null) {
-                    faxInfo += "(" + number + ")";
-                }
-
-                if (name == null && number == null) {
-                    faxInfo += emf.fmt("an_unknown_sender");
-                }
-
-                // need to send to at least one email address
-                boolean sent = false;
-                String faxSubject = emf.fmt("Your") + " " + faxInfo;
-
-                if (user.getEmailFormat() != EmailFormats.FORMAT_NONE) {
-                    sendEmail(user.getEmailAddress(), faxPathName, emf, faxSubject);
-                    sent = true;
-                }
-
-                if (user.getAltEmailFormat() != EmailFormats.FORMAT_NONE) {
-                    sendEmail(user.getAltEmailAddress(), faxPathName, emf, faxSubject);
-                    sent = true;
-                }
-
-                // need to send to at least one email address so let's be more aggressive
-
-                if (!sent) {
-                    if (user.getEmailAddress() != null) {
-                        sendEmail(user.getEmailAddress(), faxPathName, emf, faxSubject);
-                        sent = true;
-                    }
-                }
-
-                if (!sent) {
-                    // need to send to at least one email address so let's be even more aggressive
-                    if (user.getAltEmailAddress() != null) {
-                        sendEmail(user.getAltEmailAddress(), faxPathName, emf, faxSubject);
-                    } else {
-                        // didn't send anywhere !!
-                        LOG.error("Fax Receive: No email address for user " + user.getUserName());
-                    }
-                }
-
                 sendIM(user, emf.fmt("You_received_an_incomplete") + " " + faxInfo + ".");
-
-                LOG.debug("Fax received unsuccessfully " + faxInfo);
             }
 
             faxPathName.delete();
