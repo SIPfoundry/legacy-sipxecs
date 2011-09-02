@@ -100,7 +100,6 @@ bool ZMQProactorClient::blocking_send(ZMQBlockingRequest::Ptr message, unsigned 
   std::string oldData = message->data();
   message->data() = requestId + " " + _localAddressIdentifier + " " + oldData;
 
-  
   _blockingRequestsMutex.lock();
   if (_blockingRequests.find(requestId) != _blockingRequests.end())
   {

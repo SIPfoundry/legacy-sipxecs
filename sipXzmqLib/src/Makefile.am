@@ -55,7 +55,10 @@ libsipXzmq_la_SOURCES =  \
 	ZMQProactorClient.cpp \
 	ZMQBlockingRequest.cpp \
 	ZMQProactor.cpp \
-	ZMQPipeLineBroker.cpp
+	ZMQPipeLineBroker.cpp \
+	ZMQJsonMessage.cpp \
+	ZMQJsonRpcClient.cpp \
+	ZMQJsonRpcServer.cpp
 
 
 DISTCLEANFILES = Makefile.in
