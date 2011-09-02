@@ -50,6 +50,7 @@ bool ZMQReactor::startReactor(const std::string& localAddress, const std::string
   //
   if (!_brokerSocket.connect(_brokerBackEndAddress, error))
     return false;
+
   //
   // Start accepting Actors
   //
@@ -58,10 +59,14 @@ bool ZMQReactor::startReactor(const std::string& localAddress, const std::string
   //
   // start the reactor thread
   //
-  _isReading = true;
-  _pReadThread = new boost::thread(boost::bind(&ZMQReactor::readServiceRequests, this));
+  if (!_isReading)
+  {
+    _isReading = true;
+    _pReadThread = new boost::thread(boost::bind(&ZMQReactor::readServiceRequests, this));
+  }
   return true;
 }
+
 
 void ZMQReactor::stopReactor()
 {

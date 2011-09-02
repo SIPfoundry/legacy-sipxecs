@@ -42,6 +42,7 @@ private:
   boost::mutex _mutex;
   boost::condition_variable _cond;
   bool _responseReady;
+  friend class ZMQProactorClient;
 };
 
 //

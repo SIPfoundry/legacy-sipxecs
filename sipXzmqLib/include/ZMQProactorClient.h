@@ -44,8 +44,9 @@ public:
   void stopProactorClient();
   bool async_send(ZMQMessage& message, ResponseCallback cb, ZMQSocket::Error& error);
   bool blocking_send(ZMQBlockingRequest::Ptr message, ZMQSocket::Error& error);
-  bool blocking_send(ZMQBlockingRequest::Ptr message, unsigned long waitTimeInMilliseconds, ZMQSocket::Error& error);
+
 protected:
+  bool blocking_send(ZMQBlockingRequest::Ptr message, unsigned long waitTimeInMilliseconds, ZMQSocket::Error& error);
   bool handleRequest(ZMQMessage& message);
   bool handleResponse(ZMQMessage& message);
   ZMQActor _actor;
