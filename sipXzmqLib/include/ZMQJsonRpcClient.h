@@ -28,8 +28,8 @@ public:
   ZMQJsonRpcClient();
   ~ZMQJsonRpcClient();
   bool connect(const std::string& protocol, const std::string& serverAddress, unsigned short rpcPort);
-  bool execute(const std::string& method, ZMQJsonMessage& params, ZMQJsonMessage& result);
-  void notify(std::string identity, const std::string& event, const ZMQObject& params);
+  bool execute(const std::string& method, const json::Object& params, ZMQJsonMessage& result);
+  void notify(std::string identity, const std::string& event, const json::Object& params);
   bool startRpcService(const std::string& localIdentity);
   void stopRpcService();
 protected:

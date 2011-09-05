@@ -78,12 +78,17 @@ void ZMQJsonRpcClient::stopRpcService()
   _reactor.close(0);
 }
 
-bool ZMQJsonRpcClient::execute(const std::string& method, ZMQJsonMessage& request, ZMQJsonMessage& result)
+bool ZMQJsonRpcClient::execute(const std::string& method, const json::Object& params, ZMQJsonMessage& result)
 {
   std::ostringstream id;
   id << method << "-" <<  ZMQSocket::generateId();
-  request.setMethod(method);
+
+  ZMQJsonMessage request;
+  request.setVersion("2.0");
   request.setId(id.str());
+  request.setMethod(method);
+  request.setParams(params);
+  
   ZMQBlockingRequest::Ptr rpcRequest(new ZMQBlockingRequest(request.data()));
   ZMQSocket::Error error;
   ZMQ_LOG_DEBUG("ZMQJsonRpcClient::execute - REQUEST " << request.data());
@@ -104,7 +109,7 @@ bool ZMQJsonRpcClient::execute(const std::string& method, ZMQJsonMessage& reques
   return true;
 }
 
-void ZMQJsonRpcClient::notify(std::string identity, const std::string& event, const ZMQObject& params)
+void ZMQJsonRpcClient::notify(std::string identity, const std::string& event, const json::Object& params)
 {
   ZMQJsonMessage request;
   request.setMethod(event);

@@ -117,6 +117,7 @@ void ZMQJsonRpcServer::executeRpc(ZMQMessage& task, ZMQMessage& response)
 
   std::string method = request.getMethod();
   std::string id = request.getId();
+  result.setVersion("2.0");
   result.setId(id);
   result.setMethod(method);
   
@@ -125,9 +126,9 @@ void ZMQJsonRpcServer::executeRpc(ZMQMessage& task, ZMQMessage& response)
     //
     // Send a standard JSON RPC error response
     //
-    ZMQObject error;
-    error.push_back(ZMQPair("code", 2601));
-    error.push_back(ZMQPair("message", "Method not found"));
+    json::Object error;
+    error["code"] = json::Number(2601);
+    error["message"] = json::String("Method not found");
     result.setError(error);
     ZMQ_LOG_ERROR("ZMQJsonRpcServer::executeRpc - Unknown method " << method);
     return;

@@ -14,9 +14,7 @@
 
 
 #include "ZMQJsonMessage.h"
-
-
-using namespace json_spirit;
+#include "ZMQLogger.h"
 
 /*
 const int ZMQ_TYPE_OBJECT = json_spirit::obj_type ;
@@ -38,9 +36,16 @@ ZMQJsonMessage::ZMQJsonMessage(const ZMQJsonMessage& msg) :
 
 ZMQJsonMessage::ZMQJsonMessage(const std::string& msg)
 {
-  Value value;
-  read(msg, value);
-  dynamic_cast<Object&>(*this) = value.get_obj();
+  try
+  {
+    std::stringstream strm;
+    strm << msg;
+    json::Reader::Read(*this, strm);
+  }
+  catch(std::exception& error)
+  {
+    ZMQ_LOG_ERROR("ZMQJsonMessage::ZMQJsonMessage - PARSE ERROR - " << error.what());
+  }
 }
 
 ZMQJsonMessage::~ZMQJsonMessage()
@@ -55,9 +60,16 @@ ZMQJsonMessage& ZMQJsonMessage::operator=(const ZMQJsonMessage& msg)
 
 ZMQJsonMessage& ZMQJsonMessage::operator = (const std::string& msg)
 {
-  Value value;
-  read(msg, value);
-  dynamic_cast<Object&>(*this) = value.get_obj();
+  try
+  {
+    std::stringstream strm;
+    strm << msg;
+    json::Reader::Read(*this, strm);
+  }
+  catch(std::exception& error)
+  {
+    ZMQ_LOG_ERROR("ZMQJsonMessage::ZMQJsonMessage - PARSE ERROR - " << error.what());
+  }
   return *this;
 }
 
@@ -68,25 +80,15 @@ ZMQJsonMessage& ZMQJsonMessage::operator = (const std::string& msg)
 //  if jsonrpc is missing, the server MAY handle the Request as JSON-RPC V1.0-Request.
 void ZMQJsonMessage::setVersion(const std::string& version)
 {
-  for( Object::size_type i = 0; i != this->size(); ++i )
-  {
-     if ((*this)[i].name_ == "jsonrpc")
-     {
-       (*this)[i].value_ = version;
-       return;
-     }
-  }
-   (*this).push_back(Pair("jsonrpc", version));
+  (*this)["jsonrpc"] = json::String(version);
 }
 
 std::string ZMQJsonMessage::getVersion() const
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
+  json::Object::const_iterator iter = Find("jsonrpc");
+  if (iter != End())
   {
-     if ((*this)[i].name_ == "jsonrpc"  && (*this)[i].value_.type() == ZMQ_TYPE_STRING)
-     {
-       return (*this)[i].value_.get_str();
-     }
+    return static_cast<const std::string&>(static_cast<const json::String&>(iter->element));
   }
   return std::string();
 }
@@ -100,25 +102,15 @@ std::string ZMQJsonMessage::getVersion() const
 //  and MUST NOT be used for anything else.
 void ZMQJsonMessage::setMethod(const std::string& method)
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
-  {
-     if ((*this)[i].name_ == "method")
-     {
-       (*this)[i].value_ = method;
-       return;
-     }
-  }
-   (*this).push_back(Pair("method", method));
+  (*this)["method"] = json::String(method);
 }
 
 std::string ZMQJsonMessage::getMethod() const
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
+  json::Object::const_iterator iter = Find("method");
+  if (iter != End())
   {
-     if ((*this)[i].name_ == "method" && (*this)[i].value_.type() == ZMQ_TYPE_STRING)
-     {
-       return (*this)[i].value_.get_str();
-     }
+    return static_cast<const std::string&>(static_cast<const json::String&>(iter->element));
   }
   return std::string();
 }
@@ -132,25 +124,15 @@ std::string ZMQJsonMessage::getMethod() const
 //  The server MUST reply with the same value.
 void ZMQJsonMessage::setId(const std::string& id)
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
-  {
-     if ((*this)[i].name_ == "id")
-     {
-       (*this)[i].value_ = id;
-       return;
-     }
-  }
-   (*this).push_back(Pair("id", id));
+  (*this)["id"] = json::String(id);
 }
 
 std::string ZMQJsonMessage::getId() const
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
+  json::Object::const_iterator iter = Find("id");
+  if (iter != End())
   {
-     if ((*this)[i].name_ == "id" && (*this)[i].value_.type() == ZMQ_TYPE_STRING)
-     {
-       return (*this)[i].value_.get_str();
-     }
+    return static_cast<const std::string&>(static_cast<const json::String&>(iter->element));
   }
   return std::string();
 }
@@ -159,32 +141,18 @@ std::string ZMQJsonMessage::getId() const
 //
 //  An Object that holds the actual parameter values for the invocation
 //  of the procedure. Can be omitted if empty.
-void ZMQJsonMessage::setParams(const ZMQObject& params)
+void ZMQJsonMessage::setParams(const json::Object& params)
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
-  {
-     if ((*this)[i].name_ == "params")
-     {
-       (*this)[i].value_ = params;
-       return;
-     }
-  }
-   (*this).push_back(Pair("params", params));
+  (*this)["params"] = params;
 }
 
-bool ZMQJsonMessage::getParams(ZMQObject& params) const
+bool ZMQJsonMessage::getParams(json::Object& params) const
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
+  json::Object::const_iterator iter = Find("params");
+  if (iter != End())
   {
-     const Pair& pair = (*this)[i];
-     const std::string& name  = pair.name_;
-     const Value& value = pair.value_;
-
-     if (name == "params" && value.type() == ZMQ_TYPE_OBJECT)
-     {
-       params = value.get_obj();
-       return true;
-     }
+    params = static_cast<const json::Object&>(iter->element);
+    return true;
   }
   return false;
 }
@@ -194,32 +162,18 @@ bool ZMQJsonMessage::getParams(ZMQObject& params) const
 //      Required on success, omitted on failure.
 //      An Object that was returned by the procedure. Its contents is entirely defined by the procedure.
 //      This member MUST be entirely omitted if there was an error invoking the procedure.
-void ZMQJsonMessage::setResults(const ZMQObject& result)
+void ZMQJsonMessage::setResults(const json::Object& result)
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
-  {
-     if ((*this)[i].name_ == "result")
-     {
-       (*this)[i].value_ = result;
-       return;
-     }
-  }
-   (*this).push_back(Pair("result", result));
+  (*this)["result"] = result;
 }
 
-bool ZMQJsonMessage::getResults(ZMQObject& result) const
+bool ZMQJsonMessage::getResults(json::Object& result) const
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
+  json::Object::const_iterator iter = Find("result");
+  if (iter != End())
   {
-     const Pair& pair = (*this)[i];
-     const std::string& name  = pair.name_;
-     const Value& value = pair.value_;
-
-     if (name == "result" && value.type() == ZMQ_TYPE_OBJECT)
-     {
-       result = value.get_obj();
-       return true;
-     }
+    result = static_cast<const json::Object&>(iter->element);
+    return true;
   }
   return false;
 }
@@ -250,439 +204,242 @@ bool ZMQJsonMessage::getResults(ZMQObject& result) const
 //      2603 	Internal error. 	Internal JSON-RPC error.
 //      2099..-32000 	Server error. 	Reserved for implementation-defined server-errors.
 //
-void ZMQJsonMessage::setError(const ZMQObject& error)
+void ZMQJsonMessage::setError(const json::Object& error)
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
-  {
-     if ((*this)[i].name_ == "error")
-     {
-       (*this)[i].value_ = error;
-       return;
-     }
-  }
-  (*this).push_back(Pair("result", error));
+  (*this)["error"] = error;
 }
 
-bool ZMQJsonMessage::getError(ZMQObject& error) const
+bool ZMQJsonMessage::getError(json::Object& error) const
 {
-  for( Object::size_type i = 0; i != (*this).size(); ++i )
+  json::Object::const_iterator iter = Find("error");
+  if (iter != End())
   {
-     const Pair& pair = (*this)[i];
-     const std::string& name  = pair.name_;
-     const Value& value = pair.value_;
-
-     if (name == "error" && value.type() == ZMQ_TYPE_OBJECT)
-     {
-       error = value.get_obj();
-       return true;
-     }
+    error = static_cast<const json::Object&>(iter->element);
+    return true;
   }
   return false;
 }
-
-#if 0
-const int ZMQ_TYPE_OBJECT = json_spirit::obj_type ;
-const int ZMQ_TYPE_ARRAY = json_spirit::array_type ;
-const int ZMQ_TYPE_STRING = json_spirit::str_type;
-const int ZMQ_TYPE_BOOL = json_spirit::bool_type ;
-const int ZMQ_TYPE_INT = json_spirit::int_type ;
-const int ZMQ_TYPE_REAL = json_spirit::real_type;
-const int ZMQ_TYPE_NULL = json_spirit::null_type;
-#endif
 
 bool ZMQJsonMessage::getParameter(const std::string& name, std::string& value) const
 {
-  ZMQObject params;
+  json::Object params;
   if (!getParams(params))
     return false;
-  for( Object::size_type i = 0; i != params.size(); ++i )
-  {
-     if (params[i].name_ == name  && params[i].value_.type() == ZMQ_TYPE_STRING)
-     {
-       value = params[i].value_.get_str();
-       return true;
-     }
-  }
-  return false;
-}
 
-bool ZMQJsonMessage::getParameter(const std::string& name, int& value) const
-{
-  ZMQObject params;
-  if (!getParams(params))
-    return false;
-  for( Object::size_type i = 0; i != params.size(); ++i )
+  json::Object::const_iterator iter = params.Find(name);
+  if (iter != End())
   {
-     if (params[i].name_ == name  && params[i].value_.type() == ZMQ_TYPE_INT)
-     {
-       value = params[i].value_.get_int();
-       return true;
-     }
+    value = static_cast<const std::string&>(static_cast<const json::String&>(iter->element));
+    return true;
   }
+
   return false;
 }
 
 bool ZMQJsonMessage::getParameter(const std::string& name, double& value) const
 {
-  ZMQObject params;
+  json::Object params;
   if (!getParams(params))
     return false;
-  for( Object::size_type i = 0; i != params.size(); ++i )
+
+  json::Object::const_iterator iter = params.Find(name);
+  if (iter != End())
   {
-     if (params[i].name_ == name  && params[i].value_.type() == ZMQ_TYPE_REAL)
-     {
-       value = params[i].value_.get_real();
-       return true;
-     }
+    value = static_cast<const double&>(static_cast<const json::Number&>(iter->element));
+    return true;
   }
+
   return false;
 }
+
+
 
 bool ZMQJsonMessage::getParameter(const std::string& name, bool& value) const
 {
-  ZMQObject params;
+  json::Object params;
   if (!getParams(params))
     return false;
-  for( Object::size_type i = 0; i != params.size(); ++i )
+
+  json::Object::const_iterator iter = params.Find(name);
+  if (iter != End())
   {
-     if (params[i].name_ == name  && params[i].value_.type() == ZMQ_TYPE_BOOL)
-     {
-       value = params[i].value_.get_bool();
-       return true;
-     }
+    value = static_cast<const bool&>(static_cast<const json::Boolean&>(iter->element));
+    return true;
+  }
+
+  return false;
+}
+
+bool ZMQJsonMessage::getParameter(const std::string& name, json::Object& value) const
+{
+  json::Object params;
+  if (!getParams(params))
+    return false;
+
+  json::Object::const_iterator iter = params.Find(name);
+  if (iter != End())
+  {
+    value = static_cast<const json::Object&>(iter->element);
+    return true;
   }
   return false;
 }
 
-bool ZMQJsonMessage::getParameter(const std::string& name, ZMQObject& value) const
+bool ZMQJsonMessage::getParameter(const std::string& name, json::Array& value) const
 {
-  ZMQObject params;
+  json::Object params;
   if (!getParams(params))
     return false;
-  for( Object::size_type i = 0; i != params.size(); ++i )
+  json::Object::const_iterator iter = params.Find(name);
+  if (iter != End())
   {
-     if (params[i].name_ == name  && params[i].value_.type() == ZMQ_TYPE_OBJECT)
-     {
-       value = params[i].value_.get_obj();
-       return true;
-     }
-  }
-  return false;
-}
-
-bool ZMQJsonMessage::getParameter(const std::string& name, ZMQArray& value) const
-{
-  ZMQObject params;
-  if (!getParams(params))
-    return false;
-  for( Object::size_type i = 0; i != params.size(); ++i )
-  {
-     if (params[i].name_ == name  && params[i].value_.type() == ZMQ_TYPE_ARRAY)
-     {
-       value = params[i].value_.get_array();
-       return true;
-     }
+    value = static_cast<const json::Array&>(iter->element);
+    return true;
   }
   return false;
 }
 
 void ZMQJsonMessage::setParameter(const std::string& name, const std::string& value)
 {
-  ZMQObject params;
-  getParams(params);
-  for( Object::size_type i = 0; i != params.size(); ++i )
-  {
-     if (params[i].name_ == name)
-     {
-       params[i].value_ = value;
-       setParams(params);
-       return;
-     }
-  }
-  params.push_back(Pair(name, value));
-  setParams(params);
-}
-
-void ZMQJsonMessage::setParameter(const std::string& name, const int& value)
-{
-  ZMQObject params;
-  getParams(params);
-  for( Object::size_type i = 0; i != params.size(); ++i )
-  {
-     if (params[i].name_ == name)
-     {
-       params[i].value_ = value;
-       setParams(params);
-       return;
-     }
-  }
-  params.push_back(Pair(name, value));
-  setParams(params);
+  (*this)["params"][name] = json::String(value);
 }
 
 void ZMQJsonMessage::setParameter(const std::string& name, const double& value)
 {
-  ZMQObject params;
-  getParams(params);
-  for( Object::size_type i = 0; i != params.size(); ++i )
-  {
-     if (params[i].name_ == name)
-     {
-       params[i].value_ = value;
-       setParams(params);
-       return;
-     }
-  }
-  params.push_back(Pair(name, value));
-  setParams(params);
+  (*this)["params"][name] = json::Number(value);
 }
 
 void ZMQJsonMessage::setParameter(const std::string& name, const bool& value)
 {
-  ZMQObject params;
-  getParams(params);
-  for( Object::size_type i = 0; i != params.size(); ++i )
-  {
-     if (params[i].name_ == name)
-     {
-       params[i].value_ = value;
-       setParams(params);
-       return;
-     }
-  }
-  params.push_back(Pair(name, value));
-  setParams(params);
+  (*this)["params"][name] = json::Boolean(value);
 }
 
-void ZMQJsonMessage::setParameter(const std::string& name, const ZMQObject& value)
+void ZMQJsonMessage::setParameter(const std::string& name, const json::Object& value)
 {
-  ZMQObject params;
-  getParams(params);
-  for( Object::size_type i = 0; i != params.size(); ++i )
-  {
-     if (params[i].name_ == name)
-     {
-       params[i].value_ = value;
-       setParams(params);
-       return;
-     }
-  }
-  params.push_back(Pair(name, value));
-  setParams(params);
+  (*this)["params"][name] = value;
 }
 
-void ZMQJsonMessage::setParameter(const std::string& name, const ZMQArray& value)
+void ZMQJsonMessage::setParameter(const std::string& name, const json::Array& value)
 {
-  ZMQObject params;
-  getParams(params);
-  for( Object::size_type i = 0; i != params.size(); ++i )
-  {
-     if (params[i].name_ == name)
-     {
-       params[i].value_ = value;
-       setParams(params);
-       return;
-     }
-  }
-  params.push_back(Pair(name, value));
-  setParams(params);
+  (*this)["params"][name] = value;
 }
 
 bool ZMQJsonMessage::getResult(const std::string& name, std::string& value) const
 {
-  ZMQObject results;
+  json::Object results;
   if (!getResults(results))
     return false;
-  for( Object::size_type i = 0; i != results.size(); ++i )
-  {
-     if (results[i].name_ == name  && results[i].value_.type() == ZMQ_TYPE_STRING)
-     {
-       value = results[i].value_.get_str();
-       return true;
-     }
-  }
-  return false;
-}
 
-bool ZMQJsonMessage::getResult(const std::string& name, int& value) const
-{
-  ZMQObject results;
-  if (!getResults(results))
-    return false;
-  for( Object::size_type i = 0; i != results.size(); ++i )
+  json::Object::const_iterator iter = Find(name);
+  if (iter != End())
   {
-     if (results[i].name_ == name  && results[i].value_.type() == ZMQ_TYPE_INT)
-     {
-       value = results[i].value_.get_int();
-       return true;
-     }
+    value = static_cast<const std::string&>(static_cast<const json::String&>(iter->element));
+    return true;
   }
+
   return false;
 }
 
 bool ZMQJsonMessage::getResult(const std::string& name, double& value) const
 {
-  ZMQObject results;
+  json::Object results;
   if (!getResults(results))
     return false;
-  for( Object::size_type i = 0; i != results.size(); ++i )
+
+  json::Object::const_iterator iter = results.Find(name);
+  if (iter != End())
   {
-     if (results[i].name_ == name  && results[i].value_.type() == ZMQ_TYPE_REAL)
-     {
-       value = results[i].value_.get_real();
-       return true;
-     }
+    value = static_cast<const double&>(static_cast<const json::Number&>(iter->element));
+    return true;
   }
+
   return false;
 }
+
+
 
 bool ZMQJsonMessage::getResult(const std::string& name, bool& value) const
 {
-  ZMQObject results;
+  json::Object results;
   if (!getResults(results))
     return false;
-  for( Object::size_type i = 0; i != results.size(); ++i )
+
+  json::Object::const_iterator iter = results.Find(name);
+  if (iter != End())
   {
-     if (results[i].name_ == name  && results[i].value_.type() == ZMQ_TYPE_BOOL)
-     {
-       value = results[i].value_.get_bool();
-       return true;
-     }
+    value = static_cast<const bool&>(static_cast<const json::Boolean&>(iter->element));
+    return true;
+  }
+
+  return false;
+}
+
+bool ZMQJsonMessage::getResult(const std::string& name, json::Object& value) const
+{
+  json::Object results;
+  if (!getResults(results))
+    return false;
+
+  json::Object::const_iterator iter = results.Find(name);
+  if (iter != End())
+  {
+    value = static_cast<const json::Object&>(iter->element);
+    return true;
   }
   return false;
 }
 
-bool ZMQJsonMessage::getResult(const std::string& name, ZMQObject& value) const
+bool ZMQJsonMessage::getResult(const std::string& name, json::Array& value) const
 {
-  ZMQObject results;
+  json::Object results;
   if (!getResults(results))
     return false;
-  for( Object::size_type i = 0; i != results.size(); ++i )
+  json::Object::const_iterator iter = results.Find(name);
+  if (iter != End())
   {
-     if (results[i].name_ == name  && results[i].value_.type() == ZMQ_TYPE_OBJECT)
-     {
-       value = results[i].value_.get_obj();
-       return true;
-     }
-  }
-  return false;
-}
-
-bool ZMQJsonMessage::getResult(const std::string& name, ZMQArray& value) const
-{
-  ZMQObject results;
-  if (!getResults(results))
-    return false;
-  for( Object::size_type i = 0; i != results.size(); ++i )
-  {
-     if (results[i].name_ == name  && results[i].value_.type() == ZMQ_TYPE_ARRAY)
-     {
-       value = results[i].value_.get_array();
-       return true;
-     }
+    value = static_cast<const json::Array&>(iter->element);
+    return true;
   }
   return false;
 }
 
 void ZMQJsonMessage::setResult(const std::string& name, const std::string& value)
 {
-  ZMQObject results;
-  getResults(results);
-  for( Object::size_type i = 0; i != this->size(); ++i )
-  {
-     if (results[i].name_ == name)
-     {
-       results[i].value_ = value;
-       setResults(results);
-       return;
-     }
-  }
-  results.push_back(Pair(name, value));
-  setResults(results);
-}
-
-void ZMQJsonMessage::setResult(const std::string& name, const int& value)
-{
-  ZMQObject results;
-  getResults(results);
-  for( Object::size_type i = 0; i != results.size(); ++i )
-  {
-     if (results[i].name_ == name)
-     {
-       results[i].value_ = value;
-       setResults(results);
-       return;
-     }
-  }
-  results.push_back(Pair(name, value));
-  setResults(results);
+  (*this)["result"][name] = json::String(value);
 }
 
 void ZMQJsonMessage::setResult(const std::string& name, const double& value)
 {
-  ZMQObject results;
-  getResults(results);
-  for( Object::size_type i = 0; i != results.size(); ++i )
-  {
-     if (results[i].name_ == name)
-     {
-       results[i].value_ = value;
-       setResults(results);
-       return;
-     }
-  }
-  results.push_back(Pair(name, value));
-  setResults(results);
+  (*this)["result"][name] = json::Number(value);
 }
 
 void ZMQJsonMessage::setResult(const std::string& name, const bool& value)
 {
-  ZMQObject results;
-  getResults(results);
-  for( Object::size_type i = 0; i != results.size(); ++i )
-  {
-     if (results[i].name_ == name)
-     {
-       results[i].value_ = value;
-       setResults(results);
-       return;
-     }
-  }
-  results.push_back(Pair(name, value));
-  setResults(results);
+  (*this)["result"][name] = json::Boolean(value);
 }
 
-void ZMQJsonMessage::setResult(const std::string& name, const ZMQObject& value)
+void ZMQJsonMessage::setResult(const std::string& name, const json::Object& value)
 {
-  ZMQObject results;
-  getResults(results);
-  for( Object::size_type i = 0; i != results.size(); ++i )
-  {
-     if (results[i].name_ == name)
-     {
-       results[i].value_ = value;
-       setResults(results);
-       return;
-     }
-  }
-  results.push_back(Pair(name, value));
-  setResults(results);
+  (*this)["result"][name] = value;
 }
 
-void ZMQJsonMessage::setResult(const std::string& name, const ZMQArray& value)
+void ZMQJsonMessage::setResult(const std::string& name, const json::Array& value)
 {
-  ZMQObject results;
-  getResults(results);
-  for( Object::size_type i = 0; i != results.size(); ++i )
-  {
-     if (results[i].name_ == name)
-     {
-       results[i].value_ = value;
-       setResults(results);
-       return;
-     }
-  }
-  results.push_back(Pair(name, value));
-  setResults(results);
+  (*this)["result"][name] = value;
 }
 
+
+std::string ZMQJsonMessage::data() const
+{
+  try
+  {
+    std::ostringstream strm;
+    json::Writer::Write(*this, strm);
+    return strm.str();
+  }
+  catch(std::exception& error)
+  {
+    ZMQ_LOG_ERROR("ZMQJsonMessage::data - PARSE ERROR - " << error.what());
+    return std::string();
+  }
+}
