@@ -9,10 +9,12 @@ onStart() {
     echo $$ > ${PidFile}    
     echo "Starting client to connect to allow connections to other systems..."
     stunnel @SIPX_CONFDIR@/tunnel/client.conf >> @SIPX_LOGDIR@/tunnel-client.log 2>&1 &
+    ClientPID=$!
     echo "Starting server to allow connections from other systems..."
     stunnel @SIPX_CONFDIR@/tunnel/server.conf >> @SIPX_LOGDIR@/tunnel-server.log 2>&1 &
-    # kill 0 will kill all spawned processes
-    trap "echo 'shutting down'; kill 0; exit" INT TERM
+    ServerPID=$!    
+    # kill -9 spawned processes
+    trap "echo 'shutting down'; kill -9 ${ClientPID}; kill -9 ${ServerPID}; exit 0" INT TERM
     echo "Waiting for exit..."
     wait
 }
