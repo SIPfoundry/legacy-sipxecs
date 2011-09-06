@@ -29,7 +29,7 @@ public class MongoTunnelProviderTest {
         Collection<RemoteOutgoingTunnel> client = provider.getClientSideTunnels(otherLocations, thisLocation);        
         assertEquals(0, client.size());
         Collection<AllowedIncomingTunnel> server = provider.getServerSideTunnels(otherLocations, thisLocation);        
-        assertEquals(0, server.size());
+        assertEquals(1, server.size());
     }
 
     @Test

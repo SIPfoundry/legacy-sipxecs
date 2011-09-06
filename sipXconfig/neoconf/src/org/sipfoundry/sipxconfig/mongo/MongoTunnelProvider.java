@@ -97,7 +97,7 @@ public class MongoTunnelProvider implements TunnelProvider {
     public Collection<AllowedIncomingTunnel> getServerSideTunnels(Collection<Location> otherLocations,
             Location thisLocation) {
 
-        if (otherLocations.size() == 0 || thisLocation == null) {
+        if (thisLocation == null) {
             return Collections.emptyList();
         }
 
