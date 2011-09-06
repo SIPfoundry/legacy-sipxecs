@@ -30,6 +30,10 @@ public class MongoTunnelProviderTest {
         assertEquals(0, client.size());
         Collection<AllowedIncomingTunnel> server = provider.getServerSideTunnels(otherLocations, thisLocation);        
         assertEquals(1, server.size());
+        thisLocation = new Location();
+        thisLocation.setPrimary(true);
+        client = provider.getClientSideTunnels(otherLocations, thisLocation);        
+        assertEquals(1, client.size());
     }
 
     @Test
