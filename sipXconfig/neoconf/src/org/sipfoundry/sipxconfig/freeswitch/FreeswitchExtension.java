@@ -19,16 +19,15 @@ package org.sipfoundry.sipxconfig.freeswitch;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public abstract class FreeswitchExtension extends BeanWithId {
     private String m_name;
+    private boolean m_enabled = true; // default enabled
     private String m_description;
     private String m_alias;
     private String m_did;
     private Set<FreeswitchCondition> m_conditions;
-    private Location m_location;
 
     public String getName() {
         return m_name;
@@ -38,20 +37,20 @@ public abstract class FreeswitchExtension extends BeanWithId {
         m_name = name;
     }
 
+    public boolean isEnabled() {
+        return m_enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
+    }
+
     public Set<FreeswitchCondition> getConditions() {
         return m_conditions;
     }
 
     public void setConditions(Set<FreeswitchCondition> conditions) {
         m_conditions = conditions;
-    }
-
-    public Location getLocation() {
-        return m_location;
-    }
-
-    public void setLocation(Location location) {
-        m_location = location;
     }
 
     public String getDescription() {

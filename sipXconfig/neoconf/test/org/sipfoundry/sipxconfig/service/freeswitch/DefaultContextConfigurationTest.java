@@ -7,6 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.service.freeswitch;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
@@ -129,7 +130,7 @@ public class DefaultContextConfigurationTest extends SipxServiceTestBase {
     public void testWriteNoBridge() throws Exception {
         SipxFreeswitchService service = new SipxFreeswitchService();
         initCommonAttributes(service);
-
+        expect(m_freeswitchExtensionCollector.getExtensions()).andReturn(new ArrayList<FreeswitchExtension>());
         replay(m_conferenceContext, m_accCodeContext, m_freeswitchExtensionCollector);
 
         assertCorrectFileGeneration(m_configuration, "default_context-no-conferences.test.xml");
@@ -142,6 +143,7 @@ public class DefaultContextConfigurationTest extends SipxServiceTestBase {
 
         expect(m_conferenceContext.getBridgeByServer("sipx.example.org")).andReturn(createBridge());
         expect(m_accCodeContext.isEnabled()).andReturn(false);
+        expect(m_freeswitchExtensionCollector.getExtensions()).andReturn(new ArrayList<FreeswitchExtension>());
         replay(m_conferenceContext, m_accCodeContext, m_freeswitchExtensionCollector);
 
         assertCorrectFileGeneration(m_configuration, "default_context.test.xml");

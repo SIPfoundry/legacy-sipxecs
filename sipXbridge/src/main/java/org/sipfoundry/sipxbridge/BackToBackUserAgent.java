@@ -1161,7 +1161,7 @@ public class BackToBackUserAgent implements Comparable {
 
             SipURI uri = null;
             if (!Gateway.isInboundCallsRoutedToAutoAttendant()) {
-            	if (itspAccountInfo.isRouteByToHeader()) {
+            	if (itspAccountInfo != null && itspAccountInfo.isRouteByToHeader()) {
                 	ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
                     uri = (SipURI)toHeader.getAddress().getURI().clone();
                     uri.setHost(Gateway.getSipxProxyDomain());

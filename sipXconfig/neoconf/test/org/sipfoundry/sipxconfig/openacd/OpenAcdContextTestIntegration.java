@@ -57,9 +57,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testOpenAcdLineCrud() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocations.xml");
-        loadDataSetXml("domain/DomainSeed.xml");
-        Location location = m_locationsManager.getLocation(101);
         SipxFreeswitchService fs = org.easymock.classextension.EasyMock.createMock(SipxFreeswitchService.class);
         fs.getAddress();
         org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
@@ -79,21 +76,19 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         m_openAcdContextImpl.setCoreContext(m_coreContext);
 
         // test save open acd extension
-        assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
+        assertEquals(0, m_openAcdContextImpl.getLines().size());
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("example");
         extension.setSipxServiceManager(sm);
-        extension.setLocation(location);
         extension.setAlias("alias");
         extension.setDid("1234567890");
 
         m_openAcdContextImpl.saveExtension(extension);
-        assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
+        assertEquals(1, m_openAcdContextImpl.getLines().size());
         m_openAcdContextImpl.saveExtension(extension);
         // test save extension with same name
         try {
             OpenAcdLine sameNameExtension = new OpenAcdLine();
             sameNameExtension.setName("example");
-            sameNameExtension.setLocation(location);
             FreeswitchCondition condition = new FreeswitchCondition();
             condition.setField("destination_number");
             condition.setExpression("^301$");
@@ -105,7 +100,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
         OpenAcdLine line2 = new OpenAcdLine();
         line2.setName("example1");
-        line2.setLocation(location);
         FreeswitchCondition condition2 = new FreeswitchCondition();
         condition2.setField("destination_number");
         condition2.setExpression("^301$");
@@ -149,7 +143,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         // test modify extension without changing name
         try {
             m_openAcdContextImpl.saveExtension(savedExtension);
-            extension.setLocation(location);
         } catch (NameInUseException ex) {
             fail();
         }
@@ -186,12 +179,15 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         }
 
         // test remove extension
-        assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
+        assertEquals(1, m_openAcdContextImpl.getLines().size());
         m_openAcdContextImpl.deleteExtension(extensionById);
-        assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
+        assertEquals(0, m_openAcdContextImpl.getLines().size());
     }
 
     public void testOpenAcdCommandCrud() throws Exception {
+        // test existing 'login', 'logout', 'go available' and 'release' default commands
+        assertEquals(4, m_openAcdContextImpl.getCommands().size());
+
         loadDataSetXml("admin/commserver/seedLocations.xml");
         loadDataSetXml("domain/DomainSeed.xml");
         Location location = m_locationsManager.getLocation(101);
@@ -209,26 +205,23 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         org.easymock.classextension.EasyMock.replay(fs);
 
         // test save open acd extension
-        assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
         OpenAcdCommand command = new OpenAcdCommand();
-        command.setName("login");
+        command.setName("test");
         FreeswitchCondition fscondition = new FreeswitchCondition();
         fscondition.setField("destination_number");
-        fscondition.setExpression("^*89$");
+        fscondition.setExpression("^*98$");
         fscondition.getActions().addAll((OpenAcdCommand.getDefaultActions(location)));
         command.addCondition(fscondition);
-        command.setLocation(location);
         m_openAcdContextImpl.saveExtension(command);
-        assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
+        assertEquals(5, m_openAcdContextImpl.getCommands().size());
 
         // test save extension with same name
         try {
             OpenAcdCommand sameNameExtension = new OpenAcdCommand();
-            sameNameExtension.setName("login");
-            sameNameExtension.setLocation(location);
+            sameNameExtension.setName("test");
             FreeswitchCondition condition1 = new FreeswitchCondition();
             condition1.setField("destination_number");
-            condition1.setExpression("^*90$");
+            condition1.setExpression("^*99$");
             sameNameExtension.addCondition(condition1);
             m_openAcdContextImpl.saveExtension(sameNameExtension);
             fail();
@@ -238,10 +231,9 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         try {
             OpenAcdExtension extension = new OpenAcdExtension();
             extension.setName("tralala");
-            extension.setLocation(location);
             FreeswitchCondition condition1 = new FreeswitchCondition();
             condition1.setField("destination_number");
-            condition1.setExpression("login");
+            condition1.setExpression("^*98$");
             extension.addCondition(condition1);
             m_openAcdContextImpl.saveExtension(extension);
             fail();
@@ -249,13 +241,12 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         }
 
         // test get extension by name
-        OpenAcdCommand savedExtension = (OpenAcdCommand) m_openAcdContextImpl.getExtensionByName("login");
+        OpenAcdCommand savedExtension = (OpenAcdCommand) m_openAcdContextImpl.getExtensionByName("test");
         assertNotNull(command);
-        assertEquals("login", savedExtension.getName());
+        assertEquals("test", savedExtension.getName());
         // test modify extension without changing name
         try {
             m_openAcdContextImpl.saveExtension(savedExtension);
-            command.setLocation(location);
         } catch (NameInUseException ex) {
             fail();
         }
@@ -264,7 +255,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         Integer id = savedExtension.getId();
         OpenAcdCommand extensionById = (OpenAcdCommand) m_openAcdContextImpl.getExtensionById(id);
         assertNotNull(extensionById);
-        assertEquals("login", extensionById.getName());
+        assertEquals("test", extensionById.getName());
 
         // test saved conditions and actions
         Set<FreeswitchCondition> conditions = extensionById.getConditions();
@@ -285,15 +276,12 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         }
 
         // test remove extension
-        assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
+        assertEquals(5, m_openAcdContextImpl.getCommands().size());
         m_openAcdContextImpl.deleteExtension(extensionById);
-        assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
+        assertEquals(4, m_openAcdContextImpl.getCommands().size());
     }
 
     public void testOpenAcdExtensionAliasProvider() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        loadDataSetXml("admin/commserver/seedLocationsAndServices6.xml");
-        loadDataSetXml("domain/DomainSeed.xml");
         SipxFreeswitchService service = new MockSipxFreeswitchService();
         service.setBeanId(SipxFreeswitchService.BEAN_ID);
         service.setLocationsManager(m_locationsManager);
@@ -302,8 +290,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         m_openAcdContextImpl.setSipxServiceManager(sm);
 
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("sales");
-        Location l = m_locationsManager.getLocation(101);
-        extension.setLocation(l);
         extension.setSipxServiceManager(sm);
 
         m_openAcdContextImpl.saveExtension(extension);

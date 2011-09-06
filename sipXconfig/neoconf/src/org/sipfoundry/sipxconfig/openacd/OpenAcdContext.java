@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
@@ -41,9 +40,9 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner,
 
     String[] getOpenAcdApplicationNames();
 
-    Set<OpenAcdLine> getLines(Location l);
+    Set<OpenAcdLine> getLines();
 
-    Set<OpenAcdCommand> getCommands(Location l);
+    Set<OpenAcdCommand> getCommands();
 
     List<OpenAcdAgentGroup> getAgentGroups();
 

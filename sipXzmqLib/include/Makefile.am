@@ -21,6 +21,9 @@ nobase_include_HEADERS = \
 	ZMQProactorClient.h \
 	ZMQBlockingRequest.h \
 	ZMQProactor.h \
-	ZMQPipeLineBroker.h
+	ZMQPipeLineBroker.h \
+	ZMQJsonMessage.h \
+	ZMQJsonRpcClient.h \
+	ZMQJsonRpcServer.h
 	
 DISTCLEANFILES = Makefile.in

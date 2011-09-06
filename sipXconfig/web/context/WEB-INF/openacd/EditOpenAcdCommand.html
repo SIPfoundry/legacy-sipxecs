@@ -5,6 +5,10 @@
   <fieldset>
   <table>
     <tbody>
+	  <tr jwcid="@common/FieldPanel" for="enableCommand" label="message:label.enableCommand" field="component:enableCommand">
+		<span jwcid="enableCommand@Checkbox" id="enableCommand"
+		  value="ognl:enabled"/>
+	  </tr>
       <tr jwcid="@common/FieldPanel" for="item:name" label="message:label.name" field="component:name">
         <input jwcid="name@TextField" id="item:name"
           maxlength="40"
@@ -25,9 +29,6 @@
           value="ognl:lineNumber"
           displayName="message:label.extension"/>
       </tr>
-      <!-- tr jwcid="@common/FieldPanel" for="item:answersuper" label="message:label.answersuper">
-        <input jwcid="answersuper@Checkbox" type="checkbox" id="item:answersuper" value="ognl:answerSupervision"/>
-      </tr-->
     </tbody>
   </table>
   <h3><span key="section.options">options</span></h3>

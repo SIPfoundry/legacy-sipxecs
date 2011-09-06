@@ -24,9 +24,7 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.callback.PageCallback;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
@@ -39,11 +37,6 @@ public abstract class OpenAcdCommands extends BaseComponent {
 
     public abstract void setCurrentRow(OpenAcdCommand e);
 
-    @Parameter(required = true)
-    public abstract Location getSipxLocation();
-
-    public abstract void setSipxLocation(Location location);
-
     public abstract Collection<Integer> getRowsToDelete();
 
     @InjectPage(EditOpenAcdCommand.PAGE)
@@ -53,7 +46,7 @@ public abstract class OpenAcdCommands extends BaseComponent {
     public abstract SelectMap getSelections();
 
     public Set<OpenAcdCommand> getOpenAcdCommands() {
-        return getOpenAcdContext().getCommands(getSipxLocation());
+        return getOpenAcdContext().getCommands();
     }
 
     public abstract void setCommands(Set<OpenAcdCommand> l);
@@ -62,16 +55,14 @@ public abstract class OpenAcdCommands extends BaseComponent {
         OpenAcdCommand ext = (OpenAcdCommand) getOpenAcdContext().getExtensionById(id);
         EditOpenAcdCommand page = getEditCommandPage();
         page.setOpenAcdCommandId(ext.getId());
-        page.setSipxLocation(ext.getLocation());
         page.setActions(null);
         page.setCallback(new PageCallback(this.getPage()));
         return page;
     }
 
-    public IPage addCommand(Location l) {
+    public IPage addCommand() {
         EditOpenAcdCommand page = getEditCommandPage();
         page.setOpenAcdCommandId(null);
-        page.setSipxLocation(l);
         page.setActions(null);
         page.setCallback(new PageCallback(this.getPage()));
         return page;
