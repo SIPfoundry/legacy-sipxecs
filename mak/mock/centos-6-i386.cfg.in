@@ -1,0 +1,65 @@
+config_opts['root'] = 'epel-6-i386'
+config_opts['target_arch'] = 'i686'
+config_opts['legal_host_arches'] = ('i386', 'i586', 'i686', 'x86_64')
+config_opts['chroot_setup_cmd'] = 'groupinstall buildsys-build'
+config_opts['dist'] = 'el6'  # only useful for --resultdir variable subst
+
+config_opts['yum.conf'] = """
+[main]
+cachedir=/var/cache/yum
+debuglevel=1
+reposdir=/dev/null
+logfile=/var/log/yum.log
+retries=20
+obsoletes=1
+gpgcheck=0
+assumeyes=1
+syslog_ident=mock
+syslog_device=
+
+# repos
+[base]
+name=BaseOS
+enabled=1
+@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/6/os/i386
+@CENTOS_BASE_URL_OFF@mirrorlist=http://mirrorlist.centos.org/?release=6&arch=i386&repo=os
+failovermethod=priority
+
+[updates]
+name=updates
+enabled=1
+@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/6/updates/i386
+@CENTOS_BASE_URL_OFF@mirrorlist=http://mirrorlist.centos.org/?release=6&arch=i386&repo=updates
+failovermethod=priority
+
+[epel]
+name=epel
+@EPEL_BASE_URL_ON@baseurl=@EPEL_BASE_URL@/6/updates/i386
+@EPEL_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-6&arch=i386
+failovermethod=priority
+
+[testing]
+name=epel-testing
+enabled=0
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=testing-epel6&arch=i386
+failovermethod=priority
+
+[local]
+name=local
+baseurl=http://kojipkgs.fedoraproject.org/repos/dist-6E-epel-build/latest/i386/
+cost=2000
+enabled=0
+
+[sipxecs]
+name=sipxecs
+baseurl=http://download.sipfoundry.org/pub/sipXecs/@PACKAGE_VERSION@/CentOS_6/i386/
+gpgcheck=0
+enabled=@PULL_MISSING_RPMS@
+
+[build]
+name=build
+baseurl=http://localhost:40100/CentOS_6/i386/
+"""
+
+
+

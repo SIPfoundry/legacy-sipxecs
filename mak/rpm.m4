@@ -4,6 +4,13 @@ dnl
 
 AC_ARG_VAR(CENTOS_BASE_URL, [Where to find CentOS distribution. Example: http://centos.aol.com])
 AC_ARG_VAR(FEDORA_BASE_URL, [Where to find Fedora distribution. Example: http://mirrors.kernel.org/fedora])
+AC_ARG_VAR(EPEL_BASE_URL, [Where to find EPEL distribution. Example: http://mirrors.kernel.org/epel])
+AC_ARG_VAR(MIRROR_SITE, [Single place to find CentOS, Redhat and EPEL. Example: http://mirrors.kernel.org])
+if test -n "$MIRROR_SITE"; then
+  CENTOS_BASE_URL=$MIRROR_SITE/centos
+  FEDORA_BASE_URL=$MIRROR_SITE/fedora
+  EPEL_BASE_URL=$MIRROR_SITE/epel
+fi
 
 AC_ARG_WITH(yum-proxy, [--with-yum-proxy send downloads thru caching proxy like squid to speed downloads], [
   AC_SUBST(DOWNLOAD_PROXY,$withval)
@@ -18,6 +25,11 @@ AC_ARG_WITH(yum-proxy, [--with-yum-proxy send downloads thru caching proxy like 
 
   if test -z "$FEDORA_BASE_URL"; then
     AC_MSG_ERROR([You must provide a value for FEDORA_BASE_URL if you are using a download proxy.\
+ See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
+  fi
+
+  if test -z "$EPEL_BASE_URL"; then
+    AC_MSG_ERROR([You must provide a value for EPEL_BASE_URL if you are using a download proxy.\
  See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
   fi
 ],)
@@ -45,7 +57,7 @@ AC_CHECK_FILE(/bin/rpm,
 AC_ARG_VAR(DISTRO, [What operating system you are compiling for. Default is ${DistroDefault}])
 test -n "${DISTRO}" || DISTRO="${DistroDefault:-centos-5-i386}"
 
-AllDistrosDefault="centos-5-i386 centos-5-x86_64 fedora-14-i386 fedora-14-x86_64"
+AllDistrosDefault="centos-5-i386 centos-5-x86_64 fedora-14-i386 fedora-14-x86_64 centos-6-i386 centos-6-x86_64"
 AC_ARG_VAR(ALL_DISTROS, [All distros which using cross distroy compiling (xc.* targets) Default is ${AllDistrosDefault}])
 test -n "${ALL_DISTROS}" || ALL_DISTROS="${AllDistrosDefault}"
 
@@ -81,6 +93,14 @@ AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
     AC_SUBST(FEDORA_BASE_URL_OFF,[])
   fi
 
+  if test -n "$EPEL_BASE_URL"; then
+    AC_SUBST(EPEL_BASE_URL_ON,[])
+    AC_SUBST(EPEL_BASE_URL_OFF,[#])
+  else
+    AC_SUBST(EPEL_BASE_URL_ON,[#])
+    AC_SUBST(EPEL_BASE_URL_OFF,[])
+  fi
+
   AC_ARG_ENABLE(pull-missing-rpms,
      AC_HELP_STRING([--disable-pull-missing-rpms], [Do not use download.sipfoundry.org for rpms that are not built locally]))
   if test "x$enable_pull_missing_rpms" != "xno"; then
@@ -94,6 +114,8 @@ AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
   AC_CONFIG_FILES([mak/mock/site-defaults.cfg])
   AC_CONFIG_FILES([mak/mock/centos-5-i386.cfg])
   AC_CONFIG_FILES([mak/mock/centos-5-x86_64.cfg])
+  AC_CONFIG_FILES([mak/mock/centos-6-i386.cfg])
+  AC_CONFIG_FILES([mak/mock/centos-6-x86_64.cfg])
   AC_CONFIG_FILES([mak/mock/fedora-14-i386.cfg])
   AC_CONFIG_FILES([mak/mock/fedora-14-x86_64.cfg])
   AC_CONFIG_FILES([mak/10-rpm.mk:mak/rpm.mk.in])

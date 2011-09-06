@@ -61,13 +61,15 @@ CopySourceFile = \
 help.{1|2}.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target
 %.srpm :
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
+	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
 	  $(foreach S,$($(PROJ)_SOURCES),$(call CopySourceFile,$(S),@RPMBUILD_TOPDIR@/SOURCES)) \
 	  rpmbuild -bs $(SRPM_DEFS) $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_SPEC); \
-	else \
+	elif [ -n "$($(PROJ)_TAR)" ]; then \
 	  rpmbuild -ts $(SRPM_DEFS) $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR); \
+	else \
+	  $(call CopySourceFile,$($(PROJ)_SRPM),@RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM)) \
 	fi
-	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
 
 help.{1|2}.rpm-by-mock = Called automatically as part of rpm process after srpm target. Uses mock program to build rpm

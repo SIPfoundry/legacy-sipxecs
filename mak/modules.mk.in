@@ -95,7 +95,6 @@ $(foreach V,11 12 13 14 15 16 17 18 19 20,$(eval lib_fedora_$(V) = $(lib_common)
 # rsyslog is really for RHEL 5.3-ish, CentOS already has it
 lib_centos_5 = \
   rubygems \
-  rubygem-rake \
   erlang \
   scons \
   boost-jam \
@@ -108,6 +107,12 @@ lib_centos_5 = \
   rrdtool \
   xerces-c \
   stunnel
+
+lib_centos_6 = \
+  epel-release \
+  $(lib_common) \
+  nsis \
+  nsis-data
 
 lib = $(lib_$(DISTRO_OS)_$(DISTRO_VER))
 
