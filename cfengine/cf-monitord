@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# cf-monitord:       Starts the GNU cfengine environment daemon
+#
+# chkconfig: - 15 85
+# description:  This process maintains state information about the client
+#   machine's environment (network status, running processes, load, disk
+#   usage, etc.).  This data is made available as classes that can be used
+#   in the agent configuration file to regulate activity based on the system's
+#   deviation from what has been measured over a long period of time
+#   (2 months or more) to be normal or average activity.
+#
+# processname: cf-monitord
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+exec="/usr/sbin/cf-monitord"
+prog=$(basename $exec)
+
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+
+lockfile=/var/lock/subsys/$prog
+
+start() {
+    echo -n $"Starting GNU cfengine environmental history daemon: "
+    daemon $prog
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+}
+
+stop() {
+    echo -n $"Stopping GNU cfengine environmental history daemon: "
+    killproc $exec
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+restart() {
+    stop
+    start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+fdrstatus() {
+    status $prog
+}
+
+case "$1" in
+    start|stop|restart|reload)
+	$1
+	;;    
+    force-reload)
+        force_reload
+        ;;
+    status)
+  	fdrstatus
+	;;
+    condrestart)
+        [ ! -f $lockfile ] || restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|reload|force-reload}"
+        exit 3
+esac
+exit $?
+

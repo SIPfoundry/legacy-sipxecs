@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# cf-execd         Start/Stop the cfengine client daemon.
+#
+# chkconfig: - 98 20
+# description: cf-execd is scheduler and reporter in cfengine client hosts.
+#              For more information, visit http://www.cfengine.org
+# processname: cf-execd
+# config: /var/cfengine/inputs
+
+# Source function library.
+. /etc/init.d/functions
+
+exec="/usr/sbin/cf-execd"
+prog=$(basename $exec)
+
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+
+lockfile=/var/lock/subsys/$prog
+
+start() {
+	echo -n $"Starting $prog: "
+	daemon $exec
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch $lockfile
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Stopping $prog: "
+	killproc $prog
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f $lockfile
+	return $RETVAL
+}
+
+
+restart() {
+  	stop
+	start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+fdrstatus() {
+	status $prog
+}
+
+case "$1" in
+    start|stop|restart|reload)
+	$1
+	;;    
+    force-reload)
+        force_reload
+        ;;
+    status)
+  	fdrstatus
+	;;
+    condrestart)
+        [ ! -f $lockfile ] || restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|reload|force-reload}"
+        exit 3
+esac
+exit $?

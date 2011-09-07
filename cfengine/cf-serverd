@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# cf-serverd         Start/Stop the cfengine server daemon.
+#
+# chkconfig: - 96 20
+# description: cf-serverd is responsible from giving out configuration files to
+#              those cfengine clients, who wish to update their configs.
+#              For more information, visit http://www.cfengine.org
+# processname: cf-serverd
+# config: /var/cfengine/masterfiles
+
+# Source function library.
+. /etc/init.d/functions
+
+exec="/usr/sbin/cf-serverd"
+prog=$(basename $exec)
+
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+
+lockfile=/var/lock/subsys/$prog
+
+# See how we were called.
+ 
+start() {
+	[ ! -f /var/cfengine/ppkeys/localhost.priv ] && /usr/sbin/cfkey
+	echo -n $"Starting $prog: "
+	daemon $exec
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch $lockfile
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Stopping $prog: "
+	killproc $prog
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f $lockfile
+	return $RETVAL
+}
+
+restart() {
+  	stop
+	start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+fdrstatus() {
+	status $prog
+}
+
+case "$1" in
+    start|stop|restart|reload)
+	$1
+	;;    
+    force-reload)
+        force_reload
+        ;;
+    status)
+  	fdrstatus
+	;;
+    condrestart)
+        [ ! -f $lockfile ] || restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|reload|force-reload}"
+        exit 3
+esac
+exit $?
