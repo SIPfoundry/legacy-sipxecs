@@ -252,12 +252,68 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/acd/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/alarms
 %config(noreplace) %{sipxpbxconf}/alarms/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/audiocodes
+%config(noreplace) %{sipxpbxconf}/audiocodes/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/audiocodesphone
+%config(noreplace) %{sipxpbxconf}/audiocodesphone/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/cdr
+%config(noreplace) %{sipxpbxconf}/cdr/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/ciscoAta
+%config(noreplace) %{sipxpbxconf}/ciscoAta/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/ciscoIp
+%config(noreplace) %{sipxpbxconf}/ciscoIp/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/ciscoplus
+%config(noreplace) %{sipxpbxconf}/ciscoplus/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/Ciscospa
+%config(noreplace) %{sipxpbxconf}/Ciscospa/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/clearone
+%config(noreplace) %{sipxpbxconf}/clearone/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/commserver
 %config(noreplace) %{sipxpbxconf}/commserver/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/counterpath
+%config(noreplace) %{sipxpbxconf}/counterpath/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/freeswitch
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/database
 %config(noreplace) %{sipxpbxconf}/database/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/grandstream
+%config(noreplace) %{sipxpbxconf}/grandstream/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/gtek
+%config(noreplace) %{sipxpbxconf}/gtek/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/hitachi
+%config(noreplace) %{sipxpbxconf}/hitachi/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/ipDialog
+%config(noreplace) %{sipxpbxconf}/ipDialog/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/isphone
+%config(noreplace) %{sipxpbxconf}/isphone/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/itspTemplates
+%config(noreplace) %{sipxpbxconf}/itspTemplates/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/karel
+%config(noreplace) %{sipxpbxconf}/karel/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/karel-ip11x
+%config(noreplace) %{sipxpbxconf}/karel-ip11x/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/lg-nortel
+%config(noreplace) %{sipxpbxconf}/lg-nortel/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/linksys
+%config(noreplace) %{sipxpbxconf}/linksys/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mitel
+%config(noreplace) %{sipxpbxconf}/mitel/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mongod
+%config(noreplace) %{sipxpbxconf}/mongod/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mrtg
+%config(noreplace) %{sipxpbxconf}/mrtg/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/nortel
+%config(noreplace) %{sipxpbxconf}/nortel/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/nortel12x0
+%config(noreplace) %{sipxpbxconf}/nortel12x0/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/nt1535
+%config(noreplace) %{sipxpbxconf}/nt1535/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/polycom
+%config(noreplace) %{sipxpbxconf}/polycom/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/snom
+%config(noreplace) %{sipxpbxconf}/snom/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/unidata
+%config(noreplace) %{sipxpbxconf}/unidata/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/region_na
 %config(noreplace) %{sipxpbxconf}/region_na/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/nattraversal
@@ -312,6 +368,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxprovision/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/openacd
 %config(noreplace) %{sipxpbxconf}/openacd/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/openfire
+%config(noreplace) %{sipxpbxconf}/openfire/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/tunnel
 %config(noreplace) %{sipxpbxconf}/tunnel/*
 
