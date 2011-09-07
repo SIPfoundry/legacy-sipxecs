@@ -98,19 +98,26 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
         SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
                 .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
 
+        String host;
+        if (freeswitchService.getAddresses().size() > 1) {
+            host = freeswitchService.getLocationsManager().getPrimaryLocation().getAddress();
+        } else {
+            host = freeswitchService.getAddress();
+        }
+
         AliasMapping nameMapping = new AliasMapping(getName(), SipUri.format(getExtension(),
-                freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort(), false), ALIAS_RELATION);
+                host, freeswitchService.getFreeswitchSipPort(), false), ALIAS_RELATION);
         AliasMapping lineMapping = new AliasMapping(getExtension(), SipUri.format(getExtension(),
-                freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+                host, freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
         mappings.addAll(Arrays.asList(nameMapping, lineMapping));
         if (getAlias() != null) {
             AliasMapping aliasMapping = new AliasMapping(getAlias(), SipUri.format(getExtension(),
-                    freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+                    host, freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
             mappings.add(aliasMapping);
         }
         if (getDid() != null) {
             AliasMapping didMapping = new AliasMapping(getDid(), SipUri.format(getExtension(),
-                    freeswitchService.getAddress(), freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+                    host, freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
             mappings.add(didMapping);
         }
 
