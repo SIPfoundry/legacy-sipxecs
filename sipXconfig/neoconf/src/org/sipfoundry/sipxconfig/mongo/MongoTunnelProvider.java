@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.tunnel.TunnelProvider;
  * tunnels between servers so it can replicate to other machines.
  */
 public class MongoTunnelProvider implements TunnelProvider {
+    private static final String MONGOD_PRIMARY = "mongod-primary";
     private int m_localPort = 27017;
     private int m_incomingPort = 27018;
     private int m_primaryPort = 27019;
@@ -65,32 +66,40 @@ public class MongoTunnelProvider implements TunnelProvider {
     public Collection<RemoteOutgoingTunnel> getClientSideTunnels(Collection<Location> otherLocations,
             Location thisLocation) {
 
-        if (otherLocations.size() == 0 || thisLocation == null) {
+        if (thisLocation == null) {
             return Collections.emptyList();
         }
 
         List<RemoteOutgoingTunnel> tunnels = new ArrayList<RemoteOutgoingTunnel>();
+        if (thisLocation.isPrimary()) {
+            tunnels.add(getAdditionalTunnel(MONGOD_PRIMARY, m_primaryPort, thisLocation.getAddress()));
+        }
+
         Iterator<Location> otherLocationsIterator = otherLocations.iterator();
         for (int i = 0; otherLocationsIterator.hasNext();) {
             Location otherLocation = otherLocationsIterator.next();
             String name;
             int port;
             if (otherLocation.isPrimary()) {
-                name = "mongod-primary";
+                name = MONGOD_PRIMARY;
                 port = m_primaryPort;
             } else {
                 name = "mongod-" + i;
                 port = m_primaryPort + (i + 1);
                 i++;
             }
-            RemoteOutgoingTunnel additional = new RemoteOutgoingTunnel(name);
-            additional.setLocalhostPort(port);
-            additional.setPortOnRemoteMachine(m_incomingPort);
-            additional.setRemoteMachineAddress(otherLocation.getAddress());
-            tunnels.add(additional);
+            tunnels.add(getAdditionalTunnel(name, port, otherLocation.getAddress()));
         }
 
         return tunnels;
+    }
+
+    private RemoteOutgoingTunnel getAdditionalTunnel(String name, int port, String address) {
+        RemoteOutgoingTunnel additional = new RemoteOutgoingTunnel(name);
+        additional.setLocalhostPort(port);
+        additional.setPortOnRemoteMachine(m_incomingPort);
+        additional.setRemoteMachineAddress(address);
+        return additional;
     }
 
     @Override

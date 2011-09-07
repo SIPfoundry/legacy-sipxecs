@@ -1147,21 +1147,21 @@ namespace Os
   //
   // Macros
   //
-  #define OS_LOG_PUSH(facility, priority, data) \
+  #define OS_LOG_PUSH(priority, facility,  data) \
   { \
     std::ostringstream strm; \
     strm << data; \
     Os::Logger::instance().log(facility, priority, strm.str().c_str()); \
   }
 
-  #define OS_LOG_DEBUG(priority, data) OS_LOG_PUSH(Os::LogFilter::debug, priority, data)
-  #define OS_LOG_INFO(priority, data) OS_LOG_PUSH(Os::LogFilter::information, priority, data)
-  #define OS_LOG_NOTICE(priority, data) OS_LOG_PUSH(Os::LogFilter::notice, priority, data)
-  #define OS_LOG_WARNING(priority, data) OS_LOG_PUSH(Os::LogFilter::warning, priority, data)
-  #define OS_LOG_ERROR(priority, data) OS_LOG_PUSH(Os::LogFilter::error, priority, data)
-  #define OS_LOG_CRITICAL(priority, data) OS_LOG_PUSH(Os::LogFilter::critical, priority, data)
-  #define OS_LOG_ALERT(priority, data) OS_LOG_PUSH(Os::LogFilter::alert, priority, data)
-  #define OS_LOG_EMERGENCY(priority, data) OS_LOG_PUSH(Os::LogFilter::emergency, priority, data)
+  #define OS_LOG_DEBUG(facility, data) OS_LOG_PUSH(Os::LogFilter::debug, facility, data)
+  #define OS_LOG_INFO(facility, data) OS_LOG_PUSH(Os::LogFilter::information, facility, data)
+  #define OS_LOG_NOTICE(facility, data) OS_LOG_PUSH(Os::LogFilter::notice, facility, data)
+  #define OS_LOG_WARNING(facility, data) OS_LOG_PUSH(Os::LogFilter::warning, facility, data)
+  #define OS_LOG_ERROR(facility, data) OS_LOG_PUSH(Os::LogFilter::error, facility, data)
+  #define OS_LOG_CRITICAL(facility, data) OS_LOG_PUSH(Os::LogFilter::critical, facility, data)
+  #define OS_LOG_ALERT(facility, data) OS_LOG_PUSH(Os::LogFilter::alert, facility, data)
+  #define OS_LOG_EMERGENCY(facility, data) OS_LOG_PUSH(Os::LogFilter::emergency, facility, data)
 
 
 } // Utl
