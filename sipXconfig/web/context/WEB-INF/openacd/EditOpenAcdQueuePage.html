@@ -28,7 +28,8 @@
 				validators="spring-validators:validFieldSize"/>
           </tr>
 		  <tr jwcid="@common/FieldPanel" for="queueGroup" field="ognl:null"
-			  label="message:label.queueGroup">
+			  label="message:label.queueGroup"
+			  description="message:description.queueGroup">
             <span jwcid="queueGroup@openacd/OpenAcdQueueGroupSelect"
 				selectedQueueGroup="ognl:selectedQueueGroup" />
           </tr>
@@ -44,7 +45,8 @@
 			</td>
 		  </tr>
           <tr jwcid="@common/FieldPanel" for="weight" field="component:weight"
-				label="message:label.weight">
+				label="message:label.weight"
+				description="message:description.weight">
             <span jwcid="weight@TextField" id="weight"
 				value="ognl:queue.weight"
 				translator="translator:integer" 

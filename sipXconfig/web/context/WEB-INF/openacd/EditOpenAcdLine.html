@@ -21,38 +21,48 @@
           cols="45" rows="5"
           validators="spring-validators:validFieldSize"/>
       </tr>
-      <tr jwcid="@common/FieldPanel" for="item:extension" label="message:label.extension">
+      <tr jwcid="@common/FieldPanel" for="item:extension"
+			label="message:label.extension"
+			description="message:description.extension">
         <input jwcid="extension@TextField" id="item:extension"
           maxlength="40"
           validators="spring-validators:required,validPhone"
           value="ognl:lineNumber"
           displayName="message:label.extension"/>
       </tr>
-      <tr jwcid="@common/FieldPanel" for="item:alias" label="message:label.alias">
+      <tr jwcid="@common/FieldPanel" for="item:alias"
+			label="message:label.alias"
+			description="message:description.alias">
         <input jwcid="alias@TextField" id="item:alias"
           maxlength="40"
           validators="spring-validators:validPhone"
           value="ognl:alias"
           displayName="message:label.alias"/>
       </tr>
-      <tr jwcid="@common/FieldPanel" for="item:did" label="message:label.did">
+      <tr jwcid="@common/FieldPanel" for="item:did"
+			label="message:label.did"
+			description="message:description.did">
         <input jwcid="did@TextField" id="item:did"
           maxlength="40"
           validators="spring-validators:validPhone"
           value="ognl:did"
           displayName="message:label.did"/>
-      </tr>      
+      </tr>
 	  <tr jwcid="@common/FieldPanel" for="item:queue" field="ognl:null"
-		  label="message:label.queue">
+		  label="message:label.queue"
+		  description="message:description.queue">
 		<span jwcid="queue@openacd/OpenAcdQueueSelect"
 		  selectedQueue="ognl:selectedQueue"/>
 	  </tr>
 	  <tr jwcid="@common/FieldPanel" for="item:client" field="ognl:null"
-		  label="message:label.client">
+		  label="message:label.client"
+		  description="message:description.client">
 		<span jwcid="client@openacd/OpenAcdClientSelect"
 		  selectedClient="ognl:selectedClient"/>
 	  </tr>
-      <tr jwcid="@common/FieldPanel" for="item:allowvm" label="message:label.allowvm">
+      <tr jwcid="@common/FieldPanel" for="item:allowvm"
+		  label="message:label.allowvm"
+		  description="message:description.voicemail">
         <input jwcid="allowvm@Checkbox" type="checkbox" id="item:allowvm" value="ognl:allowVoicemail"/>
       </tr>
 	  <tr>
@@ -85,9 +95,11 @@
 		</tr>
       </span>
       <tr>
-        <td><label for="welcome"><span key="label.welcome"/></label></td>
-        <td><span jwcid="welcome@common/AssetSelectorMultiple" asset="ognl:welcomeMessage" assetDir="ognl:sipxOpenAcdService.audioDir"
-              errorMsg="message:error.select" contentType="literal:audio/x-wav" checkForEmptyAssets="ognl:false" />
+        <td jwcid="@common/FieldPanel" for="item:welcome"
+			label="message:label.welcome"
+			description="message:description.welcome">
+		  <span jwcid="welcome@common/AssetSelectorMultiple" asset="ognl:welcomeMessage" assetDir="ognl:sipxOpenAcdService.audioDir"
+				errorMsg="message:error.select" contentType="literal:audio/x-wav" checkForEmptyAssets="ognl:false" />
        </td>
       </tr>
     </tbody>

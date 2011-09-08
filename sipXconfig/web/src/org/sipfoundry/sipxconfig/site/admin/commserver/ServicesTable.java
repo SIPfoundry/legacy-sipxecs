@@ -51,7 +51,6 @@ import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
 import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxImbotService;
-import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
@@ -77,7 +76,6 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put(SipxCallResolverService.BEAN_ID, EditCallResolverService.PAGE);
         SERVICE_MAP.put(SipxBridgeService.BEAN_ID, EditSbcDevice.PAGE);
         SERVICE_MAP.put(SipxAcdService.BEAN_ID, AcdServerPage.PAGE);
-        SERVICE_MAP.put(SipxOpenAcdService.BEAN_ID, OpenAcdServerPage.PAGE);
         SERVICE_MAP.put(SipxImbotService.BEAN_ID, EditSipxImbotService.PAGE);
         // There is currently no service related editable parameters for acc code
         // other than the extension (in Authorization Code screen).

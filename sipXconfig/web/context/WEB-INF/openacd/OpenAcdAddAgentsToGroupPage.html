@@ -15,13 +15,15 @@
       <table>
         <tbody>
 		  <tr jwcid="@common/FieldPanel" for="agentGroup" field="ognl:null"
-			  label="message:label.agentGroup">
+			  label="message:label.agentGroup"
+			  description="message:description.agentGroup">
             <span jwcid="agentGroup@openacd/OpenAcdAgentGroupSelect"
 				selectedAgentGroup="ognl:agentGroup"
 				submitOnChange="true"/>
           </tr>
 		  <tr jwcid="@common/FieldPanel" for="agentSecurity" field="component:agentSecurity"
-				label="message:label.agentSecurity">
+				label="message:label.agentSecurity"
+				description="message:description.agentSecurity">
 			<span jwcid="agentSecurity@PropertySelection" id="agentSecurity"
 				model="ognl:agentSecurityModel"
 				value="ognl:security" />

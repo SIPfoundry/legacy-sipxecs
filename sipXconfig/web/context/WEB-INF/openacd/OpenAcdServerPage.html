@@ -1,15 +1,17 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <span jwcid="@common/TabNavigation"
-    tabNames="ognl:{'clients','lines','queueGroups','queues','agentGroups','agents','skillGroups','skills','commands', 'settings'}"
+    tabNames="ognl:{'clients','lines','queueGroups','queues','agentGroups','agents','skillGroups','skills','commands'}"
     selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="clientsTab@Block">
+	<span jwcid="@common/QuickHelp" value="message:quick.help.clients"/>
 	<span jwcid="@openacd/OpenAcdClientsPanel"/>
   </span>
   <span jwcid="linesTab@Block">
+	<span jwcid="@common/QuickHelp" value="message:quick.help.lines"/>
     <span jwcid="@openacd/OpenAcdLines"/>
   </span>
   <span jwcid="queueGroupsTab@Block">
@@ -29,6 +31,7 @@
 	<span jwcid="@openacd/OpenAcdAgentsPanel" />
   </span>
   <span jwcid="skillGroupsTab@Block">
+	<span jwcid="@common/QuickHelp" value="message:quick.help.skillGroups"/>
 	<span jwcid="@openacd/OpenAcdSkillGroupsPanel" />
   </span>
   <span jwcid="skillsTab@Block">
@@ -37,15 +40,11 @@
   </span>
   <span jwcid="commandsTab@Block">
 	<span jwcid="@common/QuickHelp" value="message:quick.help.commands"/>
-	<span jwcid="@openacd/OpenAcdCommands"/>
-  </span>
-  <span jwcid="settingsTab@Block">
 	<form jwcid="@Form" delegate="bean:validator">
-      <span jwcid="fs@service/ServiceSettingsPanel" service="ognl:service"
-        groupToDisplay="freeswitch_media_manager" renderGroupTitle="true"/>
-      <span jwcid="dialplanListener@service/ServiceSettingsPanel" service="ognl:service"
+      <span jwcid="agentDialplanListener@service/ServiceSettingsPanel" service="ognl:service"
         groupToDisplay="agent_configuration" renderGroupTitle="true"/>
       <ul jwcid="@common/FormActions" listener="listener:saveService" callback="ognl:callback"/>
     </form>
+	<span jwcid="@openacd/OpenAcdCommands"/>
   </span>
 </div>
