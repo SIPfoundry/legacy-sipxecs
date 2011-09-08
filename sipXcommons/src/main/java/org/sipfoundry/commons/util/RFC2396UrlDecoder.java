@@ -133,6 +133,10 @@ public class RFC2396UrlDecoder {
                     } else {
                         // do not throw exception, a % could be part of a IPv6 address and still be valid
 //                        throw new IllegalArgumentException("% character should be followed by 2 hexadecimal characters.");
+			// use default encoding
+                        encodedchars[encodedcharsLength] = (byte)uri.charAt(i);
+                        encodedcharsLength++;
+			i++;
                     }
                 }
                 try {
