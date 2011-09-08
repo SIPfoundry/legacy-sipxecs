@@ -105,19 +105,20 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
             host = freeswitchService.getAddress();
         }
 
-        AliasMapping nameMapping = new AliasMapping(getName(), SipUri.format(getExtension(),
-                host, freeswitchService.getFreeswitchSipPort(), false), ALIAS_RELATION);
-        AliasMapping lineMapping = new AliasMapping(getExtension(), SipUri.format(getExtension(),
-                host, freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+        String extension = getExtension();
+        int fsPort = freeswitchService.getFreeswitchSipPort();
+        String sipUri = SipUri.format(extension, host, fsPort);
+
+        AliasMapping nameMapping = new AliasMapping(getName(), SipUri.format(extension, host, fsPort, false),
+                ALIAS_RELATION);
+        AliasMapping lineMapping = new AliasMapping(extension, sipUri, ALIAS_RELATION);
         mappings.addAll(Arrays.asList(nameMapping, lineMapping));
         if (getAlias() != null) {
-            AliasMapping aliasMapping = new AliasMapping(getAlias(), SipUri.format(getExtension(),
-                    host, freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+            AliasMapping aliasMapping = new AliasMapping(getAlias(), sipUri, ALIAS_RELATION);
             mappings.add(aliasMapping);
         }
         if (getDid() != null) {
-            AliasMapping didMapping = new AliasMapping(getDid(), SipUri.format(getExtension(),
-                    host, freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+            AliasMapping didMapping = new AliasMapping(getDid(), sipUri, ALIAS_RELATION);
             mappings.add(didMapping);
         }
 
