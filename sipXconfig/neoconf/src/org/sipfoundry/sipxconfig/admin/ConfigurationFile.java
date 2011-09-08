@@ -46,6 +46,14 @@ public interface ConfigurationFile {
     boolean isReplicable(Location location);
 
     /**
+     * Verifies if content for this configuration file should be generated for each location
+     * or the content is the same for all locations
+     *
+     * @return true if the file content is location dependent - false otherwise
+     */
+    boolean isLocationDependent();
+
+    /**
      * Checks if a service need to be restarted when this configuration file is changed
      *
      * @return true if a service need to be restarted - false otherwise

@@ -57,6 +57,11 @@ public class XmppAccountInfo extends XmlFile {
     }
 
     @Override
+    public boolean isLocationDependent() {
+       return false;
+    }
+
+    @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
         final Element accountInfos = document.addElement("xmpp-account-info", NAMESPACE);

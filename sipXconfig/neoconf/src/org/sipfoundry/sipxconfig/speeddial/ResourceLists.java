@@ -42,6 +42,11 @@ public class ResourceLists extends XmlFile {
     private CoreContext m_coreContext;
 
     @Override
+    public boolean isLocationDependent() {
+        return false;
+    }
+
+    @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
         Element lists = document.addElement("lists", NAMESPACE);

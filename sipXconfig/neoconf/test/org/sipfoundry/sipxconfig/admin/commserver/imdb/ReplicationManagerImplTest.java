@@ -50,7 +50,7 @@ public class ReplicationManagerImplTest extends MongoTestCase {
 
         String content = "1234";
         fileApi.replace("sipx.example.org", TestHelper.getTestDirectory() + "/domain-config", 0644, encode(content));
-        expectLastCall().andReturn(true).times(LOCATIONS.length - 1);
+        expectLastCall().andReturn(true).times(LOCATIONS.length);
 
         replay(fileApi);
 
@@ -66,16 +66,10 @@ public class ReplicationManagerImplTest extends MongoTestCase {
 
         for (int i = 0; i < LOCATIONS.length; i++) {
             LOCATIONS[i].setRegistered(true);
-            LOCATIONS[i].setReplicateConfig(true);
         }
-        LOCATIONS[0].setPrimary(true);
         m_out.replicateFile(LOCATIONS, file);
 
         verify(fileApi);
-        File f = new File(TestHelper.getTestDirectory() + "/domain-config");
-        assertTrue(f.exists());
-        f.delete();
-        assertFalse(f.exists());
     }
 
     /*public void testReplicateData() {
