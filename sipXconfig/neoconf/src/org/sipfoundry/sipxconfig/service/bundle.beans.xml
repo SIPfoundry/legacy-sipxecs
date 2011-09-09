@@ -28,7 +28,7 @@
   <bean id="redundantSipRouterBundle" parent="abstractBundle">
     <constructor-arg value="redundantSipRouter" />
     <property name="onlyRemote" value="true" />
-    <property name="max" value="2" />
+    <property name="max" value="100" />
   </bean>
 
   <bean id="voicemailBundle" parent="abstractBundle">
