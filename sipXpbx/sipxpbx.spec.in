@@ -79,9 +79,18 @@ Requires: smtpdaemon
 Requires: sendmail
 %endif
 
-# Required for inclusion of Python's Snack module
+# Required for inclusion of Python's Snack module.
+%if %{_vendor} == redhat
+#fedora/rhel6/centos6 test
+%if  0%{?fedora} >= 6 || 0%{?rhel} >= 6
+Requires: newt-python
+%else
+# centos5 has python support built into newt package. later distros separated it out
+Requires: newt
+%endif
+%endif
 %if %{_vendor} == suse
-Requires: newt python-newt
+Requires: python-newt
 %endif
 
 Prefix:    %_prefix
