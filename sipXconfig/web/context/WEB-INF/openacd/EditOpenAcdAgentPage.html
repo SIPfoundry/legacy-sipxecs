@@ -15,7 +15,8 @@
       <table>
         <tbody>
           <tr jwcid="@common/FieldPanel" for="agentId" field="component:agentId"
-				label="message:label.agentId">
+				label="message:label.agentId"
+				description="message:description.agentId">
             <span jwcid="agentId@TextField" id="agentId"
 				value="ognl:agent.user.userName"
 				disabled="true"
@@ -39,14 +40,17 @@
 				password="ognl:agent.pin"
 				passwordDisplayName="message:label.agentPassword"
 				confirmPasswordDisplayName="message:label.confirm.agentPassword"
-				passwordValidator="ognl:{}" />
+				passwordValidator="ognl:{}"
+				passwordDescription="message:description.agentPassword"/>
 		  <tr jwcid="@common/FieldPanel" for="agentGroup" field="ognl:null"
-			  label="message:label.agentGroup">
+			  label="message:label.agentGroup"
+			  description="message:description.agentGroup">
             <span jwcid="agentGroup@openacd/OpenAcdAgentGroupSelect"
 				selectedAgentGroup="ognl:selectedAgentGroup"/>
           </tr>
 		  <tr jwcid="@common/FieldPanel" for="agentSecurity" field="component:agentSecurity"
-				label="message:label.agentSecurity">
+				label="message:label.agentSecurity"
+				description="message:description.agentSecurity">
 			<span jwcid="agentSecurity@PropertySelection" id="agentSecurity"
 				model="ognl:agentSecurityModel"
 				value="ognl:agent.security" />

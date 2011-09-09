@@ -13,12 +13,12 @@
 		  model="ognl:conditionModel"
 		  value="ognl:recipeCondition.condition"
 		  onchange="javascript:this.form.submit();" />
-	  <td>
+	  </td>
 	  <td>
 		<span jwcid="@PropertySelection" id="ognl:'relation_' + index"
 		  model="ognl:relationModel"
 		  value="ognl:recipeCondition.relation" />
-	  <td>
+	  </td>
 	  <td>
 	  <span jwcid="@If" condition="ognl:numberComponent">
 		<span jwcid="@TextField" id="ognl:'conditionValue_' + index" size="8"

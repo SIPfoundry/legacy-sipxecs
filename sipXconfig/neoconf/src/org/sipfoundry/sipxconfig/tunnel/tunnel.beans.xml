@@ -8,6 +8,11 @@
     <property name="autoEnable" value="true" />
   </bean>
 
+  <bean id="redundantTunnelBundle" parent="abstractBundle">
+    <constructor-arg value="tunnel" />
+    <property name="onlyRemote" value="true" />
+  </bean>
+
   <bean id="tunnelService" class="org.sipfoundry.sipxconfig.tunnel.TunnelService" scope="prototype" parent="sipxService">
     <property name="processName" value="tunnel" />
     <property name="configurations">
@@ -20,6 +25,7 @@
     <property name="bundles">
       <set>
         <ref bean="tunnelBundle" />
+        <ref bean="redundantTunnelBundle" />
       </set>
     </property>
     <property name="logDir" value="${sysdir.log}" />

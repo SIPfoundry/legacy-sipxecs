@@ -74,6 +74,11 @@ public abstract class AbstractConfigurationFile implements ConfigurationFile {
         return true;
     }
 
+    @Override
+    public boolean isLocationDependent() {
+        return true;
+    }
+
     public void setRestartRequired(boolean restartRequired) {
         m_restartRequired = restartRequired;
     }

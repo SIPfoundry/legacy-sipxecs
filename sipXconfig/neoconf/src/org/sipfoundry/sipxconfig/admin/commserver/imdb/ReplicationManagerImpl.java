@@ -9,12 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +36,6 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.mongo.MongoConstants;
@@ -112,6 +110,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL,
         DataSet.USER_FORWARD, DataSet.USER_LOCATION, DataSet.USER_STATIC};
     private static final DataSet[] BRANCH_DATASETS = {DataSet.USER_LOCATION};
+    private static final String EXCEPTION_LOG = "IOException for stream writer";
+    private static final String UTF_8 = "UTF-8";
 
     private Mongo m_mongoInstance;
     private DB m_datasetDb;
@@ -722,40 +722,43 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     }
 
     /**
-     * Replicates the file on all locations. For the primary location it will simply write it to
-     * disk, for secondaries it will send it to the supervisor, old school way.
-     * It will save the file into a temporary file to safeguard against potential disk full issues.
+     * Replicates file on all locations
      */
     @Override
     public boolean replicateFile(Location[] locations, ConfigurationFile file) {
         if (!m_enabled) {
             return true;
         }
-        boolean success = false;
-        for (int i = 0; i < locations.length; i++) {
-            if (!locations[i].isPrimary()) {
-                continue;
+
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+        // if content same for all locations generate only once
+        if (!file.isLocationDependent()) {
+            boolean shouldReplicate = false;
+            // check if we have at least one location to replicate file
+            for (Location location : locations) {
+                if (location.isRegistered() && file.isReplicable(location)) {
+                    shouldReplicate = true;
+                    break;
+                }
             }
-            LOG.info("Writing " + file.getName() + " to primary location: " + locations[i].getFqdn());
-            String tmpPath = file.getPath() + ".tmp";
-            //save as a temp file, then rename it
-            File f = new File(tmpPath);
-            try {
-                f.createNewFile();
-                FileWriter writer = new FileWriter(f);
-                file.write(writer, locations[i]);
-                writer.close();
-                f.renameTo(new File(file.getPath()));
-                success = true;
-                m_auditLogContext.logReplication(file.getName(), locations[i]);
-            } catch (IOException e) {
-                LOG.error("Error writing: " + f.getAbsolutePath());
-                m_auditLogContext.logReplicationFailed(file.getName(), locations[i], e);
-                throw new RuntimeException(e);
+            if (shouldReplicate) {
+                // generate content only once - same for all locations (we do have at least one)
+                try {
+                    LOG.debug("Generate content for " + file.getName());
+                    Writer writer = new OutputStreamWriter(outStream, UTF_8);
+                    file.write(writer, null);
+                    writer.close();
+                } catch (IOException e) {
+                    LOG.error(EXCEPTION_LOG, e);
+                    throw new RuntimeException(e);
+                }
             }
         }
+
+        boolean success = false;
         for (int i = 0; i < locations.length; i++) {
-            if (!locations[i].isRegistered() || locations[i].isPrimary() || !locations[i].isReplicateConfig()) {
+            if (!locations[i].isRegistered()) {
                 continue;
             }
             if (!file.isReplicable(locations[i])) {
@@ -764,30 +767,35 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                 continue;
             }
             try {
-                LOG.info("Transferring file " + file.getName() + " to secondary location: " + locations[i].getFqdn());
-                StringWriter stringWriter = new StringWriter();
-                IOUtils.copy(new FileInputStream(new File(file.getPath())), stringWriter);
-
-                String content = encodeBase64(stringWriter.toString().getBytes());
+                if (file.isLocationDependent()) {
+                    // regenerate content for each location
+                    outStream = new ByteArrayOutputStream();
+                    LOG.debug("Generate location dependent content for " + file.getName()
+                            + " on location " + locations[i].getFqdn());
+                    Writer writer = new OutputStreamWriter(outStream, UTF_8);
+                    file.write(writer, locations[i]);
+                    writer.close();
+                }
+                byte[] payloadBytes = outStream.toByteArray();
+                String content = encodeBase64(payloadBytes);
 
                 FileApi api = m_fileApiProvider.getApi(locations[i].getProcessMonitorUrl());
                 success = api.replace(getHostname(), file.getPath(), PERMISSIONS, content);
                 if (success) {
                     m_auditLogContext.logReplication(file.getName(), locations[i]);
-                } else {
-                    m_auditLogContext.logReplicationFailed(file.getName(), locations[i], null);
                 }
             } catch (XmlRpcRemoteException e) {
                 LOG.error("File replication failed: " + file.getName() + "; on " + locations[i].getFqdn(), e);
-                m_auditLogContext.logReplicationFailed(file.getName(), locations[i], e);
             } catch (UnsupportedEncodingException e) {
                 LOG.error("UTF-8 encoding should be always supported.");
-                m_auditLogContext.logReplicationFailed(file.getName(), locations[i], e);
                 throw new RuntimeException(e);
             } catch (IOException e) {
-                LOG.error(e);
-                m_auditLogContext.logReplicationFailed(file.getName(), locations[i], e);
+                LOG.error(EXCEPTION_LOG, e);
                 throw new RuntimeException(e);
+            } finally {
+                if (!success) {
+                    m_auditLogContext.logReplicationFailed(file.getName(), locations[i], null);
+                }
             }
         }
         return success;
