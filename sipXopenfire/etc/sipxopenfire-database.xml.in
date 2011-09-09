@@ -23,7 +23,7 @@
             <sleep seconds="3" />
             <!-- sporadic template1 in use, allow dropdb to disconnect... -->
             <exec executable="createdb" failonerror="true">
-                 <arg line="-U ${sipxopenfire.db.user} --encoding=UNICODE ${sipxopenfire.db.name}" />
+                 <arg line="-U ${sipxopenfire.db.user} --encoding=UNICODE --template=template0 ${sipxopenfire.db.name}" />
             </exec>
         </target>
 

@@ -141,7 +141,7 @@ databaseCommand() {
 
     case ${1} in
        create)
-         createdb -U ${PgUser} --encoding=UNICODE ${Database}
+         createdb -U ${PgUser} --encoding=UNICODE --template=template0 ${Database}
          ${PsqlCmd} -f ${PgSchema}
          ${PsqlCmd} -f ${RemoteUserSql}
        ;;
