@@ -34,7 +34,7 @@ failovermethod=priority
 
 [epel]
 name=epel
-@EPEL_BASE_URL_ON@baseurl=@EPEL_BASE_URL@/6/updates/i386
+@EPEL_BASE_URL_ON@baseurl=@EPEL_BASE_URL@/6/i386
 @EPEL_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-6&arch=i386
 failovermethod=priority
 

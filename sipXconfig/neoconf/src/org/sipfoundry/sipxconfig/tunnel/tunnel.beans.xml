@@ -6,10 +6,11 @@
   <bean id="tunnelBundle" parent="abstractBundle">
     <constructor-arg value="tunnel" />
     <property name="autoEnable" value="true" />
+    <property name="onlyPrimary" value="true" />
   </bean>
 
   <bean id="redundantTunnelBundle" parent="abstractBundle">
-    <constructor-arg value="tunnel" />
+    <constructor-arg value="redundantTunnel" />
     <property name="onlyRemote" value="true" />
   </bean>
 
