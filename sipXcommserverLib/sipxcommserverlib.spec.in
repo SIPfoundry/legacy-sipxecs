@@ -142,6 +142,7 @@ service mongod start
 %attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxcdrpostgres
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-time-manager-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-change-timezone-init
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-mongodadmin
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxpackage-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxswadmin-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxzoneadmin-init

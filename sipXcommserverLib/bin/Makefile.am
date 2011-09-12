@@ -22,6 +22,7 @@ setupdir = @SIPX_LIBEXECDIR@/setup.d
 setup_SCRIPTS = \
         sipx-time-manager-init \
         sipx-change-timezone-init \
+        sipx-mongodadmin \
         sipxpackage-init \
         sipxswadmin-init \
         sipxcdrpostgres-init \
