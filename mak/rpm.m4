@@ -8,7 +8,7 @@ AC_ARG_VAR(EPEL_BASE_URL, [Where to find EPEL distribution. Example: http://mirr
 AC_ARG_VAR(MIRROR_SITE, [Single place to find CentOS, Redhat and EPEL. Example: http://mirrors.kernel.org])
 if test -n "$MIRROR_SITE"; then
   CENTOS_BASE_URL=$MIRROR_SITE/centos
-  FEDORA_BASE_URL=$MIRROR_SITE/fedora
+  FEDORA_BASE_URL=$MIRROR_SITE/fedora/linux
   EPEL_BASE_URL=$MIRROR_SITE/epel
 fi
 
