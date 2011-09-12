@@ -699,7 +699,10 @@ do_start() {
         # Start the sipxsupervisor with SIPX_LOGDIR as the working directory,
         # so that any core files it produces will be put there.
         cd @SIPX_LOGDIR@
-        start sipxsupervisor
+
+        # redirect stdout/err or starting sipxecs from remote shell will hang on exit because
+        # io streams are still open
+        start sipxsupervisor &> @SIPX_LOGDIR@/sipxsupervisor.out
 
         sleep 1
         echo -n "Starting httpd: "
