@@ -117,7 +117,6 @@ Summary: Configures/enables TFTP for devices controlled by %{name}
 
 %package ftp
 Requires: vsftpd
-Requires: sudo
 Requires: %{name} >= %{version}
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
@@ -438,14 +437,14 @@ if ! id -u PlcmSpIp > /dev/null 2>&1
 then
   # default user account polycom phones use
   %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M PlcmSpIp >/dev/null
-  echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp >/dev/null
+  echo -e "PlcmSpIp" | /usr/bin/passwd --stdin PlcmSpIp >/dev/null
 fi
 
 if ! id -u lvp2890 > /dev/null 2>&1
 then
   # default user account Nortel 1535 phones use
   %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M lvp2890 >/dev/null
-  echo -e "28904all" | sudo passwd --stdin lvp2890 >/dev/null
+  echo -e "28904all" | /usr/bin/passwd --stdin lvp2890 >/dev/null
 fi
 
 # 'install' ftpd config file
