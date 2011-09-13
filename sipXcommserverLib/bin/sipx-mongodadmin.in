@@ -7,9 +7,9 @@ if [ ! -f /etc/sysconfig/mongod ]
 then
     if [ -f @SIPX_CONFDIR@/sipxconfig-netif ]
     then
-        echo 'options="$options --bind_ip 127.0.0.1 --master"' > /etc/sysconfig/mongod
+        echo 'options="$options --master"' > /etc/sysconfig/mongod
     else
-        echo 'options="$options --bind_ip 127.0.0.1 --master --slave --source localhost:27019 --only imdb --autoresync"' > /etc/sysconfig/mongod
+        echo 'options="$options --master --slave --source localhost:27019 --only imdb --autoresync"' > /etc/sysconfig/mongod
     fi
     /etc/init.d/mongod restart
 fi
