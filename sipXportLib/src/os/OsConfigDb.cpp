@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 
 // APPLICATION INCLUDES
 #include "os/OsConfigDb.h"
@@ -873,7 +874,8 @@ OsStatus OsConfigDb::loadFromUnencryptedFile(FILE* fp)
    //int  result;
    //char name[81];
    //char value[81];
-   char fileLine[MAX_FILELINE_SIZE + 1];
+   //char fileLine[MAX_FILELINE_SIZE + 1];
+
    OsStatus retval = OS_SUCCESS;
 
    // The following #define is needed in order for the feof() macro to work
@@ -884,19 +886,22 @@ OsStatus OsConfigDb::loadFromUnencryptedFile(FILE* fp)
 
    // step through the file reading one entry per line
    // each entry is of the form "%s: %s\n"
+   std::string fileLine;
+   fileLine.reserve(MAX_FILELINE_SIZE);
    while (!feof(fp))
    {
-      //result = fscanf(fp, "%80s : %80s", name, value);
-      //if (result == 2)
-      if(fgets(fileLine, MAX_FILELINE_SIZE, fp))
+      char c = fgetc(fp);
+      if (c == '\n' || c == '\r')
       {
-         insertEntry(fileLine);
+        if (!fileLine.empty())
+        {
+          insertEntry(fileLine.c_str());
+          fileLine = "";
+        }
       }
-      else if(ferror(fp))
+      else
       {
-         perror("OsConfigDb::loadFromFile read error");
-         retval = OS_UNSPECIFIED;
-         break;
+        fileLine.push_back(c);
       }
    }
 
