@@ -1011,9 +1011,9 @@ NetMask=%s\n\
     log_printout("Writing %s" % MASTER_NETIF)
     log_printout(masterNetIf)
 
+    file(MASTER_NETIF, 'w').write(masterNetIf)
     if runningAsRoot() :
-       file(MASTER_NETIF, 'w').write(masterNetIf)
-       setRights(MASTER_NETIF)
+        setRights(MASTER_NETIF)
 
 def do_sipx_setup() :
     global HostName
