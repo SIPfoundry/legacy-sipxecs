@@ -3233,7 +3233,15 @@ void SipUserAgent::getViaInfo(int protocol,
 #ifdef SIP_TLS
     else if(protocol == OsSocket::SSL_SOCKET)
     {
-        port = mTlsPort == SIP_TLS_PORT ? PORT_NONE : mTlsPort;
+      //
+      // Some user agents are known to send to port 5060 even if transport=tls
+      // is set.  So let us simply return 5061 instead of PORT_NONE to not ommit the port
+      // if this function is used to guess record-routes
+      //
+      //
+      //  port = mTlsPort == SIP_TLS_PORT ? PORT_NONE : mTlsPort;
+      //
+      port = mTlsPort;
     }
 #endif
     else
