@@ -1138,6 +1138,11 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     message.setSendProtocol(sendProtocol);
     message.touchTransportTime();
 
+    //
+    // Give the uper layer a chance to change its mind on the record route transport
+    //
+    userAgent.adjustRecordRouteOnFirstSend(message);
+
     SipMessage* transactionMessageCopy = NULL;
 
     if (relationship == MESSAGE_REQUEST ||

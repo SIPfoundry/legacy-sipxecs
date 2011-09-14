@@ -849,19 +849,8 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             //Url route(mRouteHostPort);
 
             Url route;
-
-            if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
-            {
-            	route = Url(mRouteHostSecurePort);
-            }
-
-            else
-            	route = Url(mRouteHostPort.data());
+           	route = Url(mRouteHostPort.data());
             route.setUrlParameter("lr",NULL);
-
-            if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
-            	route.setUrlParameter("transport=tls",NULL);
-
             route.toString(recordRoute);
             sipRequest.addRecordRouteUri(recordRoute);
          }

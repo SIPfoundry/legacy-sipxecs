@@ -3263,6 +3263,46 @@ void SipUserAgent::getViaInfo(int protocol,
     address = sipIpAddress;
 }
 
+void SipUserAgent::adjustRecordRouteOnFirstSend(SipMessage& message)
+{
+  //
+  // Check the record route if it is ours.  If it is, correctely format the transport parameter
+  //
+  UtlString routeValue;
+  if (!message.getRecordRouteField(0, &routeValue))
+    return;
+
+  Url recordRouteUrl(routeValue);
+  if (!isMyHostAlias(recordRouteUrl))
+    return;
+
+  int protocol = message.getSendProtocol();
+  UtlString host;
+  int port;
+  getViaInfo(protocol, host, port);
+  recordRouteUrl.setHostAddress(host.data());
+  recordRouteUrl.setHostPort(port);
+
+  //message.getRecordRouteField()
+  if(protocol == OsSocket::TCP)
+  {
+    recordRouteUrl.setUrlParameter("transport", "tcp");
+  }
+#ifdef SIP_TLS
+  else if(protocol == OsSocket::SSL_SOCKET)
+  {
+    recordRouteUrl.setUrlParameter("transport", "tls");
+  }
+#endif
+  else
+  {
+    recordRouteUrl.setUrlParameter("transport", "udp");
+  }
+
+  recordRouteUrl.toString(routeValue);
+  message.setRecordRouteField(routeValue.data(), 0);
+}
+
 void SipUserAgent::getFromAddress(UtlString* address, int* port, UtlString* protocol)
 {
    UtlTokenizer tokenizer(registryServers);
