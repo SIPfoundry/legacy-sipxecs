@@ -188,6 +188,13 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         }
     }
 
+    public void testSaveUserWithUnameFax () throws Exception {
+        loadDataSet("common/user_with_fax.db.xml");
+        // test if ImId as alias in use
+        assertTrue(m_coreContext.isAliasInUse("400"));
+        assertTrue(m_coreContext.isAliasInUse("500"));
+    }
+    
     public void setBranchManager(BranchManager branchManager) {
         m_branchManager = branchManager;
     }

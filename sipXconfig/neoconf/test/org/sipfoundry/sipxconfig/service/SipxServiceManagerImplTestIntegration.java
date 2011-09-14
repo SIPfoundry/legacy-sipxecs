@@ -113,13 +113,12 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testPresenceAliases() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
-        User u = m_coreContext.newUser();
-        u.setUserName("200");
-        m_coreContext.saveUser(u);
+        loadDataSet("common/users-im-ids.db.xml");
         SipxPresenceService presence = (SipxPresenceService) m_out.getServiceByBeanId(SipxPresenceService.BEAN_ID);
         presence.setSipxServiceManager(m_out);
         presence.setAliasManager(m_aliasManager);
-        presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE, "200");
+        presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE, "201");
+        assertTrue(m_coreContext.isAliasInUse("201"));
         try {
             m_out.storeService(presence);
             fail();
@@ -127,7 +126,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
         }
         presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE, "*88888");
-        presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE, "200");
+        presence.setSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE, "201");
         try {
             m_out.storeService(presence);
             fail();
