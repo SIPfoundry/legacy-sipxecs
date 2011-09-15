@@ -8,6 +8,7 @@ SUBDIRS = \
 	.
 
 @PACKAGE@_EXTRA_DIST = \
+	CONTRIBUTORS \
 	$(proc_DATA:=.in) \
 	$(bin_SCRIPTS:=.in)
 

@@ -66,7 +66,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 
-%doc CONTRIBUTORS %name.configlog
+%doc  %name.configlog
 %dir %{_datadir}/sipxecs
 %dir %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXregistry-process.xml

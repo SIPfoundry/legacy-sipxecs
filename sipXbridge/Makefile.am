@@ -3,6 +3,7 @@ include config/project.am
 
 @PACKAGE@_EXTRA_DIST = \
   README \
+  CONTRIBUTORS \
   LICENSE \
   src
 

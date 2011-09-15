@@ -6,7 +6,6 @@ $(utility_am_required)
 
 EXTRA_DIST = \
     config/revision-gen \
-    CONTRIBUTORS \
     $(@PACKAGE@_EXTRA_DIST)
 
 dist-hook: @PACKAGE@-dist-revision @PACKAGE@-dist-specfile

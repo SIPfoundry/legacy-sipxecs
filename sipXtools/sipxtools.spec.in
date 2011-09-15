@@ -44,7 +44,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS LICENSE README NEWS TODO ChangeLog %name.configlog
+%doc  LICENSE README   ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/*
 %if %{_vendor} == redhat
 %{_mandir}/man1

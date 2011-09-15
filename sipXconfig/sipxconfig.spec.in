@@ -209,7 +209,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS README NEWS NOTICE TODO ChangeLog %name.configlog
+%doc  README  NOTICE  ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/sipxconfig.sh
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxconfig-setup
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-process.xml

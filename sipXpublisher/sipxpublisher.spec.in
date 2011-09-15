@@ -63,7 +63,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS %name.configlog
+%doc  %name.configlog
 %dir %{_datadir}/sipxecs/process.d
 %attr(755,root,root) %{_bindir}/sipstatus.sh
 %attr(755,root,root) %{_bindir}/sipstatus

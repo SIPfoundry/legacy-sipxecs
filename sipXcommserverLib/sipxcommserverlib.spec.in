@@ -117,7 +117,7 @@ service mongod start
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
+%doc  README   ChangeLog %name.configlog
 %attr(4755,root,root) %{_bindir}/sipx-sudo-restore
 %attr(755,root,root) %{_bindir}/pkg-upgrade
 %attr(755,root,root) %{_bindir}/configmerge
