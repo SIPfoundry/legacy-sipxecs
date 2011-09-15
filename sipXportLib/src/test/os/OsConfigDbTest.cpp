@@ -12,6 +12,7 @@
 
 #include <os/OsConfigDb.h>
 #include <sipxunit/TestUtilities.h>
+#include <string>
 
 
 /**
@@ -24,6 +25,7 @@ class OsConfigDbTest : public CppUnit::TestCase
     CPPUNIT_TEST(testInsert);
     CPPUNIT_TEST(testManipulators);
     CPPUNIT_TEST(testAccessors);
+    CPPUNIT_TEST(testLineMaxBug);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -225,6 +227,52 @@ public:
             name.remove(0);
             value.remove(0);
         }
+    }
+
+    void testLineMaxBug()
+    {
+      //
+      //  There is currently a limitation of 256 chars per line which we shouldnt be doing
+      //
+      UtlString SIP_DOMAIN_NAME = "myverylonghost4.myverylongdomain.com";
+      UtlString SIP_DOMAIN_ALIASES = "myverylonghost2.myverylongdomain.com myverylonghost4-sip-14002.myverylonghost4.myverylongdomain.com myverylonghost4-sip-14003.myverylonghost4.myverylongdomain.com dub6.myverylongdomain.com myverylonghost3.myverylongdomain.com 10.36.49.217 myverylonghost6-sip-101.myverylonghost6.myverylongdomain.com myverylonghost4-sip-14001.myverylonghost4.myverylongdomain.com myverylonghost8.myverylongdomain.com";
+      UtlString SIP_REALM = "myverylonghost4.myverylongdomain.com";
+      UtlString SHARED_SECRET = "TheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFoxTheLazyDogAteTheQuickBrownFox";
+      UtlString DEFAULT_LANGUAGE = "en";
+      UtlString SUPERVISOR_PORT = "8092";
+      UtlString CONFIG_HOSTS = "myverylonghost4-sip-14001.myverylonghost4.myverylongdomain.com";
+
+      OsConfigDb config;
+      CPPUNIT_ASSERT(config.loadFromFile("OsConfigDbTest.data.1") == OS_SUCCESS);
+
+      UtlString SIP_DOMAIN_NAME_;
+      CPPUNIT_ASSERT(config.get("SIP_DOMAIN_NAME", SIP_DOMAIN_NAME_) == OS_SUCCESS);
+      CPPUNIT_ASSERT(SIP_DOMAIN_NAME_ == SIP_DOMAIN_NAME);
+
+      UtlString SIP_DOMAIN_ALIASES_;
+      CPPUNIT_ASSERT(config.get("SIP_DOMAIN_ALIASES", SIP_DOMAIN_ALIASES) == OS_SUCCESS);
+      CPPUNIT_ASSERT(SIP_DOMAIN_ALIASES_ == SIP_DOMAIN_ALIASES);
+
+      UtlString SIP_REALM_;
+      CPPUNIT_ASSERT(config.get("SIP_REALM", SIP_REALM_) == OS_SUCCESS);
+      CPPUNIT_ASSERT(SIP_REALM_ == SIP_REALM);
+
+      UtlString SHARED_SECRET_;
+      CPPUNIT_ASSERT(config.get("SHARED_SECRET", SHARED_SECRET_) == OS_SUCCESS);
+      CPPUNIT_ASSERT(SHARED_SECRET_ == SHARED_SECRET);
+
+      UtlString DEFAULT_LANGUAGE_;
+      CPPUNIT_ASSERT(config.get("DEFAULT_LANGUAGE", DEFAULT_LANGUAGE_) == OS_SUCCESS);
+      CPPUNIT_ASSERT(DEFAULT_LANGUAGE_ == DEFAULT_LANGUAGE);
+
+      UtlString SUPERVISOR_PORT_;
+      CPPUNIT_ASSERT(config.get("SUPERVISOR_PORT", SUPERVISOR_PORT_) == OS_SUCCESS);
+      CPPUNIT_ASSERT(SUPERVISOR_PORT_ == SUPERVISOR_PORT);
+
+      UtlString CONFIG_HOSTS_;
+      CPPUNIT_ASSERT(config.get("CONFIG_HOSTS", CONFIG_HOSTS_) == OS_SUCCESS);
+      CPPUNIT_ASSERT(CONFIG_HOSTS_ == CONFIG_HOSTS);
+
     }
 };
 
