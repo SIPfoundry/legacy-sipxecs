@@ -9,32 +9,27 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import org.sipfoundry.commons.mongo.MongoAccessController;
+
 import junit.framework.TestCase;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
 public final class MongoTestCaseHelper {
     public static final String DOMAIN = "mydomain.org";
     public static final String ID = "_id";
-    private static final String HOST = "localhost";
-    private static final int PORT = 27017;
-    private static Mongo s_mongoInstance;
     private static DBCollection s_collection;
 
     private MongoTestCaseHelper() {
     }
 
     public static DBCollection initMongo(String dbName, String collectionName) throws UnknownHostException {
-        if (s_mongoInstance == null) {
-            s_mongoInstance = new Mongo(HOST, PORT);
-        }
         dropDb(dbName);
-        DB db = s_mongoInstance.getDB(dbName);
+        DB db = MongoAccessController.INSTANCE.getDatabase(dbName);
         s_collection = db.getCollection(collectionName);
         return s_collection;
     }
@@ -98,9 +93,6 @@ public final class MongoTestCaseHelper {
     }
 
     public static void dropDb(String db) throws UnknownHostException {
-        if (s_mongoInstance == null) {
-            initMongo(db, "xxx");
-        }
-        s_mongoInstance.dropDatabase(db);
+        MongoAccessController.INSTANCE.dropDatabase(db);
     }
 }

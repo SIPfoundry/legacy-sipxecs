@@ -9,12 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCase;
@@ -23,15 +18,10 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.User;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 
 public class RegistrationContextImplTest extends MongoTestCase {
-    private String m_host = "localhost";
-    private int m_port = 27017;
-    private Mongo m_mongoInstance;
     private static DBCollection m_collection;
     public final static String DBNAME = "node";
     public final static String COLL_NAME = "registrar";

@@ -24,9 +24,9 @@ import java.util.List;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
 import com.mongodb.WriteResult;
 
+import org.sipfoundry.commons.mongo.MongoAccessController;
 import org.sipfoundry.sipxconfig.common.UserChangeEvent;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.annotation.Required;
@@ -62,10 +62,6 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
             }
         }
     }
-
-    private String m_host = "localhost";
-    private int m_port = 27017;
-    private Mongo m_mongoInstance;
 
     private OpenAcdContext m_openAcdContext;
 
@@ -106,20 +102,9 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
         storeCommand(createCommand(Command.CONFIGURE, openAcdObjects));
     }
 
-    public void setHost(String host) {
-        m_host = host;
-    }
-
-    public void setPort(int port) {
-        m_port = port;
-    }
-
     protected void storeCommand(BasicDBObject command) {
         try {
-            if (m_mongoInstance == null) {
-                m_mongoInstance = new Mongo(m_host, m_port);
-            }
-            DB openAcdDb = m_mongoInstance.getDB("openacd");
+            DB openAcdDb = MongoAccessController.INSTANCE.getDatabase("openacd");
             openAcdDb.requestStart();
             DBCollection commandsCollection = openAcdDb.getCollection("commands");
             WriteResult result = commandsCollection.insert(command);
