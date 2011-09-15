@@ -990,9 +990,8 @@ AC_DEFUN([CHECK_RUBY],
        [AC_MSG_ERROR([ruby version must be >= $minRubyVersion - found $rubyVersion])])
 ])
 
-# ==================== Ruby Gem ====================
-# Like Perl's CPAN
-AC_DEFUN([CHECK_GEM],
+# ==================== Ruby Gems ====================
+AC_DEFUN([CHECK_RUBYGEMS],
 [
   AC_PATH_PROG([GEM], gem)
 
@@ -1029,7 +1028,8 @@ GEMS_HOWTO
 ])
 
 # ==================== Rake ====================
-# build files
+# Rake is not used anymore instead we use automake. Kept here in case some future lib project
+# needs it.
 AC_DEFUN([CHECK_RAKE],
 [
   AC_PATH_PROG([RAKE], rake)
