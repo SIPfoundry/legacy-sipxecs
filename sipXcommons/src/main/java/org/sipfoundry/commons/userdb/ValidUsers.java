@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.commons.userdb;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -18,6 +17,8 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.*;
+
+import org.sipfoundry.commons.mongo.MongoAccessController;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
 
 import com.mongodb.BasicDBList;
@@ -26,7 +27,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 import com.mongodb.QueryBuilder;
 
 /**
@@ -44,10 +44,6 @@ public enum ValidUsers {
     private static final String IMDB_PERM_VOICEMAIL = "Voicemail";
     private static final String IMDB_PERM_RECPROMPTS = "RecordSystemPrompts";
     private static final String IMDB_PERM_TUICHANGEPIN = "tui-change-pin";
-
-    private static String MONGO_HOST = "localhost";
-    private static int MONGO_PORT = 27017;
-    private Mongo m_mongoInstance;
 
     public List<User> getValidUsers() {
         List<User> users = new ArrayList<User>();
@@ -256,12 +252,9 @@ public enum ValidUsers {
     private DBCollection getEntityCollection() {
         DBCollection entity = null;
         try {
-            if (m_mongoInstance == null) {
-                m_mongoInstance = new Mongo(MONGO_HOST, MONGO_PORT);
-            }
-            DB imdb = m_mongoInstance.getDB("imdb");
+            DB imdb = MongoAccessController.INSTANCE.getDatabase("imdb");
             entity = imdb.getCollection("entity");
-        } catch (UnknownHostException ex) {
+        } catch (Exception ex) {
             System.exit(1);
         }
         return entity;

@@ -17,10 +17,10 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.commons.mongo.MongoAccessController;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
@@ -28,23 +28,17 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
-    private static final String HOST = "localhost";
-    private static final int PORT = 27017;
     private static final String DB_NAME = "node";
     private static final String DB_COLLECTION_NAME = "registrar";
-    private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
-    private static final String COLON = ":";
+    private static final String UNABLE_OPEN_MONGO = "Unable to open mongo";
     private LocationsManager m_locationsManager;
-    private Mongo m_mongoInstance;
 
-    private void initMongo() throws Exception {
-        if (m_mongoInstance == null) {
-            try {
-                m_mongoInstance = new Mongo(HOST, PORT);
-            } catch (Exception e) {
-                LOG.error(UNABLE_OPEN_MONGO + HOST + COLON + PORT);
-                throw (e);
-            }
+    private DB getDatabase(String dbName) throws Exception {
+        try {
+            return MongoAccessController.INSTANCE.getDatabase(dbName);
+        } catch (Exception e) {
+            LOG.error(UNABLE_OPEN_MONGO);
+            throw (e);
         }
     }
 
@@ -58,8 +52,7 @@ public class RegistrationContextImpl implements RegistrationContext {
                 LOG.error("No primary proxy found.");
                 return Collections.emptyList();
             }
-            initMongo();
-            DB datasetDb = m_mongoInstance.getDB(DB_NAME);
+            DB datasetDb = getDatabase(DB_NAME);
             DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
             DBCursor cursor = registrarCollection.find();
             List<RegistrationItem> items = new ArrayList<RegistrationItem>(cursor.size());

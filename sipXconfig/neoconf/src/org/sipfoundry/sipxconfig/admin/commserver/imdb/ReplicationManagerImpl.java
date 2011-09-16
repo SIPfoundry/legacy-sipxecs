@@ -28,17 +28,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.commons.mongo.MongoAccessController;
 import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.commons.mongo.ResyncResult;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -113,7 +113,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private static final String EXCEPTION_LOG = "IOException for stream writer";
     private static final String UTF_8 = "UTF-8";
 
-    private Mongo m_mongoInstance;
     private DB m_datasetDb;
     private DBCollection m_datasetCollection;
 
@@ -171,33 +170,14 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * collection.
      */
     private void initMongo() throws Exception {
-        if (m_mongoInstance == null) {
+        if (m_datasetDb == null) {
             try {
-                m_mongoInstance = new Mongo(HOST, PORT);
-                // defaults - the entity DB;
-                m_datasetDb = m_mongoInstance.getDB(DB_NAME);
+                m_datasetDb = MongoAccessController.INSTANCE.getDatabase(DB_NAME);
                 m_datasetCollection = m_datasetDb.getCollection(ENTITY_COLLECTION_NAME);
             } catch (Exception e) {
                 LOG.error(UNABLE_OPEN_MONGO + HOST + COLON + PORT);
                 throw (e);
             }
-        }
-    }
-
-    /**
-     * Instantiates the Mongo DB on a different location
-     *
-     * @param location
-     * @return
-     * @throws Exception
-     */
-    private Mongo initMongo(Location location) throws Exception {
-        try {
-            Mongo mongoInstance = new Mongo(location.getAddress(), PORT);
-            return mongoInstance;
-        } catch (Exception e) {
-            LOG.error(UNABLE_OPEN_MONGO + HOST + COLON + PORT);
-            throw (e);
         }
     }
 
@@ -517,6 +497,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         for (Future<Void> future : futures) {
             future.get();
         }
+        replicationExecutorService.shutdown();
         Long end = System.currentTimeMillis();
         LOG.info("Regeneration of entities finished in " + (end - start) / 1000 + SECONDS + (end - start) / 1000
                 / 60 + MINUTES);
@@ -651,12 +632,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     @Override
     public void resyncSlave(Location location) {
         try {
-            Mongo mongo = initMongo(location);
-            DB adminDb = mongo.getDB("admin");
-            CommandResult cr = adminDb.command("resync");
-            double ok = (Double) cr.get("ok");
-            if (ok == 0) {
-                LOG.error("Replication: resync - " + cr.get("errmsg"));
+            ResyncResult result = MongoAccessController.INSTANCE.resync(location.getAddress());
+            if (result.getStatus() == 0) {
+                LOG.error("Replication: resync - " + result.getErrorMessage());
             } else {
                 LOG.info("Replication: resync started - " + location.getAddress());
             }
