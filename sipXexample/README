@@ -1,0 +1,7 @@
+This is an example project for the sipXecs Communications Platform.
+
+Clone this project, then make it your own with your own source code and scripts.
+
+find -type f -exec sed -i -e 's/sipxexample/_your_project_name_here_/g' {} \;
+find -type f -exec sed -i -e 's/cpp-library/_your_lib_name_here/g' {} \;
+

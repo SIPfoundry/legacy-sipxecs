@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# See ./config/sipXlib2.m4 for list of variables you can use 
+echo "hello world. I'm installed into @SIPX_BINDIR@"

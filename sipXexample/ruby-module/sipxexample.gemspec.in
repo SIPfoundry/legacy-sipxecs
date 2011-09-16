@@ -1,0 +1,14 @@
+spec = Gem::Specification.new do |s|
+  s.platform = Gem::Platform::RUBY
+  s.summary = "@GEM_NAME@ example for sipXecs"
+  s.name = '@GEM_NAME@'
+  s.version = '@GEM_VER@'
+  s.require_path = 'lib'
+  # client_bindings task needs to have completed in a previous
+  # run inorder for this file list to be resolved correctly
+  s.files = Dir.glob("lib/**/*")
+  s.description = <<EOF
+@GEM_NAME@ is just an example project. This text should be
+replaced with actual description of this module.
+EOF
+end

@@ -59,7 +59,8 @@ sipx = \
   sipXunidata \
   sipXgrandstream \
   sipXpreflight \
-  sipXviewer
+  sipXviewer \
+  sipXexample
 
 lang = \
   sipXlang-abitibi-fr_CA \

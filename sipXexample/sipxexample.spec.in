@@ -1,0 +1,110 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+# Change to your information!
+Summary: sipXecs example project
+License: LGPL
+Group: Telcommunications
+Vendor: SIPfoundry
+Packager: Douglas Hubler <dhubler@ezuce.com>
+Url: http://www.sipfoundry.org
+
+# B U I L D - typical only, please adjust accordingly
+BuildRequires: automake
+# libxml2 is for xml validation in 'make check'
+BuildRequires: libxml2
+
+# c++
+BuildRequires: sipxcommserverlib-devel >= %version
+
+# java
+BuildRequires: sipxcommons >= %version
+
+# ruby
+BuildRequires: rubygems
+
+
+# R U N T I M E - typical only, please adjust accordingly
+
+# ruby
+Requires: rubygems
+
+# java
+Requires: sipxcommons >= %version
+
+# c++
+Requires: sipxcommserverlib >= %version
+
+Source: %name-%version.tar.gz
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+This is just sample text. Change this text to describe your project in more detail.
+
+%package config
+Requires: sipxconfig >= %version
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Example configuration support for sipXecs. Meant to be changed by implementors
+
+%description config
+This is just sample text for the config portion of your project. Change this
+test to describe the development portion of your project in more detail.
+
+%package devel
+Requires : %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Example development package for sipXecs. Meant to be changed by implementors
+
+%description devel
+This is just sample text for the development portion of your project. Change this
+test to describe the development portion of your project in more detail.
+
+%prep
+%setup -q
+
+%build
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+# files from ./bin install
+%attr(755,root,root) %{_bindir}/sipxexample-script
+
+# files from ./etc install
+%{_sysconfdir}/sipxpbx/sipxexample.xml
+
+# files from cpp-executable install
+%attr(755,root,root)%{_bindir}/sipxexample
+
+# files from cpp-library install
+%{_libdir}/libsipxexample.so*
+
+# files from java-module install
+%{_datadir}/java/sipXecs/sipXconfig/plugins/sipxexample.jar
+
+# files from ruby-module install
+%{_var}/lib/sipxpbx/sipxexample-*.gem
+
+%post
+gem install --no-ri --no-rdoc --local %{_var}/lib/sipxpbx/sipxexample-*.gem >/dev/null
+
+%files devel
+# files from cpp-library install, la is useful to link to. 
+%{_libdir}/libsipxexample.la
+%{_includedir}/sipxexample/*
+
+%files config
+%{_datadir}/java/sipXecs/sipXconfig/plugins/sipxexample-config.jar
