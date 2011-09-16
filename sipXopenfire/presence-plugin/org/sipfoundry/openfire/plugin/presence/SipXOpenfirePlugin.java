@@ -1033,6 +1033,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         MultiUserChatService mucService = createChatRoomService(subdomain);
         JID jid = new JID(ownerJid);
         MUCRoom mucRoom = mucService.getChatRoom(roomName, jid); //creates room if it does not exist
+        mucRoom.setNaturalLanguageName(conferenceName);
 
 
         //update bookmark
