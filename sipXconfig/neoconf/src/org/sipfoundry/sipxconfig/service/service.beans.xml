@@ -598,6 +598,7 @@
       <set>
         <ref bean="voicemailBundle" />
         <ref bean="conferenceBundle" />
+        <ref bean="openAcdBundle" />
       </set>
     </property>
     <property name="replicationContext" ref="sipxReplicationContextDao" />
