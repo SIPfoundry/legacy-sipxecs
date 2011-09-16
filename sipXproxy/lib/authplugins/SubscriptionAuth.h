@@ -9,7 +9,7 @@
 #define SUBSCRIPTIONAUTH_H_
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 #include <set>
 
 // DEFINES

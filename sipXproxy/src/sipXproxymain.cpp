@@ -15,7 +15,7 @@
 #include <unistd.h>
 #endif
 #include <iostream>
-#include <SipRouter.h>
+#include <sipxproxy/SipRouter.h>
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
 #include <os/OsConfigDb.h>

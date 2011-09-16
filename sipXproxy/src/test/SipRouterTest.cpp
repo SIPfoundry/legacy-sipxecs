@@ -20,7 +20,7 @@
 #include "net/SipXauthIdentity.h"
 #include "sipdb/CredentialDB.h"
 #include "ForwardRules.h"
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 #include "DummyAuthPlugIn.h"
 
 /**

@@ -9,7 +9,7 @@
 #include <set>
 
 #include "sipdb/EntityDB.h"
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
 #include "os/OsConfigDb.h"

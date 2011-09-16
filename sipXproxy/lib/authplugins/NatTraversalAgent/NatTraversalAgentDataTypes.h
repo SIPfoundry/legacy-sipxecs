@@ -15,7 +15,7 @@
 #include "sipdb/RegDB.h"
 
 // APPLICATION INCLUDES
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 
 // DEFINES
 #define INVALID_MEDIA_RELAY_HANDLE (-1)

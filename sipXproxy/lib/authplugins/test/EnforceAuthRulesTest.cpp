@@ -19,7 +19,7 @@
 #include "net/SipMessage.h"
 #include "net/SipXauthIdentity.h"
 
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 #include "EnforceAuthRules.h"
 
 class EnforceAuthRulesTest : public CppUnit::TestCase

@@ -19,7 +19,7 @@
 #include "NatTraversalRules.h"
 
 // APPLICATION INCLUDES
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 
 // DEFINES
 #ifdef _nat_unit_tests_

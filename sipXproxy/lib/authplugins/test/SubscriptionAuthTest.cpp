@@ -17,7 +17,7 @@
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
 #include "ForwardRules.h"
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 #include "SubscriptionAuth.h"
               
 class SubscriptionAuthTest : public CppUnit::TestCase

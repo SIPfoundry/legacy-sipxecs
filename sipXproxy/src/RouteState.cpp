@@ -14,7 +14,7 @@
 #include "net/NetMd5Codec.h"
 
 // APPLICATION INCLUDES
-#include "RouteState.h"
+#include <sipxproxy/RouteState.h>
 
 // CONSTANTS
 const char AUTHORIZED_DIALOG_PARAM[] = "auth";

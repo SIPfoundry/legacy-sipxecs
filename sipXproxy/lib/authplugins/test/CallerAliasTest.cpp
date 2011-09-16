@@ -20,8 +20,8 @@
 #include "sipdb/CallerAliasDB.h"
 
 #include "ForwardRules.h"
-#include "SipRouter.h"
-#include "AuthPlugin.h"
+#include <sipxproxy/SipRouter.h>
+#include <sipxproxy/AuthPlugin.h>
 #include "CallerAlias.h"
 
 class CallerAliasTest : public CppUnit::TestCase

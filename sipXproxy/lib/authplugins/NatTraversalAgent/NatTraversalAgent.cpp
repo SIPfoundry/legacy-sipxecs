@@ -20,7 +20,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 #include "alarm/Alarm.h"
 #include "net/SipMessage.h"
 #include "os/OsReadLock.h"

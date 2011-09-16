@@ -15,7 +15,7 @@
 #include "os/OsRWMutex.h"
 
 // APPLICATION INCLUDES
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 
 // DEFINES
 // MACROS

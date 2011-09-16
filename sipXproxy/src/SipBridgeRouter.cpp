@@ -14,7 +14,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 
 #include <string>
 #include <sstream>
@@ -36,7 +36,7 @@
 #include "net/SipXauthIdentity.h"
 #include "net/SipSrvLookup.h"
 #include "sipdb/ResultSet.h"
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 #include "ForwardRules.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"

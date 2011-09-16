@@ -7,7 +7,7 @@
 #include <string>
 
 #include "CallerAlias.h"
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 // SYSTEM INCLUDES
 #include "os/OsLock.h"
 #include "os/OsConfigDb.h"
@@ -15,7 +15,7 @@
 #include "os/OsFS.h"
 #include "net/Url.h"
 
-#include "RouteState.h"
+#include <sipxproxy/RouteState.h>
 
 
 

@@ -7,7 +7,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // APPLICATION INCLUDES
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 #include "NatMaintainer.h"
 #include "os/OsLock.h"
 #include "os/OsDateTime.h"

@@ -17,8 +17,8 @@
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
 #include "ForwardRules.h"
-#include "SipRouter.h"
-#include "AuthPlugin.h"
+#include <sipxproxy/SipRouter.h>
+#include <sipxproxy/AuthPlugin.h>
 #include "RequestLinter.h"
 #include "net/SipXauthIdentity.h"
 

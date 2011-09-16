@@ -19,8 +19,8 @@
 
 // APPLICATION INCLUDES
 
-#include "RouteState.h"
-#include "SipRouter.h"
+#include <sipxproxy/RouteState.h>
+#include <sipxproxy/SipRouter.h>
 #include "CallerAlertInfo.h"
 
 // DEFINES

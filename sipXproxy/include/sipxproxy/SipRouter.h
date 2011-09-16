@@ -17,7 +17,7 @@
 #include <os/OsServerTask.h>
 #include <sipXecsService/SipNonceDb.h>
 #include <utl/PluginHooks.h>
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 
 // MACROS
 // EXTERNAL FUNCTIONS

@@ -19,7 +19,7 @@
 #include "os/OsNotification.h"
 
 // APPLICATION INCLUDES
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 #include "NatTraversalAgentDataTypes.h"
 
 // DEFINES

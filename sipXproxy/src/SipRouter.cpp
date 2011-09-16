@@ -9,7 +9,7 @@
 
 // SYSTEM INCLUDES
 #include "sipdb/EntityDB.h"
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 #include <assert.h>
 
 
@@ -27,7 +27,7 @@
 #include "net/SipXauthIdentity.h"
 #include "net/SipSrvLookup.h"
 #include "sipdb/ResultSet.h"
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 #include "ForwardRules.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"

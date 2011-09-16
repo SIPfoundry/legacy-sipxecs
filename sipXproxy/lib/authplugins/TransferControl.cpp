@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 #include "os/OsLogger.h"
 
 // APPLICATION INCLUDES

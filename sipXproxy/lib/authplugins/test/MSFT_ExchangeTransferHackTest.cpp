@@ -17,7 +17,7 @@
 #include "net/SipUserAgent.h"
 
 #include "ForwardRules.h"
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 
 #include "testlib/FileTestContext.h"
 #include "MSFT_ExchangeTransferHack.h"

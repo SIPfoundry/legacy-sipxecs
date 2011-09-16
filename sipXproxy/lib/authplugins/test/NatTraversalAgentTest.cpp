@@ -14,7 +14,7 @@
 #include "os/OsDefs.h"
 #include "os/OsConfigDb.h"
 #include "net/Url.h"
-#include "RouteState.h"
+#include <sipxproxy/RouteState.h>
 #include "NatTraversalAgent.h"
 #include "CallTracker.h"
 

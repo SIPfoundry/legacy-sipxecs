@@ -15,7 +15,7 @@
 #include "os/OsConfigDb.h"
 #include "utl/PluginHooks.h"
 
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 #include "EmergencyNotify.h"
 
 class EmergencyRulesTest : public CppUnit::TestCase

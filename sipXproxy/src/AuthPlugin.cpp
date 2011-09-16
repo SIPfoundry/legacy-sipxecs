@@ -8,7 +8,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "AuthPlugin.h"
+#include <sipxproxy/AuthPlugin.h>
 
 // DEFINES
 // CONSTANTS

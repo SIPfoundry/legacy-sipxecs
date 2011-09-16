@@ -13,7 +13,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "utl/Plugin.h"
-#include "RouteState.h"
+#include <sipxproxy/RouteState.h>
 
 // DEFINES
 // CONSTANTS

@@ -7,7 +7,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "SipRouter.h"
+#include <sipxproxy/SipRouter.h>
 #include "os/OsLogger.h"
 #include "net/SipXauthIdentity.h"
 #include "RequestLinter.h"

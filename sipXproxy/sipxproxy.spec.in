@@ -121,3 +121,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.a
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.la
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.a
+%{_includedir}/sipxproxy/*
+
