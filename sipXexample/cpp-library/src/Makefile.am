@@ -31,8 +31,7 @@ check_PROGRAMS = \
 
 test1_LDADD = \
 	@SIPXUNIT_LIBS@ \
-	libsipxexample.la \
-	$(sipxexample_LDADD)
+	libsipxexample.la
 
 test1_SOURCES = \
 	ExampleLibTest.cpp

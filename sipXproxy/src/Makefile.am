@@ -36,12 +36,7 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
-## The objects in the sipXproxy are built as a libtool convenience library
-## so that they can be more easily used in the unit tests in the ./test and
-## ../lib/authplugins/test directories.
-## The convenience library is static, and is never installed - it is statically
-## linked to create the executable above.
-noinst_LTLIBRARIES = libsipXproxy.la
+lib_LTLIBRARIES = libsipXproxy.la
 
 libsipXproxy_la_LDFLAGS = \
     -version-info ${version_Current}:${version_Revision}:${version_Age}
