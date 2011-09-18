@@ -248,10 +248,10 @@ public class AccountsParser {
                     MUCPersistenceManager.deleteFromDB(mucRoomInOpenfire);
                     // when IM room is deleted, delete bookmark as well if necessary
                     if (SipXBookmarkManager.isInitialized()) {
-			SipXBookmarkManager manager = SipXBookmarkManager.getInstance();
-			if (manager.getMUCBookmarkID(mucRoomInOpenfire.getName()) != null)  {
-				manager.deleteMUCBookmark(mucRoomInOpenfire.getName());
-			}
+                        SipXBookmarkManager manager = SipXBookmarkManager.getInstance();
+                        if (manager.getMUCBookmarkID(mucRoomInOpenfire.getName()) != null)  {
+                            manager.deleteMUCBookmark(mucRoomInOpenfire.getName());
+                        }
                     }
                 }
             }
