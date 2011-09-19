@@ -637,30 +637,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
-    /**
-      * When a room is made private, we create a bookmark for the owner of this room
-      * @param makeRoomModerated
-      * @param mucRoom
-      * @param jid
-      */
-    private void updateBookmark(boolean makeRoomModerated, MUCRoom mucRoom, JID jid) {
-        if (SipXBookmarkManager.isInitialized()) {
-            SipXBookmarkManager bookmarkManager = SipXBookmarkManager.getInstance();
-            if (makeRoomModerated) {
-               if (bookmarkManager.getMUCBookmarkID(mucRoom.getName()) == null) {
-                   bookmarkManager.createMUCBookmark(mucRoom.getName(), mucRoom.getJID().toBareJID());
-                   bookmarkManager.setMUCBookmarkOwner(mucRoom.getName(), jid.getNode());
-               } else {
-                   bookmarkManager.setMUCBookmarkOwner(mucRoom.getName(), jid.getNode());
-               }
-           } else {
-               if (bookmarkManager.getMUCBookmarkID(mucRoom.getName()) != null) {
-                   bookmarkManager.deleteMUCBookmark(mucRoom.getName());
-               }
-           }
-        }
-    }
-
     public void update( XmppUserAccount userAccount ) throws Exception {
         log.debug("update UserAccount " + userAccount.getUserName());
 
@@ -1006,6 +982,23 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
+    /**
+     * When a room is created we create a bookmark for the owner of this room
+     * @param mucRoom
+     * @param jid
+     */
+    private void updateBookmark(MUCRoom mucRoom, JID jid) {
+        if (SipXBookmarkManager.isInitialized()) {
+            SipXBookmarkManager bookmarkManager = SipXBookmarkManager.getInstance();
+		    if (bookmarkManager.getMUCBookmarkID(mucRoom.getName()) == null) {
+				bookmarkManager.createMUCBookmark(mucRoom.getName(), mucRoom.getJID().toBareJID());
+				bookmarkManager.setMUCBookmarkOwner(mucRoom.getName(), jid.getNode());
+		    } else {
+				bookmarkManager.setMUCBookmarkOwner(mucRoom.getName(), jid.getNode());
+		    }
+        }
+    }
+
     public void update( XmppChatRoom xmppChatRoom ) throws Exception {
         log.info(String.format("update ChatRoom %s\n %s\n %s\n %s",
                 xmppChatRoom.getSubdomain(), xmppChatRoom.getRoomName(), xmppChatRoom
@@ -1037,7 +1030,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
 
         //update bookmark
-        updateBookmark(makeRoomModerated, mucRoom, jid);
+        updateBookmark(mucRoom, jid);
 
         mucRoom.unlock(mucRoom.getRole());
 

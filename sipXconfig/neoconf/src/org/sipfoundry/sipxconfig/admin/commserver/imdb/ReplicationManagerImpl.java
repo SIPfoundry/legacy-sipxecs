@@ -715,7 +715,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             boolean shouldReplicate = false;
             // check if we have at least one location to replicate file
             for (Location location : locations) {
-                if (location.isRegistered() && file.isReplicable(location)) {
+                if (location.isRegistered() && location.isReplicateConfig() && file.isReplicable(location)) {
                     shouldReplicate = true;
                     break;
                 }
@@ -736,7 +736,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
         boolean success = false;
         for (int i = 0; i < locations.length; i++) {
-            if (!locations[i].isRegistered()) {
+            if (!locations[i].isRegistered() || !locations[i].isReplicateConfig()) {
                 continue;
             }
             if (!file.isReplicable(locations[i])) {
