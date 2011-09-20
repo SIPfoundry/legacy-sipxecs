@@ -153,11 +153,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
         for (final ConfigurationFile configuration : configurations) {
             futures.add(executorService.submit(new Callable<Void>() {
                 public Void call() throws InterruptedException {
-                    if (location.isPrimary()) {
-                        m_replicationContext.replicate(configuration);
-                    } else {
-                        m_replicationContext.replicate(location, configuration);
-                    }
+                    m_replicationContext.replicate(location, configuration);
                     return null;
                 }
             }));
