@@ -12,6 +12,7 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <lookup-method name="getNatTraversalManager" bean="natTraversalManager" />
+    <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
