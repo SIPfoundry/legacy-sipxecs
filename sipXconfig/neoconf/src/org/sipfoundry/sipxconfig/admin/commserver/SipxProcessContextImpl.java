@@ -353,12 +353,19 @@ public class SipxProcessContextImpl implements SipxProcessContext {
     }
 
     public void markDialPlanRelatedServicesForRestart(String... serviceBeanIds) {
+        markDialPlanRelatedServicesForRestart(m_locationsManager.getLocationsList(), serviceBeanIds);
+    }
+
+    @Override
+    public void markDialPlanRelatedServicesForRestart(Collection<Location> locations, String... serviceBeanIds) {
         Collection<SipxService> services = new ArrayList<SipxService>();
         for (String serviceBeanId : serviceBeanIds) {
             replicateDialPlanBeforeRestart(serviceBeanId);
             services.add(m_sipxServiceManager.getServiceByBeanId(serviceBeanId));
         }
-        markServicesForRestart(services);
+        for (Location location : locations) {
+            markServicesForRestart(location, services);
+        }
     }
 
     public void unmarkServicesToRestart(Collection<RestartNeededService> services) {

@@ -101,6 +101,8 @@ public interface SipxProcessContext {
      */
     void markDialPlanRelatedServicesForRestart(String... serviceBeansIds);
 
+    void markDialPlanRelatedServicesForRestart(Collection<Location> locations, String... serviceBeansIds);
+
     void unmarkServicesToRestart(Collection<RestartNeededService> services);
 
     void reloadMarkedServices(Location location);

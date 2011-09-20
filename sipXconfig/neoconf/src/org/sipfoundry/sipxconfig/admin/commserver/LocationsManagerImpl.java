@@ -57,6 +57,10 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
         return locationArray;
     }
 
+    public List<Location> getLocationsList() {
+        return getHibernateTemplate().loadAll(Location.class);
+    }
+
     @Override
     public Location getLocation(int id) {
         return getHibernateTemplate().load(Location.class, id);

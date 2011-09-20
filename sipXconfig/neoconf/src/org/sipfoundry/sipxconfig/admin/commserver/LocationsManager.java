@@ -19,6 +19,8 @@ public interface LocationsManager {
 
     Location[] getLocations();
 
+    List<Location> getLocationsList();
+
     Location getLocation(int id);
 
     Location getLocationByFqdn(String fqdn);
