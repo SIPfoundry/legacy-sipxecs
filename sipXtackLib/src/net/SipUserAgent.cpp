@@ -3274,66 +3274,13 @@ void SipUserAgent::getViaInfo(int protocol,
 void SipUserAgent::adjustRecordRouteOnFirstSend(SipMessage& message)
 {
   //
-  // Check the record route if it is ours.  If it is, correctly format the transport parameter
+  // Check the record route if it is ours.  If it is, correctely format the transport parameter
   //
-  if (message.isResponse())
-  {
-    //
-    // traverse the via and check if the next hop is no longer pointing to us
-    int viaNumber;
-    UtlString via;
-    for (viaNumber = 0;message.getFieldSubfield(SIP_VIA_FIELD, viaNumber, &via);
-         viaNumber++
-         )
-    {
-      UtlString url;
-      NameValueTokenizer::getSubField(via, 1, SIP_SUBFIELD_SEPARATORS, &url);
-      Url viaUrl(url,TRUE);
-      if (isMyHostAlias(viaUrl))
-      {
-        //
-        // Next hop is still local.
-        // There is no need to rewrite the transport yet becase
-        // we are assured that internal transactions are not marshalled
-        //
-        return;
-      }
-    }
-  }
-
   UtlString routeValue;
+  if (!message.getRecordRouteField(0, &routeValue))
+    return;
 
-  Url recordRouteUrl;
-  int lastLocal = -1;
-
-  if (message.isResponse())
-  {
-    //
-    // Next hop is no longer local
-    // Search for the first record-route that is our local alias start
-    // from the bottom of the list.
-    //
-    int routeCount = 0;
-    for(routeCount = 0; message.getRecordRouteField(routeCount, &routeValue); routeCount++)
-    {
-      Url lastRoute(routeValue);
-      if (isMyHostAlias(lastRoute))
-        lastLocal = routeCount;
-    }
-
-    if (lastLocal == -1)
-      return;
-
-    if (!message.getRecordRouteField(lastLocal, &routeValue))
-      return;
-  }
-  else
-  {
-    if (!message.getRecordRouteField(0, &routeValue))
-      return;
-  }
-
-  recordRouteUrl = Url(routeValue);
+  Url recordRouteUrl(routeValue);
   if (!isMyHostAlias(recordRouteUrl))
     return;
 
@@ -3361,10 +3308,7 @@ void SipUserAgent::adjustRecordRouteOnFirstSend(SipMessage& message)
   }
 
   recordRouteUrl.toString(routeValue);
-  if (message.isResponse())
-    message.setRecordRouteField(routeValue.data(),lastLocal);
-  else
-    message.setRecordRouteField(routeValue.data(), 0);
+  message.setRecordRouteField(routeValue.data(), 0);
 }
 
 void SipUserAgent::getFromAddress(UtlString* address, int* port, UtlString* protocol)
