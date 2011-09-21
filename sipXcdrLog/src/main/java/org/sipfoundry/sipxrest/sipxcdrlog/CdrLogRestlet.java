@@ -45,7 +45,6 @@ public class CdrLogRestlet extends Restlet {
 
     private static Logger logger = Logger.getLogger(CdrLogRestlet.class);
     private static String serviceName = "cdr";
-    private Connection cdrConnection;
     private String cdrDBUrl = "jdbc:postgresql:SIPXCDR";
     private String sqlStmt = "SELECT caller_aor, callee_aor, callee_contact, start_time, (end_time - connect_time) AS duration, termination, callee_route from cdrs";
     private String sqlUserWhereStmt = "WHERE (caller_aor LIKE ? OR callee_aor LIKE ? ) ";
@@ -59,6 +58,9 @@ public class CdrLogRestlet extends Restlet {
 
     @Override
     public void handle(Request request, Response response) {
+        Connection cdrConnection = null;
+        ResultSet qResults = null;
+        PreparedStatement qStatement = null;
         try {
             Method httpMethod = request.getMethod();
             if (!httpMethod.equals(Method.GET)) {
@@ -115,7 +117,6 @@ public class CdrLogRestlet extends Restlet {
 
             String sqlPrepareString;
             String userLike = "%:" + userId + "@%";
-            PreparedStatement qStatement;
 
             if (fromTimeMs != null) {
                 sqlPrepareString = sqlStmt + " " + sqlUserWhereStmt + sqlFromDateStmt + sqlOrderStmt + sqlLimitStmt;
@@ -134,7 +135,7 @@ public class CdrLogRestlet extends Restlet {
             }
 
             // Execute the SQL query to obtain the results.
-            ResultSet qResults = qStatement.executeQuery();
+            qResults = qStatement.executeQuery();
 
             // Build an XML document to return the DB Query results.
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -166,13 +167,26 @@ public class CdrLogRestlet extends Restlet {
             response.setEntity(rep);
             response.setStatus(Status.SUCCESS_OK);
 
-            // Close the connection to the CDR database.
-            cdrConnection.close();
         } catch (Exception ex) {
             logger.error("An exception occured while processing the request. : ", ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
             return;
 
+        } finally {
+            // Close the connection to the CDR database.
+            try {
+                if (qResults != null) {
+                    qResults.close();
+                }
+                if (qStatement != null) {
+                    qStatement.close();
+                }
+                if (cdrConnection != null) {
+                    cdrConnection.close(); 
+                }
+            } catch (Exception e) {
+                logger.error("An exception occured while closing the connection. : ", e);
+            }
         }
 
     }
