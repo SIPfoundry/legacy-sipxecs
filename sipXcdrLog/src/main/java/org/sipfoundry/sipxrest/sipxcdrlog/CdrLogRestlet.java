@@ -178,11 +178,19 @@ public class CdrLogRestlet extends Restlet {
                 if (qResults != null) {
                     qResults.close();
                 }
+            } catch (Exception e) {
+                logger.error("An exception occured while closing result set. : ", e);
+            }
+            try {
                 if (qStatement != null) {
                     qStatement.close();
                 }
+            } catch (Exception e) {
+                logger.error("An exception occured while closing statement. : ", e);
+            }
+            try {
                 if (cdrConnection != null) {
-                    cdrConnection.close(); 
+                    cdrConnection.close();
                 }
             } catch (Exception e) {
                 logger.error("An exception occured while closing the connection. : ", e);
