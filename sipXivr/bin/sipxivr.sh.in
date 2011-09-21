@@ -14,7 +14,7 @@ AuthoritiesDir=$SslDir/authorities
 KeyStorePassword=changeit
 TrustStorePassword=changeit
 KeyStoreOpts="\
-      -Djavax.net.ssl.keyStore=$SslDir/ssl-web.keystore \
+      -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
       -Djavax.net.ssl.keyStorePassword=$KeyStorePassword"
 
 
