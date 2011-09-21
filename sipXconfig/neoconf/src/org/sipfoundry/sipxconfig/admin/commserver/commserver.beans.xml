@@ -13,6 +13,7 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <lookup-method name="getNatTraversalManager" bean="natTraversalManager" />
     <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
+    <lookup-method name="getReplicationManager" bean="replicationManagerImpl" />
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

@@ -20,6 +20,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
@@ -41,6 +42,8 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
     protected abstract NatTraversalManager getNatTraversalManager();
     /* delayed injection - working around circular reference */
     protected abstract ServiceConfigurator getServiceConfigurator();
+    /* delayed injection - working around circular reference */
+    protected abstract ReplicationManager getReplicationManager();
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
@@ -194,6 +197,8 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
             throw new UserException("&error.delete.primary", location.getFqdn());
         }
         getHibernateTemplate().delete(location);
+        getHibernateTemplate().flush();
+        getReplicationManager().registerTunnels(location);
     }
 
     @Override
