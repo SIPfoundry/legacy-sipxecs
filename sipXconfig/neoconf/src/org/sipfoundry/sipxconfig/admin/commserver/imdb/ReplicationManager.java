@@ -120,4 +120,12 @@ public interface ReplicationManager {
      * so no members would be retrieved.
      */
     void deleteGroup(Group group);
+
+    /**
+     * Creates the "registrarnode" db in mongo's imdb database.
+     * It contains data about the stunnels.
+     * The reason it is public is that it needs
+     * @param location
+     */
+    void registerTunnels(Location location);
 }

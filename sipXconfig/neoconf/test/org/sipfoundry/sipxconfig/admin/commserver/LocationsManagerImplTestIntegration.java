@@ -169,6 +169,10 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
 
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent(dbLocations[0].getId(), "ip", "192.168.1.2");
         MongoTestCaseHelper.assertObjectWithIdNotPresent(dbLocations[1].getId());
+        
+        dbLocations[1].setCallTraffic(true);
+        dbLocations[1].setReplicateConfig(true);
+        m_out.saveLocation(dbLocations[1]);
     }
 
     public void testsaveLocationWithDuplicateFqdnOrIp() throws Exception {

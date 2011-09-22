@@ -13,6 +13,7 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
@@ -52,6 +53,12 @@ public class LazyDialPlanActivationManager implements DialPlanActivationManager,
         m_restart = m_restart || restartSbcDevices;
         m_sipxProcessContext.markDialPlanRelatedServicesForRestart(SipxProxyService.BEAN_ID,
                     SipxRegistrarService.BEAN_ID);
+        notifyWorker();
+    }
+
+    public void replicateDialPlan(boolean restartSbcDevices, Collection<Location> locations) {
+        m_replicate = true;
+        m_restart = m_restart || restartSbcDevices;
         notifyWorker();
     }
 

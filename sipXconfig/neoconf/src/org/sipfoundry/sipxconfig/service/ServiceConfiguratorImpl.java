@@ -153,11 +153,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
         for (final ConfigurationFile configuration : configurations) {
             futures.add(executorService.submit(new Callable<Void>() {
                 public Void call() throws InterruptedException {
-                    if (location.isPrimary()) {
-                        m_replicationContext.replicate(configuration);
-                    } else {
-                        m_replicationContext.replicate(location, configuration);
-                    }
+                    m_replicationContext.replicate(location, configuration);
                     return null;
                 }
             }));
@@ -349,9 +345,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
             // HACK: push dataSets and files that are not the part of normal
             // service replication
             initLocation(locationToActivate);
-
+            replicateDialPlans(selectedLocations);
             replicateLocationAndRestart(locationToActivate);
-            //enforceRole(locationToActivate);
 
             if (locationToActivate.isPrimary()) {
                 m_dnsGenerator.generate();
@@ -360,7 +355,6 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
             // login to acd historical database used in sipxconfig-reports
             // for creating acd historical reports
             m_replicationContext.replicate(m_acdHistoricalConfiguration);
-            replicateDialPlans();
         }
     }
 
@@ -374,6 +368,11 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
     @Deprecated
     private void replicateDialPlans() {
         m_dialPlanActivationManager.replicateDialPlan(false);
+    }
+
+    @Deprecated
+    private void replicateDialPlans(Collection<Location> locations) {
+        m_dialPlanActivationManager.replicateDialPlan(false, locations);
     }
 
     @Override

@@ -18,7 +18,6 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -534,9 +533,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
-    private void registerTunnels(Location location) {
-        //we need to flush here since we need up-to-date info in locations table
-        getHibernateTemplate().flush();
+    @Override
+    public void registerTunnels(Location location) {
         DBCollection registrarNode = m_datasetDb.getCollection(STUNNEL_COLLECTION);
         registrarNode.drop();
 
@@ -568,7 +566,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             DBObject timestamp = new BasicDBObject();
             timestamp.put(ID, "timestamp");
             timestamp.put(TIMESTAMP, new Long(System.currentTimeMillis() / 1000).toString());
-            timestamp.put("date", new Date());
             registrarNode.save(timestamp);
         }
     }
@@ -581,16 +578,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         try {
             initMongo();
             String id = DataSetGenerator.getEntityId(entity);
-            DBObject search = new BasicDBObject();
-            search.put(ID, id);
-            DBCursor cursor = m_datasetCollection.find(search);
-            DBObject top = new BasicDBObject();
-            if (!cursor.hasNext()) {
-                top.put(ID, id);
-            } else {
-                top = cursor.next();
-            }
-            m_datasetCollection.remove(top).getError();
+            remove(ENTITY_COLLECTION_NAME, id);
             LOG.info("Replication: removed " + entity.getName());
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED_REMOVE + entity.getName(), e);
@@ -606,19 +594,26 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         try {
             initMongo();
             if (location.isRegistered()) {
-                DBCollection nodeCollection = m_datasetDb.getCollection(NODE_COLLECTION_NAME);
-                DBObject search = new BasicDBObject();
-                search.put(ID, location.getId());
-                DBCursor cursor = nodeCollection.find(search);
-                DBObject node = new BasicDBObject();
-                if (cursor.hasNext()) {
-                    node = cursor.next();
-                }
-                nodeCollection.remove(node);
+                remove(NODE_COLLECTION_NAME, location.getId());
             }
             registerTunnels(location);
         } catch (Exception e) {
             throw new UserException("Cannot unregister location in mongo db: " + e);
+        }
+    }
+
+    /**
+     * shortcut to remove objects from mongo's imdb database
+     */
+    private void remove(String collectionName, Object id) {
+        DBCollection collection = m_datasetDb.getCollection(collectionName);
+        DBObject search = new BasicDBObject();
+        search.put(ID, id);
+        DBObject node = collection.findOne(search);
+        //necessary only in case of CallSequences
+        //(user delete will trigger CS delete but CS for user may not exist)
+        if (node != null) {
+            collection.remove(node);
         }
     }
 

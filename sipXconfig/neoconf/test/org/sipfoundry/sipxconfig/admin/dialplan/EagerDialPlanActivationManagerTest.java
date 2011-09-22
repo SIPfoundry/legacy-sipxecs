@@ -14,10 +14,14 @@ import static org.easymock.classextension.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.createNiceMock;
 import static org.easymock.classextension.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.verify;
+
+import java.util.Collection;
+
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules;
@@ -134,5 +138,6 @@ public class EagerDialPlanActivationManagerTest extends TestCase {
         public ProfileManager getGatewayProfileManager() {
             return null;
         }
+
     }
 }

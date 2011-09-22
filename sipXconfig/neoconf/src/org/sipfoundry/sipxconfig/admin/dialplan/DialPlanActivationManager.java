@@ -9,8 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.Collection;
+
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+
 public interface DialPlanActivationManager {
     public abstract void replicateDialPlan(boolean restartSbcDevices);
+    public abstract void replicateDialPlan(boolean restartSbcDevices, Collection<Location> locations);
 
     /** Only replicate dial plan if there was a valid request to do so */
     public abstract void replicateIfNeeded();
