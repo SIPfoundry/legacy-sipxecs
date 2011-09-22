@@ -510,9 +510,6 @@ public:
                     UtlString& address,
                     int& port);
 
-    void adjustRecordRouteOnFirstSend(SipMessage& message);
-
-
     void getDirectoryServer(int index, UtlString* address,
                             int* port, UtlString* protocol);
 
