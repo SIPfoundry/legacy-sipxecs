@@ -9,14 +9,15 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
+
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.DistributionList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.DialByNameChoice;
+import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 import org.sipfoundry.voicemail.Distributions;
 import org.sipfoundry.voicemail.DistributionsReader;
 import org.sipfoundry.voicemail.VoiceMail;
@@ -82,7 +83,7 @@ public class CpAddrListDialog {
         m_numAddressesLastAdded = 0;
         if (userNames != null) {
             for (String userName : userNames) {
-                User u = ValidUsers.INSTANCE.getUser(userName);
+                User u = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(userName);
                 if (u != null && u.hasVoicemail()) {
                     m_userList.add(u);
                     m_numAddressesLastAdded++;
@@ -165,7 +166,7 @@ public class CpAddrListDialog {
                 continue;
             }
          
-            user = ValidUsers.INSTANCE.getUser(addrStr);
+            user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(addrStr);
             if(user == null) {                            
                 m_vm.playError("no_mailbox_at", addrStr);
             } else if(!user.hasVoicemail()) {

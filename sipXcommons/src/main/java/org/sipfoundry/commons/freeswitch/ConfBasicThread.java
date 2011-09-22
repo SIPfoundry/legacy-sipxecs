@@ -21,6 +21,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.MonitorConf;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
 public class ConfBasicThread extends Thread {
     // Default freeswitch socket client strings, should be read from:
@@ -101,7 +102,7 @@ public class ConfBasicThread extends Thread {
                 member.m_memberIndex = conf.getNextParticipantIndex();
                 conf.add(member.m_memberId, member);
                 ProcessConfUserAdd(conf, member);
-                User user = ValidUsers.INSTANCE.getUser(memberNumber);
+                User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(memberNumber);
                 if(user != null) {
                     m_UserMap.put(user.getUserName(), new Date());
                 } 

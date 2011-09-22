@@ -13,6 +13,7 @@ commons_PKGS = \
 	not-yet-commons \
 	jain-sip-sdp \
 	dnsjava \
+	commons-io \
 	commons-codec \
 	commons-digester \
 	commons-lang \

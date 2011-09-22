@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="config-plugin"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/xmlrpc-common-3.1.jar"/>
+	<classpathentry kind="src" path="config-plugin/src"/>
+	<classpathentry kind="src" path="vcard-provider/src"/>
+	<classpathentry kind="src" path="presence-plugin/test"/>
+	<classpathentry kind="src" path="presence-plugin/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-        <classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-        <classpathentry kind="var" path="OPENFIRE_ROOT/lib/activation.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/activation.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/bouncycastle.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/commons-el.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/hsqldb.jar"/>
@@ -19,5 +23,6 @@
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/startup.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

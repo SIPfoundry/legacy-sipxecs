@@ -16,17 +16,17 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
+
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import javax.mail.AuthenticationFailedException;
+import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessageRemovedException;
@@ -36,7 +36,6 @@ import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Transport;
-import javax.mail.Flags.Flag;
 import javax.mail.event.MessageChangedEvent;
 import javax.mail.event.MessageChangedListener;
 import javax.mail.event.MessageCountEvent;
@@ -47,11 +46,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.search.HeaderTerm;
 import javax.mail.search.SearchTerm;
-
-import com.sun.mail.imap.IMAPFolder;
-import com.sun.mail.imap.IMAPMessage;
-import com.sun.mail.util.MailSSLSocketFactory;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -63,11 +57,14 @@ import javax.security.auth.login.LoginException;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.ImapInfo;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.GreetingType;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.voicemail.Greeting;
+
+import com.sun.mail.imap.IMAPFolder;
+import com.sun.mail.imap.IMAPMessage;
+import com.sun.mail.util.MailSSLSocketFactory;
 
 /**
  *   ExtMailStore is responsible for synchronizing messages between each SipX Mailbox
@@ -161,7 +158,7 @@ public class ExtMailStore {
                 
                 while (running) {
     
-                    users = ValidUsers.INSTANCE.getValidUsers();
+                    users = UnfortunateLackOfSpringSupportFactory.getValidUsers().getValidUsers();
                     if (!users.equals(currUsers)) {
     
                         // check for deleted mailboxes
@@ -169,7 +166,7 @@ public class ExtMailStore {
                         for (Iterator<IMAPConnection> it = connections.iterator(); it.hasNext();) {
                             conn = it.next();
     
-                            User user = ValidUsers.INSTANCE.getUser(conn.m_user.getUserName());
+                            User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(conn.m_user.getUserName());
                             boolean deleteit;
                             if (user != null) {
                                 deleteit = !user.hasVoicemail();

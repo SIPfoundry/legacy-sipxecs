@@ -20,17 +20,15 @@ import java.io.StringReader;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 
 public class ResourceListsTest extends XMLTestCase {
     public final static String DOMAIN = "example.org";
     private CoreContext m_coreContext;
-    private DBCollection m_collection;
+    private MongoTestCaseHelper m_helper = new MongoTestCaseHelper("test", "entity"); 
+    private ResourceLists m_rl;
 
     @Override
     protected void setUp() throws Exception {
@@ -38,8 +36,12 @@ public class ResourceListsTest extends XMLTestCase {
         m_coreContext.getDomainName();
         expectLastCall().andReturn(DOMAIN).anyTimes();
         replay(m_coreContext);
-        MongoTestCaseHelper.dropDb("imdb");
-        m_collection = MongoTestCaseHelper.initMongo("imdb", "entity");
+        m_helper.dropDb();
+        m_rl = new ResourceLists();
+        ValidUsers vu = new ValidUsers();
+        vu.setImdb(m_helper.getDbTemplate());
+        m_rl.setValidUsers(vu);
+        m_rl.setCoreContext(m_coreContext);
     }
 
     public void testGenerate() throws Exception {
@@ -59,13 +61,11 @@ public class ResourceListsTest extends XMLTestCase {
         String json3 = "{ \"_id\" : \"User3\", \"uid\" : \"user_name_0\", \"imenbld\" : \"true\"}";
 
         String json4 = "{ \"_id\" : \"User4\", \"uid\" : \"user_name_1\", \"imenbld\" : \"true\"}";
-        MongoTestCaseHelper.insertJson(json1, json2, json3, json4);
+        m_helper.insertJson(json1, json2, json3, json4);
         Thread.sleep(1000);// sleep 1 second. I get inconsistent results when running the tests,
                            // as if mongo does not pick up quickly
-        ResourceLists rl = new ResourceLists();
-        rl.setCoreContext(m_coreContext);
 
-        String generatedXml = getFileContent(rl, null);
+        String generatedXml = getFileContent(m_rl, null);
         InputStream referenceXml = getClass().getResourceAsStream("resource-lists.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
     }
@@ -79,12 +79,10 @@ public class ResourceListsTest extends XMLTestCase {
                 + "{\"" + MongoConstants.URI + "\" : \"sip:100@example.org\",\"" + MongoConstants.NAME
                 + "\" : \"delta\"}" + "]}, \"prm\" : [\"Mobile\"" + "]}";
 
-        MongoTestCaseHelper.insertJson(json3, json2);
+        m_helper.insertJson(json3, json2);
         Thread.sleep(1000);
-        ResourceLists rl = new ResourceLists();
-        rl.setCoreContext(m_coreContext);
 
-        String fileContent = getFileContent(rl, null);
+        String fileContent = getFileContent(m_rl, null);
         assertXMLEqual("<lists xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01\"/>",
                 fileContent);
     }
@@ -92,6 +90,6 @@ public class ResourceListsTest extends XMLTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        MongoTestCaseHelper.dropDb("imdb");
+        m_helper.dropDb();
     }
 }

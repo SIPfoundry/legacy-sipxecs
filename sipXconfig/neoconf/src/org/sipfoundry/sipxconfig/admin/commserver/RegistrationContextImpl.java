@@ -13,46 +13,36 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.commons.mongo.MongoAccessController;
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+
 public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
-    private static final String DB_NAME = "node";
     private static final String DB_COLLECTION_NAME = "registrar";
-    private static final String UNABLE_OPEN_MONGO = "Unable to open mongo";
     private LocationsManager m_locationsManager;
-
-    private DB getDatabase(String dbName) throws Exception {
-        try {
-            return MongoAccessController.INSTANCE.getDatabase(dbName);
-        } catch (Exception e) {
-            LOG.error(UNABLE_OPEN_MONGO);
-            throw (e);
-        }
-    }
+    private MongoDbTemplate m_nodedb;
 
     /**
      * @see org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext#getRegistrations()
      */
     public List<RegistrationItem> getRegistrations() {
         try {
-            Location primaryProxyLocation = m_locationsManager.getLocationByBundle("primarySipRouterBundle");
-            if (primaryProxyLocation == null) {
-                LOG.error("No primary proxy found.");
-                return Collections.emptyList();
-            }
-            DB datasetDb = getDatabase(DB_NAME);
+//            Location primaryProxyLocation = m_locationsManager.getLocationByBundle("primarySipRouterBundle");
+//            if (primaryProxyLocation == null) {
+//                LOG.error("No primary proxy found.");
+//                return Collections.emptyList();
+//            }
+            DB datasetDb = m_nodedb.getDb();
             DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
             DBCursor cursor = registrarCollection.find();
             List<RegistrationItem> items = new ArrayList<RegistrationItem>(cursor.size());
@@ -97,4 +87,11 @@ public class RegistrationContextImpl implements RegistrationContext {
         m_locationsManager = locationsManager;
     }
 
+    public MongoDbTemplate getNodedb() {
+        return m_nodedb;
+    }
+
+    public void setNodedb(MongoDbTemplate nodedb) {
+        m_nodedb = nodedb;
+    }
 }

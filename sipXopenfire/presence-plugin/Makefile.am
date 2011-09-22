@@ -2,16 +2,17 @@ include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
-SUBDIRS = \
-	. \
-	test
-
 EXTRA_DIST = \
 	plugin.xml \
 	web \
-	$(plugin_SRC)
+	$(plugin_SRC) \
+	$(test_SRC)
 
-noinst_DATA = javac-plugin
+
+noinst_DATA = \
+	javac-plugin
+	
+#	 javac-test  doesn't compile
 
 jardir = @SIPX_JAVADIR@/sipXopenfire/plugins
 jar_DATA = \
@@ -19,7 +20,7 @@ jar_DATA = \
 	$(plugin_JAR)
 
 plugin_JAR = sipx-openfire-presence-plugin.jar
-plugin_SRC = $(shell cd $(srcdir); find org -name '*.java')
+plugin_SRC = $(shell cd $(srcdir); find src -name '*.java')
 plugin_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(plugin_PKGS)) \
 	@OPENFIRE_HOME@/lib/openfire.jar
@@ -44,3 +45,16 @@ $(plugin_JAR) : javac-plugin
 
 clean-local :
 	rm -rf lib
+
+test_JAVAROOT = test-classes
+
+test_SRC = $(shell cd $(srcdir); find test -type f -name '*.java')
+test_PKGS = \
+	$(plugin_PKGS) \
+	junit \
+	smackx
+
+test_DEPS = \
+	$(JAVAROOT) \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(test_PKGS)) \
+	@OPENFIRE_HOME@/lib/openfire.jar

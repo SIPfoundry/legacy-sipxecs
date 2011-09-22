@@ -39,8 +39,8 @@ import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.Set;
 import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.RemoteRequest;
@@ -182,7 +182,7 @@ public class FaxRx {
 
         LOG.info("faxrx::Starting mailbox (" + m_mailbox + ") in locale " + m_loc.getLocale());
 
-        User user = ValidUsers.INSTANCE.getUser(m_mailboxid);
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(m_mailboxid);
         if (user == null) {
             LOG.error("FaxReceive: no user found for mailbox " + m_mailboxid);
             return;

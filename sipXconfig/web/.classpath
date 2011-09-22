@@ -5,7 +5,7 @@
 	<classpathentry kind="src" path="gwt/src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/web/out/WEB-INF/classes"/>
+	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/web/classes"/>
 	<classpathentry exported="true" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/sipxcommons"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/hivemind-1.1.1.jar"/>

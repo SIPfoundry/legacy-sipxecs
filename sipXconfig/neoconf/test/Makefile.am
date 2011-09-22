@@ -43,15 +43,18 @@ test_SRC = $(shell cd $(srcdir); find org \( \
 	 -name '*.java' \
 	\) )
 
-javac-test : test.properties sipxconfig.properties
+javac-test : test.properties sipxconfig.properties domain-config
 
-CLEANFILES = test.properties sipxconfig.properties
+CLEANFILES = test.properties sipxconfig.properties domain-config
 
 test.properties sipxconfig.properties : SIPX_CONFDIR=$(top_srcdir)/etc/sipxpbx
 sipxconfig.properties : $(top_srcdir)/etc/sipxconfig.properties.in Makefile
 	@$(call SearchAndReplace,$<,$@.tmp,$(EXTRA_REPLACE))
 	@echo "$$sipxconfig_properties" | tr -d '\011' >> $@.tmp
 	mv $@.tmp $@
+	
+domain-config : Makefile
+	@echo "$$domain_config" | tr -d '\011' >> $@	
 
 # send autoconf variables to prop file available to test env.
 local.etc.dir = $(top_srcdir)/etc/sipxpbx
@@ -100,11 +103,24 @@ reset-acd :
 	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/enable_upgrades.sql
 	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/location_fqdn.sql
 	$(PG_SQL) SIPXACD_HISTORY_TEST -f $(srcdir)/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql
+	
+define domain_config
+	SIP_DOMAIN_NAME : example.org
+	SIP_DOMAIN_ALIASES : 127.0.0.1 myhost.example.org
+	SIP_REALM : example.org
+	SHARED_SECRET : pHJhejhCcSy5nc+UfcMF2wMN
+	DEFAULT_LANGUAGE : en
+	SUPERVISOR_PORT : 8092
+	CONFIG_HOSTS : myhost.example.org
+endef	
+export domain_config
 
 # customize spring beans for unit test environment, must include tab as first char
 define sipxconfig_properties
+	domainManagerImpl.domainConfigFilename=$(abspath .)/domain-config
 	dataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCONFIG_TEST
 	cdrDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCDR_TEST
 	acdHistoryDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST
+	sysdir.mongo_ns=_TEST
 endef
 export sipxconfig_properties

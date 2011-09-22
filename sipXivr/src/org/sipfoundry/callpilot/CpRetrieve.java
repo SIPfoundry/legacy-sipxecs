@@ -10,7 +10,6 @@ package org.sipfoundry.callpilot;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -19,7 +18,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.Messages;
 import org.sipfoundry.voicemail.VmMessage;
@@ -150,7 +149,7 @@ public class CpRetrieve {
             }
 
             // See if the user exists
-            user = ValidUsers.INSTANCE.getUser(mbxString);         
+            user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(mbxString);         
 
             // "Enter your personal identification number, and then press #.":
             // "To log in as a different user, press #"

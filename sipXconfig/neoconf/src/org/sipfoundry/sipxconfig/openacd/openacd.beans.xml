@@ -20,7 +20,7 @@
     <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="processContext" ref="sipxProcessContext" />
   </bean>
-
+  
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.openacd.OpenAcdContext" />
     <property name="target">
@@ -28,8 +28,13 @@
     </property>
   </bean>
 
+  <bean id="openAcdDb" class="org.sipfoundry.commons.mongo.MongoDbTemplate">
+	<property name="name" value="openacd${sysdir.mongo_ns}"/>
+  </bean>
+
   <bean id="openAcdProvisioningContext" class="org.sipfoundry.sipxconfig.openacd.OpenAcdProvisioningContextImpl">
 	<property name="openAcdContext" ref="openAcdContext"/>
+	<property name="db" ref="openAcdDb"/>
   </bean>
 
   <bean id="openAcdSkillGroupMigrationContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroupMigrationContextImpl">

@@ -23,7 +23,7 @@ import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 
 
@@ -139,7 +139,7 @@ public class Moh {
             musicPath = "portaudio_stream://";
         } else if (id.startsWith("u")) {
             String userName = id.substring(1);
-            User user = ValidUsers.INSTANCE.getUser(userName);
+            User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(userName);
             if (user != null) {
                 musicPath = m_ivrConfig.getDataDirectory()+"/moh/"+user.getUserName();
             } else {

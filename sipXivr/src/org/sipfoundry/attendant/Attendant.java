@@ -31,6 +31,7 @@ import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.freeswitch.Transfer;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
@@ -263,7 +264,7 @@ public class Attendant {
                 // See if the entered digits matches a dialable extension
                 // (keeps AA users from entering long distance numbers, 900 numbers,
                 // call pickup, paging, etc.)
-                User user = ValidUsers.INSTANCE.getUser(digits);
+                User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(digits);
                 if (user != null) {
                     String uri = user.getUri();
                     LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s) uuid=%s", digits, uri, m_uuid));
@@ -321,7 +322,7 @@ public class Attendant {
             
             // Lookup the extension (it may be an alias)
             String extension = item.getExtension();
-            User u = ValidUsers.INSTANCE.getUser(extension);
+            User u = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(extension);
             if (u != null) {
                 // Use the internal ~~vm~xxxx user to do this.
                 dest = extensionToUrl("~~vm~"+u.getUserName());
@@ -466,7 +467,7 @@ public class Attendant {
             String transferDomain = m_ivrConfig.getSipxchangeDomainName();
             if (domainPart.equalsIgnoreCase(transferDomain)){
                 String userpart = ValidUsers.getUserPart(dest);
-                User user = ValidUsers.INSTANCE.getUser(userpart);
+                User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(userpart);
                 if (user != null) {
                     String uri = user.getUri();
                     LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s) uuid=%s", dest, uri, m_uuid));

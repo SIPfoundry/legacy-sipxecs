@@ -1,6 +1,5 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
@@ -10,39 +9,28 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.speeddial.ResourceLists;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
-public class SpeedDialsTestIntegration extends IntegrationTestCase {
-
+public class SpeedDialsTestIntegration extends ImdbTestCase {
     private SpeedDials m_speedDials;
-    private CoreContext m_coreContext;
     private ResourceLists m_resourceLists;
-    private DomainManager m_domainManager;
 
     public void testGenerateResourceLists() throws Exception {
-        m_domainManager.setNullDomain();
+//        m_domainManager.setNullDomain();
         loadDataSetXml("domain/DomainSeed.xml");
         loadDataSet("admin/commserver/imdb/speeddials.db.xml");
-        MongoTestCaseHelper.initMongo("imdb", "entity");
-        MongoTestCaseHelper.dropDb("imdb");
-        DBCollection collection = MongoTestCaseHelper.initMongo("imdb", "entity");
-        m_speedDials.setDbCollection(collection);
+        m_speedDials.setDbCollection(getEntityCollection());
 
-        User userA = m_coreContext.loadUserByUserName("user_a");
-        User userC = m_coreContext.loadUserByUserName("user_c");
-        User userB = m_coreContext.loadUserByUserName("user_name_0");
-        User userD = m_coreContext.loadUserByUserName("user_name_1");
+        User userA = getCoreContext().loadUserByUserName("user_a");
+        User userC = getCoreContext().loadUserByUserName("user_c");
+        User userB = getCoreContext().loadUserByUserName("user_name_0");
+        User userD = getCoreContext().loadUserByUserName("user_name_1");
 
         List<String> prmlist = Arrays.asList(PermissionName.SUBSCRIBE_TO_PRESENCE.getName());
         List<String> prmlistNoSubscribe = Arrays.asList(PermissionName.MOBILE.getName());
@@ -66,22 +54,13 @@ public class SpeedDialsTestIntegration extends IntegrationTestCase {
         String generated = AbstractConfigurationFile.getFileContent(m_resourceLists, null);
         InputStream referenceXmlStream = getClass().getResourceAsStream("resource-lists.test.xml");
         assertEquals(IOUtils.toString(referenceXmlStream), generated);
-        MongoTestCaseHelper.dropDb("imdb");
     }
 
     public void setSpeeddialDataSet(SpeedDials speedDials) {
         m_speedDials = speedDials;
     }
 
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
-    }
-
     public void setResourceListGenerator(ResourceLists resourceLists) {
         m_resourceLists = resourceLists;
-    }
-
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
     }
 }

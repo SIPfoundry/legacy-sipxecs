@@ -7,14 +7,12 @@ package org.sipfoundry.callpilot;
 
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.sipxivr.DialByName;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.voicemail.VoiceMail;
 
 public class CpThruDial {
@@ -60,7 +58,7 @@ public class CpThruDial {
        // toll fraud .. ie can't dial 90 to get an operator
        
        if(!digits.startsWith(namePrefix)) {           
-           if(ValidUsers.INSTANCE.getUser(digits) == null) {
+           if(UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(digits) == null) {
                // don't allow transfer to a non-user or external number
                m_vm.playError("invalid_extension");
                return;

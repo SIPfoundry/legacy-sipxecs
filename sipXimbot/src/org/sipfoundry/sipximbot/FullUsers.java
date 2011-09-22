@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
 /**
  * Holds the valid user data needed for the AutoAttendant, parsing from IMDB XML files
@@ -29,7 +30,7 @@ public enum FullUsers {
      * @return user found or null
      */
     public User isValidUser(String userName) {
-        User user = ValidUsers.INSTANCE.getUser(userName);
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(userName);
         if (user != null) {
             String jid = user.getJid() + "@" + ImbotConfiguration.get().getSipxchangeDomainName();
             user.setJid(jid);
@@ -40,7 +41,7 @@ public enum FullUsers {
 
     public User findByjid(String jid) {
         String id = StringUtils.substringBefore(jid, "@");
-        User user = ValidUsers.INSTANCE.getUserByInsensitiveJid(id);
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUserByInsensitiveJid(id);
         if (user != null) {
             user.setJid(jid);
         }
@@ -48,7 +49,7 @@ public enum FullUsers {
     }
     
     public User findByConfName(String confName) {
-        User user = ValidUsers.INSTANCE.getUserByConferenceName(confName);
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUserByConferenceName(confName);
         if (user != null) {
             String jid = user.getJid() + "@" + ImbotConfiguration.get().getSipxchangeDomainName();
             user.setJid(jid);

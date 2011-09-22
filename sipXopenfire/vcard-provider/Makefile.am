@@ -9,9 +9,6 @@ noinst_DATA = javac-provider
 
 jardir = @SIPX_JAVADIR@/sipXopenfire/lib
 
-# copy jars into openfire lib dir. NOTE: I did not verify this is nec. but preserved from ant port
-# but it wouldn't seem like is nec.  Openfire integration i think would benefit from a full 
-# review. --douglas
 jar_PKGS = \
 	log4j \
 	mongo \
@@ -20,12 +17,15 @@ jar_PKGS = \
 	xmlrpc-client \
 	xmlrpc-server
 
+# copy jars into openfire lib dir. NOTE: I did not verify this is nec. but preserved from ant port
+# but it wouldn't seem like is nec.  Openfire integration i think would benefit from a full 
+# review. --douglas
 jar_DATA = \
 	$(provider_JAR) \
 	$(foreach P,$(jar_PKGS),$(wildcard @SIPX_JAVADIR@/sipXcommons/$(P)*.jar))
 
 provider_JAR = sipx-openfire-vcard-provider.jar
-provider_SRC = $(shell cd $(srcdir); find org -name '*.java')
+provider_SRC = $(shell cd $(srcdir); find src -name '*.java')
 provider_DEPS = \
 	$(JAVAROOT) \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(provider_PKGS)) \

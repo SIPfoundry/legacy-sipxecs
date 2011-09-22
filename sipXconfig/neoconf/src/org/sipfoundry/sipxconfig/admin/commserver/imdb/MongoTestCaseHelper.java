@@ -6,93 +6,105 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.net.UnknownHostException;
 import java.util.List;
-
-import org.sipfoundry.commons.mongo.MongoAccessController;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
+
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 
 public final class MongoTestCaseHelper {
+
     public static final String DOMAIN = "mydomain.org";
     public static final String ID = "_id";
-    private static DBCollection s_collection;
+    private MongoDbTemplate m_dbt = new MongoDbTemplate();
+    private String m_collection;
 
-    private MongoTestCaseHelper() {
+    public MongoTestCaseHelper() {
+        m_dbt.setName("test");
+        m_collection = "entity";
     }
 
-    public static DBCollection initMongo(String dbName, String collectionName) throws UnknownHostException {
-        dropDb(dbName);
-        DB db = MongoAccessController.INSTANCE.getDatabase(dbName);
-        s_collection = db.getCollection(collectionName);
-        return s_collection;
+    public MongoTestCaseHelper(String dbname, String collectionName) {
+        m_dbt.setName(dbname);
+        m_collection = collectionName;
     }
 
-    public static void assertObjectPresent(DBObject ref) {
-        TestCase.assertTrue(s_collection.find(ref).size() > 0);
+    public DBCollection getCollection() {
+        return m_dbt.getDb().getCollection(m_collection);
     }
 
-    public static void assertObjectWithIdPresent(String id) {
+    public void assertObjectPresent(DBObject ref) {
+        TestCase.assertTrue(getCollection().find(ref).size() > 0);
+    }
+
+    public void assertObjectWithIdPresent(String id) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
-        TestCase.assertEquals(1, s_collection.find(ref).size());
+        TestCase.assertEquals(1, getCollection().find(ref).size());
     }
 
-    public static void assertObjectWithIdNotPresent(Object id) {
+    public void assertObjectWithIdNotPresent(Object id) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
-        TestCase.assertEquals(0, s_collection.find(ref).size());
+        TestCase.assertEquals(0, getCollection().find(ref).size());
     }
 
-    public static void assertCollectionItemsCount(DBObject ref, int count) {
-        TestCase.assertTrue(s_collection.find(ref).size() == count);
+    public void assertCollectionItemsCount(DBObject ref, int count) {
+        TestCase.assertTrue(getCollection().find(ref).size() == count);
     }
 
-    public static void assertCollectionCount(int count) {
-        TestCase.assertEquals(count, s_collection.find().count());
+    public void assertCollectionCount(int count) {
+        TestCase.assertEquals(count, getCollection().find().count());
     }
 
-    public static void assertObjectListFieldCount(String id, String listField, int count) {
+    public void assertObjectListFieldCount(String id, String listField, int count) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
-        TestCase.assertEquals(1, s_collection.find(ref).size());
-        DBObject obj = s_collection.findOne(ref);
+        TestCase.assertEquals(1, getCollection().find(ref).size());
+        DBObject obj = getCollection().findOne(ref);
         TestCase.assertTrue(obj.containsField(listField));
         TestCase.assertEquals(count, ((List<DBObject>) obj.get(listField)).size());
 
     }
 
-    public static void assertObjectWithIdFieldValuePresent(Object id, String field, Object value) {
+    public void assertObjectWithIdFieldValuePresent(Object id, String field, Object value) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
         ref.put(field, value);
-        TestCase.assertEquals(1, s_collection.find(ref).count());
+        TestCase.assertEquals(1, getCollection().find(ref).count());
     }
 
-    public static void assertObjectWithIdFieldValueNotPresent(Object id, String field, Object value) {
+    public void assertObjectWithIdFieldValueNotPresent(Object id, String field, Object value) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
         ref.put(field, value);
-        TestCase.assertEquals(0, s_collection.find(ref).count());
+        TestCase.assertEquals(0, getCollection().find(ref).count());
     }
 
-    public static void insert(DBObject dbo) {
-        s_collection.insert(dbo);
+    public void insert(DBObject dbo) {
+        getCollection().insert(dbo);
     }
 
-    public static void insertJson(String... jsons) {
+    public void insertJson(String... jsons) {
         for (String json : jsons) {
-            s_collection.save((DBObject) JSON.parse(json));
+            getCollection().save((DBObject) JSON.parse(json));
         }
     }
 
-    public static void dropDb(String db) throws UnknownHostException {
-        MongoAccessController.INSTANCE.dropDatabase(db);
+    public void dropDb() {
+        m_dbt.getMongo().dropDatabase(m_dbt.getName());
+    }
+
+    public MongoDbTemplate getDbTemplate() {
+        return m_dbt;
+    }
+
+    public void setDbTemplate(MongoDbTemplate dbt) {
+        m_dbt = dbt;
     }
 }

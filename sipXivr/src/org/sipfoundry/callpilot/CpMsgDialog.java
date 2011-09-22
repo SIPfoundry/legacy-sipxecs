@@ -10,20 +10,22 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Vector;
+
 import org.sipfoundry.callpilot.CpCmd.Command;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.Message;
 import org.sipfoundry.voicemail.MessageDescriptor;
+import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 import org.sipfoundry.voicemail.MessageDescriptorReader;
 import org.sipfoundry.voicemail.Messages;
 import org.sipfoundry.voicemail.VmMessage;
 import org.sipfoundry.voicemail.VoiceMail;
-import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 public class CpMsgDialog{
     
@@ -168,7 +170,7 @@ public class CpMsgDialog{
     
     private User getFrom() {
         String from = ValidUsers.getUserPart(m_vmMessage.getMessageDescriptor().getFromUri());                
-        User user = ValidUsers.INSTANCE.getUser(from);
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(from);
         if (user != null) {
             // If user doesn't have voicemail, don't allow reply or reply all
             if (!user.hasVoicemail()) {
@@ -383,7 +385,7 @@ public class CpMsgDialog{
                        continue;
                    }
                    
-                   recipUser = ValidUsers.INSTANCE.getUser(recipient);
+                   recipUser = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(recipient);
                    if(recipUser != null && recipUser.hasVoicemail()) {
                        m_recipientList.add(recipUser);
                    }
@@ -462,7 +464,7 @@ public class CpMsgDialog{
             
     private void playUser(PromptList pl, String addr) {
         
-        User user = ValidUsers.INSTANCE.getUser(addr);
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(addr);
         
         if (user != null) {
             Mailbox userMbox = new Mailbox(user);

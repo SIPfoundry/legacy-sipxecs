@@ -42,19 +42,19 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private SipxServiceBundle m_primarySipRouterBundle;
     private SipxServiceBundle m_redundantSipRouterBundle;
     private SipxFreeswitchService m_sipxFreeswitchService;
-    private static String DBNAME = "imdb";
+    private static String DBNAME = "imdb_TEST";
     private static String COLL_NAME = "node";
+    private MongoTestCaseHelper m_helper = new MongoTestCaseHelper(DBNAME, COLL_NAME);
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
-        MongoTestCaseHelper.initMongo(DBNAME, COLL_NAME);
     }
 
     @Override
     protected void onTearDownAfterTransaction() throws Exception {
         super.onTearDownAfterTransaction();
-        MongoTestCaseHelper.dropDb(DBNAME);
+        m_helper.dropDb();
     }
 
     public void testGetLocations() throws Exception {
@@ -167,8 +167,8 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         dbLocations[1].setReplicateConfig(false);
         m_out.saveLocation(dbLocations[1]);
 
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent(dbLocations[0].getId(), "ip", "192.168.1.2");
-        MongoTestCaseHelper.assertObjectWithIdNotPresent(dbLocations[1].getId());
+        m_helper.assertObjectWithIdFieldValuePresent(dbLocations[0].getId(), "ip", "192.168.1.2");
+        m_helper.assertObjectWithIdNotPresent(dbLocations[1].getId());
         
         dbLocations[1].setCallTraffic(true);
         dbLocations[1].setReplicateConfig(true);
@@ -233,7 +233,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
 
         Location[] locationsBeforeDelete = m_out.getLocations();
         assertEquals(2, locationsBeforeDelete.length);
-        MongoTestCaseHelper.assertCollectionCount(1);
+        m_helper.assertCollectionCount(1);
 
         Location locationToDelete = m_out.getLocationByAddress("10.1.1.2");
         m_out.deleteLocation(locationToDelete);
@@ -242,7 +242,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(1, locationsAfterDelete.length);
         assertEquals("localhost", locationsAfterDelete[0].getFqdn());
 
-        MongoTestCaseHelper.assertCollectionCount(1);
+        m_helper.assertCollectionCount(1);
     }
 
     public void testDeleteWithServices() throws Exception {

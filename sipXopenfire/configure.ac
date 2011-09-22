@@ -16,7 +16,6 @@ AC_CONFIG_FILES([
   etc/Makefile
   bin/Makefile
   presence-plugin/Makefile
-  presence-plugin/test/Makefile
   vcard-provider/Makefile
   config-plugin/Makefile
 ])

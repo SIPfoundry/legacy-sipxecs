@@ -9,6 +9,51 @@
  */
 package org.sipfoundry.commons.userdb;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.ACCOUNT;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIASES;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS_ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALT_ATTACH_AUDIO;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALT_EMAIL;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALT_IM_ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALT_NOTIFICATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.ATTACH_AUDIO;
+import static org.sipfoundry.commons.mongo.MongoConstants.CELL_PHONE_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_ENTRY_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXIT_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXT;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.DISPLAY_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.EMAIL;
+import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
+import static org.sipfoundry.commons.mongo.MongoConstants.HASHED_PASSTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_PHONE_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOST;
+import static org.sipfoundry.commons.mongo.MongoConstants.ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_ON_THE_PHONE_MESSAGE;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_PASSWORD;
+import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_BEGIN_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_END_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
+import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
+import static org.sipfoundry.commons.mongo.MongoConstants.PINTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.PORT;
+import static org.sipfoundry.commons.mongo.MongoConstants.RELATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.SYNC;
+import static org.sipfoundry.commons.mongo.MongoConstants.TLS;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
+import static org.sipfoundry.commons.mongo.MongoConstants.USERBUSYPROMPT;
+import static org.sipfoundry.commons.mongo.MongoConstants.USER_LOCATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
+import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -16,9 +61,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
-import static org.sipfoundry.commons.mongo.MongoConstants.*;
-
-import org.sipfoundry.commons.mongo.MongoAccessController;
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
 
 import com.mongodb.BasicDBList;
@@ -33,8 +76,7 @@ import com.mongodb.QueryBuilder;
  * Holds the valid user data needed for the AutoAttendant, parsing from mongo db imdb
  * 
  */
-public enum ValidUsers {
-    INSTANCE;
+public class ValidUsers {
 
     // Mapping of letters to DTMF numbers.
     // Position of letter in letters maps to corresponding position in numbers
@@ -44,6 +86,8 @@ public enum ValidUsers {
     private static final String IMDB_PERM_VOICEMAIL = "Voicemail";
     private static final String IMDB_PERM_RECPROMPTS = "RecordSystemPrompts";
     private static final String IMDB_PERM_TUICHANGEPIN = "tui-change-pin";
+    
+    private MongoDbTemplate m_imdb;
 
     public List<User> getValidUsers() {
         List<User> users = new ArrayList<User>();
@@ -252,7 +296,7 @@ public enum ValidUsers {
     private DBCollection getEntityCollection() {
         DBCollection entity = null;
         try {
-            DB imdb = MongoAccessController.INSTANCE.getDatabase("imdb");
+            DB imdb = m_imdb.getDb();
             entity = imdb.getCollection("entity");
         } catch (Exception ex) {
             System.exit(1);
@@ -539,5 +583,13 @@ public enum ValidUsers {
             queue.add(first); // Put first back (its now last)
             u.getDialPatterns().add(mashup);
         }
+    }
+
+    public MongoDbTemplate getImdb() {
+        return m_imdb;
+    }
+
+    public void setImdb(MongoDbTemplate imdb) {
+        m_imdb = imdb;
     }
 }

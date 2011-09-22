@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
 
     private TlsPeerManager m_tlsPeerManager;
+    private MongoTestCaseHelper m_helper = new MongoTestCaseHelper("test", "entity"); 
 
     public void testDeleteTlsPeer() throws Exception {
         loadDataSet("admin/tls/tls_peer.db.xml");
@@ -72,8 +73,8 @@ public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
         peer1.setName(" tl spe e r4");
         m_tlsPeerManager.saveTlsPeer(peer1);
         assertEquals("~~tp~tlspeer4", peer1.getInternalUser().getUserName());
-        MongoTestCaseHelper.assertObjectWithIdPresent("TlsPeer1");
-        MongoTestCaseHelper.assertObjectWithIdPresent("TlsPeer2");
+        m_helper.assertObjectWithIdPresent("TlsPeer1");
+        m_helper.assertObjectWithIdPresent("TlsPeer2");
         TlsPeer peer2 = m_tlsPeerManager.getTlsPeerByName("tlspeer2");
         peer2.setName("tlspeer4");
         try {
@@ -82,7 +83,7 @@ public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
         } catch (UserException ex) {
 
         }
-        MongoTestCaseHelper.assertObjectWithIdNotPresent("TlsPeer3");
+        m_helper.assertObjectWithIdNotPresent("TlsPeer3");
     }
 
     public void setTlsPeerManager(TlsPeerManager peerManager) {

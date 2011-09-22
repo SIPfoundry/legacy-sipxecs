@@ -12,8 +12,10 @@
         <value>classpath:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/certificates.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/admin/commserver/imdb/imdb.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/configdiag/configdiag.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/admin/dialplan/region_na.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/dialplan/sbc/bridge/bridge-models.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml</value>
@@ -60,7 +62,6 @@
         <value>classpath:/org/sipfoundry/sipxconfig/vm/vm.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/mongo/mongo.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/tunnel/tunnel.beans.xml</value>
-        <value>classpath:/region_na/dialrules.beans.xml</value>
         <value>classpath*:/sipxplugin.beans.xml</value>
       </list>
     </constructor-arg>

@@ -9,6 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.ENABLED;
+import static org.sipfoundry.commons.mongo.MongoConstants.ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.INTERNAL_ADDRESS;
+import static org.sipfoundry.commons.mongo.MongoConstants.SERVER;
+import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -26,18 +32,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.commons.mongo.MongoAccessController;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.commons.mongo.ResyncResult;
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -46,7 +45,6 @@ import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.branch.Branch;
-
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -67,11 +65,11 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import static org.sipfoundry.commons.mongo.MongoConstants.ENABLED;
-import static org.sipfoundry.commons.mongo.MongoConstants.ID;
-import static org.sipfoundry.commons.mongo.MongoConstants.INTERNAL_ADDRESS;
-import static org.sipfoundry.commons.mongo.MongoConstants.SERVER;
-import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 /**
  * This class manages all effective replications.The replication is triggered by
@@ -82,18 +80,13 @@ import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
 public class ReplicationManagerImpl extends HibernateDaoSupport implements ReplicationManager, BeanFactoryAware {
     private static final int PERMISSIONS = 0644;
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
-    private static final String HOST = "localhost";
-    private static final int PORT = 27017;
-    private static final String DB_NAME = "imdb";
     private static final String ENTITY_COLLECTION_NAME = "entity";
     private static final String NODE_COLLECTION_NAME = "node";
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
-    private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
     private static final String LOCATION_REGISTRATION = "Location registration in db";
     private static final String DATABASE_REGENERATION = "Database regeneration";
     private static final String BRANCH_REGENERATION = "Branch regeneration";
-    private static final String COLON = ":";
     private static final String IP = "ip";
     private static final String DESCRIPTION = "dsc";
     private static final String MASTER = "mstr";
@@ -117,6 +110,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     private boolean m_enabled = true;
 
+    private MongoDbTemplate m_imdb;
+    private ValidUsers m_validUsers;
     private ApiProvider<FileApi> m_fileApiProvider;
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
@@ -170,13 +165,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      */
     private void initMongo() throws Exception {
         if (m_datasetDb == null) {
-            try {
-                m_datasetDb = MongoAccessController.INSTANCE.getDatabase(DB_NAME);
-                m_datasetCollection = m_datasetDb.getCollection(ENTITY_COLLECTION_NAME);
-            } catch (Exception e) {
-                LOG.error(UNABLE_OPEN_MONGO + HOST + COLON + PORT);
-                throw (e);
-            }
+            m_datasetDb = m_imdb.getDb();
+            m_datasetCollection = m_datasetDb.getCollection(ENTITY_COLLECTION_NAME);
         }
     }
 
@@ -438,7 +428,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         try {
             LOG.info("Starting regeneration of branch members.");
             initMongo();
-            DBCursor users = ValidUsers.INSTANCE.getUsersInBranch(branch.getName());
+            DBCursor users = m_validUsers.getUsersInBranch(branch.getName());
             for (DBObject user : users) {
                 String uid = user.get(MongoConstants.UID).toString();
                 User u = m_coreContext.loadUserByUserName(uid);
@@ -457,7 +447,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         try {
             LOG.info("Starting regeneration of group members.");
             initMongo();
-            DBCursor users = ValidUsers.INSTANCE.getUsersInGroup(group.getName());
+            DBCursor users = m_validUsers.getUsersInGroup(group.getName());
             for (DBObject user : users) {
                 String uid = user.get(MongoConstants.UID).toString();
                 User u = m_coreContext.loadUserByUserName(uid);
@@ -626,16 +616,19 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     // to delete mongo dbs to force a full replication on the slave
     @Override
     public void resyncSlave(Location location) {
-        try {
-            ResyncResult result = MongoAccessController.INSTANCE.resync(location.getAddress());
-            if (result.getStatus() == 0) {
-                LOG.error("Replication: resync - " + result.getErrorMessage());
-            } else {
-                LOG.info("Replication: resync started - " + location.getAddress());
-            }
-        } catch (Exception e) {
-            LOG.error("Replication: resync failed - " + location.getAddress(), e);
-        }
+//  !!!!!!!!!!!!  NOTE: This cannot work, it needs the stunnel port numbers!
+//
+//       try {
+//            ResyncResult result = MongoAccessController.INSTANCE.resync(location.getAddress());
+//            if (result.getStatus() == 0) {
+//                LOG.error("Replication: resync - " + result.getErrorMessage());
+//            } else {
+//                LOG.info("Replication: resync started - " + location.getAddress());
+//            }
+//
+//        } catch (Exception e) {
+//            LOG.error("Replication: resync failed - " + location.getAddress(), e);
+//        }
     }
 
     /**
@@ -662,7 +655,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     public void addPermission(Permission permission) {
         try {
             initMongo();
-            DBCursor users = ValidUsers.INSTANCE.getEntitiesWithPermissions();
+            DBCursor users = m_validUsers.getEntitiesWithPermissions();
             for (DBObject user : users) {
                 Collection<String> prms = (Collection<String>) user.get(MongoConstants.PERMISSIONS);
                 prms.add(permission.getName());
@@ -681,7 +674,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     public void removePermission(Permission permission) {
         try {
             initMongo();
-            DBCursor users = ValidUsers.INSTANCE.getEntitiesWithPermission(permission.getName());
+            DBCursor users = m_validUsers.getEntitiesWithPermission(permission.getName());
             for (DBObject user : users) {
                 Collection<String> prms = (Collection<String>) user.get(MongoConstants.PERMISSIONS);
                 prms.remove(permission.getName());
@@ -699,6 +692,14 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      */
     @Override
     public boolean replicateFile(Location[] locations, ConfigurationFile file) {
+        Location p = m_locationsManager.getPrimaryLocation();
+        if (p != null) {
+            return replicateFile(p.getFqdn(), locations, file);
+        }
+        return true;
+    }
+
+    boolean replicateFile(String primaryHostname, Location[] locations, ConfigurationFile file) {
         if (!m_enabled) {
             return true;
         }
@@ -753,7 +754,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                 String content = encodeBase64(payloadBytes);
 
                 FileApi api = m_fileApiProvider.getApi(locations[i].getProcessMonitorUrl());
-                success = api.replace(getHostname(), file.getPath(), PERMISSIONS, content);
+                success = api.replace(primaryHostname, file.getPath(), PERMISSIONS, content);
                 if (success) {
                     m_auditLogContext.logReplication(file.getName(), locations[i]);
                 }
@@ -776,10 +777,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
-    }
-
-    private String getHostname() {
-        return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 
     @Override
@@ -817,5 +814,21 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     public void setTunnelManager(TunnelManager tunnelManager) {
         m_tunnelManager = tunnelManager;
+    }
+
+    public MongoDbTemplate getImdb() {
+        return m_imdb;
+    }
+
+    public void setImdb(MongoDbTemplate imdb) {
+        m_imdb = imdb;
+    }
+
+    public ValidUsers getValidUsers() {
+        return m_validUsers;
+    }
+
+    public void setValidUsers(ValidUsers validUsers) {
+        m_validUsers = validUsers;
     }
 }

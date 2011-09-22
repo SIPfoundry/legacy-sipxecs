@@ -16,10 +16,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.SipUriUtil;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.Mailbox;
 
 /**
@@ -85,7 +86,7 @@ public class MailboxServlet extends HttpServlet {
         String context = subDirs[2];
 
 
-        User user = ValidUsers.INSTANCE.getUser(mailboxString);
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(mailboxString);
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
         String authenticatedUserName = request.getUserPrincipal().getName();

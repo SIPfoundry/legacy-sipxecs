@@ -7,15 +7,16 @@ package org.sipfoundry.callpilot;
 
 import java.io.File;
 import java.util.List;
+
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.ApplicationConfiguraton;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
+import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.VoiceMail;
 
 public class CpDialByName extends DialByName {
@@ -29,7 +30,7 @@ public class CpDialByName extends DialByName {
     }
 
     protected DialByNameChoice selectChoice(String digits) {
-        List<User> matches = ValidUsers.INSTANCE.lookupDTMF(digits, true);
+        List<User> matches = UnfortunateLackOfSpringSupportFactory.getValidUsers().lookupDTMF(digits, true);
         CpDialog dlg;
 
         if (matches.size() == 0) {

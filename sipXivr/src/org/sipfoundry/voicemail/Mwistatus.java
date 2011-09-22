@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.Mailbox;
 
 /**
@@ -57,7 +58,7 @@ public class Mwistatus extends HttpServlet {
         // read the query string
         String idUri = request.getParameter("identity");
         
-        User user = ValidUsers.INSTANCE.getUser(ValidUsers.getUserPart(idUri));
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(ValidUsers.getUserPart(idUri));
         if (user != null) {
             // determine the message counts for the mailbox
             // (Okay, worry about this one.  It walks the mailstore directories counting .xml and .sta files.)

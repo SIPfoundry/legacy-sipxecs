@@ -8,6 +8,7 @@ package org.sipfoundry.callpilot;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.RestfulRequest;
 import org.sipfoundry.voicemail.VoiceMail;
@@ -70,7 +71,7 @@ public class CpAttdAdminDialog {
            if(tmpAttdExt.equals("0")) {
                tmpAttdExt = "";
            } else {
-               user = ValidUsers.INSTANCE.getUser(tmpAttdExt);         
+               user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(tmpAttdExt);         
                if (user == null){
                    m_vm.playError("invalid_number");
                    continue;

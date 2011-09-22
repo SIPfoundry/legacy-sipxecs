@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -46,7 +47,6 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         m_coreContext = (CoreContext) TestHelper.getApplicationContext().getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_locationsManager = (LocationsManager) TestHelper.getApplicationContext().getBean(
                 LocationsManager.CONTEXT_BEAN_NAME);
-
         TestHelper.cleanInsert("ClearDb.xml");
     }
 

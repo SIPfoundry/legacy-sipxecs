@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice;
@@ -79,7 +79,7 @@ public class EnterExtension {
                 userList.addAll(dbnChoice.getUsers());
                 break ;
             } else {
-                User user = ValidUsers.INSTANCE.getUser(digits);
+                User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(digits);
                 if (user == null || !user.hasVoicemail()) {
                     // "that extension is not valid"
                     loc.play("invalid_extension", "");

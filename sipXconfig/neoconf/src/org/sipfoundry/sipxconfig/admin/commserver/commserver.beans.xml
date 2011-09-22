@@ -63,6 +63,8 @@
     <property name="externalAliases" ref="externalAliases" />
     <property name="dataSetGenerator" ref="dataSetGenerator" />
     <property name="tunnelManager" ref="tunnelManager"/>
+    <property name="validUsers" ref="validUsers"/>
+    <property name="imdb" ref="imdb"/>
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>

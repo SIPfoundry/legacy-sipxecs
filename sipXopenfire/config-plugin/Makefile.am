@@ -4,27 +4,41 @@ include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(cfg_SRC) \
-	$(cfg_RESOURCES)
+	$(cfg_RESOURCES) \
+	$(test_SRC)
 
 # tests do not compile
-#SUBDIRS = \
-#	. \
-#	test
-
-noinst_DATA = javac-cfg
+noinst_DATA = \
+	javac-cfg	
+# javac-test   tests do not compile	
 
 jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 jar_DATA = $(cfg_JAR)
 cfg_JAR = cfg-service.jar
-cfg_RESOURCES = sipxplugin.beans.xml
+cfg_RESOURCES = src/sipxplugin.beans.xml
 
-$(cfg_JAR) : javac-cfg
+$(cfg_JAR) : javac-cfg $(cfg_RESOURCES)
 	jar -cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
-	  $(call JarInclude,$(srcdir),$(cfg_RESOURCES))
+	  $(call JarInclude,$(srcdir)/src,$(subst src/,,$(cfg_RESOURCES)))
 
 cfg_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig,$(cfg_PKGS))
 
 cfg_SRC = \
-	$(shell cd $(srcdir); find org -name '*.java')
+	$(shell cd $(srcdir); find src -name '*.java')
+
+noinst_DATA = 
+test_JAVAROOT = classes.test
+test_PKGS = \
+	$(openfire_PKGS) \
+	junit \
+	easymock \
+	commons-io \
+	sipxcommons
+
+test_DEPS = \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig,$(test_PKGS))
+
+test_SRC = $(shell cd $(srcdir); find test -name '*.java')
+	

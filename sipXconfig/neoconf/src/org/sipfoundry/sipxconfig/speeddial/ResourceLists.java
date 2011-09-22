@@ -40,6 +40,7 @@ import static org.sipfoundry.sipxconfig.speeddial.SpeedDial.getResourceListId;
 public class ResourceLists extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01";
     private CoreContext m_coreContext;
+    private ValidUsers m_validUsers;
 
     @Override
     public boolean isLocationDependent() {
@@ -51,7 +52,7 @@ public class ResourceLists extends XmlFile {
         Document document = FACTORY.createDocument();
         Element lists = document.addElement("lists", NAMESPACE);
         Element imList = null;
-        DBCursor cursor = ValidUsers.INSTANCE.getUsers();
+        DBCursor cursor = m_validUsers.getUsers();
         while (cursor.hasNext()) {
             DBObject user = cursor.next();
             String userName = user.get(UID).toString();
@@ -128,6 +129,14 @@ public class ResourceLists extends XmlFile {
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public ValidUsers getValidUsers() {
+        return m_validUsers;
+    }
+
+    public void setValidUsers(ValidUsers validUsers) {
+        m_validUsers = validUsers;
     }
 
 }

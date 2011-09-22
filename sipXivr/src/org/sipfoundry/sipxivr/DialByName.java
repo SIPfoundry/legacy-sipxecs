@@ -20,7 +20,7 @@ import org.sipfoundry.commons.freeswitch.Collect;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 public class DialByName {
@@ -49,9 +49,9 @@ public class DialByName {
      */
     protected DialByNameChoice selectChoice(String digits){
         // Lookup the list of validUsers that match the DTMF digits
-        List<User> matches = ValidUsers.INSTANCE.lookupDTMF(digits, false);
+        List<User> matches = UnfortunateLackOfSpringSupportFactory.getValidUsers().lookupDTMF(digits, false);
         if (matches.size() != 0) {
-            matches = ValidUsers.INSTANCE.lookupDTMF(digits, m_OnlyVoicemailUsers);
+            matches = UnfortunateLackOfSpringSupportFactory.getValidUsers().lookupDTMF(digits, m_OnlyVoicemailUsers);
             if (matches.size() == 0) {
                 // Indicate dose match but user has no voice mail permission
                 m_loc.play("invalid_extension", "");
@@ -205,7 +205,7 @@ public class DialByName {
                     break ; // "enter" key
                 }
                 digits += digit;
-                List<User> matches = ValidUsers.INSTANCE.lookupDTMF(digits, m_OnlyVoicemailUsers);
+                List<User> matches = UnfortunateLackOfSpringSupportFactory.getValidUsers().lookupDTMF(digits, m_OnlyVoicemailUsers);
                 LOG.info(String.format("DialByName::dialByName %s matchs %d users", digits, matches.size()));
                 if (matches.size() < 3) {
                     break ; // Less than 3 (including none!) time to leave

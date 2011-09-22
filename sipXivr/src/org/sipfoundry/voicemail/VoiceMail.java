@@ -30,7 +30,7 @@ import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.freeswitch.Transfer;
 import org.sipfoundry.commons.userdb.DistributionList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
@@ -153,7 +153,7 @@ public class VoiceMail {
         String mailboxString = m_parameters.get("origCalledNumber");
         if(mailboxString != null) {
             // validate
-            if(ValidUsers.INSTANCE.getUser(mailboxString) == null) {
+            if(UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(mailboxString) == null) {
                 mailboxString = null;
             }
         }        
@@ -182,7 +182,7 @@ public class VoiceMail {
      */
     String voicemail(String mailboxString) {
                
-        User user = ValidUsers.INSTANCE.getUser(mailboxString);
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(mailboxString);
         Localization usrLoc = setLoc(usingCpUi(user));
                  
         m_mailbox = null;
@@ -284,7 +284,7 @@ public class VoiceMail {
             if (userNames != null) {
                 Vector<User> users = new Vector<User>();
                 for (String userName : userNames) {
-                    User u = ValidUsers.INSTANCE.getUser(userName);
+                    User u = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(userName);
                     if (u != null && u.hasVoicemail()) {
                         users.add(u);
                     }

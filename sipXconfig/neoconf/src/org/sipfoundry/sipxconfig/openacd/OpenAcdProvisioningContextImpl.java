@@ -16,25 +16,25 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
+import static org.apache.commons.beanutils.BeanUtils.getSimpleProperty;
+import static org.apache.commons.lang.StringUtils.EMPTY;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.WriteResult;
-
-import org.sipfoundry.commons.mongo.MongoAccessController;
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.sipxconfig.common.UserChangeEvent;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-import static org.apache.commons.beanutils.BeanUtils.getSimpleProperty;
-import static org.apache.commons.lang.StringUtils.EMPTY;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.WriteResult;
 
 public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContext, ApplicationListener {
     enum Command {
@@ -64,6 +64,7 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
     }
 
     private OpenAcdContext m_openAcdContext;
+    private MongoDbTemplate m_db;
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof UserChangeEvent) {
@@ -104,7 +105,7 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
 
     protected void storeCommand(BasicDBObject command) {
         try {
-            DB openAcdDb = MongoAccessController.INSTANCE.getDatabase("openacd");
+            DB openAcdDb = m_db.getDb();
             openAcdDb.requestStart();
             DBCollection commandsCollection = openAcdDb.getCollection("commands");
             WriteResult result = commandsCollection.insert(command);
@@ -158,5 +159,13 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
     @Required
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {
         m_openAcdContext = openAcdContext;
+    }
+
+    public MongoDbTemplate getDb() {
+        return m_db;
+    }
+
+    public void setDb(MongoDbTemplate db) {
+        m_db = db;
     }
 }

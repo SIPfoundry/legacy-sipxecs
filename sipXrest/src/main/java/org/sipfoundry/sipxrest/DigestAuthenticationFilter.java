@@ -26,7 +26,7 @@ import org.restlet.data.Status;
 import org.restlet.util.Series;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
 public class DigestAuthenticationFilter extends Filter {
     private static Logger logger = Logger.getLogger(DigestAuthenticationFilter.class);
@@ -87,7 +87,7 @@ public class DigestAuthenticationFilter extends Filter {
                 String agentName = plugin.getAgent(request);
                 logger.debug("AgentName = " + agentName);
 
-                User user = ValidUsers.INSTANCE.getUser(agentName);
+                User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(agentName);
 
                 if (user == null) {
                     logger.debug("User not found");

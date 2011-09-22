@@ -261,8 +261,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/mongod/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mrtg
 %config(noreplace) %{sipxpbxconf}/mrtg/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/region_na
-%config(noreplace) %{sipxpbxconf}/region_na/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/nattraversal
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxbridge

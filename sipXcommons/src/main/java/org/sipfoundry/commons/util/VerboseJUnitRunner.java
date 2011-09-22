@@ -89,6 +89,7 @@ public class VerboseJUnitRunner {
 
     static final class VerboseListener extends TextListener {
         private PrintStream m_out;
+        List<String> m_failed = new ArrayList<String>();
 
         public VerboseListener(JUnitSystem system) {
             super(system);
@@ -99,8 +100,16 @@ public class VerboseJUnitRunner {
             m_out.println('[' + description.getClassName() + ':' + description.getMethodName() + ']');
         }
 
-        public void testFailure(Description description) {
+        public void testFailure(Failure failure) {
+            m_failed.add(failure.getDescription().getClassName());
             m_out.println("[FAILED]");
+        }
+        
+        public void printSummmary() {
+            if (!m_failed.isEmpty()) {
+                m_out.println("Failed Tests");
+                m_out.println(StringUtils.join(m_failed, ' '));
+            }
         }
     }
 }

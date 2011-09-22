@@ -95,16 +95,14 @@ public final class TestHelper {
 
     private static Properties s_testProps;
 
+    private static Properties s_configProps;
+
     private static final DateFormat ENGLISH_DATE = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.FULL,
             Locale.ENGLISH);
-
-    private static Properties s_sysDirProps;
 
     private static ApplicationContext s_appContext;
 
     private static DatabaseConnection s_dbunitConnection;
-
-    private static String s_classPathDir;
 
     static {
         ENGLISH_DATE.setLenient(true);
@@ -495,21 +493,32 @@ public final class TestHelper {
 
     public static Properties getTestProperties() {
         if (s_testProps == null) {
-            s_testProps = new Properties();
-            String cp = System.getProperty("java.class.path");
-            File propsFile = TestHelper.getResourceAsFile("/test.properties");
-            InputStream propsStream = null;
-            try {
-                LOG.info("Loading test properties " + propsFile.getPath());
-                propsStream = new FileInputStream(propsFile);
-                s_testProps.load(propsStream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                IOUtils.closeQuietly(propsStream);
-            }
+            s_testProps = loadProperties("/test.properties");
         }
         return s_testProps;
+    }
+
+    public static Properties getConfigProperties() {
+        if (s_configProps == null) {
+            s_configProps = loadProperties("/sipxconfig.properties");
+        }
+        return s_configProps;
+    }
+
+    private static Properties loadProperties(String resource) {
+        Properties testProps = new Properties();
+        File propsFile = TestHelper.getResourceAsFile(resource);
+        InputStream propsStream = null;
+        try {
+            LOG.info("Loading test properties " + propsFile.getPath());
+            propsStream = new FileInputStream(propsFile);
+            testProps.load(propsStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(propsStream);
+        }
+        return testProps;
     }
 
     public static File createTempDir(String name) throws IOException {
