@@ -38,7 +38,7 @@ fi
 Database=SIPXCONFIG
 RequiredDatabaseVersion=12
 IndexDir=${TmpDir}/index
-Dependencies=`@SIPX_BINDIR@/java-dep -d ${CommonsLibDir} -d ${LibDir} sipxconfig @web_PKGS@ agent-bindings cdr-binding`
+Dependencies=`@SIPX_BINDIR@/java-dep -d ${CommonsLibDir} -d ${LibDir} sipxconfig sipxconfig-web @web_PKGS@ agent-bindings cdr-binding`
 export CLASSPATH=`echo @SIPX_CONFDIR@ ${Dependencies} ${PluginDir}/*.jar | sed -e 's/ /:/g'`
 
 # set primary system hostname (assume sipxconfig is only run on primary system)

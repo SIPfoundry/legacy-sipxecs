@@ -224,6 +224,9 @@
   <bean id="skin" class="org.sipfoundry.sipxconfig.site.skin.SkinControl">
     <property name="tapestryContext" ref="tapestry" />
   </bean>
+  
+  <bean id="customPageManager" class="org.sipfoundry.sipxconfig.site.CustomPageManager">
+  </bean>
 
   <!--  Message source beans -->
   <bean id="jarMessagesSource" class="org.sipfoundry.sipxconfig.site.common.JarMessagesSource">

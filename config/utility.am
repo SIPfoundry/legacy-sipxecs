@@ -89,6 +89,20 @@ CommonVariablesNames = \
 SearchAndReplace = \
 	sed $(foreach V,$3 $(CommonVariablesNames), -e 's|@$(V)\@|$($(V))|g') $1 > $2
 
+# Remove a list of directories if they exist
+# Examples
+#   java-foo-clean :
+#   	$(call CleanDirs,out1 out2)
+CleanDirs = \
+	$(foreach D,$1,! test -d $(D) || rm -r $(D);)
+
+# Remove a list of files if they exist
+# Examples
+#   java-foo-clean :
+#   	$(call CleanFiles,file1 file2)
+CleanFiles = \
+	$(foreach F,$1,! test -f $(F) || rm $(F);)
+
 # Recursive targets. will go to each subdir and run
 precommit : % : %-recurse
 

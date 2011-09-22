@@ -40,7 +40,7 @@ wsdd_DEPS = \
 	$(wsdl_DEPS) \
 	$(web_JAVAROOT)
 
-WSDD = out/WEB-INF/server-config.wsdd
+WSDD = $(war_ROOT)/WEB-INF/server-config.wsdd
 WSDD_XSLT = $(top_srcdir)/meta/server-config.xsl
 
 # WSDD doesn't validate, schema does not resolve among 
@@ -48,6 +48,7 @@ WSDD_XSLT = $(top_srcdir)/meta/server-config.xsl
 # I have posted email to ant project to get feedback on this
 # http://thread.gmane.org/gmane.comp.jakarta.ant.user/34470
 $(WSDD) : javac-wsdl $(WSDL) $(WSDD_XSLT)
+	test -d $(dir $@) || mkdir -p $(dir $@)
 	$(call JavaCommand,wsdd) org.apache.axis.utils.Admin server $(wsdl_SRCDIR)/org/sipfoundry/sipxconfig/api/deploy.wsdd
 	sed -e 's/<deployment.*>/<deployment>/g' server-config.wsdd > server-config-no-spring.wsdd.dirty
 	$(XSLTPROC) -o server-config.wsdd.dirty $(WSDD_XSLT) server-config-no-spring.wsdd.dirty
@@ -80,7 +81,6 @@ java-gwt : $(gwt_SRC)
 
 	mv out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/org.sipfoundry.sipxconfig.userportal.user_phonebook_search.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js
 	mv out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js
-
 
 # W E B
 web_COMPILE_PKGS = \
@@ -144,18 +144,19 @@ context_SRC = $(shell cd $(srcdir)/context; find . -type f \( \
 
 # W A R
 wardir = @SIPX_JAVADIR@/sipXconfig
-war_DATA = sipxconfig.war
+war_DATA = sipxconfig.war sipxconfig-web.jar
 
-# create war first, then update because 'bug' in jar command won't accept 2 dirs w/WEB-INF dirs in create jar command
-# but will allow update to append to same directory
-sipxconfig.war : javac-web java-gwt javac-wsdl $(addprefix $(web_JAVAROOT)/,$(web_RESOURCES)) $(WSDD) $(addprefix context/,$(context_SRC))
-	jar cf $@.tmp $(call JarInclude,out,.)
-	cd $(srcdir)/context; jar uf $(abspath $@.tmp) $(context_SRC)
+sipxconfig-web.jar : javac-web javac-wsdl
+	jar cf $@ \
+		$(call JarInclude,$(web_JAVAROOT),.) \
+		$(call JarInclude,$(srcdir)/src,$(web_RESOURCES))
+
+# create war, then update war.  There's a 'bug' in jar command will create 2 separate ./WEB-INF entries
+# in jar file if listed twice. 
+sipxconfig.war : java-gwt $(WSDD) $(addprefix context/,$(context_SRC))
+	jar cf $@.tmp $(call JarInclude,$(war_ROOT),.)
+	cd $(srcdir)/context; jar uf $(abspath $@.tmp) $(context_SRC)		
 	mv $@.tmp $@
-
-$(web_JAVAROOT)/% : src/%
-	test -d $(dir $@) || mkdir -p $(dir $@)
-	cp $^ $@
 
 style_SRC = $(filter-out src/com/%,$(web_SRC))
 style_DEPS = \
@@ -176,3 +177,24 @@ validate-xml : $(SPRING_XML)
 	xmllint --noout \
 	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
 	$^
+
+clean :
+	$(call CleanDirs,\
+		$(wsdl_SRCDIR) \
+		$(wsdl_JAVAROOT) \
+		$(war_ROOT) \
+		$(web_JAVAROOT) \
+		$(wsdl_SRCDIR) \
+	)
+	$(call CleanFiles,\
+		sipxconfig.jar \
+		sipxconfig-web.jar \
+		sipxconfig.war \
+	    javac-web \
+	    java-gwt \
+		wsdl-src \
+		$(WSDD) \
+		server-config.wsdd.dirty \
+		server-config.wsdd \
+		server-config-no-spring.wsdd.dirty \
+	)	

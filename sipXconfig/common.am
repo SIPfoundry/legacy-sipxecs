@@ -78,7 +78,8 @@ neoconf_PKGS = \
 	xmlrpc \
 	xstream
 
-web_JAVAROOT = $(abspath $(top_builddir)/web/out/WEB-INF/classes)
+war_ROOT = $(abspath $(top_builddir)/web/out)
+web_JAVAROOT = $(abspath $(top_builddir)/web/classes)
 web_SRCDIR = $(abspath $(top_srcdir)/web/src)
 web_PKGS = \
 	$(neoconf_PKGS) \

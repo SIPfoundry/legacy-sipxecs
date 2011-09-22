@@ -7,13 +7,13 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/web/out/WEB-INF/classes"/>
 	<classpathentry exported="true" kind="src" path="/sipXconfig-neoconf"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
-	<classpathentry kind="var" path="SIPX_SRCDIR/sipXconfig/lib/hivemind-1.1.1.jar"/>
-	<classpathentry kind="var" path="SIPX_SRCDIR/sipXconfig/lib/hivemind-lib-1.1.1.jar"/>
-	<classpathentry kind="var" path="SIPX_SRCDIR/sipXconfig/lib/smartgwt-2.5.jar"/>
-	<classpathentry kind="var" path="SIPX_SRCDIR/sipXconfig/lib/smartgwt-skins-2.5.jar"/>
-	<classpathentry kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-annotations-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src"/>
-	<classpathentry kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-contrib-4.1.6.jar"/>
-	<classpathentry kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-framework-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-framework"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/sipxcommons"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/hivemind-1.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/hivemind-lib-1.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/smartgwt-2.5.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/smartgwt-skins-2.5.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-annotations-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-contrib-4.1.6.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-framework-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-framework"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
