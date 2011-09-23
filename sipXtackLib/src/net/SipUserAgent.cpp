@@ -3233,15 +3233,7 @@ void SipUserAgent::getViaInfo(int protocol,
 #ifdef SIP_TLS
     else if(protocol == OsSocket::SSL_SOCKET)
     {
-      //
-      // Some user agents are known to send to port 5060 even if transport=tls
-      // is set.  So let us simply return 5061 instead of PORT_NONE to not ommit the port
-      // if this function is used to guess record-routes
-      //
-      //
-      //  port = mTlsPort == SIP_TLS_PORT ? PORT_NONE : mTlsPort;
-      //
-      port = mTlsPort;
+        port = mTlsPort == SIP_TLS_PORT ? PORT_NONE : mTlsPort;
     }
 #endif
     else
@@ -3269,102 +3261,6 @@ void SipUserAgent::getViaInfo(int protocol,
     }
 
     address = sipIpAddress;
-}
-
-void SipUserAgent::adjustRecordRouteOnFirstSend(SipMessage& message)
-{
-  //
-  // Check the record route if it is ours.  If it is, correctly format the transport parameter
-  //
-  if (message.isResponse())
-  {
-    //
-    // traverse the via and check if the next hop is no longer pointing to us
-    int viaNumber;
-    UtlString via;
-    for (viaNumber = 0;message.getFieldSubfield(SIP_VIA_FIELD, viaNumber, &via);
-         viaNumber++
-         )
-    {
-      UtlString url;
-      NameValueTokenizer::getSubField(via, 1, SIP_SUBFIELD_SEPARATORS, &url);
-      Url viaUrl(url,TRUE);
-      if (isMyHostAlias(viaUrl))
-      {
-        //
-        // Next hop is still local.
-        // There is no need to rewrite the transport yet becase
-        // we are assured that internal transactions are not marshalled
-        //
-        return;
-      }
-    }
-  }
-
-  UtlString routeValue;
-
-  Url recordRouteUrl;
-  int lastLocal = -1;
-
-  if (message.isResponse())
-  {
-    //
-    // Next hop is no longer local
-    // Search for the first record-route that is our local alias start
-    // from the bottom of the list.
-    //
-    int routeCount = 0;
-    for(routeCount = 0; message.getRecordRouteField(routeCount, &routeValue); routeCount++)
-    {
-      Url lastRoute(routeValue);
-      if (isMyHostAlias(lastRoute))
-        lastLocal = routeCount;
-    }
-
-    if (lastLocal == -1)
-      return;
-
-    if (!message.getRecordRouteField(lastLocal, &routeValue))
-      return;
-  }
-  else
-  {
-    if (!message.getRecordRouteField(0, &routeValue))
-      return;
-  }
-
-  recordRouteUrl = Url(routeValue);
-  if (!isMyHostAlias(recordRouteUrl))
-    return;
-
-  int protocol = message.getSendProtocol();
-  UtlString host;
-  int port;
-  getViaInfo(protocol, host, port);
-  recordRouteUrl.setHostAddress(host.data());
-  recordRouteUrl.setHostPort(port);
-
-  //message.getRecordRouteField()
-  if(protocol == OsSocket::TCP)
-  {
-    recordRouteUrl.setUrlParameter("transport", "tcp");
-  }
-#ifdef SIP_TLS
-  else if(protocol == OsSocket::SSL_SOCKET)
-  {
-    recordRouteUrl.setUrlParameter("transport", "tls");
-  }
-#endif
-  else
-  {
-    recordRouteUrl.setUrlParameter("transport", "udp");
-  }
-
-  recordRouteUrl.toString(routeValue);
-  if (message.isResponse())
-    message.setRecordRouteField(routeValue.data(),lastLocal);
-  else
-    message.setRecordRouteField(routeValue.data(), 0);
 }
 
 void SipUserAgent::getFromAddress(UtlString* address, int* port, UtlString* protocol)
