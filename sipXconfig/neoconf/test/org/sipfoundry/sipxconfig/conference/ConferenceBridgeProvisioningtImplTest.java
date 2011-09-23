@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxRecordingService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class ConferenceBridgeProvisioningtImplTest extends TestCase {
     public void testGenerateConfigurationData() throws Exception {
@@ -99,6 +100,11 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         impl.setServiceConfigurator(sc);
         impl.setSipxServiceManager(sm);
         impl.setSipxProcessContext(processContext);
+        
+        HibernateTemplate hb = createMock(HibernateTemplate.class);
+        hb.flush();
+        expectLastCall();
+        impl.setHibernateTemplate(hb);
 
         impl.deploy(bridge);
 
