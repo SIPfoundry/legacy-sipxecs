@@ -7,14 +7,23 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #include "os/OsSysLog.h"
+#include "os/OsFileSystem.h"
 #include "os/OsDateTime.h"
 #include "net/SipMessage.h"
 #include "net/HttpRequestContext.h"
 #include "xmlparser/tinyxml.h"
 #include "statusserver/MwiPlugin.h"
 #include "statusserver/Notifier.h"
+#include "os/OsConfigDb.h"
+#include "sipXecsService/SharedSecret.h"
+#include <net/NetBase64Codec.h>
+#include <net/NetMd5Codec.h>
+
 
 // APPLICATION INCLUDES
+
+#define CONFIG_DOMAIN_SETTINGS_FILE  "domain-config"
+static UtlString _sharedSecret;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -54,6 +63,42 @@ MwiPlugin::MwiPlugin (
             }
         }
     }
+
+    //
+    // Initialize the shared secret for domain config
+    //
+   OsPath workingDirectory;
+   if (OsFileSystem::exists(SIPX_CONFDIR))
+   {
+      workingDirectory = SIPX_CONFDIR;
+      OsPath path(workingDirectory);
+      path.getNativePath(workingDirectory);
+   }
+   else
+   {
+      OsPath path;
+      OsFileSystem::getWorkingDirectory(path);
+      path.getNativePath(workingDirectory);
+   }
+
+   UtlString fileName =  workingDirectory +
+      OsPathBase::separator +
+      CONFIG_DOMAIN_SETTINGS_FILE;
+
+   OsConfigDb  configDb ;
+   if (configDb.loadFromFile(fileName) != OS_SUCCESS)
+   {
+       OsSysLog::add(FAC_SIP, PRI_CRIT, "Unable to load domain config from %s.", fileName.data());
+       exit(1);
+   }
+
+   _sharedSecret = SharedSecret (configDb);
+
+   if (_sharedSecret.isNull())
+   {
+       OsSysLog::add(FAC_SIP, PRI_CRIT, "Unable to load SHARED_SECRET from %s.", fileName.data());
+       exit(1);
+   }
 }
 
 void
@@ -106,6 +151,9 @@ MwiPlugin::handleSubscribeRequest (
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "MwiPlugin::handleSubscribeRequest() -"
         " Subscription for %s successfully added", mailboxUrl.toString().data());
 
+    bool hasBeenChallenged = false;
+    bool firstSend = true;
+
     Url voicemailCGIUrl ( mVoicemailCGIUrl );
 
     UtlString mailboxIdentity;
@@ -119,18 +167,33 @@ MwiPlugin::handleSubscribeRequest (
     voicemailCGIUrl.setHeaderParameter(
         "eventtype", "message-summary");
 
-    // Synchronously call the Voicemail CGI to get the
-    // message summary in its body contents. Set to use
-    // persistent connections.
-    HttpMessage httpResponse;
-    int httpStatus = httpResponse.get( voicemailCGIUrl, 3*1000 /* 3 sec */, true /* persistent */);
-    if ( HTTP_OK_CODE == httpStatus )
+    HttpMessage* httpResponse = 0;
+    int httpStatus = -1;
+
+    while (true)
+    {
+
+      // Synchronously call the Voicemail CGI to get the
+      // message summary in its body contents. Set to use
+      // persistent connections.
+     
+      if (firstSend)
+      {
+        httpResponse = new HttpMessage();
+        //
+        // Send using basic GET without authorization headers
+        //
+        httpStatus = httpResponse->get( voicemailCGIUrl, 3*1000 /* 3 sec */, true /* persistent */);
+        firstSend = false;
+      }
+      
+      if ( HTTP_OK_CODE == httpStatus )
       {
         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
           {
             UtlString rspMsg;
             ssize_t rspLength;
-            httpResponse.getBytes( &rspMsg, &rspLength );
+            httpResponse->getBytes( &rspMsg, &rspLength );
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "MwiPlugin::handleSubscribeRequest() - voicemailCGI response:\n%s"
                           ,rspMsg.data()
@@ -138,95 +201,198 @@ MwiPlugin::handleSubscribeRequest (
           }
 
         UtlString rspContentType;
-        httpResponse.getContentType( &rspContentType );
+        httpResponse->getContentType( &rspContentType );
         if ( rspContentType.compareTo( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY
                                       ,UtlString::ignoreCase
                                       ) == 0
             )
+        {
+          // get the body from the request containing the MWI summaries
+          const HttpBody *pBody = httpResponse->getBody();
+          if ( pBody )
           {
-            // get the body from the request containing the MWI summaries
-            const HttpBody *pBody = httpResponse.getBody();
-            if ( pBody )
-              {
-                ssize_t charsRead;
-                UtlString buffer;
+            ssize_t charsRead;
+            UtlString buffer;
 
-                pBody->getBytes(&buffer, &charsRead);
-                httpResponse.getContentLength();
+            pBody->getBytes(&buffer, &charsRead);
+            httpResponse->getContentLength();
 
-                // Skip over any leading blank lines
-                const char* leading=buffer.data();
-                int trimOffset;
-                for ( trimOffset=0;
-                      (   leading[trimOffset]==' '||leading[trimOffset]=='\n'
-                       || leading[trimOffset]=='\t'||leading[trimOffset]=='\r'
-                       );
-                      trimOffset++
-                     )
-                {
-                }
-                if ( trimOffset )
-                {   // Trim the leading white space
-                   buffer = buffer( trimOffset,  buffer.length() -1 -trimOffset );
-                }
+            // Skip over any leading blank lines
+            const char* leading=buffer.data();
+            int trimOffset;
+            for ( trimOffset=0;
+                  (   leading[trimOffset]==' '||leading[trimOffset]=='\n'
+                   || leading[trimOffset]=='\t'||leading[trimOffset]=='\r'
+                   );
+                  trimOffset++
+                 )
+            {
+            }
+            if ( trimOffset )
+            {   // Trim the leading white space
+               buffer = buffer( trimOffset,  buffer.length() -1 -trimOffset );
+            }
 
-                // quick sanity check of body content - does it look like it should?
-                const char* MessagesWaiting = "Messages-Waiting";
-                if ( buffer.index( MessagesWaiting, 0, UtlString::ignoreCase )
-                    == 0
-                    )
-                  {
-                    // create a simple message summary body for
-                    // this subscription and send it via the user
-                    // agent to the device
-                    HttpBody* body = new HttpBody ( buffer.data(), buffer.length()
-                                                   ,CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY
+            // quick sanity check of body content - does it look like it should?
+            const char* MessagesWaiting = "Messages-Waiting";
+            if ( buffer.index( MessagesWaiting, 0, UtlString::ignoreCase )
+                == 0
+                )
+            {
+              // create a simple message summary body for
+              // this subscription and send it via the user
+              // agent to the device
+              HttpBody* body = new HttpBody ( buffer.data(), buffer.length()
+                                             ,CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY
+                                             );
+              SipMessage notifyRequest;
+              notifyRequest.setBody( body );
+
+              // Add the content type for the body
+              notifyRequest.setContentType( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
+              notifyRequest.setContentLength( buffer.length() );
+
+              // Send a MWI state change to just this subscriber
+              mNotifier->sendNotifyForSubscription( mailboxIdentity.data()
+                                                   ,SIP_EVENT_MESSAGE_SUMMARY
+                                                   ,message
+                                                   ,notifyRequest
                                                    );
-                    SipMessage notifyRequest;
-                    notifyRequest.setBody( body );
-
-                    // Add the content type for the body
-                    notifyRequest.setContentType( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
-                    notifyRequest.setContentLength( buffer.length() );
-
-                    // Send a MWI state change to just this subscriber
-                    mNotifier->sendNotifyForSubscription( mailboxIdentity.data()
-                                                         ,SIP_EVENT_MESSAGE_SUMMARY
-                                                         ,message
-                                                         ,notifyRequest
-                                                         );
-                    result = OS_SUCCESS;
-                  }
-                else
-                  {
-                    OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                  "MwiPlugin::handleSubscribeRequest() - voicemailCGI response not valid: %s"
-                                  ,buffer.data()
-                                  );
-                  }
-              }
+              result = OS_SUCCESS;
+            }
             else
-              {
-                OsSysLog::add(FAC_SIP, PRI_WARNING,
-                              "MwiPlugin::handleSubscribeRequest() - voicemailCGI response has no body"
-                              );
-              }
+            {
+              OsSysLog::add(FAC_SIP, PRI_WARNING,
+                            "MwiPlugin::handleSubscribeRequest() - voicemailCGI response not valid: %s"
+                            ,buffer.data()
+                            );
+            }
           }
-        else
+          else
           {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "MwiPlugin::handleSubscribeRequest() - voicemailCGI response wrong type"
+                          "MwiPlugin::handleSubscribeRequest() - voicemailCGI response has no body"
                           );
           }
+        }
+        else
+        {
+          OsSysLog::add(FAC_SIP, PRI_WARNING,
+                        "MwiPlugin::handleSubscribeRequest() - voicemailCGI response wrong type"
+                        );
+        }
+        break;
       }
-    else
+      else if ( !hasBeenChallenged && (httpStatus == HTTP_UNAUTHORIZED_CODE || httpStatus == HTTP_PROXY_UNAUTHORIZED_CODE))
       {
-        OsSysLog::add(FAC_SIP, PRI_WARNING,
-                      "MwiPlugin::handleSubscribeRequest() - voicemailCGI GET failed with %d."
-                      ,httpStatus
-                      );
-      }
+        //
+        // Resend the request with athorization headers
+        //
+        hasBeenChallenged = true;
 
+        HttpMessage::HttpEndpointEnum authorizationEntity =
+          (httpStatus == HTTP_UNAUTHORIZED_CODE ? HttpMessage::SERVER : HttpMessage::PROXY);
+
+        UtlString nonce;
+        UtlString opaque;
+        UtlString realm;
+        UtlString scheme;
+        UtlString algorithm;
+        UtlString uri;
+        UtlString method;
+        UtlString user;
+
+        // Get the digest authentication info. needed to create
+        // a request with credentials
+        if (!httpResponse->getAuthenticateData( &scheme,
+                                       &realm,
+                                       &nonce,
+                                       &opaque,
+                                       &algorithm,
+                                       0,
+                                       authorizationEntity))
+        {
+          OsSysLog::add(FAC_SIP, PRI_WARNING,
+                        "MwiPlugin::handleSubscribeRequest() - voicemailCGI GET failed to retrieve authorization header"
+                        );
+          delete httpResponse;
+          return result;
+        }
+
+        UtlString responseHash;
+        method = "GET";
+        voicemailCGIUrl.getUri(uri);
+        mailboxUrl.getUserId(user);
+        //
+        // Build a1 hash
+        //
+        UtlString encodedA1;
+        UtlString a1Buffer(user);
+        a1Buffer.append(':');
+        a1Buffer.append(realm);
+        a1Buffer.append(':');
+        a1Buffer.append(_sharedSecret);
+        NetMd5Codec::encode(a1Buffer.data(), encodedA1);
+
+        // Build the Digest hash response
+        HttpMessage::buildMd5Digest( encodedA1.data(),
+                                     HTTP_MD5_ALGORITHM,
+                                     nonce.data(),
+                                     0,
+                                     0,
+                                     0,
+                                     method.data(),
+                                     uri.data(),
+                                     0,
+                                     &responseHash);
+
+        HttpMessage challengeRequest;
+
+        UtlString uriString;
+        voicemailCGIUrl.getPath(uriString, TRUE);
+        challengeRequest.setRequestFirstHeaderLine(HTTP_GET_METHOD,
+                                      uriString,
+                                      HTTP_PROTOCOL_VERSION);
+
+        challengeRequest.setDigestAuthorizationData( user.data(),
+                                                      realm.data(),
+                                                      nonce.data(),
+                                                      uri.data(),
+                                                      responseHash.data(),
+                                                      HTTP_MD5_ALGORITHM,
+                                                      0,
+                                                      opaque.data(),
+                                                      0,
+                                                      0,
+                                                      authorizationEntity);
+
+        delete httpResponse;
+        httpResponse = new HttpMessage();
+
+        httpStatus = httpResponse->get( voicemailCGIUrl, challengeRequest, 3*1000 /* 3 sec */, true /* persistent */);
+
+        continue;
+      }
+      else
+      {
+        if (!hasBeenChallenged)
+        {
+          OsSysLog::add(FAC_SIP, PRI_WARNING,
+                        "MwiPlugin::handleSubscribeRequest() - voicemailCGI GET failed with %d."
+                        ,httpStatus
+                        );
+        }
+        else
+        {
+          OsSysLog::add(FAC_SIP, PRI_WARNING,
+                        "MwiPlugin::handleSubscribeRequest() - voicemailCGI GET failed authentication"
+                        );
+        }
+        break;
+      }
+    }
+
+    delete httpResponse;
     return result;
 }
 
