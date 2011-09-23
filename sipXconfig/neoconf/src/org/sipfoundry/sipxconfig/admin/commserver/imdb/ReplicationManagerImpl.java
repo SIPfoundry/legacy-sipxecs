@@ -288,10 +288,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             ExternalAlias extalias = new ExternalAlias();
             extalias.setFiles(m_externalAliases.getFiles());
             replicateEntity(extalias);
-            //replicate locations
-            for (int i = 0; i < m_locationsManager.getLocations().length; i++) {
-                replicateLocation(m_locationsManager.getLocations()[i]);
-            }
             m_auditLogContext.logReplicationMongo(DATABASE_REGENERATION, primary);
         } catch (Exception e) {
             m_auditLogContext.logReplicationMongoFailed(DATABASE_REGENERATION, primary, e);
@@ -461,7 +457,12 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
-    private void doParallelAsyncReplication(int membersCount, Class<? extends ReplicationWorker> cls, Object type)
+    /*
+     * synchronise here. We do not want multiple threads doing heavy replication stuff at the same time.
+     * (i.e. if we hit send profiles, then do a change on group with 20.000 members)
+     */
+    private synchronized void doParallelAsyncReplication(int membersCount,
+            Class<? extends ReplicationWorker> cls, Object type)
         throws Exception {
         ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
         Long start = System.currentTimeMillis();
