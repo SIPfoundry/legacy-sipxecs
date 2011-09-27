@@ -9,7 +9,7 @@
     <load-library></load-library>
     <plugin-factory>MwiFactory</plugin-factory>
     <plugin-data>
-      <voicemail-cgi-url>http://localhost:$ivr.getSetting('httpsPort').Value/mwi</voicemail-cgi-url>
+      <voicemail-cgi-url>https://localhost:$ivr.getSetting('httpsPort').Value/mwi</voicemail-cgi-url>
     </plugin-data>
   </subscribe-plugin>
 </subscribe-server-plugins>
