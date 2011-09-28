@@ -31,5 +31,7 @@ provider_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(provider_PKGS)) \
 	@OPENFIRE_HOME@/lib/openfire.jar
 
-$(provider_JAR) : javac-provider
-	jar -cf $@ $(JAVAROOT)
+$(provider_JAR) : javac-provider Manifest.txt Makefile
+	jar cfm $@ Manifest.txt \
+	  $(call JarInclude,$(sipxvcard_JAVAROOT),.) \
+	  $(call JarInclude,../presence-plugin,config.properties)

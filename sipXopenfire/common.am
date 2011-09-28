@@ -37,3 +37,5 @@ provider_PKGS = \
 	ws-commons-util \
 	xmlrpc-client \
 	xmlrpc-server
+
+sipxvcard_JAVAROOT = $(abspath $(top_builddir)/vcard-provider/classes)

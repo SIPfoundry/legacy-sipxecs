@@ -6,8 +6,8 @@ EXTRA_DIST = \
 	plugin.xml \
 	web \
 	$(plugin_SRC) \
-	$(test_SRC)
-
+	$(test_SRC) \
+	config.properties.in
 
 noinst_DATA = \
 	javac-plugin
@@ -31,6 +31,9 @@ presence_FILES = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(plugin_JAR_PKGS)) \
 	$(plugin_JAR)
 
+config.properties : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@)
+
 $(presence_JAR) : $(plugin_JAR)
 	! test -d lib || rm -rf lib
 	mkdir lib
@@ -40,8 +43,10 @@ $(presence_JAR) : $(plugin_JAR)
 	  -C $(srcdir) plugin.xml \
 	  lib
 
-$(plugin_JAR) : javac-plugin
-	 jar -cf $@ -C $(JAVAROOT) .
+$(plugin_JAR) : javac-plugin config.properties
+	jar cfm $@ Manifest.txt \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,./,config.properties)
 
 clean-local :
 	rm -rf lib

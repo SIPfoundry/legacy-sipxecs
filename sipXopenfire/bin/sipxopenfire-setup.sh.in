@@ -34,6 +34,9 @@ then
    for f in ws-commons-util xmlrpc-client xmlrpc-server xmlrpc-common log4j mongo; do
        ln -snf ${SIPX_OPENFIRE_DIR}/lib/$f*.jar ${OPENFIRE_LIB}/$f.jar
    done
+   ln -snf ${SIPX_COMMONS}/sipxcommons.jar ${OPENFIRE_LIB}/sipxcommons.jar
+   chown -R @SIPXPBXUSER@ @OPENFIRE_LIB@ 2> /dev/null
+   chgrp -R @SIPXPBXUSER@ @OPENFIRE_LIB@ 2> /dev/null
    rm -f @OPENFIRE_HOME@/extras/sipXecs/lib 2> /dev/null
    mkdir -p @OPENFIRE_HOME@/extras/sipXecs 2> /dev/null
    ln -s ${SIPX_OPENFIRE_DIR}/plugins @OPENFIRE_HOME@/extras/sipXecs/lib 2> /dev/null
