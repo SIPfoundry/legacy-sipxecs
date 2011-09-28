@@ -467,7 +467,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
             }
         }
         getHibernateTemplate().deleteAll(groups);
-        m_provisioningContext.deleteObjects(skills);
+        if (!skills.isEmpty()) {
+            m_provisioningContext.deleteObjects(skills);
+        }
 
         return usedSkillGroups;
     }
