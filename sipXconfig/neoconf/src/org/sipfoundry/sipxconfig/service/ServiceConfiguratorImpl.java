@@ -305,6 +305,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
         LOG.debug("Initializing location: " + location.getFqdn());
         LOG.debug("Replicating domain config");
         m_domainManager.replicateDomainConfig(m_replicationContext, location);
+
         // supervisor is always installed, never on the list of standard services
         LOG.debug("Replicating supervisor");
         SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
@@ -324,9 +325,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
      */
     @Override
     public synchronized void sendProfiles(Collection<Location> selectedLocations) {
+        //send a warning if a location selected is unregistered or config replication is disabled
         for (Location locationToActivate : selectedLocations) {
-            if (!locationToActivate.isRegistered()
-                    || locationToActivate.isInProgressState()) {
+            if (!locationToActivate.isRegistered() || !locationToActivate.isReplicateConfig()) {
                 continue;
             }
             // update PROGRESS state. This is useful in disaster situations
@@ -354,7 +355,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
             // acdHistoricalConfiguration is a conf. file that contains data to
             // login to acd historical database used in sipxconfig-reports
             // for creating acd historical reports
-            m_replicationContext.replicate(m_acdHistoricalConfiguration);
+            if (m_sipxServiceManager.isServiceInstalled(locationToActivate.getId(), SipxAcdService.BEAN_ID)) {
+                m_replicationContext.replicate(m_acdHistoricalConfiguration);
+            }
         }
     }
 

@@ -355,6 +355,8 @@ public class Location extends BeanWithId {
     public State getState() {
         if (!isRegistered()) {
             return State.UNINITIALIZED;
+        } else if (!isReplicateConfig()) {
+            return State.DISABLED;
         } else {
             return m_state;
         }
@@ -494,6 +496,19 @@ public class Location extends BeanWithId {
         public LocationState() {
             super(State.class);
         }
+    }
+
+    /**
+     * The default number of mongo replications for a location.
+     * Used only to retrieve replication percentage when profiles are sent.
+     * @return 2 if the location is primary (db regeneration and location registration)
+     * and 1 if the location is slave (only location regeneration is performed)
+     */
+    public int getDefaultNumberOfMongoReplications() {
+        if (isPrimary()) {
+            return 2;
+        }
+        return 1;
     }
 
     public boolean isCallTraffic() {

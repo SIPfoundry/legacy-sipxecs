@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.admin.logging;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -20,9 +22,18 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
+import org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.FailedReplicationsState;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
+import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
+import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxAlarmService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxSupervisorService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -46,6 +57,10 @@ public class AuditLogContextImpl implements AuditLogContext, ApplicationContextA
     private int m_sleepInterval = DEFAULT_SLEEP_INTERVAL;
 
     private ApplicationContext m_applicationContext;
+    private SipxServiceManager m_sipxServiceManager;
+    private DomainConfiguration m_domainConfiguration;
+    private DialingRuleProvider m_dialingRuleProvider;
+    private AcdHistoricalConfigurationFile m_acdHistoricalConfiguration;
 
     public void init() {
         m_scheduler.scheduleAtFixedRate(new Worker(), 0, m_sleepInterval, TimeUnit.SECONDS);
@@ -108,11 +123,38 @@ public class AuditLogContextImpl implements AuditLogContext, ApplicationContextA
     }
 
     private int getSavedNumber(Location location) {
-        int savedResult = ((location.getFailedReplications() == null) ? 0
-                : location.getFailedReplications().size())
-                + ((location.getSuccessfulReplications() == null) ? 0
-                        : location.getSuccessfulReplications().size());
-        return savedResult;
+        return getNumberOfReplications(location);
+    }
+
+    private int getNumberOfReplications(Location location) {
+        int i = location.getDefaultNumberOfMongoReplications();
+        Collection<SipxService> services = location.getSipxServices();
+        //Supervisor and alarm services are by default installed in every location
+        services.add(m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID));
+        services.add(m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID));
+        Set<ConfigurationFile> configurations = new HashSet<ConfigurationFile>();
+        for (SipxService service : services) {
+            Set<? extends ConfigurationFile> serviceConfigurations = service.getConfigurations();
+            for (ConfigurationFile config : serviceConfigurations) {
+                if (config.isReplicable(location)) {
+                    configurations.add(config);
+                }
+            }
+        }
+        i += configurations.size();
+        //Domain configuration is replicated by default. we can still check this.
+        if (m_domainConfiguration.isReplicable(location)) {
+            i++;
+        }
+        //dial plans generation
+        //there are a total of 4 rules files that will get generated and replicated
+        //authrules.xml fallbackrules.xml forwardingrules.xml mappingrules.xml
+        i += 4;
+        if (m_sipxServiceManager.isServiceInstalled(location.getId(), SipxAcdService.BEAN_ID)
+                && m_acdHistoricalConfiguration.isReplicable(location)) {
+            i++;
+        }
+        return i;
     }
 
     /*
@@ -205,5 +247,22 @@ public class AuditLogContextImpl implements AuditLogContext, ApplicationContextA
                 m_applicationContext.publishEvent(new ReplicationsFinishedEvent(m_failedState));
             }
         }
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    public void setDomainConfiguration(DomainConfiguration domainConfiguration) {
+        m_domainConfiguration = domainConfiguration;
+    }
+
+    public void setDialingRuleProvider(DialingRuleProvider dialingRuleProvider) {
+        m_dialingRuleProvider = dialingRuleProvider;
+    }
+
+    public void setAcdHistoricalConfiguration(
+            AcdHistoricalConfigurationFile acdHistoricalConfiguration) {
+        m_acdHistoricalConfiguration = acdHistoricalConfiguration;
     }
 }
