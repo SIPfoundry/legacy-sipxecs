@@ -11,7 +11,7 @@ EXTRA_DIST = \
 
 noinst_DATA = \
 	javac-plugin
-	
+
 #	 javac-test  doesn't compile
 
 jardir = @SIPX_JAVADIR@/sipXopenfire/plugins
@@ -43,7 +43,7 @@ $(presence_JAR) : $(plugin_JAR)
 	  -C $(srcdir) plugin.xml \
 	  lib
 
-$(plugin_JAR) : javac-plugin config.properties
+$(plugin_JAR) : javac-plugin config.properties Manifest.txt
 	jar cfm $@ Manifest.txt \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,./,config.properties)
