@@ -10,101 +10,76 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 
 public final class MongoTestCaseHelper {
-
     public static final String DOMAIN = "mydomain.org";
     public static final String ID = "_id";
-    private MongoDbTemplate m_dbt = new MongoDbTemplate();
-    private String m_collection;
 
-    public MongoTestCaseHelper() {
-        m_dbt.setName("test");
-        m_collection = "entity";
+    private MongoTestCaseHelper() {
     }
 
-    public MongoTestCaseHelper(String dbname, String collectionName) {
-        m_dbt.setName(dbname);
-        m_collection = collectionName;
+    public static final void assertObjectPresent(DBCollection collection, DBObject ref) {
+        TestCase.assertTrue(collection.find(ref).size() > 0);
     }
 
-    public DBCollection getCollection() {
-        return m_dbt.getDb().getCollection(m_collection);
-    }
-
-    public void assertObjectPresent(DBObject ref) {
-        TestCase.assertTrue(getCollection().find(ref).size() > 0);
-    }
-
-    public void assertObjectWithIdPresent(String id) {
+    public static final void assertObjectWithIdPresent(DBCollection collection, String id) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
-        TestCase.assertEquals(1, getCollection().find(ref).size());
+        TestCase.assertEquals(1, collection.find(ref).size());
     }
 
-    public void assertObjectWithIdNotPresent(Object id) {
+    public static final void assertObjectWithIdNotPresent(DBCollection collection, Object id) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
-        TestCase.assertEquals(0, getCollection().find(ref).size());
+        TestCase.assertEquals(0, collection.find(ref).size());
     }
 
-    public void assertCollectionItemsCount(DBObject ref, int count) {
-        TestCase.assertTrue(getCollection().find(ref).size() == count);
+    public static final void assertCollectionItemsCount(DBCollection collection, DBObject ref, int count) {
+        TestCase.assertTrue(collection.find(ref).size() == count);
     }
 
-    public void assertCollectionCount(int count) {
-        TestCase.assertEquals(count, getCollection().find().count());
+    public static final void assertCollectionCount(DBCollection collection, int count) {
+        TestCase.assertEquals(count, collection.find().count());
     }
 
-    public void assertObjectListFieldCount(String id, String listField, int count) {
+    public static final void assertObjectListFieldCount(DBCollection collection, String id, String listField,
+            int count) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
-        TestCase.assertEquals(1, getCollection().find(ref).size());
-        DBObject obj = getCollection().findOne(ref);
+        TestCase.assertEquals(1, collection.find(ref).size());
+        DBObject obj = collection.findOne(ref);
         TestCase.assertTrue(obj.containsField(listField));
         TestCase.assertEquals(count, ((List<DBObject>) obj.get(listField)).size());
 
     }
 
-    public void assertObjectWithIdFieldValuePresent(Object id, String field, Object value) {
+    public static final void assertObjectWithIdFieldValuePresent(DBCollection collection, Object id, String field,
+            Object value) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
         ref.put(field, value);
-        TestCase.assertEquals(1, getCollection().find(ref).count());
+        TestCase.assertEquals(1, collection.find(ref).count());
     }
 
-    public void assertObjectWithIdFieldValueNotPresent(Object id, String field, Object value) {
+    public static final void assertObjectWithIdFieldValueNotPresent(DBCollection collection, Object id,
+            String field, Object value) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);
         ref.put(field, value);
-        TestCase.assertEquals(0, getCollection().find(ref).count());
+        TestCase.assertEquals(0, collection.find(ref).count());
     }
 
-    public void insert(DBObject dbo) {
-        getCollection().insert(dbo);
+    public static final void insert(DBCollection collection, DBObject dbo) {
+        collection.insert(dbo);
     }
 
-    public void insertJson(String... jsons) {
+    public static final void insertJson(DBCollection collection, String... jsons) {
         for (String json : jsons) {
-            getCollection().save((DBObject) JSON.parse(json));
+            collection.save((DBObject) JSON.parse(json));
         }
-    }
-
-    public void dropDb() {
-        m_dbt.getMongo().dropDatabase(m_dbt.getName());
-    }
-
-    public MongoDbTemplate getDbTemplate() {
-        return m_dbt;
-    }
-
-    public void setDbTemplate(MongoDbTemplate dbt) {
-        m_dbt = dbt;
     }
 }

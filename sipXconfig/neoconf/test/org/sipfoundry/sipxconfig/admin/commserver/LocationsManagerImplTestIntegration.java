@@ -10,15 +10,19 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import static java.util.Arrays.asList;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertCollectionCount;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -31,7 +35,9 @@ import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
-public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
+import com.mongodb.DBCollection;
+
+public class LocationsManagerImplTestIntegration extends ImdbTestCase {
     private LocationsManager m_out;
     private AcdContext m_acdContext;
     private ConferenceBridgeContext m_conferenceBridgeContext;
@@ -42,20 +48,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private SipxServiceBundle m_primarySipRouterBundle;
     private SipxServiceBundle m_redundantSipRouterBundle;
     private SipxFreeswitchService m_sipxFreeswitchService;
-    private static String DBNAME = "imdb_TEST";
-    private static String COLL_NAME = "node";
-    private MongoTestCaseHelper m_helper = new MongoTestCaseHelper(DBNAME, COLL_NAME);
-
-    @Override
-    protected void onSetUpBeforeTransaction() throws Exception {
-        super.onSetUpBeforeTransaction();
-    }
-
-    @Override
-    protected void onTearDownAfterTransaction() throws Exception {
-        super.onTearDownAfterTransaction();
-        m_helper.dropDb();
-    }
+    private MongoDbTemplate m_nodedb;
 
     public void testGetLocations() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");
@@ -167,12 +160,16 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         dbLocations[1].setReplicateConfig(false);
         m_out.saveLocation(dbLocations[1]);
 
-        m_helper.assertObjectWithIdFieldValuePresent(dbLocations[0].getId(), "ip", "192.168.1.2");
-        m_helper.assertObjectWithIdNotPresent(dbLocations[1].getId());
+        assertObjectWithIdFieldValuePresent(getNodeCollection(), dbLocations[0].getId(), "ip", "192.168.1.2");
+        assertObjectWithIdNotPresent(getEntityCollection(), dbLocations[1].getId());
         
         dbLocations[1].setCallTraffic(true);
         dbLocations[1].setReplicateConfig(true);
         m_out.saveLocation(dbLocations[1]);
+    }
+    
+    private DBCollection getNodeCollection() {
+        return getImdb().getDb().getCollection(MongoConstants.NODE_COLLECTION);
     }
 
     public void testsaveLocationWithDuplicateFqdnOrIp() throws Exception {
@@ -233,7 +230,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
 
         Location[] locationsBeforeDelete = m_out.getLocations();
         assertEquals(2, locationsBeforeDelete.length);
-        m_helper.assertCollectionCount(1);
+        assertCollectionCount(getNodeCollection(), 1);
 
         Location locationToDelete = m_out.getLocationByAddress("10.1.1.2");
         m_out.deleteLocation(locationToDelete);
@@ -242,7 +239,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(1, locationsAfterDelete.length);
         assertEquals("localhost", locationsAfterDelete[0].getFqdn());
 
-        m_helper.assertCollectionCount(1);
+        assertCollectionCount(getNodeCollection(), 1);
     }
 
     public void testDeleteWithServices() throws Exception {

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class UserLocationIntegrationTest extends ImdbTestCase {
     };
 
     private List<User> m_users;
+    private UserLocation m_userlocationDataSet;
 
     public void testGenerate() throws Exception {
         m_users = new ArrayList<User>();
@@ -56,15 +59,16 @@ public class UserLocationIntegrationTest extends ImdbTestCase {
             }
             m_users.add(user);
         }
-        UserLocation ul = new UserLocation();
-        ul.setDbCollection(getEntityCollection());
-        ul.setCoreContext(getCoreContext());
-        ul.generate(m_users.get(0), ul.findOrCreate(m_users.get(0)));
-        ul.generate(m_users.get(1), ul.findOrCreate(m_users.get(1)));
-        ul.generate(m_users.get(2), ul.findOrCreate(m_users.get(2)));
+        m_userlocationDataSet.generate(m_users.get(0), m_userlocationDataSet.findOrCreate(m_users.get(0)));
+        m_userlocationDataSet.generate(m_users.get(1), m_userlocationDataSet.findOrCreate(m_users.get(1)));
+        m_userlocationDataSet.generate(m_users.get(2), m_userlocationDataSet.findOrCreate(m_users.get(2)));
 
-        assertObjectWithIdFieldValuePresent("User0", MongoConstants.USER_LOCATION, USER_DATA[0][4]);
-        assertObjectWithIdFieldValuePresent("User1", MongoConstants.USER_LOCATION, USER_DATA[1][4]);
-        assertObjectWithIdFieldValuePresent("User2", MongoConstants.USER_LOCATION, USER_DATA[2][4]);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User0", MongoConstants.USER_LOCATION, USER_DATA[0][4]);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.USER_LOCATION, USER_DATA[1][4]);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User2", MongoConstants.USER_LOCATION, USER_DATA[2][4]);
+    }
+
+    public void setUserlocationDataSet(UserLocation userlocationDataSet) {
+        m_userlocationDataSet = userlocationDataSet;
     }
 }

@@ -9,30 +9,33 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.common.User;
 
 public class AliasesIntegrationTest extends ImdbTestCase {
-    private Aliases m_aliases;
+    private Aliases m_aliasDataSet;
     private User m_user;
 
     @Override
     protected void onSetUpBeforeTransaction() {
-        m_aliases = new Aliases();
         Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         aliases.add(new AliasMapping("301@example.org", "\"John Doe\"<sip:john.doe@" + DOMAIN + ">", "alias"));
         m_user = new User();
         m_user.setUniqueId(1);
         m_user.setDomainManager(getDomainManager());
         m_user.setPermissionManager(getPermissionManager());
-        m_aliases.setDbCollection(getEntityCollection());
-        m_aliases.setCoreContext(getCoreContext());
     }
 
     public void testGenerate() {
-        m_aliases.generate(m_user, m_aliases.findOrCreate(m_user));
-        assertObjectWithIdPresent("User1");
+        m_aliasDataSet.generate(m_user, m_aliasDataSet.findOrCreate(m_user));
+        assertObjectWithIdPresent(getEntityCollection(), "User1");
+    }
+
+    public void setAliasDataSet(Aliases aliasDataSet) {
+        m_aliasDataSet = aliasDataSet;
     }
 }

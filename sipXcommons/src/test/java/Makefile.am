@@ -14,6 +14,7 @@ test_RESOURCES = $(shell cd $(srcdir); find -type f -not -name '*.java')
 test_DEPS = \
 	$(JAVAROOT) \
 	$(commons_classes) \
+	$(srcdir) \
 	$(call JavaDep, $(top_srcdir)/lib, \
 	  junit \
 	  jibx-run \

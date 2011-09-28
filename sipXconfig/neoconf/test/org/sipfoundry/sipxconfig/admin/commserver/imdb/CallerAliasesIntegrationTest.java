@@ -9,29 +9,30 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
-import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class CallerAliasesIntegrationTest extends ImdbTestCase {
+    private CallerAliases m_calleraliasDataSet;
     
     public void onSetupBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
         TestHelper.cleanInsert("ClearDb.xml");
+        getDomainManager().initializeDomain();
     }
     
     public void testGenerate() throws Exception {
-        CallerAliases cas = new CallerAliases();
-        cas.setCoreContext(getCoreContext());
-        cas.setDbCollection(getEntityCollection());
-        
         GatewayCallerAliasInfo gcai = new GatewayCallerAliasInfo();
         gcai.setDefaultCallerAlias("gatewayCID");
         
@@ -47,11 +48,11 @@ public class CallerAliasesIntegrationTest extends ImdbTestCase {
         gcai.setUrlParameters("key=value");
         gw.setCallerAliasInfo(gcai);
         
-        cas.generate(gw, cas.findOrCreate(gw));
+        m_calleraliasDataSet.generate(gw, m_calleraliasDataSet.findOrCreate(gw));
         
-        assertObjectWithIdPresent("Gateway1");
+        assertObjectWithIdPresent(getEntityCollection(), "Gateway1");
         DBObject ref = new BasicDBObject();
-        ref.put(MongoTestCaseHelper.ID, "Gateway1");
+        ref.put(ID, "Gateway1");
         ref.put("ident", "gateway.example.org;sipxecs-lineid=1");
         ref.put("uid", "~~gw");
         ref.put(MongoConstants.CALLERALIAS, "\"display name\"<sip:gatewayCID@example.org;key=value>");
@@ -60,24 +61,25 @@ public class CallerAliasesIntegrationTest extends ImdbTestCase {
         ref.put(MongoConstants.KEEP_DIGITS, gcai.getKeepDigits());
         ref.put(MongoConstants.TRANSFORM_EXT, gcai.isTransformUserExtension());
         ref.put(MongoConstants.ANONYMOUS, gcai.isAnonymous());
-        assertObjectPresent(ref);
+        assertObjectPresent(getEntityCollection(), ref);
         
-        PermissionManagerImpl pm = new PermissionManagerImpl();
-        pm.setModelFilesContext(TestHelper.getModelFilesContext());
-
         User user = new User();
         user.setUniqueId(1);
-        user.setPermissionManager(pm);
+        user.setPermissionManager(getPermissionManager());
         user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, "userCID");
         
-        cas.generate(user, cas.findOrCreate(user));
-        assertObjectWithIdFieldValuePresent("User1", MongoConstants.CALLERALIAS, "sip:userCID@example.org");
+        m_calleraliasDataSet.generate(user, m_calleraliasDataSet.findOrCreate(user));
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CALLERALIAS, "sip:userCID@example.org");
 
         User userWithoutClrid = new User();
         userWithoutClrid.setUniqueId(1);
-        userWithoutClrid.setPermissionManager(pm);
+        userWithoutClrid.setPermissionManager(getPermissionManager());
         
-        cas.generate(userWithoutClrid, cas.findOrCreate(userWithoutClrid));
-        assertObjectWithIdFieldValuePresent("User1", MongoConstants.CALLERALIAS, "");       
+        m_calleraliasDataSet.generate(userWithoutClrid, m_calleraliasDataSet.findOrCreate(userWithoutClrid));
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CALLERALIAS, "");       
+    }
+
+    public void setCalleraliasDataSet(CallerAliases calleraliasDataSet) {
+        m_calleraliasDataSet = calleraliasDataSet;
     }
 }

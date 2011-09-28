@@ -9,11 +9,14 @@ import com.mongodb.MongoException;
 public class MongoDbTemplate {
     int m_port = 27017;
     String m_server = "localhost";
-    String m_name = "imdb";
+    String m_name;
     Mongo m_mongo;
     
     public Mongo getMongo() {
         if (m_mongo == null) {
+            if (m_name == null) {
+                throw new IllegalStateException("db name not set on mongo db template");
+            }
             try {
                 m_mongo = new Mongo(m_server, m_port);
             } catch (UnknownHostException e) {

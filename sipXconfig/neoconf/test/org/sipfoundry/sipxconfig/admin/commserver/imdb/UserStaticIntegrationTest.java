@@ -5,6 +5,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertCollectionCount;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +29,7 @@ public class UserStaticIntegrationTest extends ImdbTestCase {
     };
 
     private List<User> m_users;
+    private UserStatic m_userstaticDataSet;
 
     @Override
     public void onSetUpInTransaction() throws Exception {
@@ -45,19 +50,20 @@ public class UserStaticIntegrationTest extends ImdbTestCase {
     }
 
     public void testGenerate() throws Exception {
-        UserStatic us = new UserStatic();
-        us.setDbCollection(getEntityCollection());
-        us.setCoreContext(getCoreContext());
-        us.generate(m_users.get(0), us.findOrCreate(m_users.get(0)));
-        us.generate(m_users.get(1), us.findOrCreate(m_users.get(1)));
-        us.generate(m_users.get(2), us.findOrCreate(m_users.get(2)));
-        assertCollectionCount(3);
+        m_userstaticDataSet.generate(m_users.get(0), m_userstaticDataSet.findOrCreate(m_users.get(0)));
+        m_userstaticDataSet.generate(m_users.get(1), m_userstaticDataSet.findOrCreate(m_users.get(1)));
+        m_userstaticDataSet.generate(m_users.get(2), m_userstaticDataSet.findOrCreate(m_users.get(2)));
+        assertCollectionCount(getEntityCollection(), 3);
         QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
         qb.is("User0").and(MongoConstants.STATIC+"."+MongoConstants.CONTACT).is("sip:"+USER_DATA[0][4]+"@"+DOMAIN);
-        assertObjectPresent(qb.get());
-        assertObjectWithIdFieldValuePresent("User0", MongoConstants.STATIC+"."+MongoConstants.CONTACT, "sip:"+USER_DATA[0][4]+"@"+DOMAIN);
-        assertObjectWithIdFieldValuePresent("User0", MongoConstants.STATIC+"."+MongoConstants.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
-        assertObjectWithIdFieldValuePresent("User1", MongoConstants.STATIC+"."+MongoConstants.EVENT, "message-summary");
-        assertObjectWithIdFieldValuePresent("User2", MongoConstants.STATIC+"."+MongoConstants.FROM_URI, "sip:IVR@"+DOMAIN);
+        assertObjectPresent(getEntityCollection(), qb.get());
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User0", MongoConstants.STATIC+"."+MongoConstants.CONTACT, "sip:"+USER_DATA[0][4]+"@"+DOMAIN);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User0", MongoConstants.STATIC+"."+MongoConstants.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.STATIC+"."+MongoConstants.EVENT, "message-summary");
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User2", MongoConstants.STATIC+"."+MongoConstants.FROM_URI, "sip:IVR@"+DOMAIN);
+    }
+
+    public void setUserstaticDataSet(UserStatic userstaticDataSet) {
+        m_userstaticDataSet = userstaticDataSet;
     }
 }

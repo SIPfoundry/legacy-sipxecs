@@ -148,6 +148,7 @@
   <bean id="abstractDataSetGenerator" abstract="true"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
     <property name="coreContext" ref="coreContext" />
+    <property name="imdb" ref="imdb"/>
   </bean>
 
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->

@@ -5,6 +5,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertCollectionCount;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +27,7 @@ public class UserCallForwardIntegrationTest extends ImdbTestCase {
     };
 
     private List<User> m_users;
+    private UserForward m_userforwardDataSet;
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
@@ -54,18 +58,19 @@ public class UserCallForwardIntegrationTest extends ImdbTestCase {
     }
 
     public void testGenerate() throws Exception {
-        UserForward uf = new UserForward();
-        uf.setCoreContext(getCoreContext());
-        uf.setDbCollection(getEntityCollection());
-        uf.generate(m_users.get(0), uf.findOrCreate(m_users.get(0)));
-        uf.generate(m_users.get(1), uf.findOrCreate(m_users.get(1)));
-        uf.generate(m_users.get(2), uf.findOrCreate(m_users.get(2)));
-        uf.generate(m_users.get(3), uf.findOrCreate(m_users.get(3)));
-        assertCollectionCount(4);
-        assertObjectWithIdFieldValuePresent("User1", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[0][4]));
-        assertObjectWithIdFieldValuePresent("User2", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[1][4]));
-        assertObjectWithIdFieldValuePresent("User3", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[2][4]));
+        m_userforwardDataSet.generate(m_users.get(0), m_userforwardDataSet.findOrCreate(m_users.get(0)));
+        m_userforwardDataSet.generate(m_users.get(1), m_userforwardDataSet.findOrCreate(m_users.get(1)));
+        m_userforwardDataSet.generate(m_users.get(2), m_userforwardDataSet.findOrCreate(m_users.get(2)));
+        m_userforwardDataSet.generate(m_users.get(3), m_userforwardDataSet.findOrCreate(m_users.get(3)));
+        assertCollectionCount(getEntityCollection(), 4);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[0][4]));
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User2", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[1][4]));
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User3", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[2][4]));
         Integer defaultInitDelay = Integer.valueOf(getPermissionManager().getDefaultInitDelay());
-        assertObjectWithIdFieldValuePresent("User4", MongoConstants.CFWDTIME, defaultInitDelay);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User4", MongoConstants.CFWDTIME, defaultInitDelay);
+    }
+
+    public void setUserforwardDataSet(UserForward userforwardDataSet) {
+        m_userforwardDataSet = userforwardDataSet;
     }
 }

@@ -66,7 +66,6 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -80,8 +79,6 @@ import com.mongodb.DBObject;
 public class ReplicationManagerImpl extends HibernateDaoSupport implements ReplicationManager, BeanFactoryAware {
     private static final int PERMISSIONS = 0644;
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
-    private static final String ENTITY_COLLECTION_NAME = "entity";
-    private static final String NODE_COLLECTION_NAME = "node";
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
     private static final String LOCATION_REGISTRATION = "Location registration in db";
@@ -97,16 +94,12 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private static final String REPLICATION_INS_UPD = "Replication: inserted/updated ";
     private static final String IN = " in ";
     private static final String MS = " ms ";
-    private static final String STUNNEL_COLLECTION = "registrarnode";
     private static final DataSet[] GROUP_DATASETS = {DataSet.ATTENDANT, DataSet.PERMISSION,
         DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL,
         DataSet.USER_FORWARD, DataSet.USER_LOCATION, DataSet.USER_STATIC};
     private static final DataSet[] BRANCH_DATASETS = {DataSet.USER_LOCATION};
     private static final String EXCEPTION_LOG = "IOException for stream writer";
     private static final String UTF_8 = "UTF-8";
-
-    private DB m_datasetDb;
-    private DBCollection m_datasetCollection;
 
     private boolean m_enabled = true;
 
@@ -159,17 +152,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     };
 
-    /**
-     * Instantiates the Mongo DB on primary using defaults. It also instantiates the DB and the
-     * collection.
-     */
-    private void initMongo() throws Exception {
-        if (m_datasetDb == null) {
-            m_datasetDb = m_imdb.getDb();
-            m_datasetCollection = m_datasetDb.getCollection(ENTITY_COLLECTION_NAME);
-        }
-    }
-
     public void setFileApiProvider(ApiProvider<FileApi> fileApiProvider) {
         m_fileApiProvider = fileApiProvider;
     }
@@ -185,8 +167,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     }
 
     public void dropDatasetDb() throws Exception {
-        initMongo();
-        m_datasetCollection.drop();
+        m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION).drop();
     }
 
     /*
@@ -309,8 +290,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
-            initMongo();
-            m_dataSetGenerator.setDbCollection(m_datasetCollection);
             DBObject top = m_dataSetGenerator.findOrCreate(entity);
             Set<DataSet> dataSets = entity.getDataSets();
             for (DataSet dataSet : dataSets) {
@@ -332,8 +311,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
-            initMongo();
-            m_dataSetGenerator.setDbCollection(m_datasetCollection);
             DBObject top = m_dataSetGenerator.findOrCreate(entity);
             for (int i = 0; i < dataSet.length; i++) {
                 replicateEntity(entity, dataSet[i], top);
@@ -349,7 +326,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private void replicateEntity(Replicable entity, DataSet dataSet, DBObject top) {
         String beanName = dataSet.getBeanName();
         final DataSetGenerator generator = m_beanFactory.getBean(beanName, DataSetGenerator.class);
-        generator.setDbCollection(m_datasetCollection);
         generator.generate(entity, top);
         LOG.debug("Entity " + entity.getName() + " updated.");
     }
@@ -362,14 +338,12 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     public void replicateAllData(final DataSet ds) {
         try {
             Long start = System.currentTimeMillis();
-            initMongo();
             Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
             for (ReplicableProvider provider : beanMap.values()) {
                 for (Replicable entity : provider.getReplicables()) {
                     if (!entity.getDataSets().contains(ds)) {
                         continue;
                     }
-                    m_dataSetGenerator.setDbCollection(m_datasetCollection);
                     DBObject top = m_dataSetGenerator.findOrCreate(entity);
                     replicateEntity(entity, ds, top);
                 }
@@ -377,7 +351,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             Closure<User> closure = new Closure<User>() {
                 @Override
                 public void execute(User user) {
-                    m_dataSetGenerator.setDbCollection(m_datasetCollection);
                     DBObject top = m_dataSetGenerator.findOrCreate(user);
                     replicateEntity(user, ds, top);
                 }
@@ -427,7 +400,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     public void deleteBranch(Branch branch) {
         try {
             LOG.info("Starting regeneration of branch members.");
-            initMongo();
             DBCursor users = m_validUsers.getUsersInBranch(branch.getName());
             for (DBObject user : users) {
                 String uid = user.get(MongoConstants.UID).toString();
@@ -446,7 +418,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     public void deleteGroup(Group group) {
         try {
             LOG.info("Starting regeneration of group members.");
-            initMongo();
             DBCursor users = m_validUsers.getUsersInGroup(group.getName());
             for (DBObject user : users) {
                 String uid = user.get(MongoConstants.UID).toString();
@@ -465,7 +436,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         throws Exception {
         ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
         Long start = System.currentTimeMillis();
-        initMongo();
         int pageSize = m_pageSize;
         if (m_useDynamicPageSize) {
             pageSize = membersCount / m_nThreads + 1;
@@ -499,9 +469,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     @Override
     public void replicateLocation(Location location) {
         try {
-            initMongo();
             if (location.isRegistered()) {
-                DBCollection nodeCollection = m_datasetDb.getCollection(NODE_COLLECTION_NAME);
+                DBCollection nodeCollection = m_imdb.getDb().getCollection(MongoConstants.NODE_COLLECTION);
                 DBObject search = new BasicDBObject();
                 search.put(ID, location.getId());
                 DBCursor cursor = nodeCollection.find(search);
@@ -525,7 +494,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     @Override
     public void registerTunnels(Location location) {
-        DBCollection registrarNode = m_datasetDb.getCollection(STUNNEL_COLLECTION);
+        DBCollection registrarNode = m_imdb.getDb().getCollection(MongoConstants.STUNNEL_COLLECTION);
         registrarNode.drop();
 
         Location[] locations = m_locationsManager.getLocations();
@@ -566,9 +535,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     @Override
     public void removeEntity(Replicable entity) {
         try {
-            initMongo();
             String id = DataSetGenerator.getEntityId(entity);
-            remove(ENTITY_COLLECTION_NAME, id);
+            remove(MongoConstants.ENTITY_COLLECTION, id);
             LOG.info("Replication: removed " + entity.getName());
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED_REMOVE + entity.getName(), e);
@@ -582,9 +550,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     @Override
     public void removeLocation(Location location) {
         try {
-            initMongo();
             if (location.isRegistered()) {
-                remove(NODE_COLLECTION_NAME, location.getId());
+                remove(MongoConstants.NODE_COLLECTION, location.getId());
             }
             registerTunnels(location);
         } catch (Exception e) {
@@ -592,11 +559,15 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
     }
 
+    private DBCollection getEntityCollection() {
+        return m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
+    }
+
     /**
      * shortcut to remove objects from mongo's imdb database
      */
     private void remove(String collectionName, Object id) {
-        DBCollection collection = m_datasetDb.getCollection(collectionName);
+        DBCollection collection = m_imdb.getDb().getCollection(collectionName);
         DBObject search = new BasicDBObject();
         search.put(ID, id);
         DBObject node = collection.findOne(search);
@@ -654,13 +625,12 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      */
     public void addPermission(Permission permission) {
         try {
-            initMongo();
             DBCursor users = m_validUsers.getEntitiesWithPermissions();
             for (DBObject user : users) {
                 Collection<String> prms = (Collection<String>) user.get(MongoConstants.PERMISSIONS);
                 prms.add(permission.getName());
                 user.put(MongoConstants.PERMISSIONS, prms);
-                m_datasetCollection.save(user);
+                getEntityCollection().save(user);
             }
         } catch (Exception e) {
             LOG.error(ERROR_PERMISSION, e);
@@ -673,13 +643,12 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      */
     public void removePermission(Permission permission) {
         try {
-            initMongo();
             DBCursor users = m_validUsers.getEntitiesWithPermission(permission.getName());
             for (DBObject user : users) {
                 Collection<String> prms = (Collection<String>) user.get(MongoConstants.PERMISSIONS);
                 prms.remove(permission.getName());
                 user.put(MongoConstants.PERMISSIONS, prms);
-                m_datasetCollection.save(user);
+                getEntityCollection().save(user);
             }
         } catch (Exception e) {
             LOG.error(ERROR_PERMISSION, e);
@@ -816,19 +785,19 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         m_tunnelManager = tunnelManager;
     }
 
-    public MongoDbTemplate getImdb() {
-        return m_imdb;
-    }
-
-    public void setImdb(MongoDbTemplate imdb) {
-        m_imdb = imdb;
-    }
-
     public ValidUsers getValidUsers() {
         return m_validUsers;
     }
 
     public void setValidUsers(ValidUsers validUsers) {
         m_validUsers = validUsers;
+    }
+
+    public MongoDbTemplate getImdb() {
+        return m_imdb;
+    }
+
+    public void setImdb(MongoDbTemplate imdb) {
+        m_imdb = imdb;
     }
 }

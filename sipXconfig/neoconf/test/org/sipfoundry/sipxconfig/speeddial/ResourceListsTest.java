@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.insertJson;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,28 +21,35 @@ import java.io.StringReader;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+
+import com.mongodb.DBCollection;
 
 public class ResourceListsTest extends XMLTestCase {
     public final static String DOMAIN = "example.org";
     private CoreContext m_coreContext;
-    private MongoTestCaseHelper m_helper = new MongoTestCaseHelper("test", "entity"); 
+    private MongoDbTemplate m_db = new MongoDbTemplate(); 
     private ResourceLists m_rl;
 
     @Override
     protected void setUp() throws Exception {
+        m_db.setName("test");
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.getDomainName();
         expectLastCall().andReturn(DOMAIN).anyTimes();
         replay(m_coreContext);
-        m_helper.dropDb();
+        m_db.drop();
         m_rl = new ResourceLists();
         ValidUsers vu = new ValidUsers();
-        vu.setImdb(m_helper.getDbTemplate());
+        vu.setImdb(m_db);
         m_rl.setValidUsers(vu);
         m_rl.setCoreContext(m_coreContext);
+    }
+    
+    private DBCollection getEntityCollection() {
+        return m_db.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
     }
 
     public void testGenerate() throws Exception {
@@ -61,7 +69,7 @@ public class ResourceListsTest extends XMLTestCase {
         String json3 = "{ \"_id\" : \"User3\", \"uid\" : \"user_name_0\", \"imenbld\" : \"true\"}";
 
         String json4 = "{ \"_id\" : \"User4\", \"uid\" : \"user_name_1\", \"imenbld\" : \"true\"}";
-        m_helper.insertJson(json1, json2, json3, json4);
+        insertJson(getEntityCollection(), json1, json2, json3, json4);
         Thread.sleep(1000);// sleep 1 second. I get inconsistent results when running the tests,
                            // as if mongo does not pick up quickly
 
@@ -79,17 +87,11 @@ public class ResourceListsTest extends XMLTestCase {
                 + "{\"" + MongoConstants.URI + "\" : \"sip:100@example.org\",\"" + MongoConstants.NAME
                 + "\" : \"delta\"}" + "]}, \"prm\" : [\"Mobile\"" + "]}";
 
-        m_helper.insertJson(json3, json2);
+        insertJson(getEntityCollection(), json3, json2);
         Thread.sleep(1000);
 
         String fileContent = getFileContent(m_rl, null);
         assertXMLEqual("<lists xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01\"/>",
                 fileContent);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        m_helper.dropDb();
     }
 }

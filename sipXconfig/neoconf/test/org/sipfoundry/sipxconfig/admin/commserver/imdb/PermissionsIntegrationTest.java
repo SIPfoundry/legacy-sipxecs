@@ -8,22 +8,21 @@
  *
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertCollectionCount;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectListFieldCount;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -34,7 +33,7 @@ public class PermissionsIntegrationTest extends ImdbTestCase {
     // needs to be adjusted every time a new permission is added
     private static int PERM_COUNT = 5;
     private static int SPEC_COUNT = SpecialUserType.values().length;
-    private Permissions m_permissions;
+    private Permissions m_permissionDataSet;
     User m_testUser;
 
     @Override
@@ -43,9 +42,6 @@ public class PermissionsIntegrationTest extends ImdbTestCase {
         m_testUser = new User();
         m_testUser.setPermissionManager(getPermissionManager());
         m_testUser.setDomainManager(getDomainManager());
-        m_permissions = new Permissions();
-        m_permissions.setDbCollection(getEntityCollection());
-        m_permissions.setCoreContext(getCoreContext());
         TlsPeer peer = new TlsPeer();
         InternalUser user = new InternalUser();
         user.setSipPassword("123");
@@ -58,18 +54,18 @@ public class PermissionsIntegrationTest extends ImdbTestCase {
     public void testGenerateEmpty() throws Exception {
         for (SpecialUserType u : SpecialUserType.values()) {
             SpecialUser su = new SpecialUser(u);
-            m_permissions.generate(su, m_permissions.findOrCreate(su));
+            m_permissionDataSet.generate(su, m_permissionDataSet.findOrCreate(su));
         }
 
         // As PHONE_PROVISION does NOT require any permissions, don't count it.
-        assertCollectionCount(SPEC_COUNT - 1);
+        assertCollectionCount(getEntityCollection(), SPEC_COUNT - 1);
         // 5 permissions per special user
 
         for (SpecialUserType su : SpecialUserType.values()) {
             // As PHONE_PROVISION does NOT require any permissions, skip it.
             if (!su.equals(SpecialUserType.PHONE_PROVISION)) {
-                assertObjectWithIdPresent(su.getUserName());
-                assertObjectListFieldCount(su.getUserName(), MongoConstants.PERMISSIONS, PERM_COUNT);
+                assertObjectWithIdPresent(getEntityCollection(), su.getUserName());
+                assertObjectListFieldCount(getEntityCollection(), su.getUserName(), MongoConstants.PERMISSIONS, PERM_COUNT);
             }
         }
     }
@@ -87,13 +83,13 @@ public class PermissionsIntegrationTest extends ImdbTestCase {
         callGroup3.setName("disabled");
         callGroup3.setUniqueId(3);
 
-        m_permissions.generate(callGroup1, m_permissions.findOrCreate(callGroup1));
-        m_permissions.generate(callGroup2, m_permissions.findOrCreate(callGroup2));
-        m_permissions.generate(callGroup3, m_permissions.findOrCreate(callGroup3));
+        m_permissionDataSet.generate(callGroup1, m_permissionDataSet.findOrCreate(callGroup1));
+        m_permissionDataSet.generate(callGroup2, m_permissionDataSet.findOrCreate(callGroup2));
+        m_permissionDataSet.generate(callGroup3, m_permissionDataSet.findOrCreate(callGroup3));
 
-        assertObjectWithIdFieldValuePresent("CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
-        assertObjectWithIdFieldValuePresent("CallGroup2", MongoConstants.IDENTITY, "marketing@" + DOMAIN);
-        assertObjectWithIdNotPresent("CallGroup3");
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "CallGroup2", MongoConstants.IDENTITY, "marketing@" + DOMAIN);
+        assertObjectWithIdNotPresent(getEntityCollection(), "CallGroup3");
 
     }
 
@@ -109,14 +105,18 @@ public class PermissionsIntegrationTest extends ImdbTestCase {
         m_testUser.addGroup(g);
         m_testUser.setUserName("goober");
         m_testUser.setUniqueId(1);
-        m_permissions.generate(m_testUser, m_permissions.findOrCreate(m_testUser));
+        m_permissionDataSet.generate(m_testUser, m_permissionDataSet.findOrCreate(m_testUser));
 
-        assertObjectWithIdPresent("User1");
-        assertObjectListFieldCount("User1", MongoConstants.PERMISSIONS, 8);
+        assertObjectWithIdPresent(getEntityCollection(), "User1");
+        assertObjectListFieldCount(getEntityCollection(), "User1", MongoConstants.PERMISSIONS, 8);
         QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
         qb.is("User1").and(MongoConstants.PERMISSIONS).size(4).and(MongoConstants.PERMISSIONS)
                 .is(PermissionName.LOCAL_DIALING.getName()).is(PermissionName.VOICEMAIL.getName())
                 .is(PermissionName.EXCHANGE_VOICEMAIL.getName()).is(PermissionName.MOBILE.getName());
-        assertObjectPresent(qb.get());
+        assertObjectPresent(getEntityCollection(), qb.get());
+    }
+
+    public void setPermissionDataSet(Permissions permissionDataSet) {
+        m_permissionDataSet = permissionDataSet;
     }
 }

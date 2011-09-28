@@ -11,6 +11,9 @@ package org.sipfoundry.commons.mongo;
 
 
 public interface MongoConstants {
+    static final String NODE_COLLECTION = "node";
+    static final String STUNNEL_COLLECTION = "registrarnode";
+    static final String ENTITY_COLLECTION = "entity";
 
     static final String ALIASES = "als";
     static final String ALIAS = "alias";

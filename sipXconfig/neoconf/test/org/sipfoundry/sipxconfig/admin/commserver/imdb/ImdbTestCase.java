@@ -1,17 +1,12 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.List;
-
 import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 
 
 public class ImdbTestCase extends IntegrationTestCase {
@@ -33,67 +28,6 @@ public class ImdbTestCase extends IntegrationTestCase {
         return entity;
     }
 
-    public void assertObjectPresent(DBObject ref) {
-        assertNotNull(getEntityCollection().findOne(ref));
-    }
-
-    public void assertObjectWithIdPresent(String id) {
-        DBObject ref = new BasicDBObject();
-        ref.put(ID, id);
-        assertEquals(1, getEntityCollection().find(ref).size());
-    }
-
-    public void assertObjectWithIdNotPresent(Object id) {
-        DBObject ref = new BasicDBObject();
-        ref.put(ID, id);
-        assertEquals(0, getEntityCollection().find(ref).size());
-    }
-
-    public void assertCollectionItemsCount(DBObject ref, int count) {
-        assertTrue(getEntityCollection().find(ref).size() == count);
-    }
-
-    public void assertCollectionCount(int count) {
-        assertEquals(count, getEntityCollection().find().count());
-    }
-
-    public void assertObjectListFieldCount(String id, String listField, int count) {
-        DBObject ref = new BasicDBObject();
-        ref.put(ID, id);
-        assertEquals(1, getEntityCollection().find(ref).size());
-        DBObject obj = getEntityCollection().findOne(ref);
-        assertTrue(obj.containsField(listField));
-        assertEquals(count, ((List<DBObject>) obj.get(listField)).size());
-
-    }
-
-    public void assertObjectWithIdFieldValuePresent(Object id, String field, Object value) {
-        DBObject ref = new BasicDBObject();
-        ref.put(ID, id);
-        ref.put(field, value);
-        assertEquals(1, getEntityCollection().find(ref).count());
-    }
-
-    public void assertObjectWithIdFieldValueNotPresent(Object id, String field, Object value) {
-        DBObject ref = new BasicDBObject();
-        ref.put(ID, id);
-        ref.put(field, value);
-        assertEquals(0, getEntityCollection().find(ref).count());
-    }
-
-    public void insert(DBObject dbo) {
-        getEntityCollection().insert(dbo);
-    }
-
-    public void insertJson(String... jsons) {
-        for (String json : jsons) {
-            getEntityCollection().save((DBObject) JSON.parse(json));
-        }
-    }
-
-    public void dropDb() {
-        m_imdb.getMongo().dropDatabase(m_imdb.getName());
-    }
 
     public CoreContext getCoreContext() {
         return m_coreContext;

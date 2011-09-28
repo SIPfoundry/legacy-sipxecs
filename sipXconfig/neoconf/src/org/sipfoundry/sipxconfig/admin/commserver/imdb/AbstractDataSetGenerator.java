@@ -16,17 +16,19 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-
+import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
 
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+
 public abstract class AbstractDataSetGenerator {
-    private DBCollection m_dbCollection;
+    private MongoDbTemplate m_imdb;
     private CoreContext m_coreContext;
 
     public void setCoreContext(CoreContext coreContext) {
@@ -45,11 +47,7 @@ public abstract class AbstractDataSetGenerator {
     }
 
     public DBCollection getDbCollection() {
-        return m_dbCollection;
-    }
-
-    public void setDbCollection(DBCollection dbCollection) {
-        m_dbCollection = dbCollection;
+        return m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
     }
 
     public abstract void generate(Replicable entity, DBObject top);
@@ -73,5 +71,13 @@ public abstract class AbstractDataSetGenerator {
             id = alias.getName();
         }
         return id;
+    }
+
+    public MongoDbTemplate getImdb() {
+        return m_imdb;
+    }
+
+    public void setImdb(MongoDbTemplate imdb) {
+        m_imdb = imdb;
     }
 }

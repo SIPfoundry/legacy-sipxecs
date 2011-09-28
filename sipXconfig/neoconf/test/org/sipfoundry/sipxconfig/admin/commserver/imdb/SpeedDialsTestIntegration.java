@@ -18,14 +18,12 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class SpeedDialsTestIntegration extends ImdbTestCase {
-    private SpeedDials m_speedDials;
+    private SpeedDials m_speeddialDataSet;
     private ResourceLists m_resourceLists;
 
     public void testGenerateResourceLists() throws Exception {
-//        m_domainManager.setNullDomain();
         loadDataSetXml("domain/DomainSeed.xml");
         loadDataSet("admin/commserver/imdb/speeddials.db.xml");
-        m_speedDials.setDbCollection(getEntityCollection());
 
         User userA = getCoreContext().loadUserByUserName("user_a");
         User userC = getCoreContext().loadUserByUserName("user_c");
@@ -46,10 +44,10 @@ public class SpeedDialsTestIntegration extends ImdbTestCase {
                 .append(IM_ENABLED, true);
         user4.put(PERMISSIONS, prmlistNoSubscribe);
 
-        m_speedDials.generate(userA, user1);
-        m_speedDials.generate(userC, user2);
-        m_speedDials.generate(userB, user3);
-        m_speedDials.generate(userD, user4);
+        m_speeddialDataSet.generate(userA, user1);
+        m_speeddialDataSet.generate(userC, user2);
+        m_speeddialDataSet.generate(userB, user3);
+        m_speeddialDataSet.generate(userD, user4);
 
         String generated = AbstractConfigurationFile.getFileContent(m_resourceLists, null);
         InputStream referenceXmlStream = getClass().getResourceAsStream("resource-lists.test.xml");
@@ -57,7 +55,7 @@ public class SpeedDialsTestIntegration extends ImdbTestCase {
     }
 
     public void setSpeeddialDataSet(SpeedDials speedDials) {
-        m_speedDials = speedDials;
+        m_speeddialDataSet = speedDials;
     }
 
     public void setResourceListGenerator(ResourceLists resourceLists) {

@@ -9,18 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.admin.tls;
 
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
-public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
-
+public class TlsPeerManagerImplTestIntegration extends ImdbTestCase {
     private TlsPeerManager m_tlsPeerManager;
-    private MongoTestCaseHelper m_helper = new MongoTestCaseHelper("test", "entity"); 
 
     public void testDeleteTlsPeer() throws Exception {
         loadDataSet("admin/tls/tls_peer.db.xml");
@@ -73,8 +73,8 @@ public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
         peer1.setName(" tl spe e r4");
         m_tlsPeerManager.saveTlsPeer(peer1);
         assertEquals("~~tp~tlspeer4", peer1.getInternalUser().getUserName());
-        m_helper.assertObjectWithIdPresent("TlsPeer1");
-        m_helper.assertObjectWithIdPresent("TlsPeer2");
+        assertObjectWithIdPresent(getEntityCollection(), "TlsPeer1");
+        assertObjectWithIdPresent(getEntityCollection(), "TlsPeer2");
         TlsPeer peer2 = m_tlsPeerManager.getTlsPeerByName("tlspeer2");
         peer2.setName("tlspeer4");
         try {
@@ -83,7 +83,7 @@ public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
         } catch (UserException ex) {
 
         }
-        m_helper.assertObjectWithIdNotPresent("TlsPeer3");
+        assertObjectWithIdNotPresent(getEntityCollection(), "TlsPeer3");
     }
 
     public void setTlsPeerManager(TlsPeerManager peerManager) {

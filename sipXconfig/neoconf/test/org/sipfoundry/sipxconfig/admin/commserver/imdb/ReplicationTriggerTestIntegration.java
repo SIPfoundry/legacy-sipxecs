@@ -12,6 +12,11 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValueNotPresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
+import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
 
 import java.util.Collections;
 import java.util.SortedSet;
@@ -56,11 +61,11 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
         user.setGroups(groups);
 
         getCoreContext().saveUser(user);
-        assertObjectWithIdPresent("User1001");
-        assertObjectWithIdNotPresent("User1002");
+        assertObjectWithIdPresent(getEntityCollection(), "User1001");
+        assertObjectWithIdNotPresent(getEntityCollection(), "User1002");
         m_dao.saveGroup(g);
         Thread.sleep(5000);
-        assertObjectWithIdPresent("User1002");
+        assertObjectWithIdPresent(getEntityCollection(), "User1002");
     }
 
     public void testReplicateOnTlsPeerCreation() throws Exception {
@@ -69,7 +74,7 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
         peer.setName("test");
 
         m_tlsPeerManager.saveTlsPeer(peer);
-        assertObjectPresent(new BasicDBObject().append("ident", "~~tp~test@example.org"));
+        assertObjectPresent(getEntityCollection(), new BasicDBObject().append("ident", "~~tp~test@example.org"));
 
     }
 
@@ -114,7 +119,7 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
         Branch b = m_branchManager.getBranch(1000);
         User u = getCoreContext().loadUser(1000);
         m_replicationManager.replicateEntity(u, DataSet.USER_LOCATION);
-        assertObjectWithIdFieldValuePresent("User1000", MongoConstants.USER_LOCATION, "branch1");
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1000", MongoConstants.USER_LOCATION, "branch1");
 
         //verify that the replication is triggered
         ExecutorService executorService = EasyMock.createMock(ExecutorService.class);
@@ -131,7 +136,7 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
         evict(u);
         User u1 = getCoreContext().loadUser(1000);
         m_replicationManager.replicateEntity(u1, DataSet.USER_LOCATION);
-        assertObjectWithIdFieldValueNotPresent("User1000", MongoConstants.USER_LOCATION, "branch1");
+        assertObjectWithIdFieldValueNotPresent(getEntityCollection(), "User1000", MongoConstants.USER_LOCATION, "branch1");
     }
 
     public void setTlsPeerManager(TlsPeerManager peerManager) {
