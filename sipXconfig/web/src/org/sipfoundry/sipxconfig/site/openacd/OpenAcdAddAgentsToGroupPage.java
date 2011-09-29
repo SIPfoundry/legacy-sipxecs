@@ -206,6 +206,8 @@ public abstract class OpenAcdAddAgentsToGroupPage extends PageWithCallback imple
                         StringUtils.join(existingAgentNames, DELIM));
                 getValidator().record(new ValidatorException(msg));
             }
+        } else {
+            throw new UserException(getMessages().getMessage("error.requiredUser"));
         }
     }
 
