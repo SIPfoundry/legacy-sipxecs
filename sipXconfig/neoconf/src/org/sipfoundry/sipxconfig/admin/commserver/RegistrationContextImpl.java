@@ -19,7 +19,6 @@ import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
-import org.springframework.beans.factory.annotation.Required;
 
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -29,7 +28,6 @@ import com.mongodb.DBObject;
 public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
     private static final String DB_COLLECTION_NAME = "registrar";
-    private LocationsManager m_locationsManager;
     private MongoDbTemplate m_nodedb;
 
     /**
@@ -37,11 +35,6 @@ public class RegistrationContextImpl implements RegistrationContext {
      */
     public List<RegistrationItem> getRegistrations() {
         try {
-//            Location primaryProxyLocation = m_locationsManager.getLocationByBundle("primarySipRouterBundle");
-//            if (primaryProxyLocation == null) {
-//                LOG.error("No primary proxy found.");
-//                return Collections.emptyList();
-//            }
             DB datasetDb = m_nodedb.getDb();
             DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
             DBCursor cursor = registrarCollection.find();
@@ -80,11 +73,6 @@ public class RegistrationContextImpl implements RegistrationContext {
             }
         }
         return result;
-    }
-
-    @Required
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
     }
 
     public MongoDbTemplate getNodedb() {
