@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
@@ -321,24 +320,13 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         return affectDefaultAgentGroup;
     }
 
-    public List<OpenAcdAgent> addAgentsToGroup(OpenAcdAgentGroup agentGroup, Collection<OpenAcdAgent> agents) {
-        List<OpenAcdAgent> existingAgents = new ArrayList<OpenAcdAgent>();
+    public void addAgentsToGroup(OpenAcdAgentGroup agentGroup, Collection<OpenAcdAgent> agents) {
         for (OpenAcdAgent agent : agents) {
-            if (!isOpenAcdAgent(agent.getUser())) {
-                agentGroup.addAgent(agent);
-                agent.setGroup(agentGroup);
-            } else {
-                existingAgents.add(agent);
-            }
+            agentGroup.addAgent(agent);
+            agent.setGroup(agentGroup);
         }
-        if (existingAgents.isEmpty()) {
-            // update the group
-            saveAgentGroup(agentGroup);
-            m_provisioningContext.addObjects(new LinkedList<OpenAcdConfigObject>(CollectionUtils.subtract(agents,
-                    existingAgents)));
-        }
-
-        return existingAgents;
+        saveAgentGroup(agentGroup);
+        m_provisioningContext.addObjects(new LinkedList<OpenAcdConfigObject>(agents));
     }
 
     public List<OpenAcdAgent> getAgents() {
