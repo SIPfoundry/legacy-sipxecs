@@ -25,4 +25,7 @@ public abstract class AddressPanel extends BaseComponent {
 
     @Parameter(required = false, defaultValue = "false")
     public abstract boolean isOffice();
+
+    @Parameter(required = false, defaultValue = "false")
+    public abstract boolean isDisabled();
 }
