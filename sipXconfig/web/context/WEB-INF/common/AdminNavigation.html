@@ -6,17 +6,13 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.user">Users</span></a>
 				<ul>
-					<span jwcid="@For" source="ognl:getMenuBlocks('UserTop')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="UserTop"/>
 					<li><a jwcid="@PageLink" id="menu.users" page="user/ManageUsers"><span key="menu.users">Users</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.userGroups" page="user/UserGroups"><span key="menu.userGroups">User Groups</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.extensions" page="admin/ExtensionPools"><span key="menu.extensions">User Extension Pool</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.tlspeers" page="admin/TlsPeers"><span key="menu.tlspeers">TLS Peers</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.authcodes" page="admin/AuthCodes"><span key="menu.authcodes">Authorization Codes</span></a></li>
-					<span jwcid="@For" source="ognl:getMenuBlocks('UserBottom')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="UserBottom"/>
 				</ul>
 			</div>
 		</li>
@@ -25,18 +21,14 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.devices">Devices</span></a>
 				<ul>
-					<span jwcid="@For" source="ognl:getMenuBlocks('DevicesTop')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="DevicesTop"/>
 					<li><a jwcid="@PageLink" id="menu.devices" page="phone/ManagePhones"><span key="menu.devices">Phones</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.deviceGroups" page="phone/PhoneGroups"><span key="menu.deviceGroups">Phone Groups</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.gateways" page="gateway/ListGateways"><span key="menu.gateways">Gateways</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.uploads" page="upload/ManageUploads"><span key="menu.uploads">Upload Firmware</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.configuredServices" page="service/ListConfiguredServices"><span key="menu.configuredServices"/></a></li>
 					<li><a jwcid="@PageLink" id="menu.timezone" page="device/TimeZonePage"><span key="menu.timezone">Timezone Settings</span></a></li>
-					<span jwcid="@For" source="ognl:getMenuBlocks('DevicesBottom')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="DevicesBottom"/>
 				</ul>
 			</div>
 		</li>
@@ -45,9 +37,7 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.admin">Features</span></a>
 				<ul>
-					<span jwcid="@For" source="ognl:getMenuBlocks('FeaturesTop')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="FeaturesTop"/>
 					<li jwcid="@If" condition="ognl:acdEnabled">
 						<a jwcid="@PageLink" id="menu.acd" page="acd/ListAcdServers"><span key="menu.acd">ACD</span></a>
 					</li>
@@ -69,9 +59,7 @@
 					<li jwcid="@If" condition="ognl:openFireEnabled">
 						<a jwcid="@PageLink" id="menu.instantMessaging" page="admin/InstantMessaging"><span key="menu.instantMessaging">Instant Messaging</span></a>
 					</li>
-					<span jwcid="@For" source="ognl:getMenuBlocks('FeaturesBottom')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="FeaturesBottom"/>
 				</ul>
 			</div>
 		</li>
@@ -80,9 +68,7 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.system">System</span></a>
 				<ul>
-					<span jwcid="@For" source="ognl:getMenuBlocks('SystemTop')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="SystemTop"/>
 					<li><a jwcid="@PageLink" id="menu.locations" page="admin/commserver/LocationsPage"><span key="menu.locations">Locations (HA)</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.branches" page="branch/BranchesPage"><span key="menu.branches">Branches</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.domain" page="admin/ManageDomain"><span key="menu.domain">Domain</span></a></li>
@@ -101,9 +87,7 @@
 					</li>
 					<li><a jwcid="@PageLink" id="menu.timeSettings" page="admin/TimeSettingsPage"><span key="menu.timeSettings">Time Settings</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.loggingLevels" page="admin/ManageLoggingLevels"><span key="menu.loggingLevels">Logging Levels</span></a></li>
-					<span jwcid="@For" source="ognl:getMenuBlocks('SystemBottom')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="SystemBottom"/>
 				</ul>
 			</div>
 		</li>
@@ -112,9 +96,7 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.diag">Diagnostics</span></a>
 				<ul>
-					<span jwcid="@For" source="ognl:getMenuBlocks('DiagnosticsTop')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="DiagnosticsTop"/>
 					<li jwcid="@If" condition="ognl:coreContext.debug">
 							<a jwcid="@PageLink" id="menu.testpage" page="TestPage"><span key="menu.testpage">Tests</span></a>
 					</li>
@@ -136,14 +118,10 @@
 					<li><a jwcid="@PageLink" id="menu.alarms" page="admin/AlarmsPage"><span key="menu.alarms">Alarms</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.dnsTest" page="admin/DnsTestPage"><span key="menu.dnsTest">Dns Test</span></a></li>
 					<li><span jwcid="@admin/AboutDialog" id="menu.about" linkTitle="message:menu.about"/></li>
-					<span jwcid="@For" source="ognl:getMenuBlocks('DiagnosticsBottom')" value="ognl:blockId">
-						<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-					</span>
+					<span jwcid="@common/Plugin" blockId="DiagnosticsBottom"/>
 				</ul>
 			</div>
 		</li>
-		<span jwcid="@For" source="ognl:getMenuBlocks('MainMenu')" value="ognl:blockId">
-			<span jwcid="@RenderBlock" block="ognl:getPluginMenu(blockId)"/>
-		</span>
+    	<span jwcid="@common/Plugin" blockId="MainMenu"/>
 	</ul>
 </div>

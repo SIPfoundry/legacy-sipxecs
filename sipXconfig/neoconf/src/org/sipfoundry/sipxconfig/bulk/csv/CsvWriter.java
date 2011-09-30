@@ -12,43 +12,21 @@ package org.sipfoundry.sipxconfig.bulk.csv;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookWriter;
 
-public class CsvWriter implements PhonebookWriter {
-    private Writer m_writer;
-    private boolean m_quote = true;
+public class CsvWriter extends SimpleCsvWriter implements PhonebookWriter {
 
     public CsvWriter(Writer writer) {
-        m_writer = writer;
+        super(writer);
+    }
+
+    public CsvWriter(Writer writer, boolean quote) throws IOException {
+        super(writer, quote);
     }
 
     public CsvWriter(Writer writer, boolean quote, String[] header) throws IOException {
-        m_writer = writer;
-        m_quote = quote;
-        write(header, m_quote);
-    }
-
-    public void write(String[] fields, boolean quote) throws IOException {
-        StringBuilder line = new StringBuilder();
-        for (int i = 0; i < fields.length; i++) {
-            String field = fields[i];
-
-            if (quote) {
-                line.append(CsvParserImpl.FIELD_QUOTE);
-            }
-            line.append(StringUtils.defaultString(field));
-            if (quote) {
-                line.append(CsvParserImpl.FIELD_QUOTE);
-            }
-            if (i < fields.length - 1) {
-                line.append(CsvParserImpl.FIELD_SEPARATOR);
-            } else {
-                line.append('\n');
-            }
-        }
-        m_writer.write(line.toString());
+        super(writer, quote, header);
     }
 
     public void write(PhonebookEntry entry) throws IOException {
@@ -58,18 +36,7 @@ public class CsvWriter implements PhonebookWriter {
         if (!entry.isWritable()) {
             return;
         }
-        write(entry.getFields(), m_quote);
-    }
-
-    /**
-     * Similar to write but translates exceptions to UserException
-     */
-    public void optimisticWrite(String[] fields, boolean quote) {
-        try {
-            write(fields, quote);
-        } catch (IOException e) {
-            new RuntimeException(e);
-        }
+        write(entry.getFields());
     }
 
 }

@@ -10,12 +10,12 @@ package org.sipfoundry.sipxconfig.site;
 /**
  * Adds navigation pages to menu.  Today, just admin, but hope to add user menu at some point.
  */
-public interface NavigationProvider {
+public interface PluginHook {
 
     /**
      * Page name of where all your menu render blocks are stored. See ExamplePluginMenu.page
      * Example: "EditWidgetPage".  Do not include prefix "/plugin" or suffix ".page"
      */
-    public String getAdminMenuPageId();
+    public String getHookId();
 
 }

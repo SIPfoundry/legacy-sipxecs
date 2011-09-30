@@ -23,8 +23,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
+import org.sipfoundry.sipxconfig.bulk.csv.SimpleCsvWriter;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ldap.CollectingNameClassPairCallbackHandler;
@@ -61,7 +61,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
 
     public void dumpExample(Writer out) {
         try {
-            CsvWriter writer = new CsvWriter(out);
+            SimpleCsvWriter writer = new SimpleCsvWriter(out);
             String[] allNames = Index.getAllNames();
             writer.write(allNames, false);
 
@@ -113,8 +113,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
                         .getCountry());
                 Index.OFFICE_ZIP
                         .set(row, preview.getUser().getCreatedAddressBookEntry().getOfficeAddress().getZip());
-
-                writer.write(row, true);
+                writer.write(row);
             }
         } catch (IOException e) {
             throw new UserException(e.getMessage());

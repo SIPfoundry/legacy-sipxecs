@@ -18,8 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
+import org.sipfoundry.sipxconfig.bulk.csv.SimpleCsvWriter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -41,7 +41,7 @@ public class ExportCsv {
         m_phoneContext = phoneContext;
     }
 
-    private Collection<String> exportPhoneAndUsers(CsvWriter csv, String realm) throws IOException {
+    private Collection<String> exportPhoneAndUsers(SimpleCsvWriter csv, String realm) throws IOException {
         Set<String> usernames = new HashSet<String>();
         final String[] order = new String[] {
             "serialNumber"
@@ -68,7 +68,7 @@ public class ExportCsv {
      * @param realm
      * @return list of user IDs exported with this phone
      */
-    Collection<String> exportPhone(CsvWriter csv, Phone phone, String realm) throws IOException {
+    Collection<String> exportPhone(SimpleCsvWriter csv, Phone phone, String realm) throws IOException {
         String[] row = Index.newRow();
 
         String phoneSerialNumber = phone.getSerialNumber();
@@ -105,7 +105,7 @@ public class ExportCsv {
         return usernames;
     }
 
-    void exportUser(CsvWriter csv, String[] row, User user, String realm) throws IOException {
+    void exportUser(SimpleCsvWriter csv, String[] row, User user, String realm) throws IOException {
         Index.USERNAME.set(row, user.getUserName());
 
         Index.SIP_PASSWORD.set(row, user.getSipPassword());
@@ -119,14 +119,14 @@ public class ExportCsv {
         Index.PIN.set(row, formatRealmAndHash(realm, userPinToken));
         // XMPP
         Index.IM_ID.set(row, user.getImId());
-        csv.write(row, true);
+        csv.write(row);
     }
 
     private String formatRealmAndHash(String realm, String userPinToken) {
         return String.format("%s#%s", realm, userPinToken);
     }
 
-    private void exportUsersNotAttachedToPhones(CsvWriter csv, Collection<String> usernames, String realm)
+    private void exportUsersNotAttachedToPhones(SimpleCsvWriter csv, Collection<String> usernames, String realm)
         throws IOException {
         int userIndex = 0;
         int size = 0;
@@ -148,7 +148,7 @@ public class ExportCsv {
     public void exportCsv(Writer writer) throws IOException {
         try {
             // Write the Header of the CSV file.
-            CsvWriter csv = new CsvWriter(writer);
+            SimpleCsvWriter csv = new SimpleCsvWriter(writer);
             csv.write(Index.labels(), false);
 
             // Export Phones and associated users

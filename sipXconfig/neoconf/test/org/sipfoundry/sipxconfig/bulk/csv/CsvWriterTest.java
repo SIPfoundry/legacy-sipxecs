@@ -21,7 +21,7 @@ public class CsvWriterTest extends TestCase {
 
     public void testWriteNoQuote() throws Exception {
         StringWriter writer = new StringWriter();
-        CsvWriter csvWriter = new CsvWriter(writer);
+        SimpleCsvWriter csvWriter = new CsvWriter(writer);
         String[] row = {
             "aa", null, "cc"
         };
@@ -31,7 +31,7 @@ public class CsvWriterTest extends TestCase {
 
     public void testWriteQuote() throws Exception {
         StringWriter writer = new StringWriter();
-        CsvWriter csvWriter = new CsvWriter(writer);
+        SimpleCsvWriter csvWriter = new CsvWriter(writer);
         String[] row = {
             "aa", null, "cc"
         };

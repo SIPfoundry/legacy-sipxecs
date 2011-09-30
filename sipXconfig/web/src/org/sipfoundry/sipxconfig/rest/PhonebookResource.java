@@ -30,7 +30,7 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
+import org.sipfoundry.sipxconfig.bulk.csv.SimpleCsvWriter;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -91,14 +91,14 @@ public class PhonebookResource extends Resource {
         @Override
         public void write(OutputStream outputStream) throws IOException {
             Writer writer = new OutputStreamWriter(outputStream);
-            CsvWriter csv = new CsvWriter(writer);
-            csv.write(HEADERS, true);
+            SimpleCsvWriter csv = new SimpleCsvWriter(writer);
+            csv.write(HEADERS);
             for (PhonebookEntry entry : m_entries) {
                 try {
                     String[] fields = new String[] {
                         entry.getFirstName(), entry.getLastName(), entry.getNumber()
                     };
-                    csv.write(fields, true);
+                    csv.write(fields);
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Exception e) {

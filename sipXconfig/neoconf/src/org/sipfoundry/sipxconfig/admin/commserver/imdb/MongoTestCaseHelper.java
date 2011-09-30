@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 
@@ -81,5 +82,10 @@ public final class MongoTestCaseHelper {
         for (String json : jsons) {
             collection.save((DBObject) JSON.parse(json));
         }
+    }
+
+    public static final void assertJson(DBCursor actual, String expectedJson) {
+        String actualJson = JSON.serialize(actual.toArray());
+        TestCase.assertEquals(expectedJson, actualJson);
     }
 }

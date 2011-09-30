@@ -29,7 +29,7 @@ import org.apache.commons.beanutils.locale.LocaleConvertUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
+import org.sipfoundry.sipxconfig.bulk.csv.SimpleCsvWriter;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -67,7 +67,7 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
         }
 
         // column names
-        CsvWriter csv = new CsvWriter(writer);
+        SimpleCsvWriter csv = new SimpleCsvWriter(writer);
         Map<String, Object> row0 = reportData.get(0);
         csv.write(row0.keySet().toArray(new String[0]), false);
 
@@ -86,7 +86,7 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
                 }
             }
 
-            csv.write(recordDataStrings, false);
+            csv.write(recordDataStrings);
         }
     }
 

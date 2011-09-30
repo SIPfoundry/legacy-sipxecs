@@ -225,7 +225,7 @@
     <property name="tapestryContext" ref="tapestry" />
   </bean>
   
-  <bean id="customPageManager" class="org.sipfoundry.sipxconfig.site.CustomPageManager">
+  <bean id="pluginHookManager" class="org.sipfoundry.sipxconfig.site.PluginHookManager">
   </bean>
 
   <!--  Message source beans -->

@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.bulk.csv.SimpleCsvWriter;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
@@ -34,7 +36,7 @@ public class ExportCsvTest extends TestCase {
         ExportCsv exportCsv = new ExportCsv();
 
         StringWriter writer = new StringWriter();
-        CsvWriter csv = new CsvWriter(writer);
+        SimpleCsvWriter csv = new SimpleCsvWriter(writer);
 
         TestPhone phone = new TestPhone();
         phone.setModel(new TestPhoneModel());
@@ -52,7 +54,7 @@ public class ExportCsvTest extends TestCase {
         ExportCsv exportCsv = new ExportCsv();
 
         StringWriter writer = new StringWriter();
-        CsvWriter csv = new CsvWriter(writer);
+        SimpleCsvWriter csv = new SimpleCsvWriter(writer);
 
         // Add 3 user Groups to test export of multiple groups
         Group[] groups = new Group[3];
@@ -109,7 +111,7 @@ public class ExportCsvTest extends TestCase {
         ExportCsv exportCsv = new ExportCsv();
 
         StringWriter writer = new StringWriter();
-        CsvWriter csv = new CsvWriter(writer);
+        SimpleCsvWriter csv = new SimpleCsvWriter(writer);
 
         Line line = new Line();
 
@@ -137,7 +139,7 @@ public class ExportCsvTest extends TestCase {
         ExportCsv exportCsv = new ExportCsv();
 
         StringWriter writer = new StringWriter();
-        CsvWriter csv = new CsvWriter(writer);
+        SimpleCsvWriter csv = new SimpleCsvWriter(writer);
         String[] row = Index.newRow();
 
         User user = new User();

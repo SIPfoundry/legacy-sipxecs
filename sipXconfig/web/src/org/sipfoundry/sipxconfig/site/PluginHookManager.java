@@ -8,7 +8,6 @@
 package org.sipfoundry.sipxconfig.site;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -20,39 +19,26 @@ import org.springframework.beans.factory.ListableBeanFactory;
 /**
  * Find and manages custom pages loaded in plugin jars
  */
-public class CustomPageManager implements BeanFactoryAware {
-
+public class PluginHookManager implements BeanFactoryAware {
     private ListableBeanFactory m_beanFactory;
-    private Collection<NavigationProvider> m_navProviders;
+    private List<PluginHook> m_hooks;
 
     @Override
     public void setBeanFactory(BeanFactory bf) {
         m_beanFactory = (ListableBeanFactory) bf;
-        m_navProviders = null;
+        m_hooks = null;
     }
 
-    public Collection<String> getAdminMenuPageIds() {
-        List<String> menus = new ArrayList<String>(getNavigationProviders().size());
-        for (NavigationProvider n : getNavigationProviders()) {
-            String pageName = n.getAdminMenuPageId();
-            if (pageName != null) {
-                menus.add(pageName);
-            }
-        }
-
-        return menus;
-    }
-
-    public Collection<NavigationProvider> getNavigationProviders() {
-        if (m_navProviders == null) {
+    public List<PluginHook> getHooks() {
+        if (m_hooks == null) {
             if (m_beanFactory == null) {
                 throw new BeanInitializationException(getClass().getName() + " not initialized");
             }
-            Map<String, NavigationProvider> beanMap = m_beanFactory.getBeansOfType(NavigationProvider.class, false,
+            Map<String, PluginHook> beanMap = m_beanFactory.getBeansOfType(PluginHook.class, false,
                     true);
-            m_navProviders = new ArrayList<NavigationProvider>(beanMap.values());
+            m_hooks = new ArrayList<PluginHook>(beanMap.values());
         }
 
-        return m_navProviders;
+        return m_hooks;
     }
 }

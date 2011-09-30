@@ -26,7 +26,7 @@ import com.mongodb.DBObject;
 public class CallerAliasesIntegrationTest extends ImdbTestCase {
     private CallerAliases m_calleraliasDataSet;
     
-    public void onSetupBeforeTransaction() throws Exception {
+    public void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
         TestHelper.cleanInsert("ClearDb.xml");
         getDomainManager().initializeDomain();

@@ -12,6 +12,13 @@ public class MongoDbTemplate {
     String m_name;
     Mongo m_mongo;
     
+    public MongoDbTemplate() {        
+    }
+    
+    public MongoDbTemplate(String dbname) {
+        m_name = dbname;
+    }
+    
     public Mongo getMongo() {
         if (m_mongo == null) {
             if (m_name == null) {
