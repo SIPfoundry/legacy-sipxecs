@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.common.User;
 
 import com.mongodb.QueryBuilder;
 
-public class UserStaticIntegrationTest extends ImdbTestCase {
+public class UserStaticTestIntegration extends ImdbTestCase {
     private final String[][] USER_DATA = {
         {
             "0", "first1", "last1", "8809", "63948809"

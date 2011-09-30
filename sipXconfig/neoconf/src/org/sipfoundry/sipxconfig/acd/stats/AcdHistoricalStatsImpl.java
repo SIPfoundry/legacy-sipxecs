@@ -67,9 +67,9 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
         }
 
         // column names
-        SimpleCsvWriter csv = new SimpleCsvWriter(writer);
+        SimpleCsvWriter csv = new SimpleCsvWriter(writer, false);
         Map<String, Object> row0 = reportData.get(0);
-        csv.write(row0.keySet().toArray(new String[0]), false);
+        csv.write(row0.keySet().toArray(new String[0]));
 
         // rows
         for (Map<String, Object> record : reportData) {

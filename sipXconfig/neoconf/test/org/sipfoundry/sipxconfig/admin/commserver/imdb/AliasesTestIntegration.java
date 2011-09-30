@@ -16,7 +16,7 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.common.User;
 
-public class AliasesIntegrationTest extends ImdbTestCase {
+public class AliasesTestIntegration extends ImdbTestCase {
     private Aliases m_aliasDataSet;
     private User m_user;
 

@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class CredentialsIntegrationTest extends ImdbTestCase {
+public class CredentialsTestIntegration extends ImdbTestCase {
     private Credentials m_credentialDataSet;
     
     @Override

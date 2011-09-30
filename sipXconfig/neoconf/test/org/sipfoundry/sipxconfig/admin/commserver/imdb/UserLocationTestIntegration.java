@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
 
-public class UserLocationIntegrationTest extends ImdbTestCase {
+public class UserLocationTestIntegration extends ImdbTestCase {
 
     private final String[][] USER_DATA = {
         {

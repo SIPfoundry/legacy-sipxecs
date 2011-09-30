@@ -15,7 +15,7 @@ import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class UserCallForwardIntegrationTest extends ImdbTestCase {
+public class UserCallForwardTestIntegration extends ImdbTestCase {
     private final String[][] USER_DATA = {
         {
             "1", "first1", "last1", "mir1", "18"

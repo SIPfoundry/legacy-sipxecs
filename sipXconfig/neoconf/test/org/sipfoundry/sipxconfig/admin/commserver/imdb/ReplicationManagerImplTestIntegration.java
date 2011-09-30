@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
-public class ReplicationManagerImplIntegrationTest extends ImdbTestCase {
+public class ReplicationManagerImplTestIntegration extends ImdbTestCase {
     private AuditLogContext m_auditLogContext;
     private ReplicationManagerImpl m_out;
     private FileApi m_fileApi;

@@ -20,7 +20,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
-public class RegistrationContextIntegrationTest extends ImdbTestCase {
+public class RegistrationContextTestIntegration extends ImdbTestCase {
     private RegistrationContextImpl m_builder;
     private MongoDbTemplate m_nodeDb;
 

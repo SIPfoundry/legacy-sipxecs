@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-public class CallerAliasesIntegrationTest extends ImdbTestCase {
+public class CallerAliasesTestIntegration extends ImdbTestCase {
     private CallerAliases m_calleraliasDataSet;
     
     public void onSetUpBeforeTransaction() throws Exception {

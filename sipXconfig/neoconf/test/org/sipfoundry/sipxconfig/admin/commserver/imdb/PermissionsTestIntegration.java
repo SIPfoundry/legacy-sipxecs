@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 
 import com.mongodb.QueryBuilder;
 
-public class PermissionsIntegrationTest extends ImdbTestCase {
+public class PermissionsTestIntegration extends ImdbTestCase {
     
     // needs to be adjusted every time a new permission is added
     private static int PERM_COUNT = 5;
