@@ -10,7 +10,7 @@
             <span jwcid="name@TextField" id="name"
 				value="ognl:openAcdClient.name"
 				displayName="message:label.name"
-				validators="spring-validators:required"/>
+				validators="spring-validators:required,validOpenAdcEntity"/>
           </tr>
           <tr jwcid="@common/FieldPanel" for="atom" field="component:identity"
 				label="message:label.identity">
@@ -18,7 +18,7 @@
 				value="ognl:openAcdClient.identity"
 				displayName="message:label.identity"
 				disabled="ognl:disabled"
-				validators="spring-validators:required"/>
+				validators="spring-validators:required,validOpenAdcEntity"/>
           </tr>
           <tr jwcid="@common/FieldPanel" for="description" field="component:description"
 				label="message:label.description">

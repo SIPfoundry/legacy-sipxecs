@@ -298,4 +298,41 @@ public class ValidatorsTest extends TestCase {
         }
     }
 
+    public void testValidOpenAdcEntity() throws ValidatorException {
+        Pattern p = (Pattern) m_context.getBean("validOpenAdcEntity");
+        p.validate(m_field, m_validationMessages, "openacd");
+        p.validate(m_field, m_validationMessages, "open-acd");
+        p.validate(m_field, m_validationMessages, "open_acd");
+        p.validate(m_field, m_validationMessages, "openacd-");
+        p.validate(m_field, m_validationMessages, "openacd_");
+        p.validate(m_field, m_validationMessages, "-openacd");
+        p.validate(m_field, m_validationMessages, "_openacd");
+        p.validate(m_field, m_validationMessages, "openacd1");
+        p.validate(m_field, m_validationMessages, "1openacd");
+        p.validate(m_field, m_validationMessages, "open-acd-1");
+        try {
+            p.validate(m_field, m_validationMessages, "open acd");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "!@##$");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "!");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "(");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+    }
 }
