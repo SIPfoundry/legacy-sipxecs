@@ -349,14 +349,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         m_openAcdContextImpl.addAgentsToGroup(group, agents);
         assertEquals(2, group.getAgents().size());
 
-        // test add same agents to another group
-        OpenAcdAgentGroup anotherGroup = new OpenAcdAgentGroup();
-        anotherGroup.setName("anotherGroup");
-        m_openAcdContextImpl.saveAgentGroup(anotherGroup);
-        assertEquals(3, m_openAcdContextImpl.getAgentGroups().size());
-        List<OpenAcdAgent> existingAgents = m_openAcdContextImpl.addAgentsToGroup(anotherGroup, agents);
-        assertEquals(2, existingAgents.size());
-
         // test save agent group with same name
         try {
             OpenAcdAgentGroup sameAgentGroupName = new OpenAcdAgentGroup();
@@ -385,7 +377,11 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals("Group", agentGroupById.getName());
 
         // test remove agent groups but prevent 'Default' group deletion
+        OpenAcdAgentGroup anotherGroup = new OpenAcdAgentGroup();
+        anotherGroup.setName("anotherGroup");
+        m_openAcdContextImpl.saveAgentGroup(anotherGroup);
         assertEquals(3, m_openAcdContextImpl.getAgentGroups().size());
+
         Collection<Integer> agentGroupIds = new ArrayList<Integer>();
         agentGroupIds.add(defaultAgentGroup.getId());
         agentGroupIds.add(group.getId());

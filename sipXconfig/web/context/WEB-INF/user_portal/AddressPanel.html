@@ -9,7 +9,8 @@
   <span jwcid="street@TextField" id="street" maxlength="255"
     value="ognl:addr.street"
     type="text"
-    autocomplete="off"/>
+    autocomplete="off"
+    disabled="ognl:disabled"/>
 </tr>
 <tr jwcid="@common/FieldPanel" for="city"
   field="component:city"
@@ -17,7 +18,8 @@
   <span jwcid="city@TextField" id="city" maxlength="255"
     value="ognl:addr.city"
     type="text"
-    autocomplete="off"/>
+    autocomplete="off"
+    disabled="ognl:disabled"/>
 </tr>
 <tr jwcid="@common/FieldPanel" for="state"
   field="component:state"
@@ -25,7 +27,8 @@
   <span jwcid="state@TextField" id="state" maxlength="255"
     value="ognl:addr.state"
     type="text"
-    autocomplete="off"/>
+    autocomplete="off"
+    disabled="ognl:disabled"/>
 </tr>
 <tr jwcid="@common/FieldPanel" for="country"
   field="component:country"
@@ -33,14 +36,16 @@
   <span jwcid="country@TextField" id="country" maxlength="255"
     value="ognl:addr.country"
     type="text"
-    autocomplete="off"/>
+    autocomplete="off"
+    disabled="ognl:disabled"/>
 </tr>
 <tr jwcid="@common/FieldPanel" for="zip"
   field="component:zip"
   label="message:label.zip">
   <span jwcid="zip@TextField" id="zip" maxlength="255"
     value="ognl:addr.zip"
-    type="text" autocomplete="off"/>
+    type="text" autocomplete="off"
+    disabled="ognl:disabled"/>
 </tr>
 <div jwcid="@If" condition="ognl:office" renderTag="false">
   <tr jwcid="@common/FieldPanel" for="designation"
@@ -49,6 +54,7 @@
     <span jwcid="designation@TextField" id="designation" maxlength="255"
       value="ognl:addr.officeDesignation"
       type="text"
-      autocomplete="off"/>
+      autocomplete="off"
+      disabled="ognl:disabled"/>
   </tr>
 </div>

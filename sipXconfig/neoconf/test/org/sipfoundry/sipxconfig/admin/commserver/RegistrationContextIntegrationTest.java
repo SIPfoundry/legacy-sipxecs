@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.List;
 
-import org.easymock.EasyMock;
 import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
@@ -24,8 +23,6 @@ import com.mongodb.DBObject;
 public class RegistrationContextIntegrationTest extends ImdbTestCase {
     private RegistrationContextImpl m_builder;
     private MongoDbTemplate m_nodeDb;
-    private LocationsManager m_locationsManager;
-//    private MongoTestCaseHelper m_helper = new MongoTestCaseHelper("node", "registrar"); 
 
     private Object[][] DATA = {
         {
@@ -62,14 +59,7 @@ public class RegistrationContextIntegrationTest extends ImdbTestCase {
         m_nodeDb.drop();
         getRegistrarCollection().insert(reg1, reg2);
 
-//        Location loc = new Location();
-//        LocationsManager lm = EasyMock.createMock(LocationsManager.class);
-//        lm.getLocationByBundle("primarySipRouterBundle");
-//        EasyMock.expectLastCall().andReturn(loc);
-//        EasyMock.replay(lm);
-        
         m_builder = new RegistrationContextImpl();
-        m_builder.setLocationsManager(m_locationsManager);
         m_builder.setNodedb(m_nodeDb);
     }
 
@@ -98,7 +88,4 @@ public class RegistrationContextIntegrationTest extends ImdbTestCase {
         m_nodeDb = nodeDb;
     }
 
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
 }

@@ -204,7 +204,7 @@
 
   <bean id="registrationContext"
     class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl">
-    <property name="locationsManager" ref="locationsManager" />
+    <property name="nodedb" ref="nodeDb"/>
   </bean>
 
   <bean id="initialConfig"

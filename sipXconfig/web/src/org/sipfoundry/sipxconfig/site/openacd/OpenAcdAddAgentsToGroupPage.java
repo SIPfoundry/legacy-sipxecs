@@ -127,7 +127,25 @@ public abstract class OpenAcdAddAgentsToGroupPage extends PageWithCallback imple
         }
 
         if (getAddedUsers() != null && getAddedUsers().size() > 0) {
-            getUsers().addAll(getUsersBySelectedIds(getAddedUsers()));
+            List<User> users = getUsersBySelectedIds(getAddedUsers());
+            List<User> existingUsers = new ArrayList<User>();
+            for (User user : users) {
+                if (!getOpenAcdContext().isOpenAcdAgent(user)) {
+                    getUsers().add(user);
+                } else {
+                    existingUsers.add(user);
+                }
+            }
+
+            if (!existingUsers.isEmpty()) {
+                List<String> existingUserNames = new ArrayList<String>(existingUsers.size());
+                for (User user : existingUsers) {
+                    existingUserNames.add(user.getUserName());
+                }
+                String msg = getMessages().format("duplicate.agents.error",
+                        StringUtils.join(existingUserNames, DELIM));
+                getValidator().record(new ValidatorException(msg));
+            }
         }
 
         OpenAcdAgentGroup group = getAgentGroup();
@@ -189,23 +207,14 @@ public abstract class OpenAcdAddAgentsToGroupPage extends PageWithCallback imple
                 agents.add(agent);
             }
 
-            List<OpenAcdAgent> existingAgents = new ArrayList<OpenAcdAgent>();
             try {
-                existingAgents = getOpenAcdContext().addAgentsToGroup(group, agents);
+                getOpenAcdContext().addAgentsToGroup(group, agents);
             } catch (UserException uex) {
                 IValidationDelegate validator = TapestryUtils.getValidator(getPage());
                 validator.record(new ValidatorException(getMessages().getMessage(uex.getMessage())));
             }
-
-            if (!existingAgents.isEmpty()) {
-                List<String> existingAgentNames = new ArrayList<String>(existingAgents.size());
-                for (OpenAcdAgent agent : existingAgents) {
-                    existingAgentNames.add(agent.getUser().getUserName());
-                }
-                String msg = getMessages().format("duplicate.agents.error",
-                        StringUtils.join(existingAgentNames, DELIM));
-                getValidator().record(new ValidatorException(msg));
-            }
+        } else {
+            throw new UserException(getMessages().getMessage("error.requiredUser"));
         }
     }
 

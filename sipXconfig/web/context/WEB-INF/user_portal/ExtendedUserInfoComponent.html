@@ -103,7 +103,8 @@
     <tr jwcid="@user_portal/AddressPanel"
       addr="ognl:addressBookEntry.homeAddress"
       panelLabel="message:label.homeAddress"/>
-<div jwcid="@If" condition="ognl:user.branch != null" renderTag="false">
+<div jwcid="@If" condition="ognl:user.inheritedBranch == null" renderTag="false">
+  <div jwcid="@If" condition="ognl:user.branch != null" renderTag="false">
     <tr jwcid="@common/FieldPanel"
       for="useBranchAddress"
       field="component:useBranchAddress"
@@ -113,12 +114,20 @@
 	  value="ognl:addressBookEntry.useBranchAddress"
 	  onchange="javascript:this.form.submit(); "/>
 	</tr>
-</div>
-<div jwcid="@If" condition="ognl:!addressBookEntry.useBranchAddress || user.branch == null" renderTag="false">
+  </div>
+  <div jwcid="@If" condition="ognl:!addressBookEntry.useBranchAddress || user.branch == null" renderTag="false">
     <tr jwcid="@user_portal/AddressPanel"
       addr="ognl:addressBookEntry.officeAddress"
       panelLabel="message:label.officeAddress"
       office="true"/>
+  </div>
+</div>
+<div jwcid="@Else" renderTag="false">
+    <tr jwcid="@user_portal/AddressPanel"
+      addr="ognl:user.inheritedBranch.address"
+      panelLabel="message:label.inheritedAddress"
+      office="true"
+      disabled="true"/>
 </div>
   </table>
 </fieldset>
