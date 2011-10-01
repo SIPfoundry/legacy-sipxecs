@@ -1,0 +1,46 @@
+app = \
+  $(sf) \
+  $(lang) \
+  $(telecats)
+
+sf = \
+  sipXaastra \
+  sipXcisco \
+  sipXclearone \
+  sipXcounterpath \
+  sipXgtek \
+  sipXhitachi \
+  sipXipdialog \
+  sipXisphone \
+  sipXkarel \
+  sipXnortel \
+  sipXlg-nortel \
+  sipXmitel \
+  sipXsnom \
+  sipXunidata \
+  sipXgrandstream \
+  sipXexample
+
+lang = \
+  sipXlang-abitibi-fr_CA \
+  sipXlang-ch \
+  sipXlang-cs \
+  sipXlang-de \
+  sipXlang-en_GB \
+  sipXlang-es \
+  sipXlang-fr_CA \
+  sipXlang-fr \
+  sipXlang-it \
+  sipXlang-ja \
+  sipXlang-es_MX \
+  sipXlang-nl \
+  sipXlang-pl \
+  sipXlang-pt_BR \
+  sipXlang-zh
+
+telecats = \
+  sipXcustomCallerId
+
+# Repositories
+$(foreach R,$(lang),$(eval $(R)_REPO = git@github.com:dhubler/$(R).git))
+$(foreach R,$(telecats),$(eval $(R)_REPO = git@github.com:niekvlessert/$(R).git))

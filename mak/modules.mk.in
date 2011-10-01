@@ -42,42 +42,9 @@ sipx = \
   sipXsupervisor \
   sipXopenacd \
   sipXecs \
-  sipXaastra \
-  sipXcisco \
-  sipXclearone \
-  sipXcounterpath \
-  sipXgtek \
-  sipXhitachi \
-  sipXipdialog \
-  sipXisphone \
-  sipXkarel \
-  sipXnortel \
-  sipXlg-nortel \
-  sipXmitel \
   sipXpolycom \
-  sipXsnom \
-  sipXunidata \
-  sipXgrandstream \
   sipXpreflight \
-  sipXviewer \
-  sipXexample
-
-lang = \
-  sipXlang-abitibi-fr_CA \
-  sipXlang-ch \
-  sipXlang-cs \
-  sipXlang-de \
-  sipXlang-en_GB \
-  sipXlang-es \
-  sipXlang-fr_CA \
-  sipXlang-fr \
-  sipXlang-it \
-  sipXlang-ja \
-  sipXlang-es_MX \
-  sipXlang-nl \
-  sipXlang-pl \
-  sipXlang-pt_BR \
-  sipXlang-zh
+  sipXviewer
 
 lib_common = \
   rubygem-file-tail \
@@ -117,4 +84,4 @@ lib_centos_6 = \
 
 lib = $(lib_$(DISTRO_OS)_$(DISTRO_VER))
 
-all =  $(lib) $(sipx) $(lang)
+all =  $(lib) $(sipx) $(app)

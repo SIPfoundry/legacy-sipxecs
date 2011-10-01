@@ -35,8 +35,8 @@ after = $(shell echo $(space)$2$(space) | awk -F : '{if (match($$0,/ $1 /)) {pri
 ..._sipx_expanded = $(foreach T,$(..._sipx_list),$(subst $(PROJ),$(T),$*))
 ..._lib_list = $(call after,$(PROJ),$(lib))
 ..._lib_expanded = $(foreach T,$(..._lib_list),$(subst $(PROJ),$(T),$*))
-..._lang_list = $(call after,$(PROJ),$(lang))
-..._lang_expanded = $(foreach T,$(..._lang_list),$(subst $(PROJ),$(T),$*))
+..._app_list = $(call after,$(PROJ),$(app))
+..._app_expanded = $(foreach T,$(..._app_list),$(subst $(PROJ),$(T),$*))
 
 default-first-target : help;
 
@@ -46,11 +46,11 @@ sipx.% :
 lib.% :
 	$(MAKE) $(foreach P,$(lib),$(P).$*)
 
-lang.% :
-	$(MAKE) $(foreach P,$(lang),$(P).$*)
+app.% :
+	$(MAKE) $(foreach P,$(app),$(P).$*)
 
 help.{sipx,lib}.list=list all sipx components
-lang.list lib.list sipx.list : %.list :
+app.list lib.list sipx.list : %.list :
 	@echo $($*)
 
 include $(sort $(wildcard mak/*.mk))
@@ -63,11 +63,11 @@ help.*{1|2}*... = Perform all targets would normally follow the given target in 
  packages.
 
 %... :
-	$(MAKE) $(..._sipx_expanded) $(..._lib_expanded) $(..._lang_expanded)
+	$(MAKE) $(..._sipx_expanded) $(..._lib_expanded) $(..._app_expanded)
 
 help-values.{1} = Any sipXecs package. For all sipXecs packages use 'sipx'. Complete list of sipXecs packages : $(sipx)
 help-values.{2} = Any dependency package. For all dependencies use 'lib'.  Complete list of dependencies : $(lib)
-help-values.{6} = Any language package. For all langages use 'lang'.  Complete list of languages : $(lang)
+help-values.{6} = Any sipXecs application. For all app use 'app'.  Complete list of app : $(app)
 
 .PHONY: help
 help:
