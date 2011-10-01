@@ -7,7 +7,7 @@ public class UnfortunateLackOfSpringSupportFactory {
     
     private static class SingletonHolder {
         final private static ValidUsers s_validUsers = new ValidUsers();
-        final private static MongoDbTemplate s_imdb = new MongoDbTemplate();   
+        final private static MongoDbTemplate s_imdb = new MongoDbTemplate("imdb");   
         static {
             s_validUsers.setImdb(s_imdb);
         }
