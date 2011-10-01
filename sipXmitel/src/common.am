@@ -7,5 +7,5 @@ mitel_PKGS = \
 	org.springframework.core \
 	org.springframework.context \
 	sipxcommons \
-	sipxconfig \
+	sipxconfig-neoconf \
 	velocity

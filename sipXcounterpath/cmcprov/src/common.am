@@ -10,5 +10,5 @@ cmcprov_PKGS = \
 	org.springframework.context \
 	org.springframework.core \
 	sipxcommons \
-	sipxconfig \
+	sipxconfig-neoconf \
 	velocity

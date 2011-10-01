@@ -13,7 +13,7 @@ example_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
 example_RESOURCES = sipxplugin.beans.xml
 
 example_PKGS = \
-	sipxconfig
+	sipxconfig-neoconf
 
 example_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig,$(example_PKGS))

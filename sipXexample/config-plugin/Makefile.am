@@ -14,7 +14,7 @@ example_RESOURCES = \
 	$(shell cd $(srcdir); find plugin -type f)
 
 example_PKGS = \
-	sipxconfig \
+	sipxconfig-neoconf \
 	tapestry-framework \
 	hivemind
 

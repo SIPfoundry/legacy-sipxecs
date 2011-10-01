@@ -8,7 +8,7 @@ EXTRA_DIST = \
 
 noinst_DATA = javac-neoconf
 
-JAR_FILE = sipxconfig.jar
+JAR_FILE = sipxconfig-neoconf.jar
 
 jardir = @SIPX_JAVADIR@/sipXconfig
 jar_DATA = $(JAR_FILE)

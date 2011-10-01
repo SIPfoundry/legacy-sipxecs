@@ -6,5 +6,5 @@ counterpath_PKGS = \
 	commons-codec \
 	org.springframework.beans \
 	sipxcommons \
-	sipxconfig \
+	sipxconfig-neoconf \
 	velocity

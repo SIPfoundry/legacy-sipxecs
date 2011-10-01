@@ -1,5 +1,5 @@
 audiocodes_PKGS = \
-	sipxconfig \
+	sipxconfig-neoconf \
 	org.springframework.context \
 	org.springframework.core \
 	org.springframework.bean \

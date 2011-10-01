@@ -1,5 +1,5 @@
 cfg_PKGS = \
-	sipxconfig \
+	sipxconfig-neoconf \
 	sipxcommons \
 	velocity \
 	commons-lang \

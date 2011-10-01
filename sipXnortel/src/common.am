@@ -6,5 +6,5 @@ nortel_PKGS = \
 	commons-logging \
 	org.springframework.beans \
 	sipxcommons \
-	sipxconfig \
+	sipxconfig-neoconf \
 	velocity
