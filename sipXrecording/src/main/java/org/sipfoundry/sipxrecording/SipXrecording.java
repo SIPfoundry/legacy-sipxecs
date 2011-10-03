@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.conference.ConfRecordThread;
+import org.sipfoundry.conference.WebServer;
 
 public class SipXrecording implements Runnable {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
@@ -64,6 +65,8 @@ public class SipXrecording implements Runnable {
         // Start conference recording task
         ConfRecordThread confThread = new ConfRecordThread(s_config);
         confThread.start();
+        // Start the Jetty Server
+        WebServer.getInstance().startServer();
     }
 
     /**

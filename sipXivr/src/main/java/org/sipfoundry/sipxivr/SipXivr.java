@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.attendant.Attendant;
 import org.sipfoundry.commons.freeswitch.Answer;
-import org.sipfoundry.commons.freeswitch.ConfBasicThread;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
@@ -28,7 +27,6 @@ import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.conference.ConfRecordStatus;
 import org.sipfoundry.moh.Moh;
 import org.sipfoundry.faxrx.FaxRx;
-import org.sipfoundry.voicemail.ConferenceServlet;
 import org.sipfoundry.voicemail.Emailer;
 import org.sipfoundry.voicemail.ExtMailStore;
 import org.sipfoundry.voicemail.MailboxServlet;
@@ -229,7 +227,6 @@ public class SipXivr implements Runnable {
         webServer.addServlet("mwistatus", "/mwi", Mwistatus.class.getName());
         webServer.addServlet("mailbox", "/mailbox/*", MailboxServlet.class.getName());
         webServer.addServlet("recording", "/recording/*", ConfRecordStatus.class.getName());
-        webServer.addServlet("conference", "/conference/*", ConferenceServlet.class.getName());
         // Start it up
         webServer.start();
 

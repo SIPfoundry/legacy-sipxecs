@@ -9,38 +9,23 @@
 package org.sipfoundry.conference;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.net.URLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.sipfoundry.commons.freeswitch.ConferenceTask;
+import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.ConfBasicThread;
+import org.sipfoundry.commons.freeswitch.ConferenceTask;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 import org.sipfoundry.commons.util.DomainConfiguration;
-import org.sipfoundry.sipxrecording.RecordingConfiguration;
 import org.sipfoundry.sipxrecording.RecordCommand;
+import org.sipfoundry.sipxrecording.RecordingConfiguration;
 
 
 public class ConfRecordThread extends ConfBasicThread {
@@ -90,6 +75,7 @@ public class ConfRecordThread extends ConfBasicThread {
         }
     }
 
+    @Override
     public void ProcessConfStart(FreeSwitchEvent event, ConferenceTask conf) {
         String confName = event.getEventValue("conference-name");
         ConferenceBridgeItem item = ConferenceBridgeXML.getConferenceBridgeItem(confName);
@@ -106,8 +92,9 @@ public class ConfRecordThread extends ConfBasicThread {
         }
     }
 
+    @Override
     public void ProcessConfEnd(FreeSwitchEvent event, ConferenceTask conf) {
-        String confName = event.getEventValue("conference-name");
+        final String confName = event.getEventValue("conference-name");
         ConferenceBridgeItem item = ConferenceBridgeXML.getConferenceBridgeItem(confName);
         if (item != null) {
             String wavName = conf.getWavName();
@@ -137,8 +124,8 @@ public class ConfRecordThread extends ConfBasicThread {
                 httpClient.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM),
                     credentials);
                 String urlString = "https://" + mboxServerAndPort +
-                                   "/recording/conference" + 
-                                   "?wn=" + wavName + 
+                                   "/recording/conference" +
+                                   "?wn=" + wavName +
                                    "&on=" + item.getOwnerName() +
                                    "&oi=" + item.getOwnerId() +
                                    "&bc=" + item.getBridgeContact();
@@ -148,5 +135,19 @@ public class ConfRecordThread extends ConfBasicThread {
                 LOG.error("ConfRecordThread::Trigger error ", e);
             }
         }
+        //verify if there is a temporary wav file recording given user action
+        //the wav file, if any, has the same name as the conference
+        //This is achieved on a separated thread to encourage current recording thread to die immediately
+        //once the recording stopped. This shouldn't wait for the .wav to be copied in user mailbox
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                if (ConferenceUtil.isRecordingInProgress(confName)) {
+                    ConferenceUtil.saveInMailboxSynch(confName);
+                }
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
     }
 }

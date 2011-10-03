@@ -11,7 +11,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
-package org.sipfoundry.voicemail;
+package org.sipfoundry.conference;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,10 +28,10 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.timeout.Result;
 import org.sipfoundry.commons.timeout.SipxExecutor;
 import org.sipfoundry.commons.timeout.Timeout;
-import org.sipfoundry.sipxivr.IvrConfiguration;
+import org.sipfoundry.sipxrecording.RecordingConfiguration;
 
 public class ConferenceServlet extends HttpServlet {
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
 
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter pw = response.getWriter();
@@ -40,14 +40,14 @@ public class ConferenceServlet extends HttpServlet {
 
         response.setContentType("text/xml");
 
-        executeCommand(commandStr.trim(), new IvrLocalizer(), pw);
+        executeCommand(commandStr.trim(), pw);
 
         pw.close();
     }
 
-    private synchronized void executeCommand(String cmd, IvrLocalizer localizer, PrintWriter pw) {
+    protected synchronized void executeCommand(String cmd, PrintWriter pw) {
 
-        FreeSwitchEventSocket fsEventSocket = new FreeSwitchEventSocket(IvrConfiguration.get());
+        FreeSwitchEventSocket fsEventSocket = new FreeSwitchEventSocket(RecordingConfiguration.get());
         Socket socket = null;
         try {
             socket = new Socket("localhost", 8021);

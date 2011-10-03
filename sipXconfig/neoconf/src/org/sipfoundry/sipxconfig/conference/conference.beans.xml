@@ -19,6 +19,7 @@
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="domainManager" ref="domainManager" />
     <property name="sipService" ref="sip" />
+    <property name="sipxIvrService" ref="sipxIvrService" />
   </bean>
 
   <bean id="activeConferenceContext" class="org.springframework.aop.framework.ProxyFactoryBean">

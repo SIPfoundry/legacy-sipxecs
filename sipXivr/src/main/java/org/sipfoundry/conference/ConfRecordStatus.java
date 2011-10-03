@@ -1,24 +1,22 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.conference;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLConnection;
 import java.net.URL;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.net.URLConnection;
+
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,20 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpServer;
-import org.mortbay.jetty.servlet.ServletHandler;
-import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
-import org.sipfoundry.sipxivr.IvrConfiguration;
-import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.MessageDescriptor;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 import org.sipfoundry.voicemail.MessageDescriptorWriter;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Trigger the transfer of a conference recording using a simple HTTP request.
@@ -47,7 +34,7 @@ import org.w3c.dom.NodeList;
 public class ConfRecordStatus extends HttpServlet {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     public static final String MessageSummaryContentType = "application/simple-message-summary";
-    
+
     public static String formatConfRecord(String recording_name) {
         return String.format("Conference-Recording: %s", recording_name);
     }
@@ -87,6 +74,7 @@ public class ConfRecordStatus extends HttpServlet {
         return messageId;
     }
 
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String inString = request.getQueryString();
 
@@ -97,6 +85,8 @@ public class ConfRecordStatus extends HttpServlet {
         String parmOwnerName = request.getParameter("on");
         String parmOwnerId = request.getParameter("oi");
         String parmBridgeContact = request.getParameter("bc");
+        String synch = request.getParameter("synchronous");
+        Boolean synchronous = (synch == null) ? false : new Boolean(synch);
 
         boolean stringsOK = ((parmWavName!=null) && (parmOwnerName!=null) &&
                              (parmOwnerId!=null) && (parmBridgeContact!=null) &&
@@ -114,7 +104,9 @@ public class ConfRecordStatus extends HttpServlet {
 
         // Just echo the bytes of the string.  No character encoding or nothing.
         os.write(formatConfRecord(parmWavName).getBytes());
-        os.close();
+        if (!synchronous) {
+            os.close();
+        }
 
         // The WAV file is now the remote conference server
         // Stream the file to the local voicemail server
@@ -147,6 +139,8 @@ public class ConfRecordStatus extends HttpServlet {
                 InputStream streamIn = urlC.getInputStream();
                 OutputStream streamOut = new FileOutputStream(audioFile);
                 IOUtils.copy(streamIn, streamOut);
+                IOUtils.closeQuietly(streamIn);
+                IOUtils.closeQuietly(streamOut);
 
                 // Get the WAV file duration in seconds, ignore files that are
                 // so short they round off to 0 seconds.
@@ -168,6 +162,8 @@ public class ConfRecordStatus extends HttpServlet {
                 }
             } catch (IOException e) {
                 LOG.error("ConfRecordStatus::Copy IO error ", e);
+            } finally {
+                IOUtils.closeQuietly(os);
             }
         }
     }
