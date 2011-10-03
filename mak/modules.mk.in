@@ -29,6 +29,7 @@ sipx = \
   sipXpbx \
   sipXconfig \
   sipXopenfire \
+  sipXcounterpath \
   sipXaudiocodes \
   sipXimbot \
   sipXivr \

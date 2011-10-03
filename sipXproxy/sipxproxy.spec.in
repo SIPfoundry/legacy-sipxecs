@@ -98,6 +98,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.so*
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.so*
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.so*
+%attr(755,root,root) %{_libdir}/libsipXproxy.so*
 
 %files devel
 %defattr(644,root,root,755)

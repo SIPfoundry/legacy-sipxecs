@@ -76,6 +76,7 @@ iso-cp-download-rpms-% : iso-download-%
 	cp iso-download-$*/*.rpm $(ISO_DISC)/CentOS
 
 # add sipx and custom dependencies needed for sipx operation, not sipx devel
+# don't put in language packs as they tend to be very large
 iso-cp-sipx-rpms-% : iso-disc-%
 	find $(realpath @RPM_DIST_DIR@)/CentOS_5/$(ARCH) \
 	\( -name '*.rpm' \) \

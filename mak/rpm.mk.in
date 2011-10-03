@@ -20,8 +20,8 @@ MOCK_OPTS = \
 	  --resultdir=$(MOCK_RESULTS_DIR)
 
 # Define sipx SRPMS and tarball files. Cannot define RPM files however as one specfile may generate many rpms
-$(foreach P,$(sipx) $(lang),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(PROJ_REVISION).src.rpm))
-$(foreach P,$(sipx) $(lang),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
+$(foreach P,$(sipx) $(app),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(PROJ_REVISION).src.rpm))
+$(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
 # pull in dependency make fragments
 include $(SRC)/*/.sipxecs.mk
@@ -128,6 +128,11 @@ help.repo-create = run createrepo in $(MOCK_RESULTS_DIR)
 repo-create:
 	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO_OS)) .
+
+help.repo-update = If you rebuild local rpms, repo will not automatically replace previously installed versions.  This call will force up update to all packages at once.
+repo-update :
+	mock $(MOCK_OPTS) --scrub=yum-cache
+	mock $(MOCK_OPTS) --update
 
 help.repo = Prepares repository for $(DISTRO) for publishing or re-distributing in ISO by removing extra rpms and moving source rpms to separate directory.
 repo: repo-src repo-remove-dups repo-create;
