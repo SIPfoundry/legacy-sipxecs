@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.conference;
 
@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+
 import org.sipfoundry.voicemail.mailbox.MessageDescriptor;
 import org.sipfoundry.voicemail.mailbox.MessageDescriptorWriter;
 import org.sipfoundry.voicemail.mailbox.MessageDescriptor.Priority;
@@ -34,7 +35,7 @@ import org.sipfoundry.voicemail.mailbox.MessageDescriptor.Priority;
 public class ConfRecordStatus extends HttpServlet {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     public static final String MessageSummaryContentType = "application/simple-message-summary";
-    
+
     public static String formatConfRecord(String recording_name) {
         return String.format("Conference-Recording: %s", recording_name);
     }
@@ -74,6 +75,7 @@ public class ConfRecordStatus extends HttpServlet {
         return messageId;
     }
 
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String inString = request.getQueryString();
 
@@ -84,6 +86,8 @@ public class ConfRecordStatus extends HttpServlet {
         String parmOwnerName = request.getParameter("on");
         String parmOwnerId = request.getParameter("oi");
         String parmBridgeContact = request.getParameter("bc");
+        String synch = request.getParameter("synchronous");
+        Boolean synchronous = (synch == null) ? false : new Boolean(synch);
 
         boolean stringsOK = ((parmWavName!=null) && (parmOwnerName!=null) &&
                              (parmOwnerId!=null) && (parmBridgeContact!=null) &&
@@ -101,7 +105,9 @@ public class ConfRecordStatus extends HttpServlet {
 
         // Just echo the bytes of the string.  No character encoding or nothing.
         os.write(formatConfRecord(parmWavName).getBytes());
-        os.close();
+        if (!synchronous) {
+            os.close();
+        }
 
         // The WAV file is now the remote conference server
         // Stream the file to the local voicemail server
@@ -134,6 +140,8 @@ public class ConfRecordStatus extends HttpServlet {
                 InputStream streamIn = urlC.getInputStream();
                 OutputStream streamOut = new FileOutputStream(audioFile);
                 IOUtils.copy(streamIn, streamOut);
+                IOUtils.closeQuietly(streamIn);
+                IOUtils.closeQuietly(streamOut);
 
                 // Get the WAV file duration in seconds, ignore files that are
                 // so short they round off to 0 seconds.
@@ -155,6 +163,8 @@ public class ConfRecordStatus extends HttpServlet {
                 }
             } catch (IOException e) {
                 LOG.error("ConfRecordStatus::Copy IO error ", e);
+            } finally {
+                IOUtils.closeQuietly(os);
             }
         }
     }

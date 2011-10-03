@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,6 +24,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
@@ -37,6 +41,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private final FreeswitchApiResultParser m_freeswitchApiParser = new FreeswitchApiResultParserImpl();
     private DomainManager m_domainManager;
     private SipService m_sipService;
+    private SipxIvrService m_sipxIvrService;
 
     @Required
     public void setDomainManager(DomainManager domainManager) {
@@ -58,6 +63,12 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         m_sipService = sipService;
     }
 
+    @Required
+    public void setSipxIvrService(SipxIvrService sipxIvrService) {
+        m_sipxIvrService = sipxIvrService;
+    }
+
+    @Override
     public int getActiveConferenceCount(Bridge bridge) {
         LOG.debug("Requesting count of active conferences from bridge " + bridge.getName());
         FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
@@ -74,6 +85,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return conferenceCount;
     }
 
+    @Override
     public List<ActiveConference> getActiveConferences(Bridge bridge) {
         LOG.debug("Requesting list of active conferences from bridge " + bridge.getName());
         FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
@@ -98,6 +110,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return conferences;
     }
 
+    @Override
     public Map<Conference, ActiveConference> getActiveConferencesMap(Bridge bridge) {
         Map<Conference, ActiveConference> activeConferencesMap = new HashMap<Conference, ActiveConference>();
 
@@ -109,6 +122,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return activeConferencesMap;
     }
 
+    @Override
     public List<ActiveConferenceMember> getConferenceMembers(Conference conference) {
         LOG.debug("Requesting list of members for conference \"" + conference.getName() + "\"");
         Bridge bridge = conference.getBridge();
@@ -132,34 +146,87 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return members;
     }
 
+    @Override
+    public String executeCommand(Conference conference, String[] arguments) {
+        HttpClient client = new HttpClient();
+        String uri = getConferenceManagerRestUrl(conference, arguments);
+        PutMethod putMethod = new PutMethod(uri);
+        int statusCode = HttpStatus.SC_OK;
+        String response = null;
+        try {
+            statusCode = client.executeMethod(putMethod);
+            if (statusCode == HttpStatus.SC_OK) {
+                response = putMethod.getResponseBodyAsString();
+            }
+        } catch (Exception ex) {
+            response = "ERROR: " + ex.getMessage();
+        }
+        return response;
+    }
+
+    private String getConferenceManagerRestUrl(Conference conf, String[] arguments) {
+        if (StringUtils.equals(arguments[0], "record")) {
+            User owner = conf.getOwner();
+            String domainName = m_domainManager.getDomain().getName();
+            return String.format("http://%s:%d/recordconference?action=%s&conf=%s&ownerName=%s&ownerId=%s"
+                    + "&bridgeContact=%s&mboxServer=%s",
+                conf.getBridge().getName(), 8549, arguments.length == 1 ? "start" : arguments[1],
+                conf.getName(), owner.getUserName(), owner.getAddrSpec(domainName), conf.getUri(), findMailboxServer());
+        } else {
+            StringBuilder builder = new StringBuilder();
+            for (String argument : arguments) {
+                builder.append("/")
+                       .append(argument);
+            }
+            return String.format("http://%s:%d/conference/%s%s",
+                    conf.getBridge().getName(), 8549, conf.getName(), builder.toString());
+        }
+    }
+
+    private String findMailboxServer() {
+        String fqdn = m_sipxIvrService.getFqdn();
+        if (fqdn == null) {
+            return StringUtils.EMPTY;
+        }
+        return fqdn + ":" + m_sipxIvrService.getHttpsPort();
+    }
+
+    @Override
     public boolean lockConference(Conference conference) {
         return conferenceAction(conference, "lock");
     }
 
+    @Override
     public boolean unlockConference(Conference conference) {
         return conferenceAction(conference, "unlock");
     }
 
+    @Override
     public boolean deafUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "deaf");
     }
 
+    @Override
     public boolean muteUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "mute");
     }
 
+    @Override
     public boolean undeafUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "undeaf");
     }
 
+    @Override
     public boolean unmuteUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "unmute");
     }
 
+    @Override
     public boolean kickUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "kick");
     }
 
+    @Override
     public void inviteParticipant(User user, Conference conference, String inviteNumber) {
         String domain = m_domainManager.getDomain().getName();
         String sourceAddressSpec = SipUri.fix(inviteNumber, domain);
@@ -232,6 +299,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         }
     }
 
+    @Override
     public boolean isConferenceLocked(Conference conference) {
         ActiveConference activeConference = null;
         try {
@@ -243,6 +311,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return (activeConference != null) ? activeConference.isLocked() : false;
     }
 
+    @Override
     public ActiveConference getActiveConference(Conference conference) {
         String conferenceName = conference.getName();
         ActiveConference activeConference = null;

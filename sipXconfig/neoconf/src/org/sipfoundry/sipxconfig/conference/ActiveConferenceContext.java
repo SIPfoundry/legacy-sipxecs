@@ -49,4 +49,6 @@ public interface ActiveConferenceContext {
     public boolean kickUser(Conference conference, ActiveConferenceMember member);
 
     public void inviteParticipant(User user, Conference conference, String addressSpec);
+
+    public String executeCommand(Conference conference, String[] arguments);
 }
