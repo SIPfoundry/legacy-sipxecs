@@ -8,7 +8,7 @@ import com.mongodb.MongoException;
 
 public class MongoDbTemplate {
     int m_port = 27017;
-    String m_server = "localhost";
+    String m_server = null;
     String m_name;
     Mongo m_mongo;
     
@@ -25,7 +25,11 @@ public class MongoDbTemplate {
                 throw new IllegalStateException("db name not set on mongo db template");
             }
             try {
-                m_mongo = new Mongo(m_server, m_port);
+                if (m_server != null) {
+                    m_mongo = new Mongo(m_server, m_port);
+                } else {
+                    m_mongo = new Mongo();
+                }
             } catch (UnknownHostException e) {
                 String msg = String.format("Bad server name '%s' port %i for mongo connection", m_server, m_port);
                 throw new RuntimeException(msg, e);
