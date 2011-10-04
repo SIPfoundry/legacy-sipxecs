@@ -52,6 +52,7 @@
         <value>classpath:/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/presence/presence.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/search/search.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/security/security.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/service/bundle.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/service/service.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/setting/setting.beans.xml</value>
