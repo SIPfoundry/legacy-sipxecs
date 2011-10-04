@@ -9,11 +9,17 @@
 package org.sipfoundry.sipxivr;
 
 import org.apache.log4j.Logger;
+import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
 import org.mortbay.http.BasicAuthenticator;
 import org.mortbay.http.DigestAuthenticator;
 import org.mortbay.http.HashUserRealm;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.HttpException;
 import org.mortbay.http.SecurityConstraint;
 import org.mortbay.http.SslListener;
 import org.mortbay.http.UserRealm;
@@ -70,7 +76,8 @@ public class WebServer  {
 
             httpContext.setRealm(createRealm());
 
-            SecurityHandler sh = new SecurityHandler();
+            CustomSecurityHandler sh = new CustomSecurityHandler();
+            sh.addTrustedSource("127.0.0.1");
             httpContext.addHandler(0, sh);
 
             httpContext.addHandler(1, m_servletHandler);
@@ -119,6 +126,23 @@ public class WebServer  {
         sslListener.setMaxIdleTimeMs(60000);
 
         return sslListener;
+    }
+
+    private class CustomSecurityHandler extends SecurityHandler
+    {
+	private List<String> _hosts = new ArrayList<String>();
+
+	public void addTrustedSource(String ipSource)
+	{
+	    _hosts.add(ipSource);
+	}
+	
+	public void handle( String pathInContext, String  pathParams, HttpRequest request, HttpResponse response)
+	    throws HttpException, IOException
+	{
+	    if (!_hosts.contains(request.getRemoteAddr()))
+		getHttpContext().checkSecurityConstraints(pathInContext,request,response);
+	}
     }
 
 }

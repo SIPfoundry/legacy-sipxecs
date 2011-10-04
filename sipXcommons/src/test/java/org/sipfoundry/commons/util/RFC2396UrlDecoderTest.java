@@ -1,7 +1,9 @@
-/**
- * Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.
+/*
+ * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
+ * Licensed to the User under the AGPL license.
+ *
+ * $
  */
 package org.sipfoundry.commons.util;
 
@@ -15,7 +17,7 @@ public class RFC2396UrlDecoderTest extends TestCase {
        super(testName);
    }
 
-   public void testApp() {
+   public void testDecode() {
        String url = null;
        assertEquals(url = "a@example.com", RFC2396UrlDecoder.decode(url));
        assertEquals(url = "a@example.com%", RFC2396UrlDecoder.decode(url));
