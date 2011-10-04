@@ -28,7 +28,7 @@ public interface ReplicationManager {
      *
      * @return true if the replication has been successful, false otherwise
      */
-    boolean replicateFile(Location[] locations, ConfigurationFile file);
+    boolean replicateFile(Location location, ConfigurationFile file);
 
     /**
      * Write to MongoDB (imdb.entity) a single entity. This method will replicate all DataSet
@@ -59,8 +59,9 @@ public interface ReplicationManager {
      * Not to be confused with ServiceConfiguratorImpl.replicateLocation()
      *
      * @param location
+     * @return
      */
-    void replicateLocation(Location location);
+    boolean replicateLocation(Location location);
 
     /**
      * Removes from MongoDB this Location.
@@ -72,7 +73,7 @@ public interface ReplicationManager {
      * Regenerates the MongoDB imdb.entity collection which holds the configuration
      * information.
      */
-    void replicateAllData();
+    boolean replicateAllData();
 
     /**
      * Regenerates a DataSet of all Replicable entities.

@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 
 public abstract class TunnelConfigurationTestBase {
     protected TunnelManagerImpl m_tunnelManager;
@@ -25,7 +26,14 @@ public abstract class TunnelConfigurationTestBase {
     
     @Before
     public void setupTunnelManager() {
-        m_tunnelManager = new TunnelManagerImpl();
+        m_tunnelManager = new TunnelManagerImpl() {
+            
+            @Override
+            protected SipxReplicationContext getSipxReplicationContext() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        };
         m_locationManager = createMock(LocationsManager.class);        
         m_thisLocation = new Location();
         m_thisLocation.setName("this");

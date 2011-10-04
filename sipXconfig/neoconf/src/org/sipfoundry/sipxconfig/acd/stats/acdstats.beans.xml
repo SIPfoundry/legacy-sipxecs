@@ -25,6 +25,7 @@
     <property name="dbUser" value="${sipxconfig.db.user}" />
     <property name="agentPort" value="${acdServer.agentPort}" />
     <property name="acdContext" ref="acdContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <!--

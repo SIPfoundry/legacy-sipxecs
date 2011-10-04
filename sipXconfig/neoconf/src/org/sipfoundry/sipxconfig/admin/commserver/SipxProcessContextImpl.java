@@ -289,10 +289,12 @@ public class SipxProcessContextImpl implements SipxProcessContext {
             default:
                 break;
             }
-            // any command: start, stop, restart effectively clears need for reload..
-            m_servicesToReload.unmark(location, processes);
         } catch (XmlRpcRemoteException e) {
             throw new UserException("&xml.rpc.error.operation", location.getFqdn());
+        } finally {
+            m_servicesToRestart.unmark(location, processes);
+            // any command: start, stop, restart effectively clears need for reload..
+            m_servicesToReload.unmark(location, processes);
         }
     }
 
@@ -366,6 +368,16 @@ public class SipxProcessContextImpl implements SipxProcessContext {
         for (Location location : locations) {
             markServicesForRestart(location, services);
         }
+    }
+
+    @Override
+    public void markDialPlanRelatedServicesForRestart(Location location, String... serviceBeanIds) {
+        Collection<SipxService> services = new ArrayList<SipxService>();
+        for (String serviceBeanId : serviceBeanIds) {
+            replicateDialPlanBeforeRestart(serviceBeanId);
+            services.add(m_sipxServiceManager.getServiceByBeanId(serviceBeanId));
+        }
+        markServicesForRestart(location, services);
     }
 
     public void unmarkServicesToRestart(Collection<RestartNeededService> services) {

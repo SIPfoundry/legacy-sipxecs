@@ -114,4 +114,6 @@ public interface SipxProcessContext {
     Collection<ReloadNeededService> getReloadNeededServices();
 
     void unmarkServicesToReload(Collection<ReloadNeededService> services);
+
+    void markDialPlanRelatedServicesForRestart(Location location, String... serviceBeanIds);
 }

@@ -15,6 +15,8 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.springframework.context.ApplicationEvent;
 
 public interface SipxReplicationContext {
+    public static final String IMDB_REGENERATION = "IMDB regeneration";
+    public static final String MONGO_LOCATION_REGISTRATION = "Location registration in IMDB";
     void generateAll();
     void generateAll(DataSet ds);
 
@@ -46,4 +48,5 @@ public interface SipxReplicationContext {
     void replicateWork(Replicable entity);
     void resyncSlave(Location location);
     void replicateLocation(Location location);
+    void replicate(Location[] locations, ConfigurationFile file);
 }

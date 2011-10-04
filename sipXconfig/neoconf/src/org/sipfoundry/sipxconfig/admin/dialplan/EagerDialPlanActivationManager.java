@@ -71,6 +71,17 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
         notifyOnDialPlanGeneration(restartSbcDevices, locations);
     }
 
+    @Override
+    public void replicateDialPlan(boolean restartSbcDevices, Location location) {
+        ConfigGenerator generator = generateDialPlan();
+        generator.activate(location, m_sipxReplicationContext);
+        SipxService sipxIvrService = m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+        getServiceConfigurator().replicateServiceConfig(location, sipxIvrService, true);
+
+        pushAffectedProfiles(restartSbcDevices);
+        notifyOnDialPlanGeneration(restartSbcDevices, location);
+    }
+
     public void replicateIfNeeded() {
         // empty: conditional activation only makes sense for a lazy implementation
     }
@@ -94,6 +105,10 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
         m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this, restartSbcDevices));
         m_sipxProcessContext.markDialPlanRelatedServicesForRestart(locations, SipxProxyService.BEAN_ID,
                 SipxRegistrarService.BEAN_ID);
+    }
+
+    private void notifyOnDialPlanGeneration(boolean restartSbcDevices, Location location) {
+        m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this, restartSbcDevices));
     }
 
     /**

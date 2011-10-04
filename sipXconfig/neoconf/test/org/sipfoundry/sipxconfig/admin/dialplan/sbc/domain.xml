@@ -3,9 +3,13 @@
   <table name="domain">
     <column>domain_id</column>
     <column>name</column>
+    <column>sip_realm</column>
+    <column>shared_secret</column>
     <row>
       <value>2000</value>
       <value>example.org</value>
+      <value>example.org</value>
+      <value>shared-secret</value>
     </row>
   </table>
 </dataset>

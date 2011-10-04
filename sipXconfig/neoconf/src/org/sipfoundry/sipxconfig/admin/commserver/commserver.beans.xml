@@ -14,6 +14,10 @@
     <lookup-method name="getNatTraversalManager" bean="natTraversalManager" />
     <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
     <lookup-method name="getReplicationManager" bean="replicationManagerImpl" />
+    <lookup-method name="getSipxServiceManager" bean="sipxServiceManagerImpl" />
+    <lookup-method name="getDomainConfiguration" bean="domainConfiguration" />
+    <lookup-method name="getAcdHistoricalConfiguration" bean="acdHistoricalConfiguration" />
+    <lookup-method name="getDialPlanConfigGenerator" bean="dialPlanConfigGenerator" />
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -200,6 +204,7 @@
     <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
     <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
+    <property name="eagerSipxReplicationContext" ref="sipxReplicationContextDao" />
   </bean>
 
   <bean id="registrationContext"

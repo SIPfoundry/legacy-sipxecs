@@ -59,7 +59,7 @@ public class ConfigGenerator {
         m_dialingRuleProvider = dialingRuleProvider;
     }
 
-    private List< ? extends ConfigurationFile> getRulesFiles() {
+    public List< ? extends ConfigurationFile> getRulesFiles() {
         return Arrays.asList(m_mappingRules, m_authRules, m_fallbackRules, m_forwardingRules);
     }
 

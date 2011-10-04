@@ -27,11 +27,6 @@
 
      <span jwcid="@If" condition="ognl:succeded" renderTag="false">
         <h3><span key="label.succeded" /></h3>
-        <ul>
-            <li jwcid="@For" source="ognl:succededReplications" value="ognl:currentName">
-                <span jwcid="@Insert" value="ognl:currentName" />
-            </li>
-        </ul>
 	  </span>
 	<a class="backLink" jwcid="@DirectLink" listener="listener:returnToServers"><span key="link.back">Go back</span></a>
 </div>

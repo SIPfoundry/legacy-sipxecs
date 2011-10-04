@@ -252,8 +252,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * This method will print out replication time.
      */
     @Override
-    public void replicateAllData() {
+    public boolean replicateAllData() {
         Location primary = m_locationsManager.getPrimaryLocation();
+        boolean success = false;
         try {
             dropDatasetDb();
             int membersCount = m_coreContext.getAllUsersCount();
@@ -270,11 +271,13 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             extalias.setFiles(m_externalAliases.getFiles());
             replicateEntity(extalias);
             m_auditLogContext.logReplicationMongo(DATABASE_REGENERATION, primary);
+            success = true;
         } catch (Exception e) {
             m_auditLogContext.logReplicationMongoFailed(DATABASE_REGENERATION, primary, e);
             LOG.error("Regeneration of database failed", e);
             throw new UserException(e);
         }
+        return success;
     }
 
     /**
@@ -468,7 +471,8 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * and register the tunnels.
      */
     @Override
-    public void replicateLocation(Location location) {
+    public boolean replicateLocation(Location location) {
+        boolean success = false;
         try {
             if (location.isRegistered()) {
                 DBCollection nodeCollection = m_imdb.getDb().getCollection(MongoConstants.NODE_COLLECTION);
@@ -486,11 +490,13 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                 nodeCollection.save(node);
             }
             registerTunnels(location);
+            success = true;
             m_auditLogContext.logReplicationMongo(LOCATION_REGISTRATION, location);
         } catch (Exception e) {
             m_auditLogContext.logReplicationMongoFailed(LOCATION_REGISTRATION, location, e);
             throw new UserException("Cannot register location in mongo db: " + e);
         }
+        return success;
     }
 
     @Override
@@ -661,85 +667,56 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * Replicates file on all locations
      */
     @Override
-    public boolean replicateFile(Location[] locations, ConfigurationFile file) {
+    public boolean replicateFile(Location location, ConfigurationFile file) {
         Location p = m_locationsManager.getPrimaryLocation();
         if (p != null) {
-            return replicateFile(p.getFqdn(), locations, file);
+            return replicateFile(p.getFqdn(), location, file);
         }
         return true;
     }
 
-    boolean replicateFile(String primaryHostname, Location[] locations, ConfigurationFile file) {
+    boolean replicateFile(String primaryHostname, Location location, ConfigurationFile file) {
         if (!m_enabled) {
             return true;
         }
 
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
-        // if content same for all locations generate only once
-        if (!file.isLocationDependent()) {
-            boolean shouldReplicate = false;
-            // check if we have at least one location to replicate file
-            for (Location location : locations) {
-                if (location.isRegistered() && location.isReplicateConfig() && file.isReplicable(location)) {
-                    shouldReplicate = true;
-                    break;
-                }
-            }
-            if (shouldReplicate) {
-                // generate content only once - same for all locations (we do have at least one)
-                try {
-                    LOG.debug("Generate content for " + file.getName());
-                    Writer writer = new OutputStreamWriter(outStream, UTF_8);
-                    file.write(writer, null);
-                    writer.close();
-                } catch (IOException e) {
-                    LOG.error(EXCEPTION_LOG, e);
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
         boolean success = false;
-        for (int i = 0; i < locations.length; i++) {
-            if (!locations[i].isRegistered() || !locations[i].isReplicateConfig()) {
-                continue;
-            }
-            if (!file.isReplicable(locations[i])) {
-                LOG.info("File " + file.getName() + " cannot be replicated on location: " + locations[i].getFqdn());
-                success = true;
-                continue;
-            }
-            try {
-                if (file.isLocationDependent()) {
-                    // regenerate content for each location
-                    outStream = new ByteArrayOutputStream();
-                    LOG.debug("Generate location dependent content for " + file.getName()
-                            + " on location " + locations[i].getFqdn());
-                    Writer writer = new OutputStreamWriter(outStream, UTF_8);
-                    file.write(writer, locations[i]);
-                    writer.close();
-                }
-                byte[] payloadBytes = outStream.toByteArray();
-                String content = encodeBase64(payloadBytes);
+        if (!location.isRegistered() || !location.isReplicateConfig()) {
+            return success;
+        }
+        if (!file.isReplicable(location)) {
+            LOG.info("File " + file.getName() + " cannot be replicated on location: " + location.getFqdn());
+            success = true;
+            return success;
+        }
+        try {
+            outStream = new ByteArrayOutputStream();
+            LOG.debug("Generate location dependent content for " + file.getName()
+                   + " on location " + location.getFqdn());
+            Writer writer = new OutputStreamWriter(outStream, UTF_8);
+            file.write(writer, location);
+            writer.close();
+            byte[] payloadBytes = outStream.toByteArray();
+            String content = encodeBase64(payloadBytes);
 
-                FileApi api = m_fileApiProvider.getApi(locations[i].getProcessMonitorUrl());
-                success = api.replace(primaryHostname, file.getPath(), PERMISSIONS, content);
-                if (success) {
-                    m_auditLogContext.logReplication(file.getName(), locations[i]);
-                }
-            } catch (XmlRpcRemoteException e) {
-                LOG.error("File replication failed: " + file.getName() + "; on " + locations[i].getFqdn(), e);
-            } catch (UnsupportedEncodingException e) {
-                LOG.error("UTF-8 encoding should be always supported.");
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                LOG.error(EXCEPTION_LOG, e);
-                throw new RuntimeException(e);
-            } finally {
-                if (!success) {
-                    m_auditLogContext.logReplicationFailed(file.getName(), locations[i], null);
-                }
+            FileApi api = m_fileApiProvider.getApi(location.getProcessMonitorUrl());
+            success = api.replace(primaryHostname, file.getPath(), PERMISSIONS, content);
+            if (success) {
+                m_auditLogContext.logReplication(file.getName(), location);
+            }
+        } catch (XmlRpcRemoteException e) {
+            LOG.error("File replication failed: " + file.getName() + "; on " + location.getFqdn(), e);
+        } catch (UnsupportedEncodingException e) {
+            LOG.error("UTF-8 encoding should be always supported.");
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            LOG.error(EXCEPTION_LOG, e);
+            throw new RuntimeException(e);
+        } finally {
+            if (!success) {
+                m_auditLogContext.logReplicationFailed(file.getName(), location, null);
             }
         }
         return success;

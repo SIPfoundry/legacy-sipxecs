@@ -11,7 +11,6 @@
   <table name="patch"/>
   <table name="initialization_task"/>
   <table name="upload"/>
-  <table name="location_success_replications"/>
   <table name="location_failed_replications"/>
   <table name="location"/>
   <table name="location_specific_service"/>
@@ -109,10 +108,12 @@
     <column>domain_id</column>
     <column>name</column>
     <column>shared_secret</column>
+    <column>sip_realm</column>
     <row>
       <value>1000</value>
       <value>example.org</value>
       <value>shared-secret</value>
+      <value>example.org</value>
     </row>
   </table>
   <table name="domain_alias"/>

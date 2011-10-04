@@ -34,7 +34,7 @@
   
   <bean id="tunnelManager" class="org.sipfoundry.sipxconfig.tunnel.TunnelManagerImpl">
 	<property name="locationsManager" ref="locationsManager"/>
-	<property name="replicationManager" ref="replicationManagerImpl"/>
+	<lookup-method name="getSipxReplicationContext" bean="sipxReplicationContextDao"/>
 	<property name="clientFile" ref="tunnelClientConfig"/>
 	<property name="serverFile" ref="tunnelServerConfig"/>
   </bean>

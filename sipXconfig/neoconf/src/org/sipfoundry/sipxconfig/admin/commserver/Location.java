@@ -58,7 +58,6 @@ public class Location extends BeanWithId {
     private State m_state = State.UNCONFIGURED;
     private Timestamp m_lastAttempt;
     private List<String> m_installedBundles;
-    private Set<String> m_successfulReplications;
     private Set<String> m_failedReplications;
     private NatLocation m_nat = new NatLocation();
     private ServerRoleLocation m_serverRoles = new ServerRoleLocation();
@@ -97,14 +96,6 @@ public class Location extends BeanWithId {
      */
     public List<String> getInstalledBundles() {
         return m_installedBundles;
-    }
-
-    public Set<String> getSuccessfulReplications() {
-        return m_successfulReplications;
-    }
-
-    public void setSuccessfulReplications(Set<String> successfulReplications) {
-        m_successfulReplications = successfulReplications;
     }
 
     public Set<String> getFailedReplications() {
@@ -504,11 +495,12 @@ public class Location extends BeanWithId {
      * @return 2 if the location is primary (db regeneration and location registration)
      * and 1 if the location is slave (only location regeneration is performed)
      */
-    public int getDefaultNumberOfMongoReplications() {
+    public String[] getDefaultMongoReplications() {
         if (isPrimary()) {
-            return 2;
+            return new String[] {SipxReplicationContext.IMDB_REGENERATION,
+                SipxReplicationContext.MONGO_LOCATION_REGISTRATION};
         }
-        return 1;
+        return new String[] {SipxReplicationContext.MONGO_LOCATION_REGISTRATION};
     }
 
     public boolean isCallTraffic() {

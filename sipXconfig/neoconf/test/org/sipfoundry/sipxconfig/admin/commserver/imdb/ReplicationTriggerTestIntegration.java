@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
@@ -25,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger.BranchDeleteWorker;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
@@ -82,15 +84,20 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
      * Test that replication happens at app startup if the replicateOnStartup property is set
      */
     public void testReplicateOnStartup() throws Exception {
-        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
-        replicationContext.replicateAllData();
-        replay(replicationContext);
-        m_trigger.setReplicationManager(replicationContext);
+        loadDataSetXml("admin/commserver/seedLocations.xml");
+        SipxReplicationContext replCtx = createStrictMock(SipxReplicationContext.class);
+        replCtx.generateAll();
+        expectLastCall();
+        
+
+        replay(replCtx);
+
+        m_trigger.setSipxReplicationContext(replCtx);
 
         m_trigger.setReplicateOnStartup(true);
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
 
-        verify(replicationContext);
+        verify(replCtx);
         m_trigger.setReplicationManager(m_replicationManager);
     }
 

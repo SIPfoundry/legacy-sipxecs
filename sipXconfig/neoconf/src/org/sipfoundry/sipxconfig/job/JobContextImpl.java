@@ -15,9 +15,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class JobContextImpl implements JobContext {
-    private int m_maxJobs = 50;
+    private int m_maxJobs = 100;
     private CircularFifoBuffer m_jobs;
     private volatile boolean m_failure;
 
@@ -58,6 +59,11 @@ public class JobContextImpl implements JobContext {
 
     public synchronized Serializable schedule(String name) {
         Job job = new Job(name);
+        return addNewJob(job);
+    }
+
+    public synchronized Serializable schedule(String name, Location location) {
+        Job job = new Job(name, location);
         return addNewJob(job);
     }
 
@@ -108,6 +114,26 @@ public class JobContextImpl implements JobContext {
 
     public synchronized List<Job> getJobs() {
         return new ArrayList<Job>(m_jobs);
+    }
+
+    public synchronized List<Job> getFailedJobs() {
+        List<Job> failedJobs = new ArrayList<Job>();
+        for (Job job : new ArrayList<Job>(m_jobs)) {
+            if (job.getStatus() == JobStatus.FAILED) {
+                failedJobs.add(job);
+            }
+        }
+        return failedJobs;
+    }
+
+    public synchronized List<Job> getNotFailedJobs() {
+        List<Job> failedJobs = new ArrayList<Job>();
+        for (Job job : new ArrayList<Job>(m_jobs)) {
+            if (job.getStatus() != JobStatus.FAILED) {
+                failedJobs.add(job);
+            }
+        }
+        return failedJobs;
     }
 
     public boolean isFailure() {

@@ -16,6 +16,8 @@ import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public class AcdHistoricalConfigurationFile extends TemplateConfigurationFile {
 
@@ -25,6 +27,7 @@ public class AcdHistoricalConfigurationFile extends TemplateConfigurationFile {
     private String m_dbUser;
     private int m_agentPort;
     private AcdContext m_acdContext;
+    private SipxServiceManager m_sipxServiceManager;
 
     @Override
     protected VelocityContext setupContext(Location location) {
@@ -57,7 +60,8 @@ public class AcdHistoricalConfigurationFile extends TemplateConfigurationFile {
      * This is replicable only on primary location where the report component is installed
      */
     public boolean isReplicable(Location location) {
-        return location.isPrimary();
+        return location.isPrimary()
+            && m_sipxServiceManager.isServiceInstalled(location.getId(), SipxAcdService.BEAN_ID);
     }
 
     public void setDbUser(String dbUser) {
@@ -70,5 +74,9 @@ public class AcdHistoricalConfigurationFile extends TemplateConfigurationFile {
 
     public void setAcdContext(AcdContext acdContext) {
         m_acdContext = acdContext;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 }
