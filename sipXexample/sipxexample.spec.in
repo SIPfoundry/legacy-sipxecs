@@ -92,9 +92,6 @@ rm -rf $RPM_BUILD_ROOT
 # files from cpp-library install
 %{_libdir}/libsipxexample.so*
 
-# files from java-module install
-%{_datadir}/java/sipXecs/sipXconfig/plugins/sipxexample.jar
-
 # files from ruby-module install
 %{_var}/lib/sipxpbx/sipxexample-*.gem
 

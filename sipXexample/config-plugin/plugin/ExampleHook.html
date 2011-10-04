@@ -1,0 +1,28 @@
+<!-- 
+ - UI placed on menus or potentially on any page in the system. 
+ - All of these examples come from AdminNavigation.html but any page can have hooks including other
+ - plugin pages
+ -
+ - You need to follow this very specific convention of your hook will not be used
+ -    jwcid="[Hook ID][Block ID]@Block"
+ - Where
+ -  Hook ID - You define in you sipxplugins.beans.xml file
+ -  Block ID - You find on the html page you wish to insert your html (in this case links) into.
+ -  @Block - is the type of tapestry component that is used for chunk of html to be loaded conditionally
+ -->
+<span jwcid="ExampleHookUserBottom@Block">
+  <li><a jwcid="@PageLink" page="plugin/PluginTestPage"><span key="menu.examplehook.bottomUserMenu1"/></a></li>
+  <li><a jwcid="@PageLink" page="plugin/PluginTestPage"><span key="menu.examplehook.bottomUserMenu2"/></a></li>
+</span>
+<span jwcid="ExampleHookDevicesTop@Block">
+  <li><a jwcid="@PageLink" page="plugin/PluginTestPage"><span key="menu.examplehook.topDevicesMenu"/></a></li>
+</span>
+<span jwcid="ExampleHookFeaturesTop@Block">
+  <li><a jwcid="@PageLink" page="plugin/PluginTestPage"><span key="menu.examplehook.topFeaturesMenu"/></a></li>
+</span>
+<span jwcid="ExampleHookSystemBottom@Block">
+  <li><a jwcid="@PageLink" page="plugin/PluginTestPage"><span key="menu.examplehook.bottomSystemMenu"/></a></li>
+</span>
+<span jwcid="ExampleHookDiagnosticsBottom@Block">
+  <li><a jwcid="@PageLink" page="plugin/PluginTestPage"><span key="menu.examplehook.topDiagnosticsMenu"/></a></li>
+</span>

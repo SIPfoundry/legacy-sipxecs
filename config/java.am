@@ -341,14 +341,11 @@ JarInclude = $(foreach D,$2,-C $(1) $(D))
 # M I S C.
 #
 
-# run clean for each java and javac targets
-clean-local : $(foreach T,$(filter javac-% java-%, $(DATA)), $(T)-clean)
-
 # hook
 java-%-clean :;
 
 # default and hook
-javac-%-clean :
+clean-generic :
 	! test -d $(JAVAROOT) || rm -rf $(JAVAROOT)
 	! test -f javac-$* || rm javac-$*
 

@@ -1,17 +1,12 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/QuickHelp" value="message:test.quick.help"/>
-  <form jwcid="ugbForm@Form" id="ugbForm">
-    <table>
-      <tr jwcid="@common/FieldPanel" for="test:serialno"
-        field="component:testno"
-        label="message:test.serialno">
-        <td jwcid="testno@TextField" id="test:serialno"
-          value="ognl:testNoValue"
-          displayName="message:test.serialno"/>
-      </tr>
-    </table>
-  </form>
-  <span jwcid="menuItem@Block">
-    <li><a jwcid="@PageLink" page="plugin/PluginTestPage"><span key="menu.plugin">Test</span></a></li>
-  </span>
+	<span jwcid="@common/QuickHelp" value="message:test.quick.help" />
+	<form jwcid="@Form" id="ugbForm">
+		<table>
+			<tr jwcid="@common/FieldPanel" for="test:serialno"
+				field="component:testno" label="message:test.serialno">
+				<td jwcid="testno@TextField" id="test:serialno"
+					value="ognl:testNoValue" displayName="message:test.serialno" />
+			</tr>
+		</table>
+	</form>
 </div>

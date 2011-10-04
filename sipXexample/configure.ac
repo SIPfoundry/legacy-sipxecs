@@ -33,10 +33,8 @@ AC_CONFIG_FILES([
     Makefile
     etc/Makefile
     bin/Makefile
-    java-module/Makefile
-    java-module/src/Makefile
-    java-module/test/Makefile
     config-plugin/Makefile
+    config-plugin/test/Makefile
     cpp-executable/Makefile
     cpp-executable/src/Makefile
     cpp-library/Makefile

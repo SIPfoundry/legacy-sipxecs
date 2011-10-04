@@ -1,3 +1,5 @@
+include $(top_srcdir)/config/utility.am
+
 bin_PROGRAMS = sipxexample
 
 sipxexample_CXXFLAGS = \

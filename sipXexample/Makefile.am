@@ -6,6 +6,5 @@ SUBDIRS = \
   etc \
   cpp-executable \
   cpp-library \
-  java-module \
   config-plugin \
   ruby-module

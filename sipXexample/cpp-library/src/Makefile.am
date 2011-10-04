@@ -1,3 +1,5 @@
+include $(top_srcdir)/config/utility.am
+
 lib_LTLIBRARIES = libsipxexample.la
 
 ## Libtool version info - update only immediately before a release
