@@ -9,7 +9,7 @@
     </table>
     <table jwcid="successJobsTable@contrib:TableView" id="successJobsTable" class="component"
       source="ognl:notFailedJobs" pageSize="-1"
-      columns="* name,location.fqdn,=startColumn,=stopColumn,status">
+      columns="* name,location,=startColumn,=stopColumn,status">
       <thead>
         <tr>
           <span jwcid="@contrib:TableColumns"/>
@@ -23,6 +23,11 @@
           <span jwcid="@contrib:TableValues"/>
         </span>
       </tbody>
+      <span jwcid="locationColumnValue@Block">
+        <span jwcid="@If" condition="ognl:notFailedJob.location != null" renderTag="false">
+          <span jwcid="@Insert" value="ognl:notFailedJob.location.fqdn" format="bean:statusFormat"/>
+        </span>
+      </span>
       <span jwcid="statusColumnValue@Block">
         <span jwcid="@Insert" value="ognl:notFailedJob.status" format="bean:statusFormat"/>
       </span>
