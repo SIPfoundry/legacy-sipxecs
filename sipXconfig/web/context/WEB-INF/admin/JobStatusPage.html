@@ -25,7 +25,7 @@
       </tbody>
       <span jwcid="locationColumnValue@Block">
         <span jwcid="@If" condition="ognl:notFailedJob.location != null" renderTag="false">
-          <span jwcid="@Insert" value="ognl:notFailedJob.location.fqdn" format="bean:statusFormat"/>
+          <span jwcid="@Insert" value="ognl:notFailedJob.location.fqdn"/>
         </span>
       </span>
       <span jwcid="statusColumnValue@Block">
@@ -37,7 +37,7 @@
     </table>
     <table jwcid="failedJobsTable@contrib:TableView" id="failedJobsTable" class="component"
       source="ognl:failedJobs" pageSize="-1"
-      columns="* name,location.fqdn,=startColumn,=stopColumn,failedStatus,failedError">
+      columns="* name,location,=startColumn,=stopColumn,failedStatus,failedError">
       <thead>
         <tr>
           <span jwcid="@contrib:TableColumns"/>
