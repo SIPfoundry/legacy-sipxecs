@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.List;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -80,4 +81,5 @@ public interface LocationsManager {
     Location getLocationByBundle(String bundleName);
 
     void updateLocation(Location location);
+    public Set<String> getReplications(Location location);
 }

@@ -19,14 +19,9 @@ import org.sipfoundry.sipxconfig.common.User;
 
 public class CredentialsTestIntegration extends ImdbTestCase {
     private Credentials m_credentialDataSet;
-    
-    @Override
-    protected void onSetUpBeforeTransaction() {
-        // otherwise realm is null for password hash related calls.
-        getDomainManager().initializeDomain();        
-    }
 
     public void testAddCallgroup() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         CallGroup cg = new CallGroup();
         cg.setUniqueId(1);
         cg.setName("sales");
@@ -42,6 +37,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
     }
 
     public void testAddUser() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         User user = new User();
         user.setUniqueId(1);
         user.setUserName("superadmin");
@@ -60,6 +56,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
     }
 
     public void testAddUserEmptyPasswords() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         User user = new User();
         user.setUniqueId(1);
         user.setUserName("superadmin");

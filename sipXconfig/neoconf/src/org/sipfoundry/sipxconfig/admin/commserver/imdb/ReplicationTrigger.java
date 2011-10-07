@@ -20,10 +20,10 @@ import java.util.concurrent.Executors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.Location.State;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.Location.State;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
@@ -65,6 +65,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
     private SipxReplicationContext m_lazySipxReplicationContext;
+    private SipxReplicationContext m_eagerSipxReplicationContext;
     private ConfigFileActivationManager m_configFileManager;
     private SipxServiceManager m_serviceManager;
     private ServiceConfigurator m_serviceConfigurator;
@@ -113,7 +114,9 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
             //there is no file replication needed so we can trigger the branch replication directly
             replicateEntityGroup(new BranchWorker(entity));
         } else if (entity instanceof Location) {
-            m_replicationManager.replicateLocation((Location) entity);
+            //use eager replication context rather than ReplicationManager directly.
+            //It uses Job to present info in Job status page
+            m_eagerSipxReplicationContext.replicateLocation((Location) entity);
         } else if (entity instanceof Permission) {
             generatePermission((Permission) entity);
         } else if (entity instanceof SpeedDial) {
@@ -280,7 +283,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ApplicationInitializedEvent && isReplicateOnStartup()) {
             LOG.info("Replicating all data sets after application has initialized");
-            m_replicationManager.replicateAllData();
+            m_lazySipxReplicationContext.generateAll();
         } else if (event instanceof ReplicationsFinishedEvent) {
             updateLocations();
         }
@@ -295,34 +298,18 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
             // such as when firstRun task is executed or occasional replications
             // take place when system is up and running
             Set<String> failedList = m_auditLogContext.getReplicationFailedList(location.getFqdn());
-            Set<String> successfulList = m_auditLogContext.getReplicationSuccededList(location.getFqdn());
-            // no replication occured for this location
-            if ((failedList == null || failedList.isEmpty()) && (successfulList == null || successfulList.isEmpty())) {
-                continue;
-            } else if (failedList != null && !failedList.isEmpty()) {
-                // when something failed, we have configuration error - we will
-                // intersect current failures/successes with latest
-                // with this scenario, sendProfiles may never get finished
-                Set<String> prevSuccessfulList = location.getSuccessfulReplications();
+            if (failedList != null && !failedList.isEmpty()) {
+                // when something failed, we have configuration error
                 Set<String> prevFailedList = location.getFailedReplications();
-                if (successfulList != null && !successfulList.isEmpty()) {
-                    prevSuccessfulList.addAll(successfulList);
-                    prevFailedList.removeAll(successfulList);
-                }
-                if (failedList != null && !failedList.isEmpty()) {
-                    prevSuccessfulList.removeAll(failedList);
-                    prevFailedList.addAll(failedList);
-                }
+                prevFailedList.addAll(failedList);
                 location.setLastAttempt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
                 location.setState(State.CONFIGURATION_ERROR);
-                location.setSuccessfulReplications(prevSuccessfulList);
                 location.setFailedReplications(prevFailedList);
                 // location is configured only when sendProfiles successfully
                 // finished and nothing failed
             } else if (!m_auditLogContext.isSendProfilesInProgress(location)) {
                 location.setLastAttempt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
                 location.setState(State.CONFIGURED);
-                location.setSuccessfulReplications(successfulList);
                 location.setFailedReplications(new TreeSet<String>());
             } else {
                 // in this case means that nothing failed at this point and we are
@@ -369,5 +356,9 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
      */
     public void setExecutorService(ExecutorService executorService) {
         m_executorService = executorService;
+    }
+
+    public void setEagerSipxReplicationContext(SipxReplicationContext eagerSipxReplicationContext) {
+        m_eagerSipxReplicationContext = eagerSipxReplicationContext;
     }
 }

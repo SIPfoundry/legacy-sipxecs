@@ -179,8 +179,8 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
         getServiceConfigurator().sendProfiles(selectedLocations);
     }
 
-    public boolean isInitialized() {
-        return !getCurrentRow().isUninitialized();
+    public boolean isFailedState() {
+        return !getCurrentRow().isUninitialized() && getCurrentRow().isInConfigurationErrorState();
     }
 
     public List<BreadCrumb> getBreadCrumbs() {

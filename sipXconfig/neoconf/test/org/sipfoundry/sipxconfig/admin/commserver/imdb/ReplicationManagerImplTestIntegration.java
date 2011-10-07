@@ -53,14 +53,14 @@ public class ReplicationManagerImplTestIntegration extends ImdbTestCase {
         replay(m_fileApi);
         l.setRegistered(true);
         l.setReplicateConfig(false);
-        m_out.replicateFile("primary", new Location[] {l}, file);
+        m_out.replicateFile("primary", l, file);
         verify(m_fileApi);
         
         reset(m_fileApi);
         replay(m_fileApi);
         l.setRegistered(false);
         l.setReplicateConfig(true);
-        m_out.replicateFile("primary", new Location[] {l}, file);
+        m_out.replicateFile("primary", l, file);
         verify(m_fileApi);        
     }
     
@@ -73,7 +73,7 @@ public class ReplicationManagerImplTestIntegration extends ImdbTestCase {
         replay(m_fileApi);
         l.setRegistered(true);
         l.setReplicateConfig(true);
-        m_out.replicateFile("primary", new Location[] {l}, file);
+        m_out.replicateFile("primary", l, file);
         verify(m_fileApi);
     }
 

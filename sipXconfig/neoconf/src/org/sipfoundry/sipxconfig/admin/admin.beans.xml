@@ -123,10 +123,7 @@
 
   <bean id="auditLogContext" class="org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl"
         init-method="init">
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="domainConfiguration" ref="domainConfiguration" />
-    <property name="dialingRuleProvider" ref="dialingRuleCollector" />
-    <property name="acdHistoricalConfiguration" ref="acdHistoricalConfiguration" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>        
 
   <bean id="restartListener" class="org.sipfoundry.sipxconfig.admin.RestartListener" scope="prototype">

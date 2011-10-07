@@ -292,9 +292,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
         }
         for (Location location : locations) {
             initLocation(location);
+            replicateDialPlans(location);
         }
 
-        replicateDialPlans();
     }
 
     @Override
@@ -336,8 +336,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
             locationToActivate.setLastAttempt(new Timestamp(Calendar
                     .getInstance().getTimeInMillis()));
             // sendProfiles method replicates everything once again, so we need
-            // to
-            // clear current replication state
+            // to clear current replication state
             m_auditLogContext.resetReplications(locationToActivate.getFqdn());
             // update new state without triggering other file replications
             m_locationsManager.updateLocation(locationToActivate);
@@ -346,7 +345,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
             // HACK: push dataSets and files that are not the part of normal
             // service replication
             initLocation(locationToActivate);
-            replicateDialPlans(selectedLocations);
+            replicateDialPlans(locationToActivate);
             replicateLocationAndRestart(locationToActivate);
 
             if (locationToActivate.isPrimary()) {
@@ -356,26 +355,14 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator, Application
             // login to acd historical database used in sipxconfig-reports
             // for creating acd historical reports
             if (m_sipxServiceManager.isServiceInstalled(locationToActivate.getId(), SipxAcdService.BEAN_ID)) {
-                m_replicationContext.replicate(m_acdHistoricalConfiguration);
+                m_replicationContext.replicate(locationToActivate, m_acdHistoricalConfiguration);
             }
         }
     }
 
-    /**
-     * Replicates dial plans eagerly.
-     *
-     * This is a temporary hack: at some point all files that comprise dial plan should be
-     * declared as configuration files that belong to their owners and get replciated before
-     * respective services are started.
-     */
     @Deprecated
-    private void replicateDialPlans() {
-        m_dialPlanActivationManager.replicateDialPlan(false);
-    }
-
-    @Deprecated
-    private void replicateDialPlans(Collection<Location> locations) {
-        m_dialPlanActivationManager.replicateDialPlan(false, locations);
+    private void replicateDialPlans(Location location) {
+        m_dialPlanActivationManager.replicateDialPlan(false, location);
     }
 
     @Override

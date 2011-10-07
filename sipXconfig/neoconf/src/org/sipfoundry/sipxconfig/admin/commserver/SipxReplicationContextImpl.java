@@ -27,9 +27,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
 public abstract class SipxReplicationContextImpl implements ApplicationEventPublisherAware, SipxReplicationContext {
-
     private static final String IGNORE_REPLICATION_MESSAGE = "In initialization phase, ignoring request to replicate ";
-
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
     private ApplicationEventPublisher m_applicationEventPublisher;
     private ReplicationManager m_replicationManager;
@@ -46,7 +44,14 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
 
     @Override
     public void generateAll() {
-        m_replicationManager.replicateAllData();
+        ReplicateWork work = new ReplicateWork() {
+            @Override
+            public boolean replicate() {
+                return m_replicationManager.replicateAllData();
+            }
+
+        };
+        doWithJob(IMDB_REGENERATION, m_locationsManager.getPrimaryLocation(), work);
     }
 
     @Override
@@ -55,8 +60,14 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     }
 
     @Override
-    public void replicateLocation(Location location) {
-        m_replicationManager.replicateLocation(location);
+    public void replicateLocation(final Location location) {
+        ReplicateWork work = new ReplicateWork() {
+            @Override
+            public boolean replicate() {
+                return m_replicationManager.replicateLocation(location);
+            }
+        };
+        doWithJob(SipxReplicationContext.MONGO_LOCATION_REGISTRATION, m_locationsManager.getPrimaryLocation(), work);
     }
 
     @Override
@@ -77,7 +88,14 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         }
 
         Location[] locations = m_locationsManager.getLocations();
-        replicateWorker(locations, file);
+        replicate(locations, file);
+    }
+
+    @Override
+    public void replicate(Location[] locations, ConfigurationFile file) {
+        for (Location location : locations) {
+            replicate(location, file);
+        }
     }
 
     @Override
@@ -87,44 +105,49 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
             return;
         }
 
-        Location[] locations = new Location[] {
-            location
-        };
-        replicateWorker(locations, file);
+        replicateWorker(location, file);
     }
 
-    private void replicateWorker(final Location[] locations, final ConfigurationFile file) {
+    private void replicateWorker(final Location location, final ConfigurationFile file) {
         ReplicateWork work = new ReplicateWork() {
             @Override
             public boolean replicate() {
-                return m_replicationManager.replicateFile(locations, file);
+                return m_replicationManager.replicateFile(location, file);
             }
 
         };
-        doWithJob("File replication: " + file.getName(), work);
+        doWithJobMultiThread("File replication: " + file.getName(), location, work);
     }
 
-    private void doWithJob(final String jobName, final ReplicateWork work) {
+    private void generateAllDataWorker(final Location location) {
+
+    }
+
+    private void doWithJobMultiThread(final String jobName, final Location location, final ReplicateWork work) {
         m_fileExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                Serializable jobId = m_jobContext.schedule(jobName);
-                boolean success = false;
-                try {
-                    LOG.info("Start replication: " + jobName);
-                    m_jobContext.start(jobId);
-                    success = work.replicate();
-                } finally {
-                    if (success) {
-                        m_jobContext.success(jobId);
-                    } else {
-                        LOG.warn("Replication failed: " + jobName);
-                        // there is not really a good info here - advise user to consult log?
-                        m_jobContext.failure(jobId, null, null);
-                    }
-                }
+                doWithJob(jobName, location, work);
             }
         });
+    }
+
+    private void doWithJob(final String jobName, final Location location, final ReplicateWork work) {
+        Serializable jobId = m_jobContext.schedule(jobName, location);
+        boolean success = false;
+        try {
+            LOG.info("Start replication: " + jobName);
+            m_jobContext.start(jobId);
+            success = work.replicate();
+        } finally {
+            if (success) {
+                m_jobContext.success(jobId);
+            } else {
+                LOG.warn("Replication failed: " + jobName);
+                // there is not really a good info here - advise user to consult log?
+                m_jobContext.failure(jobId, null, null);
+            }
+        }
     }
 
     private boolean inInitializationPhase() {

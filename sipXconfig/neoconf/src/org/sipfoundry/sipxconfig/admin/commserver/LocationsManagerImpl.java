@@ -10,9 +10,13 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,13 +24,20 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxAlarmService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxSupervisorService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import static org.springframework.dao.support.DataAccessUtils.intResult;
@@ -39,11 +50,15 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
     private static final String LOCATION_PROP_IP = "ipAddress";
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
+
     protected abstract NatTraversalManager getNatTraversalManager();
-    /* delayed injection - working around circular reference */
+    /* delayed injections - working around circular reference */
     protected abstract ServiceConfigurator getServiceConfigurator();
-    /* delayed injection - working around circular reference */
     protected abstract ReplicationManager getReplicationManager();
+    protected abstract SipxServiceManager getSipxServiceManager();
+    protected abstract DomainConfiguration getDomainConfiguration();
+    protected abstract AcdHistoricalConfigurationFile getAcdHistoricalConfiguration();
+    protected abstract ConfigGenerator getDialPlanConfigGenerator();
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
@@ -225,5 +240,42 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
             return null;
         }
         return locations.get(0);
+    }
+
+    /**
+     * Gets the set of items to be replicated on this location.
+     * It is a function of the set of installed services,
+     * dial plan rules and mongo replications.
+     */
+    public Set<String> getReplications(Location location) {
+        Set<String> replications = new HashSet<String>();
+        replications.addAll(Arrays.asList(location.getDefaultMongoReplications()));
+        Collection<SipxService> services = location.getSipxServices();
+        //Supervisor and alarm services are by default installed in every location
+        services.add(getSipxServiceManager().getServiceByBeanId(SipxSupervisorService.BEAN_ID));
+        services.add(getSipxServiceManager().getServiceByBeanId(SipxAlarmService.BEAN_ID));
+        for (SipxService service : services) {
+            Set<? extends ConfigurationFile> serviceConfigurations = service.getConfigurations();
+            for (ConfigurationFile config : serviceConfigurations) {
+                if (config.isReplicable(location)) {
+                    replications.add(config.getName());
+                }
+            }
+        }
+        //Domain configuration is replicated by default. we can still check this.
+        if (getDomainConfiguration().isReplicable(location)) {
+            replications.add(getDomainConfiguration().getName());
+        }
+        //dial plans generation
+        //there are a total of 4 rules files that will get generated and replicated
+        //authrules.xml fallbackrules.xml forwardingrules.xml mappingrules.xml
+        for (ConfigurationFile config : getDialPlanConfigGenerator().getRulesFiles()) {
+            replications.add(config.getName());
+        }
+
+        if (getAcdHistoricalConfiguration().isReplicable(location)) {
+            replications.add(getAcdHistoricalConfiguration().getName());
+        }
+        return replications;
     }
 }

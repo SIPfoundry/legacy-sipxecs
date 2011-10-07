@@ -15,6 +15,7 @@ import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
@@ -30,6 +31,7 @@ public class Job extends BeanWithId implements Serializable {
     private JobStatus m_status = JobStatus.SCHEDULED;
 
     private final String m_name;
+    private Location m_location;
 
     private String m_errorMsg = StringUtils.EMPTY;
 
@@ -37,6 +39,11 @@ public class Job extends BeanWithId implements Serializable {
 
     public Job(String name) {
         m_name = name;
+    }
+
+    public Job(String name, Location location) {
+        m_name = name;
+        m_location = location;
     }
 
     Job() {
@@ -121,5 +128,13 @@ public class Job extends BeanWithId implements Serializable {
 
     public Throwable getException() {
         return m_exception;
+    }
+
+    public void setLocation(Location location) {
+        m_location = location;
+    }
+
+    public Location getLocation() {
+        return m_location;
     }
 }

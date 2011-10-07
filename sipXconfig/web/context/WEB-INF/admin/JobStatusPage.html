@@ -1,10 +1,15 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
   <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
-  <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions">
+  <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions"
+  componentsToUpdate="ognl:{'successJobsTable','failedJobsTable'}">
   <div class="tableDiv">
-    <table jwcid="@contrib:TableView" id="jobs:list" class="component"
-      source="ognl:jobs" pageSize="-1"
-      columns="* name,=startColumn,=stopColumn,status,error">
+    <!--wrap the span in a table, otherwise it won't refresh,unknown why! -->
+    <table id="label1">
+    <tr><td><h3><span key="label.jobs.success">Successfull Jobs</span></h3></td></tr>
+    </table>
+    <table jwcid="successJobsTable@contrib:TableView" id="successJobsTable" class="component"
+      source="ognl:notFailedJobs" pageSize="-1"
+      columns="* name,location,=startColumn,=stopColumn,status">
       <thead>
         <tr>
           <span jwcid="@contrib:TableColumns"/>
@@ -13,28 +18,54 @@
       <tbody>
         <span jwcid="@contrib:TableRows"
           class="ognl:beans.rowClass.next"
-          row="ognl:job"
+          row="ognl:notFailedJob"
           volatile="ognl:true">
           <span jwcid="@contrib:TableValues"/>
         </span>
       </tbody>
+      <span jwcid="locationColumnValue@Block">
+        <span jwcid="@If" condition="ognl:notFailedJob.location != null" renderTag="false">
+          <span jwcid="@Insert" value="ognl:notFailedJob.location.fqdn"/>
+        </span>
+      </span>
       <span jwcid="statusColumnValue@Block">
-        <span jwcid="@Insert" value="ognl:job.status" format="bean:statusFormat"/>
+        <span jwcid="@Insert" value="ognl:notFailedJob.status" format="bean:statusFormat"/>
+      </span>
+    </table>
+    <table id="label2" style="margin-top:10px">
+    <tr><td><h3><span key="label.jobs.fail">Failed Jobs</span></h3></td></tr>
+    </table>
+    <table jwcid="failedJobsTable@contrib:TableView" id="failedJobsTable" class="component"
+      source="ognl:failedJobs" pageSize="-1"
+      columns="* name,location,=startColumn,=stopColumn,failedStatus,failedError">
+      <thead>
+        <tr>
+          <span jwcid="@contrib:TableColumns"/>
+        </tr>
+      </thead>
+      <tbody>
+        <span jwcid="@contrib:TableRows"
+          class="ognl:beans.rowClass.next"
+          row="ognl:failedJob"
+          volatile="ognl:true">
+          <span jwcid="@contrib:TableValues"/>
+        </span>
+      </tbody>
+      <span jwcid="failedStatusColumnValue@Block">
+        <span jwcid="@Insert" value="ognl:failedJob.status" format="bean:statusFormat"/>
       </span>
       <!-- keep the following line into one single line, see XX-7317 -->
-      <span jwcid="errorColumnValue@Block"><span jwcid="@Insert" value="ognl:jobErrorMsg" /></span>
+      <span jwcid="failedErrorColumnValue@Block"><span jwcid="@Insert" value="ognl:failedJobErrorMsg" /></span>
     </table>
   </div>
     <ul jwcid="actions@Block">
       <li>
         <input id="jobs:remove" jwcid="remove@Submit"
-          updateComponents="ognl:{'refreshedContent'}"
           listener="listener:remove"
           value="message:button.remove"/>
       </li>
       <li>
         <input id="jobs:clear" jwcid="clear@Submit"
-        updateComponents="ognl:{'refreshedContent'}"
         listener="listener:clear"
         value="message:button.clear"/>
       </li>

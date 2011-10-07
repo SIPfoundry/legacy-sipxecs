@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
+import java.util.Arrays;
+
 public class LazyDialPlanActivationManager implements DialPlanActivationManager, ApplicationListener {
     private static final Log LOG = LogFactory.getLog(LazyDialPlanActivationManager.class);
 
@@ -60,6 +62,10 @@ public class LazyDialPlanActivationManager implements DialPlanActivationManager,
         m_replicate = true;
         m_restart = m_restart || restartSbcDevices;
         notifyWorker();
+    }
+
+    public void replicateDialPlan(boolean restartSbcDevices, Location location) {
+        replicateDialPlan(restartSbcDevices, Arrays.asList(new Location[] {location}));
     }
 
     public void replicateIfNeeded() {

@@ -84,6 +84,13 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     }
 
     @Override
+    public void replicate(Location[] locations, ConfigurationFile file) {
+        for (Location location : locations) {
+            replicate(location, file);
+        }
+    }
+
+    @Override
     public synchronized void replicate(Location location, ConfigurationFile conf) {
         m_tasks.add(new ConfTask(location, conf));
         notifyWorker();

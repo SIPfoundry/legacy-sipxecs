@@ -40,29 +40,42 @@ public abstract class JobStatusPage extends SipxBasePage {
     @Bean
     public abstract EvenOdd getRowClass();
 
-    public abstract List<Job> getJobsProperty();
+    public abstract List<Job> getNotFailedJobsProperty();
+    public abstract List<Job> getFailedJobsProperty();
 
-    public abstract void setJobsProperty(List<Job> jobs);
+    public abstract void setNotFailedJobsProperty(List<Job> jobs);
+    public abstract void setFailedJobsProperty(List<Job> jobs);
 
-    public abstract Job getJob();
+    public abstract Job getNotFailedJob();
+    public abstract Job getFailedJob();
 
-    public List<Job> getJobs() {
-        List<Job> jobs = getJobsProperty();
+    public List<Job> getNotFailedJobs() {
+        List<Job> jobs = getNotFailedJobsProperty();
         if (jobs == null) {
-            jobs = getJobContext().getJobs();
-            setJobsProperty(jobs);
+            jobs = getJobContext().getNotFailedJobs();
+            setNotFailedJobsProperty(jobs);
+        }
+        return jobs;
+    }
+
+    public List<Job> getFailedJobs() {
+        List<Job> jobs = getFailedJobsProperty();
+        if (jobs == null) {
+            jobs = getJobContext().getFailedJobs();
+            setFailedJobsProperty(jobs);
         }
         return jobs;
     }
 
     public void remove() {
         getJobContext().removeCompleted();
-        setJobsProperty(null);
+        setNotFailedJobsProperty(null);
     }
 
     public void clear() {
         getJobContext().clear();
-        setJobsProperty(null);
+        setNotFailedJobsProperty(null);
+        setFailedJobsProperty(null);
     }
 
     public ITableColumn getStartColumn() {
@@ -73,8 +86,8 @@ public abstract class JobStatusPage extends SipxBasePage {
         return createDateColumn("stop", getMessages(), getExpressionEvaluator(), getPage().getLocale());
     }
 
-    public String getJobErrorMsg() {
-        Job job = getJob();
+    public String getFailedJobErrorMsg() {
+        Job job = getFailedJob();
         if (!job.hasErrorMsg()) {
             return StringUtils.EMPTY;
         }

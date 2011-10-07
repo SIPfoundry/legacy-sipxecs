@@ -29,10 +29,10 @@ public class CallerAliasesTestIntegration extends ImdbTestCase {
     public void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
         TestHelper.cleanInsert("ClearDb.xml");
-        getDomainManager().initializeDomain();
     }
     
     public void testGenerate() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         GatewayCallerAliasInfo gcai = new GatewayCallerAliasInfo();
         gcai.setDefaultCallerAlias("gatewayCID");
         

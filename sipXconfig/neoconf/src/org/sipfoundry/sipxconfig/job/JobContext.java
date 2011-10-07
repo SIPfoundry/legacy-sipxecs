@@ -12,8 +12,11 @@ package org.sipfoundry.sipxconfig.job;
 import java.io.Serializable;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+
 public interface JobContext {
     Serializable schedule(String name);
+    Serializable schedule(String name, Location location);
 
     void start(Serializable jobId);
 
@@ -28,6 +31,8 @@ public interface JobContext {
     void clear();
 
     List<Job> getJobs();
+    List<Job> getFailedJobs();
+    List<Job> getNotFailedJobs();
 
     /**
      * Returns true if there is a least one failed job on the list.

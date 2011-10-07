@@ -59,7 +59,8 @@ public class FailedReplicationsState {
 
     public void saveState(Location location) {
         m_cacheFailed.put(location.getFqdn(), new TreeSet<String>(location.getFailedReplications()));
-        m_cacheSucceded.put(location.getFqdn(), new TreeSet<String>(location.getSuccessfulReplications()));
+        //m_cacheSucceded.put(location.getFqdn(), new TreeSet<String>(location.getSuccessfulReplications()));
+        m_cacheSucceded.clear();
     }
 
     public void mark(String fqdn, String name) {

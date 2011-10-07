@@ -30,7 +30,6 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -206,13 +205,7 @@ public abstract class OpenAcdAddAgentsToGroupPage extends PageWithCallback imple
                 agent.setClients(getDummyAgent().getClients());
                 agents.add(agent);
             }
-
-            try {
-                getOpenAcdContext().addAgentsToGroup(group, agents);
-            } catch (UserException uex) {
-                IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-                validator.record(new ValidatorException(getMessages().getMessage(uex.getMessage())));
-            }
+            getOpenAcdContext().addAgentsToGroup(group, agents);
         } else {
             throw new UserException(getMessages().getMessage("error.requiredUser"));
         }

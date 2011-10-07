@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -26,13 +26,13 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * with services on another machine without allowing unauthorized connections for services that either
  * don't have authentication mechanisms or are to cumbersome to configure such as the mongo database service.
  */
-public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, DaoEventListener {
+public abstract class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, DaoEventListener {
     private ListableBeanFactory m_beanFactory;
     private volatile Collection<TunnelProvider> m_providers;
     private LocationsManager m_locationsManager;
-    private ReplicationManager m_replicationManager;
     private TunnelClientConfigurationFile m_clientFile;
     private TunnelServerConfigurationFile m_serverFile;
+    protected abstract SipxReplicationContext getSipxReplicationContext();
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -47,21 +47,13 @@ public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, DaoEv
         m_locationsManager = locationsManager;
     }
 
-    public ReplicationManager getReplicationManager() {
-        return m_replicationManager;
-    }
-
-    public void setReplicationManager(ReplicationManager replicationManager) {
-        m_replicationManager = replicationManager;
-    }
-
     void locationRemoved(Location l) {
-        m_replicationManager.replicateFile(m_locationsManager.getLocations(), m_clientFile);
+        getSipxReplicationContext().replicate(m_locationsManager.getLocations(), m_clientFile);
     }
 
     void locationChanged(Location l) {
-        m_replicationManager.replicateFile(m_locationsManager.getLocations(), m_clientFile);
-        m_replicationManager.replicateFile(new Location[] {l}, m_serverFile);
+        getSipxReplicationContext().replicate(m_locationsManager.getLocations(), m_clientFile);
+        getSipxReplicationContext().replicate(l, m_serverFile);
     }
 
     public void onDelete(Object entity) {
@@ -115,4 +107,5 @@ public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, DaoEv
     public void setProviders(Collection<TunnelProvider> providers) {
         m_providers = providers;
     }
+
 }
