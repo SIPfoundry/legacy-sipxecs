@@ -12,7 +12,7 @@
       <tr jwcid="@common/FieldPanel" for="item:name" label="message:label.name" field="component:name">
         <input jwcid="name@TextField" id="item:name"
           maxlength="40"
-          validators="spring-validators:required"
+          validators="spring-validators:required,validSipUserId"
           value="ognl:name"
           displayName="message:label.name"/>
       </tr>
