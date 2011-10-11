@@ -182,4 +182,11 @@ public class EmailFormatter {
     public String getTextBody() {
         return fmt("TextBodyFull");
     }
+
+    /**
+     * The format of the attached fax
+     */
+    public String getFaxFormat() {
+        return m_bundle.getString("fax_format");
+    }
 }
