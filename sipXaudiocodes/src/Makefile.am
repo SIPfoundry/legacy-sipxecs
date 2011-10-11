@@ -18,8 +18,10 @@ audiocodes_RESOURCES = sipxplugin.beans.xml
 audiocodes_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig,$(audiocodes_PKGS))
 
-$(JAR_FILE) : javac-audiocodes
-	jar -cf $@ -C $(JAVAROOT) .
+$(JAR_FILE) : javac-audiocodes $(audiocodes_RESOURCES)
+	jar cf $@ \
+	  $(call JarInclude,$(JAVAROOT),.) \
+	  $(call JarInclude,$(srcdir),$(audiocodes_RESOURCES))
 
 style_SRC = $(audiocodes_SRC)
 precommit : style validate-xml
