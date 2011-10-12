@@ -14,6 +14,7 @@ CHECK_RUBY([1.8.2])
 CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_RUBYGEMS([0.8.11])
 CHECK_POSTGRES
+CHECK_ODBC
 AC_CONFIG_FILES([
   Makefile
   java-client/Makefile
