@@ -86,7 +86,7 @@
         <property name="sessionFactory" ref="sessionFactory" />
         <!-- eager replication here -->
         <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
-        <property name="replicationContext" ref="sipxReplicationContextDao" />
+        <property name="replicationContext" ref="sipxReplicationContext" />
         <property name="sipxServiceManager" ref="sipxServiceManager" />
         <property name="sipxProcessContext" ref="sipxProcessContext" />
       </bean>

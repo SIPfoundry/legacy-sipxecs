@@ -8,6 +8,7 @@ package org.sipfoundry.commons.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -30,17 +31,28 @@ public class DomainConfiguration {
 
     public DomainConfiguration(String domainConfigFilename) {
         m_domainConfigFile = domainConfigFilename;
+        InputStream domainConfigInputStream = null;
         try {
             Properties domainConfig = new Properties();
             File domainConfigFile = new File(m_domainConfigFile);
             logger.info("Attempting to load initial domain-config from " + domainConfigFile.getParentFile().getPath()
                     + "):");
-            InputStream domainConfigInputStream = new FileInputStream(domainConfigFile);
+            domainConfigInputStream = new FileInputStream(domainConfigFile);
             domainConfig.load(domainConfigInputStream);
             parseDomainConfig(domainConfig);
         } catch (Exception ex) {
             logger.error("Error loading domain-config", ex);
-        }
+        } finally {
+            // IOUtils.closeQuietly(domainConfigInputStream);
+            // closing old fashioned way for 4.4, didn't want to introduce dep
+            if (domainConfigInputStream != null) {
+                try {
+                    domainConfigInputStream.close();
+                } catch (IOException ignore) {
+                    logger.error("Error closing stream", ignore);
+                }
+            }
+	}
     }
 
     public static String getSipRealm() {
