@@ -86,10 +86,14 @@ public class AboutBean {
     }
 
     public String getLicenseText() {
+        InputStream in = null;
         try {
-            return IOUtils.toString(m_template.getInputStream());
+            in = m_template.getInputStream();
+            return IOUtils.toString(in);
         } catch (Exception ex) {
             return "No license text available";
+        } finally {
+            IOUtils.closeQuietly(in);
         }
     }
 }

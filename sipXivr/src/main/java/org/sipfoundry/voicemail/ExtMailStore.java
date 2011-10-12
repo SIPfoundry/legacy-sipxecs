@@ -503,7 +503,7 @@ public class ExtMailStore {
                     if (ConType.startsWith("audio/x-wav")) {
                         OutputStream OutStream = new FileOutputStream(BodyFile);
 
-                        InputStream InStream = part.getInputStream();
+                        InputStream InStream = part.getInputStream(); // never closed?!?!
                         while ((len = InStream.read(buf)) > 0) {
                             OutStream.write(buf, 0, len);
                         }

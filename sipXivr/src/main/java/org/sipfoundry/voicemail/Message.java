@@ -15,6 +15,7 @@ import java.util.Vector;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
@@ -164,8 +165,9 @@ public class Message {
         // Calculate the duration (in seconds) from the Wav file
         File wavFile = getWavFile();
         if (wavFile != null) {
+            AudioInputStream ais = null;
             try {
-                AudioInputStream ais = AudioSystem.getAudioInputStream(wavFile);
+                ais = AudioSystem.getAudioInputStream(wavFile);
                 float secs =  ais.getFrameLength() / ais.getFormat().getFrameRate();
                 m_duration = Math.round(secs); // Round up.
             } catch (EOFException e) {
@@ -174,6 +176,8 @@ public class Message {
                 String trouble = "Message::getDuration Problem determining duration of "+getWavFile().getPath();
                 LOG.error(trouble, e);
                 throw new RuntimeException(trouble, e);            
+            } finally {
+                IOUtils.closeQuietly(ais);
             }
         }
         return m_duration;
