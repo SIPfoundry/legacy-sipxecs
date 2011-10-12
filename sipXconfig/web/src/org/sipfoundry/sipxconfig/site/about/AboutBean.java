@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.site.about;
 
+import java.io.InputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.tapestry.IPage;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
