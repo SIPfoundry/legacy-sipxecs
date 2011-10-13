@@ -538,7 +538,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     @Override
     public List<Integer> loadUserIdsByPage(int first, int pageSize) {
         Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
-                .createSQLQuery("select user_id from users order by user_id limit :pageSize offset :first")
+                .createSQLQuery("select user_id from users where user_type='C' order"
+                    + " by user_id limit :pageSize offset :first")
                 .addScalar(USER_ID, Hibernate.INTEGER);
         q.setInteger(FIRST, first);
         q.setInteger(PAGE_SIZE, pageSize);
