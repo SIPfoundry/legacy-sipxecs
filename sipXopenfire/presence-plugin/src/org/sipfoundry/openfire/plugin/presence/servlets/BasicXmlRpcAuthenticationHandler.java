@@ -16,6 +16,14 @@ import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 public class BasicXmlRpcAuthenticationHandler implements AuthenticationHandler{
 
     private static Logger logger = Logger.getLogger(BasicXmlRpcAuthenticationHandler.class);
+    private String m_sharedSecret = null;
+    private String m_sipRealm = null;
+
+    public BasicXmlRpcAuthenticationHandler() {
+        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
+        m_sharedSecret = config.getSharedSecret();
+        m_sipRealm = config.getSipRealm();
+    }
 
     private String digestPassword(String user, String realm, String password) {
         String full = user + ':' + realm + ':' + password;
@@ -24,12 +32,11 @@ public class BasicXmlRpcAuthenticationHandler implements AuthenticationHandler{
     }
 
     private boolean isAuthenticated(String username, String password) {
-        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
         if(username == null ||password == null) {
             logger.warn("Could not authenticate since no username or password was provided");
             return false;
         }
-        if(password.equals(config.getSharedSecret())) {
+        if(password.equals(m_sharedSecret)) {
             return true;
         }
         try {
@@ -37,7 +44,7 @@ public class BasicXmlRpcAuthenticationHandler implements AuthenticationHandler{
             if (user == null) {
                 return false;
             } else {
-                String digestPassword = digestPassword(username, config.getSipRealm(), password);
+                String digestPassword = digestPassword(username, m_sipRealm, password);
                 return user.getPintoken().equals(digestPassword);
             }
         } catch (Exception ex) {
