@@ -8,8 +8,15 @@
  */
 package org.sipfoundry.sipxivr;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SecurityConstraint;
 import org.mortbay.http.SslListener;
@@ -22,18 +29,19 @@ import org.sipfoundry.commons.util.DomainConfiguration;
  * Run a Jetty based web server to handle http/https requests for sipXivr
  * 
  */
-public class WebServer  {
+public class WebServer {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     ServletHandler m_servletHandler;
     IvrConfiguration m_ivrConfig;
-    
+
     public WebServer(IvrConfiguration ivrConfig) {
-        m_ivrConfig = ivrConfig ;
+        m_ivrConfig = ivrConfig;
         m_servletHandler = new ServletHandler();
     }
-    
+
     /**
-     * add a servlet for the Web server to use 
+     * add a servlet for the Web server to use
+     * 
      * @param name
      * @param pathSpec
      * @param servletClass must be of type javax.servlet.Servlet
@@ -42,7 +50,7 @@ public class WebServer  {
         m_servletHandler.addServlet(name, pathSpec, servletClass);
         LOG.info(String.format("Adding Servlet %s on %s", name, pathSpec));
     }
-    
+
     /**
      * Start the Web Server that handles sipXivr Web requests
      */
@@ -65,24 +73,25 @@ public class WebServer  {
 
             httpContext.setRealm(createRealm());
 
-            SecurityHandler sh = new SecurityHandler();
+            CustomSecurityHandler sh = new CustomSecurityHandler();
+            sh.addTrustedSource("127.0.0.1");
             httpContext.addHandler(0, sh);
 
             httpContext.addHandler(1, m_servletHandler);
 
             server.addContext(httpContext);
             server.addListener(sslListener);
-            
+
             // Start it up.
             LOG.info(String.format("Starting Jetty server on *:%d", m_ivrConfig.getHttpsPort()));
             server.start();
         } catch (Exception e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
         }
     }
 
     private UserRealm createRealm() throws Exception {
-        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
+        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
         return new SipxIvrUserRealm(config.getSipRealm(), config.getSharedSecret());
     }
 
@@ -92,20 +101,16 @@ public class WebServer  {
         sslListener.setPort(httpsPort);
         sslListener.setProtocol("SSLv3");
         IvrConfiguration.get();
-        String keystore = System.getProperties().getProperty(
-                "javax.net.ssl.keyStore");
+        String keystore = System.getProperties().getProperty("javax.net.ssl.keyStore");
         LOG.info("keystore = " + keystore);
         sslListener.setKeystore(keystore);
-        String algorithm = System.getProperties().getProperty(
-                "jetty.x509.algorithm");
+        String algorithm = System.getProperties().getProperty("jetty.x509.algorithm");
         LOG.info("algorithm = " + algorithm);
-         sslListener.setAlgorithm(algorithm);
-         String password = System.getProperties().getProperty(
-                "jetty.ssl.password");
+        sslListener.setAlgorithm(algorithm);
+        String password = System.getProperties().getProperty("jetty.ssl.password");
         LOG.info("password = " + password);
         sslListener.setPassword(password);
-        String keypassword = System.getProperties().getProperty(
-                "jetty.ssl.keypassword");
+        String keypassword = System.getProperties().getProperty("jetty.ssl.keypassword");
         LOG.info("keypassword = " + keypassword);
         sslListener.setKeyPassword(keypassword);
         sslListener.setMaxThreads(32);
@@ -114,6 +119,21 @@ public class WebServer  {
         sslListener.setMaxIdleTimeMs(60000);
 
         return sslListener;
+    }
+
+    private class CustomSecurityHandler extends SecurityHandler {
+        private List<String> _hosts = new ArrayList<String>();
+
+        public void addTrustedSource(String ipSource) {
+            _hosts.add(ipSource);
+        }
+
+        public void handle(String pathInContext, String pathParams, HttpRequest request, HttpResponse response)
+                throws HttpException, IOException {
+            if (!_hosts.contains(request.getRemoteAddr())) {
+                getHttpContext().checkSecurityConstraints(pathInContext, request, response);
+            }
+        }
     }
 
 }
