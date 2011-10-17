@@ -304,6 +304,14 @@
                  email="default"
                  />
       </alarm>
+      <alarm id="VM_LOGIN_FAILED">
+         <code>SPX00046</code>
+         <severity>warning</severity>
+         <component>sipXivr</component>
+         <action log="true"
+                 email="default"
+                 />
+       </alarm>
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.
           Notes:
