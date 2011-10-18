@@ -26,9 +26,8 @@ public interface JobContext {
 
     void failure(Serializable jobId, String errorMsg, Throwable exception);
 
-    int removeCompleted();
-
     void clear();
+    void clearFailed();
 
     List<Job> getJobs();
     List<Job> getFailedJobs();

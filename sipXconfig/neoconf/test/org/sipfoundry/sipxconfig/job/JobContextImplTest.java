@@ -52,29 +52,6 @@ public class JobContextImplTest extends TestCase {
         assertEquals(0, job.getErrorMsg().length());
     }
 
-    public void testRemoveCompleted() {
-        Serializable[] jobIds = new Serializable[4];
-        for (int i = 0; i < jobIds.length; i++) {
-            jobIds[i] = m_context.schedule("test" + i);
-            m_context.start(jobIds[i]);
-        }
-
-        m_context.success(jobIds[2]);
-        m_context.failure(jobIds[3], null, null);
-
-        int removed = m_context.removeCompleted();
-
-        assertEquals(1, removed);
-
-        List<Job> jobs = m_context.getJobs();
-        assertEquals(3, jobs.size());
-
-        for (Job job : jobs) {
-            assertTrue(job.getName().startsWith("test"));
-            assertFalse(job.getName().endsWith("2"));
-        }
-    }
-
     public void testClear() {
         Serializable[] jobIds = new Serializable[4];
         for (int i = 0; i < jobIds.length; i++) {
@@ -94,7 +71,10 @@ public class JobContextImplTest extends TestCase {
 
         assertEquals(4, jobs.size());
         jobs = m_context.getJobs();
-        // but the list should be empty next time we retrieve it
+
+        assertEquals(1, jobs.size());
+        m_context.clearFailed();
+        jobs = m_context.getJobs();
         assertEquals(0, jobs.size());
     }
 
@@ -139,7 +119,6 @@ public class JobContextImplTest extends TestCase {
         context.failure(first, null, null);
         assertFalse(context.isFailure());
     }
-
 
     public void testAgeFailure() {
         final int max = 2;

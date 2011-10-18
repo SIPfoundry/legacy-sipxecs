@@ -95,20 +95,14 @@ public class JobContextImpl implements JobContext {
             job.warning(warningMsg);
         }
     }
-    public synchronized int removeCompleted() {
-        int counter = 0;
-        for (Iterator<Job> i = m_jobs.iterator(); i.hasNext();) {
-            Job job = i.next();
-            if (job.getStatus().equals(JobStatus.COMPLETED)) {
-                i.remove();
-                counter++;
-            }
-        }
-        return counter;
-    }
 
     public synchronized void clear() {
-        m_jobs.clear();
+        m_jobs.removeAll(getNotFailedJobs());
+        m_failure = false;
+    }
+
+    public synchronized void clearFailed() {
+        m_jobs.removeAll(getFailedJobs());
         m_failure = false;
     }
 

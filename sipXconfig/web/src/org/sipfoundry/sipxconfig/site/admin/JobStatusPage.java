@@ -9,11 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeException;
+import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeString;
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.createDateColumn;
+
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.services.ExpressionEvaluator;
@@ -21,33 +27,44 @@ import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.job.Job;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
-import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeException;
-import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeString;
-import static org.sipfoundry.sipxconfig.components.TapestryUtils.createDateColumn;
-
 /**
  * Displays current staus of background jobs
  */
 public abstract class JobStatusPage extends SipxBasePage {
     public static final Object PAGE = "admin/JobStatusPage";
 
+    @Persist
+    @InitialValue(value = "literal:failedJobs")
+    public abstract String getTab();
+
     @InjectObject(value = "spring:jobContext")
     public abstract JobContext getJobContext();
-
-    @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
-    public abstract ExpressionEvaluator getExpressionEvaluator();
 
     @Bean
     public abstract EvenOdd getRowClass();
 
+    @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
+    public abstract ExpressionEvaluator getExpressionEvaluator();
+
     public abstract List<Job> getNotFailedJobsProperty();
-    public abstract List<Job> getFailedJobsProperty();
 
     public abstract void setNotFailedJobsProperty(List<Job> jobs);
-    public abstract void setFailedJobsProperty(List<Job> jobs);
 
     public abstract Job getNotFailedJob();
+
+    public abstract List<Job> getFailedJobsProperty();
+
+    public abstract void setFailedJobsProperty(List<Job> jobs);
+
     public abstract Job getFailedJob();
+
+    public ITableColumn getStartColumn() {
+        return createDateColumn("start", getMessages(), getExpressionEvaluator(), getPage().getLocale());
+    }
+
+    public ITableColumn getStopColumn() {
+        return createDateColumn("stop", getMessages(), getExpressionEvaluator(), getPage().getLocale());
+    }
 
     public List<Job> getNotFailedJobs() {
         List<Job> jobs = getNotFailedJobsProperty();
@@ -67,23 +84,12 @@ public abstract class JobStatusPage extends SipxBasePage {
         return jobs;
     }
 
-    public void remove() {
-        getJobContext().removeCompleted();
-        setNotFailedJobsProperty(null);
-    }
-
-    public void clear() {
-        getJobContext().clear();
-        setNotFailedJobsProperty(null);
-        setFailedJobsProperty(null);
-    }
-
-    public ITableColumn getStartColumn() {
-        return createDateColumn("start", getMessages(), getExpressionEvaluator(), getPage().getLocale());
-    }
-
-    public ITableColumn getStopColumn() {
-        return createDateColumn("stop", getMessages(), getExpressionEvaluator(), getPage().getLocale());
+    public String getLocationFqdn() {
+        Job job = getNotFailedJob();
+        if (job.getLocation() != null) {
+            return job.getLocation().getFqdn();
+        }
+        return "";
     }
 
     public String getFailedJobErrorMsg() {
@@ -104,5 +110,15 @@ public abstract class JobStatusPage extends SipxBasePage {
         }
 
         return error.toString();
+    }
+
+    public void clear() {
+        getJobContext().clear();
+        setNotFailedJobsProperty(null);
+    }
+
+    public void clearFailed() {
+        getJobContext().clearFailed();
+        setFailedJobsProperty(null);
     }
 }
