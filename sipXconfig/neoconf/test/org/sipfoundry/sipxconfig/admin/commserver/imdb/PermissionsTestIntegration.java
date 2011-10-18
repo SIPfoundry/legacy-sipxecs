@@ -18,7 +18,6 @@ import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelpe
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
@@ -42,13 +41,6 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         m_testUser = new User();
         m_testUser.setPermissionManager(getPermissionManager());
         m_testUser.setDomainManager(getDomainManager());
-        TlsPeer peer = new TlsPeer();
-        InternalUser user = new InternalUser();
-        user.setSipPassword("123");
-        user.setPintoken("11");
-        peer.setInternalUser(user);
-        AuthCode code = new AuthCode();
-        code.setInternalUser(user);
     }
 
     public void testGenerateEmpty() throws Exception {
@@ -116,7 +108,38 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         assertObjectPresent(getEntityCollection(), qb.get());
     }
 
+    public void testAuthCodePermissions() {
+        InternalUser user = new InternalUser();
+        user.setSipPassword("123");
+        user.setPintoken("11");
+        user.setPermissionManager(getPermissionManager());
+        user.setPermission(PermissionName.NINEHUNDERED_DIALING, true);
+        user.setPermission(PermissionName.INTERNATIONAL_DIALING, false);
+        user.setPermission(PermissionName.LOCAL_DIALING, false);
+        user.setPermission(PermissionName.LONG_DISTANCE_DIALING, false);
+        user.setPermission(PermissionName.MOBILE, false);
+        user.setPermission(PermissionName.TOLL_FREE_DIALING, false);
+        
+        AuthCode code = new AuthCode();
+        code.setInternalUser(user);
+        m_permissionDataSet.generate(code, m_permissionDataSet.findOrCreate(code));
+        assertObjectWithIdPresent(getEntityCollection(), "AuthCode-1");
+        QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
+        qb.is("AuthCode-1").and(MongoConstants.PERMISSIONS).size(1).and(MongoConstants.PERMISSIONS)
+                .is(PermissionName.NINEHUNDERED_DIALING.getName());
+        assertObjectPresent(getEntityCollection(), qb.get());
+        
+        user.setPermission(PermissionName.NINEHUNDERED_DIALING, false);
+        user.setPermission(PermissionName.INTERNATIONAL_DIALING, true);
+        code.setInternalUser(user);
+        m_permissionDataSet.generate(code, m_permissionDataSet.findOrCreate(code));
+        qb.is("AuthCode-1").and(MongoConstants.PERMISSIONS).size(1).and(MongoConstants.PERMISSIONS)
+        .is(PermissionName.INTERNATIONAL_DIALING.getName());
+        assertObjectPresent(getEntityCollection(), qb.get());
+    }
+    
     public void setPermissionDataSet(Permissions permissionDataSet) {
         m_permissionDataSet = permissionDataSet;
     }
+
 }

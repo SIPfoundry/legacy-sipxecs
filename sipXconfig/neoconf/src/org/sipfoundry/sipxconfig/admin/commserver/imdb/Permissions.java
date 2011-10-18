@@ -18,14 +18,34 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
 
 public class Permissions extends DataSetGenerator {
 
+    private PermissionManager m_permissionManager;
+
     private User addSpecialUser(String userId) {
         User user = getCoreContext().newUser();
+        setSpecialUserPermissions(user);
+        user.setUserName(userId);
+        return user;
+    }
+
+    private User addSpecialUser(InternalUser internalUser) {
+        User user = getCoreContext().newUser();
+        user.setUserName(internalUser.getUserName());
+        for (Permission p : m_permissionManager.getPermissions()) {
+            user.setPermission(p, internalUser.hasPermission(p));
+        }
+        setSpecialUserPermissions(user);
+        return user;
+    }
+
+    private void setSpecialUserPermissions(User user) {
         user.setPermission(PermissionName.VOICEMAIL, false);
         user.setPermission(PermissionName.FREESWITH_VOICEMAIL, false);
         user.setPermission(PermissionName.EXCHANGE_VOICEMAIL, false);
@@ -33,8 +53,6 @@ public class Permissions extends DataSetGenerator {
         user.setPermission(PermissionName.MUSIC_ON_HOLD, false);
         user.setPermission(PermissionName.PERSONAL_AUTO_ATTENDANT, false);
         user.setPermission(PermissionName.SUBSCRIBE_TO_PRESENCE, false);
-        user.setUserName(userId);
-        return user;
     }
 
     @Override
@@ -67,7 +85,7 @@ public class Permissions extends DataSetGenerator {
             insertDbObject(u, top);
         } else if (entity instanceof BeanWithUserPermissions) {
             InternalUser user = ((BeanWithUserPermissions) entity).getInternalUser();
-            User u = addSpecialUser(user.getUserName());
+            User u = addSpecialUser(user);
             u.setUserName(entity.getClass().getSimpleName() + ((BeanWithUserPermissions) entity).getId());
             u.setValidUser(false);
             insertDbObject(u, top);
@@ -79,4 +97,7 @@ public class Permissions extends DataSetGenerator {
         getDbCollection().save(top);
     }
 
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
+    }
 }

@@ -171,6 +171,7 @@
   </bean>
   <bean id="permissionDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions">
+    <property name="permissionManager" ref="permissionManager" />
   </bean>
   <bean id="calleraliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
