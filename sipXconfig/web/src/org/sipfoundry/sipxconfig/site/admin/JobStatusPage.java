@@ -121,4 +121,10 @@ public abstract class JobStatusPage extends SipxBasePage {
         getJobContext().clearFailed();
         setFailedJobsProperty(null);
     }
+
+    public void remove() {
+        getJobContext().removeCompleted();
+        setNotFailedJobsProperty(null);
+    }
+
 }

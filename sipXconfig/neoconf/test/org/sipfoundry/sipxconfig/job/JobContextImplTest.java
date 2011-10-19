@@ -52,6 +52,27 @@ public class JobContextImplTest extends TestCase {
         assertEquals(0, job.getErrorMsg().length());
     }
 
+    public void testRemoveCompleted() {
+        Serializable[] jobIds = new Serializable[4];
+        for (int i = 0; i < jobIds.length; i++) {
+            jobIds[i] = m_context.schedule("test" + i);
+            m_context.start(jobIds[i]);
+        }
+
+        m_context.success(jobIds[2]);
+        m_context.failure(jobIds[3], null, null);
+
+        m_context.removeCompleted();
+
+        List<Job> jobs = m_context.getJobs();
+        assertEquals(3, jobs.size());
+
+        for (Job job : jobs) {
+            assertTrue(job.getName().startsWith("test"));
+            assertFalse(job.getName().endsWith("2"));
+        }
+    }
+
     public void testClear() {
         Serializable[] jobIds = new Serializable[4];
         for (int i = 0; i < jobIds.length; i++) {

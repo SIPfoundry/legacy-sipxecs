@@ -37,4 +37,5 @@ public interface JobContext {
      * Returns true if there is a least one failed job on the list.
      */
     boolean isFailure();
+    void removeCompleted();
 }
