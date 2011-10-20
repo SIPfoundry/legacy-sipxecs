@@ -20,6 +20,7 @@
 
     <extend-property name="locale" values="it"/>
     <extend-property name="locale" values="en"/>
+    <extend-property name="locale" values="de"/>
     <stylesheet src="gwtuserportal.css"/>
 	<entry-point
 		class="org.sipfoundry.sipxconfig.userportal.client.UserPhonebookSearch" />
