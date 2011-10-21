@@ -45,5 +45,5 @@ karel = \
 
 # Repositories
 $(foreach R,$(lang),$(eval $(R)_REPO = git@github.com:dhubler/$(R).git))
-$(foreach R,$(telecats),$(eval $(R)_REPO = git@github.com:niekvlessert/$(R).git))
+$(foreach R,$(telecats),$(eval $(R)_REPO = git@github.com:Telecats/$(R).git))
 $(foreach R,$(karel),$(eval $(R)_REPO = git@github.com:sayarsoft/$(R).git))
