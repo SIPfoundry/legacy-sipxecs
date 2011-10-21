@@ -7,8 +7,6 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,11 +19,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -44,10 +39,6 @@ public class FirstRunTask implements ApplicationListener {
     private SipxServiceManager m_sipxServiceManager;
     private ServiceConfigurator m_serviceConfigurator;
     private String m_taskName;
-    private GatewayContext m_gatewayContext;
-    private PhoneContext m_phoneContext;
-    private ProfileManager m_gatewayProfileManager;
-    private ProfileManager m_phoneProfileManager;
     private LocationsManager m_locationsManager;
     private PagingContext m_pagingContext;
     private SbcManager m_sbcManager;
@@ -72,7 +63,6 @@ public class FirstRunTask implements ApplicationListener {
         m_serviceConfigurator.replicateServiceConfig(service);
 
         enforceRoles();
-        generateAllProfiles();
     }
 
     /**
@@ -90,19 +80,6 @@ public class FirstRunTask implements ApplicationListener {
             m_locationsManager.saveLocation(location);
             m_serviceConfigurator.enforceRole(location);
         }
-    }
-
-    /**
-     * Regenerate all profiles: important if profile format changed after upgrade.
-     */
-    private void generateAllProfiles() {
-        LOG.info("Updating gateway profiles.");
-        Collection gatewayIds = m_gatewayContext.getAllGatewayIds();
-        m_gatewayProfileManager.generateProfiles(gatewayIds, true, null);
-
-        LOG.info("Updating phones profiles.");
-        Collection phoneIds = m_phoneContext.getAllPhoneIds();
-        m_phoneProfileManager.generateProfiles(phoneIds, true, null);
     }
 
     @Override
@@ -162,26 +139,6 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    @Required
-    public void setPhoneContext(PhoneContext phoneContext) {
-        m_phoneContext = phoneContext;
-    }
-
-    @Required
-    public void setGatewayContext(GatewayContext gatewayContext) {
-        m_gatewayContext = gatewayContext;
-    }
-
-    @Required
-    public void setGatewayProfileManager(ProfileManager gatewayProfileManager) {
-        m_gatewayProfileManager = gatewayProfileManager;
-    }
-
-    @Required
-    public void setPhoneProfileManager(ProfileManager phoneProfileManager) {
-        m_phoneProfileManager = phoneProfileManager;
     }
 
     @Required
