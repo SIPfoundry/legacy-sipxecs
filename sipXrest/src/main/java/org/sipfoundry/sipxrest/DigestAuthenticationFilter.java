@@ -65,9 +65,6 @@ public class DigestAuthenticationFilter extends Filter {
 
             for (Hop hop : hops) {
                 if (InetAddress.getByName(hop.getHost()).getHostAddress().equals(remoteAddr)) {
-                    if (httpPort != RestServer.getRestServerConfig().getHttpPort()) {
-                        return Filter.STOP;
-                    }
                     if (!request.getProtocol().equals(Protocol.HTTPS)) {
                         logger.debug("Request from Proxy must be over HTTPS ");
                         return Filter.STOP;
