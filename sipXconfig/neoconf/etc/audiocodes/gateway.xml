@@ -797,7 +797,7 @@
         <type>
           <boolean/>
         </type>
-        <value>1</value>
+        <value>0</value>
       </setting>
       <setting name="BrokenConnectionEventTimeout">
         <type>
