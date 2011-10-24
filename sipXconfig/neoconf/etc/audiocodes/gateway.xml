@@ -525,6 +525,22 @@
       </type>
       <value>1</value>
     </setting>
+    <setting name="ProxyDNSQueryType" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
     <setting name="UseGatewayNameForOptions" advanced="yes">
       <type>
         <boolean/>
