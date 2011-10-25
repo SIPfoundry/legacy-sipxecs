@@ -31,11 +31,13 @@ import org.sipfoundry.sipxconfig.job.JobContext;
  * Displays current staus of background jobs
  */
 public abstract class JobStatusPage extends SipxBasePage {
-    public static final Object PAGE = "admin/JobStatusPage";
+    public static final String PAGE = "admin/JobStatusPage";
 
     @Persist
     @InitialValue(value = "literal:failedJobs")
     public abstract String getTab();
+
+    public abstract void setTab(String tab);
 
     @InjectObject(value = "spring:jobContext")
     public abstract JobContext getJobContext();
