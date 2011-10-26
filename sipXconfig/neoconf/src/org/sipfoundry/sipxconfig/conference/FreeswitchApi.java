@@ -16,4 +16,5 @@ public interface FreeswitchApi {
     void reloadxml();
     String conference(String command);
     String g729_status();
+    String g729_available();
 }

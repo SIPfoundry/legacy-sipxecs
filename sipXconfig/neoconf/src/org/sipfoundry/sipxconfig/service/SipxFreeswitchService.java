@@ -120,6 +120,11 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity,
                     if (StringUtils.contains(result, G729_STATUS)) {
                         return true;
                     }
+                    // try also new FS detection algorithm
+                    result = api.g729_available();
+                    if (StringUtils.contains(result, "true")) {
+                        return true;
+                    }
                 } catch (XmlRpcRemoteException xrre) {
                     LOG.error(xrre);
                     return false;
