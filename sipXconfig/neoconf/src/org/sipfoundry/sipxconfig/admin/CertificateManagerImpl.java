@@ -263,8 +263,6 @@ public class CertificateManagerImpl implements CertificateManager {
 
     public boolean validateCertificateAuthority(File file) {
         try {
-            //validate the file if it can be a certificate
-            runCommand(getValidateCertFileCommand(file, false));
             //validate the file if it can be an authority certificate
             runCommand(getValidateCertFileCommand(file, true));
             return true;
