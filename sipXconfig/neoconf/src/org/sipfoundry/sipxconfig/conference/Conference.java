@@ -54,6 +54,9 @@ public class Conference extends BeanWithSettings implements Replicable {
     public static final String MAX_LEGS = "fs-conf-conference/MAX_LEGS";
     public static final String MOH = "fs-conf-conference/MOH";
     public static final String MOH_SOUNDCARD_SOURCE = "SOUNDCARD_SRC";
+    public static final String MODERATOR_CODE = "fs-conf-conference/moderator-code";
+    public static final String TERMINATE_ON_MODERATOR_EXIT = "fs-conf-conference/terminate-on-moderator-exit";
+    public static final String QUICKSTART = "fs-conf-conference/quickstart";
 
     private static final String ALIAS_RELATION = "conference";
     private boolean m_enabled;
@@ -163,6 +166,14 @@ public class Conference extends BeanWithSettings implements Replicable {
         return getSettingValue(PARTICIPANT_CODE);
     }
 
+    public String getModeratorAccessCode() {
+        return getSettingValue(MODERATOR_CODE);
+    }
+
+    public boolean isQuickstart() {
+        return (Boolean) getSettingTypedValue(QUICKSTART);
+    }
+
     public boolean isMohPortAudioEnabled() {
         return getSettingValue(MOH).equals(MOH_SOUNDCARD_SOURCE);
     }
@@ -179,6 +190,19 @@ public class Conference extends BeanWithSettings implements Replicable {
         return getSettings().getSetting("fs-conf-conference");
     }
 
+    /**
+     * builds the dial string from java rather than vm
+     */
+    public String getDialString() {
+        StringBuilder dialString = new StringBuilder(getName());
+        dialString.append("@");
+        dialString.append(getExtension());
+        if (StringUtils.isNotBlank(getParticipantAccessCode())) {
+            dialString.append("+").append(getParticipantAccessCode());
+        }
+        return dialString.toString();
+    }
+
     @Override
     public void setSettingValue(String path, String value) {
         if (AOR_RECORD.equals(path)) {
@@ -189,9 +213,9 @@ public class Conference extends BeanWithSettings implements Replicable {
 
     public static class ConferenceAorDefaults {
         private final Conference m_conference;
-        private String m_participantCode;
         private String m_organizerCode;
         private String m_remoteSecretAgent;
+        private String m_participantCode;
 
         ConferenceAorDefaults(Conference conference) {
             m_conference = conference;

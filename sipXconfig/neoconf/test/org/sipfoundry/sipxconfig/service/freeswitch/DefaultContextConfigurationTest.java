@@ -40,11 +40,11 @@ public class DefaultContextConfigurationTest extends SipxServiceTestBase {
 
     private static String[][] DATA = {
         {
-            "disable", "101", "0000", "000", "000", ""
+            "disable", "101", "0000", "000", "000", "", ""
         }, {
-            "sales", "400", "400111", "400222", "400AAA", "sip:sales@bridge.sipfoundry.org"
+            "sales", "400", "400111", "400222", "400AAA", "sip:sales@bridge.sipfoundry.org", "sales@400+400222"
         }, {
-            "marketing", "500", "500111", "500222", "500AAA", "sip:marketing@bridge.sipfoundry.org"
+            "marketing", "500", "500111", "500222", "500AAA", "sip:marketing@bridge.sipfoundry.org", "marketing@500+500222"
         }
     };
 
@@ -97,6 +97,7 @@ public class DefaultContextConfigurationTest extends SipxServiceTestBase {
             expect(conference.getParticipantAccessCode()).andReturn(DATA[i][3]).anyTimes();
             expect(conference.getRemoteAdmitSecret()).andReturn(DATA[i][4]).anyTimes();
             expect(conference.getUri()).andReturn(DATA[i][5]).anyTimes();
+            expect(conference.getDialString()).andReturn(DATA[i][6]).once();
 
             // the first one is disabled
             expect(conference.isEnabled()).andReturn(i > 0);

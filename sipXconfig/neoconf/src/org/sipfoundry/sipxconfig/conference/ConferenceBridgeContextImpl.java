@@ -30,7 +30,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -66,7 +65,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private ConferenceBridgeProvisioning m_provisioning;
-    private CoreContext m_coreContext;
     private DomainManager m_domainManager;
     private SipxServiceBundle m_conferenceBundle;
     private DaoEventPublisher m_daoEventPublisher;
@@ -108,6 +106,13 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             throw new UserException("A conference must have an extension");
         }
 
+        if (conference.getModeratorAccessCode() != null && conference.getParticipantAccessCode() == null) {
+            throw new UserException("&error.moderator.and.participant.pin");
+        }
+
+        if (conference.getModeratorAccessCode() == null && !conference.isQuickstart()) {
+            throw new UserException("&error.non.qs.no.mod");
+        }
         if (!m_aliasManager.canObjectUseAlias(conference, name)) {
             throw new NameInUseException(CONFERENCE, name);
         }
@@ -195,10 +200,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public void setProvisioning(ConferenceBridgeProvisioning provisioning) {
         m_provisioning = provisioning;
-    }
-
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
     }
 
     public void setDomainManager(DomainManager domainManager) {

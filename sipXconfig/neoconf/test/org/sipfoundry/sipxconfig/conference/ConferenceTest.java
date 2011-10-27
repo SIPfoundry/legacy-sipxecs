@@ -43,8 +43,8 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
 
     public void testGenerateAccessCodes() {
         m_conf.generateAccessCodes();
-        assertTrue(m_conf.getSettingValue(Conference.PARTICIPANT_CODE)
-                .toString().length() > 0);
+        assertNotNull(m_conf.getSettingValue(Conference.PARTICIPANT_CODE));
+        assertNull(m_conf.getSettingValue(Conference.MODERATOR_CODE));        
     }
 
     public void testGetUri() {
