@@ -15,10 +15,8 @@ import java.util.Collection;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
-import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
 public class MoveVoicemailAction extends BulkGroupAction {
     private String m_folderId;
@@ -37,8 +35,7 @@ public class MoveVoicemailAction extends BulkGroupAction {
     public void actionTriggered(IComponent arg0, IRequestCycle arg1) {
         for (Serializable id : (Collection<Serializable>) getIds()) {
             Voicemail vm = m_source.getVoicemail(id);
-            Mailbox mbox = m_mgr.getMailbox(vm.getUserId());
-            m_mgr.move(mbox, vm, m_folderId);
+            m_mgr.move(vm.getUserId(), vm, m_folderId);
         }
     }
 

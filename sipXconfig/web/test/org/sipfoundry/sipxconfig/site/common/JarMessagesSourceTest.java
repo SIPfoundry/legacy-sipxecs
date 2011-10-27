@@ -91,5 +91,8 @@ public class JarMessagesSourceTest extends TestCase {
 
         // test for locales that have a label defined in their message source
         assertEqualsNoCase("french (canada)", m_out.resolveLocaleName("fr-CA"));
+
+        // test for locales that have two labels  defined in their message source
+        assertEqualsNoCase("abitibi (france,ca)", m_out.resolveLocaleName("abitibi-fr-ca"));
     }
 }

@@ -32,9 +32,10 @@ import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
+import org.sipfoundry.sipxconfig.vm.LocalMailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.Voicemail;
+import org.sipfoundry.sipxconfig.vm.MessageDescriptor;
+import org.sipfoundry.sipxconfig.vm.LocalVoicemail;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -64,13 +65,13 @@ public class VoicemailResourceTest extends TestCase {
         Authentication token = new TestAuthenticationToken(user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        Mailbox mailbox = new Mailbox(null, "joeuser");
+        LocalMailbox mailbox = new LocalMailbox(null, "joeuser");
 
-        List<Voicemail> vmails = new ArrayList<Voicemail>();
+        List<LocalVoicemail> vmails = new ArrayList<LocalVoicemail>();
         File vmailDir = new File("/voicemail/store");
         for (int i = 0; i < 5; i++) {
             final int id = i;
-            Voicemail vmail = new Voicemail(vmailDir, "joeuse", "inbox", "0000000" + i) {
+            LocalVoicemail vmail = new LocalVoicemail(vmailDir, "joeuse", "inbox", "0000000" + i) {
                 @Override
                 protected MessageDescriptor readMessageDescriptor(File file) {
                     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -100,9 +101,7 @@ public class VoicemailResourceTest extends TestCase {
         expectLastCall().andReturn(user);
 
         MailboxManager mailboxManager = createMock(MailboxManager.class);
-        mailboxManager.getMailbox(user.getUserName());
-        expectLastCall().andReturn(mailbox);
-        mailboxManager.getVoicemail(mailbox, "inbox");
+        mailboxManager.getVoicemail(user.getUserName(), "inbox");
         expectLastCall().andReturn(vmails);
 
         PrivateUserKeyManager pukm = createMock(PrivateUserKeyManager.class);

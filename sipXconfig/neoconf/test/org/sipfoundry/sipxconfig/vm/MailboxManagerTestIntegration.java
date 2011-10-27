@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public class MailboxManagerTestIntegration extends IntegrationTestCase {
-    private MailboxManager m_mailboxManager;
+    private LocalMailboxManagerImpl m_mailboxManager;
 
     private CoreContext m_coreContext;
 
@@ -70,7 +70,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
 
         File mailstore = MailboxManagerTest.createTestMailStore();
         m_mailboxManager.setMailstoreDirectory(mailstore.getAbsolutePath());
-        Mailbox mbox = m_mailboxManager.getMailbox("200");
+        LocalMailbox mbox = ((LocalMailboxManagerImpl) m_mailboxManager).getMailbox("200");
         assertTrue(mbox.getUserDirectory().exists());
 
         PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(newUser);
@@ -82,10 +82,10 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         m_coreContext.deleteUser(newUser);
 
         flush();
-        assertFalse(mbox.getUserDirectory().exists());
+        assertFalse(((LocalMailbox) mbox).getUserDirectory().exists());
     }
 
-    public void setMailboxManager(MailboxManager mailboxManager) {
+    public void setMailboxManagerImpl(LocalMailboxManagerImpl mailboxManager) {
         m_mailboxManager = mailboxManager;
     }
 

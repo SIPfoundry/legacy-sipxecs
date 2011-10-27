@@ -28,14 +28,14 @@ import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 
 public class MailboxManagerTest extends TestCase {
-    private MailboxManagerImpl m_mgr;
+    private LocalMailboxManagerImpl m_mgr;
     private User user = new User();
     private static final String FILE_SEPARATOR = "file.separator";
     public static final File READONLY_MAILSTORE = new File(TestHelper.getSourceDirectory(MailboxManagerTest.class));
 
     @Override
     protected void setUp() {
-        m_mgr = new MailboxManagerImpl();
+        m_mgr = new LocalMailboxManagerImpl();
 
         String thisDir = TestHelper.getSourceDirectory(getClass());
         m_mgr.setMailstoreDirectory(thisDir);
@@ -93,18 +93,18 @@ public class MailboxManagerTest extends TestCase {
 
     public void testDeleteMailbox() throws IOException {
         File mailstore = MailboxManagerTest.createTestMailStore();
-        MailboxManagerImpl mgr = new MailboxManagerImpl();
+        LocalMailboxManagerImpl mgr = new LocalMailboxManagerImpl();
         mgr.setMailstoreDirectory(mailstore.getAbsolutePath());
 
-        Mailbox mbox = mgr.getMailbox("200");
+        LocalMailbox mbox = (LocalMailbox) mgr.getMailbox("200");
         assertTrue(mbox.getUserDirectory().exists());
         mgr.deleteMailbox("200");
         assertFalse(mbox.getUserDirectory().exists());
         mgr.deleteMailbox("200");
         assertFalse(mbox.getUserDirectory().exists());
 
-        Mailbox mbox1 = mgr.getMailbox("201");
-        Mailbox mbox2 = mgr.getMailbox("202");
+        LocalMailbox mbox1 = (LocalMailbox) mgr.getMailbox("201");
+        LocalMailbox mbox2 = (LocalMailbox) mgr.getMailbox("202");
         assertTrue(mbox1.getUserDirectory().exists());
         mgr.renameMailbox("201", "202");
         assertFalse(mbox1.getUserDirectory().exists());
@@ -112,7 +112,7 @@ public class MailboxManagerTest extends TestCase {
         mgr.deleteMailbox("202");
         assertFalse(mbox2.getUserDirectory().exists());
 
-        Mailbox nombox = mgr.getMailbox("non-existing-user");
+        LocalMailbox nombox = (LocalMailbox) mgr.getMailbox("non-existing-user");
         assertFalse(nombox.getUserDirectory().exists());
         mgr.deleteMailbox("non-existing-user");
         assertFalse(nombox.getUserDirectory().exists());
@@ -122,10 +122,9 @@ public class MailboxManagerTest extends TestCase {
     }
 
     public void testGetVoicemailWhenInvalid() {
-        MailboxManagerImpl mgr = new MailboxManagerImpl();
-        Mailbox mbox = mgr.getMailbox("200");
+        LocalMailboxManagerImpl mgr = new LocalMailboxManagerImpl();
         try {
-            mgr.getVoicemail(mbox, "inbox").size();
+            mgr.getVoicemail("200", "inbox").size();
             fail();
         } catch (UserException expected) {
             assertTrue(true);
@@ -133,7 +132,7 @@ public class MailboxManagerTest extends TestCase {
 
         try {
             mgr.setMailstoreDirectory("bogus");
-            mgr.getVoicemail(mbox, "inbox").size();
+            mgr.getVoicemail("200", "inbox").size();
             fail();
         } catch (UserException expected) {
             assertTrue(true);
@@ -141,29 +140,28 @@ public class MailboxManagerTest extends TestCase {
     }
 
     public void testGetVoicemailWhenEmpty() {
-        assertEquals(0, m_mgr.getVoicemail(m_mgr.getMailbox("200"), "inbox-bogus").size());
-        assertEquals(0, m_mgr.getVoicemail(m_mgr.getMailbox("200-bogus"), "inbox").size());
+        assertEquals(0, m_mgr.getVoicemail("200", "inbox-bogus").size());
+        assertEquals(0, m_mgr.getVoicemail("200-bogus", "inbox").size());
     }
 
     public void testGetInboxVoicemail() {
-        List<Voicemail> vm = m_mgr.getVoicemail(m_mgr.getMailbox("200"), "inbox");
+        List<Voicemail> vm = m_mgr.getVoicemail("200", "inbox");
         assertEquals(2, vm.size());
         assertEquals("00000001", vm.get(0).getMessageId());
-        assertTrue(vm.get(0).getMediaFile().exists());
     }
 
     public void testBasename() {
-        assertEquals("bird", MailboxManagerImpl.basename("bird-00.xml"));
-        assertEquals("bird", MailboxManagerImpl.basename("bird"));
+        assertEquals("bird", LocalMailboxManagerImpl.basename("bird-00.xml"));
+        assertEquals("bird", LocalMailboxManagerImpl.basename("bird"));
     }
 
     public void testGetFolders() {
-        List<String> folderIds = m_mgr.getMailbox("200").getFolderIds();
+        List<String> folderIds = m_mgr.getFolderIds();
         assertEquals(4, folderIds.size());
     }
 
     public void testGetDeletedVoicemail() {
-        List<Voicemail> deleted = m_mgr.getVoicemail(m_mgr.getMailbox("200"), "deleted");
+        List<Voicemail> deleted = m_mgr.getVoicemail("200", "deleted");
         assertEquals(1, deleted.size());
         assertEquals("00000002", deleted.get(0).getMessageId());
     }

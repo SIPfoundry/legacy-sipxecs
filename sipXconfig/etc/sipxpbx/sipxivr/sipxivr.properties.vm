@@ -16,7 +16,7 @@ ivr.realm=${service.realm}
 ivr.httpsPort=$ivr.getSetting('httpsPort').Value
 ivr.voiceMailExpiry=$ivr.getSetting('voiceMailExpiry').Value
 ivr.mwiUrl=https://${location.fqdn}:${statusService.httpsPort}/cgi/StatusEvent.cgi
-ivr.configUrl=https://${location.fqdn}:8443
+ivr.configUrl=https://${configService.fqdn}:8443
 ivr.3pccSecureUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}
 ivr.callHistoryUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}/cdr/
 ivr.sipxSupervisorHost=${location.fqdn}
@@ -30,3 +30,4 @@ ivr.sendIMUrl=http://$!{sipxServiceManager.getServiceParam('openfire-host')}:$!{
 #end
 ivr.nameDialPrefix=$ivr.getSetting('nameDialPrefix').Value
 ivr.defaultTui=$ivr.getSetting('defaultTui').Value
+ivr.configAddress=${configService.address}

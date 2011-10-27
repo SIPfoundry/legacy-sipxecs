@@ -17,7 +17,7 @@ import java.io.Writer;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.sipfoundry.sipxconfig.vm.MailboxManagerImpl.MailstoreMisconfigured;
+import org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl.MailstoreMisconfigured;
 
 /**
  * Helper class for reading/writing XML

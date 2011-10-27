@@ -20,30 +20,29 @@ public interface MailboxManager {
 
     boolean isSystemCpui();
 
-    List<Voicemail> getVoicemail(Mailbox mailbox, String folder);
+    List<Voicemail> getVoicemail(String userId, String folder);
 
-    String getMailstoreDirectory();
-
-    // for tests only
-    void setMailstoreDirectory(String directory);
+    Voicemail getVoicemail(String userId, String folder, String messageId);
 
     String getStdpromptDirectory();
-
-    Mailbox getMailbox(String userId);
 
     void deleteMailbox(String userId);
 
     void renameMailbox(String oldUserId, String newUserId);
 
-    void saveDistributionLists(Mailbox mailbox, DistributionList[] lists);
+    void saveDistributionLists(String userId, DistributionList[] lists);
 
-    DistributionList[] loadDistributionLists(Mailbox mailbox);
+    DistributionList[] loadDistributionLists(String userId);
 
-    void markRead(Mailbox mailbox, Voicemail voicemail);
+    void markRead(String userId, String messageId);
 
-    void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId);
+    void move(String userId, Voicemail voicemail, String destinationFolderId);
 
-    void delete(Mailbox mailbox, Voicemail voicemail);
+    void delete(String userId, Voicemail voicemail);
+
+    void save(Voicemail voicemail);
+
+    String getMediaFileURL(String userId, String folder, String messageId);
 
     PersonalAttendant loadPersonalAttendantForUser(User user);
 
@@ -51,9 +50,14 @@ public interface MailboxManager {
 
     void storePersonalAttendant(PersonalAttendant pa);
 
+    void storePersonalAttendant(PersonalAttendant pa, boolean writeFile);
+
     void clearPersonalAttendants();
 
     void updatePersonalAttendantForUser(User user, String operatorValue);
 
     void writePreferencesFile(User user);
+
+    List<String> getFolderIds();
+
 }

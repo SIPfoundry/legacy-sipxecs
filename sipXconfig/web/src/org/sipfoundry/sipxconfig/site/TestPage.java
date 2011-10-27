@@ -91,6 +91,7 @@ import org.sipfoundry.sipxconfig.site.upload.EditUpload;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
+import org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 /**
@@ -618,7 +619,7 @@ public abstract class TestPage extends SipxBasePage {
     }
 
     public void disableVoicemail() {
-        MailboxManager mgr = getMailboxManager();
+        LocalMailboxManagerImpl mgr = (LocalMailboxManagerImpl) getMailboxManager();
         File existing = new File(mgr.getMailstoreDirectory());
         try {
             FileUtils.deleteDirectory(existing);
@@ -628,7 +629,7 @@ public abstract class TestPage extends SipxBasePage {
     }
 
     public void resetVoicemail() {
-        MailboxManager mgr = getMailboxManager();
+        LocalMailboxManagerImpl mgr = (LocalMailboxManagerImpl) getMailboxManager();
         File existing = new File(mgr.getMailstoreDirectory());
         if (!existing.exists()) {
             existing.mkdir();

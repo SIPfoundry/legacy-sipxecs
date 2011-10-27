@@ -1578,6 +1578,5 @@ insert into initialization_task (name) values ('acd_server_migrate_acd_service')
 insert into initialization_task (name) values ('default-time-zone');
 insert into initialization_task (name) values ('migrate-conference-bridges');
 insert into initialization_task (name) values ('phonebook_file_entry_task');
-insert into initialization_task (name) values ('mailbox_prefs_migration');
 insert into initialization_task (name) values ('legacy_park_server_migration');
 insert into initialization_task (name) values ('phonebook_entries_update_task');

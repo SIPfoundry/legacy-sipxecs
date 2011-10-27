@@ -58,6 +58,8 @@ public class JarMessagesSource implements LanguageSupport {
             locale = new Locale(localeStrings[0]);
         } else if (localeStrings.length == 2) {
             locale = new Locale(localeStrings[0], localeStrings[1]);
+        } else if (localeStrings.length == 3) {
+            locale = new Locale(localeStrings[0], localeStrings[1], localeStrings[2]);
         }
 
         return resolveLocaleName(locale);

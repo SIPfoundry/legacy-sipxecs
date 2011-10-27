@@ -26,6 +26,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
     private SipxStatusService m_statusService;
     private SipxRestService m_restService;
     private SipxImbotService m_imbotService;
+    private SipxConfigService m_configService;
     private LocationsManager m_locationsManager;
     private SipxServiceManager m_sipxServiceManager;
 
@@ -60,6 +61,9 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         m_imbotService.setModelFilesContext(TestHelper.getModelFilesContext());
         m_imbotService.setSettingValue("imbot/httpPort", "8086");
 
+        m_configService = new MockConfigService();
+        m_configService.getAddress();
+
         m_locationsManager = createMock(LocationsManager.class);
         m_locationsManager.getLocationsForService(m_restService);
         expectLastCall().andReturn(Arrays.asList(location)).anyTimes();
@@ -77,6 +81,8 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         expectLastCall().andReturn(m_restService).atLeastOnce();
         m_sipxServiceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
         expectLastCall().andReturn(m_imbotService).atLeastOnce();
+        m_sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
+        expectLastCall().andReturn(m_configService).atLeastOnce();
     }
 
     public void testWriteWithoutOpenfireService() throws Exception {
@@ -117,5 +123,16 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         location.setAddress("192.168.1.2");
         location.setFqdn("puppy.org");
         return location;
+    }
+
+    private static class MockConfigService extends SipxConfigService {
+        @Override
+        public String getAddress() {
+            return "192.168.1.1";
+        }
+        @Override
+        public String getFqdn() {
+            return "master.puppy.org";
+        }
     }
 }

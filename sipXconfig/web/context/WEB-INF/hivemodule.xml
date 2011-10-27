@@ -99,9 +99,9 @@
       <construct class="site.vm.PlayVoicemailService">
         <set-object property="response" value="service:tapestry.globals.WebResponse" />
         <set-object property="linkFactory" value="infrastructure:linkFactory" />
+        <set-object property="mailboxManager" value="spring:mailboxManager" />
         <set-object property="stateManager" value="infrastructure:applicationStateManager" />
         <set-object property="coreContext" value="spring:coreContext" />
-        <set-object property="mailboxManager" value="spring:mailboxManager" />
       </construct>
     </invoke-factory>
   </service-point>

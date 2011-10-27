@@ -18,7 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
-import org.sipfoundry.sipxconfig.vm.MailboxManagerImpl.MailstoreMisconfigured;
+import org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl.MailstoreMisconfigured;
 
 /**
  * Helper class for reading/writing XML

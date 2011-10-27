@@ -45,6 +45,7 @@ public class Messages {
     HashMap<String, VmMessage> m_inbox = new HashMap<String, VmMessage>();
     HashMap<String, VmMessage> m_saved = new HashMap<String, VmMessage>();
     HashMap<String, VmMessage> m_deleted = new HashMap<String, VmMessage>();
+    HashMap<String, VmMessage> m_conference = new HashMap<String, VmMessage>();
     
     List<String> m_MsgIds;
 
@@ -54,6 +55,7 @@ public class Messages {
     File m_inboxDir;
     File m_savedDir;
     File m_deletedDir;
+    File m_conferenceDir;
     
     // Private so only newMessages factory method can access
     private Messages(Mailbox mailbox) {
@@ -64,6 +66,7 @@ public class Messages {
         m_inboxDir = new File(mailbox.getInboxDirectory());
         m_savedDir = new File(mailbox.getSavedDirectory());
         m_deletedDir = new File(mailbox.getDeletedDirectory());
+        m_conferenceDir = new File(mailbox.getConferenceDirectory());
         m_mbxid = mailbox.getUser().getUserName();
         m_MsgIds = null;
     }
@@ -119,6 +122,8 @@ public class Messages {
         loadFolder(m_savedDir, m_saved, false, msgIds);
         // Load the deleted folder (same with unheard)
         loadFolder(m_deletedDir, m_deleted, false, null);
+        // Load the deleted folder (same with unheard)
+        loadFolder(m_conferenceDir, m_conference, false, null);
         
         // build a mailbox wide list of messageIds as loadFolder is called
         // then sort the list. this list allows us to easily map a CallPilot Msg Number 
@@ -148,6 +153,9 @@ public class Messages {
     @SuppressWarnings("unchecked") // FileUtls.itereateFiles isn't type safe
     synchronized void loadFolder(File directory, HashMap<String, VmMessage> map, 
                                  boolean countUnheard, List<String> msgIds) {
+        if (!directory.exists()) {
+            return;
+        }
         Pattern p = Pattern.compile("^(\\d+)-00\\.xml$");
         // Load the directory and count unheard
         Iterator<File> fileIterator = FileUtils.iterateFiles(directory, null, false);
@@ -209,6 +217,14 @@ public class Messages {
      */
     public List<VmMessage> getDeleted() {
         return getFolder(m_deleted);
+    }
+
+    /**
+     * Return conference messages sorted by Date (earliest first)
+     * @return
+     */
+    public List<VmMessage> getConference() {
+        return getFolder(m_conference);
     }
 
     /**
@@ -276,6 +292,9 @@ public class Messages {
             msg = m_saved.get(messageId);
             if (msg == null) {
                 msg = m_deleted.get(messageId);
+                if (msg == null) {
+                    msg = m_conference.get(messageId);
+                }
             }
         }
         return msg;

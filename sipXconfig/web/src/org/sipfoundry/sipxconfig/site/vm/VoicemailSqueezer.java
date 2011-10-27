@@ -13,7 +13,6 @@ import java.io.Serializable;
 
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
-import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
 public class VoicemailSqueezer implements IPrimaryKeyConverter {
     private VoicemailSource m_source;
@@ -23,7 +22,7 @@ public class VoicemailSqueezer implements IPrimaryKeyConverter {
 
     public Object getPrimaryKey(Object arg0) {
         Voicemail vm = (Voicemail) arg0;
-        return m_source.getVoicemailId(vm);
+        return VoicemailSource.getVoicemailId(vm);
     }
 
     public Object getValue(Object arg0) {

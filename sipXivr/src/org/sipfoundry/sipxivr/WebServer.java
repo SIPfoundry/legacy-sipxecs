@@ -71,10 +71,14 @@ public class WebServer {
             digestConstraint.setAuthenticate(true);
             httpContext.addSecurityConstraint("/*", digestConstraint);
 
-            httpContext.setRealm(createRealm());
+            DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
+            httpContext.setRealm(new SipxIvrUserRealm(config.getSipRealm(), config.getSharedSecret()));
 
             CustomSecurityHandler sh = new CustomSecurityHandler();
             sh.addTrustedSource("127.0.0.1");
+            sh.addTrustedSource("localhost");
+            sh.addTrustedSource(m_ivrConfig.getConfigAddress());
+            sh.addSharedSecret(config.getSharedSecret());
             httpContext.addHandler(0, sh);
 
             httpContext.addHandler(1, m_servletHandler);
@@ -88,11 +92,6 @@ public class WebServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private UserRealm createRealm() throws Exception {
-        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
-        return new SipxIvrUserRealm(config.getSipRealm(), config.getSharedSecret());
     }
 
     private SslListener createSslListener() throws Exception {
@@ -123,15 +122,22 @@ public class WebServer {
 
     private class CustomSecurityHandler extends SecurityHandler {
         private List<String> _hosts = new ArrayList<String>();
+        private String _secret = null;
 
         public void addTrustedSource(String ipSource) {
             _hosts.add(ipSource);
+        }
+
+        public void addSharedSecret(String secret) {
+            _secret = secret;
         }
 
         public void handle(String pathInContext, String pathParams, HttpRequest request, HttpResponse response)
                 throws HttpException, IOException {
             if (!_hosts.contains(request.getRemoteAddr())) {
                 getHttpContext().checkSecurityConstraints(pathInContext, request, response);
+            } else {
+                request.setAttribute("trustedSource", _secret);
             }
         }
     }

@@ -34,39 +34,39 @@
         usePager="ognl:true" rowInfo="ognl:rowInfo" rowClass="ognl:rowClass">
         <span jwcid="subjectColumnValue@Block">
           <img jwcid="@Image" image="ognl:voicemailIcon" align="absmiddle" />
-          <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:voicemailSource.getVoicemailId(voicemail)">
+          <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:voicemail">
             <span jwcid="@Insert" value="ognl:voicemail.subject"/>
           </a>
           <span jwcid="@If" condition="ognl:voicemail.forwarded">
             <br/>
-            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.subject" class="fwd-voicemail"/>
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedSubject" class="fwd-voicemail"/>
           </span>
         </span>
         <span jwcid="fromColumnValue@Block">
           <a jwcid="@DirectLink"
             title="message:tooltip.call"
             listener="listener:call"
-            parameters="ognl:voicemail.descriptor.from"
+            parameters="ognl:voicemail.from"
             asyn="ognl:true">
-            <span jwcid="@Insert" value="ognl:voicemail.descriptor.fromBrief"/>
+            <span jwcid="@Insert" value="ognl:voicemail.fromBrief"/>
           </a>
           <span jwcid="@If" condition="ognl:voicemail.forwarded" renderTag="false">
             <br/>
-            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.fromBrief" class="fwd-voicemail"/>
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedFromBrief" class="fwd-voicemail"/>
           </span>
         </span>
         <span jwcid="timestampColumnValue@Block">
-          <span jwcid="@Insert" value="ognl:voicemail.descriptor.timestamp" format="ognl:tapestry.date(locale)"></span>
+          <span jwcid="@Insert" value="ognl:voicemail.timestamp" format="ognl:tapestry.date(locale)"></span>
           <span jwcid="@If" condition="ognl:voicemail.forwarded">
             <br/>
-            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.timestamp" format="ognl:tapestry.date(locale)" class="fwd-voicemail"/>
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedTimestamp" format="ognl:tapestry.date(locale)" class="fwd-voicemail"/>
           </span>
         </span>
         <span jwcid="durationColumnValue@Block">
-          <span jwcid="@Insert" value="ognl:voicemail.descriptor.durationMillis" format="bean:durationFormat"/>
+          <span jwcid="@Insert" value="ognl:voicemail.durationsecs * 1000" format="bean:durationFormat"/>
           <span jwcid="@If" condition="ognl:voicemail.forwarded">
             <br/>
-            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.durationMillis" format="bean:durationFormat" class="fwd-voicemail"/>
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedDurationsecs * 1000" format="bean:durationFormat" class="fwd-voicemail"/>
           </span>
         </span>
         <span jwcid="playColumnValue@Block">

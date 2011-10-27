@@ -14,10 +14,8 @@ import java.io.Serializable;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
-
 
 public abstract class MailboxOperation implements Serializable {
     private String m_userId;
@@ -83,6 +81,7 @@ public abstract class MailboxOperation implements Serializable {
 
     static class MoveVoiceMail extends MailboxOperation {
         private String m_destinationFolderId;
+
         MoveVoiceMail(String userId, String folderId, String messageId, String destinationFolderId) {
             super(userId, folderId, messageId);
             m_destinationFolderId = destinationFolderId;
@@ -90,9 +89,8 @@ public abstract class MailboxOperation implements Serializable {
 
         public void operate(ManageVoicemail page) {
             MailboxManager mgr = page.getMailboxManager();
-            Mailbox mb = mgr.getMailbox(getUserId());
-            Voicemail vm = mb.getVoicemail(getFolderId(), getMessageId());
-            mgr.move(mb, vm, m_destinationFolderId);
+            Voicemail vm = page.getVoicemailSource().getVoicemail(getMessageId());
+            mgr.move(getUserId(), vm, m_destinationFolderId);
         }
     }
 
@@ -104,15 +102,14 @@ public abstract class MailboxOperation implements Serializable {
         public void operate(ManageVoicemail page) {
             // this works perfectly, but tells client to redirect. if service encoder
             // directed tapestry to the playvm service (or derivative) then we could
-            // serve the file w/o redirect.  I didn't want to couple MailboxOperation with
+            // serve the file w/o redirect. I didn't want to couple MailboxOperation with
             // MailboxPageEncoder, but it certainly could be done.
             IEngineService playService = page.getPlayVoicemailService();
-            Mailbox mb = page.getMailboxManager().getMailbox(getUserId());
-            Voicemail vm = mb.getVoicemail(getFolderId(), getMessageId());
-            Object[] linkParams = new Object[] {
-                new PlayVoicemailService.Info(vm.getFolderId(), vm.getMessageId())
-            };
-            ILink link = playService.getLink(false, linkParams);
+            MailboxManager mgr = page.getMailboxManager();
+            Voicemail vm = mgr.getVoicemail(getUserId(), getFolderId(), getMessageId());
+            PlayVoicemailService.Info info = new PlayVoicemailService.Info(vm.getFolderId(), vm.getMessageId(),
+                    vm.getUserId());
+            ILink link = playService.getLink(false, info);
             page.getRequestCycle().sendRedirect(link.getURL());
         }
     }
