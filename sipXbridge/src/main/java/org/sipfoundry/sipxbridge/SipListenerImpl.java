@@ -300,11 +300,9 @@ public class SipListenerImpl implements SipListenerExt {
                 DialogContext dialogContext  = DialogContext.get(newClientTransaction.getDialog());
                 b2bua.addDialog(dialogContext);  
                 newClientTransaction.sendRequest();
-            }
-           
-            DialogContext dialogContext  = DialogContext.get(newClientTransaction.getDialog());
-            if (dialog.getState() != DialogState.TERMINATED && !dialogContext.isSessionTimerStarted()) {
-                dialogContext.startSessionTimer();
+                if (!dialogContext.isSessionTimerStarted()) {
+                    dialogContext.startSessionTimer();
+                }
             }
             
         }
@@ -325,11 +323,8 @@ public class SipListenerImpl implements SipListenerExt {
                 logger.debug("processDialogTerminated: dialog inserted at " + dialogContext.getInsertionPointStackTrace());
                 logger.debug("processDialogTerminated: Created by request: " + dialogContext.getRequest());
             }
-            Dialog dialog = dte.getDialog();
-            if ( DialogContext.get(dialog) == dialog.getApplicationData() ) {
-                DialogContext.removeDialogContext(dialogContext);
-                dialogContext.cancelSessionTimer();
-            }
+            DialogContext.removeDialogContext(dialogContext);
+            dialogContext.cancelSessionTimer();
             BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
             if (b2bua != null) {
                 b2bua.removeDialog(dte.getDialog());
