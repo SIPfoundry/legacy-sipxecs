@@ -209,4 +209,9 @@
   </bean>
   <alias name="activecdrsResource" alias="/my/activecdrs" />
 
+  <bean id="loginDetailsResource" class="org.sipfoundry.sipxconfig.rest.LoginDetailsResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+  <alias name="loginDetailsResource" alias="/my/logindetails" />
+
 </beans>
