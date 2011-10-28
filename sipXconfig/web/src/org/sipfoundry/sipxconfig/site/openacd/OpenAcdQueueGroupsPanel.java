@@ -30,6 +30,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -79,12 +80,17 @@ public abstract class OpenAcdQueueGroupsPanel extends BaseComponent implements P
         if (ids.isEmpty()) {
             return;
         }
-        List<String> groups = getOpenAcdContext().removeQueueGroups(ids);
-        if (!groups.isEmpty()) {
-            String groupNames = StringUtils.join(groups.iterator(), ", ");
-            String errMessage = getMessages().format("msg.err.queueGroupDeletion", groupNames);
+        try {
+            List<String> groups = getOpenAcdContext().removeQueueGroups(ids);
+            if (!groups.isEmpty()) {
+                String groupNames = StringUtils.join(groups.iterator(), ", ");
+                String errMessage = getMessages().format("msg.err.queueGroupDeletion", groupNames);
+                IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+                validator.record(new ValidatorException(errMessage));
+            }
+        } catch (UserException ex) {
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-            validator.record(new ValidatorException(errMessage));
+            validator.record(new ValidatorException(getMessages().getMessage("msg.cannot.connect")));
         }
     }
 }
