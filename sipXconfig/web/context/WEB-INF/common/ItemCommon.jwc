@@ -6,7 +6,6 @@
   <parameter name="useEnabled" required="no" default-value="true" />
   <parameter name="useExtension" required="no" default-value="false" />
   <parameter name="useDid" required="no" default-value="false" />
-  <parameter name="didDescription" required="no" default-value="" />
   <parameter name="useFieldset" required="no" default-value="true" />
   <parameter name="nameValidator" required="no" default-value="validators:required" />
   <parameter name="extensionValidator" required="no" default-value="spring-validators:required,validPhone" />
