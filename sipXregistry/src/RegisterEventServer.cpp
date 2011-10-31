@@ -18,6 +18,8 @@
 #include <utl/XmlContent.h>
 #include <sipdb/ResultSet.h>
 #include <net/SipRegEvent.h>
+#include <registry/SipRegistrar.h>
+#include <persist/SipPersistentSubscriptionMgr.h>
 
 // DEFINES
 
@@ -196,7 +198,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
       OsServerTask::DEF_MAX_MSGS, // queueSize
       FALSE // bUseNextAvailablePort
       ),
-   mSubscriptionMgr(SUBSCRIPTION_COMPONENT_REG, mDomainName),
+   mSubscriptionMgr(SUBSCRIPTION_COMPONENT_REG, mDomainName, *SipRegistrar::getInstance(NULL)->getSubscribeDB()),
    mSubscribeServer(SipSubscribeServer::terminationReasonSilent,
                     mUserAgent, mEventPublisher, mSubscriptionMgr,
                     mPolicyHolder)
@@ -326,7 +328,7 @@ void RegisterEventServer::generateContentUser(const char* entity,
    UtlString identity;
    aorUri.getIdentity(identity);
    RegDB::Bindings bindings;
-  _dataStore.regDB().getUnexpiredContactsUser(identity.str(), 0, bindings);
+   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUser(identity.str(), 0, bindings);
    generateContent(entity, bindings, body);
 }
 
@@ -343,7 +345,7 @@ void RegisterEventServer::generateContentInstrument(const char* entity,
    // AOR, including the ones that have expired but not been purged.
 
    RegDB::Bindings bindings;
-  _dataStore.regDB().getUnexpiredContactsInstrument(instrument.str(), 0, bindings);
+   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsInstrument(instrument.str(), 0, bindings);
    generateContent(entity, bindings, body);
 
 }
@@ -364,7 +366,7 @@ void RegisterEventServer::generateContentUserInstrument(const char* entity,
    UtlString identity;
    aorUri.getIdentity(identity);
    RegDB::Bindings bindings;
-  _dataStore.regDB().getUnexpiredContactsUserInstrument(identity.str(), instrument.str(), 0, bindings);
+   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUserInstrument(identity.str(), instrument.str(), 0, bindings);
    generateContent(entity, bindings, body);
 }
 

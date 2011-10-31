@@ -150,7 +150,7 @@ public:
 class EndpointDescriptor
 {
 public:
-   EndpointDescriptor( const Url& url, const NatTraversalRules& natRules, RegDB::Ptr pRegistrationDB);
+   EndpointDescriptor( const Url& url, const NatTraversalRules& natRules, RegDB* regDb = NULL);
 
    // GETTERS
    const TransportData& getNativeTransportAddress( void ) const;
@@ -165,6 +165,7 @@ private:
    PublicTransportData  mPublicTransport;
    LocationCode         mLocation;
    Url                  mCurrentContact;
+   RegDB*               mpRegDb;
 
    LocationCode computeLocation( const Url& url,
                                  const NatTraversalRules& natRules);
@@ -173,7 +174,6 @@ private:
                                               const NatTraversalRules& natRules);
    LocationCode computeLocationFromNetworkTopology( const NatTraversalRules& natRules );
 
-   RegDB::Ptr _pRegDB;
 };
 
 /// This class is an abstraction of a SIP endpoint involved in a media session.

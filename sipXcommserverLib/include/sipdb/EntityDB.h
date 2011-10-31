@@ -15,78 +15,50 @@
 #ifndef ENTITYDB_H
 #define	ENTITYDB_H
 
+#include <set>
+#include "sipdb/EntityRecord.h"
 #include "utl/UtlString.h"
 #include "net/Url.h"
-#include "sipdb/EntityRecord.h"
-#include <set>
 
-class EntityDB : public MongoDB::DBInterface
+class EntityDB: public MongoDB::BaseDB
 {
 public:
-    typedef std::vector<EntityRecord> Entities;
-    typedef std::map<std::string, EntityRecord> EntitiesByIdentity;
-    typedef std::vector<EntityRecord::Alias> Aliases;
-    typedef std::set<std::string> Permissions;
-    
-    EntityDB(
-        MongoDB& db,
-        const std::string& ns = EntityDB::_defaultNamespace);
+	static const std::string NS;
+	typedef std::vector<EntityRecord> Entities;
+	typedef std::map<std::string, EntityRecord> EntitiesByIdentity;
+	typedef std::vector<EntityRecord::Alias> Aliases;
+	typedef std::set<std::string> Permissions;
 
-    ~EntityDB();
+	EntityDB(const MongoDB::ConnectionInfo& info) :
+		BaseDB(info)
+	{
+	}
+	;
 
-    static std::string& defaultNamespace();
+	~EntityDB()
+	{
+	}
+	;
 
-    bool findByIdentity(const std::string& identity, EntityRecord& entity) const;
-    bool findByIdentity(const Url& uri, EntityRecord& entity) const;
-    bool findByIdentityOrAlias(const std::string& identity, const std::string& alias, EntityRecord& entity) const;
-    bool findByIdentityOrAlias(const Url& uri, EntityRecord& entity) const;
-    bool findByUserId(const std::string& userId, EntityRecord& entity) const;
-    bool findByAliasUserId(const std::string& alias, EntityRecord& entity) const;
-      /// Retrieve the SIP credential check values for a given identity and realm
-    bool getCredential (
-       const Url& uri,
-       const UtlString& realm,
-       UtlString& userid,
-       UtlString& passtoken,
-       UtlString& authType) const;
+	bool findByIdentity(const std::string& identity, EntityRecord& entity) const;
+	bool findByIdentity(const Url& uri, EntityRecord& entity) const;
+	bool findByIdentityOrAlias(const std::string& identity, const std::string& alias, EntityRecord& entity) const;
+	bool findByIdentityOrAlias(const Url& uri, EntityRecord& entity) const;
+	bool findByUserId(const std::string& userId, EntityRecord& entity) const;
+	bool findByAliasUserId(const std::string& alias, EntityRecord& entity) const;
 
-    /// Retrieve the SIP credential check values for a given userid and realm
-    bool getCredential (
-       const UtlString& userid,
-       const UtlString& realm,
-       Url& uri,
-       UtlString& passtoken,
-       UtlString& authType) const;
+	/// Retrieve the SIP credential check values for a given identity and realm
+	bool getCredential(const Url& uri, const UtlString& realm, UtlString& userid, UtlString& passtoken,
+			UtlString& authType) const;
 
-    // Query interface to return a set of mapped full URI
-    // contacts associated with the alias
-    void getAliasContacts (
-        const Url& aliasIdentity,
-        Aliases& aliases,
-        bool& isUserIdentity) const;
+	/// Retrieve the SIP credential check values for a given userid and realm
+	bool getCredential(const UtlString& userid, const UtlString& realm, Url& uri, UtlString& passtoken,
+			UtlString& authType) const;
 
-    //
-    // Return all entity records in a single vector
-    //
-    void getAllEntities(Entities& entities) const;
-
-    static MongoDB::Collection<EntityDB>& defaultCollection();
-    static std::string _defaultNamespace;
-
-
+	// Query interface to return a set of mapped full URI
+	// contacts associated with the alias
+	void getAliasContacts(const Url& aliasIdentity, Aliases& aliases, bool& isUserIdentity) const;
 };
-
-//
-// Inline
-//
-
-inline bool EntityDB::findByIdentity(const Url& uri, EntityRecord& entity) const
-{
-    UtlString identity;
-    uri.getIdentity(identity);
-    return findByIdentity(identity.str(), entity);
-}
-
 
 #endif	/* ENTITYDB_H */
 

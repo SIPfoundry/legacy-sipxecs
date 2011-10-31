@@ -9,15 +9,13 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "cppunit/TestCase.h"
 #include "sipxunit/TestUtilities.h"
-#include "testlib/FileTestContext.h"
-#include "testlib/SipDbTestContext.h"
+#include "sipxunit/FileTestContext.h"
 
 #include "os/OsDefs.h"
 #include "os/OsLogger.h"
 #include "utl/PluginHooks.h"
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
-#include "sipdb/CallerAliasDB.h"
 
 #include "ForwardRules.h"
 #include <sipxproxy/SipRouter.h>
@@ -40,15 +38,14 @@ class CallerAliasTest : public CppUnit::TestCase
 public:
 
    static CallerAlias*      converter;
-   static SipDbTestContext  TestDbContext;
    static SipUserAgent      testUserAgent;
    static SipRouter*        testSipRouter;
 
    void setUp()
       {
-         TestDbContext.inputFile("caller-alias.xml");
-         TestDbContext.inputFile("domain-config");
-         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
+//         TestDbContext.inputFile("caller-alias.xml");
+//         TestDbContext.inputFile("domain-config");
+//         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
       }
 
    void tearDown()
@@ -654,5 +651,5 @@ SipUserAgent     CallerAliasTest::testUserAgent(
    SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
                                                 );
 SipRouter* CallerAliasTest::testSipRouter;
-SipDbTestContext CallerAliasTest::TestDbContext(TEST_DATA_DIR "/example.edu",
-                                                TEST_WORK_DIR "/calleralias-context");
+//SipDbTestContext CallerAliasTest::TestDbContext(TEST_DATA_DIR "/example.edu",
+//                                                TEST_WORK_DIR "/calleralias-context");

@@ -16,6 +16,7 @@
 #include "net/SipSubscribeServerEventHandler.h"
 #include "sipXecsService/SipNonceDb.h"
 #include "utl/UtlString.h"
+#include "sipdb/EntityDB.h"
 
 // DEFINES
 // MACROS
@@ -41,7 +42,7 @@ public:
                        ///< our SIP domain
                        UtlString realm,
                        ///< realm to use for authentication
-                       UtlString credentialDbName = "credential"
+                       EntityDB& entityDb
                        ///< name of the credential DB to use.
        );
 
@@ -93,7 +94,7 @@ private:
     //! The SIP domain.
     UtlString mDefaultDomain;
     //! Name of the credentail DB to use
-    UtlString mCredentialDbName;
+    EntityDB& mEntityDb;
 
 };
 

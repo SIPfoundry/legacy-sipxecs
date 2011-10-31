@@ -324,8 +324,12 @@ int main(int argc, char* argv[])
    domainName.toLower();
 
    // Create the SipPersistentSubscriptionMgr.
+
+   MongoDB::ConnectionInfo c(MongoDB::ConnectionInfo::connectionStringFromFile(), SubscribeDB::NS);
+   SubscribeDB db(c);
    SipPersistentSubscriptionMgr subscriptionMgr(SUBSCRIPTION_COMPONENT_PRESENCE,
-                                                domainName);
+                                                domainName,
+                                                db);
 
    // Determine the name of the persistent file.
    UtlString pathName = SipXecsService::Path(SipXecsService::VarDirType,

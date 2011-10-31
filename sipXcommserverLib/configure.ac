@@ -42,7 +42,6 @@ AC_CONFIG_FILES([
   src/sipdb/Makefile
   src/xsdvalid/Makefile
   src/test/Makefile
-  src/test/testlib/Makefile
   meta/Makefile
   src/sipxrestorebinary/Makefile
   src/sipxpackage/Makefile

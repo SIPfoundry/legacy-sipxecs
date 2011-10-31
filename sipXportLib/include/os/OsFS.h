@@ -18,6 +18,8 @@
 #include "os/OsPathBase.h"
 #include "os/OsFileInfoBase.h"
 
+typedef const char* const DirectoryType;
+
 // Depending on the native OS that we are running on, we include the class
 // declaration for the appropriate lower level implementation and use a
 // "typedef" statement to associate the OS-independent class name (OsTask)

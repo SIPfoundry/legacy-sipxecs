@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if (argString.compareTo("-v") == 0) {
          enableConsoleOutput(true);
-         osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
+         osPrintf("Version: %s (%s)\n", PACKAGE_VERSION, PACKAGE_REVISION);
          return(1);
       }
       else if (argString.compareTo("-c") == 0) {

@@ -14,48 +14,25 @@
 
 #include <string>
 #include <vector>
-
+#include <mongo/client/connpool.h>
 #include "sipdb/SubscribeDB.h"
 
-std::string SubscribeDB::_defaultNamespace = "node.subscription";
-const std::string& SubscribeDB::defaultNamespace()
+using namespace std;
+
+const string SubscribeDB::NS("node.subscription");
+
+void SubscribeDB::getAll(Subscriptions& subscriptions)
 {
-    return SubscribeDB::_defaultNamespace;
+	mongo::BSONObj query;
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+	while (pCursor.get() && pCursor->more()) {
+		subscriptions.push_back(Subscription(pCursor->next()));
+	}
+	conn.done();
 }
 
-MongoDB::Collection<SubscribeDB>& SubscribeDB::defaultCollection()
-{
-    static MongoDB::Collection<SubscribeDB> collection(SubscribeDB::_defaultNamespace);
-    return collection;
-}
-
-SubscribeDB::SubscribeDB(
-    MongoDB& db,
-    const std::string& ns) :
-    MongoDB::DBInterface(db, "", ns)
-{
-}
-
-SubscribeDB::~SubscribeDB()
-{
-}
-
-void SubscribeDB::getAllRows(Subscriptions& subscriptions)
-{
-  MongoDB::BSONObj query;
-  std::string error;
-  MongoDB::Cursor pCursor = _db.find(_ns, query, error);
-
-  while (pCursor.get() && pCursor->more())
-    subscriptions.push_back(Subscription(pCursor->next()));
-
-  if (!error.empty())
-  {
-    OS_LOG_ERROR(FAC_ODBC, "mongoDB Exception: (SubscribeDB::getAllRows) - " << error);
-  }
-}
-
-bool SubscribeDB::insertRow (
+void SubscribeDB::upsert (
     const UtlString& component,
     const UtlString& uri,
     const UtlString& callId,
@@ -73,7 +50,7 @@ bool SubscribeDB::insertRow (
     const UtlString& accept,
     unsigned int version)
 {
-    MongoDB::BSONObj query = BSON(
+    mongo::BSONObj query = BSON(
               Subscription::toUri_fld() << toUri.str() <<
               Subscription::fromUri_fld() << fromUri.str() <<
               Subscription::callId_fld() << callId.str() <<
@@ -81,7 +58,7 @@ bool SubscribeDB::insertRow (
               Subscription::id_fld() << id.str() <<
               Subscription::subscribeCseq_fld() << BSON_LESS_THAN(subscribeCseq));
 
-    MongoDB::BSONObj update = BSON("$set" << BSON(
+    mongo::BSONObj update = BSON("$set" << BSON(
         Subscription::component_fld() << component.str() <<
         Subscription::uri_fld() << uri.str() <<
         Subscription::callId_fld() << callId.str() <<
@@ -99,52 +76,43 @@ bool SubscribeDB::insertRow (
         Subscription::accept_fld() << accept.str() <<
         Subscription::version_fld() << version));
 
-    std::string error;
-    if (!_db.updateOrInsert(_ns, query, update, error))
-    {
-        OS_LOG_ERROR(FAC_ODBC, "mongoDB Exception: (SubscribeDB::insertRow) - " << error);
-        return false;
-    }
-    return true;
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    conn->update(_info.getNS(), query, update, true, false);
 }
 
 //delete methods - delete a subscription session
-void SubscribeDB::removeRow (
+void SubscribeDB::remove (
    const UtlString& component,
    const UtlString& to,
    const UtlString& from,
    const UtlString& callid,
    const int& subscribeCseq)
 {
-    MongoDB::BSONObj query = BSON(
+    mongo::BSONObj query = BSON(
         Subscription::toUri_fld() << to.str() <<
         Subscription::fromUri_fld() << from.str() <<
         Subscription::callId_fld() << callid.str() <<
         Subscription::subscribeCseq_fld() << BSON_LESS_THAN(subscribeCseq));
 
-    std::string error;
-    if (!_db.remove(_ns, query, error))
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::removeRow) - " << error);
-    }
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    conn->remove(_info.getNS(), query);
+	conn.done();
 }
 
-void SubscribeDB::removeErrorRow (
+void SubscribeDB::removeError (
     const UtlString& component,
     const UtlString& to,
     const UtlString& from,
     const UtlString& callid )
-{   
-    MongoDB::BSONObj query = BSON(
+{
+    mongo::BSONObj query = BSON(
         Subscription::toUri_fld() << to.str() <<
         Subscription::fromUri_fld() << from.str() <<
         Subscription::callId_fld() << callid.str());
 
-    std::string error;
-    if (!_db.remove(_ns, query, error))
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::removeErrorRow) - " << error);
-    }
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    conn->remove(_info.getNS(), query);
+    conn.done();
 }
 
 bool SubscribeDB::subscriptionExists (
@@ -155,50 +123,38 @@ bool SubscribeDB::subscriptionExists (
    const int timeNow)
 {
 
-    MongoDB::BSONObj query = BSON(
+    mongo::BSONObj query = BSON(
               Subscription::toUri_fld() << toUri.str() <<
               Subscription::fromUri_fld() << fromUri.str() <<
               Subscription::callId_fld() << callId.str() <<
               Subscription::expires_fld() << BSON_GREATER_THAN_EQUAL(timeNow));
 
-    std::string error;
-    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
-
-    if (pCursor.get() && pCursor->more())
-    {
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+    if (pCursor.get() && pCursor->more()) {
+    	conn.done();
         return pCursor->itcount() > 0;
     }
 
-    if (!error.empty())
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::subscriptionExists) - " << error);
-    }
-
+	conn.done();
     return false;
 }
 
-void SubscribeDB::removeRows(const UtlString& key)
-{
-    MongoDB::BSONObj query = BSON(Subscription::key_fld() << key.str());
-
-    std::string error;
-    if (!_db.remove(_ns, query, error))
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::removeRows) - " << error);
-    }
-}
+//void SubscribeDB::removeRows(const UtlString& key)
+//{
+//    mongo::BSONObj query = BSON(Subscription::key_fld() << key.str());
+//    mongo::ScopedDbConnection conn(_info.getConnectionString());
+//    conn->remove(_info.getNS(), query);
+//}
 
 void SubscribeDB::removeExpired( const UtlString& component, const int timeNow )
 {
-    MongoDB::BSONObj query = BSON(
+    mongo::BSONObj query = BSON(
         Subscription::component_fld() << component.str() <<
         Subscription::expires_fld() << BSON_LESS_THAN(timeNow));
-
-    std::string error;
-    if (!_db.remove(_ns, query, error))
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::removeExpired) - " << error);
-    }
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
+    conn->remove(_info.getNS(), query);
+	conn.done();
 }
 
 void SubscribeDB::getUnexpiredSubscriptions (
@@ -210,48 +166,38 @@ void SubscribeDB::getUnexpiredSubscriptions (
 {
     removeExpired(component, timeNow);
     //query="key=",key,"and eventtypekey=",eventTypeKey;
-     MongoDB::BSONObj query = BSON(
+     mongo::BSONObj query = BSON(
         Subscription::key_fld() << key.str() <<
         Subscription::eventTypeKey_fld() << eventTypeKey.str());
 
-    std::string error;
-    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
-
-    if (!error.empty())
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
-    }
-
+ 	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
         subscriptions.push_back(Subscription(pCursor->next()));
     }
+	conn.done();
 }
 
 void SubscribeDB::getUnexpiredContactsFieldsContaining(
     UtlString& substringToMatch,
     const int& timeNow,
-    std::vector<std::string>& matchingContactFields ) const
+    std::vector<string>& matchingContactFields ) const
 {
-    MongoDB::BSONObj query = BSON(Subscription::expires_fld() << BSON_LESS_THAN(timeNow));
+    mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_LESS_THAN(timeNow));
 
-    std::string error;
-    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
-
-    if (!error.empty())
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
-    }
-
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
-        std::string contact;
-        MongoDB::BSONObj bsonObj = pCursor->next();
+        string contact;
+        mongo::BSONObj bsonObj = pCursor->next();
         if (bsonObj.hasField(Subscription::contact_fld()))
             contact = bsonObj.getStringField(Subscription::contact_fld());
-        if (contact.find(substringToMatch.str()) != std::string::npos)
+        if (contact.find(substringToMatch.str()) != string::npos)
             matchingContactFields.push_back(contact);
     }
+	conn.done();
 }
 
 void SubscribeDB::updateNotifyUnexpiredSubscription(
@@ -263,90 +209,96 @@ void SubscribeDB::updateNotifyUnexpiredSubscription(
     const UtlString& id,
     int timeNow,
     int updatedNotifyCseq,
-    int version ) const
+    int version) const
 {
 
-    MongoDB::BSONObj query = BSON(
+    mongo::BSONObj query = BSON(
         Subscription::toUri_fld() << to.str() <<
         Subscription::callId_fld() << callid.str() <<
         Subscription::eventTypeKey_fld() << eventTypeKey.str() <<
         Subscription::id_fld() << id.str() );
 
-    MongoDB::BSONObj update = BSON("$set" << BSON(
+    mongo::BSONObj update = BSON("$set" << BSON(
         Subscription::notifyCseq_fld() << updatedNotifyCseq <<
         Subscription::version_fld() << version));
-    
 
-    std::string error;
-    if (!_db.update(_ns, query, update, error))
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::updateNotifyUnexpiredSubscription) - " << error);
-    }
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    conn->update(_info.getNS(), query, update);
+    conn.done();
 }
 
-bool SubscribeDB::updateSubscribeUnexpiredSubscription (
-    const UtlString& component,
-    const UtlString& to,
-    const UtlString& from,
-    const UtlString& callid,
-    const UtlString& eventTypeKey,
-    const UtlString& id,
-    const int& timeNow,
-    const int& expires,
-    const int& updatedSubscribeCseq) const
-{
-    const_cast<SubscribeDB*>(this)->removeExpired(component, timeNow);
-
-    MongoDB::BSONObj query = BSON(
-        Subscription::toUri_fld() << to.str() <<
-        Subscription::fromUri_fld() << from.str() <<
-        Subscription::callId_fld() << callid.str() <<
-        Subscription::eventTypeKey_fld() << eventTypeKey.str() <<
-        Subscription::id_fld() << id.str() );
-
-    MongoDB::BSONObj update = BSON("$set" << BSON(
-        Subscription::expires_fld() << expires <<
-        Subscription::subscribeCseq_fld() << updatedSubscribeCseq));
-
-
-    std::string error;
-    if (!_db.update(_ns, query, update, error))
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::updateSubscribeUnexpiredSubscription) - " << error);
-        return false;
-    }
-
-    return true;;
-}
+//void SubscribeDB::updateSubscribeUnexpiredSubscription (
+//    const UtlString& component,
+//    const UtlString& to,
+//    const UtlString& from,
+//    const UtlString& callid,
+//    const UtlString& eventTypeKey,
+//    const UtlString& id,
+//    const int& timeNow,
+//    const int& expires,
+//    const int& updatedSubscribeCseq) const
+//{
+//    const_cast<SubscribeDB*>(this)->removeExpired(component, timeNow);
+//
+//    mongo::BSONObj query = BSON(
+//        Subscription::toUri_fld() << to.str() <<
+//        Subscription::fromUri_fld() << from.str() <<
+//        Subscription::callId_fld() << callid.str() <<
+//        Subscription::eventTypeKey_fld() << eventTypeKey.str() <<
+//        Subscription::id_fld() << id.str() );
+//
+//    mongo::BSONObj update = BSON("$set" << BSON(
+//        Subscription::expires_fld() << expires <<
+//        Subscription::subscribeCseq_fld() << updatedSubscribeCseq));
+//
+//	mongo::ScopedDbConnection conn(_info.getConnectionString());
+//    conn->update(_info.getNS(), query, update);
+//
+//
+//    if (!ret)
+//    {
+//       // Add a new row.
+//
+//       // This call assumes that eventTypeKey (as set by the
+//       // handler) is OK for use as the <eventtypekey>,
+//       // and that the NOTIFY CSeq's will start at 1.  0 is used as
+//       // the initial XML version.
+//       ret = mDB.insertRow(
+//          mComponent, requestUri, callId, contactEntry,
+//          expires, subscribeCseq, eventTypeKey, eventType, "",
+//          to, from, resourceId, route, 1, accept, 0);
+//
+//       if (!ret)
+//       {
+//          Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+//                        "SipPersistantSubscriptionMgr::addSubscription "
+//                        "Could not update or insert record in database");
+//       }
+//    }
+//
+//}
 
 void SubscribeDB::updateToTag(
    const UtlString& callid,
    const UtlString& fromtag,
    const UtlString& totag) const
 {
-    MongoDB::BSONObj query = BSON(Subscription::callId_fld() << callid.str());
-
-    std::string error;
-    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
-
-    if (!error.empty())
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getUnexpiredSubscriptions) - " << error);
-    }
-
+    mongo::BSONObj query = BSON(Subscription::callId_fld() << callid.str());
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
-        MongoDB::BSONObj bsonObj = pCursor->next();
+        mongo::BSONObj bsonObj = pCursor->next();
         if (bsonObj.hasField(Subscription::fromUri_fld()))
         {
-            std::string fromUri = bsonObj.getStringField(Subscription::fromUri_fld());
+            string fromUri = bsonObj.getStringField(Subscription::fromUri_fld());
             Url from_uri(fromUri.c_str(), FALSE);
             UtlString seen_tag;
             if (from_uri.getFieldParameter("tag", seen_tag) && seen_tag.compareTo(fromtag) == 0)
             {
                 if (bsonObj.hasField(Subscription::toUri_fld()))
                 {
-                    std::string toUri = bsonObj.getStringField(Subscription::toUri_fld());
+                    string toUri = bsonObj.getStringField(Subscription::toUri_fld());
                     Url to_uri(toUri.c_str(), FALSE);
                     UtlString dummy;
                     if (!to_uri.getFieldParameter("tag", dummy))
@@ -354,20 +306,16 @@ void SubscribeDB::updateToTag(
                         to_uri.setFieldParameter("tag", totag);
                         to_uri.toString(dummy); // un-parse as name-addr
 
-                        std::string oid = bsonObj.getStringField(Subscription::oid_fld());
-                        MongoDB::BSONObj query = BSON(Subscription::oid_fld() << oid);
-                        MongoDB::BSONObj update = BSON("$set" << BSON(Subscription::toUri_fld() << dummy.data()));
-
-                        std::string error;
-                        if (!_db.update(_ns, query, update, error))
-                        {
-                            OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::updateToTag) - " << error);
-                        }
+                        string oid = bsonObj.getStringField(Subscription::oid_fld());
+                        mongo::BSONObj query = BSON(Subscription::oid_fld() << oid);
+                        mongo::BSONObj update = BSON("$set" << BSON(Subscription::toUri_fld() << dummy.data()));
+                        conn->update(_info.getNS(), query, update);
                     }
                 }
             }
         }
     }
+	conn.done();
 }
 
 bool SubscribeDB::findFromAndTo(
@@ -377,16 +325,9 @@ bool SubscribeDB::findFromAndTo(
    UtlString& from,
    UtlString& to) const
 {
-    MongoDB::BSONObj query = BSON(Subscription::callId_fld() << callid.str());
-
-    std::string error;
-    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
-
-    if (!error.empty())
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::findFromAndTo) - " << error);
-    }
-
+    mongo::BSONObj query = BSON(Subscription::callId_fld() << callid.str());
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
         Subscription row = pCursor->next();
@@ -410,25 +351,20 @@ bool SubscribeDB::findFromAndTo(
               // We have found a match.  Record the full URIs.
               from = row.fromUri().c_str();
               to = row.toUri().c_str();
+              conn.done();
               return true;
            }
         }
     }
+	conn.done();
     return false;
 }
 
 int SubscribeDB::getMaxVersion(const UtlString& uri) const
 {
-    MongoDB::BSONObj query = BSON(Subscription::uri_fld() << uri.str());
-
-    std::string error;
-    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
-
-    if (!error.empty())
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (SubscribeDB::getMaxVersion) - " << error);
-    }
-
+    mongo::BSONObj query = BSON(Subscription::uri_fld() << uri.str());
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     unsigned int value = 0;
     while (pCursor.get() && pCursor->more())
     {
@@ -436,6 +372,7 @@ int SubscribeDB::getMaxVersion(const UtlString& uri) const
         if (value < row.version())
             value = row.version();
     }
+	conn.done();
     return value;
 }
 

@@ -49,10 +49,24 @@ NatTraversalRules::NatTraversalRules()
 // Destructor
 NatTraversalRules::~NatTraversalRules()
 {
-   delete mpDoc;
-   delete mpPatterns;
-   delete mpStunClient;
+    // object are creates in readConfig so not gauronteed to be created
+    if (mpDoc != NULL)
+    {
+        delete mpDoc;
+        mpDoc = NULL;
+    }
 
+    if (mpPatterns != NULL)
+    {
+        delete mpPatterns;
+        mpPatterns = NULL;
+    }
+
+    if (mpStunClient != NULL)
+    {
+        delete mpStunClient;
+        mpStunClient = NULL;
+    }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -98,6 +112,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
    if( mpStunClient )
    {
       delete mpStunClient;
+      mpStunClient = NULL;
    }
 
    // get the 'nattraversal' node

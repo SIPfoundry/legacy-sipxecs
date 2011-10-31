@@ -10,7 +10,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "cppunit/TestCase.h"
 #include "sipxunit/TestUtilities.h"
-#include "testlib/FileTestContext.h"
+#include "sipxunit/FileTestContext.h"
 #include "utl/PluginHooks.h"
 #include "os/OsConfigDb.h"
 

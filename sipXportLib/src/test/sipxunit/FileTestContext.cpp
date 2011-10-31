@@ -15,9 +15,8 @@
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
 #include "os/OsLogger.h"
-#include "sipXecsService/SipXecsService.h"
 #include "sipxunit/TestUtilities.h"
-#include "testlib/FileTestContext.h"
+#include "sipxunit/FileTestContext.h"
 
 // DEFINES
 // CONSTANTS

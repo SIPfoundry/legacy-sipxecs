@@ -129,7 +129,7 @@ void initSysLog(OsConfigDb* pConfig)
 
    Os::LoggerHelper::instance().processName = "sipxpark";
    Os::Logger::instance().log(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
-                 VERSION, PACKAGE_REVISION
+                 PACKAGE_VERSION, PACKAGE_REVISION
                  );
 
    //
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
         NameValueTokenizer::frontBackTrim(&argString, "\t ");
         if(argString.compareTo("-v") == 0)
         {
-            osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
+            osPrintf("Version: %s (%s)\n", PACKAGE_VERSION, PACKAGE_REVISION);
             return(1);
         } else
         {
@@ -337,6 +337,7 @@ int main(int argc, char* argv[])
 
     OsConfigDb  domainConfiguration;
     OsPath      domainConfigPath = SipXecsService::domainConfigPath();
+    mongo::ConnectionString mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
 
     if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
     {
@@ -353,7 +354,8 @@ int main(int argc, char* argv[])
              UtlString ha1_authenticator;
              UtlString authtype;
 
-             if (EntityDB::defaultCollection().collection().getCredential(identity, realm, user, ha1_authenticator, authtype))
+             EntityDB    entityDb(MongoDB::ConnectionInfo(mongoConnectionString, EntityDB::NS));
+             if (entityDb.getCredential(identity, realm, user, ha1_authenticator, authtype))
              {
                 if ((line = new SipLine( identity // user entered url
                                         ,identity // identity url
@@ -555,10 +557,11 @@ int main(int argc, char* argv[])
     listener.start();
 
     // Create the SIP Subscribe Server
+    SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConnectionString, SubscribeDB::NS));
     SipPersistentSubscriptionMgr
        subscriptionMgr(SUBSCRIPTION_COMPONENT_PARK,
                        domain,
-                       SubscribeDB::defaultNamespace().c_str()); // Component for holding the subscription data
+                       subscribeDb); // Component for holding the subscription data
     SipSubscribeServerEventHandler policyHolder; // Component for granting the subscription rights
     SipPublishContentMgr publisher; // Component for publishing the event contents
 

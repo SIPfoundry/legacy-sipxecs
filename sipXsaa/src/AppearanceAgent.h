@@ -29,7 +29,7 @@
 #include "AppAgentTask.h"
 #include "AppearanceGroupFileReader.h"
 #include "AppearanceGroupSet.h"
-#include <sipdb/SubscribeDB.h>
+#include <sipdb/EntityDB.h>
 
 
 // DEFINES
@@ -99,10 +99,8 @@ class AppearanceAgent : public UtlContainableAtomic
                       int serverDefaultExpiration,
                       /// Maximum expiration to grant incoming SUBSCRIBEs.
                       int serverMaxExpiration,
-                      /// Name of the subscription DB to use (for testing purposes)
-                      const UtlString&  subscriptionDbName = SubscribeDB::defaultNamespace().c_str(),
-                      /// Name of the credentials DB to use (for testing purposes)
-                      const UtlString&  credentialsDbName = "credential"
+                      SubscribeDB& subscribeDb,
+                      EntityDB& entityDb
       );
 
    /// Applications should call shutdown() before calling the destructor

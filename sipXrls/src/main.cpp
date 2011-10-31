@@ -185,15 +185,13 @@ void initSysLog(OsConfigDb* pConfig)
 }
 
 // Get and add the credentials for sipXrls
-SipLineMgr* addCredentials (UtlString domain, UtlString realm)
+SipLineMgr* addCredentials (UtlString domain, UtlString realm, EntityDB& entityDb)
 {
    SipLine* line = NULL;
    SipLineMgr* lineMgr = NULL;
    UtlString user;
 
-   MongoDB::Collection<EntityDB>& credentialDB = EntityDB::defaultCollection();
-
-  Url identity;
+   Url identity;
 
   identity.setUserId(RLSSERVER_ID_TOKEN);
   identity.setHostAddress(domain);
@@ -201,7 +199,7 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
   UtlString authtype;
   bool bSuccess = false;
 
-  if (credentialDB.collection().getCredential(identity, realm, user, ha1_authenticator, authtype))
+  if (entityDb.getCredential(identity, realm, user, ha1_authenticator, authtype))
   {
      if ((line = new SipLine( identity // user entered url
                              ,identity // identity url
@@ -411,8 +409,11 @@ int main(int argc, char* argv[])
        serverMaxExpiration = RLS_DEFAULT_SERVER_MAX_EXPIRATION;
    }
 
+   mongo::ConnectionString mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
+   EntityDB entityDb(MongoDB::ConnectionInfo(mongoConnectionString, EntityDB::NS));
+
    // add the ~~sipXrls credentials so that sipXrls can respond to challenges
-   SipLineMgr* lineMgr = addCredentials(domainName, realm);
+   SipLineMgr* lineMgr = addCredentials(domainName, realm, entityDb);
    if(NULL == lineMgr)
    {
       return 1;
@@ -421,6 +422,8 @@ int main(int argc, char* argv[])
    if (!gShutdownFlag)
    {
       // Initialize the ResourceListServer.
+      mongo::ConnectionString mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
+	  SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConnectionString, SubscribeDB::NS));
       ResourceListServer rls(domainName, realm, lineMgr,
                              DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
                              tcpPort, udpPort, PORT_NONE, bindIp,
@@ -430,7 +433,9 @@ int main(int argc, char* argv[])
                              20, 20, 20, 20,
                              serverMinExpiration,
                              serverDefaultExpiration,
-                             serverMaxExpiration);
+                             serverMaxExpiration,
+                             subscribeDb,
+                             entityDb);
       rls.start();
 
       // Loop forever until signaled to shut down

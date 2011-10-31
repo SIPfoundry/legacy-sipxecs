@@ -15,9 +15,9 @@
 #ifndef SUBSCRIBEDB_H
 #define	SUBSCRIBEDB_H
 
+#include "sipdb/Subscription.h"
 #include "utl/UtlString.h"
 #include "net/Url.h"
-#include "sipdb/Subscription.h"
 
 
 // "component" value for sipXpublisher a/k/a the Status Server
@@ -45,21 +45,25 @@
 #define SUBSCRIPTION_COMPONENT_SAA "saa"
 #endif
 
-class SubscribeDB : public MongoDB::DBInterface
+class SubscribeDB : public MongoDB::BaseDB
 {
 public:
+	static const std::string NS;
     typedef std::vector<Subscription> Subscriptions;
-    typedef MongoDB::Collection<SubscribeDB> Collection;
-    typedef boost::shared_ptr<SubscribeDB::Collection> Ptr;
-    SubscribeDB(
-        MongoDB& db,
-        const std::string& ns = SubscribeDB::_defaultNamespace);
+    SubscribeDB(const MongoDB::ConnectionInfo& info) :
+		BaseDB(info)
+	{
+	}
+	;
 
-    ~SubscribeDB();
+	~SubscribeDB()
+	{
+	}
+	;
 
-    void getAllRows(Subscriptions& subscriptions);
+    void getAll(Subscriptions& subscriptions);
 
-    bool insertRow (
+    void upsert (
         const UtlString& component,
         const UtlString& uri,
         const UtlString& callId,
@@ -78,14 +82,14 @@ public:
         unsigned int version);
 
     //delete methods - delete a subscription session
-    void removeRow (
+    void remove (
        const UtlString& component,
        const UtlString& to,
        const UtlString& from,
        const UtlString& callid,
        const int& subscribeCseq );
 
-    void removeErrorRow (
+    void removeError (
        const UtlString& component,
        const UtlString& to,
        const UtlString& from,
@@ -98,7 +102,7 @@ public:
        const UtlString& callid,
        const int timeNow);
 
-    void removeRows (const UtlString& key);
+//    void removeRows (const UtlString& key);
 
     void removeExpired( const UtlString& component, const int timeNow );
 
@@ -123,18 +127,18 @@ public:
         const UtlString& id,
         int timeNow,
         int updatedNotifyCseq,
-        int version ) const;
+        int version) const;
 
-    bool updateSubscribeUnexpiredSubscription (
-        const UtlString& component,
-        const UtlString& to,
-        const UtlString& from,
-        const UtlString& callid,
-        const UtlString& eventTypeKey,
-        const UtlString& id,
-        const int& timeNow,
-        const int& expires,
-        const int& updatedSubscribeCseq) const;
+//    void updateSubscribeUnexpiredSubscription (
+//        const UtlString& component,
+//        const UtlString& to,
+//        const UtlString& from,
+//        const UtlString& callid,
+//        const UtlString& eventTypeKey,
+//        const UtlString& id,
+//        const int& timeNow,
+//        const int& expires,
+//        const int& updatedSubscribeCseq) const;
 
     void updateToTag(
        const UtlString& callid,
@@ -150,17 +154,7 @@ public:
 
     int getMaxVersion(const UtlString& uri) const;
 
-    static const std::string& defaultNamespace();
-
-    static MongoDB::Collection<SubscribeDB>& defaultCollection();
-
-private:
-    static std::string _defaultNamespace;
 };
-
-//
-// Inlines
-//
 
 #endif	/* SUBSCRIBEDB_H */
 

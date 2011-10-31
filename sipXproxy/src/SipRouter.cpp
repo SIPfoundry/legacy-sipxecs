@@ -66,7 +66,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mNonceExpiration(NONCE_EXPIRATION_PERIOD) // the period in seconds that nonces are valid
    ,mpForwardingRules(&forwardingRules)
    ,mAuthPlugins(AuthPlugin::Factory, AuthPlugin::Prefix),
-    _pEntities(0)
+   mpEntityDb(0)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -146,8 +146,6 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                     mRealm.data());
    }
 
-    _pEntities = new Collection(EntityDB::defaultNamespace());
-
    // Get the secret to be used in the route recognition hash.
    // get the shared secret for generating signatures
    mSharedSecret = new SharedSecret(domainConfig);
@@ -181,6 +179,9 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
       delete _pBridgeRouter;
       _pBridgeRouter = 0;
    }
+
+   MongoDB::ConnectionInfo info(MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS);
+   mpEntityDb = new EntityDB(info);
 
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();
@@ -296,7 +297,11 @@ SipRouter::~SipRouter()
       mpSipUserAgent->removeMessageObserver(*getMessageQueue());
    }
    delete mSharedSecret;
-   delete _pEntities;
+   if (mpEntityDb != NULL)
+   {
+	   delete mpEntityDb;
+	   mpEntityDb = NULL;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -1333,13 +1338,10 @@ bool SipRouter::getCredential (
     UtlString identity;
     uri.getIdentity(identity);
 
-    if (!_pEntities)
-        return false;
-
     OS_LOG_INFO(FAC_SIP, "SipRouter::getCredential - EntityDB::findByIdentity");
 
     EntityRecord entity;
-    if (!_pEntities->collection().findByIdentity(identity.str(), entity))
+    if (!mpEntityDb->findByIdentity(identity.str(), entity))
         return false;
 
     if (entity.realm() != realm.str())
@@ -1360,11 +1362,8 @@ bool SipRouter::getCredential (
    UtlString& passtoken,
    UtlString& authType) const
 {
-    if (!_pEntities)
-        return false;
-
     EntityRecord entity;
-    if (!_pEntities->collection().findByUserId(userid.str(), entity))
+    if (!mpEntityDb->findByUserId(userid.str(), entity))
         return false;
 
     if (entity.realm() != realm.str())

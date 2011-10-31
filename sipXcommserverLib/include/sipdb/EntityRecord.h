@@ -21,7 +21,6 @@
 #include <boost/shared_ptr.hpp>
 #include "sipdb/MongoDB.h"
 
-
 class EntityRecord
 {
 public:
@@ -89,7 +88,7 @@ public:
 
     void swap(EntityRecord& entity);
 
-    EntityRecord& operator =(const MongoDB::BSONObj& bsonObj);
+    EntityRecord& operator =(const mongo::BSONObj& bsonObj);
 
     //
     // The unique record object-id

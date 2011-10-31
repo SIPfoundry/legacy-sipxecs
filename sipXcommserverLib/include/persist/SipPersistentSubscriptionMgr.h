@@ -8,87 +8,24 @@
 #ifndef _SipPersistentSubscriptionMgr_h_
 #define _SipPersistentSubscriptionMgr_h_
 
-// SYSTEM INCLUDES
-
-// APPLICATION INCLUDES
-
+#include <sipdb/SubscribeDB.h>
+#include <net/SipDialogMgr.h>
+#include <net/SipSubscriptionMgr.h>
 #include <os/OsMsgQ.h>
 #include <os/OsTimer.h>
 #include <os/OsTime.h>
 #include <os/OsServerTask.h>
-#include <net/SipDialogMgr.h>
-#include <net/SipSubscriptionMgr.h>
-#include <sipdb/SubscribeDB.h>
-
-// DEFINES
-// MACROS
-// EXTERNAL FUNCTIONS
-// EXTERNAL VARIABLES
-// CONSTANTS
-// STRUCTS
-// FORWARD DECLARATIONS
 
 class SipMessage;
 class UtlString;
 
-// TYPEDEFS
-
-
-/// Task that periodically writes changes from the in-memory IMDB to the disk files.
-class SipPersistentSubscriptionMgrTask : public OsServerTask
-{
-/* //////////////////////////// PUBLIC //////////////////////////////////// */
-public:
-
-/* ============================ CREATORS ================================== */
-   typedef boost::shared_ptr<MongoDB::Collection<SubscribeDB> > SubscribeDBPtr;
-   //! Default constructor
-   SipPersistentSubscriptionMgrTask(SubscribeDBPtr subscriptionDBInstance);
-
-   //! Destructor
-   virtual
-      ~SipPersistentSubscriptionMgrTask();
-
-/* ============================ MANIPULATORS ============================== */
-
-   UtlBoolean handleMessage(OsMsg& rMsg);
-     //: Method to process messages which get queued for this OsServerTask.
-
-/* ============================ ACCESSORS ================================= */
-
-/* ============================ INQUIRY =================================== */
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-protected:
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
-
-   //! Pointer to the SubscriptionDB instance that handles persistence.
-   SubscribeDBPtr _pSubscriptions;
-
-   //! Copy constructor NOT ALLOWED
-   SipPersistentSubscriptionMgrTask(const SipPersistentSubscriptionMgrTask& rSipPersistentSubscriptionMgrTask);
-
-   //! Assignment operator NOT ALLOWED
-   SipPersistentSubscriptionMgrTask& operator=(const SipPersistentSubscriptionMgrTask& rhs);
-
-};
-
-
 /*! Class for maintaining SUBSCRIBE dialog information in subscription server
  *  and storing the subscription states in the subscription.xml table.
- */
-/*!
- *
- * \par
  */
 class SipPersistentSubscriptionMgr : public SipSubscriptionMgr
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-
-/* ============================ CREATORS ================================== */
 
    //! Default constructor
    SipPersistentSubscriptionMgr(
@@ -96,14 +33,11 @@ public:
       const UtlString& component,
       /// the AOR domain name
       const UtlString& domain,
-      /// the name of the IMDB file
-      const UtlString& fileName = SubscribeDB::defaultNamespace().c_str());
+      SubscribeDB& db);
 
    //! Destructor
    virtual
       ~SipPersistentSubscriptionMgr();
-
-/* ============================ MANIPULATORS ============================== */
 
    //! Asks the SipPersistentSubscriptionMgr to initialize itself and sets the address 
    // of the queue to which to send resend messages.  The SipPersistentSubscriptionMgr
@@ -177,20 +111,14 @@ public:
                               int version,
                               const UtlString& eventTypeKey);
 
-/* ============================ ACCESSORS ================================= */
-
     /** get the next notify body "version" value that is allowed
      *  for a resource (as far as is known by this SipSubscriptionMgr).
      *  If no information is available, returns 0.
      */
     virtual int getNextAllowedVersion(const UtlString& resourceId);
 
-/* ============================ INQUIRY =================================== */
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
    //! "component" value to use in IMDB rows.
@@ -199,24 +127,8 @@ private:
    //! the AOR domain name
    UtlString mDomain;
 
-   //! Pointer to the SubscriptionDB instance that handles persistence.
-   typedef boost::shared_ptr<MongoDB::Collection<SubscribeDB> > SubscribeDBPtr;
-   SubscribeDBPtr _pSubscriptions;
+   SubscribeDB& mDB;
    
-   //! Timer for flushing changes to disk.
-   /** When the IMDB table is dirty (changes have not been written to disk),
-    *  this timer is running; when it is clean, this timer is stopped.
-    *  (This works because the OsTimer start and stop methods are fully
-    *  interlocked, and report whether the timer was previously running.)
-    */
-   OsTimer mPersistenceTimer;
-
-   //! Time interval to save changes to disk.
-   static const OsTime sPersistInterval;
-
-   //! Task to save changes to disk.
-   SipPersistentSubscriptionMgrTask mPersistTask;
-
    //! Copy constructor NOT ALLOWED
    SipPersistentSubscriptionMgr(const SipPersistentSubscriptionMgr& rSipPersistentSubscriptionMgr);
 
@@ -224,8 +136,5 @@ private:
    SipPersistentSubscriptionMgr& operator=(const SipPersistentSubscriptionMgr& rhs);
 
 };
-
-/* ============================ INLINE METHODS ============================ */
-
 
 #endif  // _SipPersistentSubscriptionMgr_h_

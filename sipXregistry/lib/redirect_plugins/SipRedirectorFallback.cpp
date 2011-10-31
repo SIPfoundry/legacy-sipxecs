@@ -19,6 +19,8 @@
 #include "SipRedirectorFallback.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
+#include "sipdb/EntityDB.h"
+#include "registry/SipRegistrar.h"
 
 // DEFINES
 // MACROS
@@ -229,7 +231,8 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
         // This is not a problem given that a user should only belong to one location.
 
          EntityRecord entity;
-         if (_dataStore.entityDB().findByIdentity(authenticatedUserIdentity.str(), entity))
+         EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+         if (entityDb->findByIdentity(authenticatedUserIdentity.str(), entity))
         {
 
               callerLocation = entity.location().c_str();

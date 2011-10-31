@@ -212,8 +212,7 @@ class SipRouter : public OsServerTask
 
 	 friend class SipBridgeRouter;
 
-   typedef MongoDB::Collection<EntityDB> Collection;
-   Collection*_pEntities;
+   EntityDB* mpEntityDb;
 };
 
 /* ============================ INLINE METHODS ============================ */

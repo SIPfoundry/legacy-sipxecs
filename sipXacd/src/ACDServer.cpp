@@ -222,6 +222,9 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
          gShutdownFlag = true;
       }
    }
+
+   MongoDB::ConnectionInfo c(MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS);
+   mEntityDB = new EntityDB(c);
 }
 
 
@@ -286,6 +289,9 @@ ACDServer::~ACDServer()
          pACDRtRec->appendAcdEvent(ACDRtRecord::STOP_ACD);
       }
       delete mpAcdRtRecord;
+   }
+   if (mEntityDB) {
+	   delete mEntityDB;
    }
 }
 

@@ -24,7 +24,7 @@
 #include <net/Url.h>
 #include <persist/SipPersistentSubscriptionMgr.h>
 #include <os/OsBSem.h>
-#include "registry/RegDataStore.h"
+#include <sipdb/RegDB.h>
 
 // DEFINES
 // MACROS
@@ -152,8 +152,6 @@ class RegisterEventServer
 
    //! Disabled assignment operator
    RegisterEventServer& operator=(const RegisterEventServer& rhs);
-
-   RegDataStore _dataStore;
 
 };
 

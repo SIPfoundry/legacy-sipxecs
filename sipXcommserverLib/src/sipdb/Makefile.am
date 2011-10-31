@@ -39,5 +39,3 @@ libsipdb_la_SOURCES =  \
    Subscription.cpp \
    SubscribeDB.cpp \
    ResultSet.cpp
-
-

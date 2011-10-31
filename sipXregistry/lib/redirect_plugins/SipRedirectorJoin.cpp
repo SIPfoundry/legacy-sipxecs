@@ -24,6 +24,8 @@
 #include "net/SipLineMgr.h"
 #include "registry/SipRedirectServer.h"
 #include "net/SipMessage.h"
+#include "registry/SipRegistrar.h"
+#include "sipdb/EntityDB.h"
 
 // DEFINES
 
@@ -961,7 +963,8 @@ SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
       UtlString authtype;
       bool bSuccess = false;
 
-      if (_dataStore.entityDB().getCredential(identity, realm, user, ha1_authenticator, authtype))
+      EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+      if (entityDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
          if ((line = new SipLine( identity // user entered url
                                  ,identity // identity url

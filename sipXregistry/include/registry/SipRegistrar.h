@@ -20,6 +20,9 @@
 #include "os/OsServerTask.h"
 #include "utl/UtlHashMap.h"
 #include "utl/PluginHooks.h"
+#include "sipdb/RegDB.h"
+#include "sipdb/SubscribeDB.h"
+#include "sipdb/EntityDB.h"
 
 // DEFINES
 // MACROS
@@ -117,6 +120,13 @@ public:
     /// Get the config DB
     OsConfigDb* getConfigDB();
 
+
+    RegDB* getRegDB() { return mpRegDb; }
+
+    SubscribeDB* getSubscribeDB() { return mpSubscribeDb; }
+
+    EntityDB* getEntityDB() { return mpEntityDb; }
+
     // Is this registrar authoritative for the domain in this URL?
     bool isValidDomain(const Url& uri) const;
     /**<
@@ -179,6 +189,13 @@ private:
    UtlString mBindIp;    /// Local Ip address to bind on
 
    std::string _nodeConfig;
+
+   RegDB* mpRegDb;
+
+   SubscribeDB* mpSubscribeDb;
+
+   EntityDB* mpEntityDb;
+
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();
    void sendToRegistrarServer(OsMsg& eventMessage);

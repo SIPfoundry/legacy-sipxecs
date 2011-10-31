@@ -15,6 +15,8 @@
 #include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorMapping.h"
+#include "sipdb/EntityDB.h"
+#include "registry/SipRegistrar.h"
 
 // DEFINES
 // MACROS
@@ -127,7 +129,8 @@ SipRedirectorMapping::lookUp(
 
       EntityRecord entity;
      std::set<std::string> permissions;
-     if (_dataStore.entityDB().findByIdentityOrAlias(requestUri, entity))
+     EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+     if (entityDb->findByIdentityOrAlias(requestUri, entity))
         permissions = entity.permissions();
      size_t numDBPermissions = permissions.size();
 

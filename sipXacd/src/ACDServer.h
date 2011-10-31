@@ -16,6 +16,8 @@
 #include <net/Url.h>
 #include <net/ProvisioningClass.h>
 #include <net/ProvisioningAttrList.h>
+#include <sipdb/EntityDB.h>
+#include <assert.h>
 
 // DEFINES
 #define CONFIG_LOG_FILE               "sipxacd.log"
@@ -106,6 +108,8 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
+   EntityDB*	      getEntityDB(void) { return mEntityDB; } ;
+
    ProvisioningAgent* getProvisioningAgent(void);
 
    ACDCallManager*    getAcdCallManager(void);
@@ -147,6 +151,8 @@ private:
    ACDQueueManager*   mpAcdQueueManager;
    ACDAudioManager*   mpAcdAudioManager;
    ACDRtRecord*       mpAcdRtRecord;
+   EntityDB*	      mEntityDB;
+
 #ifdef CML
    ACDRpcServer*      mpAcdRpcServer;
 #endif

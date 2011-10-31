@@ -10,9 +10,6 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "cppunit/TestCase.h"
 #include "sipxunit/TestUtilities.h"
-#include "testlib/SipDbTestContext.h"
-#include "sipdb/PermissionDB.h"
-#include "sipdb/CredentialDB.h"
 #include "os/OsDefs.h"
 #include "os/OsConfigDb.h"
 #include "utl/PluginHooks.h"
@@ -41,21 +38,19 @@ class EnforceAuthRulesTest : public CppUnit::TestCase
 public:
 
    static EnforceAuthRules* enforcer;
-   static SipDbTestContext  TestDbContext;
+//   static SipDbTestContext  TestDbContext;
 
    void setUp()
       {
          SipXauthIdentity::setSecret("fixed");
          RouteState::setSecret("fixed");
-         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
-         TestDbContext.inputFile("permission.xml");
-         TestDbContext.inputFile("credential.xml");
+//         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
+//         TestDbContext.inputFile("permission.xml");
+//         TestDbContext.inputFile("credential.xml");
       }
 
    void tearDown()
       {
-         PermissionDB::getInstance()->releaseInstance();
-         CredentialDB::getInstance()->releaseInstance();
       }
 
    /* ****************************************************************
@@ -778,4 +773,4 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(EnforceAuthRulesTest);
 
 EnforceAuthRules* EnforceAuthRulesTest::enforcer = dynamic_cast<EnforceAuthRules*>(getAuthPlugin("enforce"));
-SipDbTestContext  EnforceAuthRulesTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "/enforceauthrules_context");
+//SipDbTestContext  EnforceAuthRulesTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "/enforceauthrules_context");

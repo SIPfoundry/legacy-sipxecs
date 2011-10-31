@@ -31,6 +31,7 @@
 #include "statusserver/SubscribePersistThread.h"
 #include "statusserver/SubscribeServerThread.h"
 #include "config.h"
+#include "assert.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -65,7 +66,9 @@ StatusServer::StatusServer(
     mSubscribeThreadInitialized(FALSE),
     mSubscribePersistThread(NULL),
     mpServerSocket(serverSocket),
-    mHttpServer(httpServer)
+    mHttpServer(httpServer),
+    mSubscribeDb( NULL ),
+    mEntityDb( NULL )
 {
     mConfigDirectory.remove(0);
     mConfigDirectory.append(configDir);
@@ -119,6 +122,10 @@ StatusServer::StatusServer(
 
     Url domain(mDefaultDomain);
     domain.getHostAddress(mlocalDomainHost);
+
+    mongo::ConnectionString mongo = MongoDB::ConnectionInfo::connectionStringFromFile();
+    mSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo(mongo, SubscribeDB::NS));
+    mEntityDb = new EntityDB(MongoDB::ConnectionInfo(mongo, EntityDB::NS));
 
     mIsCredentialDB = useCredentialDB;
 

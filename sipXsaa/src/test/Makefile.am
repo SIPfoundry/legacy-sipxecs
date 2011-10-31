@@ -13,7 +13,6 @@ COMMON_CXX_FLAGS = \
 
 COMMON_LIBS = \
    @SIPXUNIT_LIBS@ \
-   @SIPXCOMMSERVERTEST_LIBS@ \
    @SIPXCOMMSERVER_LIBS@
 
 testsuite_CXXFLAGS = \
@@ -23,7 +22,6 @@ testsuite_SOURCES = \
     ../AppearanceAgent.cpp \
     ../Appearance.cpp \
     ../AppearanceGroup.cpp \
-    ../AppearanceGroupFileReader.cpp \
     ../AppearanceGroupSet.cpp \
     ../AppAgentSubscribePolicy.cpp \
     ../AppAgentTask.cpp \

@@ -20,6 +20,9 @@
 #include "net/SipXauthIdentity.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
+#include "registry/SipRegistrar.h"
+#include "sipdb/EntityDB.h"
+
 
 // DEFINES
 // MACROS
@@ -123,7 +126,8 @@ SipRedirectorAliasDB::lookUp(
 
    EntityDB::Aliases aliases;
    bool isUserIdentity = false;
-   _dataStore.entityDB().getAliasContacts(requestUri, aliases, isUserIdentity);
+   EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+   entityDb->getAliasContacts(requestUri, aliases, isUserIdentity);
    int numAliasContacts = aliases.size();
 
    if (numAliasContacts > 0)

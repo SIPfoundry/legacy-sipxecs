@@ -6,6 +6,5 @@ nobase_include_HEADERS =  \
 	registry/RedirectPlugin.h \
 	registry/RedirectSuspend.h \
 	registry/RegisterPlugin.h \
-	registry/RegDataStore.h \
 	registry/SipRedirectServer.h \
 	registry/SipRegistrar.h

@@ -11,7 +11,7 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
-#include "testlib/FileTestContext.h"
+#include "sipxunit/FileTestContext.h"
 #include "sipXecsService/SipXecsService.h"
 
 class SipXecsServiceTest : public CppUnit::TestCase

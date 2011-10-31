@@ -13,7 +13,6 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "os/OsFS.h"
-#include "sipXecsService/SipXecsService.h"
 
 // DEFINES
 // CONSTANTS

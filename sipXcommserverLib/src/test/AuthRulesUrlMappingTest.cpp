@@ -15,7 +15,7 @@
 #include "digitmaps/AuthRulesUrlMapping.h"
 #include "sipdb/ResultSet.h"
 
-#include "testlib/FileTestContext.h"
+#include "sipxunit/FileTestContext.h"
 #include "net/SipMessage.h"
 
 #define VM "VoIcEmAiL"

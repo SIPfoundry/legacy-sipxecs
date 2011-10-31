@@ -46,10 +46,12 @@ EnforceAuthRules::EnforceAuthRules(const UtlString& pluginName ///< the name for
    , mRulesLock(OsRWMutex::Q_FIFO)
    , mpAuthorizationRules(NULL),
     mpSipRouter(0),
-    _pEntities(0)
+    mpEntityDb(0)
 {
     Os::Logger::instance().log(FAC_SIP,PRI_INFO,"EnforceAuthRules plugin instantiated '%s'",
                  mInstanceName.data());
+	MongoDB::ConnectionInfo info(MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS);
+	mpEntityDb = new EntityDB(info);
 };
 
 /// Read (or re-read) the authorization rules.
@@ -275,7 +277,7 @@ bool EnforceAuthRules::isAuthorized(const UtlString& id,
 
     EntityRecord entity;
     std::string identity = id.str();
-    if (!_pEntities->collection().findByIdentity(identity, entity))
+    if (!mpEntityDb->findByIdentity(identity, entity))
         return false;
 
     std::set<std::string> grantedPermissions = entity.permissions();
@@ -348,16 +350,15 @@ EnforceAuthRules::~EnforceAuthRules()
          mpAuthorizationRules = NULL;
       }
    }
-   delete _pEntities;
-   _pEntities = 0;
+   if (mpEntityDb != NULL)
+   {
+	   delete mpEntityDb;
+	   mpEntityDb = NULL;
+   }
 }
 
 
 void EnforceAuthRules::announceAssociatedSipRouter(SipRouter* sipRouter)
 {
     mpSipRouter = sipRouter;
-    if (!_pEntities)
-    {
-        _pEntities = new Collection(EntityDB::defaultNamespace());
-    }
 }

@@ -16,6 +16,7 @@
 #include "utl/UtlHashMap.h"
 #include "net/SipOutputProcessor.h"
 #include "sipdb/RegDB.h"
+#include "sipdb/SubscribeDB.h"
 #include "NatTraversalRules.h"
 
 // APPLICATION INCLUDES
@@ -113,10 +114,9 @@ class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
    MediaRelay*       mpMediaRelay;
    NatMaintainer*    mpNatMaintainer;
    OsTimer           mCleanupTimer;
-   bool              mbConnectedToRegistrationDB;
    ssize_t           mNextAvailableCallTrackerHandle;
-
-   RegDB::Ptr _pRegDB;
+   RegDB*            mpRegDb;
+   SubscribeDB*      mpSubscribeDb;
 
    friend AuthPlugin* getAuthPlugin(const UtlString& name);
    friend class NatTraversalAgentTest;
