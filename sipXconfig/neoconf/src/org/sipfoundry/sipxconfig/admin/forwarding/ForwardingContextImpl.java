@@ -14,6 +14,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.Hibernate;
+import org.hibernate.Query;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
@@ -40,10 +44,11 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private static final String PARAM_USER_ID = "userId";
     private static final String PARAM_USER_GROUP_ID = "userGroupId";
     private static final String PARAM_NAME = "name";
-
+    private static final String SQL_CALLSEQUENCE_IDS = "select distinct u.user_id from users u";
     private CoreContext m_coreContext;
     private JdbcTemplate m_jdbcTemplate;
     private DaoEventPublisher m_daoEventPublisher;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     /**
      * Looks for a call sequence associated with a given user.
@@ -102,8 +107,17 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
      * @return list of CallSequence objects
      */
     private List<CallSequence> loadAllCallSequences() {
-        List<CallSequence> sequences = (List<CallSequence>) getHibernateTemplate().find("from CallSequence cs");
-        return sequences;
+        List<CallSequence> callSequences = new ArrayList<CallSequence>();
+        Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
+        .createSQLQuery(SQL_CALLSEQUENCE_IDS).addScalar("user_id", Hibernate.INTEGER);
+        List<Integer> ids = q.list();
+        for (Integer id : ids) {
+            CallSequence cs = getCallSequenceForUserId(id);
+            if (CollectionUtils.isNotEmpty(cs.getRings())) {
+                callSequences.add(cs);
+            }
+        }
+        return callSequences;
     }
 
     public void setCoreContext(CoreContext coreContext) {
@@ -287,9 +301,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof DSTChangeEvent) {
-            for (CallSequence callSequence : loadAllCallSequences()) {
-                m_daoEventPublisher.publishSave(callSequence);
-            }
+            m_sipxReplicationContext.regenerateCallSequences(loadAllCallSequences());
         }
     }
 
@@ -321,5 +333,9 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
+    }
+
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }
