@@ -52,7 +52,14 @@
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="waste"/>
+#if(${conference.getSettingTypedValue("fs-conf-conference/quickstart")})
       <param name="conference-flags" value="waste-bandwidth"/>
+#else
+      <param name="conference-flags" value="waste-bandwidth | wait-mod"/>
+#end
+#if(${conference.getModeratorAccessCode()})
+      <param name="moderator-pin" value="${conference.getModeratorAccessCode()}"/>
+#end
       <param name="sound-prefix" value="$bridge.getAudioDirectory()"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>

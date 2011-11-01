@@ -9,8 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.springframework.context.ApplicationEvent;
 
@@ -19,6 +22,13 @@ public interface SipxReplicationContext {
     public static final String MONGO_LOCATION_REGISTRATION = "Location registration in IMDB";
     void generateAll();
     void generateAll(DataSet ds);
+    /**
+     * Helper method to regenerate all CS in case of DST change.
+     * We need this method in order to put the regeneration in a job in order to be able to keep track of it.
+     * Otherwise it may be possible to fail silently.
+     * @param cs
+     */
+    void regenerateCallSequences(Collection<CallSequence> cs);
 
     /**
      * Replicates configuration to all locations.

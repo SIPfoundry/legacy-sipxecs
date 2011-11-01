@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
+import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
@@ -119,8 +121,22 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         doWithJobMultiThread("File replication: " + file.getName(), location, work);
     }
 
-    private void generateAllDataWorker(final Location location) {
-
+    public void regenerateCallSequences(final Collection<CallSequence> callSequences) {
+        ReplicateWork work = new ReplicateWork() {
+            @Override
+            public boolean replicate() {
+                try {
+                    for (CallSequence callSequence : callSequences) {
+                        m_replicationManager.replicateEntity(callSequence);
+                    }
+                } catch (Throwable t) {
+                    return false;
+                }
+                return true;
+            }
+        };
+        doWithJob("DST change: regeneration of call sequences.",
+                m_locationsManager.getPrimaryLocation(), work);
     }
 
     private void doWithJobMultiThread(final String jobName, final Location location, final ReplicateWork work) {

@@ -30,6 +30,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -74,12 +75,17 @@ public abstract class OpenAcdClientsPanel extends BaseComponent implements PageB
         if (clientIds.isEmpty()) {
             return;
         }
-        List<String> clients = getOpenAcdContext().removeClients(clientIds);
-        if (!clients.isEmpty()) {
-            String queueNames = StringUtils.join(clients.iterator(), ", ");
-            String errMessage = getMessages().format("msg.err.queueClient", queueNames);
+        try {
+            List<String> clients = getOpenAcdContext().removeClients(clientIds);
+            if (!clients.isEmpty()) {
+                String queueNames = StringUtils.join(clients.iterator(), ", ");
+                String errMessage = getMessages().format("msg.err.queueClient", queueNames);
+                IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+                validator.record(new ValidatorException(errMessage));
+            }
+        } catch (UserException ex) {
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-            validator.record(new ValidatorException(errMessage));
+            validator.record(new ValidatorException(getMessages().getMessage("msg.cannot.connect")));
         }
     }
 }

@@ -47,6 +47,7 @@ import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBeginRenderListener {
+    private static final String ERROR_CONNECT = "msg.cannot.connect";
 
     @InjectObject("spring:openAcdContext")
     public abstract OpenAcdContext getOpenAcdContext();
@@ -90,12 +91,17 @@ public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBe
         if (ids.isEmpty()) {
             return;
         }
-        List<String> queues = getOpenAcdContext().removeQueues(ids);
-        if (!queues.isEmpty()) {
-            String queueNames = StringUtils.join(queues.iterator(), ", ");
-            String errMessage = getMessages().format("msg.err.queueDeletion", queueNames);
+        try {
+            List<String> queues = getOpenAcdContext().removeQueues(ids);
+            if (!queues.isEmpty()) {
+                String queueNames = StringUtils.join(queues.iterator(), ", ");
+                String errMessage = getMessages().format("msg.err.queueDeletion", queueNames);
+                IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+                validator.record(new ValidatorException(errMessage));
+            }
+        } catch (UserException ex) {
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-            validator.record(new ValidatorException(errMessage));
+            validator.record(new ValidatorException(getMessages().getMessage(ERROR_CONNECT)));
         }
     }
 
@@ -154,7 +160,7 @@ public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBe
                 }
             } catch (UserException ex) {
                 IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-                validator.record(new ValidatorException(getMessages().getMessage("msg.cannot.connect")));
+                validator.record(new ValidatorException(getMessages().getMessage(ERROR_CONNECT)));
             }
         }
     }

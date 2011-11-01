@@ -19,6 +19,8 @@ ivr.mwiUrl=https://${location.fqdn}:${statusService.httpsPort}/cgi/StatusEvent.c
 ivr.configUrl=https://${location.fqdn}:8443
 ivr.3pccSecureUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}
 ivr.callHistoryUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}/cdr/
+ivr.sipxSupervisorHost=${location.fqdn}
+ivr.sipxSupervisorXmlRpcPort=${sipxSupervisorXmlRpcPort}
 #if (${sipxServiceManager.isServiceInstalled('sipxOpenfireService')})
 ivr.openfireHost=$!{sipxServiceManager.getServiceParam('openfire-host')}
 ivr.openfireXmlRpcPort=$!{sipxServiceManager.getServiceParam('openfire-xml-rpc-port')}

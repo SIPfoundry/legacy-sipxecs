@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
@@ -69,5 +70,11 @@ public abstract class StatusWarning extends BaseComponent {
     public boolean showReloadWarning() {
         return getSipxProcessContext().needsReload()
                 && !ReloadNeededServicesPage.PAGE.equals(getPage().getPageName());
+    }
+
+    public IPage getStatusPage() {
+        JobStatusPage page =  (JobStatusPage) getPage().getRequestCycle().getPage(JobStatusPage.PAGE);
+        page.setTab("failedJobs");
+        return page;
     }
 }

@@ -88,6 +88,18 @@ public class ConferenceConfigurationTest extends TestCase {
         conf.setAutorecorded(true);
         bridge.addConference(conf);
 
+        conf = new Conference();
+        conf.setModelFilesContext(TestHelper.getModelFilesContext());
+        conf.initialize();
+        conf.setOwner(owner);
+        conf.setExtension("345");
+        conf.setSettingValue(Conference.MAX_LEGS, "4");
+        conf.setUniqueId();
+        conf.setAutorecorded(true);
+        conf.setSettingTypedValue(Conference.QUICKSTART, false);
+        conf.setSettingValue(Conference.MODERATOR_CODE, "3456");
+        bridge.addConference(conf);
+
         ConferenceBridgeContext confContext = EasyMock.createMock(ConferenceBridgeContext.class);
         confContext.getBridgeByServer("test.example.com");
         EasyMock.expectLastCall().andReturn(bridge).once();

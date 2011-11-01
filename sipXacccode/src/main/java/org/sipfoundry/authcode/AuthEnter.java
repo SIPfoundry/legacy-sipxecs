@@ -76,7 +76,6 @@ public class AuthEnter {
             if ((authdigstr == null)  || (authdigstr == "") || (m_config.getAuthCode(authdigstr) == null)) {
                 // The authorization code entered is not valid, play the invalid tone
                 m_loc.play("AuthCode_invalid", "");
-                new Sleep(m_fses, 1000).go();
                 ++errorCount;
                 continue;
             }

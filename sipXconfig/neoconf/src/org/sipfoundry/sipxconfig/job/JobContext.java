@@ -26,9 +26,8 @@ public interface JobContext {
 
     void failure(Serializable jobId, String errorMsg, Throwable exception);
 
-    int removeCompleted();
-
     void clear();
+    void clearFailed();
 
     List<Job> getJobs();
     List<Job> getFailedJobs();
@@ -38,4 +37,5 @@ public interface JobContext {
      * Returns true if there is a least one failed job on the list.
      */
     boolean isFailure();
+    void removeCompleted();
 }

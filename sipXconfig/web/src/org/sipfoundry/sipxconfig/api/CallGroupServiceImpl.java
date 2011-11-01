@@ -34,6 +34,10 @@ public class CallGroupServiceImpl implements CallGroupService {
         m_context.storeCallGroup(myCg);
     }
 
+    public void removeCallGroup(RemoveCallGroup cg) throws RemoteException {
+        m_context.removeCallGroupByAlias(cg.getCallGroup());
+    }
+
     public GetCallGroupsResponse getCallGroups() throws RemoteException {
         GetCallGroupsResponse response = new GetCallGroupsResponse();
         Collection callGroupsColl = m_context.getCallGroups();

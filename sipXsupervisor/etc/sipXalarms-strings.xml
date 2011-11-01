@@ -205,6 +205,11 @@
          <description>A certain user agents is excessively sending packets to sipX.  </description>
          <resolution>sipXecs has blocked a potential DoS attach.  Analyze logs and see if the offender is friendly.</resolution>
       </alarm>
+      <alarm id="VM_LOGIN_FAILED">
+         <shorttitle>Voicemail login failed</shorttitle>
+         <description>Voicemail login attempt as '{0}' failed several times in a short period.</description>
+         <resolution>If condition recurs, may indicate an attempt to break in. </resolution>
+      </alarm>
       <!-- Add new alarms above this line.
           Notes:
             'id='         must match definition in etc/sipXalarms-config.xml

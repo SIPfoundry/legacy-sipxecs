@@ -1,9 +1,0 @@
-<contactData>
-  <groupinfo></groupinfo>
-  <group>
-#foreach($entry in $cfg.Phonebook)
-    <contact sDisplayName="$!entry.FirstName $!entry.LastName" sOfficeNumber="$entry.Number" sMobilNumber="" sOtherNumber="" sLine="0"/>
-#end
-  </group>
-  <blacklist></blacklist>
-</contactData>

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.freeswitch.FreeSwitchConfigurationInterface;
 
 /**
@@ -43,6 +44,8 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     private String m_sendIMUrl;
     private String m_openfireHost; // The host name where the Openfire service runs
     private int m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
+    private String m_sipxSupervisorHost;//The host name where SipX Supervisor runs.
+    private int  m_sipxSupervisorXmlRpcPort;// The port number to use for XML-RPC SipX Supervisor alarm requests
     
     private boolean m_CPUIisPrimary;
     private String  m_nameDialPrefix;
@@ -50,6 +53,8 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     private static IvrConfiguration s_current;
     private static File s_propertiesFile;
     private static long s_lastModified;
+    
+    private static SipXAlarmClient alarmClient;
     
     private IvrConfiguration() {
     }
@@ -76,6 +81,14 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
             }
         }
         return s_current;
+    }
+    
+    public static SipXAlarmClient getAlarmClient() {
+        if (s_current!=null && alarmClient == null) {
+            alarmClient = new SipXAlarmClient(s_current.m_sipxSupervisorHost,
+                    s_current.m_sipxSupervisorXmlRpcPort);
+        }
+        return alarmClient;
     }
     
     void properties() {
@@ -141,6 +154,8 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
             m_httpsPort = Integer.parseInt(props.getProperty(prop = "ivr.httpsPort"));
             m_configUrl = props.getProperty(prop = "ivr.configUrl");
             m_sendIMUrl = props.getProperty("ivr.sendIMUrl");
+            m_sipxSupervisorHost=props.getProperty("ivr.sipxSupervisorHost");
+            m_sipxSupervisorXmlRpcPort=Integer.valueOf(props.getProperty("ivr.sipxSupervisorXmlRpcPort"));
             
             String defaultTUI = props.getProperty("ivr.defaultTui");
             if(defaultTUI == null) {
@@ -284,6 +299,15 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
         return m_nameDialPrefix;
     }
     
+    public String getSipxSupervisorHost() {
+        return m_sipxSupervisorHost;
+    }
+    
+    public int getSipxSupervisorXmlRpcPort() {
+        return m_sipxSupervisorXmlRpcPort;
+    }
+
+    	
 	@Override
 	public Logger getLogger() {
 		return LOG;

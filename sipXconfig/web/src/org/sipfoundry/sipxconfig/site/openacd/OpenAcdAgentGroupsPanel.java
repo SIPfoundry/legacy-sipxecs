@@ -29,6 +29,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -78,10 +79,16 @@ public abstract class OpenAcdAgentGroupsPanel extends BaseComponent implements P
         if (ids.isEmpty()) {
             return;
         }
-        boolean errorMessage = getOpenAcdContext().removeAgentGroups(ids);
-        if (errorMessage) {
+        try {
+            boolean errorMessage = getOpenAcdContext().removeAgentGroups(ids);
+            if (errorMessage) {
+                IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+                validator.record(new ValidatorException(getMessages()
+                        .getMessage("msg.err.defalutAgentGroupDeletion")));
+            }
+        } catch (UserException ex) {
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-            validator.record(new ValidatorException(getMessages().getMessage("msg.err.defalutAgentGroupDeletion")));
+            validator.record(new ValidatorException(getMessages().getMessage("msg.cannot.connect")));
         }
     }
 }

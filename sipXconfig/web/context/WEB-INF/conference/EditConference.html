@@ -28,8 +28,7 @@
                    item="ognl:conference"
                    useExtension="ognl:true"
                    useEnabled="ognl:true"
-                   useDid="ognl:true"
-                   didDescription="message:description.did"/>
+                   useDid="ognl:true"/>
          <fieldset jwcid="@conference/ConferenceOwnerPanel" conference="ognl:conference" />
          <span jwcid="@If" condition="ognl:conference.isNew() && bridgeId == null">
          <table>
@@ -38,7 +37,7 @@
          </span>
       </span>
       <span jwcid="@Else">
-	      <table>
+	      <!--table>
 	          <tr>
 	              <td><label>Name</label></td>
 	              <td><span jwcid="@Insert" value="ognl:conference.name" /></td>
@@ -47,9 +46,9 @@
 	              <td><label>Extension</label></td>
 	              <td><span jwcid="@Insert" value="ognl:conference.extension" /></td>
 	          </tr>
-	      </table>
+	      </table-->
           <fieldset jwcid="@common/ItemCommon" item="ognl:conference"
-			useEnabled="ognl:true" useExtension="ognl:false" useName="ognl:false" />
+			useEnabled="ognl:true" />
       </span>
       <fieldset jwcid="@If" condition="ognl:conference.hasOwner">
         <table>

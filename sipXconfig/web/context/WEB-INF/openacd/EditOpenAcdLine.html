@@ -15,12 +15,6 @@
           value="ognl:name"
           displayName="message:label.name"/>
       </tr>
-      <tr jwcid="@common/FieldPanel" for="item:description" label="message:label.description" field="component:description">
-        <input jwcid="description@TextArea" id="item:description"
-          value="ognl:description"
-          cols="45" rows="5"
-          validators="spring-validators:validFieldSize"/>
-      </tr>
       <tr jwcid="@common/FieldPanel" for="item:extension"
 			label="message:label.extension"
 			description="message:description.extension">
@@ -30,15 +24,6 @@
           value="ognl:lineNumber"
           displayName="message:label.extension"/>
       </tr>
-      <tr jwcid="@common/FieldPanel" for="item:alias"
-			label="message:label.alias"
-			description="message:description.alias">
-        <input jwcid="alias@TextField" id="item:alias"
-          maxlength="40"
-          validators="spring-validators:validPhone"
-          value="ognl:alias"
-          displayName="message:label.alias"/>
-      </tr>
       <tr jwcid="@common/FieldPanel" for="item:did"
 			label="message:label.did"
 			description="message:description.did">
@@ -47,6 +32,21 @@
           validators="spring-validators:validPhone"
           value="ognl:did"
           displayName="message:label.did"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="item:description" label="message:label.description" field="component:description">
+        <input jwcid="description@TextArea" id="item:description"
+          value="ognl:description"
+          cols="45" rows="5"
+          validators="spring-validators:validFieldSize"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="item:alias"
+			label="message:label.alias"
+			description="message:description.alias">
+        <input jwcid="alias@TextField" id="item:alias"
+          maxlength="40"
+          validators="spring-validators:validPhone"
+          value="ognl:alias"
+          displayName="message:label.alias"/>
       </tr>
 	  <tr jwcid="@common/FieldPanel" for="item:queue" field="ognl:null"
 		  label="message:label.queue"

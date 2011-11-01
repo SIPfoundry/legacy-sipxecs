@@ -17,6 +17,7 @@ import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.apache.xmlrpc.XmlRpcException;
 import org.sipfoundry.commons.freeswitch.Collect;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Localization;
@@ -38,6 +39,7 @@ import org.sipfoundry.voicemail.Messages.Folders;
 public class Retrieve {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     static final long MSPERDAY = 1000*60*60*24; // number of mS per day
+    static final String FAILED_LOGIN_ALARM_ID = "VM_LOGIN_FAILED"; //alarm SPX00044 for failed VM login attempts
 
     VoiceMail m_vm;
     Localization m_loc;
@@ -126,6 +128,12 @@ public class Retrieve {
         
         for(;;) {
             if (errorCount > m_vm.getConfig().getInvalidResponseCount()) {
+              try {
+                 IvrConfiguration.getAlarmClient().raiseAlarm(FAILED_LOGIN_ALARM_ID,user.getUserName());
+              } catch ( XmlRpcException ex) {
+                LOG.error("Problem sending alarm to" + m_vm.getIvrConfig().getSipxSupervisorHost() + "and port" + m_vm.getIvrConfig().getSipxSupervisorXmlRpcPort() ,ex);
+              }
+            		
                 m_vm.failure();
                 return null;
             }

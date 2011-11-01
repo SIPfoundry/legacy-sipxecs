@@ -103,6 +103,12 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         deactivateCallGroups(cgs);
     }
 
+    public void removeCallGroupByAlias(String alias) {
+        List ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE, alias);
+        removeCallGroups(ids);
+    }
+
     public UserDeleteListener createUserDeleteListener() {
         return new OnUserDelete();
     }

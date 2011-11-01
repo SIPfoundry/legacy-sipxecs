@@ -1215,7 +1215,6 @@
   <target name="openacd-insert-commands" unless="openacd-insert-commands">
 	<db-patch patch="openacd-insert-commands" />
   </target>
-
   <!--
     - SUPPORT UTILITIES
   -->
