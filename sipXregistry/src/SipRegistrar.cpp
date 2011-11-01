@@ -140,7 +140,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    }
 
    mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
-   mpRegDb = new RegDB(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
+   mpRegDb = new RegDB(MongoDB::ConnectionInfo(mongoConn, RegDB::NS));
    mpSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
    mpEntityDb = new EntityDB(MongoDB::ConnectionInfo(mongoConn, EntityDB::NS));
 
