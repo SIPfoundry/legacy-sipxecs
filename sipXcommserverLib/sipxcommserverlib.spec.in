@@ -16,7 +16,7 @@ BuildRequires: pcre-devel >= 4.5
 BuildRequires: unixODBC-devel >= 2.2
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
-BuildRequires: mongodb-devel
+BuildRequires: mongodb-devel >= 2.0.0
 BuildRequires: glibc-headers
 %if %{_vendor} == redhat
 BuildRequires: httpd-devel
@@ -43,7 +43,7 @@ Requires: sipxtacklib >= %version
 Requires: unixODBC >= 2.2
 Requires: ruby
 Requires: patch
-Requires: mongodb-server
+Requires: mongodb-server >= 2.0.0
 # bind-utils required for dig
 Requires: bind-utils
 Obsoletes: %{name}-doc
@@ -71,7 +71,7 @@ Requires: xerces-c-devel >= 2.6.0
 %endif
 Requires: sipxportlib-devel >= %version
 Requires: sipxtacklib-devel >= %version
-Requires: mongodb-devel
+Requires: mongodb-devel >= 2.0.0
 Requires: unixODBC-devel >= 2.2
 
 Group: Development/Libraries

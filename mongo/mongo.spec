@@ -1,12 +1,12 @@
-Name: mongodb
+Name: mongo
 Version: 2.0.0
-Release: 1%{?dist}
+Release: mongodb_1%{?dist}
 Summary: mongo client shell and tools
 License: AGPL 3.0
 URL: http://www.mongodb.org
 Group: Applications/Databases
 
-Source0: %{name}-src-r%{version}.tar.gz
+Source0: %{name}db-src-r%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: js-devel, readline-devel, boost-devel, pcre-devel
 BuildRequires: gcc-c++, scons
@@ -23,7 +23,7 @@ client utilities.
 %package server
 Summary: mongo server, sharding server, and support scripts
 Group: Applications/Databases
-Requires: mongodb
+Requires: mongo
 
 %description server
 Mongo (from "huMONGOus") is a schema-free document-oriented database.
