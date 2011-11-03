@@ -29,6 +29,7 @@
 	</id>
     <property name="field"/>
     <property name="expression"/>
+    <property name="regex"/>
     <set name="actions" table="freeswitch_action" cascade="all,delete-orphan" order-by="freeswitch_action_id">
       <key column="freeswitch_condition_id" not-null="true"/>
       <one-to-many class="FreeswitchAction"/>

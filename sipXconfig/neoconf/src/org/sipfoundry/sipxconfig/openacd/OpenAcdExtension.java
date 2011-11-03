@@ -25,11 +25,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
@@ -40,6 +44,7 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     public static final String DESTINATION_NUMBER = "destination_number";
     public static final String DESTINATION_NUMBER_PATTERN = "^%s$";
     public static final String EMPTY_STRING = "";
+    public static final String VALID_REGULAR_EXPRESSION = "^\\((\\d+)\\).*$";
     static final String ALIAS_RELATION = "openacd";
     private SipxServiceManager m_serviceManager;
 
@@ -64,6 +69,48 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
             return getNumberCondition().getExtension();
         }
         return null;
+    }
+
+    //We want to allow regular expressions to be used in extension field.
+    //The regex pattern must start with 1 capture group and that capture group to be
+    //the real extension to be sent to the Freeswitch node in the dial string.
+    //We will validate: the regular expression to start with 1 group and the capture group to be
+    //a valid extension. That extension we will validate as alias.
+    //we will validate it only if the user will check the extension as a regular expression.
+    public String getCapturedExtension() {
+        String extension = getExtension();
+        if (extension == null) {
+            return null;
+        }
+        String validPhonePattern = "[\\d*]+";
+        if (getNumberCondition().isRegex()) {
+            //is the extension a valid regular expression?
+            try {
+                Pattern isValidPattern = Pattern.compile(extension);
+            } catch (PatternSyntaxException e) {
+                throw new UserException("&error.regex.invalid");
+            }
+            Pattern validRegex = Pattern.compile(VALID_REGULAR_EXPRESSION);
+            Matcher m = validRegex.matcher(extension);
+            if (!m.matches()) {
+                throw new UserException("&error.regex.no.valid.group");
+            }
+            //we are sure there's a capturing group with index 1
+            //otherwise, the previous match would fail
+            extension = m.group(1);
+        } else {
+            if (!Pattern.matches(validPhonePattern, extension)) {
+                throw new UserException("&error.validPhone");
+            }
+        }
+        return extension;
+    }
+
+    public boolean getRegex() {
+        if (getNumberCondition() != null) {
+            return getNumberCondition().isRegex();
+        }
+        return false;
     }
 
     public List<FreeswitchAction> getLineActions() {
@@ -105,12 +152,14 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
             host = freeswitchService.getAddress();
         }
 
-        String extension = getExtension();
+        String extension = getCapturedExtension();
         int fsPort = freeswitchService.getFreeswitchSipPort();
         String sipUri = SipUri.format(extension, host, fsPort);
 
         AliasMapping nameMapping = new AliasMapping(getName(), SipUri.format(extension, host, fsPort, false),
                 ALIAS_RELATION);
+
+
         AliasMapping lineMapping = new AliasMapping(extension, sipUri, ALIAS_RELATION);
         mappings.addAll(Arrays.asList(nameMapping, lineMapping));
         if (getAlias() != null) {

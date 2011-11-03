@@ -34,7 +34,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -76,8 +75,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private LocationsManager m_locationsManager;
     private ServiceConfigurator m_serviceConfigurator;
     private SipxProcessContext m_processContext;
-
-    private CoreContext m_coreContext;
 
     public abstract OpenAcdExtension newOpenAcdExtension();
 
@@ -152,10 +149,12 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         if (extension.getExtension() == null) {
             throw new UserException("&null.extension");
         }
+        String capturedExt = extension.getCapturedExtension();
+
         if (!m_aliasManager.canObjectUseAlias(extension, extension.getName())) {
             throw new NameInUseException(LINE_NAME, extension.getName());
-        } else if (!m_aliasManager.canObjectUseAlias(extension, extension.getExtension())) {
-            throw new ExtensionInUseException(LINE_NAME, extension.getExtension());
+        } else if (!m_aliasManager.canObjectUseAlias(extension, capturedExt)) {
+            throw new ExtensionInUseException(LINE_NAME, capturedExt);
         } else if (extension.getAlias() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getAlias())) {
             throw new ExtensionInUseException(LINE_NAME, extension.getAlias());
         } else if (extension.getDid() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getDid())) {
@@ -982,10 +981,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
-    }
-
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
     }
 
 }

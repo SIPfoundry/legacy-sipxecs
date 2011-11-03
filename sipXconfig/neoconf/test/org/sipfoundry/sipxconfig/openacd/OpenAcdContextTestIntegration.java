@@ -73,7 +73,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         org.easymock.classextension.EasyMock.replay(fs);
 
         m_openAcdContextImpl.setSipxServiceManager(sm);
-        m_openAcdContextImpl.setCoreContext(m_coreContext);
 
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getLines().size());
@@ -299,7 +298,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertTrue(m_openAcdContextImpl.isAliasInUse("sales"));
         assertTrue(m_openAcdContextImpl.isAliasInUse("300"));
 
-        m_openAcdContextImpl.setCoreContext(m_coreContext);
     }
 
     public void testOpenAcdAgentGroupCrud() throws Exception {

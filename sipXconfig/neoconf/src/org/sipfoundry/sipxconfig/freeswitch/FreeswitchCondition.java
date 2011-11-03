@@ -28,6 +28,7 @@ public class FreeswitchCondition extends BeanWithId {
 
     private String m_field;
     private String m_expression;
+    private boolean m_regex;
     private Set<FreeswitchAction> m_actions = new LinkedHashSet<FreeswitchAction>();
 
     public String getField() {
@@ -65,6 +66,9 @@ public class FreeswitchCondition extends BeanWithId {
     }
 
     public String getEscapedExpression() {
+        if (isRegex()) {
+            return m_expression;
+        }
         return m_expression.replaceAll("[\\*]", "\\\\\\*");
     }
 
@@ -83,5 +87,13 @@ public class FreeswitchCondition extends BeanWithId {
         }
         FreeswitchCondition bean = (FreeswitchCondition) other;
         return new EqualsBuilder().append(m_field, bean.m_field).append(m_expression, bean.m_expression).isEquals();
+    }
+
+    public boolean isRegex() {
+        return m_regex;
+    }
+
+    public void setRegex(boolean regex) {
+        m_regex = regex;
     }
 }

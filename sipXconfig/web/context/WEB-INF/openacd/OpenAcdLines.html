@@ -7,7 +7,7 @@
     </li>
   </ul>
   <table jwcid="tableView@common/Table" id="openacd:lines"
-		columns="literal:* name, extension, queue"
+		columns="literal:* name, extension, regex, queue"
 		source="ognl:openAcdlines"
 		row="ognl:currentRow"
 		selections="bean:selections">
@@ -17,6 +17,9 @@
 		  parameters="ognl:currentRow.id">
 		  <span jwcid="nameText@Insert" value="ognl:currentRow.name"/>
 	  </span>
+	</span>
+	<span jwcid="regexColumnValue@Block">
+          <span jwcid="@common/EnabledColumn" value="ognl:currentRow.regex" keyPrefix="usesregex" disabledClass=""/>
 	</span>
 	<span jwcid="queueColumnValue@Block">
 	  <td jwcid="@Insert" value="ognl:queue"/>

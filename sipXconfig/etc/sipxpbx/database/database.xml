@@ -392,6 +392,7 @@
     <antcall target="location-active" />
     <antcall target="init-location" />
     <antcall target="openacd-insert-commands" />
+    <antcall target="openacd-add-line-regex" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1215,6 +1216,10 @@
   <target name="openacd-insert-commands" unless="openacd-insert-commands">
 	<db-patch patch="openacd-insert-commands" />
   </target>
+  <target name="openacd-add-line-regex" unless="openacd-add-line-regex">
+    <db-patch patch="openacd-add-line-regex" />
+  </target>
+
   <!--
     - SUPPORT UTILITIES
   -->

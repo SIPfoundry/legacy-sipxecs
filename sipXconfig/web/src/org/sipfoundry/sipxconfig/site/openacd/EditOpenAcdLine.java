@@ -128,6 +128,8 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
     public abstract void setDid(String did);
     public abstract String getAlias();
     public abstract String getDid();
+    public abstract boolean getRegex();
+    public abstract void setRegex(boolean r);
     @Persist
     public abstract boolean getAdvanced();
     public abstract void setAdvanced(boolean adv);
@@ -147,6 +149,7 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
             setLineNumber(line.getNumberCondition().getExtension());
             setAlias(line.getAlias());
             setDid(line.getDid());
+            setRegex(line.getNumberCondition().isRegex());
         }
 
         List<ActionBean> actionBeans = new LinkedList<ActionBean>();
@@ -265,6 +268,7 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
 
             line.getNumberCondition().setExpression(
                     String.format(OpenAcdLine.DESTINATION_NUMBER_PATTERN, getLineNumber()));
+            line.getNumberCondition().setRegex(getRegex());
             getOpenAcdContext().saveExtension(line);
             setOpenAcdLineId(line.getId());
             setActions(null);
