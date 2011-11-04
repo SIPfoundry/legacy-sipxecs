@@ -25,6 +25,8 @@ public class SipxIvrService extends SipxService implements LoggingEntity {
     private String m_scriptsDir;
     private String m_docDir;
     private String m_cpuiDir;
+    private String m_binDir;
+    private String m_backupPath;
     private String m_callPilotSettings;
 
 
@@ -82,6 +84,24 @@ public class SipxIvrService extends SipxService implements LoggingEntity {
             setHiddenSettings(getCallPilotSettings());
         }
 
+    }
+
+    @Required
+    public void setBinDir(String binDir) {
+        m_binDir = binDir;
+    }
+
+    public String getBinDir() {
+        return m_binDir;
+    }
+
+    @Required
+    public void setBackupPath(String backupPath) {
+        m_backupPath = backupPath;
+    }
+
+    public String getBackupPath() {
+        return m_backupPath;
     }
 
     //settings are delimitted by ",". i.e. "<setting1>, <setting2>, ..."

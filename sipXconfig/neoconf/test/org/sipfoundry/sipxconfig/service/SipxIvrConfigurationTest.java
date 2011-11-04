@@ -43,6 +43,8 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         m_ivrService.setScriptsDir("/usr/share/www/doc/aa_vxml");
         m_ivrService.setDocDir("/usr/share/www/doc");
         m_ivrService.setVxmlDir("/var/sipxdata/mediaserver/data");
+        m_ivrService.setBinDir("/usr/bin");
+        m_ivrService.setBackupPath("/var/backup");
 
         m_statusService = new SipxStatusService();
         m_statusService.setBeanName(SipxStatusService.BEAN_ID);

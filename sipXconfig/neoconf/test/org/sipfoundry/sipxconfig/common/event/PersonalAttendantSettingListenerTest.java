@@ -22,6 +22,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -244,6 +245,22 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         public void storePersonalAttendant(PersonalAttendant pa, boolean writeFile) {
             // TODO Auto-generated method stub
             
+        }
+
+        @Override
+        public boolean performBackup(File workingDir) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void performRestore(BackupBean archivePath, boolean verify, boolean noRestart) {
+        }
+
+        @Override
+        public String getMailboxRestoreLog() {
+            // TODO Auto-generated method stub
+            return null;
         }
 
     }

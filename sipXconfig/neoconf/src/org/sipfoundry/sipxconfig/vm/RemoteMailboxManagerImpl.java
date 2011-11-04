@@ -9,15 +9,30 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.BackupBean;
+import org.sipfoundry.sipxconfig.admin.Restore;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -42,6 +57,8 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private static final String SAVE_SUBJECT = "https://{host}:{port}/mailbox/{userId}/message/{messageId}/subject";
     private static final String PA_URL = "https://{host}:{port}/mailbox/{userId}/personalattendant";
     private static final String ACTIVE_GREETING_URL = "https://{host}:{port}/mailbox/{userId}/activegreeting";
+    private static final String RESTORE_LOG_URL = "https://{host}:{port}/manage/restore/log";
+    private static final Log LOG = LogFactory.getLog(RemoteMailboxManagerImpl.class);
     private XPathOperations m_xPathTemplate;
     private RestTemplate m_restTemplate;
 
@@ -148,6 +165,56 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
         StringWriter request = new StringWriter();
         getMailboxPreferencesWriter().writeObject(new MailboxPreferences(user), request);
         put(ACTIVE_GREETING_URL, request.toString(), getHost(), getPort(), user.getUserName());
+    }
+
+    @Override
+    public boolean performBackup(File workingDir) {
+        OutputStream outputStream = null;
+        InputStream inputStream = null;
+        try {
+            URL backupUrl = new URL(getMailboxServerUrl() + "/manage/backup");
+            outputStream = FileUtils.openOutputStream(new File(workingDir, "voicemail.tar.gz"));
+            inputStream = backupUrl.openStream();
+            IOUtils.copy(inputStream, outputStream);
+        } catch (Exception ex) {
+            LOG.error(String.format("Failed to retrieve backup from voicemail server %s", ex.getMessage()));
+            return false;
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(outputStream);
+        }
+        return true;
+    }
+
+    @Override
+    public void performRestore(BackupBean archive, boolean verify, boolean noRestart) {
+        if (verify) {
+            // verify locally if valid archive
+            Restore.runRestoreScript(getBinDir(), archive, verify, true);
+        } else {
+            // upload archive and restore on ivr side
+            File vmArchive = new File(archive.getPath());
+            PutMethod method = new PutMethod(getMailboxServerUrl() + "/manage/restore");
+            try {
+                Part[] parts = {new FilePart(vmArchive.getName(), vmArchive)};
+                method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));
+                HttpClient client = new HttpClient();
+                client.executeMethod(method);
+            } catch (Exception ex) {
+                LOG.error(String.format("Failed to restore backup on voicemail server %s", ex.getMessage()));
+                throw new UserException("&error.ivrrestore.failed");
+            } finally {
+                method.releaseConnection();
+            }
+        }
+    }
+
+    @Override
+    public String getMailboxRestoreLog() {
+        StringBuilder log = new StringBuilder();
+        log.append(String.format("\n\n:::: Voicemail restore log on remote server %s ::::\n\n", getHost()));
+        log.append(m_restTemplate.getForObject(RESTORE_LOG_URL, String.class, getHost(), getPort()));
+        return log.toString();
     }
 
     public void setXpathTemplate(XPathOperations xpathTemplate) {

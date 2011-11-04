@@ -9,8 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import java.io.File;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
@@ -59,5 +61,11 @@ public interface MailboxManager {
     void writePreferencesFile(User user);
 
     List<String> getFolderIds();
+
+    boolean performBackup(File workingDir);
+
+    void performRestore(BackupBean archive, boolean validate, boolean noRestart);
+
+    String getMailboxRestoreLog();
 
 }

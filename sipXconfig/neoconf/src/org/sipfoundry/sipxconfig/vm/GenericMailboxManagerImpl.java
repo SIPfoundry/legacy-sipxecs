@@ -9,8 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import java.io.File;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.User;
@@ -146,6 +148,21 @@ public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAwa
     @Override
     public List<String> getFolderIds() {
         return m_manager.getFolderIds();
+    }
+
+    @Override
+    public boolean performBackup(File workingDir) {
+        return m_manager.performBackup(workingDir);
+    }
+
+    @Override
+    public void performRestore(BackupBean archive, boolean verify, boolean noRestart) {
+        m_manager.performRestore(archive, verify, noRestart);
+    }
+
+    @Override
+    public String getMailboxRestoreLog() {
+        return m_manager.getMailboxRestoreLog();
     }
 
     public void setLocationsManager(LocationsManager locationsManager) {

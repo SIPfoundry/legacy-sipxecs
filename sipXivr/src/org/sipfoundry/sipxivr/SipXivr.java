@@ -33,6 +33,7 @@ import org.sipfoundry.voicemail.ConferenceServlet;
 import org.sipfoundry.voicemail.Emailer;
 import org.sipfoundry.voicemail.ExtMailStore;
 import org.sipfoundry.voicemail.MailboxServlet;
+import org.sipfoundry.voicemail.ManagementServlet;
 import org.sipfoundry.voicemail.MediaServlet;
 import org.sipfoundry.voicemail.Mwistatus;
 import org.sipfoundry.voicemail.VoiceMail;
@@ -238,6 +239,7 @@ public class SipXivr implements Runnable {
         webServer.addServlet("media", "/media/*", MediaServlet.class.getName());
         webServer.addServlet("recording", "/recording/*", ConfRecordStatus.class.getName());
         webServer.addServlet("conference", "/conference/*", ConferenceServlet.class.getName());
+        webServer.addServlet("manage", "/manage/*", ManagementServlet.class.getName());
         // Start it up
         webServer.start();
 

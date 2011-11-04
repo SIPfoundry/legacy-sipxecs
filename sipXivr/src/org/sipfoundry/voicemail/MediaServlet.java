@@ -99,9 +99,16 @@ public class MediaServlet extends HttpServlet {
                 response.setHeader("Pragma", "public");
                 response.setHeader("Content-Disposition", "attachment; filename=\"" + media.getName() + "\"");
 
-                OutputStream responseOutputStream = response.getOutputStream();
-                InputStream stream = new FileInputStream(media);
-                IOUtils.copy(stream, responseOutputStream);
+                OutputStream responseOutputStream = null;
+                InputStream stream = null;
+                try {
+                    responseOutputStream = response.getOutputStream();
+                    stream = new FileInputStream(media);
+                    IOUtils.copy(stream, responseOutputStream);
+                } finally {
+                    IOUtils.closeQuietly(stream);
+                    IOUtils.closeQuietly(responseOutputStream);
+                }
             } else {
                 response.sendError(405);
             }

@@ -312,6 +312,8 @@
     <property name="scriptsDir" value="${sysdir.vxml.scripts}" />
     <property name="docDir" value="${sysdir.doc}" />
     <property name="vxmlDir" value="${sysdir.vxml}" />
+    <property name="binDir" value="${sysdir.bin}" />
+    <property name="backupPath" value="${sysdir.var}/backup" />
     <property name="bundles">
       <set>
         <ref bean="voicemailBundle" />

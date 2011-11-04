@@ -59,9 +59,16 @@ public class PlayVoicemailService extends AssetService {
     public void service(IRequestCycle cycle) throws IOException {
         URL voicemailUrl = new URL(m_mailboxManager.getMediaFileURL(getUserName(), cycle.getParameter(FOLDER),
                 cycle.getParameter(MESSAGE_ID)));
-        OutputStream responseOutputStream = m_response.getOutputStream(new ContentType("audio/x-wav"));
-        InputStream stream = voicemailUrl.openStream();
-        IOUtils.copy(stream, responseOutputStream);
+        InputStream stream = null;
+        OutputStream responseOutputStream = null;
+        try {
+            responseOutputStream = m_response.getOutputStream(new ContentType("audio/x-wav"));
+            stream = voicemailUrl.openStream();
+            IOUtils.copy(stream, responseOutputStream);
+        } finally {
+            IOUtils.closeQuietly(responseOutputStream);
+            IOUtils.closeQuietly(stream);
+        }
         m_mailboxManager.markRead(getUserName(), cycle.getParameter(MESSAGE_ID));
     }
 

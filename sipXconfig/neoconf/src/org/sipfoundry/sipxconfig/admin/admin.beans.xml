@@ -35,6 +35,7 @@
   <bean id="restore" class="org.sipfoundry.sipxconfig.admin.Restore">
     <property name="binDirectory" value="${sysdir.bin}" />
     <property name="logDirectory" value="${sysdir.log}" />
+    <property name="mailboxManager" ref="mailboxManager" />
   </bean>
 
   <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.admin.FtpRestore" parent="restore">
@@ -46,6 +47,7 @@
 
   <bean id="backupPlan" class="org.sipfoundry.sipxconfig.admin.BackupPlan" abstract="true">
     <property name="mailSenderContext" ref="mailSenderContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
     <property name="emailFromAddress" value="backup" />
   </bean>
 

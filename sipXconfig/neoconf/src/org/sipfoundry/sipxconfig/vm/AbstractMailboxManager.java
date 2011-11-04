@@ -41,6 +41,7 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     private String m_host;
     private String m_port;
     private boolean m_active;
+    private String m_binDir;
 
     public boolean isSystemCpui() {
         SipxIvrService ivrService = (SipxIvrService) m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
@@ -160,6 +161,14 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
 
     protected PersonalAttendantWriter getPersonalAttendantWriter() {
         return m_personalAttendantWriter;
+    }
+
+    public void setBinDir(String binDir) {
+        m_binDir = binDir;
+    }
+
+    protected String getBinDir() {
+        return m_binDir;
     }
 
     protected String getMailboxServerUrl() {

@@ -26,6 +26,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager"/>
+    <property name="binDir" value="${sysdir.bin}" />
   </bean>
 
   <bean id="xpathTemplate" class="org.springframework.xml.xpath.Jaxp13XPathTemplate"/>
@@ -58,6 +59,7 @@
     <property name="locationsManager" ref="locationsManager"/>
     <property name="xpathTemplate" ref="xpathTemplate"/>
     <property name="restTemplate" ref="restTemplate"/>
+    <property name="binDir" value="${sysdir.bin}" />
   </bean>
 
   <bean id="genericMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.GenericMailboxManagerImpl" init-method="init">

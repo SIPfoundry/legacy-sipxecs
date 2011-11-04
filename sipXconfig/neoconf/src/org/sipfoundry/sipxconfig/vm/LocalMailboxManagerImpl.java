@@ -25,6 +25,11 @@ import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.BackupBean;
+import org.sipfoundry.sipxconfig.admin.Restore;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -33,6 +38,7 @@ import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 public class LocalMailboxManagerImpl extends AbstractMailboxManager implements MailboxManager {
     private static final String MESSAGE_SUFFIX = "-00.xml";
     private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
+    private static final Log LOG = LogFactory.getLog(LocalMailboxManagerImpl.class);
 
     @Override
     public boolean isEnabled() {
@@ -153,6 +159,29 @@ public class LocalMailboxManagerImpl extends AbstractMailboxManager implements M
         }
     }
 
+    @Override
+    public boolean performBackup(File workingDir) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(getBinDir() + File.separator + "sipx-backup", "-n", "-v");
+            Process process = pb.directory(workingDir).start();
+            int code = process.waitFor();
+            if (code != 0) {
+                String errorMsg = String.format("Voicemail backup operation failed. Exit code: %d", code);
+                LOG.error(errorMsg);
+                return false;
+            }
+        } catch (Exception e) {
+            LOG.error(String.format("Voicemail backup operation failed, exception %s", e.getMessage()));
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void performRestore(BackupBean archivePath, boolean verify, boolean noRestart) {
+        Restore.runRestoreScript(getBinDir(), archivePath, verify, noRestart);
+    }
+
     private void invokeWebservice(String uri, String username) {
         PutMethod httpPut = null;
         try {
@@ -171,6 +200,11 @@ public class LocalMailboxManagerImpl extends AbstractMailboxManager implements M
                 httpPut.releaseConnection();
             }
         }
+    }
+
+    @Override
+    public String getMailboxRestoreLog() {
+        return StringUtils.EMPTY;
     }
 
     /**
