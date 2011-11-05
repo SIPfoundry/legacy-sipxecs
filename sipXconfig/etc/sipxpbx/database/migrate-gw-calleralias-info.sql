@@ -1,3 +1,4 @@
+create language plpgsql;
 create or replace function migrate_gcai() returns void as '\n
 declare\n
   gw_rec record;\n
