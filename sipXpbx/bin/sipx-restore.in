@@ -181,16 +181,22 @@ then
 fi
 
 #sanity check - we check if configuration/voicemail archives are indeed configuration/voicemail files respectively
-if [[ `tar --list --file=$CONFIGURATION_PATH | grep db.tar` != db.tar ]];
+if [ -n "$CONFIGURATION_PATH" ]
 then
-  echo "Configuration archive seems invalid (it's either corrupt or incomplete, or it may be a voicemail archive)"
-  exit 7
+  if [[ `tar --list --file=$CONFIGURATION_PATH | grep db.tar` != db.tar ]];
+  then
+    echo "Configuration archive seems invalid (it's either corrupt or incomplete, or it may be a voicemail archive)"
+    exit 7
+  fi
 fi
 
-if [[ `tar --list --file=$VOICEMAIL_PATH | grep db.tar` = db.tar ]];
+if [ -n "$VOICEMAIL_PATH" ]
 then
-  echo "Voicemail archive seems invalid (it looks like a configuration archive)"
-  exit 8
+  if [[ `tar --list --file=$VOICEMAIL_PATH | grep db.tar` = db.tar ]];
+  then
+    echo "Voicemail archive seems invalid (it looks like a configuration archive)"
+    exit 8
+  fi
 fi
 
 if [ $CHECK_ARCHIVE = "yes" ]
