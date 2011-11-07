@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 /**
  * CallSequence
@@ -128,5 +129,10 @@ public class CallSequence extends AbstractCallSequence implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
+        return null;
     }
 }

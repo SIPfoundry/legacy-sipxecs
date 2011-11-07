@@ -14,6 +14,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
@@ -55,6 +56,11 @@ public class DataSetGenerator extends AbstractDataSetGenerator {
     protected DataSet getType() {
         // empty implementation
         return null;
+    }
+
+    @Override
+    public SipxFreeswitchService getSipxFreeswitchService() {
+        return getSipxFreeswitchService();
     }
 
 }

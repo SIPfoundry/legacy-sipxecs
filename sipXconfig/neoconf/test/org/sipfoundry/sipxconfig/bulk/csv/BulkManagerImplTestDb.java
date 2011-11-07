@@ -25,6 +25,7 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         ApplicationContext context = TestHelper.getApplicationContext();
         m_bulkManager = (BulkManager) context.getBean("bulkManagerDao");
         TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
     }
 
     public void testInsertFromCsvEmpty() throws Exception {

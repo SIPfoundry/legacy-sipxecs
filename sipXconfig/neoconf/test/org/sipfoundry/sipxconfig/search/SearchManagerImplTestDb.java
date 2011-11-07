@@ -37,6 +37,7 @@ public class SearchManagerImplTestDb extends TestCase {
         m_coreContext = (CoreContext) context.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_identityToBean = new IdentityToBean(m_coreContext);
         TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
         IndexManager indexManager = (IndexManager) context
                 .getBean(IndexManager.CONTEXT_BEAN_NAME);
         indexManager.indexAll();

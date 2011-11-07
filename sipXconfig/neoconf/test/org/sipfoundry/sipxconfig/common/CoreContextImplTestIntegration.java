@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -127,6 +128,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
 
     public void testTrimUserValues() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         User user = m_coreContext.newUser();
 
         user.setFirstName("First  ");
@@ -148,7 +150,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
 
     public void testAddRemoveGroup() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
-        // loadDataSet("common/UserGroupAvailable.db.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         Branch b1 = new Branch();
         b1.setName("b1");
         m_branchManager.saveBranch(b1);

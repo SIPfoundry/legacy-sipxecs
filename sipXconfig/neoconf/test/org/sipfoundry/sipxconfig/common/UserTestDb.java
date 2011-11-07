@@ -38,6 +38,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
         m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
     }
 
     public void testLoadUser() throws Exception {

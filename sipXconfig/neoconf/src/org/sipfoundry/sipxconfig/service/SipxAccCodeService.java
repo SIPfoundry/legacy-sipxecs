@@ -240,4 +240,8 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
         return Collections.EMPTY_MAP;
     }
 
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
+        return null;
+    }
 }

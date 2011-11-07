@@ -23,7 +23,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
 
     public void testLoadPersonalAttendantPerUser() throws Exception {
         loadDataSetXml("admin/dialplan/sbc/domain.xml");
-
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         assertEquals(0, countRowsInTable("personal_attendant"));
 
         User newUser = m_coreContext.newUser();
@@ -49,7 +49,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
 
     public void testUpdatePersonalAttendantForUser() throws Exception {
         loadDataSetXml("admin/dialplan/sbc/domain.xml");
-
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         User newUser = m_coreContext.newUser();
         m_coreContext.saveUser(newUser);
 
@@ -63,7 +63,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
 
     public void testDeleteUserMailbox() throws Exception {
         loadDataSetXml("admin/dialplan/sbc/domain.xml");
-
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         User newUser = m_coreContext.newUser();
         newUser.setUserName("200");
         m_coreContext.saveUser(newUser);

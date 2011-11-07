@@ -162,6 +162,7 @@
 
   <bean id="dataSetGenerator" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
+    <lookup-method name="getSipxFreeswitchService" bean="sipxFreeswitchService"/>
   </bean>
   <bean id="aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases">

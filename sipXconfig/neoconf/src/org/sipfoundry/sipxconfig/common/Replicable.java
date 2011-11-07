@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 /**
  * General contract for the entities that are inserted into Mongo.
@@ -46,6 +47,13 @@ public interface Replicable extends NamedObject {
      * @return
      */
     public Collection<AliasMapping> getAliasMappings(String domainName);
+
+    /**
+     * Returns a collection of aliases to go in the "als" field.
+     * @param domainName
+     * @return
+     */
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs);
     /**
      * Return true if this entity is to be considered by {link ValidUsers.getValidUsers()}
      * (required by IVR)

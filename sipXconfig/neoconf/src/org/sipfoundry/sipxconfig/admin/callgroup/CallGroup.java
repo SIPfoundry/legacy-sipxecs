@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 public class CallGroup extends AbstractCallSequence implements Replicable {
     private static final int SIP_PASSWORD_LEN = 10;
@@ -246,6 +247,11 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
+        return null;
     }
 
 }

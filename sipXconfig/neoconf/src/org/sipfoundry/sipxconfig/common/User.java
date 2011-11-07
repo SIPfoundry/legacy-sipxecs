@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
 import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
@@ -74,7 +75,7 @@ public class User extends AbstractUser implements Replicable {
         m_identity = identity;
     }
 
-    public Collection<AliasMapping> getAliasMappings(String domainName) {
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService freeswitchService) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         String contact = getUri(domainName);
         for (String alias : getAliases()) {
@@ -104,7 +105,12 @@ public class User extends AbstractUser implements Replicable {
 
         if (this.hasPermission(PermissionName.EXCHANGE_VOICEMAIL)
                 || this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
-            AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), contact, "vmprm");
+            String host;
+            host = freeswitchService.getLocationsManager().getPrimaryLocation().getAddress();
+
+            int fsPort = freeswitchService.getFreeswitchSipPort();
+            String sipUri = SipUri.formatDepositVm(getUserName(), host, fsPort);
+            AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), sipUri, "vmprm");
             mappings.add(mapping);
         }
 
@@ -127,5 +133,10 @@ public class User extends AbstractUser implements Replicable {
         props.put(CONTACT, getContactUri(domain));
         props.put(GROUPS, getGroupsNames().split(" "));
         return props;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        return null;
     }
 }

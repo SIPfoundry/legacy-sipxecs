@@ -33,6 +33,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.xml.sax.SAXException;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
@@ -140,6 +141,11 @@ public class ExternalAlias implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
+        return null;
     }
 
 }

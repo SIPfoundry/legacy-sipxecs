@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.service.LoggingEntity;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -357,5 +358,10 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
 
     public SipxPresenceService getPresenceService() {
         return m_presenceService;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
+        return null;
     }
 }

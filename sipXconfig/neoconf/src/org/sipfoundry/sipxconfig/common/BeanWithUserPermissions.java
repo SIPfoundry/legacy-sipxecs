@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 /**
  * Bean With Internal user
@@ -66,6 +67,11 @@ public class BeanWithUserPermissions extends BeanWithId implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
+        return null;
     }
 
 }

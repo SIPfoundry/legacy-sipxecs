@@ -77,7 +77,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getLines().size());
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("example");
-        extension.setSipxServiceManager(sm);
         extension.setAlias("alias");
         extension.setDid("1234567890");
 
@@ -289,7 +288,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         m_openAcdContextImpl.setSipxServiceManager(sm);
 
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("sales");
-        extension.setSipxServiceManager(sm);
 
         m_openAcdContextImpl.saveExtension(extension);
 
@@ -390,6 +388,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
     public void testOpenAcdAgentCrud() throws Exception {
         loadDataSet("common/SampleUsersSeed.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         User charlie = m_coreContext.loadUser(1003);
 
         OpenAcdAgentGroup group = new OpenAcdAgentGroup();

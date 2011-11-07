@@ -38,7 +38,6 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public class OpenAcdExtension extends FreeswitchExtension implements Replicable {
     public static final String DESTINATION_NUMBER = "destination_number";
@@ -46,7 +45,6 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     public static final String EMPTY_STRING = "";
     public static final String VALID_REGULAR_EXPRESSION = "^\\((\\d+)\\).*$";
     static final String ALIAS_RELATION = "openacd";
-    private SipxServiceManager m_serviceManager;
 
     /**
      * We call this condition the (first, because they can be many) condition that has
@@ -140,11 +138,8 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     }
 
     @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName) {
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService freeswitchService) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
-        SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
-                .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-
         String host;
         if (freeswitchService.getAddresses().size() > 1) {
             host = freeswitchService.getLocationsManager().getPrimaryLocation().getAddress();
@@ -175,6 +170,11 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     }
 
     @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        return null;
+    }
+
+    @Override
     public Set<DataSet> getDataSets() {
         Set<DataSet> ds = new HashSet<DataSet>();
         ds.add(DataSet.ALIAS);
@@ -187,10 +187,6 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
         return null;
     }
 
-    public void setSipxServiceManager(SipxServiceManager manager) {
-        m_serviceManager = manager;
-    }
-
     @Override
     public boolean isValidUser() {
         return false;
@@ -200,4 +196,5 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
     }
+
 }
