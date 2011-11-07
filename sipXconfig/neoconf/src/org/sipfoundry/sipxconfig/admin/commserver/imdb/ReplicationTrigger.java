@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDialGroup;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -122,6 +123,11 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
         } else if (entity instanceof SpeedDial) {
             User u = ((SpeedDial) entity).getUser();
             m_replicationManager.replicateEntity(u, DataSet.SPEED_DIAL);
+            m_configFileManager.activateConfigFiles();
+        } else if (entity instanceof SpeedDialGroup) {
+            Group g = ((SpeedDialGroup) entity).getUserGroup();
+            m_replicationManager.replicateSpeedDialGroup(g);
+            m_configFileManager.activateConfigFiles();
         }
     }
 
@@ -154,7 +160,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
      * Runnables that call the actual replication to be submited to the ExecutorService
      */
     private class BranchWorker implements Runnable {
-        private Object m_entity;
+        private final Object m_entity;
         public BranchWorker(Object entity) {
             m_entity = entity;
         }
@@ -166,7 +172,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
 
     //public for use in tests
     public class BranchDeleteWorker implements Runnable {
-        private Object m_entity;
+        private final Object m_entity;
         public BranchDeleteWorker(Object entity) {
             m_entity = entity;
         }
@@ -177,7 +183,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     }
 
     private class GroupWorker implements Runnable {
-        private Object m_entity;
+        private final Object m_entity;
         public GroupWorker(Object entity) {
             m_entity = entity;
         }
@@ -188,7 +194,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     }
 
     private class GroupDeleteWorker implements Runnable {
-        private Object m_entity;
+        private final Object m_entity;
         public GroupDeleteWorker(Object entity) {
             m_entity = entity;
         }

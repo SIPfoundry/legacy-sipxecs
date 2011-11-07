@@ -30,7 +30,7 @@ import com.mongodb.DBCollection;
 public class ResourceListsTest extends XMLTestCase {
     public final static String DOMAIN = "example.org";
     private CoreContext m_coreContext;
-    private MongoDbTemplate m_db = new MongoDbTemplate(); 
+    private final MongoDbTemplate m_db = new MongoDbTemplate();
     private ResourceLists m_rl;
 
     @Override
@@ -47,7 +47,7 @@ public class ResourceListsTest extends XMLTestCase {
         m_rl.setValidUsers(vu);
         m_rl.setCoreContext(m_coreContext);
     }
-    
+
     private DBCollection getEntityCollection() {
         return m_db.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
     }
@@ -78,7 +78,12 @@ public class ResourceListsTest extends XMLTestCase {
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
     }
 
-    public void testGenerateEmpty() throws Exception {
+    /**
+     * No matter if the user does not have blf permission, we should keep generating what speeddials we have
+     * The BLF permission turning off only restricts the user to change his blf permission from user-portal
+     * @throws Exception
+     */
+    public void testGenerateNoBlfPerm() throws Exception {
         String json3 = "{ \"_id\" : \"User3\", \"uid\" : \"user_name_0\", \"imenbld\" : \"false\"}";
 
         String json2 = "{ \"_id\" : \"User2\", \"uid\" : \"user_c\", \"imenbld\" : \"false\", " + "\""
@@ -91,7 +96,7 @@ public class ResourceListsTest extends XMLTestCase {
         Thread.sleep(1000);
 
         String fileContent = getFileContent(m_rl, null);
-        assertXMLEqual("<lists xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01\"/>",
-                fileContent);
+        InputStream referenceXml = getClass().getResourceAsStream("resource-lists-noblfperm.test.xml");
+        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(fileContent));
     }
 }

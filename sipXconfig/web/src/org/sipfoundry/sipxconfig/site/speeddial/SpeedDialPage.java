@@ -14,6 +14,7 @@ import java.util.Collection;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -22,6 +23,7 @@ import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
@@ -37,6 +39,9 @@ public abstract class SpeedDialPage extends UserBasePage {
 
     @InjectObject(value = "spring:phoneProfileManager")
     public abstract ProfileManager getProfileManager();
+
+    @InjectState(value = "userSession")
+    public abstract UserSession getUserSession();
 
     @Persist
     public abstract Integer getSavedUserId();
@@ -73,7 +78,10 @@ public abstract class SpeedDialPage extends UserBasePage {
         setSpeedDial(speedDial);
         setSavedUserId(userId);
         setGroupSynced(!getSpeedDialManager().isSpeedDialDefinedForUserId(userId));
-        setSubscribeToPresenceDisabled(!getUser().hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE));
+        UserSession user = getUserSession();
+        if (!user.isAdmin()) {
+            setSubscribeToPresenceDisabled(!getUser().hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE));
+        }
     }
 
     @EventListener(events = "onclick", targets = "groupSync")
@@ -100,7 +108,7 @@ public abstract class SpeedDialPage extends UserBasePage {
         }
 
         if (isGroupSynced()) {
-            getSpeedDialManager().deleteSpeedDialsForUser(getUserId());
+            getSpeedDialManager().saveSpeedDialSynchToGroup(getSpeedDial());
             // force reload
             setSpeedDial(null);
         } else {

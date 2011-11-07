@@ -31,6 +31,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     private ConfigFileActivationManager m_configFileManager;
 
+    @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
         List<SpeedDial> speeddials = findSpeedDialForUserId(userId);
         if (!speeddials.isEmpty()) {
@@ -41,6 +42,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return getGroupSpeedDialForUser(user, create);
     }
 
+    @Override
     public SpeedDial getSpeedDialForUser(User user, boolean create) {
         List<SpeedDial> speeddials = findSpeedDialForUserId(user.getId());
         if (!speeddials.isEmpty()) {
@@ -79,6 +81,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return speedDial;
     }
 
+    @Override
     public SpeedDialGroup getSpeedDialForGroupId(Integer groupId) {
         List<SpeedDialGroup> speedDialGroups = findSpeedDialForGroupId(groupId);
         if (!speedDialGroups.isEmpty()) {
@@ -91,6 +94,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return speedDialGroup;
     }
 
+    @Override
     public boolean isSpeedDialDefinedForUserId(Integer userId) {
         List<SpeedDial> speeddials = findSpeedDialForUserId(userId);
         if (!speeddials.isEmpty()) {
@@ -111,21 +115,32 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return speeddialGroups;
     }
 
+    @Override
     public void saveSpeedDial(SpeedDial speedDial) {
         getHibernateTemplate().saveOrUpdate(speedDial);
-        activateResourceList();
+        getHibernateTemplate().flush();
     }
 
+    /**
+     * This method starts with "save" because we want to trigger speed dial replication (see ReplicationTrigger.java)
+     */
+    @Override
+    public void saveSpeedDialSynchToGroup(SpeedDial speedDial) {
+        deleteSpeedDialsForUser(speedDial.getUser().getId());
+    }
+
+    @Override
     public void saveSpeedDialGroup(SpeedDialGroup speedDialGroup) {
         getHibernateTemplate().saveOrUpdate(speedDialGroup);
-        activateResourceList();
+        getHibernateTemplate().flush();
     }
 
+    @Override
     public void deleteSpeedDialsForUser(int userId) {
         List<SpeedDial> speedDials = findSpeedDialForUserId(userId);
         if (!speedDials.isEmpty()) {
             getHibernateTemplate().deleteAll(speedDials);
-            activateResourceList();
+            getHibernateTemplate().flush();
         }
     }
 
@@ -141,6 +156,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         @Override
         protected void onUserDelete(User user) {
             deleteSpeedDialsForUser(user.getId());
+            activateResourceList();
         }
     }
 
@@ -154,6 +170,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         }
     }
 
+    @Override
     public List<DialingRule> getDialingRules() {
         DialingRule[] rules = new DialingRule[] {
             new RlsRule()
@@ -161,6 +178,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return Arrays.asList(rules);
     }
 
+    @Override
     public void activateResourceList() {
         m_configFileManager.activateConfigFiles();
     }
@@ -175,6 +193,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         m_configFileManager = configFileManager;
     }
 
+    @Override
     public void clear() {
         Collection c = getHibernateTemplate().loadAll(SpeedDial.class);
         getHibernateTemplate().deleteAll(c);

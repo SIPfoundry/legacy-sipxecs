@@ -2,20 +2,26 @@
   <td>
     <span jwcid="label@TextField"
       value="ognl:button.label"
-      displayName="ognl:container.messages.getMessage('label.label')" />
+      displayName="ognl:container.messages.getMessage('label.label')"/>
   </td>
   <td>
     <span jwcid="number@TextField"
       value="ognl:button.number"
       validators="spring-validators:required,validPhoneOrAor"
-      displayName="ognl:container.messages.getMessage('label.number')" />
+      displayName="ognl:container.messages.getMessage('label.number')"/>
   </td>
   <td>
 	<span jwcid="@If" condition="ognl:subscribeToPresenceDisabled" renderTag="ognl:false">
-		<span jwcid="disabledBlf@Checkbox" value="ognl:false" disabled="ognl:true" />
+		<input jwcid="disabledBlf@Hidden" value="ognl:button.blf" />
+		<span jwcid="@If" condition="ognl:button.blf" renderTag="ognl:false">
+			<label jwcid="@Insert" value="message:blf.yes"/>
+		</span>
+		<span jwcid="@Else" condition="ognl:button.blf" renderTag="ognl:false">
+			<label jwcid="@Insert" value="message:blf.no"/>
+		</span>
 	</span>
 	<span jwcid="@Else" renderTag="ognl:false">
-		<span jwcid="blf@Checkbox" value="ognl:button.blf" />
+		<input jwcid="blf@Checkbox" value="ognl:button.blf" />
 	</span>
   </td>
   <td>
