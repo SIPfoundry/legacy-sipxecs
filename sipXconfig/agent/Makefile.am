@@ -1,5 +1,6 @@
 SIPX_PROCESS_DEFS = \
-	sipxconfig-agent
+	sipxconfig-agent \
+	sipxconfig-agent-process
 
 include $(top_srcdir)/config/subdir.am
 
