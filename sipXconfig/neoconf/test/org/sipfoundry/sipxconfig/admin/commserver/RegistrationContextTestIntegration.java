@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.List;
 
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.User;
@@ -22,7 +22,7 @@ import com.mongodb.DBObject;
 
 public class RegistrationContextTestIntegration extends ImdbTestCase {
     private RegistrationContextImpl m_builder;
-    private MongoDbTemplate m_nodeDb;
+    private MongoTemplate m_nodeDb;
 
     private Object[][] DATA = {
         {
@@ -84,7 +84,7 @@ public class RegistrationContextTestIntegration extends ImdbTestCase {
         assertTrue(ri.getContact().indexOf("Doe") > 0);
     }
 
-    public void setNodeDb(MongoDbTemplate nodeDb) {
+    public void setNodeDb(MongoTemplate nodeDb) {
         m_nodeDb = nodeDb;
     }
 

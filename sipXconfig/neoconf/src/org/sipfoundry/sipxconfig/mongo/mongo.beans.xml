@@ -1,9 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="mongoTunnnel" class="org.sipfoundry.sipxconfig.mongo.MongoTunnelProvider">  
+  <bean id="mongoTunnnel" class="org.sipfoundry.sipxconfig.mongo.MongoTunnelProvider"/>
+  <bean id="mongoClientConfig" class="org.sipfoundry.sipxconfig.mongo.MongoClientConfig">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="directory" value="${sysdir.etc}/mongo"/>    
+    <property name="template" value="mongo/mongo-client.ini.vm"/>
+    <property name="name" value="mongo-client.ini"/>
   </bean>
-
+  <bean id="mongoServiceConfig" class="org.sipfoundry.sipxconfig.mongo.MongoServiceConfig" parent="serviceConfigurationFile">
+    <property name="directory" value="${sysdir.etc}/mongo"/>
+    <property name="template" value="mongo/mongod.conf.vm"/>
+    <property name="name" value="mongod.conf"/>
+  </bean>  
+  <bean id="mongoBundle" parent="abstractBundle">
+    <constructor-arg value="mongo" />
+    <property name="autoEnable" value="true" />
+    <!--  primary only for now -->
+    <property name="onlyPrimary" value="true" />
+  </bean>
+  <bean id="mongoService" class="org.sipfoundry.sipxconfig.mongo.MongoService" parent="sipxService"
+    scope="prototype">
+    <property name="processName" value="mongo" />
+    <property name="modelName" value="mongod.xml" />
+    <property name="modelDir" value="mongo" />
+    <property name="configurations">
+      <list>
+        <ref bean="mongoClientConfig" />
+        <ref bean="mongoServiceConfig" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="mongoBundle" />
+      </set>
+    </property>
+  </bean>
 </beans>

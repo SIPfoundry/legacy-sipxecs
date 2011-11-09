@@ -20,7 +20,7 @@ import java.util.Collections;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -48,7 +48,7 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
     private SipxServiceBundle m_primarySipRouterBundle;
     private SipxServiceBundle m_redundantSipRouterBundle;
     private SipxFreeswitchService m_sipxFreeswitchService;
-    private MongoDbTemplate m_nodedb;
+    private MongoTemplate m_nodedb;
 
     public void testGetLocations() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.sipxconfig.common.UserChangeEvent;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.annotation.Required;
@@ -64,7 +64,7 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
     }
 
     private OpenAcdContext m_openAcdContext;
-    private MongoDbTemplate m_db;
+    private MongoTemplate m_db;
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof UserChangeEvent) {
@@ -161,11 +161,11 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
         m_openAcdContext = openAcdContext;
     }
 
-    public MongoDbTemplate getDb() {
+    public MongoTemplate getDb() {
         return m_db;
     }
 
-    public void setDb(MongoDbTemplate db) {
+    public void setDb(MongoTemplate db) {
         m_db = db;
     }
 }

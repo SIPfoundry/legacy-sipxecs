@@ -1,6 +1,6 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -13,7 +13,7 @@ public class ImdbTestCase extends IntegrationTestCase {
     public static final String DOMAIN = "example.org";
     public static final String ID = "_id";
     private CoreContext m_coreContext;
-    private MongoDbTemplate m_imdb;    
+    private MongoTemplate m_imdb;    
     private PermissionManager m_permissionManager;
     private DomainManager m_domainManager;
 
@@ -37,11 +37,11 @@ public class ImdbTestCase extends IntegrationTestCase {
         m_coreContext = coreContext;
     }
 
-    public MongoDbTemplate getImdb() {
+    public MongoTemplate getImdb() {
         return m_imdb;
     }
 
-    public void setImdb(MongoDbTemplate imdb) {
+    public void setImdb(MongoTemplate imdb) {
         m_imdb = imdb;
     }
 

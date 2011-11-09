@@ -1,0 +1,5 @@
+#foreach ($setting in $settings)
+$setting.name = $setting.value
+#end
+logpath=@SIPX_LOGDIR@/mongod.log
+dbpath=@SIPX_VARDIR@/mongo

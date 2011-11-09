@@ -36,7 +36,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -103,7 +103,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     private boolean m_enabled = true;
 
-    private MongoDbTemplate m_imdb;
+    private MongoTemplate m_imdb;
     private ValidUsers m_validUsers;
     private ApiProvider<FileApi> m_fileApiProvider;
     private LocationsManager m_locationsManager;
@@ -771,11 +771,11 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         m_validUsers = validUsers;
     }
 
-    public MongoDbTemplate getImdb() {
+    public MongoTemplate getImdb() {
         return m_imdb;
     }
 
-    public void setImdb(MongoDbTemplate imdb) {
+    public void setImdb(MongoTemplate imdb) {
         m_imdb = imdb;
     }
 }

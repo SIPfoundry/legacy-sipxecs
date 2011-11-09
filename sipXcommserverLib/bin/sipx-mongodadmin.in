@@ -1,26 +1,60 @@
 #@BASH@
 
-## Source function library.
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+Now=`date`
 
-if [ ! -f /etc/sysconfig/mongod ]
-then
-    if [ -f @SIPX_CONFDIR@/sipxconfig-netif ]
-    then
-        echo 'options="$options --master"' > /etc/sysconfig/mongod
-    else
-        echo 'options="$options --master --slave --source localhost:27019 --only imdb --autoresync"' > /etc/sysconfig/mongod
-    fi
-    /etc/init.d/mongod restart
+# default settings for mongo clientss. should only be relevant on very
+# first startup.
+if [ ! -f @SIPX_CONFDIR@/mongo-client.ini ]; then
+   cat > @SIPX_CONFDIR@/mongo-client.ini <<EOF
+# file created by ${0} on ${Now}
+ConnectionString = sipxecs/127.0.0.1:27017
+ConnectionUrl = mongodb://127.0.0.1:27017/?
+mongoClientProperties.SpringConnection = 127.0.0.1:27017
+EOF
+   chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_CONFDIR@/mongo-client.ini
 fi
 
-TEST=`/etc/init.d/mongod status`
-Failed='mongod dead but subsys locked'
-if [ "$TEST" == "$Failed" ]
-then
-    echo "repairing mongodb "
-    rm -rf /var/lib/mongodb/mongod.lock
-    sudo -u mongodb /usr/bin/mongod --repair
-    /etc/init.d/mongod restart
-    echo "repaired mongodb"
+# default settings for mongod service. should only be releveant on
+# very first startup.  Bind to local IP to ensure other systems on
+# network cannot get access w/o sancitoned iptables or stunnel
+# running.
+if [ ! -f @SIPX_CONFDIR@/mongod.conf ]; then
+   cat > @SIPX_CONFDIR@/mongod.conf <<EOF
+# file created by ${0} on ${Now}
+bind_ip=127.0.0.1
+logappend=true
+fork=true
+port=27017
+replSet=sipxecs
+logpath=@SIPX_LOGDIR@/mongod.log
+dbpath=@SIPX_VARDIR@/mongo
+EOF
+   chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_CONFDIR@/mongod.conf
+fi
+
+# default startup would conflict with this startup so shut it down
+if [ -x /etc/init.d/mongod ] ; then
+   if `/etc/init.d/mongod status >/dev/null` ; then
+     /etc/init.d/mongod stop
+   fi
+fi
+
+# ensure mongd doesn't start automatically with OS
+if [ -x /sbin/chkconfig ] ; then
+   `/sbin/chkconfig mongod off >/dev/null`
+fi
+
+# is sipxmongo is not running but there's a lock file, then there's a
+# good change database did not stop cleanly and needs to be
+# repaired. Repairing is normal, however, by definition it's always
+# unclear if data was lost. this auto recovery mechanism assumes that
+# there is no critical data in the db that wouldn't be obvisous and
+# therefore easily fixed in the application layer, or recreate itself
+# eventually like phone registrations.
+Pid=`cat @SIPX_RUNDIR@/sipxmongo.pid 2>/dev/null`
+if [ ! -e /proc/${Pid} ]; then
+   if [ -f @SIPX_DATADIR@/mongod.lock ]; then
+       su -u mongodb /usr/bin/mongod -f @SIPX_CONFDIR@/mongod.conf --repair
+       rm -rf /var/lib/mongodb/mongod.lock
+   fi
 fi

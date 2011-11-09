@@ -63,6 +63,7 @@ import java.util.regex.Pattern;
 
 import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -87,7 +88,7 @@ public class ValidUsers {
     private static final String IMDB_PERM_RECPROMPTS = "RecordSystemPrompts";
     private static final String IMDB_PERM_TUICHANGEPIN = "tui-change-pin";
     
-    private MongoDbTemplate m_imdb;
+    private MongoTemplate m_imdb;
 
     public List<User> getValidUsers() {
         List<User> users = new ArrayList<User>();
@@ -585,11 +586,11 @@ public class ValidUsers {
         }
     }
 
-    public MongoDbTemplate getImdb() {
+    public MongoTemplate getImdb() {
         return m_imdb;
     }
 
-    public void setImdb(MongoDbTemplate imdb) {
+    public void setImdb(MongoTemplate imdb) {
         m_imdb = imdb;
     }
 }

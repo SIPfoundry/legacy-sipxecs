@@ -21,26 +21,28 @@ import java.io.StringReader;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 
 import com.mongodb.DBCollection;
+import com.mongodb.Mongo;
 
 public class ResourceListsTest extends XMLTestCase {
     public final static String DOMAIN = "example.org";
     private CoreContext m_coreContext;
-    private MongoDbTemplate m_db = new MongoDbTemplate(); 
+    private MongoTemplate m_db; 
     private ResourceLists m_rl;
 
     @Override
     protected void setUp() throws Exception {
-        m_db.setName("test");
+        m_db = new MongoTemplate(new SimpleMongoDbFactory(new Mongo(), "test"));
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.getDomainName();
         expectLastCall().andReturn(DOMAIN).anyTimes();
         replay(m_coreContext);
-        m_db.drop();
+        m_db.getDb().dropDatabase();
         m_rl = new ResourceLists();
         ValidUsers vu = new ValidUsers();
         vu.setImdb(m_db);

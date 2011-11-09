@@ -31,10 +31,12 @@ bool EntityDB::findByIdentity(const string& identity, EntityRecord& entity) cons
 	{
 		OS_LOG_DEBUG(FAC_ODBC, identity << " is present in namespace " << _info.getNS());
 		entity = pCursor->next();
+                conn.done();
 		return true;
 	}
 	OS_LOG_DEBUG(FAC_ODBC, identity << " is NOT present in namespace " << _info.getNS());
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _info.getNS());
+        conn.done();
 	return false;
 }
 
@@ -47,9 +49,11 @@ bool EntityDB::findByUserId(const string& userId, EntityRecord& entity) const
 	if (pCursor.get() && pCursor->more())
 	{
 		entity = pCursor->next();
+                conn.done();
 		return true;
 	}
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _info.getNS());
+        conn.done();
 	return false;
 }
 
@@ -86,9 +90,11 @@ bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) cons
 	if (pCursor.get() && pCursor->more())
 	{
 		entity = pCursor->next();
+                conn.done();
 		return true;
 	}
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _info.getNS());
+        conn.done();
 	return false;
 }
 

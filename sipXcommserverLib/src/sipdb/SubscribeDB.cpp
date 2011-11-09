@@ -76,8 +76,9 @@ void SubscribeDB::upsert (
         Subscription::accept_fld() << accept.str() <<
         Subscription::version_fld() << version));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     conn->update(_info.getNS(), query, update, true, false);
+    conn.done();
 }
 
 //delete methods - delete a subscription session
@@ -94,9 +95,9 @@ void SubscribeDB::remove (
         Subscription::callId_fld() << callid.str() <<
         Subscription::subscribeCseq_fld() << BSON_LESS_THAN(subscribeCseq));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     conn->remove(_info.getNS(), query);
-	conn.done();
+    conn.done();
 }
 
 void SubscribeDB::removeError (
@@ -110,7 +111,7 @@ void SubscribeDB::removeError (
         Subscription::fromUri_fld() << from.str() <<
         Subscription::callId_fld() << callid.str());
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     conn->remove(_info.getNS(), query);
     conn.done();
 }
@@ -129,14 +130,14 @@ bool SubscribeDB::subscriptionExists (
               Subscription::callId_fld() << callId.str() <<
               Subscription::expires_fld() << BSON_GREATER_THAN_EQUAL(timeNow));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     if (pCursor.get() && pCursor->more()) {
     	conn.done();
         return pCursor->itcount() > 0;
     }
 
-	conn.done();
+    conn.done();
     return false;
 }
 
@@ -154,7 +155,7 @@ void SubscribeDB::removeExpired( const UtlString& component, const int timeNow )
         Subscription::expires_fld() << BSON_LESS_THAN(timeNow));
     mongo::ScopedDbConnection conn(_info.getConnectionString());
     conn->remove(_info.getNS(), query);
-	conn.done();
+    conn.done();
 }
 
 void SubscribeDB::getUnexpiredSubscriptions (
@@ -170,13 +171,13 @@ void SubscribeDB::getUnexpiredSubscriptions (
         Subscription::key_fld() << key.str() <<
         Subscription::eventTypeKey_fld() << eventTypeKey.str());
 
- 	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
         subscriptions.push_back(Subscription(pCursor->next()));
     }
-	conn.done();
+    conn.done();
 }
 
 void SubscribeDB::getUnexpiredContactsFieldsContaining(
@@ -186,7 +187,7 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
 {
     mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_LESS_THAN(timeNow));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
@@ -197,7 +198,7 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
         if (contact.find(substringToMatch.str()) != string::npos)
             matchingContactFields.push_back(contact);
     }
-	conn.done();
+    conn.done();
 }
 
 void SubscribeDB::updateNotifyUnexpiredSubscription(
@@ -222,7 +223,7 @@ void SubscribeDB::updateNotifyUnexpiredSubscription(
         Subscription::notifyCseq_fld() << updatedNotifyCseq <<
         Subscription::version_fld() << version));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     conn->update(_info.getNS(), query, update);
     conn.done();
 }
@@ -284,7 +285,7 @@ void SubscribeDB::updateToTag(
    const UtlString& totag) const
 {
     mongo::BSONObj query = BSON(Subscription::callId_fld() << callid.str());
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
@@ -315,7 +316,7 @@ void SubscribeDB::updateToTag(
             }
         }
     }
-	conn.done();
+    conn.done();
 }
 
 bool SubscribeDB::findFromAndTo(
@@ -326,7 +327,7 @@ bool SubscribeDB::findFromAndTo(
    UtlString& to) const
 {
     mongo::BSONObj query = BSON(Subscription::callId_fld() << callid.str());
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
@@ -356,14 +357,14 @@ bool SubscribeDB::findFromAndTo(
            }
         }
     }
-	conn.done();
+    conn.done();
     return false;
 }
 
 int SubscribeDB::getMaxVersion(const UtlString& uri) const
 {
     mongo::BSONObj query = BSON(Subscription::uri_fld() << uri.str());
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
     auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
     unsigned int value = 0;
     while (pCursor.get() && pCursor->more())
@@ -372,7 +373,7 @@ int SubscribeDB::getMaxVersion(const UtlString& uri) const
         if (value < row.version())
             value = row.version();
     }
-	conn.done();
+    conn.done();
     return value;
 }
 
