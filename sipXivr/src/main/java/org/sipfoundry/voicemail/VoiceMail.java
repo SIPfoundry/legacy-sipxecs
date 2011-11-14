@@ -12,7 +12,6 @@ package org.sipfoundry.voicemail;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -43,8 +42,6 @@ public class VoiceMail {
     // Global store for VoiceMail resource bundles keyed by locale
     private static final String RESOURCE_NAME = "org.sipfoundry.voicemail.VoiceMail";
     private static final String CPUI_RESOURCE_NAME = "org.sipfoundry.callpilot.CallPilot";
-    private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
-    private static HashMap<Locale, ResourceBundle> s_cpui_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
     
     private org.sipfoundry.sipxivr.IvrConfiguration m_ivrConfig;
     private Localization m_locStd;
@@ -94,18 +91,18 @@ public class VoiceMail {
                 
         try {
             m_locStd = new Localization("VoiceMail", localeString, 
-                       s_resourcesByLocale, m_ivrConfig, m_fses);
+                       m_ivrConfig, m_fses);
         } catch (MissingResourceException e) {
             m_locStd = new Localization(RESOURCE_NAME, localeString, 
-                    s_resourcesByLocale, m_ivrConfig, m_fses);
+                    m_ivrConfig, m_fses);
         }
              
         try {
             m_locCpui = new Localization("CallPilot", localeString, 
-                    s_cpui_resourcesByLocale, m_ivrConfig, m_fses);
+                    m_ivrConfig, m_fses);
         } catch (MissingResourceException e) {    
             m_locCpui = new Localization(CPUI_RESOURCE_NAME, localeString, 
-                    s_cpui_resourcesByLocale, m_ivrConfig, m_fses);
+                    m_ivrConfig, m_fses);
         }    
     }
 

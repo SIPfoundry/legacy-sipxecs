@@ -11,10 +11,7 @@ package org.sipfoundry.moh;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
@@ -25,7 +22,6 @@ import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrConfiguration;
-import org.sipfoundry.sipxivr.Mailbox;
 
 
 public class Moh {
@@ -33,7 +29,6 @@ public class Moh {
 
     // Global store for AutoAttendant resource bundles keyed by locale
     private static final String RESOURCE_NAME="org.sipfoundry.attendant.AutoAttendant";
-    private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
     private IvrConfiguration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
@@ -81,7 +76,7 @@ public class Moh {
     void loadConfig() {
         // Load the resources for the given locale.
         m_loc = new Localization(RESOURCE_NAME, 
-                m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
+                m_localeString, m_ivrConfig, m_fses);
         
         // Update the valid users list
         try {

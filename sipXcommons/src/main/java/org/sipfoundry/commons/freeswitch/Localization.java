@@ -27,7 +27,6 @@ public class Localization {
      */
     private final Logger LOG;
     private String m_bundleName;
-    private HashMap<Locale, ResourceBundle> m_resourcesByLocale;
     private ResourceBundle m_bundle;
     private Locale m_locale;
     private TextToPrompts m_ttp;
@@ -36,13 +35,12 @@ public class Localization {
     private String m_prefix;
     private String m_localeString;
 
-    public Localization(String bundleName, String localeString, HashMap<Locale, ResourceBundle> resourcesByLocale,
+    public Localization(String bundleName, String localeString,
             FreeSwitchConfigurationInterface config, FreeSwitchEventSocketInterface fses) {
 
         // Load the resources for the given locale.
 
         m_bundleName = bundleName;
-        m_resourcesByLocale = resourcesByLocale;
         m_locale = Locale.US; // Default to good ol' US of A
         m_config = config;
         m_fses = fses;
@@ -56,11 +54,10 @@ public class Localization {
      * @param bundleName
      * @param origLoc
      */
-    public Localization(String bundleName, HashMap<Locale, ResourceBundle> resourcesByLocale, Localization origLoc) {
+    public Localization(String bundleName, Localization origLoc) {
         // Load the resources for the given locale.
 
         m_bundleName = bundleName;
-        m_resourcesByLocale = resourcesByLocale;
         m_locale = origLoc.m_locale;
         m_config = origLoc.m_config;
         m_fses = origLoc.m_fses;
@@ -92,25 +89,16 @@ public class Localization {
                     lang, country, variant, m_locale.toString()));
         }
 
-        // Check to see if we've loaded this one before...
-        synchronized (m_resourcesByLocale) {
-            String fromWhere = "cache";
-            ResourceBundle newBundle = m_resourcesByLocale.get(m_locale);
-            if (newBundle == null) {
-                fromWhere = "disk";
-                // Nope. Find the on disk version, and keep it for next time.
-                newBundle = ResourceBundle.getBundle(
-                        m_bundleName, m_locale);
-                m_resourcesByLocale.put(m_locale, newBundle);
-            }
-            if (newBundle != null) {
-                LOG.debug(String.format("Localization:changeLocale Loaded resource bundle %s from %s",
-                        m_bundleName, fromWhere));
-                m_bundle = newBundle;
-            } else {
-                LOG.warn("Localization::changeLocale Cannot find resource bundle "+m_bundleName+" for locale "+m_locale);
-            }
+
+        m_bundle = ResourceBundle.getBundle(m_bundleName, m_locale);
+                
+        if (m_bundle != null) {
+            LOG.debug(String.format("Localization:changeLocale Loaded resource bundle %s from",
+                    m_bundleName));
+        } else {
+            LOG.warn("Localization::changeLocale Cannot find resource bundle "+m_bundleName+" for locale "+m_locale);
         }
+        
 
         String ttpClass;
         String docDir = "";

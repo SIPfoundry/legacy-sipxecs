@@ -9,12 +9,12 @@
 
 package org.sipfoundry.attendant;
 
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.ListResourceBundle;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.Vector;
+
+import junit.framework.TestCase;
 
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketEmulator;
@@ -23,23 +23,9 @@ import org.sipfoundry.commons.freeswitch.TextToPrompts_en;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 
-import junit.framework.TestCase;
-
 public class AttendantTest extends TestCase {
-    public class MyResources extends ListResourceBundle {
-        private final Object[][] m_contents = {
-            {
-                "global.prefix", "/glob/"
-            }, {
-                "goodbye.prompts", "goodbye"
-            },
-        };
 
-        public Object[][] getContents() {
-            return m_contents;
-        }
-
-    }
+	private static final String RESOURCE_NAME="org.sipfoundry.attendant.AutoAttendantTest";
 
     /*
      * public void testAttendant() { fail("Not yet implemented"); }
@@ -69,9 +55,7 @@ public class AttendantTest extends TestCase {
         FreeSwitchEventSocketEmulator fses = new FreeSwitchEventSocketEmulator(ivrConfig);
 
         Attendant a = new Attendant(ivrConfig, fses, params);
-        HashMap<Locale, ResourceBundle> resourcesByLocale = new HashMap<Locale, ResourceBundle>();
-        resourcesByLocale.put(Locale.ENGLISH, new MyResources());
-        Localization loc = new Localization("dog", Locale.ENGLISH.toString(), resourcesByLocale, ivrConfig, fses);
+        Localization loc = new Localization(RESOURCE_NAME, Locale.ENGLISH.toString(), ivrConfig, fses);
         a.setLocalization(loc);
         a.setTtp(new TextToPrompts_en());
         a.setAttendantConfig(org.sipfoundry.attendant.Configuration.update(false));

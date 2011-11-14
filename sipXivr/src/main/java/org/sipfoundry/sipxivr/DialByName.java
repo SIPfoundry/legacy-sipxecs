@@ -28,7 +28,6 @@ public class DialByName {
 
     // Global store for DialByNamePrompts resource bundles keyed by locale
     private static final String RESOURCE_NAME = "org.sipfoundry.sipxivr.DialByNamePrompts";
-    private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
     protected Localization m_loc;
     protected ApplicationConfiguraton m_config;
@@ -37,7 +36,7 @@ public class DialByName {
 
     public DialByName(Localization localization, ApplicationConfiguraton config, ValidUsersXML validUsers) {
         // Load the DialByNameProperties bundle
-        m_loc = new Localization(RESOURCE_NAME, s_resourcesByLocale, localization);
+        m_loc = new Localization(RESOURCE_NAME, localization);
         m_config = config;
         m_validUsers= validUsers;
     }

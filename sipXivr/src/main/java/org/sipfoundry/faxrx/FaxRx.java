@@ -13,10 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.FaxReceive;
@@ -33,7 +30,6 @@ public class FaxRx {
 
     // Global store for AutoAttendant resource bundles keyed by locale
     private static final String RESOURCE_NAME = "org.sipfoundry.attendant.AutoAttendant";
-    private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
     private IvrConfiguration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
@@ -69,7 +65,7 @@ public class FaxRx {
      */
     void loadConfig() {
         // Load the resources for the given locale.
-        m_loc = new Localization(RESOURCE_NAME, m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
+        m_loc = new Localization(RESOURCE_NAME, m_localeString, m_ivrConfig, m_fses);
 
         // Update the valid users list
         try {

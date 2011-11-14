@@ -42,7 +42,6 @@ public class Attendant {
 
     // Global store for AutoAttendant resource bundles keyed by locale
     private static final String RESOURCE_NAME="org.sipfoundry.attendant.AutoAttendant";
-    private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
     private IvrConfiguration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
@@ -97,11 +96,11 @@ public class Attendant {
     void loadConfig() {            
         try {
             m_loc = new Localization("AutoAttendant", 
-                    m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
+                    m_localeString, m_ivrConfig, m_fses);
         } catch (MissingResourceException e) {
             // Use the built in one as a last resort
             m_loc = new Localization(RESOURCE_NAME, 
-                    m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
+                    m_localeString, m_ivrConfig, m_fses);
         }
                 
         // Load the attendant configuration

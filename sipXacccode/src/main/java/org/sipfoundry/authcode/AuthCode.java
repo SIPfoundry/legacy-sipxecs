@@ -33,7 +33,6 @@ public class AuthCode {
 
     // Global store for resource bundles keyed by locale
     private static final String RESOURCE_NAME = "org.sipfoundry.authcode.AuthCode";
-    private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
     
     private AccCodeConfiguration m_acccodeConfig;
     private Localization m_loc;
@@ -78,7 +77,7 @@ public class AuthCode {
 
         // Load the account code configuration
         m_loc = new Localization(RESOURCE_NAME,
-                                   m_localeString, s_resourcesByLocale, m_acccodeConfig, m_fses);
+                                   m_localeString, m_acccodeConfig, m_fses);
         m_config = Configuration.update(true);
 
     }
