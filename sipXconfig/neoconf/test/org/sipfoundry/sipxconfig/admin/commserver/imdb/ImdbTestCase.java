@@ -20,7 +20,7 @@ public class ImdbTestCase extends IntegrationTestCase {
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-        m_imdb.drop();
+        m_imdb.getDb().dropDatabase();
     }
 
     public DBCollection getEntityCollection() {

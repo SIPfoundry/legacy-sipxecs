@@ -56,7 +56,7 @@ public class RegistrationContextTestIntegration extends ImdbTestCase {
         reg2.put("instrument", DATA[1][8]);
         reg2.put("expired", DATA[1][4]);
 
-        m_nodeDb.drop();
+        m_nodeDb.getDb().dropDatabase();
         getRegistrarCollection().insert(reg1, reg2);
 
         m_builder = new RegistrationContextImpl();

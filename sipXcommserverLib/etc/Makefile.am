@@ -1,15 +1,6 @@
 include $(top_srcdir)/config/utility.am
 
-EXTRA_DIST = \
-	$(proc_DATA:.xml=.xml.in)
+cfgdir = @SIPX_CONFDIR@
 
-procdir = \
-	$(SIPX_DATADIR)/process.d
-
-proc_DATA = \
-	mongod-process.xml
-
-$(proc_DATA) : % : %.in Makefile
-	@$(call SearchAndReplace, $<, $@)
-
-CLEANFILES = $(proc_DATA)
+cfg_DATA = \
+	mongo-client.ini

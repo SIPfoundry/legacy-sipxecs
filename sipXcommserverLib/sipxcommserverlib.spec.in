@@ -109,12 +109,6 @@ if ! /usr/bin/id sipxchange >/dev/null 2>&1; then
   /usr/sbin/useradd -M -r -g sipxchange -d %{_sysconfdir}/sipxpbx -s /bin/bash -c sipxchange sipxchange 2>&1
 fi
 
-%post
-# verified as idempotent
-chkconfig --add mongod
-chkconfig mongod on
-service mongod start
-
 %files
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
@@ -126,6 +120,7 @@ service mongod start
 %attr(755,root,root) %{_bindir}/sipx-validate-xml
 %attr(755,root,root) %{_bindir}/sipx-dns
 %attr(755,root,root) %{_bindir}/pgpatch.sh
+%attr(755,root,root) %{_bindir}/mongodb-repair
 %attr(755,root,root) %{_bindir}/ssl-cert/gen-ssl-keys.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/install-cert.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/check-cert.sh
@@ -142,7 +137,6 @@ service mongod start
 %attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxcdrpostgres
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-time-manager-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-change-timezone-init
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-mongodadmin
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxpackage-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxswadmin-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxzoneadmin-init

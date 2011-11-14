@@ -61,7 +61,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
