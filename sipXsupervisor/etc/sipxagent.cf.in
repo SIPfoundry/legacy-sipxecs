@@ -1,0 +1,20 @@
+bundle agent sipx {
+  vars:
+    any::
+      # Have to turn scalars_ to slists because of bug found in cfengine 3.2.3 and lower versions
+      #  https://cfengine.com/bugtracker/view.php?id=865
+      "allowed_addrs" slist => readstringlist("@SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini", "#.*", "\n", "100", "10000");
+}
+
+body common control {
+  bundlesequence => {
+    "sipx"
+  };
+}
+
+body runagent control {
+  hosts => { @(sipx.allowed_addrs) };
+  trustkey => "true";
+  encrypt => "true";
+}
+

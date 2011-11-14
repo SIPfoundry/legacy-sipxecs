@@ -1,7 +1,7 @@
 Summary: A systems administration tool for networks
 Name: cfengine
-Version: 3.1.5
-Release: 2%{?dist}
+Version: 3.2.3
+Release: 1%{?dist}
 License: GPLv3
 Group: Applications/System
 Source0: %{name}-%{version}.tar.gz
@@ -120,7 +120,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS ChangeLog COPYING README TODO
+%doc AUTHORS ChangeLog README
 %{_sbindir}/*
 %{_libdir}/libpromises*
 %{_mandir}/man8/*
@@ -132,12 +132,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files doc
 %defattr(-,root,root,-)
-%doc /usr/share/doc/cfengine/INSTALL
-%doc /usr/share/doc/cfengine/NEWS
 %doc /usr/share/doc/cfengine/README
 %doc /usr/share/doc/cfengine/ChangeLog
-%doc /usr/share/doc/cfengine/*.cf
-%doc /usr/share/doc/cfengine/inputs/*.cf
+%doc /usr/share/doc/cfengine/example_config/*.cf
+%doc /usr/share/doc/cfengine/examples/*.cf
 %doc docs/*html
 
 

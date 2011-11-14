@@ -2,7 +2,41 @@ include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
 	$(schema_DATA:=.in) \
-        $(proc_DATA:=.in)
+        $(proc_DATA:=.in) \
+	$(cfinputs_PROMISES:=.in) \
+	$(cfdefaults_FILES:=.in) \
+	cfengine_stdlib.cf
+
+cfdefaultsdir = $(SIPX_CFDATA)/defaults
+cfdefaults_DATA = \
+	SystemDirectories.cfdat \
+	$(cfdefaults_FILES)
+
+cfdefaults_FILES = \
+	sipxsupervisord.cfdat \
+	mongodb.cfdat
+
+SystemDirectoryVariables = \
+	$(filter SIPX%DIR,$(.VARIABLES)) \
+	$(filter SIPX_CF%,$(.VARIABLES))
+
+SystemDirectories.dat : Makefile
+	! test -f $@ || rm $@
+	$(foreach V,$(SystemDirectoryVariables), echo '=$(V)=$($(V))' >> $@;)
+
+cfinputsdir = $(SIPX_CFINPUTS)
+cfinputs_DATA = \
+	$(cfinputs_PROMISES) \
+	cfengine_stdlib.cf
+
+cfinputs_PROMISES = \
+	sipxsupervisord.cf \
+	sipx.cf \
+	sipxagent.cf
+
+cfpluginsdir = $(SIPX_CFINPUTS)/plugin.d
+dist_cfplugins_DATA = \
+	mongodb.cf
 
 procdir = \
         $(SIPX_DATADIR)/process.d
@@ -29,7 +63,7 @@ mibdir = @SIPX_DATADIR@/mibs
 dist_mib_DATA = \
 	SIPXECS-ALARM-NOTIFICATION-MIB.mib
 
-$(schema_DATA) $(proc_DATA) : % : %.in Makefile
+$(cfdefaults_FILES) $(cfinputs_PROMISES) $(schema_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
-CLEANFILES = $(proc_DATA) $(schema_DATA)
+CLEANFILES = $(proc_DATA) $(schema_DATA) $(cfinputs_PROMISES) $(cfdefaults_FILES)

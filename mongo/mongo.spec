@@ -143,6 +143,7 @@ fi
 - add includes in devel package
 - add client.so in core package
 - typo bsondum.1* -> bsondump.1*
+
 * Thu Jan 28 2010 Richard M Kreuter <richard@10gen.com>
 - Minor fixes.
 

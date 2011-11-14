@@ -1,0 +1,56 @@
+#!@BASH@
+
+Hosts=
+Defines=
+Action=RUN
+Status=0
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+      --help|-h)
+        Action=USAGE
+        exit
+        ;;
+      --verbose|-v)
+        Verbose=-v
+	;;
+      --define|-d)
+        Defines="$Defines -D $2"
+	shift
+	;;
+      --host|-H)
+	Hosts="${Hosts}${HostsDelim}$2"
+	HostsDelim=","
+	shift
+      ;;
+    esac
+    shift # always consume 1
+done
+
+if [ -z "$Hosts" ]
+then
+  Action=USAGE
+  Status=1
+fi
+
+if [ "${Action}" = "USAGE" ]
+then
+  cat <<USAGE
+sipxagent --host hostname [--host additional-hostnames] [options]
+
+Optional Parameters:
+ --help     - This message
+
+ -D class   - Define a 'class' to be sent to remote machine. Can be used multiple times.
+              A 'class' is like a boolean and can be used to denote a command, state
+	      or multitude of things, it's really up to how the promises were written.  
+USAGE
+fi
+
+if [ "${Action}" = "RUN" ]
+then
+  cf-runagent ${Verbose} -H "$Hosts" -f @SIPX_CFINPUTS@/sipxagent.cf ${Defines} -o "${Verbose}"
+  Status=$?
+fi
+exit $Status

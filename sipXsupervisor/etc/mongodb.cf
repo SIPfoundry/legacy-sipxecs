@@ -1,0 +1,107 @@
+bundle edit_line replace_contents(contents) {
+   insert_lines:
+     "$(contents)";
+
+   delete_lines:
+      ".*";
+}
+
+bundle agent mongodb {
+  vars:
+    mongod::
+      "conf[replSet]" string => "sipxecs";
+    
+    mongod.encryption::
+      "conf[bind_ip]" string => "127.0.0.1";
+
+    mongod.!encryption::
+      "conf[bind_ip]" string => "0.0.0.0";
+
+    mongod.master::
+      "conf[port]" string => "27107";
+
+    mongod.slave::
+      # TODO: take from a sequence
+      "conf[port]" string => "27108";
+
+  methods:
+    "mongod" usebundle => "mongodb_install";
+
+  files:
+    mongod::
+      "/etc/mongod.conf"
+  	create => "false",
+	edit_line => set_variable_values("mongodb.conf"),
+	classes => if_repaired("restart_mongod");
+
+  commands:
+    restart_mongod::
+      "/etc/init.d/mongod"
+        args => "restart";
+}
+
+# install mongodb-server if this system is supposed to have it running
+# according to mongodb-server spec, rpm will add to chkconfig and
+# automatically start it.
+bundle agent mongodb_install {
+  packages:
+   redhat.mongod::
+     "mongo-server"
+        package_method => yum_rpm,
+        package_policy => "add";
+}
+
+# not meant to replace monitoring service that will restart crashed mongo
+# this just ensures it's running incase it was shutdown for some reason
+bundle agent mongodb_running {
+  processes:
+    mongod::
+      "mongod"
+        restart_class => "start_mongod";
+
+  commands:
+    start_mongod::
+      "/etc/init.d/mongod start";
+}
+
+bundle agent mongodb_repair {
+  files:
+    mongod::
+      "$(sipx.crontab)"
+        create => "true",
+        edit_line => mongodb_auto_repair();
+}
+
+
+# Once a minute, will check if mongod died and needs repair/restarting
+# If mongod was stopped normally, this script leaves mongod stopped.
+bundle edit_line mongodb_auto_repair(edit) {
+  classes:
+    "install_repairer" not => regline(".*$(sipx.SIPX_BINDIR)/mongod-repair.*", "$(edit.filename)");
+
+  insert_lines:
+    install_repairer::
+      "* * * * * $(sipx.SIPX_BINDIR)/mongod-repair";
+}
+
+# Todo, support multiple mongo servers
+bundle agent mongo_client {
+  vars:
+    master|(slave.encryption)::
+      "client_ini[connectionString]" string => "$(sipx.mongo_servers)";
+      "client_ini[connectionUrl]" string => "mongodb://(sipx.mongo_servers)";
+
+    slave.!encryption::
+      "client_ini[connectionString]" string => "$(sipx.mongo_servers)";
+      "client_ini[connectionUrl]" string => "mongodb://$(sipx.mongo_servers)";
+
+  files:
+    "$(sipx.confdir)/mongo-client.ini"
+      create => "true",
+      edit_line => replace_contents("client_ini");
+
+  # no need to restart anything because clients only use config to bootstrap connection
+  # to mongo. Once connected they get updates via mongo itself. There is the rare case
+  # going from single server to double server combined w/single going down would 
+  # leave clients unable to switch over. Need to verify this.
+}

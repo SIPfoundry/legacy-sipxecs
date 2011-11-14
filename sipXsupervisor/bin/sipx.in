@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Internal script run as a "cfengine module". This script is normally 
+# called within the cfengine infrastructure.
+#
+# Dumps all cfengine variables and classes this system should have
+# defined in the the $(sipx.___) namespace. Optional argument of
+# configuration id. An id assigned to this system to load
+# configuration variables and classes specific to that system
+
+find @SIPX_CFDATA@/defaults @SIPX_CFDATA@/${ConfigId} -maxdepth 1 -name '*.cfdat' -exec cat {} \;
+if [ -n "$1" ]; then
+  find @SIPX_CFDATA@/$1 -maxdepth 1 -name '*.cfdat' -exec cat {} \;
+fi

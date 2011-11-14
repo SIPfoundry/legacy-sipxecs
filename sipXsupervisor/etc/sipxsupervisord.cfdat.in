@@ -1,0 +1,3 @@
+=allowed_addrs_=127.0.0.1|::1
+# todo, remove root?
+=allowed_users_=root|@SIPXPBXUSER@
