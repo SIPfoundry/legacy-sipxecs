@@ -16,16 +16,20 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.openacd.FreeswitchMediaCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentConfigCommand;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdConfigObject;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdConfigObjectProvider;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdLogConfigCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdProvisioningContext;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class SipxOpenAcdService extends SipxService implements LoggingEntity {
+public class SipxOpenAcdService extends SipxService implements LoggingEntity, OpenAcdConfigObjectProvider {
     public static final String BEAN_ID = "sipxOpenAcdService";
     public static final String FS_ENABLED = "freeswitch_media_manager/FREESWITCH_ENABLED";
     public static final String C_NODE = "freeswitch_media_manager/C_NODE";
@@ -101,6 +105,11 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
     }
 
     @Override
+    public void onResync() {
+        m_provisioningContext.resync();
+    }
+
+    @Override
     public void afterReplication(Location location) {
         m_provisioningContext.configure(Collections.singletonList(new OpenAcdLogConfigCommand(getOpenAcdLogLevel(),
                 m_logDirectory)));
@@ -137,5 +146,22 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
                     "{ignore_early_media=true}sofia/%s/$1;sipx-noroute=VoiceMail;sipx-userforward=false",
                     m_domainName);
         }
+    }
+
+    @Override
+    public List<OpenAcdConfigObject> getConfigObjects() {
+        Boolean enabled = (Boolean) getSettingTypedValue(FS_ENABLED);
+        String cNode = getSettingValue(C_NODE);
+        String dialString = getSettingValue(DIAL_STRING);
+        List<OpenAcdConfigObject> objects = new ArrayList<OpenAcdConfigObject>();
+        objects.add(new FreeswitchMediaCommand(enabled, cNode,
+                dialString));
+
+        Boolean dialPlanListener = (Boolean) getSettingTypedValue(DIALPLAN_LISTENER);
+        objects.add(new OpenAcdAgentConfigCommand(dialPlanListener));
+
+        objects.add(new OpenAcdLogConfigCommand(getOpenAcdLogLevel(),
+                m_logDirectory));
+        return objects;
     }
 }

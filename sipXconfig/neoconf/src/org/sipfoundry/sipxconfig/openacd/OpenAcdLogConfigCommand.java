@@ -49,4 +49,9 @@ public class OpenAcdLogConfigCommand extends OpenAcdConfigObject {
     public String getType() {
         return "log_configuration";
     }
+
+    @Override
+    public boolean isConfigCommand() {
+        return true;
+    }
 }

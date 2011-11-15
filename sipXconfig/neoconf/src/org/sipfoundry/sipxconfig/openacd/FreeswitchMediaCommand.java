@@ -68,4 +68,9 @@ public class FreeswitchMediaCommand extends OpenAcdConfigObject {
     public String getType() {
         return "freeswitch_media_manager";
     }
+
+    @Override
+    public boolean isConfigCommand() {
+        return true;
+    }
 }

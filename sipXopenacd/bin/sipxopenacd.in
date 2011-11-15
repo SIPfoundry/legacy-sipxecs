@@ -28,6 +28,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --resync)
+            Action=RESYNC
+            ;;
+
         *)
             echo "Warning, unknown args $1" 1>&2
             ;;
@@ -64,6 +68,12 @@ case "$Action" in
 		    echo 'Mongo database appears to be stopped. Please start mongod service' >&2
 		    Status=1; 
 		fi
+		;;
+
+	RESYNC)
+                fqdn=`hostname -f`
+		rm -rf $OPENACD_ETC_DIR/Mnesia.openacd@$fqdn
+		exit $?
 		;;
 esac
 

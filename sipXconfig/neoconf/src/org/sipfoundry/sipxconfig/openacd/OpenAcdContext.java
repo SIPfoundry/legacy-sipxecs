@@ -136,4 +136,5 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner,
     public OpenAcdLine newOpenAcdLine();
     public OpenAcdCommand newOpenAcdCommand();
     public void replicateConfig();
+    public void resync();
 }

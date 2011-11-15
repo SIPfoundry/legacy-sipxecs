@@ -54,6 +54,7 @@ public:
    virtual void evConfigTestFailed( SipxProcess& impl ) const;
    virtual void evShutdown( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
+   virtual void evResyncProcess( SipxProcess& impl ) const;
    virtual void evStartProcess( SipxProcess& impl ) const;
    virtual void evStopProcess( SipxProcess& impl ) const;
    virtual void evTimeout( SipxProcess& impl ) const;

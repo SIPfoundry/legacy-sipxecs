@@ -15,6 +15,11 @@
       <execute>@SIPX_BINDIR@/sipxopenacd</execute>
       <parameter>--stop</parameter>
     </stop>
+    <resync>
+      <execute>@SIPX_BINDIR@/sipxopenacd</execute>
+      <parameter>--resync</parameter>
+      <parameter>--noinput</parameter>
+    </resync>
   </commands>
   <status>
     <pid>@SIPX_RUNDIR@/sipxopenacd.pid</pid>

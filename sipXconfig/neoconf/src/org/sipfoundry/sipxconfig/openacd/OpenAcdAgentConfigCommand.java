@@ -46,4 +46,9 @@ public class OpenAcdAgentConfigCommand extends OpenAcdConfigObject {
     public String getType() {
         return "agent_configuration";
     }
+
+    @Override
+    public boolean isConfigCommand() {
+        return true;
+    }
 }

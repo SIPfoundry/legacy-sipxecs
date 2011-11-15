@@ -47,7 +47,8 @@ import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, DaoEventListener {
+public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext,
+    DaoEventListener, OpenAcdConfigObjectProvider {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -330,6 +331,10 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
     public List<OpenAcdAgent> getAgents() {
         return getHibernateTemplate().loadAll(OpenAcdAgent.class);
+    }
+
+    public List<OpenAcdRecipeAction> getRecipeActions() {
+        return getHibernateTemplate().loadAll(OpenAcdRecipeAction.class);
     }
 
     public OpenAcdAgent getAgentById(Integer agentId) {
@@ -957,6 +962,17 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 getHibernateTemplate().flush();
             }
         }
+    }
+
+    public List<OpenAcdConfigObject> getConfigObjects() {
+        List<OpenAcdConfigObject> objects = new ArrayList<OpenAcdConfigObject>();
+        objects.addAll(getSkills());
+        objects.addAll(getClients());
+        objects.addAll(getAgentGroups());
+        objects.addAll(getAgents());
+        objects.addAll(getQueueGroups());
+        objects.addAll(getQueues());
+        return objects;
     }
 
     public void setSipxServiceManager(SipxServiceManager manager) {

@@ -18,16 +18,8 @@ package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.common.BeanWithId;
+public interface OpenAcdConfigObjectProvider {
 
-public abstract class OpenAcdConfigObject extends BeanWithId {
-
-    public abstract String getType();
-
-    public abstract List<String> getProperties();
-
-    public boolean isConfigCommand() {
-        return false;
-    }
+    public List<OpenAcdConfigObject> getConfigObjects();
 
 }

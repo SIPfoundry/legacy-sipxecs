@@ -18,6 +18,8 @@ package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.List;
 
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
+
 public interface OpenAcdProvisioningContext {
 
     void addObjects(List< ? extends OpenAcdConfigObject> objects);
@@ -27,4 +29,8 @@ public interface OpenAcdProvisioningContext {
     void updateObjects(List< ? extends OpenAcdConfigObject> objects);
 
     void configure(List< ? extends OpenAcdConfigObject> objects);
+
+    void resync();
+
+    public MongoDbTemplate getDb();
 }

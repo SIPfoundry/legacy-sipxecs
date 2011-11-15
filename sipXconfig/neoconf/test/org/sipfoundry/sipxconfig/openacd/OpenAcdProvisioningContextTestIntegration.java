@@ -19,14 +19,19 @@ package org.sipfoundry.sipxconfig.openacd;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
 
 public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCase {
     private OpenAcdContextImpl m_openAcdContextImpl;
     private OpenAcdSkillGroupMigrationContext m_migrationContext;
+    private OpenAcdProvisioningContext m_openAcdProvisioningContext;
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
@@ -205,6 +210,58 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         assertEquals("/var/etc/openacd/", objects.get(0).get("logDir"));
     }
 
+    public void testResync() throws Exception {
+        Map<String, OpenAcdConfigObjectProvider> beanMap = getApplicationContext().getBeanFactory().getBeansOfType(
+                OpenAcdConfigObjectProvider.class);
+        assertTrue(beanMap.size() == 2);
+        assertTrue(beanMap.containsKey("sipxOpenAcdService"));
+        assertTrue(beanMap.containsKey("openAcdContextImpl"));
+        loadDataSetXml("ClearDb.xml");
+        loadDataSetXml("domain/DomainSeed.xml");
+
+        // test openacd client creation
+        OpenAcdClient client = new OpenAcdClient();
+        client.setIdentity("001");
+        client.setName("clientName");
+        m_openAcdContextImpl.saveClient(client);
+
+        // test openacd skill creation
+        OpenAcdSkillGroup skillGroup = new OpenAcdSkillGroup();
+        skillGroup.setName("Programming");
+        m_openAcdContextImpl.saveSkillGroup(skillGroup);
+
+        OpenAcdSkill skill = new OpenAcdSkill();
+        skill.setName("Java");
+        skill.setAtom("_java");
+        skill.setGroup(skillGroup);
+        skill.setDescription("Java Skill");
+        m_openAcdContextImpl.saveSkill(skill);
+
+        // test agent group creation
+        OpenAcdAgentGroup group = new OpenAcdAgentGroup();
+        group.setName("Group");
+        group.setClients(Collections.singleton(client));
+        group.addSkill(skill);
+        group.addQueue(m_openAcdContextImpl.getQueueByName("default_queue"));
+        m_openAcdContextImpl.saveAgentGroup(group);
+
+        OpenAcdQueue queue = new OpenAcdQueue();
+        queue.setName("QueueName");
+        queue.setAgentGroups(Collections.singleton(group));
+        queue.addSkill(skill);
+        queue.setGroup(m_openAcdContextImpl.getQueueGroupByName("Default"));
+        m_openAcdContextImpl.saveQueue(queue);
+
+        MongoDbTemplate openacd = m_openAcdProvisioningContext.getDb();
+        openacd.drop();
+        DBCollection collection = openacd.getDb().getCollection("commands");
+
+        m_openAcdProvisioningContext.resync();
+        //TODO: improve this test by adding all config objects, and
+        //searching in mongo everything, including defaults
+        MongoTestCaseHelper.assertCollectionCount(collection, 19);
+    }
+
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {
         m_openAcdContextImpl = openAcdContext;
     }
@@ -224,6 +281,10 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         public List<BasicDBObject> getCommands() {
             return m_commands;
         }
+    }
+
+    public void setOpenAcdProvisioningContext(OpenAcdProvisioningContext openAcdProvisioningContext) {
+        m_openAcdProvisioningContext = openAcdProvisioningContext;
     }
 
 }

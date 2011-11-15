@@ -23,5 +23,7 @@ public interface ProcessManagerApi {
 
     Map<String, String> restart(String host, String[] processes, boolean block);
 
+    Map<String, String> resync(String host, String[] processes, boolean block);
+
     boolean setConfigVersion(String host, String service, String version);
 }

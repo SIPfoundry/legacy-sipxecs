@@ -195,6 +195,9 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// Stop and restart the process without changing the persistent desired state
    virtual bool restart();
 
+   /// Resyncs the process
+   virtual bool resync();
+
    /// Shutting down sipXsupervisor, so shut down the service.
    virtual void shutdown();
    ///< This does not affect the persistent state of the service.
@@ -312,6 +315,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
      void enableInTask();
      void disableInTask();
      void restartInTask();
+     void resyncInTask();
      void shutdownInTask();
      void configurationVersionChangeInTask();
      void configurationChangeInTask(const SipxResource* changedResource);
@@ -545,6 +549,7 @@ public:
       TIMEOUT     = 5,
       CONFIG_VERSION_CHANGED = 6,
       CONFIG_CHANGED = 7,
+      RESYNC     =8,
 
       // return events from the SipxProcessCmd task: must supply cmd
       STARTED     = 10,

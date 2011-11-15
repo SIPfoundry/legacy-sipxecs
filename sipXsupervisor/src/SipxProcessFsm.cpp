@@ -68,6 +68,14 @@ void SipxProcessFsm::evRestartProcess( SipxProcess& impl ) const
    ChangeState( impl, impl.pConfigurationMismatch );
 }
 
+void SipxProcessFsm::evResyncProcess( SipxProcess& impl ) const
+{
+   Os::Logger::instance().log(FAC_SUPERVISOR,PRI_INFO,"'%s': Received event evResyncProcess while in state '%s'",
+         impl.name(), impl.GetCurrentState()->name() );
+
+   ChangeState( impl, impl.pConfigurationMismatch );
+}
+
 void SipxProcessFsm::evTimeout( SipxProcess& impl ) const
 {
    Os::Logger::instance().log(FAC_SUPERVISOR,PRI_WARNING,"'%s': Received unexpected event evTimeout while in state '%s'",

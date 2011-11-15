@@ -222,7 +222,12 @@ process_queue(Queue, Command) ->
 	AllSkills = lists:merge(SkillsList, ProfilesList),
 	{_, Weight} = lists:nth(6, Queue),
 	if Command =:= "ADD" ->
-		call_queue_config:new_queue(erlang:binary_to_list(Name), binary_to_number(Weight), AllSkills, [], erlang:binary_to_list(QueueGroup)),
+		{_, {_, RecipeSteps}} = lists:nth(8, Queue),
+		if RecipeSteps =:= [] -> RecipeToSave = [];
+			true ->
+				RecipeToSave = lists:flatmap(fun(X) -> [extract_recipe_step(X)] end, RecipeSteps)
+		end,
+		call_queue_config:new_queue(erlang:binary_to_list(Name), binary_to_number(Weight), AllSkills, RecipeToSave, erlang:binary_to_list(QueueGroup)),
 		queue_manager:load_queue(erlang:binary_to_list(Name));
 	Command =:= "DELETE" ->
 		call_queue_config:destroy_queue(erlang:binary_to_list(Name));
