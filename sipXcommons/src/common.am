@@ -2,7 +2,8 @@
 # output from commons compile
 commons_classes = $(abspath $(top_builddir)/src/main/java/classes)
 
-# packages to run commons
+# packages to build commons. You won't need all of these to run unless you call specific functions.
+# for example, non-spring projects wouldn't need spring deps
 commons_PKGS = \
 	Stun4J \
 	log4j \
@@ -18,5 +19,10 @@ commons_PKGS = \
 	commons-digester \
 	commons-lang \
 	xmlrpc-client \
+	org.springframework.beans \
+	org.springframework.context \
+	org.springframework.core \
+	org.springframework.transaction \
+	spring-data-mongodb \
 	jce \
 	mongo

@@ -12,6 +12,8 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
+import org.jivesoftware.util.Log;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.WatcherConfig;
 import org.sipfoundry.openfire.plugin.presence.UnifiedPresence;
@@ -30,6 +32,11 @@ public class OpenfireXmlRpcPresenceClientTest extends TestCase {
     public void setUp() throws Exception {
         ConfigurationParser configParser = new ConfigurationParser();
         watcherConfig = configParser.parse("file://" + configDir + "/sipxopenfire.xml");
+        try {
+            UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
+        } catch (Exception e) {
+            Log.error(e);
+        }        
         this.domain = watcherConfig.getOpenfireHost();
         this.sipDomain = watcherConfig.getProxyDomain();
         Properties props = new Properties();

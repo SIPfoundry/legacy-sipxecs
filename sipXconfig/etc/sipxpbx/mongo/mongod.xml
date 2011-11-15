@@ -16,10 +16,6 @@
       <type refid="true-false"/>
       <value>true</value>
     </setting>
-    <setting name="fork" hidden="yes">
-      <type refid="true-false"/>
-      <value>true</value>
-    </setting>
     <setting name="port" hidden="yes">
       <type refid="nonRootPort"/>      
       <value>27107</value>

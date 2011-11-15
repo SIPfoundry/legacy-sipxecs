@@ -1,7 +1,10 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <boost/iostreams/filtering_stream.hpp>
+//#include <boost/program_options.hpp>
+#include <boost/config.hpp>
+#include <boost/program_options/detail/config_file.hpp>
+#include <boost/program_options/parsers.hpp>
 #include <mongo/client/dbclient.h>
 #include <mongo/client/connpool.h>
 #include "sipdb/MongoDB.h"
@@ -9,18 +12,30 @@
 using namespace MongoDB;
 using namespace std;
 
+namespace pod = boost::program_options::detail;
+
 const mongo::ConnectionString ConnectionInfo::connectionStringFromFile(const string& configFile)
 {
-	const char* configFileStr = (configFile.size() == 0 ? SIPX_CONFDIR "/sipxmongo-config" : configFile.c_str());
-    ifstream file(configFileStr, ios_base::in);
-    boost::iostreams::filtering_istream in;
-    in.push(file);
-    string connectionString;
-    if (!getline(in, connectionString))
+	const char* configFileStr = (configFile.size() == 0 ? SIPX_CONFDIR "/mongo-client.ini" : configFile.c_str());
+    ifstream file(configFileStr);
+    if (!file)
     {
-        throw (string("Invalid contents: ")  + configFileStr);
+        throw (string("Missing file ")  + configFileStr);
+    }
+    set<string> options;
+    options.insert("*");
+    string connectionString;
+    for (boost::program_options::detail::config_file_iterator i(file, options), e; i != e; ++i) {
+        if (i->string_key == "connectionString") {
+            connectionString = i->value[0];
+            break;
+        }
     }
     file.close();
+    if (connectionString.size() == 0)
+    {
+        throw (string("Invalid contents, missing parameter 'connectionString'")  + configFileStr);
+    }
 
     return ConnectionInfo::connectionString(connectionString);
 }

@@ -1,1 +1,3 @@
-=mongo_servers=localhost:27017
+=mongod_servers=localhost:27017
+=mongod_conf=/etc/mongod.conf
++mongod

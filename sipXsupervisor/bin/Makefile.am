@@ -3,7 +3,7 @@ include $(top_srcdir)/config/utility.am
 EXTRA_DIST = \
 	$(initd_SCRIPTS:=.in) \
 	$(bin_SCRIPTS:=.in) \
-	$(cf_SCRIPTS:=.in)
+	$(cfmod_SCRIPTS:=.in)
 
 bin_SCRIPTS = \
 	sipxsupervisor.sh \

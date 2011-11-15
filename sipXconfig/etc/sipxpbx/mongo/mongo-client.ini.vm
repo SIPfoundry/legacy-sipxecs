@@ -1,6 +1,0 @@
-# example sipxecs/localhost:27017,localhost:27018.  Mostly for C++ driver
-ConnectionString = ${replset}/${servers}
-# Spring connections
-mongo.SpringConnection = ${servers}
-# example mongodb://localhost:27017,localhost:27018/?.  Used on java and ruby drivers.
-ConnectionUrl = mongodb://${servers}/?

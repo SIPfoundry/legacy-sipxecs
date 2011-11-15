@@ -28,6 +28,13 @@ do
     shift # always consume 1
 done
 
+check_setup() {
+  [ ! -f ~/.cfagent/ppkeys/localhost.priv ] && cf-key
+  if [ ! -f @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini ] ; then 
+    echo -e "127.0.0.1\n::1" > @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini
+  fi
+}
+
 if [ -z "$Hosts" ]
 then
   Action=USAGE
@@ -50,7 +57,8 @@ fi
 
 if [ "${Action}" = "RUN" ]
 then
-  cf-runagent ${Verbose} -H "$Hosts" -f @SIPX_CFINPUTS@/sipxagent.cf ${Defines} -o "${Verbose}"
+  check_setup
+  cf-runagent ${Verbose} -H "$Hosts" -f @SIPX_CFINPUTS@/sipxagent.cf ${Defines} -o "${Verbose} -K"
   Status=$?
 fi
 exit $Status

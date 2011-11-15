@@ -1,8 +1,13 @@
 package org.sipfoundry.commons.util;
 
+import java.net.UnknownHostException;
+
 import org.sipfoundry.commons.mongo.MongoFactory;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.springframework.data.mongodb.core.MongoTemplate;
+
+import com.mongodb.Mongo;
+import com.mongodb.MongoException;
 
 /**
  * Connection factory to mongo.  Need to call this before using
@@ -14,16 +19,15 @@ public class UnfortunateLackOfSpringSupportFactory {
     private static ValidUsers s_validUsers;
     private static MongoTemplate s_imdb;   
     
-    public synchronized static void initialize(String clientConfig) {
+    public synchronized static void initialize(String clientConfig) throws MongoException, UnknownHostException {
         if (s_validUsers == null) {
             
             // useful in unit tests to direct operations to imdb_TEST
             String imdbNs = System.getProperty("mongo_ns", "imdb");
             
-            MongoFactory factory = new MongoFactory();
-            factory.setConfigFile(clientConfig);
+            Mongo mongo = MongoFactory.fromConnectionFile(clientConfig);
             try {
-                s_imdb = new MongoTemplate(factory.mongo().getObject(), imdbNs);
+                s_imdb = new MongoTemplate(mongo, imdbNs);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -36,10 +40,18 @@ public class UnfortunateLackOfSpringSupportFactory {
     }
     
     public static ValidUsers getValidUsers() {
+        checkinit();
         return s_validUsers;
     }
     
+    private static void checkinit() {
+        if (s_validUsers == null) {
+            throw new IllegalArgumentException("You must call UnfortunateLackOfSpringSupportFactory.initialize first");
+        }        
+    }
+    
     public static MongoTemplate getImdb() {
+        checkinit();
         return s_imdb;        
     }
 }

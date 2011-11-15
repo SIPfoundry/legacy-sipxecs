@@ -696,7 +696,7 @@ do_start() {
         echo "Starting sipXpbx: "
 
 	# Restart service script if it's not already running with current config
-	@SERVICEDIR@/sipxsupervisord condrestart
+	@SERVICEDIR@/sipxsupervisord restart
 
         # Start up the sipxsupervisor
         # Start the sipxsupervisor with SIPX_LOGDIR as the working directory,

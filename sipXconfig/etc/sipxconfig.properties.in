@@ -85,6 +85,7 @@ sipxpbx.mibs.dir=@SIPX_DATADIR@/mibs/
 sysdir.vxml.moh=@SIPX_IVRDATADIR@/moh
 sysdir.webtest.srcdir=@top_srcdir@/web/test
 sysdir.mongo_ns=
+sysdir.mongo_client_ini=@SIPX_CONFDIR@/mongo-client.ini
 
 # ACD server defaults - can be changed in UI
 acdServer.port=8110

@@ -12,6 +12,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipximbot.WebServer;
 
 public class SipXimbot {
@@ -41,6 +42,7 @@ public class SipXimbot {
         props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
         props.setProperty("log4j.appender.file.layout.facility", "sipXimbot");
         PropertyConfigurator.configure(props);
+        UnfortunateLackOfSpringSupportFactory.initialize(s_config.getConfigDirectory() + "/mongo-client.ini");
         
         // Create Web Server
         WebServer webServer = new WebServer(s_config);

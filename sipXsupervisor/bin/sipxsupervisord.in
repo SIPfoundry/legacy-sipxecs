@@ -15,6 +15,7 @@
 config="@SIPX_CFINPUTS@/sipxsupervisord.cf"
 exec="/usr/sbin/cf-serverd"
 prog=$(basename $exec)
+# used to tell which config is in use.
 configid=/var/run/sipxsupervisord-configid
 
 [ -e /etc/sysconfig/sipxsupervisord ] && . /etc/sysconfig/sipxsupervisord
@@ -24,7 +25,7 @@ lockfile=/var/lock/subsys/$prog
 check_setup() {
 	[ ! -f /var/cfengine/ppkeys/localhost.priv ] && /usr/sbin/cfkey
 	if [ ! -f @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini ] ; then 
-	    echo -e "127.0.0.1\n::11" > @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini
+	    echo -e "127.0.0.1\n::1" > @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini
 	fi
 	if [ ! -f @SIPX_CONFDIR@/sipxsupervisord-allowed-users.ini ] ; then 
 	    echo -e "root\n@SIPXPBXUSER@" > @SIPX_CONFDIR@/sipxsupervisord-allowed-users.ini
@@ -83,13 +84,12 @@ case "$1" in
     status)
   	fdrstatus
 	;;
+    # condrestart - only restarts if service *is* running
     condrestart)
         [ ! -f $lockfile ] || restart
-        # conditionally restart if pointing to different configuration
-	[ `cat $configid` == $config ] || restart
         ;;
     *)
-        echo $"Usage: $0 {start|stop|status|restart|condrestart|reload|force-reload|nofork}"
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|condstart|reload|force-reload|nofork}"
         exit 3
 esac
 exit $?

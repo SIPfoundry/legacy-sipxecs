@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -39,6 +39,7 @@ public class XmppAccountInfo extends XmlFile {
     private CoreContext m_coreContext;
     private ConferenceBridgeContext m_conferenceContext;
     private SipxServiceManager m_sipxServiceManager;
+    private ValidUsers m_validUsers;
 
     @Required
     public void setCoreContext(CoreContext coreContext) {
@@ -164,7 +165,7 @@ public class XmppAccountInfo extends XmlFile {
         //use mongo here since it's much faster
         //downside: in case of bulk generation of users (send profiles, group)
         //file must be generated after all users are generated
-        List<String> imIds = UnfortunateLackOfSpringSupportFactory.getValidUsers().getAllImIdsInGroup(group.getName());
+        List<String> imIds = m_validUsers.getAllImIdsInGroup(group.getName());
         for (String imId : imIds) {
             Element userElement = xmmpGroup.addElement(USER);
             userElement.addElement(USER_NAME).setText(imId);
@@ -179,5 +180,13 @@ public class XmppAccountInfo extends XmlFile {
             String paUserName = imbotService.getPersonalAssistantImId();
             userElement.addElement(USER_NAME).setText(paUserName);
         }
+    }
+
+    public ValidUsers getValidUsers() {
+        return m_validUsers;
+    }
+
+    public void setValidUsers(ValidUsers validUsers) {
+        m_validUsers = validUsers;
     }
 }

@@ -44,6 +44,7 @@ public class SipXVCardProvider implements VCardProvider {
      */
     static final String DOMAIN_CONFIG_FILENAME = "/domain-config";
     static final String PLUGIN_CONFIG_FILENAME = "/config.properties";
+    static final String MONGO_CLIENT_CONFIG = "/mongo-client.ini";
     static final String PROP_SIPX_CONF_DIR = "sipxpbx.conf.dir";
     static final String PROP_CONFIG_HOST_NAME = "CONFIG_HOSTS";
     static final String PROP_SECRET = "SHARED_SECRET";
@@ -76,6 +77,13 @@ public class SipXVCardProvider implements VCardProvider {
 
             m_ConfigHostName = domain_config.getProperty(PROP_CONFIG_HOST_NAME, DEFAULT_DOMAIN_NAME).split(" ")[0];
             m_SharedSecret = domain_config.getProperty(PROP_SECRET, DEFAULT_SECRET);
+        }
+        
+        String clientConfig = this.getClass().getResource(MONGO_CLIENT_CONFIG).getFile();
+        try {
+            UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
+        } catch (Exception e) {
+            Log.error(e);
         }
 
         Log.info("CONFIG_HOSTS is " + m_ConfigHostName);

@@ -9,20 +9,19 @@ EXTRA_DIST = \
 
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
 cfdefaults_DATA = \
-	SystemDirectories.cfdat \
+	dirs.cfdat \
 	$(cfdefaults_FILES)
 
 cfdefaults_FILES = \
-	sipxsupervisord.cfdat \
 	mongodb.cfdat
 
-SystemDirectoryVariables = \
+dirvars = \
 	$(filter SIPX%DIR,$(.VARIABLES)) \
 	$(filter SIPX_CF%,$(.VARIABLES))
 
-SystemDirectories.dat : Makefile
+dirs.cfdat : Makefile
 	! test -f $@ || rm $@
-	$(foreach V,$(SystemDirectoryVariables), echo '=$(V)=$($(V))' >> $@;)
+	$(foreach V,$(dirvars), echo '=$(V)=$($(V))' >> $@;)
 
 cfinputsdir = $(SIPX_CFINPUTS)
 cfinputs_DATA = \
@@ -32,6 +31,7 @@ cfinputs_DATA = \
 cfinputs_PROMISES = \
 	sipxsupervisord.cf \
 	sipx.cf \
+	promises.cf \
 	sipxagent.cf
 
 cfpluginsdir = $(SIPX_CFINPUTS)/plugin.d
@@ -66,4 +66,4 @@ dist_mib_DATA = \
 $(cfdefaults_FILES) $(cfinputs_PROMISES) $(schema_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
-CLEANFILES = $(proc_DATA) $(schema_DATA) $(cfinputs_PROMISES) $(cfdefaults_FILES)
+CLEANFILES = $(proc_DATA) $(schema_DATA) $(cfinputs_PROMISES) $(cfdefaults_DATA)

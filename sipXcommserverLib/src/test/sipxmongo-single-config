@@ -1,1 +1,1 @@
-sipxecs/localhost:27017
+connectionString = sipxecs/localhost:27017

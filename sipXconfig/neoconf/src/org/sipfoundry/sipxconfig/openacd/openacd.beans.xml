@@ -28,8 +28,9 @@
     </property>
   </bean>
 
-  <bean id="openAcdDb" class="org.springframework.data.mongodb.core.MongoTemplate">
-	<property name="name" value="openacd${sysdir.mongo_ns}"/>
+  <bean id="openAcdDb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
+    <constructor-arg ref="mongoDbFactory"/>  
+	<property name="dbname" value="openacd${sysdir.mongo_ns}"/>
   </bean>
 
   <bean id="openAcdProvisioningContext" class="org.sipfoundry.sipxconfig.openacd.OpenAcdProvisioningContextImpl">

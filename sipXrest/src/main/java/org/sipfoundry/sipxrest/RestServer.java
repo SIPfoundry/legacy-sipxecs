@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.Timer;
 
 import javax.net.ssl.SSLServerSocket;
-import javax.sip.SipFactory;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.HeaderFactory;
 import javax.sip.message.MessageFactory;
@@ -29,6 +28,7 @@ import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.restconfig.RestServerConfig;
 import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
 import org.sipfoundry.commons.util.DomainConfiguration;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
 public class RestServer {
     
@@ -197,8 +197,8 @@ public class RestServer {
      */
     public static void main(String[] args) throws Exception {
 
-        configFileName = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx")
-                + "/sipxrest-config.xml";
+        String configDir = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx"); 
+        configFileName = configDir + "/sipxrest-config.xml";              
 
         if (!new File(configFileName).exists()) {
             System.err.println("Cannot find the config file");
@@ -220,11 +220,16 @@ public class RestServer {
         restServiceFinder = new RestServiceFinder();
         
         restServiceFinder.search(System.getProperty("plugin.dir"));
+        
+        try {
+            UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
+        } catch (Exception e) {
+            logger.error(e);
+        }        
          
         initWebServer();
        
         logger.debug("Web server started.");
-
     }
 
 

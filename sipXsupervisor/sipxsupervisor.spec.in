@@ -45,6 +45,7 @@ Requires: smtpdaemon
 %if %{_vendor} == suse
 Requires: sendmail
 %endif
+Requires: %{name}-lite
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -58,6 +59,19 @@ for a remote management application.
 %if %{_vendor} == suse
 %debug_package
 %endif
+
+%package lite
+Requires: cfengine >= 3.2.3
+
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Configures servers and proper integration with services
+
+%description lite 
+Uses cfengine to securely distribute configuration. cfengine is a
+distributed configuration system.  The fact cfengine is used in this
+project should not interfere with any configuration systems an IT
+infrastruture might already have like puppet, chef or even cfengine.
 
 %prep
 %setup -q
@@ -93,6 +107,15 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alarm-group.xsd
 %dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/process-state
 %dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/process-cfgver
+
+%files lite
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/sipxagent
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxsupervisord
+%attr(755,root,root) %{_datadir}/sipxecs/cfinputs/*.cf
+%attr(755,root,root) %{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
+%attr(755,root,root) %{_datadir}/sipxecs/cfmodules/sipx
+%attr(755,root,root) %{_localstatedir}/sipxdata/cfdata/defaults/*.cfdat
 
 %pre
 

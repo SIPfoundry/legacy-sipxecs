@@ -26,9 +26,9 @@ bundle agent sipx_module {
 
 bundle agent sipx {
   vars:
-    any::
-      # Have to turn scalars_ to slists because of bug found in cfengine 3.2.3 and lower versions
-      #  https://cfengine.com/bugtracker/view.php?id=865
-      "allowed_addrs" slist => splitstring("$(sipx.allowed_addrs_)",":","1000");
-      "allowed_users" slist => splitstring("$(sipx.allowed_users_)",":","1000");
+   SuSE::
+     "crontab" string => "/var/spool/cron/tabs/root";
+
+   !SuSE::
+     "crontab" string => "/var/spool/cron/root";
 }
