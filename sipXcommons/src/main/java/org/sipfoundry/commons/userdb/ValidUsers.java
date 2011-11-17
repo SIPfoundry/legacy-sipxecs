@@ -62,7 +62,6 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.sipfoundry.commons.userdb.User.EmailFormats;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -87,7 +86,7 @@ public class ValidUsers {
     private static final String IMDB_PERM_RECPROMPTS = "RecordSystemPrompts";
     private static final String IMDB_PERM_TUICHANGEPIN = "tui-change-pin";
     
-    private MongoTemplate m_imdb;
+    private DB m_imdb;
 
     public List<User> getValidUsers() {
         List<User> users = new ArrayList<User>();
@@ -294,14 +293,7 @@ public class ValidUsers {
     }
 
     private DBCollection getEntityCollection() {
-        DBCollection entity = null;
-        try {
-            DB imdb = m_imdb.getDb();
-            entity = imdb.getCollection("entity");
-        } catch (Exception ex) {
-            System.exit(1);
-        }
-        return entity;
+        return getImdb().getCollection("entity");
     }
 
     private static User extractValidUserFromAlias(DBObject aliasObj) {
@@ -585,11 +577,11 @@ public class ValidUsers {
         }
     }
 
-    public MongoTemplate getImdb() {
+    public DB getImdb() {
         return m_imdb;
     }
 
-    public void setImdb(MongoTemplate imdb) {
+    public void setImdb(DB imdb) {
         m_imdb = imdb;
     }
 }

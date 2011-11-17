@@ -5,18 +5,15 @@
 // Licensed to the User under the LGPL license.
 // 
 // $$
-//////////////////////////////////////////////////////////////////////////////
-// SYSTEM INCLUDES
+
 #include <stdio.h>
 #include <signal.h>
-#if defined(_WIN32)
-#include <windows.h>
-#elif defined(__pingtel_on_posix__)
+#if defined(__pingtel_on_posix__)
 #include <unistd.h>
 #endif
 #include <iostream>
+#include <boost/exception/all.hpp>
 #include <sipxproxy/SipRouter.h>
-// APPLICATION INCLUDES
 #include <os/OsFS.h>
 #include <os/OsConfigDb.h>
 #include <os/OsSocket.h>
@@ -35,16 +32,6 @@
 #include <ForwardRules.h>
 #include <SipXProxyCseObserver.h>
 #include "config.h"
-
-//uncomment next line to enable bound checker checking with 'b' key
-//#define BOUNDS_CHECKER
-
-#ifdef BOUNDS_CHECKER
-    #include "D:\Program Files\Compuware\BoundsChecker\ERptApi\apilib.h"
-    #pragma comment(lib, "D:\\Program Files\\Compuware\\BoundsChecker\\ERptApi\\nmapi.lib")
-#endif
-
-// DEFINES
 
 #define CONFIG_SETTING_CALL_STATE         "SIPX_PROXY_CALL_STATE"
 #define CONFIG_SETTING_CALL_STATE_LOG     "SIPX_PROXY_CALL_STATE_LOG"
@@ -67,56 +54,25 @@
 #define DEFAULT_SIP_TRANSACTION_EXPIRES 180
 #define DEFAULT_SIP_SERIAL_EXPIRES 20
 
-// MACROS
-// EXTERNAL FUNCTIONS
-// EXTERNAL VARIABLES
-// CONSTANTS
-static const char* CONFIG_SETTING_CALL_STATE_DB =
-   "SIPX_PROXY_CALL_STATE_DB";
-static const char* CONFIG_SETTING_CALL_STATE_DB_HOST =
-   "SIPX_PROXY_CALL_STATE_DB_HOST";
-static const char* CONFIG_SETTING_CALL_STATE_DB_NAME =
-   "SIPX_PROXY_CALL_STATE_DB_NAME";   
-static const char* CONFIG_SETTING_CALL_STATE_DB_USER =
-   "SIPX_PROXY_CALL_STATE_DB_USER";   
-static const char* CONFIG_SETTING_CALL_STATE_DB_DRIVER =
-   "SIPX_PROXY_CALL_STATE_DB_DRIVER";   
-static const char* CALL_STATE_DATABASE_HOST =
-   "localhost";   
-static const char* CALL_STATE_DATABASE_NAME =
-   "SIPXCDR";
-static const char* CALL_STATE_DATABASE_USER =
-   POSTGRESQL_USER;
-static const char* CALL_STATE_DATABASE_DRIVER =
-   "{PostgreSQL}";
+static const char* CONFIG_SETTING_CALL_STATE_DB = "SIPX_PROXY_CALL_STATE_DB";
+static const char* CONFIG_SETTING_CALL_STATE_DB_HOST = "SIPX_PROXY_CALL_STATE_DB_HOST";
+static const char* CONFIG_SETTING_CALL_STATE_DB_NAME = "SIPX_PROXY_CALL_STATE_DB_NAME";
+static const char* CONFIG_SETTING_CALL_STATE_DB_USER = "SIPX_PROXY_CALL_STATE_DB_USER";
+static const char* CONFIG_SETTING_CALL_STATE_DB_DRIVER = "SIPX_PROXY_CALL_STATE_DB_DRIVER";
+static const char* CALL_STATE_DATABASE_HOST = "localhost";
+static const char* CALL_STATE_DATABASE_NAME = "SIPXCDR";
+static const char* CALL_STATE_DATABASE_USER = POSTGRESQL_USER;
+static const char* CALL_STATE_DATABASE_DRIVER = "{PostgreSQL}";
 static const char* PROXY_CONFIG_PREFIX = "SIPX_PROXY";
 
-// STRUCTS
-// TYPEDEFS
-
-#ifndef _WIN32
-using namespace std ;
-#endif
-
-// FUNCTIONS
-
-// FORWARD DECLARATIONS
-// EXTERNAL VARIABLES
-// CONSTANTS
-// STATIC VARIABLE INITIALIZATIONS
-// GLOBAL VARIABLE INITIALIZATIONS
-UtlBoolean     gShutdownFlag = FALSE;
-UtlBoolean     gClosingIMDB  = FALSE;
-OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
-
-/* ============================ FUNCTIONS ================================= */
+UtlBoolean gShutdownFlag = FALSE;
+UtlBoolean gClosingIMDB = FALSE;
+OsMutex* gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 
 /**
  * Description:
  * closes any open connections to the IMDB safely using a mutex lock
  */
-
-// Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
 {
    UtlString consoleLogging;         // Enable console logging by default?
@@ -204,6 +160,25 @@ void initSysLog(OsConfigDb* pConfig)
    }
 }
 
+// copy error information to log. registered only after logger has been configured.
+void catch_global()
+{
+    try
+    {
+        throw;
+    } catch (std::string& e)
+    {
+        Os::Logger::instance().log(FAC_LOG, PRI_CRIT, e.c_str());
+    } catch (boost::exception& e)
+    {
+        Os::Logger::instance().log(FAC_LOG, PRI_CRIT, diagnostic_information(e).c_str());
+    } catch (...)
+    {
+        Os::Logger::instance().log(FAC_LOG, PRI_CRIT, "Error occurred. Unknown exception type.");
+    }
+    abort();
+}
+
 
 int
 proxy( int argc, char* argv[] )
@@ -256,6 +231,7 @@ proxy( int argc, char* argv[] )
     }
     // Initialize the OsSysLog...
     initSysLog(&configDb);
+    std::set_terminate(catch_global);
 
     configDb.get(CONFIG_SETTING_BIND_IP, bindIp);
     if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))

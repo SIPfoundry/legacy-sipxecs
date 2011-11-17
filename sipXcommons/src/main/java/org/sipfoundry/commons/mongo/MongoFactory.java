@@ -8,17 +8,16 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 import com.mongodb.MongoURI;
 
 public class MongoFactory {
 
-    public static final Mongo fromConnectionFile(String configFile) throws MongoException, UnknownHostException {
+    public static final Mongo fromConnectionFile(String configFile) throws UnknownHostException {
         String url = MongoFactory.readConfig(configFile);
         return fromConnectionString(url);
     }
     
-    public static final Mongo fromConnectionString(String connectionUrl) throws MongoException, UnknownHostException {
+    public static final Mongo fromConnectionString(String connectionUrl) throws UnknownHostException {
         MongoURI uri = new MongoURI(connectionUrl);
         return uri.connect();
     }

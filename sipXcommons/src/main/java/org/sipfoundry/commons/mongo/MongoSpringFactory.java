@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 
 import com.mongodb.DB;
+import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.mongodb.MongoURI;
 
@@ -37,13 +38,13 @@ public class MongoSpringFactory implements MongoDbFactory {
     }
     
     private MongoDbFactory getDelegate() {
-        if (m_delegate != null) {
+        if (m_delegate == null) {
             if (m_connectionUrl == null) {
                 m_connectionUrl = MongoFactory.readConfig(m_configFile);
             }
             MongoURI uri = new MongoURI(m_connectionUrl);        
             try {
-                m_delegate = new SimpleMongoDbFactory(uri);
+                m_delegate = new SimpleMongoDbFactory(new Mongo(uri), "notused");
             } catch (MongoException e) {
                 throw new MongoConfigException(e);
             } catch (UnknownHostException e) {

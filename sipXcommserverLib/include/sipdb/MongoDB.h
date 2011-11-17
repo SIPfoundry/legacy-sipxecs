@@ -20,6 +20,10 @@
 #undef VERSION
 
 #include <mongo/client/dbclient.h>
+#include <boost/exception/all.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/shared_array.hpp>
+#include <exception>
 #include <boost/function.hpp>
 
 // is assert is undefined, just include it again
@@ -36,8 +40,17 @@
 #define BSON_ELEM_MATCH(val) BSON("$elemMatch" << val)
 #define BSON_OR(val) BSON("$or" << val)
 
+typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
+
 namespace MongoDB
 {
+
+class ConfigError: public boost::exception, public std::exception {
+public:
+    ConfigError() {
+    }
+};
+
 class ConnectionInfo
 {
 public:

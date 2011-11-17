@@ -7,9 +7,9 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
-import org.sipfoundry.sipxconfig.cfengine.CfService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 
-public class MongoService extends CfService {
+public class MongoService extends SipxService {
     public static final String BEAN_ID = "mongoService";
 
 }

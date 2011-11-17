@@ -14,8 +14,8 @@
     <property name="dbname" value="node${sysdir.mongo_ns}"/> 
   </bean>
   
-  <bean id="validUsers" class="org.sipfoundry.commons.userdb.ValidUsers">
-	<property name="imdb" ref="imdb"/>
+  <bean id="validUsers" class="org.sipfoundry.commons.userdb.ValidUsersSpring">
+	<property name="imdbTemplate" ref="imdb"/>
   </bean>
   
 </beans>

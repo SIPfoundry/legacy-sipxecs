@@ -21,7 +21,7 @@ import java.io.StringReader;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.userdb.ValidUsersSpring;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
@@ -44,8 +44,8 @@ public class ResourceListsTest extends XMLTestCase {
         replay(m_coreContext);
         m_db.getDb().dropDatabase();
         m_rl = new ResourceLists();
-        ValidUsers vu = new ValidUsers();
-        vu.setImdb(m_db);
+        ValidUsersSpring vu = new ValidUsersSpring();
+        vu.setImdbTemplate(m_db);
         m_rl.setValidUsers(vu);
         m_rl.setCoreContext(m_coreContext);
     }

@@ -43,6 +43,9 @@ iam=`whoami`
 # processes crash (if SIPX_CORELIMIT is "unlimited")
 ulimit -c unlimited
 
+# more apps you have installed, this may need to go even higher
+ulimit -u 2048
+
 ## if we are configured to create core files,
 ## and this system is capable of creating core files for setuid
 ## executables, set it to create those core files (read-only to root).

@@ -48,8 +48,8 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     public void generateAll() {
         ReplicateWork work = new ReplicateWork() {
             @Override
-            public boolean replicate() {
-                return m_replicationManager.replicateAllData();
+            public void replicate() {
+                m_replicationManager.replicateAllData();
             }
 
         };
@@ -65,8 +65,8 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     public void replicateLocation(final Location location) {
         ReplicateWork work = new ReplicateWork() {
             @Override
-            public boolean replicate() {
-                return m_replicationManager.replicateLocation(location);
+            public void replicate() {
+                m_replicationManager.replicateLocation(location);
             }
         };
         doWithJob(SipxReplicationContext.MONGO_LOCATION_REGISTRATION, m_locationsManager.getPrimaryLocation(), work);
@@ -113,8 +113,8 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     private void replicateWorker(final Location location, final ConfigurationFile file) {
         ReplicateWork work = new ReplicateWork() {
             @Override
-            public boolean replicate() {
-                return m_replicationManager.replicateFile(location, file);
+            public void replicate() {
+                m_replicationManager.replicateFile(location, file);
             }
 
         };
@@ -124,15 +124,10 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     public void regenerateCallSequences(final Collection<CallSequence> callSequences) {
         ReplicateWork work = new ReplicateWork() {
             @Override
-            public boolean replicate() {
-                try {
-                    for (CallSequence callSequence : callSequences) {
-                        m_replicationManager.replicateEntity(callSequence);
-                    }
-                } catch (Throwable t) {
-                    return false;
+            public void replicate() {
+                for (CallSequence callSequence : callSequences) {
+                    m_replicationManager.replicateEntity(callSequence);
                 }
-                return true;
             }
         };
         doWithJob("DST change: regeneration of call sequences.",
@@ -150,19 +145,15 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
 
     private void doWithJob(final String jobName, final Location location, final ReplicateWork work) {
         Serializable jobId = m_jobContext.schedule(jobName, location);
-        boolean success = false;
         try {
             LOG.info("Start replication: " + jobName);
             m_jobContext.start(jobId);
-            success = work.replicate();
-        } finally {
-            if (success) {
-                m_jobContext.success(jobId);
-            } else {
-                LOG.warn("Replication failed: " + jobName);
-                // there is not really a good info here - advise user to consult log?
-                m_jobContext.failure(jobId, null, null);
-            }
+            work.replicate();
+            m_jobContext.success(jobId);
+        } catch (RuntimeException e) {
+            LOG.warn("Replication failed: " + jobName, e);
+            // there is not really a good info here - advise user to consult log?
+            m_jobContext.failure(jobId, null, null);
         }
     }
 
@@ -176,7 +167,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     }
 
     interface ReplicateWork {
-        boolean replicate();
+        void replicate();
     }
 
     @Required

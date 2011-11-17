@@ -1,0 +1,68 @@
+#@BASH@
+
+# did mongod stop abruptly? then there's a good change database is
+# needs to be repaired. Repairing is normal, however, by definition
+# it's always undetermined if data was lost. this auto repair
+# mechanism assumes that there is no critical data in the db that
+# wouldn't be obvious to admin/system and therefore easily fixed in
+# the application layer, or recreate itself eventually like phone
+# registrations.
+
+CONFIG_FILE="/etc/mongod.conf"
+DB_PATH=`awk -F= '/^dbpath=/{print $2}' "$CONFIG_FILE"`
+# NOTE: mongod conveniently stores pid in lock file
+LOCK_FILE="$DB_PATH/mongod.lock"
+MONGO_USER=mongod
+Action=FORCE_REPAIR
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+      --help|-h)
+        Action=USAGE
+      ;;
+      --auto)
+        Action=AUTO_REPAIR
+      ;;
+    esac
+    shift # always consume 1
+done
+
+if [ "${Action}" = "USAGE" ]
+then
+    cat <<USAGE
+Usage: mongodb [options]
+
+Repairs a corrupt mongodb data store.
+
+Options:
+
+  --auto - Will only repair db if it detects mongod died unexpectingly.  Safe to run this 
+           in a cron.  This will restart mongod if it does repair database. 
+  
+USAGE
+  exit
+fi
+
+repair_db() {
+   echo "repairing database"
+   ! test -f $LOCK_FILE || rm -f $LOCK_FILE
+   su -u ${MONGO_USER} /usr/bin/mongod --repair
+}
+
+if [ "${Action}" = "AUTO_REPAIR" ]
+then
+	if [ -f $LOCK_FILE ]; then
+	  PID=`cat $LOCK_FILE 2>/dev/null`
+	  if [ ! -e /proc/${PID} ]; then
+	       repair_db
+	       /etc/init.d/mongod start
+	   fi
+	fi
+fi
+
+if [ "${Action}" = "FORCE_REPAIR" ]
+then
+   repair_db
+fi
+

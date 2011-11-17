@@ -20,7 +20,7 @@ const mongo::ConnectionString ConnectionInfo::connectionStringFromFile(const str
     ifstream file(configFileStr);
     if (!file)
     {
-        throw (string("Missing file ")  + configFileStr);
+        BOOST_THROW_EXCEPTION(ConfigError() <<  errmsg_info(std::string("Missing file ")  + configFileStr));
     }
     set<string> options;
     options.insert("*");
@@ -34,7 +34,7 @@ const mongo::ConnectionString ConnectionInfo::connectionStringFromFile(const str
     file.close();
     if (connectionString.size() == 0)
     {
-        throw (string("Invalid contents, missing parameter 'connectionString'")  + configFileStr);
+        BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(std::string("Invalid contents, missing parameter 'connectionString' in file ")  + configFileStr));
     }
 
     return ConnectionInfo::connectionString(connectionString);
@@ -46,7 +46,7 @@ const mongo::ConnectionString ConnectionInfo::connectionString(const string& con
 	string errmsg;
 	mongo::ConnectionString cs = mongo::ConnectionString::parse(connectionString, errmsg);
 	if (!cs.isValid()) {
-		throw errmsg;
+	    BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(errmsg));
 	}
 
 	return cs;

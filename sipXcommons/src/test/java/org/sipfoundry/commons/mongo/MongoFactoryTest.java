@@ -18,5 +18,6 @@ public class MongoFactoryTest {
     public void mongoObject() throws Exception {
         Mongo m = MongoFactory.fromConnectionString("mongodb://localhost:27017/?safe=true");
         assertEquals(true, m.getMongoOptions().safe);
+        m.getDB("imdb");
     }
 }

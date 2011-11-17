@@ -77,7 +77,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     }
     
     void properties() {
-        String m_configDirectory = System.getProperty("conf.dir");
+        m_configDirectory = System.getProperty("conf.dir");
         if (m_configDirectory == null) {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);

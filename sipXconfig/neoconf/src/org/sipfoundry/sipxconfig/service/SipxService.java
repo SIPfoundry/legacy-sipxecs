@@ -33,6 +33,10 @@ import org.springframework.beans.factory.annotation.Required;
 
 import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
+/**
+ * Extend this class to represent a service in the services page.  Must be direct decendant, i.e.
+ * cannot be subclass of a a subclass to this class or hibernate will complain
+ */
 public abstract class SipxService extends BeanWithSettings implements Model, ServiceLifeCycle {
     private static final Log LOG = LogFactory.getLog(SipxService.class);
     private static final String NO_LOCATION_FOUND_ERROR = "No location found for service: ";

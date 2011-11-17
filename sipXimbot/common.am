@@ -2,10 +2,12 @@ imbot_PKGS = \
 	sipxcommons \
 	log4j \
 	smackx \
+	commons-io \
 	commons-codec \
 	commons-httpclient \
 	commons-lang \
 	commons-logging \
 	jetty \
 	javax.servlet \
+	mongo \
 	xmlrpc-client

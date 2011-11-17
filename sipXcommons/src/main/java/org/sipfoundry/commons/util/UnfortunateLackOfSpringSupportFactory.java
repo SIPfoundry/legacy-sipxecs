@@ -4,10 +4,9 @@ import java.net.UnknownHostException;
 
 import org.sipfoundry.commons.mongo.MongoFactory;
 import org.sipfoundry.commons.userdb.ValidUsers;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
+import com.mongodb.DB;
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 
 /**
  * Connection factory to mongo.  Need to call this before using
@@ -17,9 +16,9 @@ import com.mongodb.MongoException;
  */
 public class UnfortunateLackOfSpringSupportFactory {
     private static ValidUsers s_validUsers;
-    private static MongoTemplate s_imdb;   
+    private static DB s_imdb;   
     
-    public synchronized static void initialize(String clientConfig) throws MongoException, UnknownHostException {
+    public synchronized static void initialize(String clientConfig) throws UnknownHostException {
         if (s_validUsers == null) {
             
             // useful in unit tests to direct operations to imdb_TEST
@@ -27,7 +26,7 @@ public class UnfortunateLackOfSpringSupportFactory {
             
             Mongo mongo = MongoFactory.fromConnectionFile(clientConfig);
             try {
-                s_imdb = new MongoTemplate(mongo, imdbNs);
+                s_imdb = mongo.getDB(imdbNs);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -50,7 +49,7 @@ public class UnfortunateLackOfSpringSupportFactory {
         }        
     }
     
-    public static MongoTemplate getImdb() {
+    public static DB getImdb() {
         checkinit();
         return s_imdb;        
     }
