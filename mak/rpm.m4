@@ -57,7 +57,7 @@ AC_CHECK_FILE(/bin/rpm,
 AC_ARG_VAR(DISTRO, [What operating system you are compiling for. Default is ${DistroDefault}])
 test -n "${DISTRO}" || DISTRO="${DistroDefault:-centos-5-i386}"
 
-AllDistrosDefault="centos-5-i386 centos-5-x86_64 fedora-14-i386 fedora-14-x86_64 centos-6-i386 centos-6-x86_64"
+AllDistrosDefault="fedora-14-i386 fedora-14-x86_64 centos-6-i386 centos-6-x86_64"
 AC_ARG_VAR(ALL_DISTROS, [All distros which using cross distroy compiling (xc.* targets) Default is ${AllDistrosDefault}])
 test -n "${ALL_DISTROS}" || ALL_DISTROS="${AllDistrosDefault}"
 
