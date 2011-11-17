@@ -19,6 +19,7 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="processContext" ref="sipxProcessContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
   
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
