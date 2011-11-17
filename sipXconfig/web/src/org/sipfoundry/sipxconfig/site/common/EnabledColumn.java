@@ -22,6 +22,12 @@ public abstract class EnabledColumn extends BaseComponent {
     @Parameter(required = false)
     public abstract String getKeyPrefix();
 
+    @Parameter(required = false, defaultValue = "literal:enabled")
+    public abstract String getEnabledClass();
+
+    @Parameter(required = false, defaultValue = "literal:disabled")
+    public abstract String getDisabledClass();
+
     @Message(value = "enabled")
     public abstract String getDefaultOnLabel();
 

@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.mail.MailSenderContext;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -61,6 +62,8 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
     private String m_emailFromAddress;
 
     private MailSenderContext m_mailSenderContext;
+
+    private MailboxManager m_mailboxManager;
 
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
 
@@ -166,21 +169,20 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
     }
 
     private boolean perform(File workingDir, File binDir) throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder(binDir.getPath() + File.separator + m_backupScript, "-n");
-        if (!isVoicemail()) {
-            // Configuration only.
-            pb.command().add("-c");
-        } else if (!isConfigs()) {
-            // Voicemail only.
-            pb.command().add("-v");
+        if (isConfigs()) {
+            // configuration backup
+            ProcessBuilder pb = new ProcessBuilder(binDir.getPath() + File.separator + m_backupScript, "-n", "-c");
+            Process process = pb.directory(workingDir).start();
+            int code = process.waitFor();
+            if (code != 0) {
+                String errorMsg = String.format("Config backup operation failed. Exit code: %d", code);
+                LOG.error(errorMsg);
+                return false;
+            }
         }
 
-        Process process = pb.directory(workingDir).start();
-        int code = process.waitFor();
-        if (code != 0) {
-            String errorMsg = String.format("Backup operation failed. Exit code: %d", code);
-            LOG.error(errorMsg);
-            return false;
+        if (isVoicemail()) {
+            return m_mailboxManager.performBackup(workingDir);
         }
 
         return true;
@@ -307,6 +309,10 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
 
     public void setMailSenderContext(MailSenderContext mailSenderContext) {
         m_mailSenderContext = mailSenderContext;
+    }
+
+    public void setMailboxManager(MailboxManager mailboxManager) {
+        m_mailboxManager = mailboxManager;
     }
 
     public void setEmailFromAddress(String emailFromAddress) {

@@ -69,7 +69,7 @@ public class ReplicationManagerImplTestIntegration extends ImdbTestCase {
         ConfigurationFile file = new InMemoryConfiguration(TestHelper.getTestDirectory(), "domain-config", content);        
         Location l = new Location();
         m_fileApi.replace("primary", TestHelper.getTestDirectory() + "/domain-config", 0644, encode(content));
-        expectLastCall().once();
+        expectLastCall().andReturn(true).once();
         replay(m_fileApi);
         l.setRegistered(true);
         l.setReplicateConfig(true);

@@ -298,4 +298,7 @@ public final class SipUri {
         return sipUri;
     }
 
+    public static String formatDepositVm(String name, String host, int port) {
+        return String.format("<sip:IVR@%s:%d;mailbox=%s;action=deposit;locale=en>", host, port, name);
+    }
 }

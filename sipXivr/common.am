@@ -12,5 +12,6 @@ ivr_PKGS = \
 	sipxcommons \
 	xmlrpc-common \ 
 	ws-commons-util \
+	commons-fileupload \
 	xmlrpc-client \
 	xmlrpc-server

@@ -24,6 +24,7 @@ public class AddressBookEntryTestDb extends SipxDatabaseTestCase {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
 
     }
 

@@ -66,6 +66,7 @@ neoconf_PKGS = \
 	org.springframework.transaction \
 	org.springframework.web \
 	org.springframework.web.servlet \
+	spring-ws \
 	postgresql \
 	saxpath \
 	serializer \

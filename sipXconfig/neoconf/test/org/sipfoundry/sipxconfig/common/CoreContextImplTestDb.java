@@ -46,6 +46,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
         m_permissionManager = (PermissionManager) app.getBean(PermissionManager.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
     }
 
     public void testLoadByUserName() throws Exception {
@@ -297,7 +298,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testCreateAdminGroupAndInitialUserTask() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
+        //TestHelper.cleanInsert("ClearDb.xml");
         m_core.createAdminGroupAndInitialUserTask();
 
         User admin = m_core.loadUserByUserName(User.SUPERADMIN);

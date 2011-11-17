@@ -447,6 +447,10 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
         // intentionally empty
     }
 
+    public void onResync() {
+        // intentionally empty
+    }
+
     public void onRestart() {
         // intentionally empty
     }

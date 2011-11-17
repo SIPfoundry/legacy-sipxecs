@@ -432,6 +432,8 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testAddUsersToQueue() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("acd/queues.db.xml");
         User testUser1 = m_coreContext.newUser();
         testUser1.setUserName("testUser1");
         m_coreContext.saveUser(testUser1);
@@ -449,8 +451,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         agentList.add(testUser1.getId());
         agentList.add(testUser2.getId());
         agentList.add(testUser3.getId());
-
-        TestHelper.insertFlat("acd/queues.db.xml");
+        
         final Serializable queueId = new Integer(2001);
 
         m_context.addUsersToQueue(queueId, Collections.unmodifiableCollection(agentList));

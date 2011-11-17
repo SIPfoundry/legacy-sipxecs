@@ -52,7 +52,8 @@ public:
       USER_PROCESS_NONE = 0,
       USER_PROCESS_START = 1,
       USER_PROCESS_STOP = 2,
-      USER_PROCESS_RESTART = 3
+      USER_PROCESS_RESTART = 3,
+      USER_PROCESS_RESYNC = 4
    } RequestedProcessState;
 
 protected:
@@ -483,6 +484,45 @@ protected:
                         );
 };
 
+/**
+ Attempts to resync the specified processes.  For each process, returns true if found.
+
+ \par
+ <b>Method Name: ProcMgmtRpc.resync</b>
+*/
+
+class ProcMgmtRpcResync : public ProcMgmtRpcMethod
+{
+public:
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
+   static XmlRpcMethod* get();
+
+   /// Destructor.
+   virtual ~ProcMgmtRpcResync() {};
+
+   /// Get the name of the XML-RPC method.
+   virtual const char* name();
+
+   /// Register this method handler with the XML-RPC dispatcher.
+   static void registerSelf(SipxRpc & sipxRpcImpl);
+
+protected:
+
+   /// The name of the XML-RPC method.
+   static const char* METHOD_NAME;
+
+   /// Constructor.
+   ProcMgmtRpcResync();
+
+   /// The execution of this XML-RPC Method.
+   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status                   ///< XML-RPC method execution status
+                        );
+};
 
 /**
  Retrieves all status messages for the specified process since its last restart.

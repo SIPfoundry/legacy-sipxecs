@@ -28,6 +28,7 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
         m_aliasManager = (AliasManagerImpl) app.getBean(AliasManagerImpl.CONTEXT_BEAN_NAME);
         m_coreContext = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
     }
 
     // There are four AliasOwners (excluding AliasManagerImpl itself): CallGroupContextImpl,

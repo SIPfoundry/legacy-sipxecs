@@ -28,8 +28,6 @@ public abstract class SpeedDialPanel extends BaseComponent {
     @Parameter
     public abstract SpeedDial getSpeedDial();
 
-    public abstract void setSpeedDial(SpeedDial speedDial);
-
     @Parameter
     public abstract SpeedDialGroup getSpeedDialGroup();
 
@@ -38,8 +36,6 @@ public abstract class SpeedDialPanel extends BaseComponent {
 
     @Parameter(required = false, defaultValue = "false")
     public abstract boolean isSubscribeToPresenceDisabled();
-
-    public abstract void setSpeedDialGroup(SpeedDialGroup speedDialGroup);
 
     public abstract List<Button> getButtons();
 

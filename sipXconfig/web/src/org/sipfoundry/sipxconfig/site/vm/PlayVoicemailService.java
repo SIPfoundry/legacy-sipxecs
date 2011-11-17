@@ -9,31 +9,45 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.asset.AssetService;
 import org.apache.tapestry.engine.ILink;
-import org.apache.tapestry.services.ServiceConstants;
+import org.apache.tapestry.engine.state.ApplicationStateManager;
+import org.apache.tapestry.services.LinkFactory;
 import org.apache.tapestry.util.ContentType;
+import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.components.FileService;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
+import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.Voicemail;
 
 /**
  * Send voicemail file to user and mark it as read
  */
-public class PlayVoicemailService extends FileService {
+public class PlayVoicemailService extends AssetService {
     public static final String SERVICE_NAME = "playvoicemail";
+
+    private static final String MESSAGE_ID = "message_id";
+
+    private static final String FOLDER = "folder";
 
     private MailboxManager m_mailboxManager;
 
+    private LinkFactory m_linkFactory;
+
+    private WebResponse m_response;
+
     private CoreContext m_coreContext;
+
+    private ApplicationStateManager m_stateManager;
 
     public String getName() {
         return SERVICE_NAME;
@@ -43,81 +57,80 @@ public class PlayVoicemailService extends FileService {
      * The only parameter is the service parameters[dirName, fileName]
      */
     public void service(IRequestCycle cycle) throws IOException {
-        Mailbox mailbox = m_mailboxManager.getMailbox(getUserName());
-
-        // HACK: apparently cycle.getListenerParameters() returns null, but this
-        // method seems to work just fine. Tapestry bug?
-        Object[] listenerParameters = getLinkFactory().extractListenerParameters(cycle);
-
-        Info info = new Info(listenerParameters);
-        cycle.getParameters(ServiceConstants.PARAMETER);
-        Voicemail voicemail = mailbox.getVoicemail(info.getFolderId(), info.getMessageId());
-        File file = voicemail.getMediaFile();
-        sendFile(file, info.getDigest(), new ContentType("audio/x-wav"));
-
-        m_mailboxManager.markRead(mailbox, voicemail);
+        URL voicemailUrl = new URL(m_mailboxManager.getMediaFileURL(getUserName(), cycle.getParameter(FOLDER),
+                cycle.getParameter(MESSAGE_ID)));
+        InputStream stream = null;
+        OutputStream responseOutputStream = null;
+        try {
+            responseOutputStream = m_response.getOutputStream(new ContentType("audio/x-wav"));
+            stream = voicemailUrl.openStream();
+            IOUtils.copy(stream, responseOutputStream);
+        } finally {
+            IOUtils.closeQuietly(responseOutputStream);
+            IOUtils.closeQuietly(stream);
+        }
+        m_mailboxManager.markRead(getUserName(), cycle.getParameter(MESSAGE_ID));
     }
 
     public static class Info {
         private String m_messageId;
         private String m_folderId;
-        private String m_digest;
+        private String m_userId;
+
         public Info(Object[] serviceParameters) {
-            m_folderId = (String) serviceParameters[0];
             m_messageId = (String) serviceParameters[1];
-            m_digest = (String) serviceParameters[2];
         }
-        public Info(String folderId, String messageId) {
+
+        public Info(String folderId, String messageId, String userId) {
             m_folderId = folderId;
             m_messageId = messageId;
+            m_userId = userId;
         }
-        public Object[] getServiceParameters() {
-            return new Object[] {
-                    getFolderId(),
-                    getMessageId(),
-                    getDigest()
-            };
-        }
+
         public String getFolderId() {
             return m_folderId;
         }
+
         public String getMessageId() {
             return m_messageId;
         }
-        public String getDigest() {
-            return m_digest;
+
+        public String getUserId() {
+            return m_userId;
         }
-        public void setDigest(String digest) {
-            m_digest = digest;
-        }
+
     }
 
     public ILink getLink(boolean post, Object parameter) {
-        Integer userId = requireUserId();
-
-        Info info = (Info) ((Object[]) parameter)[0];
-        Mailbox mb = m_mailboxManager.getMailbox(getUserName());
-        Voicemail vm = mb.getVoicemail(info.getFolderId(), info.getMessageId());
-        String digest = getDigestSource().getDigestForResource(userId, vm.getMediaFile().getAbsolutePath());
-        info.setDigest(digest);
-
-        Map parameters = new HashMap();
-
-        parameters.put(ServiceConstants.SERVICE, getName());
-        parameters.put(ServiceConstants.PARAMETER , info.getServiceParameters());
-
-        return getLinkFactory().constructLink(this, post, parameters, false);
+        requireUserId();
+        Info info = (Info) parameter;
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(MESSAGE_ID, ((Info) info).getMessageId());
+        params.put(FOLDER, ((Info) info).getFolderId());
+        return m_linkFactory.constructLink(this, post, params, false);
     }
 
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
     }
 
+    public void setResponse(WebResponse response) {
+        m_response = response;
+    }
+
+    public void setLinkFactory(LinkFactory linkFactory) {
+        m_linkFactory = linkFactory;
+    }
+
+    public void setStateManager(ApplicationStateManager stateManager) {
+        m_stateManager = stateManager;
+    }
+
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
-    public String getUserName() {
+    private String getUserName() {
         Integer userId = getUserId();
         if (userId == null) {
             return null;
@@ -126,4 +139,19 @@ public class PlayVoicemailService extends FileService {
         User user = m_coreContext.loadUser(userId);
         return user.getUserName();
     }
+
+    private Integer getUserId() {
+        if (m_stateManager.exists(UserSession.SESSION_NAME)) {
+            UserSession userSession = (UserSession) m_stateManager.get(UserSession.SESSION_NAME);
+            return userSession.getUserId();
+        }
+        return null;
+    }
+
+    private void requireUserId() {
+        if (getUserId() == null) {
+            throw new RuntimeException("You have to be logged in to generate download links.");
+        }
+    }
+
 }

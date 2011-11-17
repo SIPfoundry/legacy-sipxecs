@@ -26,4 +26,8 @@ public abstract class OpenAcdConfigObject extends BeanWithId {
 
     public abstract List<String> getProperties();
 
+    public boolean isConfigCommand() {
+        return false;
+    }
+
 }

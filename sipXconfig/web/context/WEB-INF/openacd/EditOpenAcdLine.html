@@ -20,9 +20,17 @@
 			description="message:description.extension">
         <input jwcid="extension@TextField" id="item:extension"
           maxlength="40"
-          validators="spring-validators:required,validPhone"
+          validators="spring-validators:required"
           value="ognl:lineNumber"
           displayName="message:label.extension"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="item:regex"
+			label="message:label.regex"
+			description="message:description.regex">
+        <input jwcid="regex@Checkbox" id="item:regex"
+          maxlength="40"
+          value="ognl:regex"
+          displayName="message:label.regex"/>
       </tr>
       <tr jwcid="@common/FieldPanel" for="item:did"
 			label="message:label.did"

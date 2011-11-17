@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.service.SipxService;
 
 public interface SipxProcessContext {
     enum Command {
-        START, STOP, RESTART, RELOAD;
+        START, STOP, RESTART, RELOAD, RESYNC;
     }
 
     /**

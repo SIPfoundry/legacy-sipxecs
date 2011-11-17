@@ -30,7 +30,8 @@ public class AliasesTestIntegration extends ImdbTestCase {
         m_user.setPermissionManager(getPermissionManager());
     }
 
-    public void testGenerate() {
+    public void testGenerate() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         m_aliasDataSet.generate(m_user, m_aliasDataSet.findOrCreate(m_user));
         assertObjectWithIdPresent(getEntityCollection(), "User1");
     }

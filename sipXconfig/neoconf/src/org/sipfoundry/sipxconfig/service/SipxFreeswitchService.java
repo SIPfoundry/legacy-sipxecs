@@ -400,4 +400,9 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity,
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
     }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
+        return null;
+    }
 }

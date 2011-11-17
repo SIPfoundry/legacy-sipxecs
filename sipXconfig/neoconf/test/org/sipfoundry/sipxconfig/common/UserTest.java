@@ -23,6 +23,8 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -31,6 +33,8 @@ import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -188,7 +192,30 @@ public class UserTest extends TestCase {
 
         user.setSettingTypedValue("im/im-account", true);
 
-        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
+        SipxFreeswitchService fs = org.easymock.classextension.EasyMock.createMock(SipxFreeswitchService.class);
+        fs.getAddress();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
+        fs.getFreeswitchSipPort();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
+        fs.getBeanId();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(SipxFreeswitchService.BEAN_ID).anyTimes();
+
+        Location l = new Location();
+        l.setAddress("blabla.com");
+
+        LocationsManager lm = createMock(LocationsManager.class);
+        lm.getPrimaryLocation();
+        expectLastCall().andReturn(l).anyTimes();
+        replay(lm);
+        
+        fs.getLocationsManager();
+        expectLastCall().andReturn(lm).anyTimes();
+        
+        fs.setLocationsManager(lm);
+
+        org.easymock.classextension.EasyMock.replay(fs);
+        
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org", fs);
         assertEquals(6, aliasMappings.size());
 
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
@@ -209,7 +236,7 @@ public class UserTest extends TestCase {
         // Set the additional alias, imId, to user's userName, it should not be
         // added as an alias.
         user.setImId(user.getUserName());
-        aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
+        aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org", fs);
         assertEquals(5, aliasMappings.size());
     }
 
@@ -247,7 +274,30 @@ public class UserTest extends TestCase {
         replay(pManager);
         user.setPermissionManager(pManager);
 
-        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
+        SipxFreeswitchService fs = org.easymock.classextension.EasyMock.createMock(SipxFreeswitchService.class);
+        fs.getAddress();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
+        fs.getFreeswitchSipPort();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
+        fs.getBeanId();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(SipxFreeswitchService.BEAN_ID).anyTimes();
+
+        Location l = new Location();
+        l.setAddress("blabla.com");
+
+        LocationsManager lm = createMock(LocationsManager.class);
+        lm.getPrimaryLocation();
+        expectLastCall().andReturn(l).anyTimes();
+        replay(lm);
+        
+        fs.getLocationsManager();
+        expectLastCall().andReturn(lm).anyTimes();
+        
+        fs.setLocationsManager(lm);
+
+        org.easymock.classextension.EasyMock.replay(fs);
+        
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org", fs);
         // actually there is 1 alias that is the ~~vm~
         assertEquals(1, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);

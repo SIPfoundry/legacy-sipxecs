@@ -13,6 +13,8 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createStrictMock;
 import static org.easymock.classextension.EasyMock.replay;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -27,7 +30,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
@@ -138,17 +140,10 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
             m_attendantMap = new HashMap<User, PersonalAttendant>();
         }
 
-        public void delete(Mailbox mailbox, Voicemail voicemail) {
-        }
-
         public void deleteMailbox(String userId) {
         }
 
         public void renameMailbox(String oldUserId, String newUserId) {
-        }
-
-        public Mailbox getMailbox(String userId) {
-            return null;
         }
 
         public String getMailstoreDirectory() {
@@ -156,10 +151,6 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         }
 
         public String getStdpromptDirectory() {
-            return null;
-        }
-
-        public List<Voicemail> getVoicemail(Mailbox mailbox, String folder) {
             return null;
         }
 
@@ -171,20 +162,7 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
             return false;
         }
 
-        public DistributionList[] loadDistributionLists(Mailbox mailbox) {
-            return null;
-        }
-
-        public void markRead(Mailbox mailbox, Voicemail voicemail) {
-        }
-
-        public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
-        }
-
         public void removePersonalAttendantForUser(User user) {
-        }
-
-        public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists) {
         }
 
         /* The methods below this comment are the only ones relevant for this test */
@@ -212,5 +190,78 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
 
         public void setMailstoreDirectory(String directory) {
         }
+
+        @Override
+        public Voicemail getVoicemail(String userId, String folder, String messageId) {
+            return null;
+        }
+
+        @Override
+        public List<Voicemail> getVoicemail(String userId, String folder) {
+            return null;
+        }
+
+        @Override
+        public void saveDistributionLists(String userId, DistributionList[] lists) {
+            
+        }
+
+        @Override
+        public void markRead(String userId, String messageId) {
+            
+        }
+
+        @Override
+        public DistributionList[] loadDistributionLists(String userId) {
+            return null;
+        }
+
+        @Override
+        public void move(String userId, Voicemail voicemail, String destinationFolderId) {
+            
+        }
+
+        @Override
+        public void delete(String userId, Voicemail voicemail) {
+            
+        }
+
+        @Override
+        public List<String> getFolderIds() {
+            return null;
+        }
+
+        @Override
+        public void save(Voicemail voicemail) {
+        }
+
+        @Override
+        public String getMediaFileURL(String userId, String folder, String messageId) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void storePersonalAttendant(PersonalAttendant pa, boolean writeFile) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public boolean performBackup(File workingDir) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void performRestore(BackupBean archivePath, boolean verify, boolean noRestart) {
+        }
+
+        @Override
+        public String getMailboxRestoreLog() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
     }
 }

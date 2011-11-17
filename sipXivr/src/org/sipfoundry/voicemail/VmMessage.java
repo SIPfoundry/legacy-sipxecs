@@ -630,6 +630,12 @@ public class VmMessage {
         m_messageDescriptor.setPriority(Priority.NORMAL);
         new MessageDescriptorWriter().writeObject(m_messageDescriptor, m_descriptorFile);
     }
+
+    public void updateSubject(String subject) { 
+        getMessageDescriptor();
+        m_messageDescriptor.setSubject(subject);
+        new MessageDescriptorWriter().writeObject(m_messageDescriptor, m_descriptorFile);
+    }
     
     public void markHeard() {
         if (m_unHeard) {

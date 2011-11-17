@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -30,6 +31,7 @@ import com.mongodb.DBObject;
 public abstract class AbstractDataSetGenerator {
     private MongoTemplate m_imdb;
     private CoreContext m_coreContext;
+    public abstract SipxFreeswitchService getSipxFreeswitchService();
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -80,4 +82,5 @@ public abstract class AbstractDataSetGenerator {
     public void setImdb(MongoTemplate imdb) {
         m_imdb = imdb;
     }
+
 }

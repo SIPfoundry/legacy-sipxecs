@@ -286,6 +286,26 @@ public class SipxProcessContextImpl implements SipxProcessContext {
                 }
 
                 break;
+            case RESYNC:
+                api.stop(getHost(), processNames, true);
+                logProcessStateChange(processNames, location, PROCESS_STATE_CHANGE.STOPPED);
+
+                for (SipxService process : processes) {
+                    process.onStop();
+                }
+
+                api.resync(getHost(), processNames, false);
+                for (SipxService process : processes) {
+                    process.onResync();
+                }
+
+                api.start(getHost(), processNames, true);
+                logProcessStateChange(processNames, location, PROCESS_STATE_CHANGE.STARTED);
+                for (SipxService process : processes) {
+                    process.onStart();
+                }
+
+                break;
             default:
                 break;
             }

@@ -39,11 +39,15 @@ public abstract class ActiveCallsPanel extends BaseComponent {
 
     public abstract void setActiveCalls(List<Cdr> cdrs);
 
+    public abstract int getTotalActiveCalls();
+
+    public abstract void setTotalActiveCalls(int total);
+
     @Message
     public abstract String getError();
 
     // FIXME: it would be much better if we can set activeCalls property in prepare for render,
-    // but for some reason (Tapestry bug?) prepareForTender gets called to late during Ajax
+    // but for some reason (Tapestry bug?) prepareForRender gets called to late during Ajax
     // triggered page interactions
     public List<Cdr> getSource() {
         List<Cdr> activeCalls = getActiveCalls();
@@ -52,12 +56,15 @@ public abstract class ActiveCallsPanel extends BaseComponent {
                 activeCalls = getCdrManager().getActiveCalls();
             } catch (UserException e) {
                 LOG.error("Cannot connect to CDR agent", e.getCause());
-                //FIXME: validator errors are not visible - they are logged after @ErrorMessage is rendered
+                // FIXME: validator errors are not visible - they are logged after @ErrorMessage
+                // is rendered
                 getValidator().record(getError(), ValidationConstraint.CONSISTENCY);
                 activeCalls = Collections.emptyList();
             }
             setActiveCalls(activeCalls);
+            setTotalActiveCalls(activeCalls.size());
         }
         return activeCalls;
     }
+
 }

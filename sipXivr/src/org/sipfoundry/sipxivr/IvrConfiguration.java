@@ -46,6 +46,10 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     private int m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
     private String m_sipxSupervisorHost;//The host name where SipX Supervisor runs.
     private int  m_sipxSupervisorXmlRpcPort;// The port number to use for XML-RPC SipX Supervisor alarm requests
+    private String m_configAddress;//The IP where sipXconfig runs.
+    private String m_binDirectory;
+    private String m_logDirectory;
+    private String m_backupPath;
     
     private boolean m_CPUIisPrimary;
     private String  m_nameDialPrefix;
@@ -156,6 +160,10 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
             m_sendIMUrl = props.getProperty("ivr.sendIMUrl");
             m_sipxSupervisorHost=props.getProperty("ivr.sipxSupervisorHost");
             m_sipxSupervisorXmlRpcPort=Integer.valueOf(props.getProperty("ivr.sipxSupervisorXmlRpcPort"));
+            m_configAddress = props.getProperty("ivr.configAddress");
+            m_binDirectory = props.getProperty("ivr.binDirectory");
+            m_logDirectory = props.getProperty("ivr.logDirectory");
+            m_backupPath = props.getProperty("ivr.backupPath");
             
             String defaultTUI = props.getProperty("ivr.defaultTui");
             if(defaultTUI == null) {
@@ -301,6 +309,22 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     
     public String getSipxSupervisorHost() {
         return m_sipxSupervisorHost;
+    }
+
+    public String getConfigAddress() {
+        return m_configAddress;
+    }
+
+    public String getBinDirectory() {
+        return m_binDirectory;
+    }
+
+    public String getLogDirectory() {
+        return m_logDirectory;
+    }
+
+    public String getBackupPath() {
+        return m_backupPath;
     }
     
     public int getSipxSupervisorXmlRpcPort() {

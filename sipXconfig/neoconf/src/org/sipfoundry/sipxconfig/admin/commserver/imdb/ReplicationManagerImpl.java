@@ -120,7 +120,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     private int m_nThreads;
     private boolean m_useDynamicPageSize;
 
-    private Closure<User> m_userClosure = new Closure<User>() {
+    private final Closure<User> m_userClosure = new Closure<User>() {
         @Override
         public void execute(User user) {
             replicateEntity(user);
@@ -136,7 +136,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     // the difference between the user and the group closures is that for group members
     // we need to replicate only some datasets and not all.
     // also, callsequences need not be replicated (there are no callsequnces for groups)
-    private Closure<User> m_userGroupClosure = new Closure<User>() {
+    private final Closure<User> m_userGroupClosure = new Closure<User>() {
         @Override
         public void execute(User user) {
             replicateEntity(user, GROUP_DATASETS);
@@ -145,7 +145,19 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     };
 
-    private Closure<User> m_branchClosure = new Closure<User>() {
+    // the difference between the user and the group closures is that for group members
+    // we need to replicate only some datasets and not all.
+    // also, callsequences need not be replicated (there are no callsequnces for groups)
+    private final Closure<User> m_userSpeedDialGroupClosure = new Closure<User>() {
+        @Override
+        public void execute(User user) {
+            replicateEntity(user, DataSet.SPEED_DIAL);
+            getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+        }
+
+    };
+
+    private final Closure<User> m_branchClosure = new Closure<User>() {
         @Override
         public void execute(User user) {
             replicateEntity(user, BRANCH_DATASETS);
@@ -178,9 +190,9 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * calling it.
      */
     private class ReplicationWorker implements Callable<Void> {
-        private int m_startIndex;
-        private int m_page;
-        private Closure<User> m_closure = m_userClosure;
+        private final int m_startIndex;
+        private final int m_page;
+        private final Closure<User> m_closure = m_userClosure;
 
         public ReplicationWorker(int index, int pageSize, Object arg) {
             m_startIndex = index;
@@ -207,7 +219,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * Callable used for the replication of members in a group
      */
     private class AllGroupMembersReplicationWorker extends ReplicationWorker {
-        private Group m_group;
+        private final Group m_group;
 
         public AllGroupMembersReplicationWorker(int i, int pageSize, Group group) {
             super(i, pageSize, null);
@@ -222,10 +234,29 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     }
 
     /*
+     * Callable used for the replication of members in a group
+     */
+    private class AllGroupSpeedDialMembersReplicationWorker extends ReplicationWorker {
+        private final Group m_group;
+
+        public AllGroupSpeedDialMembersReplicationWorker(int i, int pageSize, Group group) {
+            super(i, pageSize, null);
+            m_group = group;
+        }
+
+        @Override
+        public Void call() {
+            DaoUtils.forAllGroupMembersDo(m_coreContext, m_group,
+                    m_userSpeedDialGroupClosure, getStartIndex(), getPage());
+            return null;
+        }
+    }
+
+    /*
      * Callable used for the replication of users in a branch
      */
     private class AllBranchMembersReplicationWorker extends ReplicationWorker {
-        private Branch m_branch;
+        private final Branch m_branch;
 
         public AllBranchMembersReplicationWorker(int i, int pageSize, Branch branch) {
             super(i, pageSize, null);
@@ -361,10 +392,19 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     @Override
     public void replicateGroup(Group group) {
+        replicateGroupWithWorker(group, AllGroupMembersReplicationWorker.class);
+    }
+
+    @Override
+    public void replicateSpeedDialGroup(Group group) {
+        replicateGroupWithWorker(group, AllGroupSpeedDialMembersReplicationWorker.class);
+    }
+
+    private void replicateGroupWithWorker(Group group, Class<? extends ReplicationWorker> worker) {
         Location primary = m_locationsManager.getPrimaryLocation();
         try {
             int membersCount = m_coreContext.getGroupMembersCount(group.getId());
-            doParallelAsyncReplication(membersCount, AllGroupMembersReplicationWorker.class, group);
+            doParallelAsyncReplication(membersCount, worker, group);
             LOG.info("Regeneration of group complete");
         } catch (Exception e) {
             LOG.error("Regeneration of group failed", e);
@@ -629,6 +669,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * permission with default "checked" is added. Much faster than using
      * replicateAllData(DataSet.PERMISSION)
      */
+    @Override
     public void addPermission(Permission permission) {
         try {
             DBCursor users = m_validUsers.getEntitiesWithPermissions();
@@ -647,6 +688,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
     /**
      * Removes the specified Permission from the entities that have it.
      */
+    @Override
     public void removePermission(Permission permission) {
         try {
             DBCursor users = m_validUsers.getEntitiesWithPermission(permission.getName());

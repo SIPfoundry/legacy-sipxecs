@@ -33,6 +33,7 @@
 
   <bean id="voicemailBundle" parent="abstractBundle">
     <constructor-arg value="voicemail" />
+    <property name="resetAffectLocation" value="true" />
     <property name="max" value="1" />
   </bean>
 

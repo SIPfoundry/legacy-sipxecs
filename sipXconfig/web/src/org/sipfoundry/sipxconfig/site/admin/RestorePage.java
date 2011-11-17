@@ -39,6 +39,8 @@ import org.sipfoundry.sipxconfig.admin.FtpBackupPlan;
 import org.sipfoundry.sipxconfig.admin.FtpRestore;
 import org.sipfoundry.sipxconfig.admin.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.admin.Restore;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
@@ -78,6 +80,9 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
 
     @InjectObject(value = "spring:restore")
     public abstract Restore getRestore();
+
+    @InjectObject(value = "spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
 
     @InjectObject(value = "spring:ftpRestore")
     public abstract FtpRestore getFtpRestore();
@@ -150,8 +155,13 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
     public IPage restore() {
         Collection<File> selectedFiles = getSelections().getAllSelected();
         List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
+        boolean restoreVoicemailOnly = true;
         for (File file : selectedFiles) {
-            selectedBackups.add(new BackupBean(file));
+            BackupBean backup = new BackupBean(file);
+            selectedBackups.add(backup);
+            if (backup.getType() == BackupBean.Type.CONFIGURATION) {
+                restoreVoicemailOnly = false;
+            }
         }
 
         if (!validateSelections(selectedBackups)) {
@@ -159,7 +169,8 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
                     new ValidatorException(getMessages().getMessage("message.invalidSelection")));
             return null;
         }
-        return setupWaitingPage(selectedBackups, getBackupPlanType());
+        Restore restore = prepareRestore(selectedBackups, getBackupPlanType());
+        return setupWaitingPage(restore, restoreVoicemailOnly);
     }
 
     public IPage uploadAndRestoreFiles() {
@@ -167,9 +178,11 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
         try {
             List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
             BackupBean config;
+            boolean restoreVoicemailOnly = true;
             config = upload(getUploadConfigurationFile(), BackupPlan.CONFIGURATION_ARCHIVE);
             if (config != null) {
                 selectedBackups.add(config);
+                restoreVoicemailOnly = false;
             }
             BackupBean voicemail = upload(getUploadVoicemailFile(), BackupPlan.VOICEMAIL_ARCHIVE);
             if (voicemail != null) {
@@ -179,7 +192,8 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
             if (selectedBackups.isEmpty()) {
                 throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
             }
-            return setupWaitingPage(selectedBackups, LocalBackupPlan.TYPE);
+            Restore restore = prepareRestore(selectedBackups, LocalBackupPlan.TYPE);
+            return setupWaitingPage(restore, restoreVoicemailOnly);
         } catch (ValidatorException e) {
             validator.record(e);
             return null;
@@ -187,21 +201,13 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
 
     }
 
-    private IPage setupWaitingPage(List<BackupBean> selectedBackups, String backupPlanType) {
-        Restore restore = null;
-        if (backupPlanType.equals(FtpBackupPlan.TYPE)) {
-            FtpRestore ftpRestore = getFtpRestore();
-            FtpBackupPlan plan = (FtpBackupPlan) getAdminContext().getBackupPlan(backupPlanType);
-            ftpRestore.setFtpConfiguration(plan.getFtpConfiguration());
-            restore = ftpRestore;
-        } else {
-            restore = getRestore();
+    private IPage setupWaitingPage(Restore restore, boolean restoreVoicemailOnly) {
+        // if voicemail only selected to be restored and voicemail running remotely display a message on page
+        if (isDistributedVoicemail() && restoreVoicemailOnly) {
+            restore.afterResponseSent();
+            TapestryUtils.recordSuccess(this, getMessages().getMessage("message.remoteRestore.started"));
+            return null;
         }
-
-        restore.validate(selectedBackups);
-        // set selected backups in order to be used when Waiting page notifies the restore bean
-        restore.setSelectedBackups(selectedBackups);
-
         // sets the waiting listener: it'll be notified by waiting page when this is
         // requested by the client (browser) - after it loads the waiting page
         WaitingPage waitingPage = getWaitingPage();
@@ -254,5 +260,30 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
         } catch (UserException ex) {
             return LocalizationUtils.localizeException(getMessages(), ex);
         }
+    }
+
+    private boolean isDistributedVoicemail() {
+        Location voicemailLocation = getLocationsManager().getLocationByBundle("voicemailBundle");
+        if (voicemailLocation != null && !voicemailLocation.isPrimary()) {
+            return true;
+        }
+        return false;
+    }
+
+    private Restore prepareRestore(List<BackupBean> selectedBackups, String backupPlanType) {
+        Restore restore = null;
+        if (backupPlanType.equals(FtpBackupPlan.TYPE)) {
+            FtpRestore ftpRestore = getFtpRestore();
+            FtpBackupPlan plan = (FtpBackupPlan) getAdminContext().getBackupPlan(backupPlanType);
+            ftpRestore.setFtpConfiguration(plan.getFtpConfiguration());
+            restore = ftpRestore;
+        } else {
+            restore = getRestore();
+        }
+
+        restore.validate(selectedBackups);
+        // set selected backups in order to be used when Waiting page notifies the restore bean
+        restore.setSelectedBackups(selectedBackups);
+        return restore;
     }
 }

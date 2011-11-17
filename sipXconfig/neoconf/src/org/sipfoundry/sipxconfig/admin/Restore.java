@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 /**
  * Interface to command line restore utility
@@ -43,6 +44,7 @@ public class Restore implements Serializable, WaitingListener {
 
     private String m_binDirectory;
     private String m_logDirectory;
+    private MailboxManager m_mailboxManager;
 
     private List<BackupBean> m_selectedBackups;
 
@@ -70,9 +72,30 @@ public class Restore implements Serializable, WaitingListener {
     }
 
     protected void execute(List<BackupBean> backups, boolean verify) {
-        String[] cmdLine = getCmdLine(backups, verify);
+        BackupBean config = null;
+        BackupBean voicemail = null;
+        for (BackupBean bean : backups) {
+            if (bean.getType().equals(BackupBean.Type.CONFIGURATION)) {
+                config = bean;
+            } else if (bean.getType().equals(BackupBean.Type.VOICEMAIL)) {
+                voicemail = bean;
+            }
+        }
+
+        if (voicemail != null) {
+            m_mailboxManager.performRestore(voicemail, verify, config != null);
+        }
+
+        if (config != null) {
+            runRestoreScript(getBinDirectory(), config, verify, false);
+        }
+
+    }
+
+    public static void runRestoreScript(String binDir, BackupBean backup, boolean verify, boolean noRestart) {
+        String[] cmdLine = getCmdLine(binDir, backup, verify, noRestart);
         try {
-            Process process = Runtime.getRuntime().exec(cmdLine);
+            Process process = Runtime.getRuntime().exec(getCmdLine(binDir, backup, verify, noRestart));
             int code = process.waitFor();
             if (code == INCOMPATIBLE_VERSIONS && verify) {
                 throw new UserException("&message.wrongVersion");
@@ -89,19 +112,19 @@ public class Restore implements Serializable, WaitingListener {
         }
     }
 
-    String[] getCmdLine(List<BackupBean> backups, boolean verify) {
-        File executable = new File(getBinDirectory(), RESTORE_BINARY);
+    static String[] getCmdLine(String binDir, BackupBean backup, boolean verify, boolean noRestart) {
+        File executable = new File(binDir, RESTORE_BINARY);
         List<String> cmds = new ArrayList<String>();
         cmds.add(executable.getAbsolutePath());
-
-        for (BackupBean backup : backups) {
-            cmds.add(backup.getType().getOption());
-            cmds.add(backup.getPath());
-        }
+        cmds.add(backup.getType().getOption());
+        cmds.add(backup.getPath());
         cmds.add("--non-interactive");
         cmds.add("--enforce-version");
         if (verify) {
             cmds.add("--verify");
+        }
+        if (noRestart) {
+            cmds.add("--no-restart");
         }
         return cmds.toArray(new String[cmds.size()]);
     }
@@ -122,10 +145,17 @@ public class Restore implements Serializable, WaitingListener {
         m_logDirectory = logDirectory;
     }
 
+    public void setMailboxManager(MailboxManager mailboxManager) {
+        m_mailboxManager = mailboxManager;
+    }
+
     public String getRestoreLogContent() {
+        StringBuilder builder = new StringBuilder();
         try {
             File log = new File(getLogDirectory(), RESTORE_LOG);
-            return IOUtils.toString(new FileReader(log));
+            builder.append(IOUtils.toString(new FileReader(log)));
+            builder.append(m_mailboxManager.getMailboxRestoreLog());
+            return builder.toString();
         } catch (FileNotFoundException ex) {
             throw new UserException("&log.found.ex");
         } catch (IOException ex) {

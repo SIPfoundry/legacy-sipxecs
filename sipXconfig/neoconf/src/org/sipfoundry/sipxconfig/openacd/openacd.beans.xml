@@ -2,23 +2,24 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   <bean id="openAcdLine" class="org.sipfoundry.sipxconfig.openacd.OpenAcdLine" scope="prototype">
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="openAcdCommand" class="org.sipfoundry.sipxconfig.openacd.OpenAcdCommand" scope="prototype">
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="freeswitchMediaCommand" class="org.sipfoundry.sipxconfig.openacd.FreeswitchMediaCommand" scope="prototype">
   </bean>
 
   <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl">
     <lookup-method name="newOpenAcdLine" bean="openAcdLine"/>
     <lookup-method name="newOpenAcdCommand" bean="openAcdCommand"/>
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="aliasManager" ref="aliasManager" />
     <property name="provisioningContext" ref="openAcdProvisioningContext" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="processContext" ref="sipxProcessContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
   
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

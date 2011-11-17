@@ -842,6 +842,21 @@ void SipxProcess::restartInTask()
    mpCurrentState->evRestartProcess(*this);
 }
 
+/// Stop the process without Disabling the persistent desired state
+void SipxProcess::resyncInTask()
+{
+   Os::Logger::instance().log(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::resync",
+                 data());
+
+   {
+      OsLock mutex(mLock);
+      mRetries=0;
+      mLastAlarmParams.destroyAll(); // clear so that new alarm is raised if necessary
+   }
+
+   mpCurrentState->evResyncProcess(*this);
+}
+
 /// Shutting down sipXsupervisor, so shut down the service.
 void SipxProcess::shutdownInTask()
 {
@@ -877,6 +892,13 @@ bool SipxProcess::disable()
 bool SipxProcess::restart()
 {
    SipxProcessMsg message(SipxProcessMsg::RESTART );
+   postMessage( message );
+   return true;
+}
+
+bool SipxProcess::resync()
+{
+   SipxProcessMsg message(SipxProcessMsg::RESYNC );
    postMessage( message );
    return true;
 }
@@ -1001,6 +1023,10 @@ UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
          break;
       case SipxProcessMsg::SHUTDOWN:
          shutdownInTask();
+         handled = TRUE;
+         break;
+      case SipxProcessMsg::RESYNC:
+         resyncInTask();
          handled = TRUE;
          break;
       case SipxProcessMsg::TIMEOUT:

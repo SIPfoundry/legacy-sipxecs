@@ -55,6 +55,7 @@ SipxRpc::SipxRpc(XmlRpcDispatch* dispatcher, UtlSList& allowedPeers)
    ProcMgmtRpcStart::registerSelf(*this);
    ProcMgmtRpcStop::registerSelf(*this);
    ProcMgmtRpcRestart::registerSelf(*this);
+   ProcMgmtRpcResync::registerSelf(*this);
    ProcMgmtRpcGetConfigVersion::registerSelf(*this);
    ProcMgmtRpcSetConfigVersion::registerSelf(*this);
    ProcMgmtRpcRunConfigtest::registerSelf(*this);

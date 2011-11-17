@@ -1,10 +1,11 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
+ * Licensed to the User under the AGPL license.
  *
+ * $
  */
 package org.sipfoundry.sipxconfig.rest;
 
@@ -33,10 +34,8 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.login.PrivateUserKeyManager;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
-import org.sipfoundry.sipxconfig.vm.Voicemail.MessageDescriptor;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.StringUtils.join;
@@ -74,20 +73,18 @@ public class VoicemailResource extends UserResource {
         feed.setLink(m_url);
         feed.setDescription("Voicemail Inbox for " + getUser().getLabel());
 
-        Mailbox mailbox = m_mailboxManager.getMailbox(getUser().getUserName());
-        List<Voicemail> voicemails = m_mailboxManager.getVoicemail(mailbox, m_folder);
+        List<Voicemail> voicemails = m_mailboxManager.getVoicemail(getUser().getUserName(), m_folder);
         List<SyndEntry> entries = new ArrayList<SyndEntry>(voicemails.size());
         for (Voicemail voicemail : voicemails) {
-            MessageDescriptor md = voicemail.getDescriptor();
             String messageUrl = joinUrl(m_folderUrl, voicemail.getMessageId());
             SyndEntry entry = new SyndEntryImpl();
-            entry.setTitle(String.format("%s from %s", md.getSubject(), md.getFromBrief()));
-            entry.setPublishedDate(md.getTimestamp());
+            entry.setTitle(String.format("%s from %s", voicemail.getSubject(), voicemail.getFromBrief()));
+            entry.setPublishedDate(voicemail.getTimestamp());
             entry.setLink(messageUrl);
 
             SyndContent content = new SyndContentImpl();
-            content.setValue(String.format("%s seconds received at %2$tR on %2$tD", md.getDurationsecs(), md
-                    .getTimestamp()));
+            content.setValue(String.format("%s seconds received at %2$tR on %2$tD",
+                    voicemail.getDurationsecs(), voicemail.getTimestamp()));
             entry.setDescription(content);
 
             SyndEnclosureImpl wav = new SyndEnclosureImpl();

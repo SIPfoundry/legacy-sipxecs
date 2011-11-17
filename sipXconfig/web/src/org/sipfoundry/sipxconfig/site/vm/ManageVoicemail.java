@@ -9,12 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,10 +32,10 @@ import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.engine.IEngineService;
+import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.RowInfo;
@@ -51,10 +52,8 @@ import org.sipfoundry.sipxconfig.login.PrivateUserKeyManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
-import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
 public abstract class ManageVoicemail extends UserBasePage implements IExternalPage {
 
@@ -134,6 +133,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public boolean getToolbarInstallerPresent() {
         return getToolbarDownloadContext().isToolbarInstallerPresent();
     }
+
     public IAsset getVoicemailIcon() {
         Voicemail voicemail = getVoicemail();
         return voicemail.isHeard() ? getHeardVoicemailIcon() : getNewVoicemailIcon();
@@ -184,11 +184,10 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     }
 
     public void delete() {
-        Mailbox mbox = getMailboxManager().getMailbox(getUser().getUserName());
         Collection<Serializable> allSelected = getSelections().getAllSelected();
         for (Serializable id : allSelected) {
             Voicemail vm = getVoicemailSource().getVoicemail(id);
-            getMailboxManager().delete(mbox, vm);
+            getMailboxManager().delete(getUser().getUserName(), vm);
         }
     }
 
@@ -196,10 +195,10 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         return getMessages().getMessage("tab." + folderId);
     }
 
-    public IPage edit(String voicemailId) {
+    public IPage edit(Voicemail voicemail) {
         EditVoicemail page = (EditVoicemail) getRequestCycle().getPage(EditVoicemail.PAGE);
         page.setReturnPage(PAGE);
-        page.setVoicemailId(voicemailId);
+        page.setVoicemail(voicemail);
         return page;
     }
 
@@ -210,8 +209,8 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
     public PlayVoicemailService.Info getPlayVoicemailInfo() {
         Voicemail voicemail = getVoicemail();
-        PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(), voicemail
-                .getMessageId());
+        PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(),
+                voicemail.getMessageId(), voicemail.getUserId());
         return info;
     }
 
@@ -242,10 +241,8 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         String userId = getUser().getUserName();
 
         MailboxManager mgr = getMailboxManager();
-        Mailbox mbox = mgr.getMailbox(userId);
-        List<String> folderIds = getFolderIds();
+        List<String> folderIds = mgr.getFolderIds();
         if (getFolderIds() == null) {
-            folderIds = mbox.getFolderIds();
             setFolderIds(folderIds);
         }
 
@@ -254,40 +251,34 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
             setFolderId(folderIds.get(0));
         }
 
-        VoicemailSource source = getVoicemailSource();
-        if (source == null) {
-            source = new VoicemailSource(new File(getMailboxManager().getMailstoreDirectory()));
-            setVoicemailSource(source);
-            setRowInfo(new VoicemailRowInfo(source));
-            setConverter(new VoicemailSqueezer(source));
+        VoicemailSource source = null;
+        List<Voicemail> voicemails = Collections.EMPTY_LIST;
+        Map<Serializable, Voicemail> voicemailMap = new LinkedHashMap<Serializable, Voicemail>();
+        try {
+            voicemails = mgr.getVoicemail(userId, getFolderId());
+            for (Voicemail voicemail : voicemails) {
+                voicemailMap.put(VoicemailSource.getVoicemailId(voicemail), voicemail);
+            }
+        } catch (UserException e) {
+            getValidator().record(e, getMessages());
         }
+        source = new VoicemailSource(voicemailMap);
+        setVoicemailSource(source);
+        setRowInfo(new VoicemailRowInfo());
+        setConverter(new VoicemailSqueezer(source));
     }
 
     /**
      * Lazily get voicemails to avoid tapestry bug that attempts to use table collection before
      * pageBeginRender is called when navigating table pager
      */
-    public List<Voicemail> getVoicemails() {
-        MailboxManager mgr = getMailboxManager();
-        String userId = getUser().getUserName();
-        Mailbox mbox = mgr.getMailbox(userId);
-        try {
-            return mgr.getVoicemail(mbox, getFolderId());
-        } catch (UserException e) {
-            getValidator().record(new ValidatorException(e.getMessage()));
-            return Collections.emptyList();
-        }
+    public Collection<Voicemail> getVoicemails() {
+        return getVoicemailSource().getVoicemails();
     }
 
     public static class VoicemailRowInfo implements RowInfo {
-        private final VoicemailSource m_source;
-
-        VoicemailRowInfo(VoicemailSource source) {
-            m_source = source;
-        }
-
         public Object getSelectId(Object row) {
-            return m_source.getVoicemailId((Voicemail) row);
+            return VoicemailSource.getVoicemailId((Voicemail) row);
         }
 
         public boolean isSelectable(Object row) {
@@ -319,21 +310,11 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
     public String getVoicemailLink() {
         Voicemail voicemail = getVoicemail();
-        String voicemailLink = String.format("/sipxconfig/rest/my/voicemail/%s/%s", voicemail.getFolderId(),
-                voicemail.getMessageId());
-        /*
-         * <HACK> -----------
-         * A .wav suffix is added at the end of the url to correctly associate the file
-         * as a .wav file, when downloading it through the <audio/> controller in FF 3.5
-         *
-         */
+        PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(),
+                voicemail.getMessageId(), voicemail.getUserId());
+        ILink link = getPlayVoicemailService().getLink(false, info);
+        return link.getURL();
 
-        voicemailLink = voicemailLink.concat(".wav");
-
-        /*
-         * </HACK>
-         */
-        return voicemailLink;
     }
 
     public String getDownloadToolbarLabel() {

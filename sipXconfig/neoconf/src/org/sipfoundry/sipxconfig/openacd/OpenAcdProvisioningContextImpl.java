@@ -21,22 +21,28 @@ import static org.apache.commons.lang.StringUtils.EMPTY;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.sipxconfig.common.UserChangeEvent;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.WriteResult;
 
-public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContext, ApplicationListener {
+public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContext, ApplicationListener,
+        BeanFactoryAware {
     enum Command {
         ADD {
             public String toString() {
@@ -65,6 +71,7 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
 
     private OpenAcdContext m_openAcdContext;
     private MongoTemplate m_db;
+    private ListableBeanFactory m_beanFactory;
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof UserChangeEvent) {
@@ -156,6 +163,25 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
         }
     }
 
+    public void resync() {
+        Map<String, OpenAcdConfigObjectProvider> beanMap = m_beanFactory
+                .getBeansOfType(OpenAcdConfigObjectProvider.class);
+        for (OpenAcdConfigObjectProvider bean : beanMap.values()) {
+            for (OpenAcdConfigObject configObj : bean.getConfigObjects()) {
+                if (!configObj.isConfigCommand()) {
+                    addObjects(Collections.singletonList(configObj));
+                } else {
+                    configure(Collections.singletonList(configObj));
+                }
+            }
+        }
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+
     @Required
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {
         m_openAcdContext = openAcdContext;
@@ -168,4 +194,5 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
     public void setDb(MongoTemplate db) {
         m_db = db;
     }
+
 }

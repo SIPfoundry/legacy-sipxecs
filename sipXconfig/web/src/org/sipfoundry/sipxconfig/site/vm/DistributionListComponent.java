@@ -18,10 +18,11 @@ import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.RowInfo;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public abstract class DistributionListComponent extends BaseComponent implements PageBeginRenderListener {
@@ -52,16 +53,21 @@ public abstract class DistributionListComponent extends BaseComponent implements
     public void pageBeginRender(PageEvent event) {
         DistributionList[] lists = getDistributionLists();
         if (lists == null) {
-            Mailbox mailbox = getMailboxManager().getMailbox(getUser().getUserName());
-            lists = getMailboxManager().loadDistributionLists(mailbox);
-            setDistributionLists(lists);
+            try {
+                lists = getMailboxManager().loadDistributionLists(getUser().getUserName());
+                setDistributionLists(lists);
+            } catch (UserException e) {
+                SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(getPage());
+                validator.record(e, getMessages());
+                setDistributionLists(DistributionList.createBlankList());
+            }
         }
     }
 
     public void save() {
         if (TapestryUtils.isValid(this)) {
-            Mailbox mailbox = getMailboxManager().getMailbox(getUser().getUserName());
-            getMailboxManager().saveDistributionLists(mailbox, getDistributionLists());
+            getMailboxManager().saveDistributionLists(getUser().getUserName(), getDistributionLists());
+            setDistributionLists(null);
         }
     }
 

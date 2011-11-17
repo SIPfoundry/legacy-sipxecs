@@ -24,6 +24,7 @@ public class SettingDaoTestIntegration extends IntegrationTestCase {
 
     public void testInvalidBranchGroup() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         Branch branch1 = new Branch();
         branch1.setName("branch1");
         Branch branch2 = new Branch();

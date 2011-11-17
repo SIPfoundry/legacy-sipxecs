@@ -20,6 +20,7 @@ public class SipxIvrConfiguration extends SipxServiceConfiguration {
         context.put("statusService", getService(SipxStatusService.BEAN_ID));
         context.put("restService", getService(SipxRestService.BEAN_ID));
         context.put("imbotService", getService(SipxImbotService.BEAN_ID));
+        context.put("configService", getService(SipxConfigService.BEAN_ID));
         context.put("sipxServiceManager", getSipxServiceManager());
         context.put("sipxSupervisorXmlRpcPort", Location.PROCESS_MONITOR_PORT);
         return context;

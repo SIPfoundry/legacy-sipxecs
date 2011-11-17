@@ -19,6 +19,7 @@ import java.util.Set;
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
@@ -120,4 +121,8 @@ public class SpecialUser extends BeanWithId implements Replicable {
         return props;
     }
 
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
+        return null;
+    }
 }

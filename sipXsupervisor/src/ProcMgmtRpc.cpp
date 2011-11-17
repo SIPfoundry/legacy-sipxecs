@@ -228,6 +228,10 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                            result = process->restart();
                            break;
 
+                        case USER_PROCESS_RESYNC:
+                           result = process->resync();
+                           break;
+
                         default:
                            Os::Logger::instance().log(FAC_SUPERVISOR, PRI_CRIT,
                                          "ProcMgmtRpcMethod::executeSetUserRequestState"
@@ -442,6 +446,41 @@ bool ProcMgmtRpcRestart::execute(const HttpRequestContext& requestContext,
              userData, response, status, USER_PROCESS_RESTART);
 }
 
+
+/*****************************************************************
+ **** ProcMgmtRpcResync
+ *****************************************************************/
+
+const char* ProcMgmtRpcResync::METHOD_NAME = "ProcMgmtRpc.resync";
+
+const char* ProcMgmtRpcResync::name()
+{
+   return METHOD_NAME;
+}
+
+ProcMgmtRpcResync::ProcMgmtRpcResync()
+{
+}
+
+XmlRpcMethod* ProcMgmtRpcResync::get()
+{
+   return new ProcMgmtRpcResync();
+}
+
+void ProcMgmtRpcResync::registerSelf(SipxRpc & sipxRpcImpl)
+{
+   registerMethod(METHOD_NAME, ProcMgmtRpcResync::get, sipxRpcImpl);
+}
+
+bool ProcMgmtRpcResync::execute(const HttpRequestContext& requestContext,
+                                 UtlSList& params,
+                                 void* userData,
+                                 XmlRpcResponse& response,
+                                 ExecutionStatus& status)
+{
+   return executeSetUserRequestState(requestContext, params,
+             userData, response, status, USER_PROCESS_RESYNC);
+}
 
 /*****************************************************************
  **** ProcMgmtRpcGetStatusMessage

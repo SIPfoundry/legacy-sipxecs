@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
+import org.sipfoundry.sipxconfig.vm.LocalMailbox;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
@@ -30,7 +30,7 @@ public class PersonalAttendantWriterTest extends TestCase {
 
     public void testWrite() {
         PersonalAttendant pa = new PersonalAttendant();
-        Mailbox mailbox = new Mailbox(new File("/tmp/voicemail"), "200");
+        LocalMailbox mailbox = new LocalMailbox(new File("/tmp/voicemail"), "200");
 
         ProfileGenerator profileGenerator = createMock(ProfileGenerator.class);
         profileGenerator.generate(isA(FileSystemProfileLocation.class),

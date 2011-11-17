@@ -8,6 +8,7 @@
  */
 package org.sipfoundry.sipxivr;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -32,6 +33,8 @@ import org.sipfoundry.voicemail.ConferenceServlet;
 import org.sipfoundry.voicemail.Emailer;
 import org.sipfoundry.voicemail.ExtMailStore;
 import org.sipfoundry.voicemail.MailboxServlet;
+import org.sipfoundry.voicemail.ManagementServlet;
+import org.sipfoundry.voicemail.MediaServlet;
 import org.sipfoundry.voicemail.Mwistatus;
 import org.sipfoundry.voicemail.VoiceMail;
 import org.sipfoundry.bridge.Bridge;
@@ -210,6 +213,11 @@ public class SipXivr implements Runnable {
 
         // Load the configuration
         s_config = IvrConfiguration.get();
+        // init mailstore
+        File mailstore = new File(s_config.getMailstoreDirectory());
+        if (!mailstore.exists()) {
+            mailstore.mkdir();
+        }
 
         // Configure log4j
         Properties props = new Properties();
@@ -228,8 +236,10 @@ public class SipXivr implements Runnable {
         // add MWI servlet on /mwi
         webServer.addServlet("mwistatus", "/mwi", Mwistatus.class.getName());
         webServer.addServlet("mailbox", "/mailbox/*", MailboxServlet.class.getName());
+        webServer.addServlet("media", "/media/*", MediaServlet.class.getName());
         webServer.addServlet("recording", "/recording/*", ConfRecordStatus.class.getName());
         webServer.addServlet("conference", "/conference/*", ConferenceServlet.class.getName());
+        webServer.addServlet("manage", "/manage/*", ManagementServlet.class.getName());
         // Start it up
         webServer.start();
 

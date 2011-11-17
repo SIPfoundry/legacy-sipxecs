@@ -43,6 +43,8 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep.FREQUENCY;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfigurationTest;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextTestIntegration extends IntegrationTestCase {
@@ -73,12 +75,10 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         org.easymock.classextension.EasyMock.replay(fs);
 
         m_openAcdContextImpl.setSipxServiceManager(sm);
-        m_openAcdContextImpl.setCoreContext(m_coreContext);
 
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getLines().size());
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("example");
-        extension.setSipxServiceManager(sm);
         extension.setAlias("alias");
         extension.setDid("1234567890");
 
@@ -290,7 +290,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         m_openAcdContextImpl.setSipxServiceManager(sm);
 
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("sales");
-        extension.setSipxServiceManager(sm);
 
         m_openAcdContextImpl.saveExtension(extension);
 
@@ -299,7 +298,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertTrue(m_openAcdContextImpl.isAliasInUse("sales"));
         assertTrue(m_openAcdContextImpl.isAliasInUse("300"));
 
-        m_openAcdContextImpl.setCoreContext(m_coreContext);
     }
 
     public void testOpenAcdAgentGroupCrud() throws Exception {
@@ -392,6 +390,8 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
     public void testOpenAcdAgentCrud() throws Exception {
         loadDataSet("common/SampleUsersSeed.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("domain/DomainSeed.xml");
         User charlie = m_coreContext.loadUser(1003);
 
         OpenAcdAgentGroup group = new OpenAcdAgentGroup();
@@ -1003,6 +1003,11 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertTrue(queueSkills.contains(all));
     }
 
+    public void testRetrieveOpenacdConfigObject() {
+        List<OpenAcdConfigObject> objs = m_openAcdContextImpl.getConfigObjects();
+        assertTrue(!objs.isEmpty());
+    }
+
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {
         m_openAcdContextImpl = openAcdContext;
         OpenAcdProvisioningContext provisioning = EasyMock.createNiceMock(OpenAcdProvisioningContext.class);
@@ -1027,5 +1032,4 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             return 50;
         }
     }
-
 }

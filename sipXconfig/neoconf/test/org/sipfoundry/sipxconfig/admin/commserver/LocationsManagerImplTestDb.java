@@ -24,6 +24,7 @@ public class LocationsManagerImplTestDb extends SipxDatabaseTestCase {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_out = (LocationsManager) app.getBean(LocationsManager.CONTEXT_BEAN_NAME);
         m_imdb = (MongoTemplate) app.getBean("imdb");
+        m_imdb.getDb().dropDatabase();
         m_locationsManagerImpl = (LocationsManagerImpl) app.getBean("locationsManagerImpl");
     }
 

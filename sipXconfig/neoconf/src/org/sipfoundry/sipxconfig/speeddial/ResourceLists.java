@@ -12,14 +12,12 @@ package org.sipfoundry.sipxconfig.speeddial;
 import static org.sipfoundry.commons.mongo.MongoConstants.BUTTONS;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.NAME;
-import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
 import static org.sipfoundry.commons.mongo.MongoConstants.SPEEDDIAL;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 import static org.sipfoundry.commons.mongo.MongoConstants.URI;
 import static org.sipfoundry.commons.mongo.MongoConstants.USER;
 import static org.sipfoundry.commons.mongo.MongoConstants.USER_CONS;
 import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.XMPP_SERVER;
-import static org.sipfoundry.sipxconfig.permission.PermissionName.SUBSCRIBE_TO_PRESENCE;
 import static org.sipfoundry.sipxconfig.speeddial.SpeedDial.getResourceListId;
 
 import java.util.Iterator;
@@ -70,15 +68,6 @@ public class ResourceLists extends XmlFile {
 
             // ignore disabled orbits
             if (speedDial == null) {
-                continue;
-            }
-
-            // check if the user has the "Subscribe to Presence" permission since the blf flag
-            // might not be set to FALSE even when the user doesn't have this permission(this
-            // could happen
-            // when the user use the group's speed dial)
-            BasicDBList permissions = (BasicDBList) user.get(PERMISSIONS);
-            if (!permissions.contains(SUBSCRIBE_TO_PRESENCE.getName())) {
                 continue;
             }
 

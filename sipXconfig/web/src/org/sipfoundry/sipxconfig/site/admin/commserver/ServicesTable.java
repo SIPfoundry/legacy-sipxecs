@@ -283,6 +283,10 @@ public abstract class ServicesTable extends BaseComponent {
         return manageServices(SipxProcessContext.Command.RELOAD);
     }
 
+    public IPage resync() {
+        return manageServices(SipxProcessContext.Command.RESYNC);
+    }
+
     private IPage manageServices(SipxProcessContext.Command operation) {
         Collection<String> serviceBeanIds = getSelections().getAllSelected();
         if (serviceBeanIds == null) {

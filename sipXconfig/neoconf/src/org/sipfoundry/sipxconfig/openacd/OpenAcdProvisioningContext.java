@@ -27,4 +27,6 @@ public interface OpenAcdProvisioningContext {
     void updateObjects(List< ? extends OpenAcdConfigObject> objects);
 
     void configure(List< ? extends OpenAcdConfigObject> objects);
+
+    void resync();
 }

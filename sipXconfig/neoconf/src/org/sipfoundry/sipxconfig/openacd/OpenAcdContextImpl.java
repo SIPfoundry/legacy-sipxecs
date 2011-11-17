@@ -34,7 +34,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -48,7 +47,8 @@ import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, DaoEventListener {
+public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext,
+    DaoEventListener, OpenAcdConfigObjectProvider {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -76,8 +76,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private LocationsManager m_locationsManager;
     private ServiceConfigurator m_serviceConfigurator;
     private SipxProcessContext m_processContext;
-
-    private CoreContext m_coreContext;
 
     public abstract OpenAcdExtension newOpenAcdExtension();
 
@@ -152,10 +150,12 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         if (extension.getExtension() == null) {
             throw new UserException("&null.extension");
         }
+        String capturedExt = extension.getCapturedExtension();
+
         if (!m_aliasManager.canObjectUseAlias(extension, extension.getName())) {
             throw new NameInUseException(LINE_NAME, extension.getName());
-        } else if (!m_aliasManager.canObjectUseAlias(extension, extension.getExtension())) {
-            throw new ExtensionInUseException(LINE_NAME, extension.getExtension());
+        } else if (!m_aliasManager.canObjectUseAlias(extension, capturedExt)) {
+            throw new ExtensionInUseException(LINE_NAME, capturedExt);
         } else if (extension.getAlias() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getAlias())) {
             throw new ExtensionInUseException(LINE_NAME, extension.getAlias());
         } else if (extension.getDid() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getDid())) {
@@ -331,6 +331,10 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
     public List<OpenAcdAgent> getAgents() {
         return getHibernateTemplate().loadAll(OpenAcdAgent.class);
+    }
+
+    public List<OpenAcdRecipeAction> getRecipeActions() {
+        return getHibernateTemplate().loadAll(OpenAcdRecipeAction.class);
     }
 
     public OpenAcdAgent getAgentById(Integer agentId) {
@@ -960,6 +964,17 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         }
     }
 
+    public List<OpenAcdConfigObject> getConfigObjects() {
+        List<OpenAcdConfigObject> objects = new ArrayList<OpenAcdConfigObject>();
+        objects.addAll(getSkills());
+        objects.addAll(getClients());
+        objects.addAll(getAgentGroups());
+        objects.addAll(getAgents());
+        objects.addAll(getQueueGroups());
+        objects.addAll(getQueues());
+        return objects;
+    }
+
     public void setSipxServiceManager(SipxServiceManager manager) {
         m_serviceManager = manager;
     }
@@ -982,10 +997,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
-    }
-
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
     }
 
 }

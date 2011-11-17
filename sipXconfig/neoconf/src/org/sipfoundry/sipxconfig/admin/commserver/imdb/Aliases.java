@@ -12,6 +12,9 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import com.mongodb.DBObject;
 
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
+
 import static org.sipfoundry.commons.mongo.MongoConstants.ALIASES;
 
 public class Aliases extends DataSetGenerator {
@@ -25,7 +28,11 @@ public class Aliases extends DataSetGenerator {
     }
 
     public void generate(Replicable entity, DBObject top) {
-        top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
+        if (entity instanceof User || entity instanceof OpenAcdExtension) {
+            top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName(), getSipxFreeswitchService()));
+        } else {
+            top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
+        }
         getDbCollection().save(top);
     }
 
