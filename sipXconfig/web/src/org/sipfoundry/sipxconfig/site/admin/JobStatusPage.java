@@ -87,11 +87,19 @@ public abstract class JobStatusPage extends SipxBasePage {
     }
 
     public String getLocationFqdn() {
+        Job job = getFailedJob();
+        if (job.getLocation() != null) {
+            return job.getLocation().getFqdn();
+        }
+        return StringUtils.EMPTY;
+    }
+
+    public String getLocationFqdnNotFailed() {
         Job job = getNotFailedJob();
         if (job.getLocation() != null) {
             return job.getLocation().getFqdn();
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     public String getFailedJobErrorMsg() {
