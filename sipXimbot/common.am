@@ -1,5 +1,6 @@
 imbot_PKGS = \
 	sipxcommons \
+	mongo \
 	log4j \
 	smackx \
 	commons-codec \
