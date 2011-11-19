@@ -43,7 +43,6 @@ Requires: sipxtacklib >= %version
 Requires: unixODBC >= 2.2
 Requires: ruby
 Requires: patch
-Requires: mongodb-server >= 2.0.0
 # bind-utils required for dig
 Requires: bind-utils
 Obsoletes: %{name}-doc
@@ -120,7 +119,6 @@ fi
 %attr(755,root,root) %{_bindir}/sipx-validate-xml
 %attr(755,root,root) %{_bindir}/sipx-dns
 %attr(755,root,root) %{_bindir}/pgpatch.sh
-%attr(755,root,root) %{_bindir}/mongodb-repair
 %attr(755,root,root) %{_bindir}/ssl-cert/gen-ssl-keys.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/install-cert.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/check-cert.sh

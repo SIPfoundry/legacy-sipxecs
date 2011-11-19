@@ -10,7 +10,6 @@ util_SCRIPTS = \
 
 bin_SCRIPTS = \
 	sipx-validate-xml \
-	mongodb-repair \
 	pgpatch.sh \
 	sipx-dns
 
@@ -23,7 +22,6 @@ setupdir = @SIPX_LIBEXECDIR@/setup.d
 setup_SCRIPTS = \
         sipx-time-manager-init \
         sipx-change-timezone-init \
-        mongodb-repair \
         sipxpackage-init \
         sipxswadmin-init \
         sipxcdrpostgres-init \

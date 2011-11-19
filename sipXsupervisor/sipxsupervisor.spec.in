@@ -112,10 +112,13 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/sipxagent
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxsupervisord
-%attr(755,root,root) %{_datadir}/sipxecs/cfinputs/*.cf
-%attr(755,root,root) %{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
 %attr(755,root,root) %{_datadir}/sipxecs/cfmodules/sipx
-%attr(755,root,root) %{_localstatedir}/sipxdata/cfdata/defaults/*.cfdat
+%{_datadir}/sipxecs/cfinputs/*.cf
+%dir %{_datadir}/sipxecs/cfinputs/plugin.d
+# where sipxconfig writes data, sipxchange user needs write access
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/cfdata
+# defaults are static, only root should write
+%{_localstatedir}/sipxdata/cfdata/defaults/*.cfdat
 
 %pre
 

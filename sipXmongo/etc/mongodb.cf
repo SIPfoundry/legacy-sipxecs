@@ -43,7 +43,7 @@ bundle agent mongodb_config {
 bundle agent mongodb_install {
   packages:
    redhat.mongod::
-     "mongo-server"
+     "sipxmongo"
         package_method => yum_rpm,
         package_policy => "add";
 }
@@ -72,6 +72,8 @@ bundle agent mongodb_repair {
 
 # Once a minute, will check if mongod died and needs repair/restarting
 # If mongod was stopped normally, this script leaves mongod stopped.
+# cfengine best practices recommends running cf-agent on a cron or
+# with cf-execd and using time based classes to schedule things.
 bundle edit_line mongodb_auto_repair(edit) {
   classes:
     "install_repairer" not => regline(".*$(sipx.SIPX_BINDIR)/mongod-repair.*", "$(edit.filename)");

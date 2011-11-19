@@ -4,16 +4,11 @@ EXTRA_DIST = \
 	$(schema_DATA:=.in) \
         $(proc_DATA:=.in) \
 	$(cfinputs_PROMISES:=.in) \
-	$(cfdefaults_FILES:=.in) \
 	cfengine_stdlib.cf
 
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
 cfdefaults_DATA = \
-	dirs.cfdat \
-	$(cfdefaults_FILES)
-
-cfdefaults_FILES = \
-	mongodb.cfdat
+	dirs.cfdat
 
 dirvars = \
 	$(filter SIPX%DIR,$(.VARIABLES)) \
@@ -34,9 +29,12 @@ cfinputs_PROMISES = \
 	promises.cf \
 	sipxagent.cf
 
-cfpluginsdir = $(SIPX_CFINPUTS)/plugin.d
-dist_cfplugins_DATA = \
-	mongodb.cf
+emptydirs = $(DESTDIR)$(SIPX_CFINPUTS)/plugin.d
+
+$(emptydirs) :
+	$(INSTALL) -d $@
+
+install-data-hook : $(emptydirs)
 
 procdir = \
         $(SIPX_DATADIR)/process.d
@@ -63,7 +61,7 @@ mibdir = @SIPX_DATADIR@/mibs
 dist_mib_DATA = \
 	SIPXECS-ALARM-NOTIFICATION-MIB.mib
 
-$(cfdefaults_FILES) $(cfinputs_PROMISES) $(schema_DATA) $(proc_DATA) : % : %.in Makefile
+$(cfinputs_PROMISES) $(schema_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
 CLEANFILES = $(proc_DATA) $(schema_DATA) $(cfinputs_PROMISES) $(cfdefaults_DATA)

@@ -1,0 +1,6 @@
+Configuration and utility scripts for integrating mongodb (NoSQL
+database) into sipXecs. 
+
+This does not contain C++ or Java code for accessing mongo, that lives
+in sipXcommserverLib and sipXcommons respectively, but that code could
+be moved into here at some point.

@@ -8,7 +8,6 @@ SUBDIRS = \
 	. \
 	src \
 	include \
-	etc \
 	meta \
 	bin
 

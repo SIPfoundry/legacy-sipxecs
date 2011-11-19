@@ -257,8 +257,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/database/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/itspTemplates
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mongod
-%config(noreplace) %{sipxpbxconf}/mongod/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mongo
+%config(noreplace) %{sipxpbxconf}/mongo/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mrtg
 %config(noreplace) %{sipxpbxconf}/mrtg/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/nattraversal
@@ -457,5 +457,5 @@ fi
 %defattr(644,sipxchange,sipxchange,755)
 %attr(755,sipxchange,sipxchange) %{_bindir}/sipx-tunnel
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/tunnel-process.xml
-%config(noreplace) %{sipxpbxconf}/mongod/mongod.vm
+
 

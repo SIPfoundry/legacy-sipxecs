@@ -35,7 +35,6 @@ CHECK_POSTGRES
 AC_CONFIG_FILES([
   Makefile
   include/Makefile
-  etc/Makefile
   bin/Makefile
   bin/ssl-cert/Makefile
   src/Makefile
