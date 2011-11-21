@@ -1,3 +1,6 @@
+#!BuildIgnore: post-build-checks
+%define debug_package %{nil}
+
 Name: @PACKAGE@
 Version: @VERSION@
 Release: @PACKAGE_REVISION@
@@ -14,8 +17,7 @@ BuildRequires: automake
 # libxml2 is for xml validation in 'make check'
 BuildRequires: libxml2
 
-
-Requires: mongo-client
+Requires: mongodb >= 2.0
 
 Requires: sipxsupervisor-lite >= %version
 
