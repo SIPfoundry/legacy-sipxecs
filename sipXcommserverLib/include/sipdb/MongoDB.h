@@ -20,11 +20,17 @@
 #undef VERSION
 
 #include <mongo/client/dbclient.h>
+
+// unfortunately mongo undefines assert and for some c++ files, that's bad
+// so we universally include it here whether c++ uses it or not.
+#include <assert.h>
+
 #include <boost/exception/all.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_array.hpp>
 #include <exception>
 #include <boost/function.hpp>
+
 
 // is assert is undefined, just include it again
 //  include <assert.h>
