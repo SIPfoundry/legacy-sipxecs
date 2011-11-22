@@ -54,5 +54,5 @@ public class AttendantMenuItem {
     public void setExtension(String extension) {
         m_extension = extension;
     }
-    
+
 }

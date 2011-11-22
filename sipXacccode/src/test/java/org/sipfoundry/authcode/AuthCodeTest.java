@@ -48,7 +48,7 @@ public class AuthCodeTest extends TestCase {
         AuthCode a = new AuthCode(accCodeConfig, fses, params);
         HashMap<Locale, ResourceBundle> resourcesByLocale = new HashMap<Locale, ResourceBundle>();
         resourcesByLocale.put(Locale.ENGLISH, new MyResources());
-        Localization loc = new Localization("dog", Locale.ENGLISH.toString(), resourcesByLocale, accCodeConfig, fses);
+        Localization loc = new Localization("dog", Locale.ENGLISH.toString(), accCodeConfig, fses);
         a.setLocalization(loc);
         a.setConfig(org.sipfoundry.authcode.Configuration.update(false));
 

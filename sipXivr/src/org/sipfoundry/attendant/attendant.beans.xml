@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="autoattendant" class="org.sipfoundry.attendant.Attendant" scope="eslRequest">
+    <property name="operatorAddr" value="${ivr.operatorAddr}" />
+    <property name="eslRequestController" ref="aaEslRequestController" />
+    <property name="validUsers" ref="validUsers" />
+    <property name="mailboxManager" ref="mailboxManager" />
+  </bean>
+
+  <bean id="aaEslRequestController" class="org.sipfoundry.attendant.AaEslRequestController" scope="eslRequest">
+    <property name="sipxchangeDomainName" value="${ivr.sipxchangeDomainName}" />
+    <property name="fsConfig" ref="fsConfig" />
+    <property name="fsEventSocket" ref="fsEventSocket" />
+    <property name="autoAttendantConfig" ref="autoAttendantConfig" />
+  </bean>
+
+  <bean id="autoAttendantConfig" class="org.sipfoundry.attendant.Configuration" init-method="loadXML"/>
+
+</beans>

@@ -14,6 +14,8 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.sipfoundry.voicemail.mailbox.Distributions;
+import org.sipfoundry.voicemail.mailbox.DistributionsReader;
 
 public class DistributionsTest extends TestCase {
     File m_testdir;
