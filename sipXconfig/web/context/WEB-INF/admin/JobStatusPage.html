@@ -24,6 +24,9 @@
           <span jwcid="@contrib:TableValues"/>
         </span>
       </tbody>
+      <span jwcid="fqdnColumnValue@Block">
+        <span jwcid="failedFqdn@Insert" value="ognl:locationFqdnFailed"/>
+      </span>
       <span jwcid="failedStatusColumnValue@Block">
         <span jwcid="failedStatus@Insert" value="ognl:failedJob.status" format="bean:statusFormat"/>
       </span>
@@ -47,7 +50,7 @@
   <div class="tableDiv">
     <table jwcid="successJobsTable@contrib:TableView" id="successJobsTable" class="component"
       source="ognl:notFailedJobs" pageSize="-1"
-      columns="* name,fqdn,=startColumn,=stopColumn,status">
+      columns="* name,nffqdn,=startColumn,=stopColumn,status">
       <thead>
         <tr>
           <span jwcid="@contrib:TableColumns"/>
@@ -61,6 +64,9 @@
           <span jwcid="@contrib:TableValues"/>
         </span>
       </tbody>
+      <span jwcid="nffqdnColumnValue@Block">
+        <span jwcid="nffailedFqdn@Insert" value="ognl:locationFqdnNotFailed"/>
+      </span>
       <span jwcid="statusColumnValue@Block">
         <span jwcid="nfStatus@Insert" value="ognl:notFailedJob.status" format="bean:statusFormat"/>
       </span>

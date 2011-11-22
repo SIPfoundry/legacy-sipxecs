@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
@@ -50,6 +51,7 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
     private static final String LOCATION_PROP_IP = "ipAddress";
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
+    private DaoEventPublisher m_daoEventPublisher;
 
     protected abstract NatTraversalManager getNatTraversalManager();
     /* delayed injections - working around circular reference */
@@ -129,10 +131,11 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
     }
 
     @Override
-    public void saveServerRoleLocation(Location location, ServerRoleLocation role) {
+    public void storeServerRoleLocation(Location location, ServerRoleLocation role) {
         location.setServerRoles(role);
         getHibernateTemplate().saveOrUpdate(location);
         role.setLocation(location);
+        m_daoEventPublisher.publishSave(role);
     }
 
     @Override
@@ -277,5 +280,9 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
             replications.add(getAcdHistoricalConfiguration().getName());
         }
         return replications;
+    }
+
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
 }

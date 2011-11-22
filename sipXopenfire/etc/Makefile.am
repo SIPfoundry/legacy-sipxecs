@@ -7,7 +7,6 @@ EXTRA_DIST = \
 
 ofcdir = @SIPX_JAVADIR@/sipXopenfire/conf
 dist_ofc_DATA = \
-	openfire.xml \
 	web.xml.enable_openfire_admin_console \
 	web.xml.disable_openfire_admin_console
 
