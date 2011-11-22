@@ -55,7 +55,7 @@ public interface LocationsManager {
      * @param role
      */
 
-    void saveServerRoleLocation(Location location, ServerRoleLocation role);
+    void storeServerRoleLocation(Location location, ServerRoleLocation role);
     /**
      * Saves new location in DB without publishing any events (used on location migration task)
      * (no publish)

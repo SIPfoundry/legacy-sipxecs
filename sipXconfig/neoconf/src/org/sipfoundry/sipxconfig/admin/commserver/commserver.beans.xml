@@ -11,6 +11,7 @@
   <bean id="locationsManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
     <lookup-method name="getNatTraversalManager" bean="natTraversalManager" />
     <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
     <lookup-method name="getReplicationManager" bean="replicationManagerImpl" />

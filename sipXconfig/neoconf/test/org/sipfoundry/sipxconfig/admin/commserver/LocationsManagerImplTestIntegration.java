@@ -372,7 +372,7 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         location.setInstalledBundles(asList("conferenceBundle"));
         ServerRoleLocation serverRole = new ServerRoleLocation();
         serverRole.setModifiedBundles(m_serviceManager.getBundlesForLocation(location));
-        m_out.saveServerRoleLocation(location, serverRole);
+        m_out.storeServerRoleLocation(location, serverRole);
         assertEquals(1, m_conferenceBridgeContext.getBridges().size());
     }
 
