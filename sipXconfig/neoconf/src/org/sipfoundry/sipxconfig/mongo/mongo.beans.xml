@@ -4,33 +4,8 @@
 
   <bean id="mongoDbFactory" class="org.sipfoundry.commons.mongo.MongoSpringFactory">
     <property name="configFile" value="${sysdir.etc}/mongo-client.ini" />
-  </bean>
-  
+  </bean>  
+
   <bean id="mongoTunnnel" class="org.sipfoundry.sipxconfig.mongo.MongoTunnelProvider" />
 
-  <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.cfengine.CfDataFile">
-    <property name="name" value="mongo.cfdat" />
-  </bean>
-  <bean id="mongoBundle" parent="abstractBundle">
-    <constructor-arg value="mongo" />
-    <property name="autoEnable" value="true" />
-    <!-- primary only for now -->
-    <property name="onlyPrimary" value="true" />
-  </bean>
-   <bean id="mongoService" class="org.sipfoundry.sipxconfig.mongo.MongoService" parent="sipxService"
-     scope="prototype">
-     <property name="processName" value="mongo" />
-     <property name="modelName" value="mongod.xml" />
-     <property name="modelDir" value="mongo" />
-     <property name="configurations">
-       <list>
-         <ref bean="mongoConfig" />
-       </list>
-     </property>
-     <property name="bundles">
-       <set>
-         <ref bean="mongoBundle" />
-       </set>
-     </property>
-   </bean>
 </beans>
