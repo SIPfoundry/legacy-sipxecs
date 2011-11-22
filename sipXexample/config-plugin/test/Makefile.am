@@ -1,6 +1,9 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
 
+EXTRA_DIST = \
+	$(test_SRC)
+
 precommit : check;
 
 noinst_DATA = javac-test
