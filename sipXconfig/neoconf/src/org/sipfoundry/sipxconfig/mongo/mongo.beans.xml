@@ -7,5 +7,8 @@
   </bean>  
 
   <bean id="mongoTunnnel" class="org.sipfoundry.sipxconfig.mongo.MongoTunnelProvider" />
-
+  
+  <bean id="mongo" class="org.sipfoundry.sipxconfig.mongo.MongoFeature">
+  </bean>
+  
 </beans>

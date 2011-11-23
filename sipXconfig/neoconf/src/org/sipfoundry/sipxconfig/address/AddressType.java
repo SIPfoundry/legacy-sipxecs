@@ -5,11 +5,17 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.mongo;
+package org.sipfoundry.sipxconfig.address;
 
-import org.sipfoundry.sipxconfig.service.SipxService;
+public class AddressType {
 
-public class MongoService extends SipxService {
-    public static final String BEAN_ID = "mongoService";
+    private String m_id;
 
+    public AddressType(String uniqueId) {
+        m_id = uniqueId;
+    }
+
+    public String getId() {
+        return m_id;
+    }
 }

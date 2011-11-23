@@ -393,6 +393,7 @@
     <antcall target="init-location" />
     <antcall target="openacd-insert-commands" />
     <antcall target="openacd-add-line-regex" />
+    <antcall target="feature" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1199,6 +1200,10 @@
   <target name="location-active" unless="location-active">
 	<db-patch patch="location-active" />
   </target>
+  <target name="feature" unless="feature">
+    <db-patch patch="feature" />
+  </target>
+
   <!--
   This target initializes the location. Parameters are passed by sipxconfig.sh
   -->
