@@ -275,17 +275,25 @@ process_log_configuration(Config, Command) ->
 
 extract_condition(MongoCondition) ->
 	[{_, Condition}, {_, Relation}, {_, ConditionValue}] = MongoCondition,
-	ConditionAtom = list_to_atom(erlang:binary_to_list(Condition)),
-	RelationAtom = list_to_atom(erlang:binary_to_list(Relation)),
-	if (ConditionAtom =:= client) or (ConditionAtom =:= type) ->
-		ConditionValueAtom = erlang:binary_to_list(ConditionValue);
-	true -> ConditionValueAtom = binary_to_number(ConditionValue)
-	end,
-	if ConditionAtom =:= ticks ->
-		ConditionToSave = {ConditionAtom, ConditionValueAtom};
-	true -> ConditionToSave = {ConditionAtom, RelationAtom, ConditionValueAtom}
-	end,
-	ConditionToSave.
+	ConditionAtom = list_to_existing_atom(binary_to_list(Condition)),
+	RelationAtom = list_to_existing_atom(binary_to_list(Relation)),
+
+	case ConditionAtom of
+		client ->
+			Client = binary_to_list(ConditionValue),
+			{client, RelationAtom, Client};
+		type ->
+			%% TODO may cause a memory problem. must handle non-existing atoms
+			Type = list_to_atom(binary_to_list(ConditionValue)),
+			{type, RelationAtom, Type};
+		ticks ->
+			Ticks = binary_to_number(ConditionValue),
+			{ticks, Ticks};
+		_ ->
+			%% would probably be best to handle each type
+			Num = binary_to_number(ConditionValue),
+			{ConditionAtom, Num}
+	end.
 
 extract_recipe_step(RecipeStep) ->
 	[{_, [{_, RecipeAction}, {_, RecipeActionValue}]}, {_, {_, RecipeConditions}}, {_, RecipeFrequency}, {_, RecipeName}] = RecipeStep,
