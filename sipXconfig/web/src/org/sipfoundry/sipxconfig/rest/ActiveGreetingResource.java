@@ -58,8 +58,6 @@ public class ActiveGreetingResource extends Resource {
         // string
         user.setSettingValue(MailboxPreferences.ACTIVE_GREETING, ActiveGreeting.fromId(greeting).getId());
         m_coreContext.saveUser(user);
-        //write user's mailboxprefs.xml to get consistent data
-        m_mboxManager.writePreferencesFile(user);
     }
 
     private Document getDom(String greeting) {

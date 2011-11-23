@@ -11,8 +11,9 @@ package org.sipfoundry.sipxivr;
 import java.io.File;
 import java.io.IOException;
 
-import org.sipfoundry.sipxivr.MailboxPreferences;
-import org.sipfoundry.sipxivr.MailboxPreferencesReader;
+import org.sipfoundry.voicemail.mailbox.GreetingType;
+import org.sipfoundry.voicemail.mailbox.MailboxPreferences;
+import org.sipfoundry.voicemail.mailbox.MailboxPreferencesReader;
 
 import junit.framework.TestCase;
 

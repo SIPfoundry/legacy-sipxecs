@@ -9,26 +9,23 @@
 package org.sipfoundry.voicemail;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
-import org.sipfoundry.sipxivr.IvrChoice;
+import org.sipfoundry.sipxivr.common.IvrChoice;
 
 public class VmDialog {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-    VoiceMail m_vm;
-    Localization m_loc;
     PromptList m_prePl;
     PromptList m_pl;
     boolean m_speakCanceled;
     IvrChoice m_choice;
+    private VmEslRequestController m_controller;
     
-    public VmDialog(VoiceMail vm, String plFrag) {
-        m_vm = vm ;
-        m_loc = vm.getLoc();
+    public VmDialog(VmEslRequestController controller, String plFrag) {
+        m_controller = controller;
         m_speakCanceled = true;
         
         if (plFrag != null) {
-            m_pl = m_loc.getPromptList(plFrag);
+            m_pl = m_controller.getPromptList(plFrag);
         }
     }
     
@@ -49,13 +46,13 @@ public class VmDialog {
         for(;;) {
             LOG.info("VmDialog::multidigit");
     
-            if (errorCount > m_vm.getConfig().getInvalidResponseCount()) {
-                m_vm.failure();
+            if (errorCount > m_controller.getVoicemailConfiguration().getInvalidResponseCount()) {
+                m_controller.failure();
                 return null;
             }
     
             // {prompts in m_pl}
-            VmMenu menu = new VmMenu(m_vm);
+            VmMenu menu = new VmMenu(m_controller);
             menu.setSpeakCanceled(m_speakCanceled);
             m_choice = menu.collectDigits(m_pl, maxDigits);
     
@@ -89,7 +86,7 @@ public class VmDialog {
     public String collectDigit(String validDigits) {
         LOG.info("VmDialog::singleDigit");
 
-        VmMenu menu = new VmMenu(m_vm);
+        VmMenu menu = new VmMenu(m_controller);
         menu.setSpeakCanceled(m_speakCanceled);
         if (m_prePl != null) {
             // {prompts in m_prePl}

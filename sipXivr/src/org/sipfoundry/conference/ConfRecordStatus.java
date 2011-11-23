@@ -24,9 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.sipfoundry.voicemail.MessageDescriptor;
-import org.sipfoundry.voicemail.MessageDescriptor.Priority;
-import org.sipfoundry.voicemail.MessageDescriptorWriter;
+import org.sipfoundry.voicemail.mailbox.MessageDescriptor;
+import org.sipfoundry.voicemail.mailbox.MessageDescriptorWriter;
+import org.sipfoundry.voicemail.mailbox.MessageDescriptor.Priority;
 
 /**
  * Trigger the transfer of a conference recording using a simple HTTP request.

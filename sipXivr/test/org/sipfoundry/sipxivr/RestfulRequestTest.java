@@ -14,6 +14,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.jetty.servlet.ServletHandler;
+import org.sipfoundry.sipxivr.rest.RestfulRequest;
 
 public class RestfulRequestTest extends TestCase {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");

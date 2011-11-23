@@ -15,7 +15,10 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.sipfoundry.voicemail.MessageDescriptor.Priority;
+import org.sipfoundry.voicemail.mailbox.MessageDescriptor;
+import org.sipfoundry.voicemail.mailbox.MessageDescriptorReader;
+import org.sipfoundry.voicemail.mailbox.MessageDescriptorWriter;
+import org.sipfoundry.voicemail.mailbox.MessageDescriptor.Priority;
 
 public class MessageDescriptorTest extends TestCase {
     File m_testdir;

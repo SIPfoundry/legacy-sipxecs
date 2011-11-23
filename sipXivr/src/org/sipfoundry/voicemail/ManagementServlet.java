@@ -29,7 +29,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.util.DomainConfiguration;
-import org.sipfoundry.sipxivr.IvrConfiguration;
+import org.sipfoundry.sipxivr.SipxIvrConfiguration;
+import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
 
 public class ManagementServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -55,6 +56,9 @@ public class ManagementServlet extends HttpServlet {
     }
 
     public void doIt(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        SipxIvrConfiguration ivrConfig = (SipxIvrConfiguration) request
+                .getAttribute(SipxIvrServletHandler.IVR_CONFIG_ATTR);
+
         if (sharedSecret == null) {
             DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
             sharedSecret = config.getSharedSecret();
@@ -70,7 +74,7 @@ public class ManagementServlet extends HttpServlet {
             return;
         }
         // make sure backup dir exists
-        File backupDir = new File(IvrConfiguration.get().getBackupPath());
+        File backupDir = new File(ivrConfig.getBackupPath());
         if (!backupDir.exists()) {
             backupDir.mkdir();
         }
@@ -79,16 +83,14 @@ public class ManagementServlet extends HttpServlet {
                 OutputStream responseOutputStream = null;
                 InputStream stream = null;
                 try {
-                    if (performBackup(new File(IvrConfiguration.get().getBackupPath()), IvrConfiguration.get()
-                            .getBinDirectory())) {
+                    if (performBackup(new File(ivrConfig.getBackupPath()), ivrConfig.getBinDirectory())) {
                         response.setHeader("Expires", "0");
                         response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
                         response.setHeader("Pragma", "public");
                         response.setHeader("Content-Disposition", "attachment; filename=\"" + archive + "\"");
 
                         responseOutputStream = response.getOutputStream();
-                        stream = new FileInputStream(new File(IvrConfiguration.get().getBackupPath()
-                                + File.separator + archive));
+                        stream = new FileInputStream(new File(ivrConfig.getBackupPath() + File.separator + archive));
                         IOUtils.copy(stream, responseOutputStream);
                     } else {
                         response.sendError(500);
@@ -104,12 +106,12 @@ public class ManagementServlet extends HttpServlet {
             }
         } else if (pathInfo.endsWith("restore")) {
             if (method.equals(METHOD_PUT)) {
-                File backup = new File(IvrConfiguration.get().getBackupPath() + File.separator + archive);
+                File backup = new File(ivrConfig.getBackupPath() + File.separator + archive);
                 // delete old backup if exists
                 FileUtils.deleteQuietly(backup);
                 DiskFileItemFactory fileItemFactory = new DiskFileItemFactory();
                 fileItemFactory.setSizeThreshold(1);
-                fileItemFactory.setRepository(new File(IvrConfiguration.get().getBackupPath()));
+                fileItemFactory.setRepository(new File(ivrConfig.getBackupPath()));
                 ServletFileUpload uploadHandler = new ServletFileUpload(fileItemFactory);
                 try {
                     List<FileItem> items = uploadHandler.parseRequest(request);
@@ -118,7 +120,7 @@ public class ManagementServlet extends HttpServlet {
                             item.write(backup);
                         }
                     }
-                    performRestore(backup, IvrConfiguration.get().getBinDirectory());
+                    performRestore(backup, ivrConfig.getBinDirectory());
                 } catch (Exception e) {
                     LOG.error("Failed to upload backup" + e.getMessage());
                     response.sendError(500);
@@ -132,7 +134,7 @@ public class ManagementServlet extends HttpServlet {
                 OutputStream responseOutputStream = null;
                 try {
                     responseOutputStream = response.getOutputStream();
-                    File log = new File(IvrConfiguration.get().getLogDirectory(), "sipx-restore.log");
+                    File log = new File(ivrConfig.getLogDirectory(), "sipx-restore.log");
                     if (log.exists()) {
                         IOUtils.copy(new FileReader(log), responseOutputStream);
                     }
