@@ -10,17 +10,12 @@
 package org.sipfoundry.voicemail.mailbox;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.commons.userdb.User;
@@ -40,9 +35,6 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     private static final String FW_AUDIO_IDENTIFIER = "-FW.wav";
     private MessageDescriptorWriter m_descriptorWriter;
     private MessageDescriptorReader m_descriptorReader;
-    private MailboxPreferencesWriter m_mailboxPrefsWriter;
-    private MailboxPreferencesReader m_mailboxPrefsReader;
-    private DistributionsReader m_distributionReader;
 
     public void init() {
         File mailstore = new File(m_mailstoreDirectory);
@@ -161,55 +153,6 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
             return new VmMessage(newMessageId, destAudio, descriptor, urgent);
         }
 
-    }
-
-    @Override
-    public PersonalAttendant getPersonalAttendant(String username) {
-        File propFile = new File(getUserDirectory(username), "PersonalAttendant.properties");
-        if (!propFile.exists()) {
-            LOG.warn("PersonalAttendant::loadProperties User directory for mailbox is null");
-            return new PersonalAttendant(null, null, new HashMap<String, String>(), StringUtils.EMPTY,
-                    m_operatorAddr);
-        }
-        FileInputStream inStream = null;
-        Properties props = null;
-        try {
-            inStream = new FileInputStream(propFile);
-            props = new Properties();
-            props.load(inStream);
-        } catch (Exception e) {
-            LOG.warn("PersonalAttendant::loadProperties File not found");
-            return null;
-        } finally {
-            IOUtils.closeQuietly(inStream);
-        }
-
-        String prop = null;
-        try {
-            String language = StringUtils.defaultIfEmpty(props.getProperty("pa.language"), null);
-            String operator = StringUtils.defaultIfEmpty(props.getProperty("pa.operator"), null);
-            Map<String, String> menu = new HashMap<String, String>();
-            StringBuilder validDigits = new StringBuilder(10);
-            for (int i = 1; i < 10; i++) {
-                prop = String.format("pa.menu.%d.key", i);
-                String key = props.getProperty(prop);
-                if (key == null) {
-                    break;
-                }
-                prop = String.format("pa.menu.%d.uri", i);
-                String value = props.getProperty(prop);
-                if (value == null) {
-                    break;
-                }
-                menu.put(key, value);
-                validDigits.append(key);
-            }
-            return new PersonalAttendant(language, operator, menu, validDigits.toString(), m_operatorAddr);
-        } catch (Exception e) {
-            LOG.error("PersonalAttendant::loadProperties problem understanding property: " + prop);
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -449,31 +392,6 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     }
 
     @Override
-    public MailboxPreferences saveActiveGreetingOnStorage(User user, GreetingType type) {
-        File mailboxPrefs = new File(getUserDirectory(user.getUserName()), "mailboxprefs.xml");
-        MailboxPreferences prefs = getMailboxPreferences(user);
-        prefs.getActiveGreeting().setGreetingType(type);
-        m_mailboxPrefsWriter.writeObject(prefs, mailboxPrefs);
-        return prefs;
-    }
-
-    @Override
-    public Distributions getDistributions(User user) {
-        File distributions = new File(getUserDirectory(user.getUserName()), "distribution.xml");
-        return m_distributionReader.readObject(distributions);
-    }
-
-    @Override
-    public MailboxPreferences getMailboxPreferences(User user) {
-        File mailboxPrefs = new File(getUserDirectory(user.getUserName()), "mailboxprefs.xml");
-        MailboxPreferences prefs = m_mailboxPrefsReader.readObject(mailboxPrefs);
-        if (prefs == null) {
-            prefs = new MailboxPreferences();
-        }
-        return prefs;
-    }
-
-    @Override
     public String getGreetingPath(User user, GreetingType type) {
         String greetingTypeName = getGreetingTypeName(type);
         if (StringUtils.isNotEmpty(greetingTypeName)) {
@@ -645,31 +563,6 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         }
     }
 
-    @Override
-    public String getDistributionListContent(User user) {
-        File distribution = new File(getUserDirectory(user.getUserName()), "distribution.xml");
-        try {
-            if (distribution.exists()) {
-                return FileUtils.readFileToString(distribution);
-            }
-        } catch (IOException ex) {
-            LOG.error(String.format("failed to retrieve distribution list for user %s", user.getUserName()), ex);
-        }
-        throw new DistributionsNotFoundException();
-    }
-
-    @Override
-    public void writeMailboxFile(User user, String fileName, String content) {
-        File file = new File(getUserDirectory(user.getUserName()), fileName);
-        try {
-            if (!file.exists()) {
-                FileUtils.touch(file);
-            }
-            FileUtils.writeStringToFile(file, content);
-        } catch (IOException ex) {
-            LOG.error(String.format("failed to write %s for user %s", fileName, user.getUserName()), ex);
-        }
-    }
 
     private File getFolder(String username, Folder folder) {
         File file = new File(getUserDirectory(username), folder.toString());
@@ -715,18 +608,6 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
 
     public void setMessageDescriptorReader(MessageDescriptorReader reader) {
         m_descriptorReader = reader;
-    }
-
-    public void setMailboxPreferencesWriter(MailboxPreferencesWriter writer) {
-        m_mailboxPrefsWriter = writer;
-    }
-
-    public void setMailboxPreferencesReader(MailboxPreferencesReader reader) {
-        m_mailboxPrefsReader = reader;
-    }
-
-    public void setDistributionsReader(DistributionsReader reader) {
-        m_distributionReader = reader;
     }
 
 }

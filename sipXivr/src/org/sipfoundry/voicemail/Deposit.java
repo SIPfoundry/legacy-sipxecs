@@ -14,13 +14,13 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.commons.userdb.PersonalAttendant;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.common.DialByNameChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice.IvrChoiceReason;
 import org.sipfoundry.sipxivr.rest.RemoteRequest;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
-import org.sipfoundry.voicemail.mailbox.PersonalAttendant;
 import org.sipfoundry.voicemail.mailbox.TempMessage;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -30,6 +30,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
     private String m_sendIMUrl;
     private Map<String, String> m_depositMap;
     private ApplicationContext m_appContext;
+    private String m_operatorAddr;
 
     /**
      * The depositVoicemail dialog
@@ -39,7 +40,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
     @Override
     public String runAction() {
         User user = getCurrentUser();
-        PersonalAttendant pa = m_mailboxManager.getPersonalAttendant(user.getUserName());
+        PersonalAttendant pa = user.getPersonalAttendant();
 
         String localeString = pa.getLanguage();
         if (localeString != null) {
@@ -81,6 +82,9 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                 String transferUrl = null;
                 if (digits.equals("0")) {
                     transferUrl = pa.getOperator();
+                    if (transferUrl == null) {
+                        transferUrl = m_operatorAddr;
+                    }
                 } else {
                     // See if the Personal Attendant defined that digit to mean anything
                     transferUrl = pa.getMenuValue(digits);
@@ -334,5 +338,9 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
     @Override
     public void setApplicationContext(ApplicationContext context) {
         m_appContext = context;
+    }
+
+    public void setOperatorAddr(String operatorAddr) {
+        m_operatorAddr = operatorAddr;
     }
 }

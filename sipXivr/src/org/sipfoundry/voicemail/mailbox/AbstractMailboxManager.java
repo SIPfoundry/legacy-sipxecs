@@ -46,10 +46,6 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     protected abstract VmMessage forwardMessage(VmMessage originalMessage, TempMessage comments,
             MessageDescriptor descriptor, User destUser, String newMessageId);
 
-    protected abstract MailboxPreferences saveActiveGreetingOnStorage(User user, GreetingType type);
-
-    protected abstract void writeMailboxFile(User user, String fileName, String content);
-
     @Override
     public final TempMessage createTempMessage(String username, String fromUri, boolean audio) {
         try {
@@ -117,7 +113,23 @@ public abstract class AbstractMailboxManager implements MailboxManager {
 
     @Override
     public final void saveActiveGreeting(User user, GreetingType type) {
-        writeConfigMailboxPreferences(user, saveActiveGreetingOnStorage(user, type));
+        // only preferences updated here are the active greeing and that is done
+        // via a sipXconfig REST call
+
+        // /sipxconfig/rest/my/mailbox/200/preferences/activegreeting/standard
+
+        RestfulRequest rr = new RestfulRequest(m_configUrl + "/sipxconfig/rest/my/mailbox/" + user.getUserName()
+                + "/preferences/activegreeting/", user.getUserName(), m_secret);
+
+        try {
+            if (rr.put(type.getId())) {
+                LOG.info("Mailbox::writeMailboxPreferences:change Greeting " + user.getUserName()
+                        + " greeting changed.");
+            }
+        } catch (Exception e) {
+            LOG.info("Mailbox::writeMailboxPreferences:change Greeting " + user.getUserName() + " failed: "
+                    + e.getMessage());
+        }
     }
 
     @Override
@@ -148,21 +160,6 @@ public abstract class AbstractMailboxManager implements MailboxManager {
             LOG.error("Retrieve::adminOptions:specialmode trouble", e);
         }
         return false;
-    }
-
-    @Override
-    public final void savePersonalAttendant(User user, String content) {
-        writeMailboxFile(user, "PersonalAttendant.properties", content);
-    }
-
-    @Override
-    public final void saveMailboxPrefs(User user, String content) {
-        writeMailboxFile(user, "mailboxprefs.xml", content);
-    }
-
-    @Override
-    public final void saveDistributionList(User user, String content) {
-        writeMailboxFile(user, "distribution.xml", content);
     }
 
     private MessageDescriptor createMessageDescriptor(String destUser, TempMessage message, String messageId,
@@ -224,26 +221,6 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         }
 
         return messageId;
-    }
-
-    private void writeConfigMailboxPreferences(User user, MailboxPreferences prefs) {
-        // only preferences updated here are the active greeing and that is done
-        // via a sipXconfig REST call
-
-        // /sipxconfig/rest/my/mailbox/200/preferences/activegreeting/standard
-
-        RestfulRequest rr = new RestfulRequest(m_configUrl + "/sipxconfig/rest/my/mailbox/" + user.getUserName()
-                + "/preferences/activegreeting/", user.getUserName(), m_secret);
-
-        try {
-            if (rr.put(prefs.getActiveGreeting().getActiveGreeting())) {
-                LOG.info("Mailbox::writeMailboxPreferences:change Greeting " + user.getUserName()
-                        + " greeting changed.");
-            }
-        } catch (Exception e) {
-            LOG.info("Mailbox::writeMailboxPreferences:change Greeting " + user.getUserName() + " failed: "
-                    + e.getMessage());
-        }
     }
 
     protected Folder getFolderFromName(String name) {

@@ -3,22 +3,21 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.voicemail.mailbox;
+package org.sipfoundry.commons.userdb;
 
 import java.util.HashMap;
-import java.util.Vector;
 
 public class Distributions {
     
-    private HashMap<String, Vector<String>>m_Lists = new HashMap<String, Vector<String>>();
+    private HashMap<String, String[]>m_Lists = new HashMap<String, String[]>();
     private StringBuilder m_indices = new StringBuilder(); // A string with each index concatenated.
     
-    public void addList(String index, Vector<String> dests) {
+    public void addList(String index, String[] dests) {
         m_Lists.put(index, dests);
         m_indices.append(index);
     }
 
-    public Vector<String> getList(String index) {
+    public String[] getList(String index) {
         return m_Lists.get(index);
     }
     

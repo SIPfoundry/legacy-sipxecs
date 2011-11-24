@@ -17,7 +17,6 @@
     <property name="fsEventSocket" ref="fsEventSocket" />
     <property name="validUsers" ref="validUsers" />
     <property name="alarmClient" ref="alarmClient" />
-    <property name="mailboxManager" ref="mailboxManager" />
     <property name="voicemailConfiguration" ref="voicemailConfiguration" />
   </bean>
 
@@ -27,6 +26,7 @@
     <property name="depositMap" ref="depositMap" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="validUsers" ref="validUsers" />
+    <property name="operatorAddr" value="${ivr.operatorAddr}" />
   </bean>
 
   <bean id="depositMap" class="java.util.HashMap" />

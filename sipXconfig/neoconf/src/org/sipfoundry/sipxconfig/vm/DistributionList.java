@@ -16,7 +16,8 @@ import java.util.Set;
 
 public class DistributionList {
     // 0-9, not # or *
-    private static final int MAX_SIZE = 10;
+    public static final int MAX_SIZE = 10;
+    public static final String SETTING_PATH_DISTRIBUTION_LIST = "distribution-lists/item";
     private String[] m_extensions;
 
     public static DistributionList[] createBlankList() {
@@ -30,7 +31,9 @@ public class DistributionList {
     public static Collection<String> getUniqueExtensions(DistributionList... dls) {
         Set<String> uniqueExtensions = new HashSet<String>();
         for (DistributionList distributionList : dls) {
-            // distributionList should not be null
+            if (distributionList == null) {
+                continue;
+            }
             String[] extensions = distributionList.getExtensions();
             if (extensions != null) {
                 uniqueExtensions.addAll(Arrays.asList(extensions));

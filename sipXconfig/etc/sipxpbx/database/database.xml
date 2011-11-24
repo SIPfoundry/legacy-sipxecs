@@ -393,6 +393,7 @@
     <antcall target="init-location" />
     <antcall target="openacd-insert-commands" />
     <antcall target="openacd-add-line-regex" />
+  	<antcall target="remove-personal-att-oper" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1218,6 +1219,9 @@
   </target>
   <target name="openacd-add-line-regex" unless="openacd-add-line-regex">
     <db-patch patch="openacd-add-line-regex" />
+  </target>
+  <target name="remove-personal-att-oper" unless="remove-personal-att-oper">
+    <db-patch patch="remove-personal-att-oper" />
   </target>
 
   <!--

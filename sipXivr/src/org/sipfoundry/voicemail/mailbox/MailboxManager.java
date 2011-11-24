@@ -28,8 +28,6 @@ public interface MailboxManager {
 
     void copyMessage(User destUser, TempMessage message);
 
-    PersonalAttendant getPersonalAttendant(String username);
-
     VmMessage getVmMessage(String username, String messageId, boolean loadAudio);
 
     VmMessage getVmMessage(String username, Folder folder, String messageId, boolean loadAudio);
@@ -56,10 +54,6 @@ public interface MailboxManager {
 
     String getGreetingPath(User user, GreetingType type);
 
-    Distributions getDistributions(User user);
-
-    MailboxPreferences getMailboxPreferences(User user);
-
     boolean changePin(User user, String newPin);
 
     boolean manageSpecialMode(User user, boolean enable);
@@ -76,15 +70,8 @@ public interface MailboxManager {
 
     void moveMessageToFolder(User user, String messageId, String destination);
 
-    void savePersonalAttendant(User user, String content);
-
-    void saveMailboxPrefs(User user, String content);
-
     void deleteMailbox(User user);
 
     void renameMailbox(User user, String oldUser);
 
-    String getDistributionListContent(User user);
-
-    void saveDistributionList(User user, String content);
 }

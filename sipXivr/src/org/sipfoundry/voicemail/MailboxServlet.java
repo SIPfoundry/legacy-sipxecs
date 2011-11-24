@@ -8,7 +8,6 @@
  */
 package org.sipfoundry.voicemail;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -19,7 +18,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
@@ -28,7 +26,6 @@ import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxivr.SipxIvrConfiguration;
 import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
-import org.sipfoundry.voicemail.mailbox.DistributionsNotFoundException;
 import org.sipfoundry.voicemail.mailbox.Folder;
 import org.sipfoundry.voicemail.mailbox.MailboxDetails;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
@@ -215,16 +212,6 @@ public class MailboxServlet extends HttpServlet {
                         pw.format("<uuid>%s</uuid>\n", uuid);
                     }
 
-                } else if (context.equals("personalattendant")) {
-                    if (method.equals(METHOD_PUT)) {
-                        mailboxManager.savePersonalAttendant(user, IOUtils.toString(request.getInputStream()));
-                    }
-
-                } else if (context.equals("activegreeting")) {
-                    if (method.equals(METHOD_PUT)) {
-                        mailboxManager.saveMailboxPrefs(user, IOUtils.toString(request.getInputStream()));
-                    }
-
                 } else if (context.equals("rename")) {
                     if (subDirs.length >= 4) {
                         String oldMailbox = subDirs[3];
@@ -340,18 +327,6 @@ public class MailboxServlet extends HttpServlet {
                         pw.write("</messages>");
                     } else {
                         response.sendError(405);
-                    }
-                } else if (context.equals("distribution")) {
-                    if (method.equals(METHOD_GET)) {
-                        response.setContentType("text/xml");
-                        try {
-                            pw.write(mailboxManager.getDistributionListContent(user));
-                        } catch (DistributionsNotFoundException ex) {
-                            pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
-                            pw.write("<distributions/>");
-                        }
-                    } else {
-                        mailboxManager.saveDistributionList(user, IOUtils.toString(request.getInputStream()));
                     }
                 } else {
                     response.sendError(400, "context not understood");

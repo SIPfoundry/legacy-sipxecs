@@ -1,0 +1,1 @@
+alter table personal_attendant drop column operator;
