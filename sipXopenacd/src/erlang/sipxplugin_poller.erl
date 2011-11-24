@@ -14,13 +14,6 @@
 -module(sipxplugin_poller).
 -author("eZuce").
 
--import(mongoapi).
--import(application).
--import(agent_auth).
--import(call_queue_config).
--import(queue_manager).
--import(cpx_supervisor).
--import(cpxlog).
 -export([start/0, stop/0, init/1, loop/2]).
 
 -include("log.hrl").
@@ -60,7 +53,7 @@ loop(PollInterval, LastPollTime) ->
 			loop(PollInterval, NewPollTime)
     end.
 
-get_new_config(LastPollTime) ->
+get_new_config(_LastPollTime) ->
 	NewPollTime = calendar:datetime_to_gregorian_seconds(
 		{ date(), time() }
 	),
@@ -71,7 +64,7 @@ get_new_config(LastPollTime) ->
 		true ->
 			%if command count > 0 retrieve all commands and process them
 			?WARNING("No of Commands to execute ~p", [CommandCount]),
-			{Status, Commands} = Mong:find("commands", [], undefined, 0, CommandCount),
+			{_Status, Commands} = Mong:find("commands", [], undefined, 0, CommandCount),
 			lists:foreach(fun(Cmd) ->
 				get_command_values(Cmd, Mong)
 			end, Commands)
@@ -83,7 +76,7 @@ get_command_values(Data, Mong) ->
 		true ->
 			% command format { "_id" : ObjectId("4ce62e892957ca4fc97387a1"), "command" : "ADD", "count" : 2, "objects" : []}
 			?DEBUG("Processing Mongo DB Command: ~p", [Data]),
-			[{_, Id}, {_, CmdValue}, {_, Count}, {_, {_, Objects}}] = Data,
+			[{_, Id}, {_, CmdValue}, {_, _Count}, {_, {_, Objects}}] = Data,
 			lists:foreach(fun(Object) ->
 				% objects to process starts with type e.g. "type" : "agent", "name" : "bond", "pin" : "1234"
 				{_, Type} = lists:nth(1, Object),
@@ -157,7 +150,7 @@ process_profile(Profile, Command) ->
 		agent_auth:destroy_profile(erlang:binary_to_list(Name));
 	Command =:= "UPDATE" ->
 		{_, Oldname} = lists:nth(6, Profile),
-		Old = agent_auth:get_profile(erlang:binary_to_list(Oldname)),
+		_Old = agent_auth:get_profile(erlang:binary_to_list(Oldname)),
 		agent_auth:set_profile(erlang:binary_to_list(Oldname), erlang:binary_to_list(Name), AllSkills);
 	true -> ?WARNING("Unrecognized command", [])
 	end.
@@ -243,7 +236,7 @@ process_queue(Queue, Command) ->
 	true -> ?WARNING("Unrecognized command", [])
 	end.
 
-process_fs_media_manager(Config, Command) ->
+process_fs_media_manager(Config, _Command) ->
         {_, Enabled} = lists:nth(2, Config),
         {_, CNode} = lists:nth(3, Config),
         {_, DialString} = lists:nth(4, Config),
@@ -255,7 +248,7 @@ process_fs_media_manager(Config, Command) ->
         true -> ?WARNING("Unrecognized command", [])
         end.
 
-process_agent_configuration(Config, Command) ->
+process_agent_configuration(Config, _Command) ->
         {_, ListenerEnabled} = lists:nth(2, Config),
         if ListenerEnabled =:= <<"true">> ->
 		Conf = #cpx_conf{id = agent_dialplan_listener, module_name = agent_dialplan_listener, start_function = start_link, start_args = [], supervisor = agent_connection_sup},
@@ -265,7 +258,7 @@ process_agent_configuration(Config, Command) ->
         true -> ?WARNING("Unrecognized command", [])
         end.
 
-process_log_configuration(Config, Command) ->
+process_log_configuration(Config, _Command) ->
         {_, LogLevel} = lists:nth(2, Config),
         {_, LogDir} = lists:nth(3, Config),
 	LogLevelAtom = list_to_atom(erlang:binary_to_list(LogLevel)),
