@@ -35,7 +35,7 @@ public abstract class SipXivrServer {
                 SipFoundryLayout.mapSipFoundry2log4j(m_logLevel).toString());
         // props.setProperty("log4j.logger.org.springframework", "debug");
         // props.setProperty("log4j.logger.org.mortbay", "debug");
-        props.setProperty("log4j.appender.file", "org.sipfoundry.sipXivrcommons.log4j.SipFoundryAppender");
+        props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender");
         props.setProperty("log4j.appender.file.File", m_logFile);
         props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
         props.setProperty("log4j.appender.file.layout.facility", "sipXivr");
