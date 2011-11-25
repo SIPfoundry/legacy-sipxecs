@@ -270,7 +270,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     public void setBundlesForLocation(Location location, List<SipxServiceBundle> bundles) {
-        if (bundles == null || bundles.size() == 0) {
+        if (bundles == null) {
             return;
         }
         filter(bundles, new SipxServiceBundle.CanRunOn(location));
