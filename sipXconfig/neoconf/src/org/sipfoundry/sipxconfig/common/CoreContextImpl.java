@@ -774,7 +774,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         for (Integer id : ids) {
             User user = loadUser(id);
             if (!user.isGroupAvailable(group)) {
-                throw new UserException("&branch.validity.error", user.getUserName(), user.getBranch().getName(),
+                throw new UserException("&branch.validity.error", user.getUserName(), user.getSite().getName(),
                         group.getBranch().getName());
             }
         }
