@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
@@ -49,6 +51,14 @@ public abstract class AbstractDataSetGenerator {
     }
 
     public DBCollection getDbCollection() {
+        DB db = m_imdb.getDb();
+        if (!db.collectionExists(MongoConstants.ENTITY_COLLECTION)) {
+            DBCollection entity = db.createCollection(MongoConstants.ENTITY_COLLECTION, null);
+            DBObject indexes = new BasicDBObject();
+            indexes.put(MongoConstants.TIMESTAMP, 1);
+            entity.createIndex(indexes);
+            return entity;
+        }
         return m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
     }
 
