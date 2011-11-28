@@ -14,20 +14,94 @@
 -module(sipxplugin_poller).
 -author("eZuce").
 
--export([start/0, stop/0, init/1, loop/2]).
+-behavior(gen_server).
+
+%% API
+-export([start/0, stop/0]).
+
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3]).
+
+-record(state, {}).
+-define(SERVER, ?MODULE).
 
 -include("log.hrl").
 -include("cpx.hrl").
 -include("queue.hrl").
 
 start() ->
-	gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+	gen_server:start_link({local, ?SERVER}, ?SERVER, [], []).
 
 stop() ->
-	gen_server:call(?MODULE, stop).
+	gen_server:call(?SERVER, stop).
 
+
+%%====================================================================
+%% gen_server callbacks
+%%====================================================================
+
+%%--------------------------------------------------------------------
+%% Function: init(Args) -> {ok, State} |
+%%                         {ok, State, Timeout} |
+%%                         ignore               |
+%%                         {stop, Reason}
+%% Description: Initiates the server
+%%--------------------------------------------------------------------
 init([]) ->
 	{ok, start_poller()}.
+
+%--------------------------------------------------------------------
+%% Function: %% handle_call(Request, From, State) -> {reply, Reply, State} |
+%%                                      {reply, Reply, State, Timeout} |
+%%                                      {noreply, State} |
+%%                                      {noreply, State, Timeout} |
+%%                                      {stop, Reason, Reply, State} |
+%%                                      {stop, Reason, State}
+%% Description: Handling call messages
+%%--------------------------------------------------------------------
+handle_call(_Request, _From, State) ->
+  Reply = ok,
+  {reply, Reply, State}.
+
+%%--------------------------------------------------------------------
+%% Function: handle_cast(Msg, State) -> {noreply, State} |
+%%                                      {noreply, State, Timeout} |
+%%                                      {stop, Reason, State}
+%% Description: Handling cast messages
+%%--------------------------------------------------------------------
+handle_cast(_Msg, State) ->
+  {noreply, State}.
+
+%%--------------------------------------------------------------------
+%% Function: handle_info(Info, State) -> {noreply, State} |
+%%                                       {noreply, State, Timeout} |
+%%                                       {stop, Reason, State}
+%% Description: Handling all non call/cast messages
+%%--------------------------------------------------------------------
+handle_info(_Info, State) ->
+  {noreply, State}.
+
+%%--------------------------------------------------------------------
+%% Function: terminate(Reason, State) -> void()
+%% Description: This function is called by a gen_server when it is about to
+%% terminate. It should be the opposite of Module:init/1 and do any necessary
+%% cleaning up. When it returns, the gen_server terminates with Reason.
+%% The return value is ignored.
+%%--------------------------------------------------------------------
+terminate(_Reason, _State) ->
+  ok.
+
+%%--------------------------------------------------------------------
+%% Func: code_change(OldVsn, State, Extra) -> {ok, NewState}
+%% Description: Convert process state when code is changed
+%%--------------------------------------------------------------------
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.
+
+%%--------------------------------------------------------------------
+%%% Internal functions
+%%--------------------------------------------------------------------
 
 start_poller() ->
 	mongodb:singleServer(def),
@@ -37,10 +111,9 @@ start_poller() ->
 % @doc Spawn a poller process
 %
 % @spec init(PollInterval::integer())
-
 init_poller(PollInterval) ->
     spawn_link(
-		sipxplugin_poller, loop, [PollInterval, 0]
+    	fun() -> loop(PollInterval, 0) end
 	).
 
 loop(PollInterval, LastPollTime) ->
@@ -98,6 +171,8 @@ get_command_values(Data, Mong) ->
 					process_agent_configuration(Object, erlang:binary_to_list(CmdValue));
 				Type =:= <<"log_configuration">> ->
 					process_log_configuration(Object, erlang:binary_to_list(CmdValue));
+				Type =:= <<"vm_priority_diff">> ->
+					process_vm_priority_diff(Object, erlang:binary_to_list(CmdValue));
 				true -> ?WARNING("Unrecognized type", [])
 				end
 			end, Objects),
@@ -286,6 +361,16 @@ extract_condition(MongoCondition) ->
 			%% would probably be best to handle each type
 			Num = binary_to_number(ConditionValue),
 			{ConditionAtom, Num}
+	end.
+
+process_vm_priority_diff(Object, _Command) ->
+	case proplists:get_value(<<"diff">>, Object) of
+		Diff when is_number(Diff) ->
+			DiffI = trunc(Diff),
+			?DEBUG("Setting vm priority diff to ~b", [DiffI]),
+			cpx_supervisor:set_value(vm_priority_diff, DiffI);
+		_ ->
+			ok
 	end.
 
 extract_recipe_step(RecipeStep) ->
