@@ -17,7 +17,8 @@
 -behavior(gen_server).
 
 %% API
--export([start/0, stop/0]).
+-export([start/0, stop/0,
+	get_last_poll_time/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -36,7 +37,8 @@ start() ->
 stop() ->
 	gen_server:call(?SERVER, stop).
 
-
+get_last_poll_time() ->
+	gen_server:call(?SERVER, get_last_poll_time).
 %%====================================================================
 %% gen_server callbacks
 %%====================================================================
@@ -64,6 +66,8 @@ init([]) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
+handle_call(get_last_poll_time, _From, State) ->
+	{reply, State#state.last_poll_time, State};
 handle_call(stop, _From, State) ->
 	{stop, normal, ok, State};
 handle_call(_Request, _From, State) ->
@@ -86,8 +90,9 @@ handle_cast(_Msg, State) ->
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
 handle_info(tick, State) ->
-	NewPollTime = get_new_config(State#state.last_poll_time),
-	{noreply, State#state{last_poll_time = NewPollTime}};
+	PollTime = erlang:now(),
+	get_new_config(),
+	{noreply, State#state{last_poll_time = PollTime}};
 
 handle_info(_Info, State) ->
   {noreply, State}.
@@ -113,10 +118,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%--------------------------------------------------------------------
 
-get_new_config(_LastPollTime) ->
-	NewPollTime = calendar:datetime_to_gregorian_seconds(
-		{ date(), time() }
-	),
+get_new_config() ->
 	%connect to openacd db and count objects in commands collection
 	Mong = mongoapi:new(def,<<"openacd">>),
 	CommandCount = Mong:count("commands"),
@@ -128,8 +130,7 @@ get_new_config(_LastPollTime) ->
 			lists:foreach(fun(Cmd) ->
 				get_command_values(Cmd, Mong)
 			end, Commands)
-	end,
-    NewPollTime.
+	end.
 
 get_command_values(Data, Mong) ->
 	if Data =:= [] -> ?DEBUG("No Data", []);
