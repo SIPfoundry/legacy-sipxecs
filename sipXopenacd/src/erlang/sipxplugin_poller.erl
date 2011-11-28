@@ -60,9 +60,11 @@ init([]) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
+handle_call(stop, _From, State) ->
+	{stop, normal, ok, State};
 handle_call(_Request, _From, State) ->
-  Reply = ok,
-  {reply, Reply, State}.
+	Reply = ok,
+	{reply, Reply, State}.
 
 %%--------------------------------------------------------------------
 %% Function: handle_cast(Msg, State) -> {noreply, State} |
