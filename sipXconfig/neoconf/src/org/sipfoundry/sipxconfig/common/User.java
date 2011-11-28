@@ -133,7 +133,7 @@ public class User extends AbstractUser implements Replicable {
         props.put(UID, getUserName());
         props.put(CONTACT, getContactUri(domain));
         props.put(GROUPS, getGroupsNames().split(" "));
-        props.put(MongoConstants.TIMESTAMP, new Long(System.currentTimeMillis() / 1000).toString());
+        props.put(MongoConstants.TIMESTAMP, System.currentTimeMillis());
         return props;
     }
 

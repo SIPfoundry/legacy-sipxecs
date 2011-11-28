@@ -72,6 +72,7 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
 
@@ -238,6 +239,19 @@ public class ValidUsers {
         return user;
     }
 
+    public List<User> getUsersUpdatedAfter(Long ms) {
+        List<User> users = new ArrayList<User>();
+        Pattern userPattern = Pattern.compile("User.*");
+        DBObject query = QueryBuilder.start(ID).is(userPattern).and(MongoConstants.TIMESTAMP).greaterThan(ms).get();
+        DBCursor cursor = getEntityCollection().find(query);
+        Iterator<DBObject> objects = cursor.iterator();
+        while (objects.hasNext()) {
+            DBObject user = objects.next();
+            users.add(extractUser(user));
+        }
+        return users;
+    }
+    
     public DBCursor getEntitiesWithPermissions() {
         DBObject query = QueryBuilder.start(PERMISSIONS).exists(true).get();
         DBCursor cursor = getEntityCollection().find(query);
