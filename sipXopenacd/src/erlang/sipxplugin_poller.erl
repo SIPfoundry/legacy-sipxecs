@@ -23,7 +23,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
--record(state, {}).
+-record(state, {timer, last_poll_time}).
 -define(SERVER, ?MODULE).
 
 -include("log.hrl").
@@ -49,8 +49,12 @@ stop() ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
-	{ok, start_poller()}.
+	mongodb:singleServer(def),
+	mongodb:connect(def),
+	{ok, Timer} = timer:send_interval(10000, tick),
+	State = #state{timer = Timer},
 
+	{ok, State}.
 %--------------------------------------------------------------------
 %% Function: %% handle_call(Request, From, State) -> {reply, Reply, State} |
 %%                                      {reply, Reply, State, Timeout} |
@@ -81,6 +85,10 @@ handle_cast(_Msg, State) ->
 %%                                       {stop, Reason, State}
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
+handle_info(tick, State) ->
+	NewPollTime = get_new_config(State#state.last_poll_time),
+	{noreply, State#state{last_poll_time = NewPollTime}};
+
 handle_info(_Info, State) ->
   {noreply, State}.
 
@@ -105,29 +113,6 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%--------------------------------------------------------------------
 
-start_poller() ->
-	mongodb:singleServer(def),
-	mongodb:connect(def),
-	init_poller(10000).
-
-% @doc Spawn a poller process
-%
-% @spec init(PollInterval::integer())
-init_poller(PollInterval) ->
-    spawn_link(
-    	fun() -> loop(PollInterval, 0) end
-	).
-
-loop(PollInterval, LastPollTime) ->
-	receive
-		exit -> ok
-	after
-		PollInterval ->
-			{NewPollTime} =
-				get_new_config(LastPollTime),
-			loop(PollInterval, NewPollTime)
-    end.
-
 get_new_config(_LastPollTime) ->
 	NewPollTime = calendar:datetime_to_gregorian_seconds(
 		{ date(), time() }
@@ -144,7 +129,7 @@ get_new_config(_LastPollTime) ->
 				get_command_values(Cmd, Mong)
 			end, Commands)
 	end,
-    { NewPollTime }.
+    NewPollTime.
 
 get_command_values(Data, Mong) ->
 	if Data =:= [] -> ?DEBUG("No Data", []);
