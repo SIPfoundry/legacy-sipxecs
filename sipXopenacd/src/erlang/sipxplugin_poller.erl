@@ -241,23 +241,33 @@ process_agent(Agent, Command) ->
 	end.
 
 process_profile(Profile, Command) ->
-	{_, Name} = lists:nth(2, Profile),
-	{_, Skills} = lists:nth(3, Profile),
-    {_, Queues} = lists:nth(4, Profile),
-    {_, Clients} = lists:nth(5, Profile),
-    SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
-	QueuesList = lists:flatmap(fun(X)->[{'_queue',X}] end, string:tokens((erlang:binary_to_list(Queues)), ", ")),
-	ClientsList = lists:flatmap(fun(X)->[{'_brand',X}] end, string:tokens((erlang:binary_to_list(Clients)), ", ")),
-	AllSkills = lists:merge(lists:merge(QueuesList, ClientsList), SkillsList),
-	if Command =:= "ADD" ->
-		agent_auth:new_profile(erlang:binary_to_list(Name), AllSkills);
-	Command =:= "DELETE" ->
-		agent_auth:destroy_profile(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		{_, Oldname} = lists:nth(6, Profile),
-		_Old = agent_auth:get_profile(erlang:binary_to_list(Oldname)),
-		agent_auth:set_profile(erlang:binary_to_list(Oldname), erlang:binary_to_list(Name), AllSkills);
-	true -> ?WARNING("Unrecognized command", [])
+	Name = proplists:get_value(<<"name">>, Profile),
+	Skills = proplists:get_value(<<"skills">>, Profile),
+	Queues = proplists:get_value(<<"queuesName">>, Profile),
+	Clients = proplists:get_value(<<"clientsName">>, Profile),
+    
+	SkillsList = [list_to_atom(binary_to_list(X))
+		|| X <- binary:split(Skills, <<", ">>, [global])],
+
+	QueuesList = [{'_queue', binary_to_list(X)}
+		|| X <- binary:split(Queues, <<", ">>, [global])],
+	
+	ClientsList = [{'_brand', binary_to_list(X)}
+		|| X <- binary:split(Clients, <<", ">>, [global])],
+
+	AllSkills = SkillsList ++ QueuesList ++ ClientsList,
+
+	case Command of
+		"ADD" ->
+			agent_auth:new_profile(binary_to_list(Name), AllSkills);
+		"DELETE" ->
+			agent_auth:destroy_profile(binary_to_list(Name));
+		"UPDATE" ->
+			Oldname = proplists:get_value(<<"oldName">>, Profile)
+			agent_auth:set_profile(erlang:binary_to_list(Oldname),
+				binary_to_list(Name), AllSkills);
+		_ ->
+			?WARNING("Unrecognized command: ~s", [Command])
 	end.
 
 process_skill(Skill, Command) ->
