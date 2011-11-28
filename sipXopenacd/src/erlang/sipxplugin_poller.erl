@@ -30,6 +30,8 @@
 -include("log.hrl").
 -include("cpx.hrl").
 -include("queue.hrl").
+-include("call.hrl").
+-include("agent.hrl").
 
 start() ->
 	gen_server:start_link({local, ?SERVER}, ?SERVER, [], []).
@@ -171,7 +173,8 @@ get_command_values(Data, Mong) ->
 						process_log_configuration(Object, Command);
 					<<"vm_priority_diff">> ->
 						process_vm_priority_diff(Object, Command);
-					_ -> ?WARNING("Unrecognized type", [])
+					_ ->
+						?WARNING("Unrecognized type", [])
 				end
 			end, Objects),
 
@@ -179,42 +182,70 @@ get_command_values(Data, Mong) ->
 	end.
 
 process_agent(Agent, Command) ->
-	{_, Name} = lists:nth(2, Agent),
-	{_, Pin} = lists:nth(3, Agent),
-	{_, Group} = lists:nth(4, Agent),
-	{_, Skills} = lists:nth(5, Agent),
-	{_, Queues} = lists:nth(6, Agent),
-	{_, Clients} = lists:nth(7, Agent),
-	{_, Firstname} = lists:nth(8, Agent),
-	{_, Lastname} = lists:nth(9, Agent),
-	{_, Security} = lists:nth(11, Agent),
-	SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
-	QueuesList = lists:flatmap(fun(X)->[{'_queue',X}] end, string:tokens((erlang:binary_to_list(Queues)), ", ")),
-        ClientsList = lists:flatmap(fun(X)->[{'_brand',X}] end, string:tokens((erlang:binary_to_list(Clients)), ", ")),
-        AllSkills = lists:merge(lists:merge(QueuesList, ClientsList), SkillsList),
-	if Security =:= <<"SUPERVISOR">> ->
-		SecurityAtom = supervisor;
-	Security =:= <<"ADMIN">> ->
-		SecurityAtom = admin;
-	true -> SecurityAtom = agent
-	end,
-	if Command =:= "ADD" ->
-		agent_auth:add_agent(erlang:binary_to_list(Name), erlang:binary_to_list(Firstname), erlang:binary_to_list(Lastname), erlang:binary_to_list(Pin), AllSkills, SecurityAtom, erlang:binary_to_list(Group));
-	Command =:= "DELETE" ->
-		agent_auth:destroy(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		{_, Oldname} = lists:nth(10, Agent),
-		{_, [Old]} = agent_auth:get_agent(erlang:binary_to_list(Oldname)),
-		agent_auth:set_agent(element(2, Old), erlang:binary_to_list(Name), erlang:binary_to_list(Pin), AllSkills, SecurityAtom, erlang:binary_to_list(Group), erlang:binary_to_list(Firstname), erlang:binary_to_list(Lastname));
-	true -> ?WARNING("Unrecognized command", [])
+	Name = proplists:get_value(<<"name">>, Agent),
+	Pin = proplists:get_value(<<"pin">>, Agent),
+	Group = proplists:get_value(<<"agentGroup">>, Agent),
+	Skills = proplists:get_value(<<"skillsAtoms">>, Agent),
+	Queues = proplists:get_value(<<"queuesName">>, Agent),
+	Clients = proplists:get_value(<<"clientsName">>, Agent),
+	FirstName = proplists:get_value(<<"firstName">>, Agent),
+	LastName = proplists:get_value(<<"lastName">>, Agent),
+	Security = proplists:get_value(<<"security">>, Agent),
+
+	SkillsList = [list_to_atom(binary_to_list(X))
+		|| X <- binary:split(Skills, <<", ">>, [global])],
+
+	QueuesList = [{'_queue', binary_to_list(X)}
+		|| X <- binary:split(Queues, <<", ">>, [global])],
+	
+	ClientsList = [{'_brand', binary_to_list(X)}
+		|| X <- binary:split(Clients, <<", ">>, [global])],
+
+    AllSkills = SkillsList ++ QueuesList ++ ClientsList,
+
+    SecurityAtom = case Security of
+    	<<"SUPERVISOR">> ->
+    		supervisor;
+    	<<"ADMIN">> ->
+    		admin;
+    	_ ->
+    		agent
+    end,
+
+    case Command of
+    	"ADD" ->
+			agent_auth:add_agent(binary_to_list(Name),
+				binary_to_list(FirstName), binary_to_list(LastName),
+				binary_to_list(Pin), AllSkills, SecurityAtom,
+				binary_to_list(Group));
+		"DELETE" ->
+			agent_auth:destroy(binary_to_list(Name));
+		"UPDATE" ->
+			Oldname = proplists:get_value(<<"oldName">>, Agent),
+
+			case agent_auth:get_agent(erlang:binary_to_list(Oldname)) of
+				{atomic, [Old]} ->
+					?DEBUG("OLD = ~p", [Old]),
+					Id = Old#agent_auth.id,			
+					agent_auth:set_agent(Id,
+						binary_to_list(Name), binary_to_list(Pin),
+						AllSkills, SecurityAtom, binary_to_list(Group),
+						binary_to_list(FirstName),
+						binary_to_list(LastName));
+				{atomic, []} ->
+					?WARNING("Failed to update non-existing agent: ~s",
+						[Oldname])
+			end;
+		_ ->
+			?WARNING("Unrecognized command: ~s", [Command])
 	end.
 
 process_profile(Profile, Command) ->
 	{_, Name} = lists:nth(2, Profile),
 	{_, Skills} = lists:nth(3, Profile),
-        {_, Queues} = lists:nth(4, Profile),
-        {_, Clients} = lists:nth(5, Profile),
-        SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
+    {_, Queues} = lists:nth(4, Profile),
+    {_, Clients} = lists:nth(5, Profile),
+    SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
 	QueuesList = lists:flatmap(fun(X)->[{'_queue',X}] end, string:tokens((erlang:binary_to_list(Queues)), ", ")),
 	ClientsList = lists:flatmap(fun(X)->[{'_brand',X}] end, string:tokens((erlang:binary_to_list(Clients)), ", ")),
 	AllSkills = lists:merge(lists:merge(QueuesList, ClientsList), SkillsList),
