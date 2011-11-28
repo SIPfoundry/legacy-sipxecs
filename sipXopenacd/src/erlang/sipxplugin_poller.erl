@@ -121,17 +121,16 @@ code_change(_OldVsn, State, _Extra) ->
 get_new_config() ->
 	%connect to openacd db and count objects in commands collection
 	Mong = mongoapi:new(def,<<"openacd">>),
-	CommandCount = Mong:count("commands"),
-	if CommandCount =:= 0 -> ?DEBUG("No Command to execute", []);
-		true ->
-			%if command count > 0 retrieve all commands and process them
-			?WARNING("No of Commands to execute ~p", [CommandCount]),
-			{_Status, Commands} = Mong:find("commands", [], undefined, 0, CommandCount),
+	
+	case Mong:find("commands", [], undefined, 0, 0) of
+		{ok, []} ->
+			?DEBUG("No Command to execute", []);
+		{ok, Commands} ->
 			lists:foreach(fun(Cmd) ->
 				get_command_values(Cmd, Mong)
 			end, Commands)
 	end.
-
+	
 get_command_values(Data, Mong) ->
 	if Data =:= [] -> ?DEBUG("No Data", []);
 		true ->
