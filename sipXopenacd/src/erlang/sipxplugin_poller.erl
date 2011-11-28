@@ -132,37 +132,49 @@ get_new_config() ->
 	end.
 	
 get_command_values(Data, Mong) ->
-	if Data =:= [] -> ?DEBUG("No Data", []);
-		true ->
+	case Data of
+		[] ->
+			?DEBUG("No Data", []);
+		_ ->
 			% command format { "_id" : ObjectId("4ce62e892957ca4fc97387a1"), "command" : "ADD", "count" : 2, "objects" : []}
 			?DEBUG("Processing Mongo DB Command: ~p", [Data]),
-			[{_, Id}, {_, CmdValue}, {_, _Count}, {_, {_, Objects}}] = Data,
+
+			Id = proplists:get_value(<<"_id">>, Data),
+			CommandBin = proplists:get_value(<<"command">>, Data),
+			{array, Objects} = proplists:get_value(<<"objects">>, Data),
+
+			Command = binary_to_list(CommandBin),
+
 			lists:foreach(fun(Object) ->
 				% objects to process starts with type e.g. "type" : "agent", "name" : "bond", "pin" : "1234"
-				{_, Type} = lists:nth(1, Object),
-				if Type =:= <<"agent">> ->
-					process_agent(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"profile">> ->
-					process_profile(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"skill">> ->
-					process_skill(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"client">> ->
-					process_client(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"queueGroup">> ->
-					process_queue_group(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"queue">> ->
-					process_queue(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"freeswitch_media_manager">> ->
-					process_fs_media_manager(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"agent_configuration">> ->
-					process_agent_configuration(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"log_configuration">> ->
-					process_log_configuration(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"vm_priority_diff">> ->
-					process_vm_priority_diff(Object, erlang:binary_to_list(CmdValue));
-				true -> ?WARNING("Unrecognized type", [])
+
+				Type = proplists:get_value(<<"type">>, Object),
+
+				case Type of
+					<<"agent">> ->
+						process_agent(Object, Command);
+					<<"profile">> ->
+						process_profile(Object, Command);
+					<<"skill">> ->
+						process_skill(Object, Command);
+					<<"client">> ->
+						process_client(Object, Command);
+					<<"queueGroup">> ->
+						process_queue_group(Object, Command);
+					<<"queue">> ->
+						process_queue(Object, Command);
+					<<"freeswitch_media_manager">> ->
+						process_fs_media_manager(Object, Command);
+					<<"agent_configuration">> ->
+						process_agent_configuration(Object, Command);
+					<<"log_configuration">> ->
+						process_log_configuration(Object, Command);
+					<<"vm_priority_diff">> ->
+						process_vm_priority_diff(Object, Command);
+					_ -> ?WARNING("Unrecognized type", [])
 				end
 			end, Objects),
+
 			Mong:runCmd([{"findandmodify", "commands"},{"query", [{"_id",Id}]},{"remove",1}])
 	end.
 
