@@ -181,94 +181,58 @@ get_command_values(Data, Mong) ->
 			Mong:runCmd([{"findandmodify", "commands"},{"query", [{"_id",Id}]},{"remove",1}])
 	end.
 
-process_agent(Agent, Command) ->
-	Name = proplists:get_value(<<"name">>, Agent),
-	Pin = proplists:get_value(<<"pin">>, Agent),
-	Group = proplists:get_value(<<"agentGroup">>, Agent),
-	Skills = proplists:get_value(<<"skillsAtoms">>, Agent),
-	Queues = proplists:get_value(<<"queuesName">>, Agent),
-	Clients = proplists:get_value(<<"clientsName">>, Agent),
-	FirstName = proplists:get_value(<<"firstName">>, Agent),
-	LastName = proplists:get_value(<<"lastName">>, Agent),
-	Security = proplists:get_value(<<"security">>, Agent),
+process_agent(Agent, "ADD") ->
+	agent_auth:add_agent(
+		get_str(<<"name">>, Agent),
+		get_str(<<"firstName">>, Agent),
+		get_str(<<"lastName">>, Agent),
+		get_str(<<"pin">>, Agent),
+		get_all_skills(Agent),
+		get_agent_security(Agent),
+		get_str(<<"group">>, Agent));
 
-	SkillsList = [list_to_atom(binary_to_list(X))
-		|| X <- binary:split(Skills, <<", ">>, [global])],
+process_agent(Agent, "DELETE") ->
+	agent_auth:destroy(
+		get_str(<<"name">>, Agent));
 
-	QueuesList = [{'_queue', binary_to_list(X)}
-		|| X <- binary:split(Queues, <<", ">>, [global])],
-	
-	ClientsList = [{'_brand', binary_to_list(X)}
-		|| X <- binary:split(Clients, <<", ">>, [global])],
+process_agent(Agent, "UPDATE") ->
+	OldName = get_str(<<"oldName">>, Agent),
+	case agent_auth:get_agent(OldName) of
+		{atomic, [Old]} ->
+			%% TODO must be an atomic operation
+			Id = Old#agent_auth.id,			
+			agent_auth:set_agent(Id,
+				get_str(<<"name">>, Agent),
+				get_str(<<"pin">>, Agent),
+				get_all_skills(Agent),
+				get_agent_security(Agent),
+				get_str(<<"group">>, Agent),
+				get_str(<<"firstName">>, Agent),
+				get_str(<<"lastName">>, Agent));
+		{atomic, []} ->
+			?WARNING("Failed to update non-existing agent: ~s",
+				[OldName])
+	end;
+process_agent(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
 
-    AllSkills = SkillsList ++ QueuesList ++ ClientsList,
+process_profile(Profile, "ADD") ->
+	agent_auth:new_profile(get_str(<<"name">>, Profile),
+		get_all_skills(Profile));
 
-    SecurityAtom = case Security of
-    	<<"SUPERVISOR">> ->
-    		supervisor;
-    	<<"ADMIN">> ->
-    		admin;
-    	_ ->
-    		agent
-    end,
+process_profile(Profile, "DELETE") ->
+	agent_auth:destroy_profile(get_str(<<"name">>, Profile));
 
-    case Command of
-    	"ADD" ->
-			agent_auth:add_agent(binary_to_list(Name),
-				binary_to_list(FirstName), binary_to_list(LastName),
-				binary_to_list(Pin), AllSkills, SecurityAtom,
-				binary_to_list(Group));
-		"DELETE" ->
-			agent_auth:destroy(binary_to_list(Name));
-		"UPDATE" ->
-			Oldname = proplists:get_value(<<"oldName">>, Agent),
+process_profile(Profile, "UPDATE") ->
+	agent_auth:set_profile(
+		get_str(<<"oldName">>, Profile),
+		get_str(<<"name">>, Profile),
+		get_all_skills(Profile));
 
-			case agent_auth:get_agent(erlang:binary_to_list(Oldname)) of
-				{atomic, [Old]} ->
-					?DEBUG("OLD = ~p", [Old]),
-					Id = Old#agent_auth.id,			
-					agent_auth:set_agent(Id,
-						binary_to_list(Name), binary_to_list(Pin),
-						AllSkills, SecurityAtom, binary_to_list(Group),
-						binary_to_list(FirstName),
-						binary_to_list(LastName));
-				{atomic, []} ->
-					?WARNING("Failed to update non-existing agent: ~s",
-						[Oldname])
-			end;
-		_ ->
-			?WARNING("Unrecognized command: ~s", [Command])
-	end.
-
-process_profile(Profile, Command) ->
-	Name = proplists:get_value(<<"name">>, Profile),
-	Skills = proplists:get_value(<<"skills">>, Profile),
-	Queues = proplists:get_value(<<"queuesName">>, Profile),
-	Clients = proplists:get_value(<<"clientsName">>, Profile),
-    
-	SkillsList = [list_to_atom(binary_to_list(X))
-		|| X <- binary:split(Skills, <<", ">>, [global])],
-
-	QueuesList = [{'_queue', binary_to_list(X)}
-		|| X <- binary:split(Queues, <<", ">>, [global])],
-	
-	ClientsList = [{'_brand', binary_to_list(X)}
-		|| X <- binary:split(Clients, <<", ">>, [global])],
-
-	AllSkills = SkillsList ++ QueuesList ++ ClientsList,
-
-	case Command of
-		"ADD" ->
-			agent_auth:new_profile(binary_to_list(Name), AllSkills);
-		"DELETE" ->
-			agent_auth:destroy_profile(binary_to_list(Name));
-		"UPDATE" ->
-			Oldname = proplists:get_value(<<"oldName">>, Profile)
-			agent_auth:set_profile(erlang:binary_to_list(Oldname),
-				binary_to_list(Name), AllSkills);
-		_ ->
-			?WARNING("Unrecognized command: ~s", [Command])
-	end.
+process_profile(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
 
 process_skill(Skill, Command) ->
 	{_, Name} = lists:nth(2, Skill),
@@ -428,6 +392,64 @@ extract_recipe_step(RecipeStep) ->
 	ConditionList = lists:flatmap(fun(X) -> [extract_condition(X)] end, RecipeConditions),
 	{ConditionList,[ActionToSave],list_to_atom(erlang:binary_to_list(RecipeFrequency)),RecipeName}.
 
+
+%% Utils
+
+
+get_all_skills(Props) ->
+	Skills = get_atom_list(<<"skillsAtoms">>, Props),
+	Queues = [{'_queue', X} || 
+		X <- get_atom_list(<<"queuesName">>, Props)],
+	Clients = [{'_brand', X} ||
+		X <- get_atom_list(<<"clientsName">>, Props)],
+    Skills ++ Queues ++ Clients.
+
+get_agent_security(Agent) ->
+	SecurityBin = get_bin(<<"security">>, Agent),
+    case SecurityBin of
+    	<<"SUPERVISOR">> ->
+    		supervisor;
+    	<<"ADMIN">> ->
+    		admin;
+    	_ ->
+    		agent
+    end.
+
+get_str(Key, L) ->
+	case proplists:get_value(Key, L) of
+		undefined ->
+			"";
+		Bin ->
+			%% TODO use proper encoding
+			binary_to_list(Bin)
+	end.
+
+get_bin(Key, L) ->
+	proplists:get_value(Key, L, <<>>).
+
+%% From a comma separated string
+get_atom_list(Key, L) ->
+	case proplists:get_value(Key, L) of
+		undefined ->
+			[];
+		Bin ->
+			split_bin_to_atoms(Bin, <<", ">>)
+	end.
+
+split_bin_to_atoms(Subject, Pattern) ->
+	split_bin_to_atoms0(binary:split(Subject, Pattern), Pattern, []).
+
+split_bin_to_atoms0([<<>>], _, Acc) ->
+	lists:reverse(Acc);
+split_bin_to_atoms0([B], _, Acc) ->
+	lists:reverse([list_to_atom(binary_to_list(B))|Acc]);
+split_bin_to_atoms0([<<>>, Rest], Pattern, Acc) ->
+	split_bin_to_atoms0(binary:split(Rest, Pattern), Pattern, Acc);
+split_bin_to_atoms0([B, Rest], Pattern, Acc) ->
+	At = list_to_atom(binary_to_list(B)),
+	split_bin_to_atoms0(binary:split(Rest, Pattern),
+		Pattern, [At|Acc]).
+
 binary_to_number(B) ->
     list_to_number(binary_to_list(B)).
 
@@ -437,4 +459,5 @@ list_to_number(L) ->
         error:badarg ->
             list_to_integer(L)
     end.
+
 
