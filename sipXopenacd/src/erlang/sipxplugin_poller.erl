@@ -234,35 +234,42 @@ process_profile(_, Command) ->
 	?WARNING("Unrecognized command: ~s", [Command]),
 	{error, unkown_command}.
 
-process_skill(Skill, Command) ->
-	{_, Name} = lists:nth(2, Skill),
-	{_, Atom} = lists:nth(3, Skill),
-	{_, Group} = lists:nth(4, Skill),
-	{_, Description} = lists:nth(5, Skill),
-	if Description =:= null ->
-		Descr = "";
-	true -> Descr = erlang:binary_to_list(Description)
-	end,
-	if Command =:= "ADD" ->
-		call_queue_config:new_skill(list_to_atom(erlang:binary_to_list(Atom)), erlang:binary_to_list(Name), Descr, erlang:binary_to_list(Group));
-	Command =:= "DELETE" ->
-		call_queue_config:destroy_skill(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		call_queue_config:set_skill(list_to_atom(erlang:binary_to_list(Atom)), erlang:binary_to_list(Name), Descr, erlang:binary_to_list(Group));
-	true -> ?WARNING("Unrecognized command", [])
-	end.
+process_skill(Skill, "ADD") ->
+	call_queue_config:new_skill(
+		get_atom(<<"atom">>, Skill),
+		get_str(<<"name">>, Skill),
+		get_str(<<"description">>, Skill),
+		get_str(<<"groupName">>, Skill));
 
-process_client(Client, Command) ->
-	{_, Name} = lists:nth(2, Client),
-	{_, Identity} = lists:nth(3, Client),
-	if Command =:= "ADD" ->
-		call_queue_config:new_client(erlang:binary_to_list(Name), erlang:binary_to_list(Identity), []);
-	Command =:= "DELETE" ->
-		call_queue_config:destroy_client(erlang:binary_to_list(Identity));
-	Command =:= "UPDATE" ->
-		call_queue_config:set_client(erlang:binary_to_list(Identity), erlang:binary_to_list(Name), []);
-	true -> ?WARNING("Unrecognized command", [])
-	end.
+process_skill(Skill, "DELETE") ->
+	call_queue_config:destroy_skill(
+		get_str(<<"name">>, Skill));
+
+process_skill(Skill, "UPDATE") ->
+	call_queue_config:set_skill(
+		get_atom(<<"atom">>, Skill),
+		get_str(<<"name">>, Skill),
+		get_str(<<"description">>, Skill),
+		get_str(<<"groupName">>, Skill));
+
+process_skill(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]).
+
+process_client(Client, "ADD") ->
+	call_queue_config:new_client(
+		get_str(<<"name">>, Client),
+		get_str(<<"identity">>, Client), []);
+
+process_client(Client, "DELETE") ->
+	call_queue_config:destroy_client(
+		get_str(<<"identity">>, Client));
+
+process_client(Client, "UPDATE") ->
+	call_queue_config:set_client(
+		get_str(<<"identity">>, Client),
+		get_str(<<"name">>, Client));
+process_client(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]).
 
 process_queue_group(QueueGroup, Command) ->
 	{_, Name} = lists:nth(2, QueueGroup),
@@ -424,6 +431,15 @@ get_str(Key, L) ->
 			binary_to_list(Bin)
 	end.
 
+get_atom(Key, L) ->
+	case proplists:get_value(Key, L) of
+		undefined ->
+			undefined;
+		Bin ->
+			%% TODO must use list_to_existing_atom
+			binary_to_atom(Bin, utf8)
+	end.
+
 get_bin(Key, L) ->
 	proplists:get_value(Key, L, <<>>).
 
@@ -442,13 +458,12 @@ split_bin_to_atoms(Subject, Pattern) ->
 split_bin_to_atoms0([<<>>], _, Acc) ->
 	lists:reverse(Acc);
 split_bin_to_atoms0([B], _, Acc) ->
-	lists:reverse([list_to_atom(binary_to_list(B))|Acc]);
+	lists:reverse([binary_to_atom(B, utf8)|Acc]);
 split_bin_to_atoms0([<<>>, Rest], Pattern, Acc) ->
 	split_bin_to_atoms0(binary:split(Rest, Pattern), Pattern, Acc);
 split_bin_to_atoms0([B, Rest], Pattern, Acc) ->
-	At = list_to_atom(binary_to_list(B)),
 	split_bin_to_atoms0(binary:split(Rest, Pattern),
-		Pattern, [At|Acc]).
+		Pattern, [binary_to_atom(B, utf8)|Acc]).
 
 binary_to_number(B) ->
     list_to_number(binary_to_list(B)).
