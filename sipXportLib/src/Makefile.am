@@ -94,6 +94,7 @@ libsipXport_la_SOURCES =  \
     os/OsMulticastSocket.cpp \
     os/OsNameDb.cpp \
     os/OsPathBase.cpp \
+    os/OsPluginManager.cpp \
     os/osPrintf.cpp \
     os/OsProcessBase.cpp \
     os/OsProcessIteratorBase.cpp \
