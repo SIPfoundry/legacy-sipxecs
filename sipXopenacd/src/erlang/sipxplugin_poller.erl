@@ -253,7 +253,8 @@ process_skill(Skill, "UPDATE") ->
 		get_str(<<"groupName">>, Skill));
 
 process_skill(_, Command) ->
-	?WARNING("Unrecognized command: ~s", [Command]).
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
 
 process_client(Client, "ADD") ->
 	call_queue_config:new_client(
@@ -271,25 +272,33 @@ process_client(Client, "UPDATE") ->
 process_client(_, Command) ->
 	?WARNING("Unrecognized command: ~s", [Command]).
 
-process_queue_group(QueueGroup, Command) ->
-	{_, Name} = lists:nth(2, QueueGroup),
-	{_, Skills} = lists:nth(3, QueueGroup),
-	{_, Profiles} = lists:nth(4, QueueGroup),
-	SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
-	ProfilesList = lists:flatmap(fun(X)->[{'_profile',X}] end, string:tokens((erlang:binary_to_list(Profiles)), ", ")),
-	AllSkills = lists:merge(SkillsList, ProfilesList),
-	if Command =:= "ADD" ->
-		NewQgroup = #queue_group{name = erlang:binary_to_list(Name), sort = 10, recipe = [], skills = AllSkills},
-		call_queue_config:new_queue_group(NewQgroup);
-	Command =:= "DELETE" ->
-		call_queue_config:destroy_queue_group(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		{_, Oldname} = lists:nth(5, QueueGroup),
-		{_, [{_, _, OldRecipe, _, _, _, _}]} = call_queue_config:get_queue_group(erlang:binary_to_list(Oldname)),
-		Qgroup = #queue_group{name = erlang:binary_to_list(Name), sort = 10, recipe = OldRecipe, skills = AllSkills},
-		call_queue_config:set_queue_group(erlang:binary_to_list(Oldname), Qgroup);
-	true -> ?WARNING("Unrecognized command", [])
-	end.
+process_queue_group(QueueGroup, "ADD") ->
+	NewQgroup = #queue_group{
+		name = get_str(<<"name">>, QueueGroup),
+		sort = 10,
+		recipe = [],
+		skills = get_all_skills(QueueGroup)},
+	call_queue_config:new_queue_group(NewQgroup);
+process_queue_group(QueueGroup, "DELETE") ->
+	call_queue_config:destroy_queue_group(
+		get_str(<<"name">>, QueueGroup));
+process_queue_group(QueueGroup, "UPDATE") ->
+	OldName = get_str(<<"oldName">>, QueueGroup),
+	%% warn: this is not atomic
+	case call_queue_config:get_queue_group(OldName) of
+		{atomic, []} ->
+			?WARNING("Queue group ~s not found!", [OldName]);
+		{atomic, [OldQueueGroup]} ->
+			NewQueueGroup = OldQueueGroup#queue_group{
+				name = get_str(<<"name">>, QueueGroup),
+				sort = 10,
+				skills = get_all_skills(QueueGroup)
+			},
+			call_queue_config:set_queue_group(OldName, NewQueueGroup)
+	end;
+process_queue_group(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
 
 process_queue(Queue, Command) ->
 	{_, Name} = lists:nth(2, Queue),
