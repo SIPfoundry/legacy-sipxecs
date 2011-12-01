@@ -3,26 +3,6 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="distributionListsReader">
-      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader" />
-    </property>
-    <property name="distributionListsWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsWriter">
-        <property name="velocityEngine" ref="velocityEngine" />
-      </bean>
-    </property>
-    <property name="personalAttendantWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter">
-        <property name="generator" ref="velocityProfileGenerator" />
-        <property name="velocityEngine" ref="velocityEngine" />
-        <property name="coreContext" ref="coreContext" />
-      </bean>
-    </property>
-    <property name="mailboxPreferencesWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
-        <property name="velocityEngine" ref="velocityEngine" />
-      </bean>
-    </property>
     <property name="coreContext" ref="coreContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager"/>
@@ -34,26 +14,6 @@
 
   <bean id="remoteMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.RemoteMailboxManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="distributionListsReader">
-      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader" />
-    </property>
-    <property name="distributionListsWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsWriter">
-        <property name="velocityEngine" ref="velocityEngine" />
-      </bean>
-    </property>
-    <property name="personalAttendantWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter">
-        <property name="generator" ref="velocityProfileGenerator" />
-        <property name="velocityEngine" ref="velocityEngine" />
-        <property name="coreContext" ref="coreContext" />
-      </bean>
-    </property>
-    <property name="mailboxPreferencesWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
-        <property name="velocityEngine" ref="velocityEngine" />
-      </bean>
-    </property>
     <property name="coreContext" ref="coreContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager"/>

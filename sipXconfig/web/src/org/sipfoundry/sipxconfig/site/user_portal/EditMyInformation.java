@@ -42,7 +42,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public static final String TAB_CONFERENCES = "conferences";
     public static final String TAB_OPENACD = "openAcd";
 
-    private static final String OPERATOR_SETTING = "personal-attendant" + Setting.PATH_DELIM + "operator";
+    //private static final String OPERATOR_SETTING = "personal-attendant" + Setting.PATH_DELIM + "operator";
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
@@ -102,6 +102,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public abstract void setOpenAcdPin(String pin);
 
+    public abstract Setting getParentSetting();
+    public abstract void setParentSetting(Setting setting);
+
     public void save() {
         if (!TapestryUtils.isValid(this)) {
             return;
@@ -112,21 +115,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         FaxServicePanel fs = (FaxServicePanel) getComponent("faxServicePanel");
         fs.update(user);
-        getCoreContext().saveUser(user);
-
-        savePersonalAttendant(user);
-        MailboxManager mailMgr = getMailboxManager();
-        if (mailMgr.isEnabled()) {
-            mailMgr.writePreferencesFile(user);
-        }
-    }
-
-    private void savePersonalAttendant(User user) {
         getMailboxPreferences().updateUser(user);
-        MailboxManager mailMgr = getMailboxManager();
-        mailMgr.storePersonalAttendant(getPersonalAttendant());
-
-        user.getSettings().getSetting(OPERATOR_SETTING).setValue(getPersonalAttendant().getOperator());
+        getMailboxManager().storePersonalAttendant(getPersonalAttendant());
         getCoreContext().saveUser(user);
     }
 
@@ -141,6 +131,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         User user = getUserForEditing();
         if (user == null) {
             user = getUser();
+            Setting personalAttendantSetting = user.getSettings().getSetting("personal-attendant");
+            setParentSetting(personalAttendantSetting);
             setUserForEditing(user);
         }
 

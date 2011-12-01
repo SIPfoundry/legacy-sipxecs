@@ -120,7 +120,7 @@ static void startDtmf(MpToneGenPtr p, dtmfPatternPtr d)
 void MpToneGen_startTone(MpToneGenPtr p, int toneID)
 {
         dtmfPatternPtr pNew = NULL;
-        STATUS ret = OS_SUCCESS;
+        //STATUS ret = OS_SUCCESS;
 
         switch (toneID) {
             case '1': case  1 : pNew = &(p->key1); break;
@@ -154,7 +154,7 @@ void MpToneGen_startTone(MpToneGenPtr p, int toneID)
             case DTMF_TONE_CALLHELD: pNew = &(p->callheld); break;
             case DTMF_TONE_LOUD_FAST_BUSY: pNew = &(p->loudFastBusy); break;
 
-            default: ret = OS_INVALID_ARGUMENT; break;
+            default: break;
         }
         startDtmf(p, pNew);
 } /* MpToneGen_startTone */

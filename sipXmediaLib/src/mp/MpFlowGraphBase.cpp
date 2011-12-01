@@ -580,7 +580,7 @@ void MpFlowGraphBase::flowGraphInfo(MpFlowGraphBase* pFlowGraph)
 }
 
 int flowGI(int x) {
-   MpFlowGraphBase::flowGraphInfo((MpFlowGraphBase*) x);
+   MpFlowGraphBase::flowGraphInfo(reinterpret_cast<MpFlowGraphBase*>(x));
    return 0;
 }
 

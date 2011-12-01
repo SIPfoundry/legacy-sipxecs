@@ -461,10 +461,10 @@ void MprFromNet::setDestIp(OsSocket& newDest)
       b = (mRtpDestIp >>  8) & 0xff;
       c = (mRtpDestIp >> 16) & 0xff;
       d = (mRtpDestIp >> 24) & 0xff;
-/*
+
       osPrintf("MprFromNet::setDestIp: DestIP=0x%08lX, Dest = %d.%d.%d.%d:%d\n",
          mRtpDestIp, a, b, c, d, mRtpDestPort);
-*/
+
    }
 }
 

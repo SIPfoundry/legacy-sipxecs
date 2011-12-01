@@ -11,127 +11,64 @@ package org.sipfoundry.moh;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
-import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
-import org.sipfoundry.commons.freeswitch.Sleep;
-import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
-import org.sipfoundry.sipxivr.IvrConfiguration;
+import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.sipxivr.SipxIvrApp;
 
-
-public class Moh {
+public class Moh extends SipxIvrApp {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
-    // Global store for AutoAttendant resource bundles keyed by locale
-    private static final String RESOURCE_NAME="org.sipfoundry.attendant.AutoAttendant";
-    private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
-
-    private IvrConfiguration m_ivrConfig;
-    private FreeSwitchEventSocketInterface m_fses;
-    private String m_mohParam;
-    @SuppressWarnings("unused")
-    private TextToPrompts m_ttp;
-    private String m_localeString;
-    private Localization m_loc;
+    private String m_dataDirectory;
+    private String m_promptsDir;
+    private ValidUsers m_validUsers;
 
     enum NextAction {
         repeat, exit, nextAttendant;
     }
 
     /**
-     * Create an Moh.
-     * 
-     * @param ivrConfig top level configuration stuff
-     * @param fses The FreeSwitchEventSocket with the call already answered
-     * @param parameters The parameters from the sip URI (to determine locale and which Moh
-     *        id to use)
-     */
-    public Moh(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses,
-            Hashtable<String, String> parameters) {
-        this.m_ivrConfig = ivrConfig;
-        this.m_fses = fses;
-        this.m_mohParam = parameters.get("moh");
-
-        // Look for "locale" parameter
-        m_localeString = parameters.get("locale");
-        if (m_localeString == null) {
-            // Okay, try "lang" instead
-            m_localeString = parameters.get("lang");
-        }
-    }
-
-    /**
-     * Load all the needed configuration.
-     * 
-     * The attendantBundle with the resources is located based on locale, as is the TextToPrompts
-     * class. The attendant configuration files are loaded (if they changed since last time), and
-     * the ValidUsers (also if they changed).
-     *      * 
-     */
-    void loadConfig() {
-        // Load the resources for the given locale.
-        m_loc = new Localization(RESOURCE_NAME, 
-                m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
-        
-    }
-
-
-    /**
-     * Run each Moh until there is nothing left to do. If the SIP URL didn't pass in a
-     * particular attendant name, use the current time of day and the schedule to find which
-     * attendant to run.
+     * Run each Moh until there is nothing left to do. If the SIP URL didn't pass in a particular
+     * attendant name, use the current time of day and the schedule to find which attendant to
+     * run.
      * 
      * Keep running the next returned attendant until there are none left, then exit.
      * 
      * @throws Throwable indicating an error or hangup condition.
      */
+    @Override
     public void run() {
-
-        String id = null;
-
-        if (m_loc == null) {
-            loadConfig();
-        }
-
-        if (m_mohParam == null || m_mohParam.equals("")) {
-            id = "";
-        } else {
-            id = m_mohParam;
-            LOG.info(String.format("Moh::run Moh %s determined from URL parameter", id));
-        }
+        MohEslRequestController controller = (MohEslRequestController) getEslRequestController();
+        String id = StringUtils.defaultIfEmpty(controller.getMohParam(), StringUtils.EMPTY);
+        LOG.info(String.format("Moh::run Moh %s determined from URL parameter", id));
 
         // Wait it bit so audio doesn't start too fast
-        Sleep s = new Sleep(m_fses, 1000);
-        s.go();
-
-        moh(id);
+        controller.sleep(1000);
+        moh(id, controller);
     }
 
     /**
      * Do the specified Moh.
      * 
-     * @param id The id of the moh.
-     * <br><pre>     id       meaning
+     * @param id The id of the moh. <br>
+     * 
+     *        <pre>
+     * id       meaning
      * -------  ----------
      * (empty)  use original park server music (/var/sipxdata/parkserver/music/)
      * l        use local_stream://moh (defined in local_stream.conf.xml)
      * p        use portaudio_stream:// (defined in portaudio.conf.xml)
      * u{user}  use per user music ({data}/moh/{username})
      * n        music source "None", so just hangup.  Silence might also work.
-     *</pre>
+     * </pre>
      */
-    void moh(String id){
-        LOG.info("Moh::moh Starting moh id (" + id + ") in locale " + m_loc.getLocale());
+    void moh(String id, MohEslRequestController controller) {
+        LOG.info("Moh::moh Starting moh id (" + id + ") in locale " + controller.getLocale());
 
-        PromptList pl = m_loc.getPromptList();
+        PromptList pl = controller.getPromptList();
         String musicPath;
         if (id.equals("l")) {
             musicPath = "local_stream://moh";
@@ -139,34 +76,34 @@ public class Moh {
             musicPath = "portaudio_stream://";
         } else if (id.startsWith("u")) {
             String userName = id.substring(1);
-            User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(userName);
+            User user = m_validUsers.getUser(userName);
             if (user != null) {
-                musicPath = m_ivrConfig.getDataDirectory()+"/moh/"+user.getUserName();
+                musicPath = m_dataDirectory + "/moh/" + user.getUserName();
             } else {
                 // Use default FreeSWITCH MOH
                 musicPath = "local_stream://moh";
             }
         } else if (id.equals("n")) {
-            // "n" means "Music Source None".  Easiest thing to do is just hangup.
+            // "n" means "Music Source None". Easiest thing to do is just hangup.
             return;
         } else {
             // Use original park server music
-            musicPath = m_ivrConfig.getPromptsDirectory()+"/../../../parkserver/music/";
+            musicPath = m_promptsDir + "/../../../parkserver/music/";
         }
         if (musicPath.contains("://")) {
-            LOG.info("Moh::moh Using MOH URL "+musicPath);
+            LOG.info("Moh::moh Using MOH URL " + musicPath);
             // musicPath is a URL (that FreeSWITCH knows how to deal with)
             pl.addUrl(musicPath);
         } else {
             // musicPath is a file or directory
             File musicPathFile = new File(musicPath);
             if (musicPathFile.isFile()) {
-                LOG.info("Moh::moh Using MOH File "+musicPath);
-                // musicPath is a file  Use it.
+                LOG.info("Moh::moh Using MOH File " + musicPath);
+                // musicPath is a file Use it.
                 pl.addPrompts(musicPath);
             } else if (musicPathFile.isDirectory()) {
-                LOG.info("Moh::moh Using MOH Directory "+musicPath);
-                // musicPath is a directory.  Find all the files inside,
+                LOG.info("Moh::moh Using MOH Directory " + musicPath);
+                // musicPath is a directory. Find all the files inside,
                 // sort alphabetically, and use them.
                 File[] musicFiles = musicPathFile.listFiles();
                 Arrays.sort(musicFiles);
@@ -174,19 +111,29 @@ public class Moh {
                     pl.addPrompts(musicFile.getPath());
                 }
             } else {
-                LOG.warn("Moh::moh MOH path unknown "+musicPath);
-                // Oops.  Something not found, use default FS MOH
+                LOG.warn("Moh::moh MOH path unknown " + musicPath);
+                // Oops. Something not found, use default FS MOH
                 pl.addUrl("local_stream://moh");
             }
         }
         // Play the music until someone hangs up.
         // (FreeSWITCH will hang up after 300 seconds with no RTP)
-        for(;;) {
-            m_loc.play(pl, "");
-            Sleep s = new Sleep(m_fses, 1000);
-            s.go();
+        for (;;) {
+            controller.play(pl, "");
+            controller.sleep(1000);
         }
     }
 
- 
+    public void setDataDirectory(String dir) {
+        m_dataDirectory = dir;
+    }
+
+    public void setPromptsDir(String dir) {
+        m_promptsDir = dir;
+    }
+
+    public void setValidUsers(ValidUsers validUsers) {
+        m_validUsers = validUsers;
+    }
+
 }

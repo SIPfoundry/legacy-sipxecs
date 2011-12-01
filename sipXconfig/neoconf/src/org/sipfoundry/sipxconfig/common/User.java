@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.im.ImAccount;
@@ -51,8 +52,8 @@ public class User extends AbstractUser implements Replicable {
         dataSets.add(DataSet.CREDENTIAL);
         dataSets.add(DataSet.USER_FORWARD);
         dataSets.add(DataSet.USER_LOCATION);
-        dataSets.add(DataSet.ATTENDANT);
         dataSets.add(DataSet.SPEED_DIAL);
+        dataSets.add(DataSet.MAILSTORE);
         return dataSets;
     }
 
@@ -132,6 +133,7 @@ public class User extends AbstractUser implements Replicable {
         props.put(UID, getUserName());
         props.put(CONTACT, getContactUri(domain));
         props.put(GROUPS, getGroupsNames().split(" "));
+        props.put(MongoConstants.TIMESTAMP, System.currentTimeMillis());
         return props;
     }
 

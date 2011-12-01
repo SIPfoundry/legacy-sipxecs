@@ -573,8 +573,8 @@ bool cAlarmServer::loadAlarms()
 
    // for each file in the ${confdir}/alarms, load alarm definitions
    OsStatus status;
-   int numFound;
-   for (status=files.findFirst(entry, ".*\\.xml$", OsFileIterator::FILES), numFound=0;
+   //int numFound;
+   for (status=files.findFirst(entry, ".*\\.xml$", OsFileIterator::FILES);
         status == OS_SUCCESS;
         status = files.findNext(entry) )
    {
@@ -589,7 +589,7 @@ bool cAlarmServer::loadAlarms()
    OsFileIterator stringFiles(alarmStringsDir);
 
    // for each "base" file (*-strings.xml) in the ${datadir}/alarms, load alarm strings
-   for (status=stringFiles.findFirst(entry, ".*-strings\\.xml$", OsFileIterator::FILES), numFound=0;
+   for (status=stringFiles.findFirst(entry, ".*-strings\\.xml$", OsFileIterator::FILES);
         status == OS_SUCCESS;
         status = stringFiles.findNext(entry) )
    {

@@ -1,7 +1,10 @@
 ivr_PKGS = \
 	commons-codec \
+	commons-digester \
+	commons-beanutils \
 	commons-io \
 	commons-logging \
+	commons-lang \
 	dom4j \
 	javamail \
 	javax.servlet \
@@ -10,8 +13,16 @@ ivr_PKGS = \
 	log4j \
 	mongo \
 	sipxcommons \
+	cglib \
 	xmlrpc-common \ 
 	ws-commons-util \
 	commons-fileupload \
 	xmlrpc-client \
-	xmlrpc-server
+	xmlrpc-server \
+	org.springframework.beans \
+	org.springframework.web \
+	org.springframework.context \
+	org.springframework.core \
+	org.springframework.expression \
+	org.springframework.aop \
+	org.springframework.asm

@@ -50,8 +50,8 @@ bool SipXHandleMap::addHandleRef(SIPXHANDLE hHandle)
 
     if (lock())
     {
-        mLockCountHash.findValue(&UtlInt(hHandle));
-        UtlInt* count = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(hHandle))) ;
+        UtlInt intHandle(hHandle);
+        UtlInt* count = static_cast<UtlInt*>(mLockCountHash.findValue(&intHandle)) ;
         if (count == NULL)
         {
             mLockCountHash.insertKeyAndValue(new UtlInt(hHandle), new UtlInt(1));
@@ -73,7 +73,8 @@ bool SipXHandleMap::releaseHandleRef(SIPXHANDLE hHandle)
 
     if (lock())
     {
-        UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(hHandle))) ;
+        UtlInt intHandle(hHandle);
+        UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&intHandle)) ;
         if (pCount == NULL)
         {
             mLockCountHash.insertKeyAndValue(new UtlInt(hHandle), new UtlInt(0));
@@ -142,8 +143,8 @@ const void* SipXHandleMap::removeHandle(SIPXHANDLE handle)
     if (lock())
     {
         releaseHandleRef(handle);
-
-        UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(handle))) ;
+        UtlInt intHandle(handle);
+        UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&intHandle)) ;
 
         if (pCount == NULL || pCount->getValue() < 1)
         {
@@ -159,7 +160,8 @@ const void* SipXHandleMap::removeHandle(SIPXHANDLE handle)
 
             if (pCount)
             {
-                mLockCountHash.destroy(&UtlInt(handle));
+                // UtlInt lockHandle(handle);
+                 mLockCountHash.destroy(&intHandle);
             }
         }
 

@@ -1104,11 +1104,11 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
 
 void MpCallFlowGraph::setPremiumSound(MpConnection::PremiumSoundOptions op)
 {
-   OsStatus  res;
+   //OsStatus  res;
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_PREMIUM_SOUND,
       NULL, NULL, NULL, op);
 
-   res = postMessage(msg);
+   postMessage(msg);
 }
 
 #define DEBUG_GIPS_PREMIUM_SOUND
@@ -1370,10 +1370,9 @@ void MpCallFlowGraph::synchronize(const char* tag, int val1)
       OsEvent event;
       MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE,
          NULL, NULL, (void*) tag, val1, (intptr_t) val2);
-      OsStatus  res;
 
       msg.setPtr1(&event);
-      res = postMessage(msg);
+      postMessage(msg);
       // if (NULL == tag) osPrintf("MpCallFlowGraph::synchronize()\n");
       event.wait();
    } else {

@@ -76,13 +76,13 @@ public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAwa
     }
 
     @Override
-    public void saveDistributionLists(String userId, DistributionList[] lists) {
-        m_manager.saveDistributionLists(userId, lists);
+    public void saveDistributionLists(User user, DistributionList[] lists) {
+        m_manager.saveDistributionLists(user, lists);
     }
 
     @Override
-    public DistributionList[] loadDistributionLists(String userId) {
-        return m_manager.loadDistributionLists(userId);
+    public DistributionList[] loadDistributionLists(User user) {
+        return m_manager.loadDistributionLists(user);
     }
 
     @Override
@@ -126,23 +126,8 @@ public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAwa
     }
 
     @Override
-    public void storePersonalAttendant(PersonalAttendant pa, boolean writeFile) {
-        m_manager.storePersonalAttendant(pa, writeFile);
-    }
-
-    @Override
     public void clearPersonalAttendants() {
         m_manager.clearPersonalAttendants();
-    }
-
-    @Override
-    public void updatePersonalAttendantForUser(User user, String operatorValue) {
-        m_manager.updatePersonalAttendantForUser(user, operatorValue);
-    }
-
-    @Override
-    public void writePreferencesFile(User user) {
-        m_manager.writePreferencesFile(user);
     }
 
     @Override
@@ -188,6 +173,11 @@ public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAwa
         if (entity instanceof Location) {
             init();
         }
+    }
+
+    @Override
+    public PersonalAttendant getPersonalAttendantForUser(User user) {
+        return m_manager.getPersonalAttendantForUser(user);
     }
 
 }

@@ -12,11 +12,7 @@ package org.sipfoundry.faxrx;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Locale;
 import java.util.Properties;
-import java.util.ResourceBundle;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -34,90 +30,43 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.FaxReceive;
-import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
-import org.sipfoundry.commons.freeswitch.Localization;
-import org.sipfoundry.commons.freeswitch.Set;
-import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
-import org.sipfoundry.sipxivr.IvrConfiguration;
-import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.RemoteRequest;
-import org.sipfoundry.voicemail.EmailFormatter;
+import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.sipxivr.SipxIvrApp;
+import org.sipfoundry.sipxivr.rest.RemoteRequest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-public class FaxRx {
+public class FaxRx extends SipxIvrApp implements ApplicationContextAware {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
     // Global store for AutoAttendant resource bundles keyed by locale
-    private static final String RESOURCE_NAME = "org.sipfoundry.attendant.AutoAttendant";
-    private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
-    private IvrConfiguration m_ivrConfig;
-    private FreeSwitchEventSocketInterface m_fses;
-    private String m_localeString;
-    private String m_mailboxid;
-    private Localization m_loc;
-    private Mailbox m_mailbox;
+    private String m_sendImUrl;
+    private ValidUsers m_validUsers;
+    private ApplicationContext m_appContext;
 
-    /**
-     *
-     * @param ivrConfig top level configuration stuff
-     * @param fses The FreeSwitchEventSocket with the call already answered
-     * @param parameters The parameters from the sip URI (to determine locale and which Moh id to
-     *        use)
-     */
-    public FaxRx(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses,
-            Hashtable<String, String> parameters) {
-        this.m_ivrConfig = ivrConfig;
-        this.m_fses = fses;
-        this.m_mailboxid = parameters.get("mailbox");
-
-        // Look for "locale" parameter
-        m_localeString = parameters.get("locale");
-        if (m_localeString == null) {
-            // Okay, try "lang" instead
-            m_localeString = parameters.get("lang");
-        }
-    }
-
-    /**
-     * Load all the needed configuration.
-     *
-     */
-    void loadConfig() {
-        // Load the resources for the given locale.
-        m_loc = new Localization(RESOURCE_NAME, m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
-
-    }
-
+    @Override
     public void run() {
-
         // run linger only for fax, otherwise we end up with hunged FS session
-        m_fses.cmdResponse("linger");
-
-        if (m_loc == null) {
-            loadConfig();
-        }
-
+        FaxRxEslRequestController controller = (FaxRxEslRequestController) getEslRequestController();
+        controller.linger();
         // Wait a bit
-        Sleep s = new Sleep(m_fses, 2000);
-        s.go();
+        controller.sleep(2000);
 
-        receive();
+        receive(controller);
     }
 
     private void sendIM(User user, String instantMsg) {
         URL sendIMUrl;
 
-        String urlStr = IvrConfiguration.get().getSendIMUrl();
-        if (urlStr == null) {
+        if (m_sendImUrl == null) {
             return;
         }
 
         try {
-            sendIMUrl = new URL(urlStr + "/" + user.getUserName() + "/sendFaxReceiveIM");
-
+            sendIMUrl = new URL(m_sendImUrl + "/" + user.getUserName() + "/sendFaxReceiveIM");
             RemoteRequest rr = new RemoteRequest(sendIMUrl, "text/plain", instantMsg);
             if (!rr.http()) {
                 LOG.error("faxrx::sendIM Trouble with RemoteRequest " + rr.getResponse());
@@ -127,7 +76,7 @@ public class FaxRx {
         }
     }
 
-    private void sendEmail(String emailAddr, File tiffFile, EmailFormatter emf, String faxSubject) {
+    private void sendEmail(String emailAddr, File tiffFile, String faxSubject) {
 
         if (emailAddr == null) {
             return;
@@ -142,9 +91,9 @@ public class FaxRx {
 
         try {
             message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(emailAddr));
-
-            message.setFrom(new InternetAddress(emf.getSender()));
-
+            String senderName = m_appContext.getMessage("SenderName", null, null);
+            String senderMailTo = m_appContext.getMessage("SenderMailto", null, null);
+            message.setFrom(new InternetAddress(String.format("%s <%s>", senderName, senderMailTo)));
             message.setSubject(faxSubject, "UTF-8");
 
             MimeBodyPart faxBodyPart = new MimeBodyPart();
@@ -175,34 +124,35 @@ public class FaxRx {
         }
     }
 
-    private void receive() {
+    private void receive(FaxRxEslRequestController controller) {
         File faxPathName = null;
         FaxReceive faxReceive = null;
         String faxInfo;
+        String mailboxId = controller.getMailboxId();
+        String locale = controller.getLocaleString();
 
-        LOG.info("faxrx::Starting mailbox (" + m_mailbox + ") in locale " + m_loc.getLocale());
+        LOG.info("faxrx::Starting mailbox (" + mailboxId + ") in locale " + locale);
 
-        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(m_mailboxid);
+        User user = m_validUsers.getUser(mailboxId);
         if (user == null) {
-            LOG.error("FaxReceive: no user found for mailbox " + m_mailboxid);
+            LOG.error("FaxReceive: no user found for mailbox " + mailboxId);
             return;
         }
 
-        user.setLocale(m_loc.getLocale());
-        m_mailbox = new Mailbox(user);
+        if (locale != null) {
+            user.setLocale(controller.getLocale(locale));
+        }
 
         try {
             faxPathName = File.createTempFile("fax_", ".tiff");
-            new Set(m_fses, "fax_enable_t38_request", "true").go();
-            new Set(m_fses, "fax_enable_t38", "true").go();
-            faxReceive = new FaxReceive(m_fses, faxPathName.getAbsolutePath());
-            faxReceive.go();
+            controller.invokeSet("fax_enable_t38_request", "true");
+            controller.invokeSet("fax_enable_t38", "true");
+            faxReceive = controller.receiveFax(faxPathName.getAbsolutePath());
 
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
-
 
         finally {
 
@@ -212,22 +162,20 @@ public class FaxRx {
             String name = null;
             String number = null;
 
-            EmailFormatter emf = EmailFormatter.getEmailFormatter(EmailFormats.FORMAT_BRIEF, m_ivrConfig, m_mailbox,
-                    null);
-
             if (faxReceive.getRemoteStationId() != null) {
                 name = faxReceive.getRemoteStationId();
             } else {
-                if (!m_fses.getVariable("channel-caller-id-name").equals("unknown")) {
-                    name = m_fses.getVariable("channel-caller-id-name");
+                if (!controller.getChannelCallerIdName().equals("unknown")) {
+                    name = controller.getChannelCallerIdName();
                 }
             }
 
-            if (!m_fses.getVariable("channel-caller-id-number").equals("0000000000")) {
-                number = m_fses.getVariable("channel-caller-id-number");
+            if (!controller.getChannelCallerIdNumber().equals("0000000000")) {
+                number = controller.getChannelCallerIdNumber();
             }
 
-            faxInfo = faxReceive.faxTotalPages() + " " + emf.fmt("page_fax_from") + " ";
+            faxInfo = faxReceive.faxTotalPages() + " "
+                    + m_appContext.getMessage("page_fax_from", null, "page fax from", user.getLocale()) + " ";
             if (name != null) {
                 faxInfo += name + " ";
             }
@@ -237,20 +185,20 @@ public class FaxRx {
             }
 
             if (name == null && number == null) {
-                faxInfo += emf.fmt("an_unknown_sender");
+                faxInfo += m_appContext.getMessage("an_unknown_sender", null, "an unknown sender", user.getLocale());
             }
 
             // need to send to at least one email address
             boolean sent = false;
-            String faxSubject = emf.fmt("Your") + " " + faxInfo;
+            String faxSubject = m_appContext.getMessage("Your", null, "Your", user.getLocale()) + " " + faxInfo;
 
             if (user.getEmailFormat() != EmailFormats.FORMAT_NONE) {
-                sendEmail(user.getEmailAddress(), faxPathName, emf, faxSubject);
+                sendEmail(user.getEmailAddress(), faxPathName, faxSubject);
                 sent = true;
             }
 
             if (user.getAltEmailFormat() != EmailFormats.FORMAT_NONE) {
-                sendEmail(user.getAltEmailAddress(), faxPathName, emf, faxSubject);
+                sendEmail(user.getAltEmailAddress(), faxPathName, faxSubject);
                 sent = true;
             }
 
@@ -258,7 +206,7 @@ public class FaxRx {
 
             if (!sent) {
                 if (user.getEmailAddress() != null) {
-                    sendEmail(user.getEmailAddress(), faxPathName, emf, faxSubject);
+                    sendEmail(user.getEmailAddress(), faxPathName, faxSubject);
                     sent = true;
                 }
             }
@@ -266,7 +214,7 @@ public class FaxRx {
             if (!sent) {
                 // need to send to at least one email address so let's be even more aggressive
                 if (user.getAltEmailAddress() != null) {
-                    sendEmail(user.getAltEmailAddress(), faxPathName, emf, faxSubject);
+                    sendEmail(user.getAltEmailAddress(), faxPathName, faxSubject);
                 } else {
                     // didn't send anywhere !!
                     LOG.error("Fax Receive: No email address for user " + user.getUserName());
@@ -275,15 +223,30 @@ public class FaxRx {
 
             if (faxReceive.rxSuccess()) {
                 LOG.debug("Fax received successfully " + faxInfo);
-                sendIM(user, emf.fmt("You_received_a") + " " + faxInfo + ".");
+                sendIM(user, m_appContext.getMessage("You_received_a", null, "You received a", user.getLocale())
+                        + " " + faxInfo + ".");
             } else {
-                LOG.error("Fax receive failed from " + m_fses.getVariable("channel-caller-id-number")
-                        + ". Error text: " + faxReceive.getResultText() + ". Error code: "
-                        + faxReceive.getResultCode());
-                sendIM(user, emf.fmt("You_received_an_incomplete") + " " + faxInfo + ".");
+                LOG.error("Fax receive failed from " + controller.getChannelCallerIdNumber() + ". Error text: "
+                        + faxReceive.getResultText() + ". Error code: " + faxReceive.getResultCode());
+                sendIM(user,
+                        m_appContext.getMessage("You_received_an_incomplete", null, "You received an incomplete",
+                                user.getLocale()) + " " + faxInfo + ".");
             }
 
             faxPathName.delete();
         }
+    }
+
+    public void setSendImUrl(String url) {
+        m_sendImUrl = url;
+    }
+
+    public void setValidUsers(ValidUsers validUsers) {
+        m_validUsers = validUsers;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext context) {
+        m_appContext = context;
     }
 }

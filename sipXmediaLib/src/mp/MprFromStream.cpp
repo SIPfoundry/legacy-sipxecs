@@ -81,7 +81,7 @@ OsStatus MprFromStream::realize(Url urlSource,
    if (status == OS_SUCCESS)
    {
        STREAMDESC* pDesc = new STREAMDESC ;
-       pDesc->handle = (void*) miStreamCount++ ;
+       pDesc->handle = reinterpret_cast<void*>( miStreamCount++) ;
        pDesc->pFeeder = pFeeder ;
        mStreamList.push(pDesc) ;
        handle = pDesc->handle ;
@@ -115,7 +115,7 @@ OsStatus MprFromStream::realize(UtlString* pBuffer,
    if (status == OS_SUCCESS)
    {
        STREAMDESC* pDesc = new STREAMDESC ;
-       pDesc->handle = (void*) miStreamCount++ ;
+       pDesc->handle = reinterpret_cast<void*>( miStreamCount++) ;
        pDesc->pFeeder = pFeeder ;
        mStreamList.push(pDesc) ;
        handle = pDesc->handle ;

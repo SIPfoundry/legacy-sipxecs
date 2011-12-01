@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="faxrx" class="org.sipfoundry.faxrx.FaxRx" scope="eslRequest">
+    <property name="sendImUrl" value="${ivr.sendIMUrl}" />
+    <property name="validUsers" ref="validUsers" />
+    <property name="eslRequestController" ref="faxEslRequestController" />
+  </bean>
+
+  <bean id="faxEslRequestController" class="org.sipfoundry.faxrx.FaxRxEslRequestController" scope="eslRequest">
+    <property name="sipxchangeDomainName" value="${ivr.sipxchangeDomainName}" />
+    <property name="fsConfig" ref="fsConfig" />
+    <property name="fsEventSocket" ref="fsEventSocket" />
+  </bean>
+
+</beans>

@@ -54,8 +54,7 @@ static int line_tabbed;
 
 static void flush_buffer(int fd)
 {
-   ssize_t dummy;
-   dummy = write(fd, buffer, buffer_full);
+   write(fd, buffer, buffer_full);
    buffer_full = 0;
 }
 

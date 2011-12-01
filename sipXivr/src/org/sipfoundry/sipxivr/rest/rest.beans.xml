@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="webServer" class="org.sipfoundry.sipxivr.rest.WebServer" init-method="init">
+    <property name="configAddress" value="${ivr.configAddress}" />
+    <property name="httpsPort" value="${ivr.httpsPort}" />
+    <property name="servletHandler" ref="servletHandler" />
+    <property name="userRealm" ref="userRealm" />
+    <property name="secret" value="${SHARED_SECRET}" />
+  </bean>
+
+  <bean id="servletHandler" class="org.sipfoundry.sipxivr.rest.SipxIvrServletHandler">
+    <property name="ivrConfig" ref="ivrConfig" />
+    <property name="validUsers" ref="validUsers" />
+    <property name="fsConfig" ref="fsConfig" />
+    <property name="depositMap" ref="depositMap" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="mwiManager" ref="mwiManager" />
+  </bean>
+
+  <bean id="userRealm" class="org.sipfoundry.sipxivr.rest.SipxIvrUserRealm">
+    <property name="validUsers" ref="validUsers" />
+    <property name="sipRealm" value="${SIP_REALM}" />
+    <property name="secret" value="${SHARED_SECRET}" />
+  </bean>
+
+  <bean id="mwistatus" class="org.sipfoundry.sipxivr.rest.RestApiBean">
+    <constructor-arg><value>mwistatus</value></constructor-arg>
+    <constructor-arg><value>mwi</value></constructor-arg>
+    <constructor-arg><value>org.sipfoundry.voicemail.Mwistatus</value></constructor-arg>
+  </bean>
+
+  <bean id="mailbox" class="org.sipfoundry.sipxivr.rest.RestApiBean">
+    <constructor-arg><value>mailbox</value></constructor-arg>
+    <constructor-arg><value>/mailbox/*</value></constructor-arg>
+    <constructor-arg><value>org.sipfoundry.voicemail.MailboxServlet</value></constructor-arg>
+  </bean>
+
+  <bean id="media" class="org.sipfoundry.sipxivr.rest.RestApiBean">
+    <constructor-arg><value>media</value></constructor-arg>
+    <constructor-arg><value>/media/*</value></constructor-arg>
+    <constructor-arg><value>org.sipfoundry.voicemail.MediaServlet</value></constructor-arg>
+  </bean>
+
+  <bean id="recording" class="org.sipfoundry.sipxivr.rest.RestApiBean">
+    <constructor-arg><value>recording</value></constructor-arg>
+    <constructor-arg><value>/recording/*</value></constructor-arg>
+    <constructor-arg><value>org.sipfoundry.conference.ConfRecordStatus</value></constructor-arg>
+  </bean>
+
+  <bean id="conference" class="org.sipfoundry.sipxivr.rest.RestApiBean">
+    <constructor-arg><value>conference</value></constructor-arg>
+    <constructor-arg><value>/conference/*</value></constructor-arg>
+    <constructor-arg><value>org.sipfoundry.conference.ConferenceServlet</value></constructor-arg>
+  </bean>
+
+  <bean id="manage" class="org.sipfoundry.sipxivr.rest.RestApiBean">
+    <constructor-arg><value>manage</value></constructor-arg>
+    <constructor-arg><value>/manage/*</value></constructor-arg>
+    <constructor-arg><value>org.sipfoundry.voicemail.ManagementServlet</value></constructor-arg>
+  </bean>
+
+</beans>

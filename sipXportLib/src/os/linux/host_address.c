@@ -42,10 +42,9 @@ static void get_default(char * if_name, int length)
       {
          char line[256];
          /* read header line */
-         char * dummy;
-         dummy = fgets(line, 256, routes);
+         fgets(line, 256, routes);
          /* prefetch read loop */
-         dummy = fgets(line, 256, routes);
+         fgets(line, 256, routes);
          while(!feof(routes))
          {
             unsigned int address;
@@ -54,7 +53,7 @@ static void get_default(char * if_name, int length)
             sscanf(line, query, if_name, &address);
             if(!address)
                break;
-            dummy = fgets(line, 256, routes);
+            fgets(line, 256, routes);
          }
          if(feof(routes))
             if_name[0] = 0;

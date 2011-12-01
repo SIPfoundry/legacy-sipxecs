@@ -127,15 +127,15 @@ typedef struct __MpBufPool_tag *MpBufPoolPtr;
 int showBufs(MpBufPoolPtr l, int line)
 {
 
-        int i, col, num_used = 0;
-        int i0, i1, i2, i3, i4, i5;
-        const char *fmt;
+        int i, /*col,*/ num_used = 0;
+    //    int i0, i1, i2, i3, i4, i5;
+    //    const char *fmt;
 #ifdef _VXWORKS /* [ */
 static  int last_counter = 0;
 #endif /* _VXWORKS ] */
 
         if (0 == l) l = MpMisc.UcbPool;
-        i0 = i1 = i2 = i3 = i4 = i5 = 0;
+        //i0 = i1 = i2 = i3 = i4 = i5 = 0;
 #ifdef _VXWORKS /* [ */
         i = *pOsTC;
         Zprintf("%d:(0x%08X-0x%08X)\n  ", line, i, i - last_counter, 0,0,0);
@@ -143,8 +143,8 @@ static  int last_counter = 0;
 #else /* _VXWORKS ] */
         Zprintf("%d:\n  ", line, 0,0,0,0,0);
 #endif /* _VXWORKS ] */
-        col = 0;
-        for (i=0; i<l->allocCnt; ) {
+      //  col = 0;
+     /*   for (i=0; i<l->allocCnt; ) {
             switch(l->allocCnt - i) {
             case 1: fmt = "%d\n";
                 i0 = l->table[i++].status;
@@ -192,7 +192,7 @@ static  int last_counter = 0;
             if (col > 70) {
                 col = Zprintf("\n          ", 0,0,0,0,0,0) - 1;
             }
-        }
+        } */
         for (i=0; i<l->allocCnt; ) {
                 if (l->table[i++].status) num_used++;
         }

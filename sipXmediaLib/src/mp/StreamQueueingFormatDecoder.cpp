@@ -162,7 +162,7 @@ OsStatus StreamQueueingFormatDecoder::queueFrame(const uint16_t* pSamples)
 // has ended.
 OsStatus StreamQueueingFormatDecoder::queueEndOfFrames()
 {
-   OsStatus status = OS_SUCCESS ;
+   //OsStatus status = OS_SUCCESS ;
 
    // check if throttling needs to happen
    checkThrottle() ;
@@ -176,7 +176,7 @@ OsStatus StreamQueueingFormatDecoder::queueEndOfFrames()
    }
    else
    {
-    status = OS_FAILED;
+   // status = OS_FAILED;
     Os::Logger::instance().log(FAC_MP, PRI_ERR, "StreamQueueingFormatDecoder::queueEndOfFrames failed: free msg is NULL!\n");
    }
 

@@ -317,8 +317,7 @@ static int numWarnings = 0;
       // current choices is a short or long equivalant and this needs
       // to be a plain old int:
       int outLen;
-      int res;
-      res = JB_RecOut(pJBState, pSamples, &outLen);
+      JB_RecOut(pJBState, pSamples, &outLen);
       MpBuf_setSpeech(out, MP_SPEECH_UNKNOWN);
    }
 

@@ -2125,9 +2125,9 @@ void Url::gen_value_escape(UtlString& unEscapedText)
          if (unEscapedChar == '"' || unEscapedChar == '\\')
          {
             // Construct a little 2-character string and append it.
-            char escapedChar[2];
-            escapedChar[0] = '\\';
-            escapedChar[1] = *unescapedTextPtr;
+            //char escapedChar[2];
+            //escapedChar[0] = '\\';
+            //escapedChar[1] = *unescapedTextPtr;
             escapedText.append(&unEscapedChar, 2);
         }
         else

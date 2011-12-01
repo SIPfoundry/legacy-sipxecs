@@ -615,13 +615,13 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
       size_t index;
       for( index = 0; index < numMediaDescriptorsInSdp; index++ )
       {
-         bool sdpContainsNewMediaParameters = true;
+        // bool sdpContainsNewMediaParameters = true;
          MediaDescriptor* pMediaDescriptor;
          if( index < numSavedMediaDescriptors )
          {
             pMediaDescriptor = getModifiableMediaDescriptor( index );
             pMediaDescriptor->setMediaTypeAndDirectionalityData( *pSdpBody, index );
-            sdpContainsNewMediaParameters = pMediaDescriptor->setEndpointData( *pSdpBody, index, thisEndpointRole );
+            pMediaDescriptor->setEndpointData( *pSdpBody, index, thisEndpointRole );
          }
          else
          {

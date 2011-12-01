@@ -1,5 +1,6 @@
  Gem::Specification.new do |spec|
     spec.platform = Gem::Platform::RUBY
+    spec.authors = "sipfoundry"
     spec.summary = "@GEM_NAME@ SOAP web service for sipXacd statistics"
     spec.name = '@GEM_NAME@'
     spec.version = '@GEM_VER@'

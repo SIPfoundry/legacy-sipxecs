@@ -27,22 +27,19 @@ import org.xmpp.component.ComponentManagerFactory;
 public class SipXOpenfireServlet extends HttpServlet {
     private XmlRpcServletServer server;
 
-    static SipXOpenfirePlugin plugin;
-
     org.xmpp.component.Log log ;
 
     private String path;
 
 
     public void init(ServletConfig servletConfig, String serverName, String serviceName, Class provider) throws ServletException {
-        plugin = (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire-presence");
 
         super.init(servletConfig);
         // Register new component
         ComponentManager componentManager = ComponentManagerFactory.getComponentManager();
 
         log = componentManager.getLog();
-        log.info("initializing Servlet");
+        log.info(String.format("initializing Servlet for service name %s and provider %s", serviceName, provider.getCanonicalName()));
 
 
         // Exclude this servlet from requering the user to login
@@ -52,7 +49,6 @@ public class SipXOpenfireServlet extends HttpServlet {
         PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
         try {
-            log.info("Plugin = " + plugin);
             handlerMapping.setAuthenticationHandler(new BasicXmlRpcAuthenticationHandler());
             handlerMapping.addHandler(serverName, provider);
         } catch (XmlRpcException e) {

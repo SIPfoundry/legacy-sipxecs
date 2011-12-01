@@ -61,8 +61,7 @@ OsCSemLinux::OsCSemLinux(const int queueOptions, const int maxCount,
 // Destructor
 OsCSemLinux::~OsCSemLinux()
 {
-   int res;
-   res = pt_sem_destroy(&mSemImp);
+   pt_sem_destroy(&mSemImp);
 
 #  ifdef OS_SYNC_DEBUG
    mSyncCrumbs.dropCrumb(pthread_self(), crumbDeleted);

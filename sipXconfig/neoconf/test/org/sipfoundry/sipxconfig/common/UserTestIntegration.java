@@ -9,13 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public class UserTestIntegration extends IntegrationTestCase {
+public class UserTestIntegration extends ImdbTestCase {
     private CoreContext m_coreContext;
     private SettingDao m_settingDao;
+    private ValidUsers m_validUsers;
 
     public void testLoadUser() {
         loadDataSet("common/TestUserSeed.db.xml");
@@ -39,11 +42,33 @@ public class UserTestIntegration extends IntegrationTestCase {
         user2.isGroupAvailable(group2);
     }
 
+    public void testLastUpdated() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
+        Long past = System.currentTimeMillis();
+        User u1 = m_coreContext.newUser();
+        u1.setUserName("u1");
+        m_coreContext.saveUser(u1);
+        
+        assertTrue(!m_validUsers.getUsersUpdatedAfter(past).isEmpty());
+        
+        Long now = System.currentTimeMillis();
+        assertTrue(m_validUsers.getUsersUpdatedAfter(now).isEmpty());
+        
+        m_coreContext.saveUser(u1);
+        assertTrue(!m_validUsers.getUsersUpdatedAfter(now).isEmpty());
+        
+    }
+    
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
+    }
+
+    public void setValidUsers(ValidUsers validUsers) {
+        m_validUsers = validUsers;
     }
 }

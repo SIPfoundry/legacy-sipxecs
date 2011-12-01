@@ -11,6 +11,7 @@
   <bean id="locationsManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
     <lookup-method name="getNatTraversalManager" bean="natTraversalManager" />
     <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
     <lookup-method name="getReplicationManager" bean="replicationManagerImpl" />
@@ -186,12 +187,13 @@
   <bean id="userstaticDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserStatic">
   </bean>
-  <bean id="attendantDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Attendant">
-  </bean>
   <bean id="speeddialDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.SpeedDials">
     <property name="speedDialManager" ref="speedDialManager" />
+  </bean>
+  <bean id="mailstoreDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Mailstore">
+    <property name="mailboxManager" ref="mailboxManager" />
   </bean>
 
   <bean id="replicationTrigger"
