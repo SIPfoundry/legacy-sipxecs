@@ -237,6 +237,7 @@ int OsSocket::read(char* buffer, int bufferLength)
    {
       error = OsSocketGetERRNO();
       // WIN32: 10038 WSAENOTSOCK not a valid socket descriptor
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG, "OsSocket::read error %d", error);
    }
 
    return bytesRead;

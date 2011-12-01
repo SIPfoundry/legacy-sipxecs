@@ -3,6 +3,7 @@ spec = Gem::Specification.new do |s|
   s.summary = "@GEM_NAME@ reporting for sipXpbx"
   s.name = '@GEM_NAME@'
   s.version = '@GEM_VER@'
+  s.authors = "sipfoundry"
   s.requirements << 'sipxacd-stats-client'
   s.require_path = 'lib'
   # client_bindings task needs to have completed in a previous

@@ -330,13 +330,13 @@ OsStatus OsUtil::checkResponsiveDest(char *destHost, OsTime timeout)
 void OsUtil::getCurDate(UtlString& dateStr, const struct tm* pCurTime,
                         int maxLen)
 {
-   int  len;
+   //int  len;
    char str[20];
 
    if (maxLen >= 16)
    {
       // Wed Oct 14, 1998
-      len = strftime(str, 19, "%a %b %d, %Y", pCurTime);
+       strftime(str, 19, "%a %b %d, %Y", pCurTime);
 
       // convert all but the first character of the day to lowercase
       str[1] = tolower(str[1]);
@@ -350,7 +350,7 @@ void OsUtil::getCurDate(UtlString& dateStr, const struct tm* pCurTime,
    else if (maxLen >= 12)
    {
       // Wed 10/14/98
-      len = strftime(str, 19, "%a %m/%d/", pCurTime);
+      strftime(str, 19, "%a %m/%d/", pCurTime);
       // :HACK: getting the two digit year this way avoids a silly compiler warning in gcc when you use %y
       char tmpYear[5];
       strftime(tmpYear, 5, "%Y", pCurTime);
@@ -363,7 +363,7 @@ void OsUtil::getCurDate(UtlString& dateStr, const struct tm* pCurTime,
    else if (maxLen >= 8)
    {
       // 10/14/98
-      len = strftime(str, 19, "%a %m/%d/", pCurTime);
+      strftime(str, 19, "%a %m/%d/", pCurTime);
       // :HACK: getting the two digit year this way avoids a silly compiler warning in gcc when you use %y
       char tmpYear[5];
       strftime(tmpYear, 5, "%Y", pCurTime);

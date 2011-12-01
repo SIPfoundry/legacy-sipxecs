@@ -53,10 +53,10 @@ ParkedCallObject::ParkedCallObject(const UtlString& orbit,
    mOrbit(orbit),
    mbPickup(bPickup),
    mbEstablished(false),
-   mTimeoutTimer(listenerQ, (void*)(mSeqNo + PARKER_TIMEOUT)),
-   mMaximumTimer(listenerQ, (void*)(mSeqNo + MAXIMUM_TIMEOUT)),
-   mTransferTimer(listenerQ, (void*)(mSeqNo + TRANSFER_TIMEOUT)),
-   mKeepAliveTimer(listenerQ, (void*)(mSeqNo + KEEPALIVE_TIMEOUT)),
+   mTimeoutTimer(listenerQ, reinterpret_cast<void*>(mSeqNo + PARKER_TIMEOUT)),
+   mMaximumTimer(listenerQ, reinterpret_cast<void*>(mSeqNo + MAXIMUM_TIMEOUT)),
+   mTransferTimer(listenerQ, reinterpret_cast<void*>(mSeqNo + TRANSFER_TIMEOUT)),
+   mKeepAliveTimer(listenerQ, reinterpret_cast<void*>(mSeqNo + KEEPALIVE_TIMEOUT)),
    // Create the OsQueuedEvent to handle DTMF events.
    // This would ordinarily be an allocated object, because
    // removeDtmfEvent will delete it asynchronously.
@@ -65,7 +65,7 @@ ParkedCallObject::ParkedCallObject(const UtlString& orbit,
    // delete it).  We know that call teardown happens first, becausse
    // we do not delete a ParkedCallObject before knowing that it is
    // torn down.
-   mDtmfEvent(*listenerQ, (void*)(mSeqNo + DTMF)),
+   mDtmfEvent(*listenerQ, reinterpret_cast<void*>(mSeqNo + DTMF)),
    mKeycode(OrbitData::NO_KEYCODE),
    mTransferInProgress(FALSE),
    mBlindXferWait(blindXferWait)

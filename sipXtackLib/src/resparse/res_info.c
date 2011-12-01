@@ -41,9 +41,6 @@ const char *_res_errors[] = {
 
 const char* res_error_str()
 {
-        int i;
-        i = h_reserrno;
-
         return(_res_errors[h_reserrno]);
 }
 

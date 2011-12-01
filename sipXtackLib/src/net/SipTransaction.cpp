@@ -509,7 +509,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
 {
     UtlBoolean isResponse = outgoingMessage.isResponse();
     SipMessage* message = &outgoingMessage;
-    UtlBoolean isOrignalRequest = FALSE;
+    //UtlBoolean isOrignalRequest = FALSE;
     UtlBoolean sendSucceeded = FALSE;
     UtlString method;
     int cSeq;
@@ -544,7 +544,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
             mpRequest->getTimesSent() == 0 &&
             mRequestMethod.compareTo(method) == 0)
         {
-            isOrignalRequest = TRUE;
+            //isOrignalRequest = TRUE;
             message = mpRequest;
         }
         else
@@ -5564,6 +5564,9 @@ SipTransaction::whatRelation(const SipMessage& message,
                                 message.getRequestUri(&msgUri);
                             }
                         }
+                        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                                      "SipTransaction::whatRelation "
+                                      "toTagFinalRespIsSet %d", toTagFinalRespIsSet);
 #if 0
                         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                       "SipTransaction::whatRelation "

@@ -15,6 +15,15 @@
 #ifndef MONGODB_H
 #define	MONGODB_H
 
+#ifndef BOOST_FILESYSTEM_VERSION
+#define BOOST_FILESYSTEM_VERSION 2
+#endif
+
+//#ifndef BOOST_FILESYSTEM2_NARROW_ONLY
+//#define BOOST_FILESYSTEM2_NARROW_ONLY 1
+//#endif
+
+
 #include <queue>
 #include <vector>
 #undef VERSION

@@ -86,7 +86,7 @@ OsStatus MpStreamPlaylistPlayer::add(Url& url, int flags)
    e->sourceType = SourceUrl;
    e->url = url;
    e->flags = flags;
-   e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), (void*)index);
+   e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), reinterpret_cast<void*>(index));
    e->index = index ;
 
    mPlayListDb->append(e);
@@ -104,7 +104,7 @@ OsStatus MpStreamPlaylistPlayer::add(UtlString* pBuffer, int flags)
    e->sourceType = SourceBuffer;
    e->pBuffer = pBuffer;
    e->flags = flags;
-   e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), (void*)index);
+    e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), reinterpret_cast<void*>(index));
    e->index = index ;
 
    mPlayListDb->append(e);
