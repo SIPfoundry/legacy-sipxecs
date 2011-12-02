@@ -41,5 +41,16 @@ public class RestoreTest extends TestCase {
         assertEquals("/sipx-sudo-restore -v " + voicemail.getAbsolutePath()
                 + " --non-interactive --enforce-version --verify --no-restart", cmdLine);
 
+        File cdr = new File("path_to_cdr_backup", BackupPlan.CDR_ARCHIVE);
+        BackupBean cdrBackupBean = new BackupBean(cdr);
+
+        cmdLine = StringUtils.join(Restore.getCmdLine("", cdrBackupBean, false, false), ' ');
+        assertEquals("/sipx-sudo-restore -cdr " + cdr.getAbsolutePath() + " --non-interactive --enforce-version",
+                cmdLine);
+
+        cmdLine = StringUtils.join(Restore.getCmdLine("", cdrBackupBean, true, true), ' ');
+        assertEquals("/sipx-sudo-restore -cdr " + cdr.getAbsolutePath()
+                + " --non-interactive --enforce-version --verify --no-restart", cmdLine);
+
     }
 }
