@@ -522,12 +522,7 @@ public final class TestHelper {
     }
 
     public static File createTempDir(String name) throws IOException {
-        File createTempFile = File.createTempFile(name, "dir");
-        String tempDirPath = createTempFile.getPath();
-        createTempFile.delete();
-        File tempDir = new File(tempDirPath);
-        tempDir.mkdirs();
-        return tempDir;
+        return SipxUtil.createTempDir(name);
     }
 
     /**
