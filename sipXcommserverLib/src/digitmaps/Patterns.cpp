@@ -108,7 +108,7 @@ bool Patterns::IPv4subnet(const UtlString ipv4, const UtlString cidr) const
    // all the subnet bits are 1, all the addr bits are 0
    // eg. 192.168.0.0/16, mask is 0xffff0000, then put in
    // network order (cause in_addr_t's are in net order)
-   mask = htonl((unsigned)~0 << 32-mask_size) ;
+   mask = htonl(((unsigned)~0) << (32-mask_size)) ;
 
    // mask the address bits to 0s.  If the result
    // matches the subnet, this address is in that subnet

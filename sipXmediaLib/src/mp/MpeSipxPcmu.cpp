@@ -49,7 +49,6 @@ OsStatus MpeSipxPcmu::encode(const Sample* pAudioSamples,
                              UtlBoolean& sendNow,
                              MpBufSpeech& rAudioCategory)
 {
-   //JB_ret res;
    JB_size size;
 
    G711U_Encoder(numSamples, (Sample*) pAudioSamples, pCodeBuf, &size);

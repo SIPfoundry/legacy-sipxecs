@@ -58,11 +58,11 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 }
 
                 MyPlayerListenerPoller* pPoller = new MyPlayerListenerPoller() ;
-                status = pPlayer->addListener(pPoller, (void*) i) ;
+                status = pPlayer->addListener(pPoller, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 MyPlayerListenerHistoryKeeper* pVerifier = new MyPlayerListenerHistoryKeeper() ;
-                status = pPlayer->addListener(pVerifier, (void*) i) ;
+                status = pPlayer->addListener(pVerifier, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 status = pPlayer->getState(state) ; CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -93,7 +93,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         -1,
                     } ;
 
-                UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
+                UtlBoolean bMatches = pVerifier->matchesHistory(reinterpret_cast<void*>(i), expectedHistory) ;
                 CPPUNIT_ASSERT(bMatches) ;
 
                 status = pPlayer->removeListener(pPoller) ;     CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -135,11 +135,11 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 CPPUNIT_ASSERT(state == PlayerUnrealized) ;
 
                 MyPlayerListenerPoller* pPoller = new MyPlayerListenerPoller() ;
-                status = pPlayer->addListener(pPoller, (void*) i) ;
+                status = pPlayer->addListener(pPoller, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 MyPlayerListenerHistoryKeeper* pVerifier = new MyPlayerListenerHistoryKeeper() ;
-                status = pPlayer->addListener(pVerifier, (void*) i) ;
+                status = pPlayer->addListener(pVerifier, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 status = pPlayer->realize() ;       CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -183,7 +183,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         -1,
                     } ;
 
-                UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
+                UtlBoolean bMatches = pVerifier->matchesHistory(reinterpret_cast<void*>(i), expectedHistory) ;
                 CPPUNIT_ASSERT(bMatches) ;
 
                 status = pPlayer->removeListener(pPoller) ;     CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -225,11 +225,11 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 CPPUNIT_ASSERT(state == PlayerUnrealized) ;
 
                 MyPlayerListenerPoller* pPoller = new MyPlayerListenerPoller() ;
-                status = pPlayer->addListener(pPoller, (void*) i) ;
+                status = pPlayer->addListener(pPoller, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 MyPlayerListenerHistoryKeeper* pVerifier = new MyPlayerListenerHistoryKeeper() ;
-                status = pPlayer->addListener(pVerifier, (void*) i) ;
+                status = pPlayer->addListener(pVerifier, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 status = pPlayer->realize() ;       CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -268,7 +268,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         -1,
                     } ;
 
-                UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
+                UtlBoolean bMatches = pVerifier->matchesHistory(reinterpret_cast<void*>(i), expectedHistory) ;
                 CPPUNIT_ASSERT(bMatches) ;
 
                 status = pPlayer->removeListener(pPoller) ;     CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -307,11 +307,11 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 }
 
                 MyPlayerListenerPoller* pPoller = new MyPlayerListenerPoller() ;
-                status = pPlayer->addListener(pPoller, (void*) i) ;
+                status = pPlayer->addListener(pPoller, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 MyPlayerListenerHistoryKeeper* pVerifier = new MyPlayerListenerHistoryKeeper() ;
-                status = pPlayer->addListener(pVerifier, (void*) i) ;
+                status = pPlayer->addListener(pVerifier, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 status = pPlayer->getState(state) ; CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -349,7 +349,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         -1,
                     } ;
 
-                UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
+                UtlBoolean bMatches = pVerifier->matchesHistory(reinterpret_cast<void*>(i), expectedHistory) ;
                 CPPUNIT_ASSERT(bMatches) ;
 
                 status = pPlayer->removeListener(pPoller) ;     CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -391,11 +391,11 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 CPPUNIT_ASSERT(state == PlayerUnrealized) ;
 
                 MyPlayerListenerPoller* pPoller = new MyPlayerListenerPoller() ;
-                status = pPlayer->addListener(pPoller, (void*) i) ;
+                status = pPlayer->addListener(pPoller, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 MyPlayerListenerHistoryKeeper* pVerifier = new MyPlayerListenerHistoryKeeper() ;
-                status = pPlayer->addListener(pVerifier, (void*) i) ;
+                status = pPlayer->addListener(pVerifier, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 status = pPlayer->realize() ;       CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -446,7 +446,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         -1,
                     } ;
 
-                UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
+                UtlBoolean bMatches = pVerifier->matchesHistory(reinterpret_cast<void*>(i), expectedHistory) ;
                 CPPUNIT_ASSERT(bMatches) ;
 
                 status = pPlayer->removeListener(pPoller) ;     CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -485,11 +485,11 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 }
 
                 MyPlayerListenerPoller* pPoller = new MyPlayerListenerPoller() ;
-                status = pPlayer->addListener(pPoller, (void*) i) ;
+                status = pPlayer->addListener(pPoller, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 MyPlayerListenerHistoryKeeper* pVerifier = new MyPlayerListenerHistoryKeeper() ;
-                status = pPlayer->addListener(pVerifier, (void*) i) ;
+                status = pPlayer->addListener(pVerifier, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 status = pPlayer->getState(state) ; CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -526,7 +526,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         -1,
                     } ;
 
-                UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
+                UtlBoolean bMatches = pVerifier->matchesHistory(reinterpret_cast<void*>(i), expectedHistory) ;
                 CPPUNIT_ASSERT(bMatches) ;
 
                 status = pPlayer->removeListener(pPoller) ;     CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -565,11 +565,11 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 }
 
                 MyPlayerListenerPoller* pPoller = new MyPlayerListenerPoller() ;
-                status = pPlayer->addListener(pPoller, (void*) i) ;
+                status = pPlayer->addListener(pPoller, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 MyPlayerListenerHistoryKeeper* pVerifier = new MyPlayerListenerHistoryKeeper() ;
-                status = pPlayer->addListener(pVerifier, (void*) i) ;
+                status = pPlayer->addListener(pVerifier, reinterpret_cast<void*>(i)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 status = pPlayer->getState(state) ; CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -623,7 +623,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         -1,
                     } ;
 
-                UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
+                UtlBoolean bMatches = pVerifier->matchesHistory(reinterpret_cast<void*>(i), expectedHistory) ;
                 CPPUNIT_ASSERT(bMatches) ;
 
                 status = pPlayer->removeListener(pPoller) ;     CPPUNIT_ASSERT(status == OS_SUCCESS) ;
@@ -661,11 +661,11 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 pPlayer->add(url, STREAM_SOUND_LOCAL) ;
 
                 MyPlayerListenerPoller* pPoller = new MyPlayerListenerPoller() ;
-                status = pPlayer->addListener(pPoller, (void*) j) ;
+                status = pPlayer->addListener(pPoller, reinterpret_cast<void*>(j)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 MyPlayerListenerHistoryKeeper* pVerifier = new MyPlayerListenerHistoryKeeper() ;
-                status = pPlayer->addListener(pVerifier, (void*) j) ;
+                status = pPlayer->addListener(pVerifier, reinterpret_cast<void*>(j)) ;
                 CPPUNIT_ASSERT(status == OS_SUCCESS) ;
 
                 status = pPlayer->getState(state) ; CPPUNIT_ASSERT(status == OS_SUCCESS) ;
