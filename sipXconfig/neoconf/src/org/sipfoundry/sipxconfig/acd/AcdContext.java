@@ -22,6 +22,8 @@ public interface AcdContext extends AliasOwner {
 
     List<AcdServer> getServers();
 
+    List<AcdLine> getLines();
+
     boolean isAcdServerIdValid(int acdServerId);
 
     List getUsersWithAgents();

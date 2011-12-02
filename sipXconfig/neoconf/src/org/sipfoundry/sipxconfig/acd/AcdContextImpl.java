@@ -37,8 +37,6 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
-import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -58,7 +56,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
-        DaoEventListener, ReplicableProvider {
+        DaoEventListener {
     public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);
     private static final String NAME_PROPERTY = "name";
     private static final String SERVER_PARAM = "acdServer";
@@ -83,6 +81,10 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     public List<AcdServer> getServers() {
         return getHibernateTemplate().loadAll(AcdServer.class);
+    }
+
+    public List<AcdLine> getLines() {
+        return getHibernateTemplate().loadAll(AcdLine.class);
     }
 
     public boolean isAcdServerIdValid(int acdServerId) {
@@ -635,19 +637,5 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    @Override
-    public List<Replicable> getReplicables() {
-        List<Replicable> replicables = new ArrayList<Replicable>();
-        List<AcdLine> acdLines = getHibernateTemplate().loadAll(AcdLine.class);
-        List<AcdServer> servers = getServers();
-        for (AcdLine line : acdLines) {
-            replicables.add(line);
-        }
-        for (AcdServer server : servers) {
-            replicables.add(server);
-        }
-        return replicables;
     }
 }
