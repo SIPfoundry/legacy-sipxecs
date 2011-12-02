@@ -26,20 +26,9 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     if test x_"${ax_cv_c_compiler_vendor}" = x_gnu
     then
     	SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
-    	SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
+    	SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith -Wno-strict-aliasing -fno-strict-aliasing -Wno-unused-result -fno-strict-aliasing"
     	CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
     	CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS -Wnested-externs -Wmissing-declarations -Wmissing-prototypes"
-
-      # the sfac_strict_compile flag is set by SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED
-      AC_MSG_CHECKING(how to treat compilation warnings)
-      if test x$sfac_strict_compile = xstrictmode 
-      then 
-         AC_MSG_RESULT([strict mode - treat as errors])
-         CXXFLAGS="$CXXFLAGS -Wno-strict-aliasing -fno-strict-aliasing -Werror"
-         CFLAGS="$CXXFLAGS -Wno-strict-aliasing -fno-strict-aliasing -Werror"
-      else 
-         AC_MSG_RESULT([normal mode - allow warnings])
-      fi
 
     elif test x_"${ax_cv_c_compiler_vendor}" = x_sun
     then
@@ -103,25 +92,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
 
     # Enable profiling via gprof
     ENABLE_PROFILE
-])
-
-dnl If SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED is included in configure.ac,
-dnl   then the default behavior is to treat all gcc warnings as errors.
-dnl This can be temporarily disabled by using --disable-compile-strict
-dnl If used, this macro must be before SFAC_INIT_FLAGS in configure.ac
-AC_DEFUN([SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED],[
-   AC_BEFORE([$0], [SFAC_INIT_FLAGS])dnl 
-
-   AC_ARG_ENABLE([compile-strict],
-     AC_HELP_STRING([--enable-compile-strict],
-       [When enabled, treat all compiler warnings as errors - default is to disallow warnings]),
-     [if test x$enable_compile_strict = xyes 
-      then sfac_strict_compile=strictmode
-      else sfac_strict_compile=allowmode
-      fi
-     ], 
-     [sfac_strict_compile=strictmode]
-   )
 ])
 
 ## Check to see that we are using the minimum required version of automake
