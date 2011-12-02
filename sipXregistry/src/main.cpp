@@ -172,7 +172,7 @@ main(int argc, char* argv[] )
    // Configuration Database (used for OsSysLog)
    OsConfigDb* configDb = new OsConfigDb();
 
-   UtlBoolean interactiveSet = false;
+   
    UtlString argString;
    for (int argIndex = 1; argIndex < argc; argIndex++)
    {
@@ -186,7 +186,7 @@ main(int argc, char* argv[] )
       }
       else if ( argString.compareTo("-i") == 0)
       {
-         interactiveSet = true;
+         
          osPrintf("Entering Interactive Mode\n");
       }
       else

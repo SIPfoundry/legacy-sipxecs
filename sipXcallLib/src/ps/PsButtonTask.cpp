@@ -421,7 +421,7 @@ void PsButtonTask::disableTimer(intptr_t index)
 // A write lock should be acquired before calling this method.
 void PsButtonTask::enableTimer(intptr_t index)
 {
-   OsQueuedEvent* pNotifier;
+   
    OsTime         repInterval;
    OsStatus       res;
 

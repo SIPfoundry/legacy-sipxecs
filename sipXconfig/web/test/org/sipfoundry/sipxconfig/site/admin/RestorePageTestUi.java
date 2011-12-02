@@ -28,6 +28,8 @@ public class RestorePageTestUi extends WebTestCase {
 
     private static final String VOICEMAIL_FILE = "/voicemail.tar.gz";
 
+    private static final String CDR_FILE = "/cdr.tar.gz";
+
     private static final String BACKUP_FOLDER = "/backup/";
 
     @Override
@@ -45,10 +47,11 @@ public class RestorePageTestUi extends WebTestCase {
         // first backup folder;
         buildConfigurationBackup(FIRST_BACKUP);
         buildVoicemailBackup(FIRST_BACKUP);
+        buildCdrBackup(FIRST_BACKUP);
 
         // second backup folder;
         buildConfigurationBackup(SECOND_BACKUP);
-
+        buildCdrBackup(SECOND_BACKUP);
         // third backup folder;
         buildVoicemailBackup(THIRD_BACKUP);
     }
@@ -63,8 +66,19 @@ public class RestorePageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
         setWorkingForm("Form");
-        checkCheckbox("defaultValue");
-        checkCheckbox("defaultValue_2");
+        checkCheckbox("defaultValue_1");
+        checkCheckbox("defaultValue_3");
+        assertButtonPresent("backups:restore");
+        clickButton("backups:restore");
+        SiteTestHelper.assertUserError(getTester());
+    }
+
+    public void testRestoreTwoCdrsBackups() throws Exception {
+        SiteTestHelper.assertNoException(getTester());
+        clickLink("link:restore");
+        setWorkingForm("Form");
+        checkCheckbox("defaultValue_0");
+        checkCheckbox("defaultValue_4");
         assertButtonPresent("backups:restore");
         clickButton("backups:restore");
         SiteTestHelper.assertUserError(getTester());
@@ -110,6 +124,21 @@ public class RestorePageTestUi extends WebTestCase {
 
     }
 
+    private void buildCdrBackup(String folder) {
+        String testFolder = TestHelper.getTestOutputDirectory();
+        String cdrBackup = testFolder + BACKUP_FOLDER + folder;
+        try {
+            File file = new File(cdrBackup);
+            file.mkdirs();
+            cdrBackup += CDR_FILE;
+            File backup = new File(cdrBackup);
+            backup.createNewFile();
+        } catch (IOException ex) {
+            fail("Could not create the config backup");
+        }
+
+    }
+
     private void buildVoicemailBackup(String folder) {
         String testFolder = TestHelper.getTestOutputDirectory();
         String voicemailBackup = testFolder + BACKUP_FOLDER + folder;
@@ -131,6 +160,7 @@ public class RestorePageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertElementPresent("configuration");
         assertElementPresent("voicemail");
+        assertElementPresent("cdr");
         assertButtonPresent("backups:uploadbutton");
     }
 

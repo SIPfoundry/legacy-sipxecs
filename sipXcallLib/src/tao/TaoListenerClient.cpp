@@ -930,7 +930,7 @@ UtlBoolean TaoListenerClientTask::getCallEvent(TaoMessage& rMsg,
         TaoString argList(rMsg.getArgList(), TAOMESSAGE_DELIMITER);
         UtlString callId = argList[0];
 
-        int addedToCall = 0;
+        
         for (int i = 0; i < mListenerCnt; i++)
         {
                 if (mpListeners[i] && mpListeners[i]->mpListenerPtr == pListener)
@@ -939,7 +939,7 @@ UtlBoolean TaoListenerClientTask::getCallEvent(TaoMessage& rMsg,
                         {
                                 return FALSE;
                         }
-                        addedToCall = 1;
+                        
                 }
         }
 

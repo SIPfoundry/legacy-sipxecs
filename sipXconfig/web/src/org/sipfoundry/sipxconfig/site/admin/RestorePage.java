@@ -78,6 +78,8 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
 
     public abstract IUploadFile getUploadConfigurationFile();
 
+    public abstract IUploadFile getUploadCdrFile();
+
     @InjectObject(value = "spring:restore")
     public abstract Restore getRestore();
 
@@ -119,6 +121,7 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
         backupSetting();
     }
 
+    @Override
     public void reset() {
         setBackups(null);
     }
@@ -182,6 +185,11 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
             config = upload(getUploadConfigurationFile(), BackupPlan.CONFIGURATION_ARCHIVE);
             if (config != null) {
                 selectedBackups.add(config);
+                restoreVoicemailOnly = false;
+            }
+            BackupBean cdr = upload(getUploadCdrFile(), BackupPlan.CDR_ARCHIVE);
+            if (cdr != null) {
+                selectedBackups.add(cdr);
                 restoreVoicemailOnly = false;
             }
             BackupBean voicemail = upload(getUploadVoicemailFile(), BackupPlan.VOICEMAIL_ARCHIVE);
@@ -249,6 +257,12 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
         }
         if (size == 2 && (list.get(0).getType() != list.get(1).getType())) {
             // 2 selections are OK if they are of different types
+            return true;
+        }
+        if (size == 3 && (list.get(0).getType() != list.get(1).getType())
+                && (list.get(0).getType() != list.get(2).getType())
+                && (list.get(1).getType() != list.get(2).getType())) {
+            // 3 selections are OK if they are of different types
             return true;
         }
         return false;

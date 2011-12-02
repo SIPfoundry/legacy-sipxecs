@@ -62,6 +62,12 @@
               <label for="backup:check:voicemail"><span key="label.voicemail"/></label>
             </td>
           </tr>
+          <tr>
+            <td>
+              <input jwcid="checkCdr@Checkbox" id="backup:check:cdr" value="ognl:backupPlan.cdr"/>
+              <label for="backup:check:cdr"><span key="label.cdr"/></label>
+            </td>
+          </tr>
           <tr jwcid="@common/FieldPanel"
             for="backup:limit"
             label="message:label.limitCount"

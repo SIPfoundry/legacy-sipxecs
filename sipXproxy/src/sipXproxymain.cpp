@@ -519,7 +519,6 @@ proxy( int argc, char* argv[] )
     ForwardRules forwardingRules;
 
     OsFile ruleFile(fileName);
-   // UtlBoolean useDefaultRules = FALSE;
     if(ruleFile.exists())
     {
         if(OS_SUCCESS != forwardingRules.loadMappings(fileName))
@@ -527,7 +526,6 @@ proxy( int argc, char* argv[] )
             Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "WARNING: Failed to load: %s",
                 fileName.data());
             osPrintf("WARNING: Failed to load: %s\n", fileName.data());
-           // useDefaultRules = TRUE;
         }
     }
     else

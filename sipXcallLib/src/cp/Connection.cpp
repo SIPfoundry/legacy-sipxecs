@@ -505,7 +505,7 @@ UtlBoolean Connection::validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CAL
     switch (eFrom)
     {
         case DISCONNECTED:
-            bValid = (eTo == DESTROYED) ;
+            bValid = ((int)eTo == (int)DESTROYED) ;
             break ;
         case DESTROYED:
             bValid = FALSE ;
@@ -515,7 +515,7 @@ UtlBoolean Connection::validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CAL
     }
 
     // Make sure a local focus change doesn't kick off an established event
-    if ((eTo == CONNECTED) && (getLocalState() != CONNECTION_ESTABLISHED))
+    if (((int)eTo == CONNECTED) && ((int)getLocalState() != CONNECTION_ESTABLISHED))
     {
         bValid = FALSE ;
     }

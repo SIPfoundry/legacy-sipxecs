@@ -447,7 +447,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
     int msgSubType = eventMessage.getMsgSubType();
     UtlBoolean messageProcessed = TRUE;
     UtlString holdCallId;
-    UtlBoolean messageConsumed = FALSE;
+
     CpMediaInterface* pMediaInterface;
 
     Os::Logger::instance().log(FAC_CP, PRI_DEBUG,
@@ -587,7 +587,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                 sipUserAgent->getViaInfo(OsSocket::UDP,publicAddress,publicPort);
 
                                 UtlString localAddress;
-                                int port;
+
                                 char szAdapter[256];
 
                                 localAddress = sipMsg->getInterfaceIp();
@@ -769,7 +769,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         infocusCall = NULL;
                     }
                 }
-                messageConsumed = TRUE;
+                
                 messageProcessed = TRUE;
                 break;
             }
@@ -794,7 +794,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         changeCallFocus(call);
                     }
                 }
-                messageConsumed = TRUE;
+                
                 messageProcessed = TRUE;
                 break;
             }
@@ -883,7 +883,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         eventMgr->release(getCallsEvent);
                     }
                 }
-                messageConsumed = TRUE;
+                
                 messageProcessed = TRUE;
                 break;
             }
@@ -929,7 +929,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             {
                 int iLevel = ((CpMultiStringMessage&)eventMessage).getInt1Data();
                 mpCodecFactory->setCodecCPULimit(iLevel) ;
-                messageConsumed = TRUE;
+                
                 messageProcessed = TRUE;
                 break ;
             }

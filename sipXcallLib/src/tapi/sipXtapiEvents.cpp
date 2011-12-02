@@ -618,7 +618,7 @@ void sipxFireCallEvent(const void* pSrc,
         if (hCall != SIPX_CALL_NULL &&
             sipxCallGetState(hCall, lastEvent, lastCause, state))
         {
-            if ((lastEvent == major) && (lastCause == minor))
+            if (((int)lastEvent == (int)major) && ((int)lastCause == (int)minor))
             {
                 bDuplicateEvent = TRUE ;
             }
@@ -696,7 +696,7 @@ void sipxFireCallEvent(const void* pSrc,
                         callInfo.remoteAddress = szRemoteAddress;
                     }
 
-                    if (minor == CALLSTATE_AUDIO_START)
+                    if ((int)minor == (int)CALLSTATE_AUDIO_START)
                     {
                         // Copy codec information into callInfo
                         memcpy((void*)&callInfo.codecs, pEventData, sizeof(SIPX_CODEC_INFO));
@@ -917,6 +917,8 @@ static const char* MajorLineEventToString(SIPX_LINE_EVENT_TYPE_MAJOR eMajor)
                 break ;
         case SIPX_LINE_EVENT_UNREGISTER_FAILED:
             str = "UNREGISTER_FAILED";
+            break;
+        case SIPX_LINE_EVENT_UNKNOWN:
             break;
     }
     return str;

@@ -583,7 +583,6 @@ CTLinkedList<TENTRY>::~CTLinkedList(void)
 
 //  Declarations
     CTLink<TENTRY> *ptLink;
-   // TENTRY tEntry;
 
 //  Enter Synchronized Area
     EnterCriticalSection (&m_csSynchronized);
@@ -595,7 +594,6 @@ CTLinkedList<TENTRY>::~CTLinkedList(void)
     while (ptLink)
     {
 //      Delete Link
-   //     tEntry = ptLink->GetEntry();
         delete ptLink;
 
 //      Advance to next link

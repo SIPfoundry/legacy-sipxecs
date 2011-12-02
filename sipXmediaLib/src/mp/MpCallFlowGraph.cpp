@@ -1104,10 +1104,8 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
 
 void MpCallFlowGraph::setPremiumSound(MpConnection::PremiumSoundOptions op)
 {
-   //OsStatus  res;
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_PREMIUM_SOUND,
       NULL, NULL, NULL, op);
-
    postMessage(msg);
 }
 
@@ -1373,7 +1371,6 @@ void MpCallFlowGraph::synchronize(const char* tag, int val1)
 
       msg.setPtr1(&event);
       postMessage(msg);
-      // if (NULL == tag) osPrintf("MpCallFlowGraph::synchronize()\n");
       event.wait();
    } else {
       osPrintf("Note: synchronize called from within Media Task\n");

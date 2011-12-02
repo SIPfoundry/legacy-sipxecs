@@ -18,6 +18,7 @@
 #ifndef BOOST_FILESYSTEM_VERSION
 #define BOOST_FILESYSTEM_VERSION 2
 #endif
+#include <boost/filesystem.hpp>
 
 //#ifndef BOOST_FILESYSTEM2_NARROW_ONLY
 //#define BOOST_FILESYSTEM2_NARROW_ONLY 1

@@ -407,7 +407,7 @@ int main(int argC, char* argV[])
     //  Get the starting time and kick off the parse of the indicated
     //  file. Catch any exceptions that might propagate out of it.
     //
-    unsigned long duration;
+    
 
     bool more = true;
     XERCES_STD_QUALIFIER ifstream fin;
@@ -448,17 +448,13 @@ int main(int argC, char* argV[])
         //reset error count first
         errorHandler.resetErrors();
 
-        XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc = 0;
+        
 
         try
         {
             // reset document pool
             parser->resetDocumentPool();
-
-            const unsigned long startMillis = XMLPlatformUtils::getCurrentMillis();
-            doc = parser->parseURI(xmlFile);
-            const unsigned long endMillis = XMLPlatformUtils::getCurrentMillis();
-            duration = endMillis - startMillis;
+            parser->parseURI(xmlFile);           
         }
 
         catch (const XMLException& toCatch)

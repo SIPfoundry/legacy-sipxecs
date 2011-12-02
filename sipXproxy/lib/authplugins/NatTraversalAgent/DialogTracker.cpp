@@ -615,7 +615,6 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
       size_t index;
       for( index = 0; index < numMediaDescriptorsInSdp; index++ )
       {
-        // bool sdpContainsNewMediaParameters = true;
          MediaDescriptor* pMediaDescriptor;
          if( index < numSavedMediaDescriptors )
          {
