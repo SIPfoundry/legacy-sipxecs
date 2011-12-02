@@ -192,7 +192,6 @@ StreamWAVFormatDecoder::operator=(const StreamWAVFormatDecoder& rhs)
 // Thread entry point
 int StreamWAVFormatDecoder::run(void* pArgs)
 {
-   //int iSamplesInOutBuffer = 0;
    Sample        partialFrame[80] ;
    int   nSamplesPartialFrame = 0;
    int numOutSamples = 0;
@@ -287,7 +286,6 @@ int StreamWAVFormatDecoder::run(void* pArgs)
 
             if (retval == OS_SUCCESS)
             {
-               //ssize_t bytes;
                switch (mFormatChunk.formatTag)
                {
                   case 1:     // PCM

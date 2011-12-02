@@ -254,7 +254,6 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
 
     //and update the RIFF length
     uint32_t rifflength = htolel(length-8);        // 4 byte value written to WAV file
-    //ssize_t dummy;
     write(handle, (char*)&rifflength,sizeof(rifflength));
 
     //now seek to the data length

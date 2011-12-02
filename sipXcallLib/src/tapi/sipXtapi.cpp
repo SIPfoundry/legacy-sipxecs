@@ -105,27 +105,6 @@ static void initLogger()
 }
 
 
-static bool validConnection(const SIPX_CALL_DATA* pData)
-{
-    assert(pData != NULL) ;
-    assert(pData->callId != NULL) ;
-    assert(pData->pInst != NULL) ;
-    assert(pData->pInst->pCallManager != NULL) ;
-    assert(pData->pInst->pRefreshManager != NULL) ;
-    assert(pData->pInst->pLineManager != NULL) ;
-    assert(pData->lineURI != NULL) ;
-    assert(pData->remoteAddress != NULL) ;
-
-    return (pData && pData->callId &&
-            pData->remoteAddress &&
-            pData->lineURI  &&
-            pData->pInst->pCallManager &&
-            pData->pInst->pRefreshManager &&
-            pData->pInst->pLineManager ) ;
-}
-
-
-
 void destroyCallData(SIPX_CALL_DATA* pData)
 {
     if (pData != NULL)
@@ -454,8 +433,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
             pInst->pCallManager->setOutboundLine(localAddress) ;
             pInst->pCallManager->start();
 
-            CpMediaInterfaceFactoryImpl* pInterface =
-                    pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+            
+                    
 
             sipxConfigSetAudioCodecPreferences(pInst, AUDIO_CODEC_BW_NORMAL);
             sipxConfigSetVideoCodecPreferences(pInst, VIDEO_CODEC_BW_HIGH);
@@ -950,17 +929,17 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
     if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
     {
         ContactAddress* pContact = NULL;
-        ContactType contactType;
+        
 
         if (contactId > 0)
         {
             pContact = pInst->pSipUserAgent->getContactDb().find(contactId);
             assert(pContact);
-            contactType = pContact->eContactType;
+            
         }
         else
         {
-            contactType = ContactAddress::AUTO;
+            
         }
 
         if (szAddress)
@@ -3040,8 +3019,8 @@ SIPXTAPI_API SIPX_RESULT sipxAudioIsMuted(const SIPX_INST hInst,
 
     if (pInst)
     {
-        CpMediaInterfaceFactoryImpl* pInterface =
-                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+        
+        
 
         if (!pInst->micSetting.bInitialized)
         {

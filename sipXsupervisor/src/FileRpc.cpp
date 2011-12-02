@@ -385,7 +385,6 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
             rc = temporaryFile.rename(path_and_name);
             if (rc == OS_SUCCESS)
             {
-               //int int_rc;
                Os::Logger::instance().log(FAC_SUPERVISOR, PRI_INFO, "FileRpcReplaceFile::replicateFile"
                                    " updated file '%s'", path_and_name.data());
                rc = temporaryFile.remove(TRUE);

@@ -373,8 +373,5 @@ void MpAudioWaveFileRead::nextChunk(void)
       return;
    }
 
-   //char code[5] = "CODE";
-   //code[0] = (type>>24)&255;   code[1] = (type>>16)&255;
-   //code[2] = (type>>8 )&255;   code[3] = (type    )&255;
    osPrintf("Ignoring unrecognized `");
 }

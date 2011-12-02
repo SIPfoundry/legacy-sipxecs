@@ -573,7 +573,6 @@ bool cAlarmServer::loadAlarms()
 
    // for each file in the ${confdir}/alarms, load alarm definitions
    OsStatus status;
-   //int numFound;
    for (status=files.findFirst(entry, ".*\\.xml$", OsFileIterator::FILES);
         status == OS_SUCCESS;
         status = files.findNext(entry) )

@@ -120,7 +120,6 @@ static void startDtmf(MpToneGenPtr p, dtmfPatternPtr d)
 void MpToneGen_startTone(MpToneGenPtr p, int toneID)
 {
         dtmfPatternPtr pNew = NULL;
-        //STATUS ret = OS_SUCCESS;
 
         switch (toneID) {
             case '1': case  1 : pNew = &(p->key1); break;

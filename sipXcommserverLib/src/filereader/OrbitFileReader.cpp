@@ -184,7 +184,7 @@ OsStatus OrbitFileReader::initialize()
             char *endptr;
             timeout = strtol(temp.data(), &endptr, 10);
             if (temp.isNull() ||
-                endptr - temp.data() != temp.length() ||
+                int(endptr - temp.data()) != (int)temp.length() ||
                 timeout < 5)
             {
                // Timeout was null or unparsable.
@@ -232,7 +232,7 @@ OsStatus OrbitFileReader::initialize()
             char *endptr;
             capacity = strtol(temp.data(), &endptr, 10);
             if (temp.isNull() ||
-                endptr - temp.data() != temp.length() ||
+                int(endptr - temp.data()) != (int)temp.length() ||
                 capacity < 0)
             {
                // Capacity was null or unparsable.

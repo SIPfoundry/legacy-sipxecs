@@ -1588,14 +1588,14 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
    numPayloadTypes = 0 ;
    memset(&payloadTypes, 0, sizeof(int) * MAXIMUM_MEDIA_TYPES) ;
 
-   //audioPort = 0 ;
+   
    audioPortPairs = 0 ;
    numAudioPayloadTypes = 0 ;
    memset(&audioPayloadTypes, 0, sizeof(int) * MAXIMUM_MEDIA_TYPES) ;
    memset(&receivedAudioSrtpParams,0 , sizeof(SdpSrtpParameters));
    audioDirectionality = sdpDirectionalitySendRecv;
 
-   //videoPort = 0 ;
+
    videoPortPairs = 0 ;
    numVideoPayloadTypes = 0 ;
    memset(&videoPayloadTypes, 0, sizeof(int) * MAXIMUM_MEDIA_TYPES) ;

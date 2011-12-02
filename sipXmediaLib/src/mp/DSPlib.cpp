@@ -59,13 +59,11 @@ void white_noise_generator(Sample  *shpSamples,
                            Word32   ulNoiseLevelAve)
 {
    int     i;
-  // short   *shp;
    int     iBitShift = 0;
 
    iBitShift = 9 - ulNoiseLevelAve;
 
    // generate uniformly distributed random signal
-  // shp = shpFilterBuf + FILTER_N;
    for(i = 0; i < iLength; i++) {
       *shpSamples++ = (short) ((rand() - (RAND_MAX>>1) ) >> (iBitShift));
    }

@@ -330,7 +330,6 @@ OsStatus OsUtil::checkResponsiveDest(char *destHost, OsTime timeout)
 void OsUtil::getCurDate(UtlString& dateStr, const struct tm* pCurTime,
                         int maxLen)
 {
-   //int  len;
    char str[20];
 
    if (maxLen >= 16)

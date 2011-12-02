@@ -509,7 +509,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
 {
     UtlBoolean isResponse = outgoingMessage.isResponse();
     SipMessage* message = &outgoingMessage;
-    //UtlBoolean isOrignalRequest = FALSE;
+
     UtlBoolean sendSucceeded = FALSE;
     UtlString method;
     int cSeq;
@@ -544,7 +544,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
             mpRequest->getTimesSent() == 0 &&
             mRequestMethod.compareTo(method) == 0)
         {
-            //isOrignalRequest = TRUE;
+
             message = mpRequest;
         }
         else

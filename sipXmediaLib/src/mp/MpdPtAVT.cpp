@@ -250,11 +250,9 @@ void MpdPtAVT::signalKeyUp(MpBufPtr pPacket)
 {
    struct avtPacket* pAvt;
    unsigned int samples;
-   //unsigned int ts;
    OsStatus ret;
 
    pAvt = (struct avtPacket*) MpBuf_getStorage(pPacket);
-   //pAvt->rh.timestamp;
    samples = pAvt->samplesSwapped;
    samples = ntohs(samples);
 
