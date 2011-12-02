@@ -53,6 +53,7 @@ public class BackupPageTestUi extends WebTestCase {
         setWorkingForm("form");
         checkCheckbox("backup:check:voicemail");
         checkCheckbox("backup:check:configs");
+        checkCheckbox("backup:check:cdr");
         selectOption("backup:limit", "10");
         checkCheckbox("dailyScheduleEnabled");
         selectOption("dailyScheduledDay", "Wednesday");
@@ -62,6 +63,7 @@ public class BackupPageTestUi extends WebTestCase {
         setWorkingForm("form");
         assertCheckboxSelected("backup:check:voicemail");
         assertCheckboxSelected("backup:check:configs");
+        assertCheckboxSelected("backup:check:cdr");
         assertSelectedOptionEquals("backup:limit", "10");
         assertCheckboxSelected("dailyScheduleEnabled");
         assertSelectedOptionEquals("dailyScheduledDay", "Wednesday");
@@ -73,6 +75,7 @@ public class BackupPageTestUi extends WebTestCase {
         setWorkingForm("form");
         uncheckCheckbox("backup:check:voicemail");
         uncheckCheckbox("backup:check:configs");
+        uncheckCheckbox("backup:check:cdr");
         selectOption("backup:limit", "10");
         checkCheckbox("dailyScheduleEnabled");
         selectOption("dailyScheduledDay", "Wednesday");
@@ -86,6 +89,7 @@ public class BackupPageTestUi extends WebTestCase {
         setWorkingForm("form");
         checkCheckbox("backup:check:voicemail");
         checkCheckbox("backup:check:configs");
+        checkCheckbox("backup:check:cdr");
         selectOption("backup:limit", "10");
         checkCheckbox("dailyScheduleEnabled");
         selectOption("dailyScheduledDay", "Wednesday");
