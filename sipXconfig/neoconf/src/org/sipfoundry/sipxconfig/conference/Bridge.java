@@ -16,9 +16,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationBeanManager;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -50,9 +49,7 @@ public class Bridge extends BeanWithSettings {
     private String m_audioDirectory;
     private LocalizationContext m_localizationContext;
     private String m_promptsDir;
-
-    /** The associated FreeSWITCH service. */
-    private LocationSpecificService m_service;
+    private Location m_location;
 
     public void setLocalizationContext(LocalizationContext localizationContext) {
         m_localizationContext = localizationContext;
@@ -60,14 +57,6 @@ public class Bridge extends BeanWithSettings {
 
     public void setPromptsDir(String promptsDir) {
         m_promptsDir = promptsDir;
-    }
-
-    public LocationSpecificService getService() {
-        return m_service;
-    }
-
-    public void setService(LocationSpecificService service) {
-        m_service = service;
     }
 
     @Override
@@ -98,7 +87,7 @@ public class Bridge extends BeanWithSettings {
     }
 
     public String getName() {
-        return getService().getLocation().getFqdn();
+        return getLocation().getFqdn();
     }
 
     public Set<Conference> getConferences() {
@@ -143,16 +132,12 @@ public class Bridge extends BeanWithSettings {
     }
 
     public String getServiceUri() {
+        return getFeatureSettings(FreeswitchSettings.class, getLocation()).getServiceUri();
         return getFreeswitchService().getServiceUri(getLocation());
     }
 
-    public SipxFreeswitchService getFreeswitchService() {
-        SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_service.getSipxService();
-        return freeswitchService;
-    }
-
     public Location getLocation() {
-        return m_service.getLocation();
+        return getLocation();
     }
 
     public String getHost() {

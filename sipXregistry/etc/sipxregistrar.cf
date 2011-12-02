@@ -1,0 +1,55 @@
+
+bundle agent sipxregistar {
+  vars:
+    "config_src" => "$(sipx.SIPX_CFMODULESDIR)/registrar-config.cfin";
+    "config_dst" => "$(sipx.SIPX_CONFDIR)/registrar-config)";
+
+  classes:
+    sipxregistrar::
+      "config" expression => fileexists("$(config_src)");
+
+  methods:
+    config::
+      "any" usebundle => "sipxregistrar_config";
+
+    sipxregistar::
+      "any" usebundle => "sipxregistrar_install";
+      "any" usebundle => "sipxregistrar_running";
+}
+
+bundle agent sipxregistrar_config {
+  vars:
+    any::
+      "dim_conf" int => readstringarray("conf", "$(sipxregistrar.config_src)", "#.*", ":", "200", "10000");
+
+  files:
+    sipxregistrar::
+      "$(sipxregistrar.config_dst)"
+        create => "true",
+        perms => m("644"),
+        edit_line => colon_values("sipxregistrar_config.conf"),
+        classes => if_repaired("sipxregistrar_restart");
+}
+
+bundle agent sipxregistrar_install {
+  methods:
+    sipxregistrar.(redhat|SuSE).!src:
+      "any" usebundle => rh_chkconfig_status({"sipxregistar"});
+
+}
+
+bundle agent sipxregistrar_running {
+  processes:
+    sipxregistrar::
+      "sipxregistrar"
+        restart_class => "sipxregistrar_start";
+
+  commands:
+    sipxregistrar_restart::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
+        args => "restart";
+
+    sipxregistrar_start::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistar"
+        args => "start";
+}

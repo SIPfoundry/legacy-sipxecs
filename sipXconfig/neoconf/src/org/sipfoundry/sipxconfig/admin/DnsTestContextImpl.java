@@ -10,27 +10,25 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.configdiag.ExternalCommand;
 import org.sipfoundry.sipxconfig.admin.configdiag.ExternalCommandContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.im.ImManager;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
     private String m_result;
     private boolean m_valid;
     private boolean m_runTestNeeded = true;
-
-    private LocationsManager m_locationsManager;
-    private SipxServiceManager m_sipxServiceManager;
     private CoreContext m_coreContext;
+    private AddressManager m_addressManager;
 
     private final ExternalCommandContext m_commandContext;
     private final String m_commandString;
@@ -54,46 +52,40 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
         // - all locations with the proxyService installed
         // - other servers in the clusters
         // - XMPP service locations
-        Location[] locations = m_locationsManager.getLocations();
-        SipxService proxyService = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
-        SipxService openFireService = m_sipxServiceManager.getServiceByBeanId("sipxOpenfireService");
-        List<String> proxyArgs = new ArrayList<String>(locations.length);
-        List<String> otherArgs = new ArrayList<String>(locations.length);
-        List<String> xmppArgs = new ArrayList<String>(locations.length);
-        for (Location location : locations) {
-            String arg = String.format("%s/%s", location.getFqdn(), location.getAddress());
-            if (location.isServiceInstalled(proxyService)) {
-                proxyArgs.add(arg);
-            } else {
-                otherArgs.add(arg);
-            }
-            if (location.isServiceInstalled(openFireService)) {
-                xmppArgs.add(arg);
-            }
-        }
-        for (String arg : proxyArgs) {
-            command.addArgument(arg);
-        }
-        for (String arg : otherArgs) {
-            command.addArgument("-o");
-            command.addArgument(arg);
-        }
-        for (String arg : xmppArgs) {
-            command.addArgument("-x");
-            command.addArgument(arg);
-        }
+        Collection<Address> addresses = new ArrayList<Address>();
+        Collection<Address> proxyTcp = m_addressManager.getAddresses(ProxyManager.TCP_ADDRESS);
+        Collection<Address> proxyUdp = m_addressManager.getAddresses(ProxyManager.UDP_ADDRESS);
+        Collection<Address> proxyTls = m_addressManager.getAddresses(ProxyManager.TLS_ADDRESS);
+        int tcpPort = proxyTcp.iterator().next().getPort();
+        int udpPort = proxyUdp.iterator().next().getPort();
+        int tlsPort = proxyTls.iterator().next().getPort();
+        addArgument(command, null, proxyTcp);
+        addArgument(command, null, proxyUdp);
+        addArgument(command, null, proxyTls);
+        Collection<Address> xmpp = m_addressManager.getAddresses(ImManager.ADDRESS);
+        addArgument(command, "-x", xmpp);
         if (provideDns) {
             command.addArgument("-p");
         }
 
         // set TCP and UDP ports
         command.addArgument("--port-TCP");
-        command.addArgument(((SipxProxyService) proxyService).getSipTCPPort());
+        command.addArgument(String.valueOf(tcpPort));
         command.addArgument("--port-UDP");
-        command.addArgument(((SipxProxyService) proxyService).getSipUDPPort());
+        command.addArgument(String.valueOf(udpPort));
         command.addArgument("--port-TLS");
-        command.addArgument(((SipxProxyService) proxyService).getSipTLSPort());
+        command.addArgument(String.valueOf(tlsPort));
+
         return command;
+    }
+
+    private void addArgument(ExternalCommand command, String param, Collection<Address> addresses) {
+        for (Address address : addresses) {
+            if (param != null) {
+                command.addArgument(param);
+            }
+            command.addArgument(address.getAddress() + '\'' + address.getPort());
+        }
     }
 
     public void execute(boolean provideDns) {
@@ -117,16 +109,6 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
     }
 
     @Required
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
@@ -145,5 +127,10 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
 
     public boolean isRunTestNeeded() {
         return m_runTestNeeded;
+    }
+
+    @Required
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

@@ -11,12 +11,10 @@ package org.sipfoundry.sipxconfig.phone;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceControl;
-import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.createStrictControl;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.sipfoundry.sipxconfig.TestHelper.getMockDomainManager;
-import static org.sipfoundry.sipxconfig.TestHelper.getMockSipxServiceManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +42,6 @@ import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
@@ -259,13 +256,6 @@ public final class PhoneTestDriver {
         proxyService.setModelName("sipxproxy.xml");
         proxyService.setModelDir("sipxproxy");
         proxyService.setSipPort("5555");
-
-        SipxServiceManager sipxServiceManager = getMockSipxServiceManager(true, registrarService, proxyService);
-        defaults.setSipxServiceManager(sipxServiceManager);
-
-        ServiceManager serviceManager = createNiceMock(ServiceManager.class);
-        replay(serviceManager);
-        defaults.setServiceManager(serviceManager);
 
         return defaults;
     }

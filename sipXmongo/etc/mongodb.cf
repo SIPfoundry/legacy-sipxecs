@@ -1,11 +1,3 @@
-bundle edit_line replace_contents(contents) {
-   insert_lines:
-     "$(contents)";
-
-   delete_lines:
-      ".*";
-}
-
 bundle agent mongodb {
   methods:
     "mongod" usebundle => "mongodb_install";

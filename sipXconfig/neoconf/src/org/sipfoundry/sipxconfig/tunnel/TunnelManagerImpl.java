@@ -12,8 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -29,36 +28,16 @@ import org.springframework.beans.factory.ListableBeanFactory;
 public abstract class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, DaoEventListener {
     private ListableBeanFactory m_beanFactory;
     private volatile Collection<TunnelProvider> m_providers;
-    private LocationsManager m_locationsManager;
-    private TunnelClientConfigurationFile m_clientFile;
-    private TunnelServerConfigurationFile m_serverFile;
-    protected abstract SipxReplicationContext getSipxReplicationContext();
+    private ConfigManager m_configManager;
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 
-    public LocationsManager getLocationsManager() {
-        return m_locationsManager;
-    }
-
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
-    void locationRemoved(Location l) {
-        getSipxReplicationContext().replicate(m_locationsManager.getLocations(), m_clientFile);
-    }
-
-    void locationChanged(Location l) {
-        getSipxReplicationContext().replicate(m_locationsManager.getLocations(), m_clientFile);
-        getSipxReplicationContext().replicate(l, m_serverFile);
-    }
-
     public void onDelete(Object entity) {
         if (entity instanceof Location) {
-            locationRemoved((Location) entity);
+            m_configManager.replicationRequired(TunnelManager.FEATURE);
         }
     }
 
@@ -66,25 +45,9 @@ public abstract class TunnelManagerImpl implements TunnelManager, BeanFactoryAwa
         if (entity instanceof Location) {
             Location l = (Location) entity;
             if (l.hasFqdnOrIpChangedOnSave()) {
-                locationChanged(l);
+                m_configManager.replicationRequired(TunnelManager.FEATURE);
             }
         }
-    }
-
-    public TunnelClientConfigurationFile getClientFile() {
-        return m_clientFile;
-    }
-
-    public void setClientFile(TunnelClientConfigurationFile clientFile) {
-        m_clientFile = clientFile;
-    }
-
-    public TunnelServerConfigurationFile getServerFile() {
-        return m_serverFile;
-    }
-
-    public void setServerFile(TunnelServerConfigurationFile serverFile) {
-        m_serverFile = serverFile;
     }
 
     /**
@@ -108,4 +71,7 @@ public abstract class TunnelManagerImpl implements TunnelManager, BeanFactoryAwa
         m_providers = providers;
     }
 
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
 }

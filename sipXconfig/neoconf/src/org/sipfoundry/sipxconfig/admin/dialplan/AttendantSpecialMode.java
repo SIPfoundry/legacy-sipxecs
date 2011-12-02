@@ -9,9 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import org.sipfoundry.sipxconfig.common.BeanWithId;
+import java.util.Collection;
+import java.util.Collections;
 
-public class AttendantSpecialMode extends BeanWithId {
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.feature.Feature;
+
+public class AttendantSpecialMode extends BeanWithId implements DeployConfigOnEdit {
     private boolean m_enabled;
     private AutoAttendant m_attendant;
 
@@ -29,5 +34,10 @@ public class AttendantSpecialMode extends BeanWithId {
 
     public AutoAttendant getAttendant() {
         return m_attendant;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) DialPlanContext.FEATURE);
     }
 }

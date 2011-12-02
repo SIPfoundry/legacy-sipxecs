@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,10 +19,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.functors.InstanceofPredicate;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.feature.Feature;
 
-public class DialPlan extends BeanWithId {
+public class DialPlan extends BeanWithId implements DeployConfigOnEdit {
     private List<DialingRule> m_rules = new ArrayList<DialingRule>();
 
     public List<DialingRule> getRules() {
@@ -125,5 +128,10 @@ public class DialPlan extends BeanWithId {
             }
         }
         return rules;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) DialPlanContext.FEATURE);
     }
 }

@@ -43,9 +43,6 @@ import org.springframework.dao.support.DataAccessUtils;
 public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         DialPlanContext, ApplicationContextAware {
 
-    /**
-     *
-     */
     private static final String AUDIT_LOG_CONFIG_TYPE = "Dialing Rule";
     private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
@@ -53,16 +50,10 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     private static final String DIALING_RULE = "dialing rule";
     private static final String DIAL_PLAN = "Dial-plan: ";
     private static final String VOICEMAIL = "voicemail";
-
     private AliasManager m_aliasManager;
-
     private ListableBeanFactory m_beanFactory;
-
     private ApplicationContext m_applicationContext;
-
     private AuditLogContext m_auditLogContext;
-
-    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     /**
      * Loads dial plan, creates a new one if none exist
@@ -117,7 +108,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
             getHibernateTemplate().saveOrUpdate(rule);
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         }
-        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     /**
@@ -225,7 +215,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         for (DialingRule rule : rulesToDelete) {
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         }
-        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     public void duplicateRules(Collection<Integer> selectedRows) {
@@ -239,7 +228,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
             rules.add(ruleDup);
         }
         getHibernateTemplate().saveOrUpdate(dialPlan);
-        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     public List<DialingRule> getGenerationRules() {
@@ -312,7 +300,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         DialPlan dialPlan = getDialPlan();
         dialPlan.moveRules(selectedRows, step);
         getHibernateTemplate().saveOrUpdate(dialPlan);
-        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     /**

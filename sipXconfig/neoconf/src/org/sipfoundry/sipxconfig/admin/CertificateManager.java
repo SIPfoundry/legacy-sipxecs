@@ -14,8 +14,13 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
-public interface CertificateManager {
+
+public interface CertificateManager extends ConfigProvider {
+    public static final GlobalFeature FEATURE = new GlobalFeature("certificates");
+
     Properties loadCertPropertiesFile();
 
     String readCSRFile(String serverName);

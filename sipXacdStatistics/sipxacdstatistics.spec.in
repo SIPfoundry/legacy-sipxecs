@@ -94,15 +94,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%{_var}/lib/sipxpbx/sipXconfig-agent-*.gem
-
-%attr(755,root,root) %{_bindir}/sipxconfig-agent
-
-%defattr(644,sipxchange,sipxchange,755)
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-agent-process.xml
+%{_var}/lib/sipxpbx/sipxacd-stats-*.gem
+%attr(755,root,root) %{_bindir}/sipxacd-stats
 
 %post
-gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipXconfig-agent-*.gem >/dev/null
+gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipXacd-stats-*.gem >/dev/null
 
 %if %{_vendor} == redhat
 # change default yum update daemon repo query to once every 24 hours --annonymous coward
@@ -117,26 +113,25 @@ fi
 # prevent uninstalling during an upgrade
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
 if [ "$1" = "0" ] ; then
-  gem uninstall sipXconfig-agent >/dev/null 2>&1 || true
+  gem uninstall sipXacd-stats >/dev/null 2>&1 || true
 fi
 
 %files report
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxconfig-report-setup
-%{_var}/lib/sipxpbx/sipXconfig-report-*.gem
-%config(noreplace) /etc/cron.d/sipxconfig-report-crontab
-
-%attr(755,root,root) %{_bindir}/sipxconfig-report
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxacd-report-setup
+%{_var}/lib/sipxpbx/sipXacd-report-*.gem
+%config(noreplace) /etc/cron.d/sipxacd-report-crontab
+%attr(755,root,root) %{_bindir}/sipxacd-report
 
 %defattr(644,sipxchange,sipxchange,755)
-%config(noreplace) %{_sysconfdir}/sipxpbx/sipxconfig-report-config
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxacd-report-config
 %config(noreplace) %{_sysconfdir}/sipxpbx/report/schema.sql
 %config(noreplace) %{_sysconfdir}/sipxpbx/report/enable_upgrades.sql
 %config(noreplace) %{_sysconfdir}/sipxpbx/report/location_fqdn.sql
-%config(noreplace) %{_sysconfdir}/sipxpbx/report/sipxconfig-report-config.vm
+%config(noreplace) %{_sysconfdir}/sipxpbx/report/sipxacd-report-config.vm
 
 %post report
-gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipXconfig-report-*.gem >/dev/null
+gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipXacd-report-*.gem >/dev/null
 if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^sipxchange$' /etc/cron.d/cron.allow > /dev/null ); then
   echo sipxchange >> /etc/cron.d/cron.allow
 fi
@@ -145,7 +140,7 @@ fi
 # prevent uninstalling during an upgrade
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
 if [ "$1" = "0" ] ; then
-  gem uninstall sipXconfig-report >/dev/null 2>&1 || true
+  gem uninstall sipXacd-report >/dev/null 2>&1 || true
 fi
 
 %files client

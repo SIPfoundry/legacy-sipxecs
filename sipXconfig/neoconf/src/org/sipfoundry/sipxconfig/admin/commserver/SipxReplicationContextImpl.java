@@ -11,12 +11,9 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
@@ -29,13 +26,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
 public abstract class SipxReplicationContextImpl implements ApplicationEventPublisherAware, SipxReplicationContext {
-    private static final String IGNORE_REPLICATION_MESSAGE = "In initialization phase, ignoring request to replicate ";
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
     private ApplicationEventPublisher m_applicationEventPublisher;
     private ReplicationManager m_replicationManager;
     private JobContext m_jobContext;
     private LocationsManager m_locationsManager;
-    private ExecutorService m_fileExecutorService = Executors.newFixedThreadPool(5);
 
     protected abstract ServiceConfigurator getServiceConfigurator();
 
@@ -82,45 +77,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         m_replicationManager.resyncSlave(location);
     }
 
-    @Override
-    public void replicate(ConfigurationFile file) {
-        if (inInitializationPhase()) {
-            LOG.debug(IGNORE_REPLICATION_MESSAGE + file.getName());
-            return;
-        }
-
-        Location[] locations = m_locationsManager.getLocations();
-        replicate(locations, file);
-    }
-
-    @Override
-    public void replicate(Location[] locations, ConfigurationFile file) {
-        for (Location location : locations) {
-            replicate(location, file);
-        }
-    }
-
-    @Override
-    public void replicate(Location location, ConfigurationFile file) {
-        if (inInitializationPhase()) {
-            LOG.debug(IGNORE_REPLICATION_MESSAGE + file.getName());
-            return;
-        }
-
-        replicateWorker(location, file);
-    }
-
-    private void replicateWorker(final Location location, final ConfigurationFile file) {
-        ReplicateWork work = new ReplicateWork() {
-            @Override
-            public void replicate() {
-                m_replicationManager.replicateFile(location, file);
-            }
-
-        };
-        doWithJobMultiThread("File replication: " + file.getName(), location, work);
-    }
-
     public void regenerateCallSequences(final Collection<CallSequence> callSequences) {
         ReplicateWork work = new ReplicateWork() {
             @Override
@@ -132,15 +88,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         };
         doWithJob("DST change: regeneration of call sequences.",
                 m_locationsManager.getPrimaryLocation(), work);
-    }
-
-    private void doWithJobMultiThread(final String jobName, final Location location, final ReplicateWork work) {
-        m_fileExecutorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                doWithJob(jobName, location, work);
-            }
-        });
     }
 
     private void doWithJob(final String jobName, final Location location, final ReplicateWork work) {
@@ -155,15 +102,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
             // there is not really a good info here - advise user to consult log?
             m_jobContext.failure(jobId, null, null);
         }
-    }
-
-    private boolean inInitializationPhase() {
-        String initializationPhase = System.getProperty("sipxconfig.initializationPhase");
-        if (initializationPhase == null) {
-            return false;
-        }
-
-        return Boolean.parseBoolean(initializationPhase);
     }
 
     interface ReplicateWork {

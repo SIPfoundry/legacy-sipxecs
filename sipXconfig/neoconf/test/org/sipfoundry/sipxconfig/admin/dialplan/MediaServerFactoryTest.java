@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer;
 import org.springframework.beans.factory.BeanFactory;
 
 import static org.easymock.EasyMock.createNiceMock;

@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -30,24 +29,10 @@ public interface SipxReplicationContext {
      */
     void regenerateCallSequences(Collection<CallSequence> cs);
 
-    /**
-     * Replicates configuration to all locations.
-     *
-     * @param conf configuration to be replicated
-     */
-    void replicate(ConfigurationFile conf);
-
-    /**
-     * Replicates configuration to a specific location only...
-     *
-     * @param location server to which location needs to be pushed
-     * @param conf configuration to be replicated
-     */
-    void replicate(Location location, ConfigurationFile conf);
 
     /**
      * This function will publish application event - in case the application is done lazily it
-     * will publish the even only after everything has been replicated
+     * will publish the event only after everything has been replicated
      *
      * @param event event to be published
      */
@@ -58,5 +43,4 @@ public interface SipxReplicationContext {
     void replicateWork(Replicable entity);
     void resyncSlave(Location location);
     void replicateLocation(Location location);
-    void replicate(Location[] locations, ConfigurationFile file);
 }

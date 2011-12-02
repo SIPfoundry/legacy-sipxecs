@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
@@ -35,14 +34,12 @@ import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -53,7 +50,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
-        ConferenceBridgeContext, DaoEventListener, ReplicableProvider {
+        ConferenceBridgeContext, ReplicableProvider {
     private static final String BUNDLE_CONFERENCE = "conference";
     private static final String CONFERENCE = BUNDLE_CONFERENCE;
     private static final String VALUE = "value";
@@ -64,14 +61,13 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
-    private ConferenceBridgeProvisioning m_provisioning;
     private DomainManager m_domainManager;
-    private SipxServiceBundle m_conferenceBundle;
     private DaoEventPublisher m_daoEventPublisher;
 
     private SipxServiceManager m_sipxServiceManager;
     private SipxReplicationContext m_replicationContext;
     private ServiceConfigurator m_serviceConfigurator;
+    private ConferenceFeature m_conferenceFeature;
 
     public List getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
@@ -83,7 +79,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             // need to make sure that ID is set
             getHibernateTemplate().flush();
         }
-        m_provisioning.deploy(bridge);
+        m_conferenceFeature.deploy(bridge);
     }
 
     public void saveConference(Conference conference) {
@@ -93,7 +89,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         } else {
             getHibernateTemplate().merge(conference);
         }
-        m_provisioning.deploy(conference.getBridge());
+        m_conferenceFeature.deploy(conference.getBridge());
     }
 
     public void validate(Conference conference) {
@@ -147,7 +143,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         getHibernateTemplate().saveOrUpdateAll(bridges);
         getHibernateTemplate().flush();
         for (Bridge bridgeToDeploy : bridges) {
-            m_provisioning.deploy(bridgeToDeploy);
+            m_conferenceFeature.deploy(bridgeToDeploy);
         }
     }
 
@@ -198,8 +194,8 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         m_beanFactory = beanFactory;
     }
 
-    public void setProvisioning(ConferenceBridgeProvisioning provisioning) {
-        m_provisioning = provisioning;
+    public void setConferenceFeature(ConferenceFeature provisioning) {
+        m_conferenceFeature = provisioning;
     }
 
     public void setDomainManager(DomainManager domainManager) {
@@ -327,11 +323,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             onLocationSpecificServiceDelete((LocationSpecificService) entity);
         } else if (entity instanceof Location) {
             onLocationDelete((Location) entity);
-        } else if ((entity instanceof ServerRoleLocation)
-                && (((ServerRoleLocation) entity).isBundleModified(BUNDLE_CONFERENCE))) {
-            onLocationDelete(((ServerRoleLocation) entity).getLocation());
         }
-
     }
 
     public Bridge getBridgeForLocationId(Integer locationId) {
@@ -340,34 +332,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
                 locationId);
 
         return (Bridge) DataAccessUtils.singleResult(servers);
-    }
-
-    private void onLocationSave(Location location) {
-        Bridge bridge = getBridgeByServer(location.getFqdn());
-        boolean isConferenceInstalled = location.isBundleInstalled(m_conferenceBundle.getModelId());
-        if (bridge == null && isConferenceInstalled) {
-            bridge = newBridge();
-            bridge.setService(location.getService(SipxFreeswitchService.BEAN_ID));
-            getHibernateTemplate().save(bridge);
-            m_provisioning.deploy(bridge);
-        } else if (bridge != null && !isConferenceInstalled) {
-            getHibernateTemplate().delete(bridge);
-            m_provisioning.deploy(bridge);
-        }
-    }
-
-    public void onSave(Object entity) {
-        if (entity instanceof Location) {
-            onLocationSave((Location) entity);
-        } else if ((entity instanceof ServerRoleLocation)
-                && (((ServerRoleLocation) entity).isBundleModified(BUNDLE_CONFERENCE))) {
-            onLocationSave(((ServerRoleLocation) entity).getLocation());
-        }
-    }
-
-    @Required
-    public void setConferenceBundle(SipxServiceBundle conferenceBundle) {
-        m_conferenceBundle = conferenceBundle;
     }
 
     @Required

@@ -7,34 +7,43 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressRequester;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
 public class MongoFeature implements AddressProvider, FeatureProvider {
     public static final String BEAN_ID = "mongo";
     public static final AddressType ADDRESS_ID = new AddressType(BEAN_ID);
     public static final LocationFeature FEATURE_ID = new LocationFeature(BEAN_ID);
-    private FeatureManager m_featureManager;
+    private BeanWithSettingsDao<MongoSettings> m_settingsDao;
+
+    public MongoSettings getSettings() {
+        return m_settingsDao.findOne();
+    }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes() {
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
         return Collections.singleton(ADDRESS_ID);
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(Location location, AddressType type) {
-        Collection<Address> addresses = null;
-        if (m_featureManager.isLocationFeatureEnabled(FEATURE_ID, location)) {
-            addresses = Collections.singleton(new Address(location.getAddress(), 27017));
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
+            AddressRequester requester) {
+        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE_ID);
+        Collection<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            addresses.add(new Address(location.getAddress(), 27017));
         }
         return addresses;
     }

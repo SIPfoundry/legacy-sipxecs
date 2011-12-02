@@ -9,33 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import static org.apache.commons.lang.StringUtils.substringBefore;
+
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.springframework.beans.factory.annotation.Required;
-
-import static org.apache.commons.collections.CollectionUtils.collect;
-import static org.apache.commons.collections.CollectionUtils.select;
-import static org.apache.commons.collections.CollectionUtils.subtract;
-import static org.apache.commons.lang.StringUtils.substringBefore;
 
 public class Location extends BeanWithId {
     // security role
@@ -60,10 +47,6 @@ public class Location extends BeanWithId {
     private List<String> m_installedBundles;
     private Set<String> m_failedReplications;
     private NatLocation m_nat = new NatLocation();
-    private ServerRoleLocation m_serverRoles = new ServerRoleLocation();
-
-    private Collection<LocationSpecificService> m_services;
-    private DaoEventPublisher m_daoEventPublisher;
     private Branch m_branch;
     private boolean m_setFqdnOrIpChangedOnSave;
 
@@ -118,19 +101,6 @@ public class Location extends BeanWithId {
         m_nat = nat;
     }
 
-    public ServerRoleLocation getServerRoles() {
-        return m_serverRoles;
-    }
-
-    public void setServerRoles(ServerRoleLocation serverRoles) {
-        m_serverRoles = serverRoles;
-    }
-
-    @Required
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
-    }
-
     /**
      * Sets this instances address field based on the value parsed from the given URL. For
      * example, the URL of "https://localhost:8091/cgi-bin/replication/replication.cgi" will
@@ -165,62 +135,12 @@ public class Location extends BeanWithId {
         return String.format("http://%s:%d/xmlrpc", m_fqdn, OPENFIRE_CONTACT_INFO_UPDATE_PORT);
     }
 
-    /**
-     * Set this locations collection of services by directly supplying the LocationSpecificService
-     * objects
-     *
-     * @param services
-     */
-    public void setServices(Collection<LocationSpecificService> services) {
-        m_services = services;
-    }
-
     public Branch getBranch() {
         return m_branch;
     }
 
     public void setBranch(Branch branch) {
         m_branch = branch;
-    }
-
-    /**
-     * Set this locations collection of services by via a collection of SipxService definition
-     * objects
-     *
-     * @param services
-     */
-    public void setServiceDefinitions(Collection< ? extends SipxService> services) {
-        m_services = new ArrayList<LocationSpecificService>();
-        for (SipxService sipxService : services) {
-            LocationSpecificService newService = new LocationSpecificService();
-            newService.setSipxService(sipxService);
-            addService(newService);
-        }
-    }
-
-    /**
-     * Returns an unmodifiable collection of sipx services for this location. To add or remove
-     * services on this location, use the Location's addService or removeService methods.
-     */
-    public Collection<LocationSpecificService> getServices() {
-        return m_services;
-    }
-
-    public LocationSpecificService getService(String beanId) {
-        LocationSpecificService serviceForBeanId = null;
-
-        if (m_services != null) {
-            Iterator<LocationSpecificService> iterator = m_services.iterator();
-            while (iterator.hasNext() && serviceForBeanId == null) {
-                LocationSpecificService next = iterator.next();
-                SipxService service = next.getSipxService();
-                if (beanId.equals(service.getBeanId())) {
-                    serviceForBeanId = next;
-                }
-            }
-        }
-
-        return serviceForBeanId;
     }
 
     /**
@@ -238,60 +158,6 @@ public class Location extends BeanWithId {
         return m_setFqdnOrIpChangedOnSave;
     }
 
-    public void removeService(LocationSpecificService service) {
-        if (m_daoEventPublisher != null) {
-            m_daoEventPublisher.publishDelete(service);
-        }
-        service.getSipxService().onDestroy();
-        m_services.remove(service);
-    }
-
-    public void removeServiceByBeanId(String beanId) {
-        LocationSpecificService service = getService(beanId);
-        removeService(service);
-    }
-
-    public void addService(LocationSpecificService service) {
-        if (m_services == null) {
-            m_services = new ArrayList<LocationSpecificService>();
-        }
-        String serviceName = service.getSipxService().getBeanId();
-        for (LocationSpecificService lss : m_services) {
-            if (serviceName.equals(lss.getSipxService().getBeanId())) {
-                return;
-            }
-        }
-        service.setLocation(this);
-        m_services.add(service);
-        service.getSipxService().onInit();
-    }
-
-    public void addService(SipxService service) {
-        LocationSpecificService lss = new LocationSpecificService(service);
-        addService(lss);
-    }
-
-    public void addServices(Collection< ? extends SipxService> services) {
-        for (SipxService sipxService : services) {
-            addService(sipxService);
-        }
-    }
-
-    public void removeServices(Collection< ? extends SipxService> services) {
-        Collection<LocationSpecificService> lsServices = getServices();
-        if (lsServices == null) {
-            return;
-        }
-        for (Iterator<LocationSpecificService> iterator = lsServices.iterator(); iterator.hasNext();) {
-            LocationSpecificService locationSpecificService = iterator.next();
-            SipxService service = locationSpecificService.getSipxService();
-            if (services.contains(service)) {
-                service.onDestroy();
-                iterator.remove();
-            }
-        }
-    }
-
     public String getPassword() {
         return m_password;
     }
@@ -305,26 +171,6 @@ public class Location extends BeanWithId {
      */
     public String getHostname() {
         return substringBefore(m_fqdn, ".");
-    }
-
-    /**
-     * Collect services that are marked for restart after upgrade. Reset 'enableOnNextUpgrade'
-     * status for all returned services.
-     *
-     * Location needs to be saved after calling this method.
-     */
-    public Collection<SipxService> getToBeEnabledServices() {
-        Collection<SipxService> toBeEnabled = new ArrayList<SipxService>();
-        for (LocationSpecificService locationSpecificService : getServices()) {
-            if (!locationSpecificService.getEnableOnNextUpgrade()) {
-                continue;
-            }
-            SipxService sipxService = locationSpecificService.getSipxService();
-            toBeEnabled.add(sipxService);
-            locationSpecificService.setEnableOnNextUpgrade(false);
-        }
-
-        return toBeEnabled;
     }
 
     public boolean isPrimary() {
@@ -363,83 +209,6 @@ public class Location extends BeanWithId {
 
     public void setLastAttempt(Timestamp lastAttempt) {
         m_lastAttempt = lastAttempt;
-    }
-
-    /**
-     * Retrieves the list of services installed at this location.
-     *
-     * For each LocationSpecificService it retrieves the underlying SipxService.
-     */
-    public Collection<SipxService> getSipxServices() {
-        Collection<LocationSpecificService> services = getServices();
-        Transformer retrieveService = new Transformer() {
-            @Override
-            public Object transform(Object item) {
-                LocationSpecificService lss = (LocationSpecificService) item;
-                return lss.getSipxService();
-            }
-        };
-        return collect(services, retrieveService, new ArrayList());
-    }
-
-    /**
-     * If list of installed bundles is empty add all auto-enabled bundles to the list.
-     *
-     * @return true is bundles have been initialized and location needs to be saved
-     */
-    public boolean initBundles(SipxServiceManager sipxServiceManager) {
-        if (m_installedBundles != null && !m_installedBundles.isEmpty()) {
-            // already have bundles...
-            return false;
-        }
-        m_installedBundles = new ArrayList<String>();
-        Collection<SipxServiceBundle> bundles = sipxServiceManager.getBundleDefinitions();
-        for (SipxServiceBundle bundle : bundles) {
-            if (bundle.autoEnableOn(this)) {
-                m_installedBundles.add(bundle.getModelId());
-            }
-        }
-        resetBundles(sipxServiceManager);
-        return true;
-    }
-
-    /**
-     * Filters the list of bundles removing the ones that cannot be installed on this location.
-     *
-     * @param all bundles
-     * @return bundles that can be installed (it may include bundles that are already installed)
-     */
-    public Collection<SipxServiceBundle> getInstallableBundles(Collection<SipxServiceBundle> all) {
-        List<SipxServiceBundle> filtered = new ArrayList<SipxServiceBundle>();
-        select(all, new SipxServiceBundle.CanRunOn(this), filtered);
-        return filtered;
-    }
-
-    public boolean isBundleInstalled(String bundleId) {
-        return m_installedBundles == null ? false : m_installedBundles.contains(bundleId);
-    }
-
-    /**
-     * Reinitialize the list of services based on selected bundles.
-     *
-     * The bundle <-> service mapping might change as a result of installing new services or
-     * upgrading the system. Calling this method will reset the services list based on already
-     * selected bundles.
-     */
-    public void resetBundles(SipxServiceManager sipxServiceManager) {
-        Collection<SipxService> oldServices = getSipxServices();
-        Collection<SipxService> newServices = sipxServiceManager.getServiceDefinitions(sipxServiceManager
-                .getBundlesForLocation(this));
-
-        Collection<SipxService> stopServices = subtract(oldServices, newServices);
-        Collection<SipxService> startServices = subtract(newServices, oldServices);
-
-        removeServices(stopServices);
-        addServices(startServices);
-    }
-
-    public boolean isServiceInstalled(SipxService service) {
-        return getSipxServices().contains(service);
     }
 
     public boolean isInProgressState() {

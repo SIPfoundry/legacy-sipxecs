@@ -3,10 +3,10 @@ include $(top_srcdir)/config/ruby.am
 include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(sipXconfig_report_SRC) \
-	sipXconfig-report.gemspec.in
+	$(sipxacd_report_SRC) \
+	sipxacd-report.gemspec.in
 
 noinst_DATA = \
-	sipXconfig-report-$(sipXconfig_report_VER).gem
+	sipxacd-report-$(sipxacd_report_VER).gem
 
-sipXconfig_report_SRC = $(shell cd $(srcdir); find lib -name '*.rb')
+sipxacd_report_SRC = $(shell cd $(srcdir); find lib -name '*.rb')

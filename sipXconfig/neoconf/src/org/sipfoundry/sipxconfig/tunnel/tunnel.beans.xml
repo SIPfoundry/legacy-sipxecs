@@ -3,35 +3,6 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   
-  <bean id="tunnelBundle" parent="abstractBundle">
-    <constructor-arg value="tunnel" />
-    <property name="autoEnable" value="true" />
-    <property name="onlyPrimary" value="true" />
-  </bean>
-
-  <bean id="redundantTunnelBundle" parent="abstractBundle">
-    <constructor-arg value="redundantTunnel" />
-    <property name="onlyRemote" value="true" />
-  </bean>
-
-  <bean id="tunnelService" class="org.sipfoundry.sipxconfig.tunnel.TunnelService" scope="prototype" parent="sipxService">
-    <property name="processName" value="tunnel" />
-    <property name="configurations">
-      <list>
-        <ref bean="tunnelClientConfig" />
-        <ref bean="tunnelServerConfig" />
-      </list>
-    </property>
-    <property name="groupTitleEnabled" value="true" />
-    <property name="bundles">
-      <set>
-        <ref bean="tunnelBundle" />
-        <ref bean="redundantTunnelBundle" />
-      </set>
-    </property>
-    <property name="logDir" value="${sysdir.log}" />
-  </bean>
-  
   <bean id="tunnelManager" class="org.sipfoundry.sipxconfig.tunnel.TunnelManagerImpl">
 	<property name="locationsManager" ref="locationsManager"/>
 	<lookup-method name="getSipxReplicationContext" bean="sipxReplicationContextDao"/>
@@ -39,20 +10,9 @@
 	<property name="serverFile" ref="tunnelServerConfig"/>
   </bean>
   
-  <bean id="tunnelConfig" abstract="true" parent="defaultConfigurationFile">
+  <bean id="tunnelConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelConfiguration">
     <property name="velocityEngine" ref="velocityEngine"/>
     <property name="tunnelManager" ref="tunnelManager"/>
-    <property name="locationsManager" ref="locationsManager"/>
   </bean>
-  
-  <bean id="tunnelClientConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelClientConfigurationFile" parent="tunnelConfig">
-    <property name="name" value="tunnel/client.conf"/>
-    <property name="template" value="tunnel/tunnel-client.conf.vm"/>
-  </bean>
-  
-  <bean id="tunnelServerConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelServerConfigurationFile" parent="tunnelConfig">
-    <property name="name" value="tunnel/server.conf"/>
-    <property name="template" value="tunnel/tunnel-server.conf.vm"/>
-  </bean>
-
+ 
 </beans>

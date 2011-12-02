@@ -11,12 +11,16 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -24,7 +28,7 @@ import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.springframework.beans.factory.annotation.Required;
 
-public class AutoAttendant extends BeanWithGroups implements NamedObject {
+public class AutoAttendant extends BeanWithGroups implements NamedObject, DeployConfigOnEdit {
     public static final Log LOG = LogFactory.getLog(AutoAttendant.class);
 
     public static final String BEAN_NAME = "autoAttendant";
@@ -188,5 +192,10 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
             return Integer.parseInt(StringUtils.substring(attendantId, SYSTEM_NAME_PREFIX.length() + 1));
         }
         return null;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) DialPlanContext.FEATURE);
     }
 }

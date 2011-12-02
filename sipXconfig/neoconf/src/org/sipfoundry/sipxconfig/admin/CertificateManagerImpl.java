@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import static org.apache.commons.lang.StringUtils.deleteWhitespace;
+import static org.apache.commons.lang.StringUtils.join;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -37,22 +39,12 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SoftwareAdminApi;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.service.SipxBridgeService;
-import org.sipfoundry.sipxconfig.service.SipxConfigService;
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
-import org.sipfoundry.sipxconfig.service.SipxProvisionService;
-import org.sipfoundry.sipxconfig.service.SipxRecordingService;
-import org.sipfoundry.sipxconfig.service.SipxRestService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
-
-import static org.apache.commons.lang.StringUtils.deleteWhitespace;
-import static org.apache.commons.lang.StringUtils.join;
 
 /**
  * Backup provides Java interface to backup scripts
@@ -84,7 +76,9 @@ public class CertificateManagerImpl implements CertificateManager {
     private static final String ERROR_VALID = "&error.valid";
     private static final String EXTERNAL_KEY_BASED = "external-key-based";
     private static final String RESTART_SIPXECS = "restart";
-    private static final String[] SSL_CA_EXTENSIONS = {"pem", "crt"};
+    private static final String[] SSL_CA_EXTENSIONS = {
+        "pem", "crt"
+    };
 
     private String m_binCertDirectory;
 
@@ -100,13 +94,13 @@ public class CertificateManagerImpl implements CertificateManager {
 
     private SipxProcessContext m_processContext;
 
-    private SipxServiceManager m_sipxServiceManager;
-
     private SipxReplicationContext m_sipxReplicationContext;
 
-    private ApiProvider<SoftwareAdminApi>  m_softwareAdminApiProvider;
+    private ApiProvider<SoftwareAdminApi> m_softwareAdminApiProvider;
 
     private LocationsManager m_locationsManager;
+
+    private ConfigManager m_configManager;
 
     public void setBinCertDirectory(String binCertDirectory) {
         m_binCertDirectory = binCertDirectory;
@@ -207,6 +201,7 @@ public class CertificateManagerImpl implements CertificateManager {
         };
         return cmdLine;
     }
+
     private String[] getKeyStoreGenCommand() {
         String[] cmdLine = new String[] {
             m_libExecDirectory + KEYSTOREGEN_SH
@@ -263,7 +258,7 @@ public class CertificateManagerImpl implements CertificateManager {
 
     public boolean validateCertificateAuthority(File file) {
         try {
-            //validate the file if it can be an authority certificate
+            // validate the file if it can be an authority certificate
             runCommand(getValidateCertFileCommand(file, true));
             return true;
         } catch (ScriptExitException ex) {
@@ -321,41 +316,10 @@ public class CertificateManagerImpl implements CertificateManager {
     public void generateKeyStores() {
         try {
             runCommand(getKeyStoreGenCommand());
-            // Mark required services for restart
-            markServicesForRestart();
+            m_configManager.restartAllJavaProcesses();
         } catch (RuntimeException ex) {
             throw new UserException("&error.regenstore");
         }
-    }
-
-    /**
-     * Mark for restart only services from primary location.
-     * Anyway, sipXecs from secondary locations
-     * is restarted, so there is no need to mark services for restart for these locations
-     */
-    private void markServicesForRestart() {
-        SipxService configService = m_sipxServiceManager
-                .getServiceByBeanId(SipxConfigService.BEAN_ID);
-        SipxService bridgeService = m_sipxServiceManager
-                .getServiceByBeanId(SipxBridgeService.BEAN_ID);
-        SipxService ivrService = m_sipxServiceManager
-                .getServiceByBeanId(SipxIvrService.BEAN_ID);
-        SipxService recordingService = m_sipxServiceManager
-                .getServiceByBeanId(SipxRecordingService.BEAN_ID);
-        SipxService imbotService = m_sipxServiceManager
-                .getServiceByBeanId(SipxImbotService.BEAN_ID);
-        SipxService openfireService = m_sipxServiceManager.getServiceByBeanId("sipxOpenfireService");
-        SipxService provisionService = m_sipxServiceManager
-                .getServiceByBeanId(SipxProvisionService.BEAN_ID);
-        SipxService restService = m_sipxServiceManager
-                .getServiceByBeanId(SipxRestService.BEAN_ID);
-
-        Location primaryLocation = m_locationsManager.getPrimaryLocation();
-
-        m_processContext.markServicesForRestart(primaryLocation,
-                                   Arrays.asList(configService, bridgeService, ivrService,
-                                                 recordingService, openfireService, imbotService,
-                                                 provisionService, restService));
     }
 
     public File getCRTFile(String serverName) {
@@ -369,7 +333,6 @@ public class CertificateManagerImpl implements CertificateManager {
     public File getKeyFile(String serverName) {
         return new File(m_certDirectory, serverName + WEB_KEY);
     }
-
 
     public File getExternalKeyFile() {
         return getKeyFile(EXTERNAL_KEY_BASED);
@@ -392,14 +355,15 @@ public class CertificateManagerImpl implements CertificateManager {
             Location[] locations = m_locationsManager.getLocations();
             for (Location curLocation : locations) {
                 for (File file : filesToDelete) {
-                    String remoteFileName = join(new Object[] {curLocation.getHttpsServerUrl(),
-                            file.getAbsolutePath()});
+                    String remoteFileName = join(new Object[] {
+                        curLocation.getHttpsServerUrl(), file.getAbsolutePath()
+                    });
                     DeleteMethod httpDelete = new DeleteMethod(remoteFileName);
                     try {
                         int statusCode = httpClient.executeMethod(httpDelete);
                         if (statusCode != 200) {
-                            throw new UserException("&error.https.server.status.code", curLocation.getFqdn(), String
-                                    .valueOf(statusCode));
+                            throw new UserException("&error.https.server.status.code", curLocation.getFqdn(),
+                                    String.valueOf(statusCode));
                         }
                     } catch (HttpException ex) {
                         throw new UserException("&error.https.server", curLocation.getFqdn(), ex.getMessage());
@@ -441,20 +405,7 @@ public class CertificateManagerImpl implements CertificateManager {
     }
 
     public void copyCRTAuthority() {
-        AnyFile anyFile = null;
-        Location[] locations = m_locationsManager.getLocations();
-        for (File file : new File(getCATmpDir()).listFiles()) {
-            anyFile = new AnyFile();
-            anyFile.setDirectory(m_sslAuthDirectory);
-            anyFile.setName(deleteWhitespace(file.getName()));
-            anyFile.setSourceFilePath(file.getAbsolutePath());
-            for (Location location : locations) {
-                //call replicate on each location so JobStatus page can show replication status on
-                //each affected location
-                m_sipxReplicationContext.replicate(location, anyFile);
-            }
-        }
-        deleteCRTAuthorityTmpDirectory();
+        m_configManager.replicationRequired(CertificateManager.FEATURE);
     }
 
     public Set<CertificateDecorator> listCertificates() {
@@ -515,7 +466,7 @@ public class CertificateManagerImpl implements CertificateManager {
             throw new UserException(ERROR_VALID);
         }
 
-        File newKey = isCsrBased ? getKeyFile(server) :  getExternalKeyFile();
+        File newKey = isCsrBased ? getKeyFile(server) : getExternalKeyFile();
         if (!newKey.exists()) {
             throw new UserException(ERROR_VALID);
         }
@@ -591,26 +542,43 @@ public class CertificateManagerImpl implements CertificateManager {
     }
 
     @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Required
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
     }
 
     @Required
-    public void setSoftwareAdminApiProvider(ApiProvider<SoftwareAdminApi>  softwareAdminApiProvider) {
+    public void setSoftwareAdminApiProvider(ApiProvider<SoftwareAdminApi> softwareAdminApiProvider) {
         m_softwareAdminApiProvider = softwareAdminApiProvider;
     }
 
     @Required
-    public void setLocationsManager(LocationsManager  locationsManager) {
+    public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
 
     protected HttpClient getNewHttpClient() {
         return new HttpClient();
+    }
+
+    @Override
+    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (request.applies(CertificateManager.FEATURE)) {
+            AnyFile anyFile = null;
+            Location[] locations = m_locationsManager.getLocations();
+            for (File file : new File(getCATmpDir()).listFiles()) {
+                anyFile = new AnyFile();
+                anyFile.setDirectory(m_sslAuthDirectory);
+                anyFile.setName(deleteWhitespace(file.getName()));
+                anyFile.setSourceFilePath(file.getAbsolutePath());
+                for (Location location : locations) {
+                    File dstDir = manager.getLocationDataDirectory(location);
+                    // call replicate on each location so JobStatus page can show replication status
+                    // on
+                    // each affected location
+                    FileUtils.copyFileToDirectory(file, dstDir);
+                }
+            }
+            deleteCRTAuthorityTmpDirectory();
+        }
     }
 }

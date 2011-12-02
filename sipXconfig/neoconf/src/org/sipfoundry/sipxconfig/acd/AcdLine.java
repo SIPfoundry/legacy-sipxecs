@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class AcdLine extends AcdComponent implements Replicable {
@@ -192,10 +191,5 @@ public class AcdLine extends AcdComponent implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
-    }
-
-    @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
-        return null;
     }
 }

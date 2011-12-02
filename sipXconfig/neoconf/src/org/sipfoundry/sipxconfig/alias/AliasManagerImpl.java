@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -133,6 +134,15 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
 
         }
         return m_aliasOwners;
+    }
+
+    public String getNextAvailableNumericBasedAlias(String desiredAlias) {
+        String alias = desiredAlias;
+        if (isAliasInUse(alias)) {
+            // TODO : attempt to find an available alias
+            throw new UserException("alias in use");
+        }
+        return alias;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

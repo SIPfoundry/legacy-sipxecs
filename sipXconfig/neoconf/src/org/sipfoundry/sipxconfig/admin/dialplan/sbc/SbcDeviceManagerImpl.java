@@ -8,17 +8,16 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
+import static java.util.Collections.singleton;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import static java.util.Collections.singleton;
-
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
@@ -29,9 +28,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
-import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
-import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -54,8 +51,6 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
 
     private DaoEventPublisher m_daoEventPublisher;
 
-    private SipxServiceBundle m_borderControllerBundle;
-
     private SbcDescriptor m_sipXbridgeSbcModel;
 
     private SipxServiceManager m_sipxServiceManager;
@@ -65,11 +60,6 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     @Required
     public void setAuditLogContext(AuditLogContext auditLogContext) {
         m_auditLogContext = auditLogContext;
-    }
-
-    @Required
-    public void setBorderControllerBundle(SipxServiceBundle borderControllerBundle) {
-        m_borderControllerBundle = borderControllerBundle;
     }
 
     @Required
@@ -279,53 +269,17 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         }
     }
 
-    public void onDelete(Object entity) {
-        Location location = null;
-        if ((entity instanceof ServerRoleLocation)
-                && (((ServerRoleLocation) entity).isBundleModified(BORDER_CONTROLLER))) {
-            location = ((ServerRoleLocation) entity).getLocation();
-        } else if (entity instanceof Location) {
-            location = (Location) entity;
-        } else if (entity instanceof NatLocation) {
-            location = ((NatLocation) entity).getLocation();
-        }
-        if (null != location) {
-            BridgeSbc bridgeSbc = getBridgeSbc(location);
-            if (null != bridgeSbc) {
-                deleteSbcDevice(bridgeSbc);
-            }
-        }
-    }
-
-    public void onSave(Object entity) {
-        Location location = null;
-        if ((entity instanceof ServerRoleLocation)
-                && (((ServerRoleLocation) entity).isBundleModified(BORDER_CONTROLLER))) {
-            location = ((ServerRoleLocation) entity).getLocation();
-        } else if (entity instanceof Location) {
-            location = (Location) entity;
-        } else if (entity instanceof NatLocation) {
-            location = ((NatLocation) entity).getLocation();
-        }
-        if (null != location) {
-            BridgeSbc bridgeSbc = getBridgeSbc(location);
-            if (location.isBundleInstalled(m_borderControllerBundle.getModelId())) {
-                if (null == bridgeSbc) {
-                    bridgeSbc = (BridgeSbc) newSbcDevice(m_sipXbridgeSbcModel);
-                    bridgeSbc.setName("sipXbridge-" + location.getId().toString());
-                    bridgeSbc.setDescription("Internal SBC on " + location.getFqdn());
-                }
-                bridgeSbc.setLocation(location);
-                bridgeSbc.setAddress(location.getAddress());
-                // Set location id in order to ensure location id saving in DB.
-                // Please note that sbc_device table is not related with location table
-                bridgeSbc.setSettingTypedValue("bridge-configuration/location-id", location.getId());
-                storeSbcDevice(bridgeSbc);
-                activateBridgeSbc();
-            } else if (null != bridgeSbc) {
-                deleteSbcDevice(bridgeSbc);
-            }
-        }
+    public void newSbc(Location location) {
+        BridgeSbc bridgeSbc = (BridgeSbc) newSbcDevice(m_sipXbridgeSbcModel);
+        bridgeSbc.setName("sipXbridge-" + location.getId().toString());
+        bridgeSbc.setDescription("Internal SBC on " + location.getFqdn());
+        bridgeSbc.setLocation(location);
+        bridgeSbc.setAddress(location.getAddress());
+        // Set location id in order to ensure location id saving in DB.
+        // Please note that sbc_device table is not related with location table
+        bridgeSbc.setSettingTypedValue("bridge-configuration/location-id", location.getId());
+        storeSbcDevice(bridgeSbc);
+        activateBridgeSbc();
     }
 
     private void activateBridgeSbc() {

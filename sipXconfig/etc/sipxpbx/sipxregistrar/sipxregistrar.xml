@@ -2,6 +2,16 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="yesNo">
+    <boolean>
+      <true>
+        <value>Y</value>
+      </true>
+      <false>
+        <value>N</value>
+      </false>
+    </boolean>
+  </type>  
   <type id="loglevel">
     <enum>
       <option>
@@ -66,16 +76,7 @@
       <type refid="feature-code" />
     </setting>
     <setting name="SIP_REDIRECT.160-ENUM.PREFIX_PLUS" advanced="yes">
-      <type>
-        <boolean>
-          <true>
-            <value>Y</value>
-          </true>
-          <false>
-            <value>N</value>
-          </false>
-        </boolean>
-      </type>
+      <type ref="yesNo"/>
       <value>Y</value>
     </setting>
   </group>
@@ -97,16 +98,7 @@
   </group>
   <group name="userparam" advanced="yes">
     <setting name="SIP_REDIRECT.090-USERPARAM.STRIP_ALL" advanced="yes">
-      <type>
-        <boolean>
-          <true>
-            <value>Y</value>
-          </true>
-          <false>
-            <value>N</value>
-          </false>
-        </boolean>
-      </type>
+      <type refid="yesNo"/>
       <value>N</value>
     </setting>
   </group>

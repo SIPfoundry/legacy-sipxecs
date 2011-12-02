@@ -15,6 +15,10 @@
       <ref local="sbcManagerImpl" />
     </property>
   </bean>
+  
+  <bean id="sbcFeature" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcFeature">
+    <property name="sbcDeviceManager" ref="sbcManager"/>
+  </bean>
 
   <!--
     Configure standard private networks by default.
@@ -33,7 +37,6 @@
   <bean id="sbcDeviceManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
-    <property name="borderControllerBundle" ref="borderControllerBundle" />
     <property name="sipXbridgeSbcModel" ref="sipXbridgeSbcModel" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="auditLogContext" ref="auditLogContext" />

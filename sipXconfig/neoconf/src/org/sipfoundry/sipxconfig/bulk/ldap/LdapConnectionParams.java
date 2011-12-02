@@ -16,13 +16,14 @@ import javax.naming.Context;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.springframework.ldap.support.LdapContextSource;
 
 /**
  * Used to store LDAP connections in the DB LdapConnectionParams
  */
-public class LdapConnectionParams extends BeanWithId {
+public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEdit {
     private static final int DEFAULT_PORT = 389;
     private static final int DEFAULT_SSL_PORT = 636;
 

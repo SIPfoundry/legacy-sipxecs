@@ -9,13 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import com.mongodb.DBObject;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIASES;
 
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
 
-import static org.sipfoundry.commons.mongo.MongoConstants.ALIASES;
+import com.mongodb.DBObject;
 
 public class Aliases extends DataSetGenerator {
     public static final String FAX_EXTENSION_PREFIX = "~~ff~";
@@ -28,11 +26,7 @@ public class Aliases extends DataSetGenerator {
     }
 
     public void generate(Replicable entity, DBObject top) {
-        if (entity instanceof User || entity instanceof OpenAcdExtension) {
-            top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName(), getSipxFreeswitchService()));
-        } else {
-            top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
-        }
+        top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
         getDbCollection().save(top);
     }
 

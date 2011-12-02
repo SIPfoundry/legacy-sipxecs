@@ -48,15 +48,6 @@ public interface LocationsManager {
 
 
     /**
-     * Update Server Roles for the corresponding location and publish serverRole event
-     * (we need to separate location save from serverRole location save because we need
-     * different location services set to restart, tracked by serverRole event)
-     * @param location
-     * @param role
-     */
-
-    void storeServerRoleLocation(Location location, ServerRoleLocation role);
-    /**
      * Saves new location in DB without publishing any events (used on location migration task)
      * (no publish)
      *

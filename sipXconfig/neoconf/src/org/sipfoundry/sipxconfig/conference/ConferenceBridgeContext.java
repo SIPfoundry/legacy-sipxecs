@@ -68,10 +68,4 @@ public interface ConferenceBridgeContext extends AliasOwner {
      * @param conf configuration to be replicated
      */
     void updateConfAudio();
-
-    /**
-     * Only for use in test
-     * @param provisioning
-     */
-    void setProvisioning(ConferenceBridgeProvisioning provisioning);
 }

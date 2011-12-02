@@ -7,6 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
+import java.util.List;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -25,11 +26,23 @@ public interface FeatureManager {
 
     public void enableGlobalFeatures(Set<GlobalFeature> features);
 
-    public boolean isLocationFeatureEnabled(LocationFeature feature, Location location);
+    public boolean isFeatureEnabled(LocationFeature feature, Location location);
 
-    public boolean isGlobalFeatureEnabled(GlobalFeature feature);
+    /**
+     * At one or more locations
+     */
+    public boolean isFeatureEnabled(LocationFeature feature);
+
+    public boolean isFeatureEnabled(GlobalFeature feature);
 
     public Set<GlobalFeature> getAvailableGlobalFeatures();
 
     public Set<LocationFeature> getAvailableLocationFeatures(Location location);
+
+    public List<Location> getLocationsForEnabledFeature(LocationFeature feature);
+
+    /**
+     * Useful only if you know there's only a single allowed location
+     */
+    public Location getLocationForEnabledFeature(LocationFeature feature);
 }

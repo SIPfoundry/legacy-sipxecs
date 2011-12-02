@@ -26,6 +26,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
+import org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class AcdReportConfigTest extends XMLTestCase {

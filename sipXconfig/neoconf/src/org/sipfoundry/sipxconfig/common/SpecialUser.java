@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,9 +21,6 @@ import java.util.Set;
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-
-import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 public class SpecialUser extends BeanWithId implements Replicable {
 
@@ -119,10 +118,5 @@ public class SpecialUser extends BeanWithId implements Replicable {
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(UID, getUserName());
         return props;
-    }
-
-    @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
-        return null;
     }
 }

@@ -9,6 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.util.Collection;
 
 import org.easymock.EasyMock;
@@ -19,20 +25,10 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManagerImpl;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.conference.Bridge;
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl;
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioning;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     private LocationsManager m_locationsManager;
@@ -65,14 +61,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
 
     public void setSbcManagerImpl(SbcManagerImpl sbcManagerImpl) {
         m_sbcManagerImpl = sbcManagerImpl;
-    }
-
-    public void setConferenceBridgeContextImpl(ConferenceBridgeContextImpl bridgeContext) {
-        bridgeContext.setProvisioning(new ConferenceBridgeProvisioning() {
-            public void deploy(Bridge bridge) {
-
-            }
-        });
     }
 
     @Override

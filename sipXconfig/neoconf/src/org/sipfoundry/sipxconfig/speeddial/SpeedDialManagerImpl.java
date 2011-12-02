@@ -19,17 +19,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserGroupSaveDeleteListener;
-import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements SpeedDialManager {
-
     private CoreContext m_coreContext;
-
-    private ConfigFileActivationManager m_configFileManager;
+    private DaoEventPublisher m_daoEventPublisher;
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -139,6 +137,9 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     public void deleteSpeedDialsForUser(int userId) {
         List<SpeedDial> speedDials = findSpeedDialForUserId(userId);
         if (!speedDials.isEmpty()) {
+            for (SpeedDial sd : speedDials) {
+                m_daoEventPublisher.publishDelete(sd);
+            }
             getHibernateTemplate().deleteAll(speedDials);
             getHibernateTemplate().flush();
         }
@@ -156,7 +157,6 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         @Override
         protected void onUserDelete(User user) {
             deleteSpeedDialsForUser(user.getId());
-            activateResourceList();
         }
     }
 
@@ -178,24 +178,20 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return Arrays.asList(rules);
     }
 
-    @Override
-    public void activateResourceList() {
-        m_configFileManager.activateConfigFiles();
-    }
 
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
-    @Required
-    public void setRlsConfigFilesActivator(ConfigFileActivationManager configFileManager) {
-        m_configFileManager = configFileManager;
-    }
-
     @Override
     public void clear() {
         Collection c = getHibernateTemplate().loadAll(SpeedDial.class);
         getHibernateTemplate().deleteAll(c);
+    }
+
+    @Required
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
 }

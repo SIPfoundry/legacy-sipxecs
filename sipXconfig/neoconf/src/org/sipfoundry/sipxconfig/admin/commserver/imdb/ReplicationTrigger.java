@@ -20,26 +20,26 @@ import java.util.concurrent.Executors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.Location.State;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location.State;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialGroup;
@@ -51,14 +51,13 @@ import org.springframework.context.ApplicationListener;
  * This class aggregates some of the conditions that will trigger a replication. Initially it was meant to
  * aggregate conditions for Mongo replication but others were added.
  * The main methods are the event listeners methods onSave() and onDelete().
- * See {@link DaoEventDispatcher} to understand sipXecs event system, namely the order in which events
+ * See DaoEventDispatcher to understand sipXecs event system, namely the order in which events
  * are triggered and methods processed.
- * The replication methods will throw a {@link UserException} which will veto the save/delete operation.
+ * The replication methods will throw a UserException which will veto the save/delete operation.
  * Stuff other than the delegation of replication to managers should be kept to a bare minimum.
  */
 public class ReplicationTrigger extends SipxHibernateDaoSupport implements ApplicationListener, DaoEventListener {
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
-    private static final String OPENFIRE_SERVICE_BEANID = "sipxOpenfireService";
     private static final String USER_GROUP_RESOURCE = "user";
 
     private ReplicationManager m_replicationManager;
@@ -68,10 +67,11 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     private SipxReplicationContext m_lazySipxReplicationContext;
     private SipxReplicationContext m_eagerSipxReplicationContext;
     private ConfigFileActivationManager m_configFileManager;
-    private SipxServiceManager m_serviceManager;
     private ServiceConfigurator m_serviceConfigurator;
     private SipxProcessContext m_sipxProcessContext;
     private ExecutorService m_executorService;
+    private FeatureManager m_featureManager;
+    private ConfigManager m_configManager;
 
     /** no replication at start-up by default */
     private boolean m_replicateOnStartup;
@@ -244,14 +244,6 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
      */
     private void activateGroup() {
         m_configFileManager.activateConfigFiles();
-        //We need to replicate 2 OF configs (moved control from plugin to config to control the order)
-        //We can do that only by replicating the service. We unmark the service for restart as none of
-        //the config that changes requires restart
-        if (m_serviceManager.isServiceInstalled(OPENFIRE_SERVICE_BEANID)) {
-            SipxService instantMessagingService = m_serviceManager.getServiceByBeanId(OPENFIRE_SERVICE_BEANID);
-            m_serviceConfigurator.replicateServiceConfig(instantMessagingService);
-            m_sipxProcessContext.unmarkServicesToRestart(m_sipxProcessContext.getRestartNeededServices());
-        }
     }
 
     private void generatePermission(Permission permission) {
@@ -344,10 +336,6 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
         m_configFileManager = configFileManager;
     }
 
-    public void setSipxServiceManager(SipxServiceManager serviceManager) {
-        m_serviceManager = serviceManager;
-    }
-
     public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
         m_serviceConfigurator = serviceConfigurator;
     }
@@ -366,5 +354,9 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
 
     public void setEagerSipxReplicationContext(SipxReplicationContext eagerSipxReplicationContext) {
         m_eagerSipxReplicationContext = eagerSipxReplicationContext;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

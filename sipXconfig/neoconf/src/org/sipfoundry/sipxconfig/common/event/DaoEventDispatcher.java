@@ -67,7 +67,7 @@ public final class DaoEventDispatcher implements MethodInterceptor {
 
             // XCF-768 Delete may have same problem as save, but I wouldn't want to send
             // an event about an object that has already been deleted, especially in case
-            // there's a listner that wishes to veto delete.  Until there's a problem or
+            // there's a listener that wishes to veto delete.  Until there's a problem or
             // XCF-768 gets resolved once and for all, leave ordering as is.
             response = method.proceed();
 

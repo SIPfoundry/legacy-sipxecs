@@ -9,7 +9,6 @@ sipxMediaService.voicemailHttpPort=8090
 sipxMediaService.voicemailHttpsPort=8091
 sipxParkService.parkServerSipPort=5120
 sipxCallResolverService.agentPort=8130
-sipxRlsService.rlsPort=5140
 sipxStatusService.httpsPort=8101
 sipxSaaService.tcpPort=5170
 sipxSaaService.udpPort=5170

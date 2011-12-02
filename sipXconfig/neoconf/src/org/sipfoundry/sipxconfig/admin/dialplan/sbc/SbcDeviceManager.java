@@ -43,4 +43,6 @@ public interface SbcDeviceManager {
     public boolean maxAllowedLimitReached(SbcDescriptor model);
 
     boolean isInternalSbcEnabled();
+
+    void newSbc(Location location);
 }

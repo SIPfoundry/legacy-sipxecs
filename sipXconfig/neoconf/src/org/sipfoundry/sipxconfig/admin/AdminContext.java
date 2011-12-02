@@ -13,7 +13,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 
-public interface AdminContext {
+import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
+
+public interface AdminContext extends FeatureProvider, AddressProvider {
+    public static final LocationFeature FEATURE = new LocationFeature("admin");
+    public static final AddressType HTTP_ADDRESS = new AddressType("adminApi");
+    public static final AddressType HTTPS_ADDRESS = new AddressType("secureAdminApi");
+
     final String CONTEXT_BEAN_NAME = "adminContext";
 
     BackupPlan getBackupPlan(String type);

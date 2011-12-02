@@ -9,7 +9,10 @@ package org.sipfoundry.sipxconfig.tunnel;
 
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+
 public interface TunnelManager {
+    public static final GlobalFeature FEATURE = new GlobalFeature("tunnels");
 
     public Collection<TunnelProvider> getTunnelProviders();
 }

@@ -20,12 +20,8 @@ public class AcdReplicationProvider implements ReplicableProvider {
     public List<Replicable> getReplicables() {
         List<Replicable> replicables = new ArrayList<Replicable>();
         List<AcdLine> acdLines = m_acdContext.getLines();
-        List<AcdServer> servers = m_acdContext.getServers();
         for (AcdLine line : acdLines) {
             replicables.add(line);
-        }
-        for (AcdServer server : servers) {
-            replicables.add(server);
         }
         return replicables;
     }
@@ -37,5 +33,4 @@ public class AcdReplicationProvider implements ReplicableProvider {
     public void setAcdContext(AcdContext acdContext) {
         m_acdContext = acdContext;
     }
-
 }

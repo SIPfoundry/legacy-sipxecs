@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
@@ -77,25 +76,6 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     @Override
     public void remove(Replicable entity) {
         m_target.remove(entity);
-    }
-
-    @Override
-    public synchronized void replicate(ConfigurationFile conf) {
-        m_tasks.add(new ConfTask(conf));
-        notifyWorker();
-    }
-
-    @Override
-    public void replicate(Location[] locations, ConfigurationFile file) {
-        for (Location location : locations) {
-            replicate(location, file);
-        }
-    }
-
-    @Override
-    public synchronized void replicate(Location location, ConfigurationFile conf) {
-        m_tasks.add(new ConfTask(location, conf));
-        notifyWorker();
     }
 
     @Override
@@ -186,51 +166,6 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         public abstract void replicate(SipxReplicationContext replicationContext);
 
         public abstract boolean update(ReplicationTask task);
-    }
-
-    static class ConfTask extends ReplicationTask {
-        /**
-         * set of locations to replicate configuration on null means all locations here...
-         */
-        private Set<Location> m_locations;
-        private final ConfigurationFile m_conf;
-
-        public ConfTask(ConfigurationFile conf) {
-            m_conf = conf;
-        }
-
-        public ConfTask(Location location, ConfigurationFile conf) {
-            m_conf = conf;
-            m_locations = new HashSet<Location>();
-            m_locations.add(location);
-        }
-
-        @Override
-        public void replicate(SipxReplicationContext replicationContext) {
-            if (m_locations == null) {
-                replicationContext.replicate(m_conf);
-            } else {
-                for (Location location : m_locations) {
-                    replicationContext.replicate(location, m_conf);
-                }
-            }
-        }
-
-        @Override
-        public boolean update(ReplicationTask task) {
-            if (task instanceof ConfTask) {
-                ConfTask ct = (ConfTask) task;
-                if (m_conf.equals(ct.m_conf)) {
-                    if (m_locations != null && ct.m_locations != null) {
-                        m_locations.addAll(ct.m_locations);
-                    } else {
-                        m_locations = null;
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 
     static class GenerateDatasetTask extends ReplicationTask {

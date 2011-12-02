@@ -9,11 +9,10 @@ package org.sipfoundry.sipxconfig.address;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-
 public interface AddressProvider {
 
-    public Collection<AddressType> getSupportedAddressTypes();
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager);
 
-    public Collection<Address> getAvailableAddresses(Location location, AddressType type);
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
+            AddressRequester requester);
 }

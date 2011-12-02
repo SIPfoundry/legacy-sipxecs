@@ -36,8 +36,6 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
 
     private ProfileManager m_sbcProfileManager;
 
-    private SipxServiceManager m_sipxServiceManager;
-
     private SipxProcessContext m_sipxProcessContext;
 
     private BeanFactory m_beanFactory;

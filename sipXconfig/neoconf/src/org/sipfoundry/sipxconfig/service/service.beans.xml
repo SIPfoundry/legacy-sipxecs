@@ -39,7 +39,6 @@
   <bean id="unmanagedServiceDescriptor" abstract="true" class="org.sipfoundry.sipxconfig.service.ServiceDescriptor">
     <property name="beanId" value="unmanagedService" />
   </bean>
-
   <bean id="ntpService" factory-bean="unmanagedService" factory-method="ntp" />
   <bean id="dnsService" factory-bean="unmanagedService" factory-method="dns" />
   <bean id="syslogService" factory-bean="unmanagedService" factory-method="syslog" />
@@ -47,70 +46,6 @@
   <bean id="addServiceTask" class="org.sipfoundry.sipxconfig.service.AddServiceTask">
     <property name="serviceManager" ref="serviceManager" />
     <property name="servicesSource" ref="serviceDescriptorSource" />
-  </bean>
-
-  <bean id="sipxServiceModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
-    <constructor-arg value="org.sipfoundry.sipxconfig.service.SipxService" />
-  </bean>
-
-  <bean id="sipxBundleModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
-    <constructor-arg value="org.sipfoundry.sipxconfig.service.SipxServiceBundle" />
-  </bean>
-
-  <bean id="configVersionManager" class="org.sipfoundry.sipxconfig.service.ConfigVersionManagerImpl">
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="processManagerApiProvider" ref="processManagerApiProvider" />
-  </bean>
-
-  <bean id="serviceConfiguratorImpl" class="org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl">
-    <!-- eager versions of sipx replication and dial plan activation manager injected here -->
-    <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
-    <property name="dialPlanActivationManager" ref="eagerDialPlanActivationManager" />
-    <property name="configVersionManager" ref="configVersionManager" />
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="sipxProcessContext" ref="sipxProcessContext" />
-    <property name="domainManager" ref="domainManager" />
-    <property name="dnsGenerator" ref="dnsGenerator"/>
-    <property name="auditLogContext" ref="auditLogContext"/>
-    <property name="acdHistoricalConfiguration" ref="acdHistoricalConfiguration" />
-  </bean>
-
-  <bean id="serviceConfigurator" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.service.ServiceConfigurator" />
-    <property name="target" ref="serviceConfiguratorImpl" />
-    <property name="interceptorNames">
-      <list>
-        <value>backgroundTaskInterceptor</value>
-      </list>
-    </property>
-  </bean>
-
-  <bean id="sipxServiceManagerImpl" class="org.sipfoundry.sipxconfig.service.SipxServiceManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="serviceModelSource" ref="sipxServiceModelSource" />
-    <property name="bundleModelSource" ref="sipxBundleModelSource" />
-  </bean>
-
-  <bean id="sipxServiceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.service.SipxServiceManager" />
-    <property name="target" ref="sipxServiceManagerImpl" />
-  </bean>
-
-  <bean id="sipxService" class="org.sipfoundry.sipxconfig.service.SipxService" abstract="true">
-    <property name="modelFilesContext" ref="modelFilesContext" />
-    <property name="domainManager" ref="domainManager" />
-    <property name="confDir" value="${sysdir.etc}" />
-    <property name="logDir" value="${sysdir.log}" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="loggingManager" ref="loggingManager" />
-  </bean>
-
-  <bean id="serviceConfigurationFile" parent="defaultConfigurationFile" abstract="true">
-    <property name="velocityEngine" ref="velocityEngine" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="sipxSupervisorService" class="org.sipfoundry.sipxconfig.service.SipxSupervisorService" parent="sipxService"
@@ -195,7 +130,7 @@
     </property>
   </bean>
 
-  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration"
+  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.registrar.RegistrarSettings"
     scope="prototype" parent="serviceConfigurationFile">
     <property name="template" value="sipxregistrar/registrar-config.vm" />
     <property name="name" value="registrar-config" />
@@ -465,73 +400,11 @@
       </set>
     </property>
   </bean>
-
-  <bean id="sipxAccCodeService" class="org.sipfoundry.sipxconfig.service.SipxAccCodeService" parent="sipxService" scope="prototype">
-      <property name="processName" value="sipXacccode" />
-      <property name="modelName" value="sipxacccode.xml" />
-      <property name="modelDir" value="sipxacccode" />
-      <property name="groupTitleEnabled" value="true" />
-      <property name="aliasManager" ref="aliasManager" />
-      <property name="replicationContext" ref="sipxReplicationContextDao" />
-      <property name="coreContext" ref="coreContext" />
-      <property name="configurations">
-        <list>
-          <ref bean="sipxAccCodeConfiguration" />
-          <ref bean="authCodesConfig" />
-        </list>
-      </property>
-      <property name="promptsDir" value="${sysdir.vxml.prompts}" />
-      <property name="docDir" value="${sysdir.doc}" />
-      <property name="bundles">
-        <set>
-          <ref bean="voicemailBundle" />
-        </set>
-      </property>
-  </bean>
-
-  <bean id="sipxAccCodeConfiguration" class="org.sipfoundry.sipxconfig.service.SipxAccCodeConfiguration" scope="prototype"
-      parent="serviceConfigurationFile">
-      <property name="template" value="sipxacccode/sipxacccode.properties.vm" />
-      <property name="name" value="sipxacccode.properties" />
-  </bean>
-
-  <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig" 
-    parent="defaultConfigurationFile">
-    <property name="name" value="authcodes.xml" />
-    <property name="authCodeManager" ref="authCodeManager" />
-    <property name="domainManager" ref="domainManager" />
-    <property name="dialPlanContext" ref="dialPlanContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="restartRequired" value="false" />
-  </bean>
-
+  
   <bean id="phoneLogConfiguration" class="org.sipfoundry.sipxconfig.service.PhoneLogConfiguration" scope="prototype"
     parent="serviceConfigurationFile">
     <property name="template" value="sipxconfig/phonelog-config.vm" />
     <property name="name" value="phonelog-config" />
-  </bean>
-
-  <bean id="sipxAcdService" class="org.sipfoundry.sipxconfig.service.SipxAcdService" scope="prototype" parent="sipxService">
-    <property name="processName" value="ACDServer" />
-    <property name="modelName" value="sipxacd.xml" />
-    <property name="modelDir" value="acd" />
-    <property name="configurations">
-      <list>
-        <ref bean="sipxAcdConfiguration" />
-      </list>
-    </property>
-    <property name="bundles">
-      <set>
-        <ref bean="acdBundle" />
-      </set>
-    </property>
-  </bean>
-
-  <bean id="sipxAcdConfiguration" class="org.sipfoundry.sipxconfig.acd.AcdConfiguration" scope="prototype"
-    parent="serviceConfigurationFile">
-    <property name="template" value="acd/sipxacd-config.vm" />
-    <property name="name" value="sipxacd-config" />
-    <property name="acdContext" ref="acdContext" />
   </bean>
 
   <bean id="sipxConfigAgentService" class="org.sipfoundry.sipxconfig.service.SipxConfigAgentService" scope="prototype"

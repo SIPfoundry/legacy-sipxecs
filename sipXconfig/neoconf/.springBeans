@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<version>1</version>
-	<pluginVersion><![CDATA[2.2.2.RELEASE]]></pluginVersion>
+	<pluginVersion><![CDATA[2.7.1.201107082359-RELEASE]]></pluginVersion>
 	<configSuffixes>
 		<configSuffix><![CDATA[xml]]></configSuffix>
 	</configSuffixes>
@@ -9,7 +9,6 @@
 	<configs>
 		<config>src/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/phone/cisco/cisco-models.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/bulk/csv/csv.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/setting/setting.beans.xml</config>
@@ -17,7 +16,6 @@
 		<config>src/org/sipfoundry/sipxconfig/gateway/acme/acme-models.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/speeddial/speeddial.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/phone/kphone/kphone-models.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/common/common.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/login/login.beans.xml</config>
@@ -27,7 +25,6 @@
 		<config>src/org/sipfoundry/sipxconfig/phone/acme/acme-models.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/permission/permission.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/gateway/audiocodes/audiocodes-models.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/system.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/vm/vm.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml</config>
@@ -38,7 +35,6 @@
 		<config>src/org/sipfoundry/sipxconfig/cdr/cdr.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/upload/upload.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/phone/grandstream/grandstream-models.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/bulk/bulk.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/job/job.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/bulk/ldap/ldap.beans.xml</config>
@@ -52,7 +48,6 @@
 		<config>src/org/sipfoundry/sipxconfig/admin/certificates.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/alarm/alarm.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/jasperreports/reporting.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/service/bundle.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/branch/branch.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/moh/moh.beans.xml</config>
@@ -92,10 +87,6 @@
 				<config>src/org/sipfoundry/sipxconfig/speeddial/speeddial.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/vm/vm.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/gateway/acme/acme-models.beans.xml</config>
-				<config>src/org/sipfoundry/sipxconfig/phone/kphone/kphone-models.beans.xml</config>
-				<config>src/org/sipfoundry/sipxconfig/gateway/audiocodes/audiocodes-models.beans.xml</config>
-				<config>src/org/sipfoundry/sipxconfig/phone/cisco/cisco-models.beans.xml</config>
-				<config>src/org/sipfoundry/sipxconfig/phone/grandstream/grandstream-models.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/service/service.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/phone/acme/acme-models.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml</config>
@@ -108,7 +99,6 @@
 				<config>src/org/sipfoundry/sipxconfig/admin/certificates.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/alarm/alarm.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/jasperreports/reporting.beans.xml</config>
-				<config>src/org/sipfoundry/sipxconfig/service/bundle.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/branch/branch.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/moh/moh.beans.xml</config>

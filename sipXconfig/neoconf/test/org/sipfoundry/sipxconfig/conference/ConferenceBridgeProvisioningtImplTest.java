@@ -95,20 +95,8 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         replay(rc, sc, service, processContext);
         SipxServiceManager sm = TestHelper.getMockSipxServiceManager(true, service, ivrService, recordingService, imBotService);
 
-        ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
-        impl.setReplicationContext(rc);
-        impl.setServiceConfigurator(sc);
-        impl.setSipxServiceManager(sm);
-        impl.setSipxProcessContext(processContext);
-        
-        HibernateTemplate hb = createMock(HibernateTemplate.class);
-        hb.flush();
-        expectLastCall();
-        impl.setHibernateTemplate(hb);
-
+        ConferenceFeature impl = new ConferenceFeature();
         impl.deploy(bridge);
-
-        verify(rc, sc, service);
     }
 
     public void testReloadXml() {

@@ -16,6 +16,23 @@
 #  databases
 #  reports
 
+bundle common sipx {
+  vars:
+    SuSE::
+      "crontab" string => "/var/spool/cron/tabs/root";
+
+    !SuSE::
+      "crontab" string => "/var/spool/cron/root";
+
+  classes:
+    any::
+      # source based installs do not fully integrate. For example, they typically 
+      # don't run chkconfig, they don't install crontabs, they don't create unix users.
+      #
+      # comparing where the service directory is seems like a solid test if src based install
+      "src" expression => strcmp("@SIPX_SERVICEDIR@", "/etc/init.d");
+}
+
 bundle agent sipx_module {
   commands:
     any::
@@ -24,11 +41,40 @@ bundle agent sipx_module {
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
 }
 
-bundle agent sipx {
-  vars:
-   SuSE::
-     "crontab" string => "/var/spool/cron/tabs/root";
+bundle agent rh_chkconfig_status(s){
+  classes:
+    "${s}_enabled" expression => returnszero("/sbin/chkconfig ${s}", "noshell");
 
-   !SuSE::
-     "crontab" string => "/var/spool/cron/root";
+  reports:
+    all::
+      "${g.pf} Service ${s} is enabled",
+        ifvarclass => "${s}_enabled";
+
+      "${g.pk} Service ${s} is not enabled",
+        ifvarclass => "!${s}_enabled";
+}
+
+bundle edit_line replace_contents(contents) {
+   insert_lines:
+     "$(contents)";
+
+   delete_lines:
+      ".*";
+}
+
+bundle edit_line colon_values(v) {
+vars:
+  "index" slist => getindices("$(v)");
+  "cindex[$(index)]" string => canonify("$(index)");
+
+field_edits:
+  "\s*$(index)\s*:.*"
+     edit_field => col(":", "2", "$($(v)[$(index)][1])", "set"),
+        classes => if_ok("$(cindex[$(index)])_in_file"),
+        comment => "Match a line starting like key = something";
+
+insert_lines:
+  "$(index) : $($(v)[$(index)][1])",
+         comment => "Insert a variable definition",
+      ifvarclass => "!$(cindex[$(index)])_in_file";
 }

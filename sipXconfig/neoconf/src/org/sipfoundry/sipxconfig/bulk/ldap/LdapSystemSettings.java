@@ -16,15 +16,20 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.enums.Enum;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
+import org.sipfoundry.sipxconfig.feature.Feature;
 
 /**
  * System wide settings for ldap support within sipXecs
  */
-public class LdapSystemSettings extends BeanWithId {
+public class LdapSystemSettings extends BeanWithId implements DeployConfigOnEdit {
     private AuthenticationOptions m_authenticationOptions = AuthenticationOptions.NO_LDAP;
     private boolean m_enableOpenfire;
     private boolean m_configured;
@@ -85,5 +90,10 @@ public class LdapSystemSettings extends BeanWithId {
         public UserType() {
             super(AuthenticationOptions.class);
         }
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) LdapManager.FEATURE);
     }
 }

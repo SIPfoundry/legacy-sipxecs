@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.registrar.RegistrarSettings;
 
 public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
@@ -30,7 +31,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
     private SipxProxyService m_proxyService;
     private SipxServiceManager m_sipxServiceManager;
     private SipxParkService m_parkService;
-    private SipxRegistrarConfiguration m_out;
+    private RegistrarSettings m_out;
 
     public void setUp() {
         m_registrarService = new SipxRegistrarService();
@@ -107,7 +108,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         expect(m_sipxServiceManager.getServiceParam("openfire-host")).andReturn("192.168.1.10").anyTimes();
         expect(m_sipxServiceManager.getServiceParam("openfire-xml-rpc-port")).andReturn(49094).anyTimes();
 
-        m_out = new SipxRegistrarConfiguration();
+        m_out = new RegistrarSettings();
 
         Location primaryLocation = TestHelper.createDefaultLocation();
         Location otherRegistrarLocation = new Location();

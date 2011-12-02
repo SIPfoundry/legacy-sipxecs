@@ -8,7 +8,6 @@
 package org.sipfoundry.sipxconfig.address;
 
 public class AddressType {
-
     private String m_id;
 
     public AddressType(String uniqueId) {

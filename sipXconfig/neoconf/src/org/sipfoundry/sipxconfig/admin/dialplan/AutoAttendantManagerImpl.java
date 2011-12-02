@@ -24,9 +24,6 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -37,19 +34,11 @@ import org.springframework.dao.support.DataAccessUtils;
 
 public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements AutoAttendantManager,
         BeanFactoryAware {
-
     private static final String AUTO_ATTENDANT = "auto attendant";
-
     private static final Log LOG = LogFactory.getLog(AutoAttendantManagerImpl.class);
-
     private ServiceConfigurator m_serviceConfigurator;
-
-    private SipxServiceManager m_sipxServiceManager;
-
     private AliasManager m_aliasManager;
-
     private SettingDao m_settingDao;
-
     private BeanFactory m_beanFactory;
 
     public boolean isAliasInUse(String alias) {
@@ -66,8 +55,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         clearUnsavedValueStorage(aa.getValueStorage());
         getHibernateTemplate().saveOrUpdate(aa);
         getHibernateTemplate().flush();
-
-        replicateConfig();
     }
 
     public AutoAttendant getOperator() {
@@ -106,9 +93,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         for (Integer id : attendantIds) {
             AutoAttendant aa = getAutoAttendant(id);
             deleteAutoAttendant(aa);
-        }
-        if (!attendantIds.isEmpty()) {
-            replicateConfig();
         }
     }
 
@@ -183,11 +167,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         return BeanId.createBeanIdCollection(autoAttendants, AutoAttendant.class);
     }
 
-    private void replicateConfig() {
-        SipxService sipxIvrService = m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
-        m_serviceConfigurator.replicateServiceConfig(sipxIvrService, true);
-    }
-
     public AutoAttendant createOperator(String attendantId) {
         AutoAttendant attendant = getAttendant(attendantId);
         if (attendant != null) {
@@ -228,9 +207,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         }
         specialMode.setAttendant(aa);
         getHibernateTemplate().saveOrUpdate(specialMode);
-        if (specialMode.isEnabled()) {
-            replicateConfig();
-        }
     }
 
     public void deselectSpecial(AutoAttendant aa) {
@@ -242,7 +218,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
 
         specialMode.setAttendant(null);
         getHibernateTemplate().saveOrUpdate(specialMode);
-        replicateConfig();
     }
 
     public AutoAttendant getSelectedSpecialAttendant() {
@@ -262,7 +237,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         }
         specialMode.setEnabled(enabled);
         getHibernateTemplate().saveOrUpdate(specialMode);
-        replicateConfig();
     }
 
     private AttendantSpecialMode loadAttendantSpecialMode() {
@@ -279,11 +253,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
     @Required
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

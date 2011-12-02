@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.beans.factory.BeanFactory;
 

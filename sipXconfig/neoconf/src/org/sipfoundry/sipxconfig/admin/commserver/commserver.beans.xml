@@ -208,6 +208,7 @@
     <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="eagerSipxReplicationContext" ref="sipxReplicationContextDao" />
+    <property name="configManager" ref="configManager"/>
   </bean>
 
   <bean id="registrationContext"

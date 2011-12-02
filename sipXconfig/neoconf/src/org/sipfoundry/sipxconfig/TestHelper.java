@@ -67,8 +67,6 @@ import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
@@ -528,39 +526,6 @@ public final class TestHelper {
         File tempDir = new File(tempDirPath);
         tempDir.mkdirs();
         return tempDir;
-    }
-
-    /**
-     * Creates a mock SipxServiceManager using EasyMock.
-     *
-     * If replay is set to false, it is up to the user of this mock to call EasyMock.replay. This
-     * allows the user to add more functionality to the mock. By default the service manager will
-     * do lookups for all of the provides SipxService objects by beanId. If processName is set up,
-     * look ups by process names will work as well.
-     *
-     */
-    public static SipxServiceManager getMockSipxServiceManager(boolean replay, SipxService... sipxServices) {
-        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
-        for (SipxService sipxService : sipxServices) {
-            String beanId = sipxService.getBeanId();
-            if (beanId != null) {
-                sipxServiceManager.getServiceByBeanId(beanId);
-                EasyMock.expectLastCall().andReturn(sipxService).anyTimes();
-                sipxServiceManager.isServiceInstalled(beanId);
-                EasyMock.expectLastCall().andReturn(true).anyTimes();
-            }
-            String processName = sipxService.getProcessName();
-            if (processName != null) {
-                sipxServiceManager.getServiceByName(processName);
-                EasyMock.expectLastCall().andReturn(sipxService).anyTimes();
-            }
-        }
-
-        if (replay) {
-            EasyMock.replay(sipxServiceManager);
-        }
-
-        return sipxServiceManager;
     }
 
     /**

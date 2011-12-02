@@ -32,13 +32,15 @@
     <property name="aliasManager" ref="aliasManager" />
     <property name="domainManager" ref="domainManager" />
     <property name="daoEventPublisher" ref="daoEventPublisher"/>
-    <property name="provisioning">
-      <ref local="eagerConferenceBridgeProvisioning" />
-    </property>
+    <property name="conferenceFeature" ref="conferenceFeature" />
     <property name="conferenceBundle" ref="conferenceBundle" />
     <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
     <property name="replicationContext" ref="sipxReplicationContextDao" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />    
+  </bean>
+  
+  <bean id="conferenceFeature" class="org.sipfoundry.sipxconfig.conference.ConferenceFeature">
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext"/>
   </bean>
 
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -89,14 +91,6 @@
         <property name="sipxProcessContext" ref="sipxProcessContext" />
       </bean>
     </property>
-  </bean>
-
-  <bean id="conferenceBridgeProvisioning" class="org.sipfoundry.sipxconfig.conference.LazyConferenceBridgeProvisioningImpl"
-    init-method="init">
-    <property name="target">
-      <ref local="eagerConferenceBridgeProvisioning" />
-    </property>
-    <property name="sleepInterval" value="15000" />
   </bean>
 
   <bean id="identity" class="org.sipfoundry.sipxconfig.conference.BridgeConferenceIdentityImpl">

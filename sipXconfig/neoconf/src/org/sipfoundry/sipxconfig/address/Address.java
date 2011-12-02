@@ -7,9 +7,12 @@
  */
 package org.sipfoundry.sipxconfig.address;
 
+import static java.lang.String.format;
+
 public class Address {
     private String m_address;
     private int m_port;
+    private String m_format = "%s:%d";
 
     public Address() {
     }
@@ -19,12 +22,18 @@ public class Address {
         m_port = port;
     }
 
+    public Address(String address, int port, String format) {
+        m_address = address;
+        m_port = port;
+        m_format = format;
+    }
+
     public String getAddress() {
         return m_address;
     }
 
     public void setAddress(String address) {
-        m_address = address;
+        this.m_address = address;
     }
 
     public int getPort() {
@@ -32,6 +41,10 @@ public class Address {
     }
 
     public void setPort(int port) {
-        m_port = port;
+        this.m_port = port;
+    }
+
+    public String toString() {
+        return format(m_format, m_address, m_port);
     }
 }

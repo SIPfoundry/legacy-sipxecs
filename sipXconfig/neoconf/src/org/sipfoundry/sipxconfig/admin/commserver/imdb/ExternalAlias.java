@@ -16,6 +16,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS_ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,11 +36,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.xml.sax.SAXException;
-
-import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
-import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS_ID;
 
 public class ExternalAlias implements Replicable {
     private static final Log LOG = LogFactory.getLog(ExternalAliases.class);
@@ -142,10 +141,4 @@ public class ExternalAlias implements Replicable {
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
     }
-
-    @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
-        return null;
-    }
-
 }

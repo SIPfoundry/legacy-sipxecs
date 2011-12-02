@@ -14,8 +14,8 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.registrar.RegistrarSettings;
 import org.sipfoundry.sipxconfig.service.LoggingEntity;
-import org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
@@ -116,9 +116,9 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
 
     @Override
     public Object getParam(String paramName) {
-        if (paramName.equals(SipxRegistrarConfiguration.OPENFIRE_HOST)) {
+        if (paramName.equals(RegistrarSettings.OPENFIRE_HOST)) {
             return getServerAddress();
-        } else if (paramName.equals(SipxRegistrarConfiguration.OPENFIRE_XML_RPCPORT)) {
+        } else if (paramName.equals(RegistrarSettings.OPENFIRE_XML_RPCPORT)) {
             return getPort();
         }
         return super.getParam(paramName);

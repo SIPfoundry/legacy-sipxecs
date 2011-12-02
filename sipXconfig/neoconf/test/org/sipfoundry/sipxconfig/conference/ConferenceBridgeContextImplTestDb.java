@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.dbunit.database.IDatabaseConnection;
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -26,7 +25,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
 public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
 
@@ -34,7 +32,6 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
     private SipxServiceManager m_sipxServiceManager;
-    private ModelFilesContext m_modelFilesContext;
 
     @Override
     protected void setUp() throws Exception {
@@ -90,10 +87,10 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         IDatabaseConnection db = TestHelper.getConnection();
         TestHelper.insertFlat("conference/participants.db.xml");
 
-        ConferenceBridgeProvisioning mockProvisioning = EasyMock.createMock(ConferenceBridgeProvisioning.class);
-        mockProvisioning.deploy(m_context.loadConference(new Integer(3002)).getBridge());
-        EasyMock.expectLastCall().anyTimes();
-        m_context.setProvisioning(mockProvisioning);
+//        ConferenceFeature mockProvisioning = EasyMock.createMock(ConferenceFeature.class);
+//        mockProvisioning.deploy(m_context.loadConference(new Integer(3002)).getBridge());
+//        EasyMock.expectLastCall().anyTimes();
+//        m_context.setConferenceFeature(mockProvisioning);
 
         assertEquals(2, db.getRowCount("meetme_bridge"));
         assertEquals(5, db.getRowCount("meetme_conference"));
@@ -290,9 +287,5 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     private int getConferencesCount(String searchTerm) {
         List<Conference> confList = m_context.searchConferences(searchTerm);
         return confList.size();
-    }
-
-    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
-        m_modelFilesContext = modelFilesContext;
     }
 }

@@ -32,7 +32,7 @@ import org.apache.tapestry.web.WebResponse;
 import org.postgresql.util.PGInterval;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
-import org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStats;
+import org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalStats;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.SipUri;

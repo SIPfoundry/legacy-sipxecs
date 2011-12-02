@@ -11,7 +11,7 @@
     <property name="localizationContext" ref="localizationContext" />
   </bean>
 
-  <bean id="freeswitchMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.FreeswitchMediaServer" scope="prototype">
+  <bean id="freeswitchMediaServer" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer" scope="prototype">
     <property name="label" value="Internal Voicemail Server" />
     <property name="localizationContext" ref="localizationContext" />
     <!-- FIXME: freeswitch port and location should be computed by SipxFreeswitchService -->
