@@ -41,6 +41,7 @@ import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.QueueInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
@@ -87,12 +88,21 @@ public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBe
     }
 
     public void delete() {
-        Collection ids = getSelections().getAllSelected();
+        Collection<Integer> ids = getSelections().getAllSelected();
         if (ids.isEmpty()) {
             return;
         }
         try {
-            List<String> queues = getOpenAcdContext().removeQueues(ids);
+            List<String> queues = new ArrayList<String>();
+            for (Integer qid : ids) {
+                OpenAcdQueue q = getOpenAcdContext().getQueueById(qid);
+                try {
+                    getOpenAcdContext().deleteQueue(q);
+                } catch (QueueInUseException e) {
+                    queues.add(q.getName());
+                }
+            }
+
             if (!queues.isEmpty()) {
                 String queueNames = StringUtils.join(queues.iterator(), ", ");
                 String errMessage = getMessages().format("msg.err.queueDeletion", queueNames);

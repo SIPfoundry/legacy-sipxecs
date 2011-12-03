@@ -16,16 +16,25 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 
-public class OpenAcdAgent extends OpenAcdAgentWithSkills {
+public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
     public static final String EMPTY_STRING = "";
 
     public static enum Security {
@@ -88,6 +97,10 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills {
         return m_user.getUserName();
     }
 
+    public void setName(String name) {
+        m_user.setName(name);
+    }
+
     public String getFirstName() {
         return StringUtils.defaultString(m_user.getFirstName(), StringUtils.EMPTY);
     }
@@ -109,24 +122,31 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills {
     }
 
     @Override
-    public List<String> getProperties() {
-        List<String> props = new LinkedList<String>();
-        props.add("name");
-        props.add("pin");
-        props.add("agentGroup");
-        props.add("skillsAtoms");
-        props.add("queuesName");
-        props.add("clientsName");
-        props.add("firstName");
-        props.add("lastName");
-        props.add("oldName");
-        props.add("security");
-        return props;
-    }
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(MongoConstants.PIN, getPin());
+        List<String> skills = new ArrayList<String>();
+        for (OpenAcdSkill skill : getSkills()) {
+            skills.add(skill.getAtom());
+        }
+        props.put(MongoConstants.SKILLS, skills);
+        List<String> queues = new ArrayList<String>();
+        for (OpenAcdQueue queue : getQueues()) {
+            queues.add(queue.getName());
+        }
+        props.put(MongoConstants.QUEUES, queues);
+        List<String> clients = new ArrayList<String>();
+        for (OpenAcdClient client : getClients()) {
+            clients.add(client.getName());
+        }
+        props.put(MongoConstants.CLIENTS, clients);
+        props.put(MongoConstants.FIRST_NAME, getFirstName());
+        props.put(MongoConstants.LAST_NAME, getLastName());
+        props.put(MongoConstants.OLD_NAME, getOldName());
+        props.put(MongoConstants.SECURITY, getSecurity());
+        props.put(MongoConstants.AGENT_GROUP, getAgentGroup());
 
-    @Override
-    public String getType() {
-        return "agent";
+        return props;
     }
 
     public int hashCode() {
@@ -143,4 +163,25 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills {
         OpenAcdAgent bean = (OpenAcdAgent) other;
         return new EqualsBuilder().append(m_group, bean.getGroup()).append(m_user, bean.getUser()).isEquals();
     }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        return Collections.singleton(DataSet.OPENACD);
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        return null;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
 }

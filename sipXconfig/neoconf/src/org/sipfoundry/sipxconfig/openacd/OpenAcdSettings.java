@@ -7,15 +7,12 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class OpenAcdSettings extends PersistableSettings implements OpenAcdConfigObjectProvider {
+public class OpenAcdSettings extends PersistableSettings {
     private static final String FS_ENABLED = "freeswitch_media_manager/FREESWITCH_ENABLED";
     private static final String C_NODE = "freeswitch_media_manager/C_NODE";
     private static final String DIAL_STRING = "freeswitch_media_manager/DIAL_STRING";
@@ -81,15 +78,6 @@ public class OpenAcdSettings extends PersistableSettings implements OpenAcdConfi
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
-    }
-
-    @Override
-    public List<OpenAcdConfigObject> getConfigObjects() {
-        List<OpenAcdConfigObject> objects = new ArrayList<OpenAcdConfigObject>();
-        objects.add(new FreeswitchMediaCommand(isEnabled(), getCNode(), getDialString()));
-        objects.add(new OpenAcdAgentConfigCommand(getDialPlanListener()));
-        objects.add(new OpenAcdLogConfigCommand(getLogLevel(), getLogDir()));
-        return objects;
     }
 
     public void setLogDirectory(String logDirectory) {

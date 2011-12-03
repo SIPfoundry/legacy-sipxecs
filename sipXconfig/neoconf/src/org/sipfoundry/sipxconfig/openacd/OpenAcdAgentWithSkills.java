@@ -22,8 +22,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public abstract class OpenAcdAgentWithSkills extends OpenAcdConfigObject {
+public abstract class OpenAcdAgentWithSkills extends BeanWithId {
     private static final String DELIM = ", ";
 
     private Set<OpenAcdSkill> m_skills = new LinkedHashSet<OpenAcdSkill>();

@@ -25,11 +25,11 @@ import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
-import org.springframework.context.ApplicationListener;
 
-public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner,
-        ApplicationListener {
+public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner {
     public static final LocationFeature FEATURE = new LocationFeature("openacd");
+    public static final String MAGIC_SKILL_GROUP_NAME = "Magic";
+    public static final String GROUP_NAME_DEFAULT = "Default";
 
     OpenAcdSettings getSettings();
 
@@ -59,7 +59,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner,
 
     void saveAgentGroup(OpenAcdAgentGroup agentGroup);
 
-    boolean removeAgentGroups(Collection<Integer> agentGroupIds);
+    void deleteAgentGroup(OpenAcdAgentGroup group);
 
     void addAgentsToGroup(OpenAcdAgentGroup agentGroup, Collection<OpenAcdAgent> agents);
 
@@ -69,9 +69,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner,
 
     OpenAcdAgent getAgentByUserId(Integer userId);
 
-    void saveAgent(OpenAcdAgentGroup agentGroup, OpenAcdAgent agent);
-
-    void deleteAgents(Collection<Integer> agentIds);
+    void deleteAgent(OpenAcdAgent agent);
 
     void saveAgent(OpenAcdAgent agent);
 
@@ -101,7 +99,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner,
 
     void saveSkill(OpenAcdSkill skill);
 
-    List<String> removeSkills(Collection<Integer> skillIds);
+    void deleteSkill(OpenAcdSkill skill);
 
     Map<String, List<OpenAcdSkill>> getGroupedSkills();
 
@@ -111,7 +109,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner,
 
     void saveClient(OpenAcdClient client);
 
-    List<String> removeClients(Collection<Integer> clientsId);
+    void deleteClient(OpenAcdClient client);
 
     List<OpenAcdClient> getClients();
 
@@ -127,7 +125,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner,
 
     void saveQueueGroup(OpenAcdQueueGroup queueGroup);
 
-    List<String> removeQueueGroups(Collection<Integer> queueGroupIds);
+    void deleteQueueGroup(OpenAcdQueueGroup queueGroup);
 
     List<OpenAcdQueue> getQueues();
 
@@ -139,9 +137,12 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner,
 
     OpenAcdRecipeStep getRecipeStepById(Integer recipeStepId);
 
-    List<String> removeQueues(Collection<Integer> queueIds);
+    void deleteQueue(OpenAcdQueue queue);
     public OpenAcdLine newOpenAcdLine();
     public OpenAcdCommand newOpenAcdCommand();
-    public void replicateConfig();
     public void resync();
+
+    boolean containsUsedSkills(OpenAcdSkillGroup skillGroup);
+
+    OpenAcdClient getClientByName(String string);
 }

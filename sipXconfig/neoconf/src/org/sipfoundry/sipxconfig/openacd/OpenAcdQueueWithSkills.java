@@ -21,11 +21,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.mongodb.BasicDBObject;
-
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public abstract class OpenAcdQueueWithSkills extends EnhancedOpenAcdConfigObject {
+public abstract class OpenAcdQueueWithSkills extends BeanWithId {
     private static final String DELIM = ", ";
 
     private Set<OpenAcdSkill> m_skills = new LinkedHashSet<OpenAcdSkill>();
@@ -91,8 +90,4 @@ public abstract class OpenAcdQueueWithSkills extends EnhancedOpenAcdConfigObject
         return skills;
     }
 
-    @Override
-    public List<BasicDBObject> getAdditionalObjects() {
-        return null;
-    }
 }

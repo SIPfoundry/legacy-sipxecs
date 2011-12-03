@@ -35,10 +35,11 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.DefaultAgentGroupDeleteException;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class OpenAcdAgentGroupsPanel extends BaseComponent implements PageBeginRenderListener {
-
+    private static final String GROUP_NAME_DEFAULT = "Default";
     @InjectObject("spring:openAcdContext")
     public abstract OpenAcdContext getOpenAcdContext();
 
@@ -75,16 +76,20 @@ public abstract class OpenAcdAgentGroupsPanel extends BaseComponent implements P
     }
 
     public void delete() {
-        Collection ids = getSelections().getAllSelected();
+        Collection<Integer> ids = getSelections().getAllSelected();
         if (ids.isEmpty()) {
             return;
         }
         try {
-            boolean errorMessage = getOpenAcdContext().removeAgentGroups(ids);
-            if (errorMessage) {
-                IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-                validator.record(new ValidatorException(getMessages()
-                        .getMessage("msg.err.defalutAgentGroupDeletion")));
+            for (Integer id : ids) {
+                OpenAcdAgentGroup group = getOpenAcdContext().getAgentGroupById(id);
+                try {
+                    getOpenAcdContext().deleteAgentGroup(group);
+                } catch (DefaultAgentGroupDeleteException e) {
+                    IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+                    validator.record(new ValidatorException(getMessages()
+                            .getMessage("msg.err.defalutAgentGroupDeletion")));
+                }
             }
         } catch (UserException ex) {
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());

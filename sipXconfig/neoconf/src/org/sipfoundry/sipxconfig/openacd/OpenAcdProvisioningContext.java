@@ -16,17 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import java.util.List;
-
 public interface OpenAcdProvisioningContext {
-
-    void addObjects(List< ? extends OpenAcdConfigObject> objects);
-
-    void deleteObjects(List< ? extends OpenAcdConfigObject> objects);
-
-    void updateObjects(List< ? extends OpenAcdConfigObject> objects);
-
-    void configure(List< ? extends OpenAcdConfigObject> objects);
 
     void resync();
 }

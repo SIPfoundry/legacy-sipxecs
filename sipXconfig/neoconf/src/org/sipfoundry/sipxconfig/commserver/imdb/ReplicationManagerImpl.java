@@ -293,18 +293,22 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             Long start = System.currentTimeMillis();
             DBObject top = findOrCreate(entity);
             Set<DataSet> dataSets = entity.getDataSets();
-            boolean shouldSave = false;
-            for (DataSet dataSet : dataSets) {
-                if (shouldSave) {
-                    replicateEntity(entity, dataSet, top);
-                } else {
-                    shouldSave = replicateEntity(entity, dataSet, top);
+            if (dataSets != null && !dataSets.isEmpty()) {
+                boolean shouldSave = false;
+                for (DataSet dataSet : dataSets) {
+                    if (shouldSave) {
+                        replicateEntity(entity, dataSet, top);
+                    } else {
+                        shouldSave = replicateEntity(entity, dataSet, top);
+                    }
                 }
-            }
-            if (shouldSave) {
+                if (shouldSave) {
+                    getDbCollection().save(top);
+                    Long end = System.currentTimeMillis();
+                    LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
+                }
+            } else {
                 getDbCollection().save(top);
-                Long end = System.currentTimeMillis();
-                LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
             }
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + name, e);

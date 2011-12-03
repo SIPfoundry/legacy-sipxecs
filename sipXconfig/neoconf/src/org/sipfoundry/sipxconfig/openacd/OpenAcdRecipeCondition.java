@@ -18,10 +18,11 @@ package org.sipfoundry.sipxconfig.openacd;
 
 import java.io.Serializable;
 
-import com.mongodb.BasicDBObject;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.commons.mongo.MongoConstants;
+
+import com.mongodb.BasicDBObject;
 
 public class OpenAcdRecipeCondition implements Serializable {
     public static enum CONDITION {
@@ -152,7 +153,7 @@ public class OpenAcdRecipeCondition implements Serializable {
         if (m_condition.equals(CONDITION.MEDIA_TYPE.toString())) {
             conditionValue = "type";
         }
-        condition.put("condition", conditionValue);
+        condition.put(MongoConstants.CONDITION, conditionValue);
         String relation = "=";
         if (m_relation.equals(RELATION.NOT.toString())) {
             relation = "!=";
@@ -161,8 +162,15 @@ public class OpenAcdRecipeCondition implements Serializable {
         } else if (m_relation.equals(RELATION.LESS.toString())) {
             relation = "<";
         }
-        condition.put("relation", relation);
-        condition.put("value", m_valueCondition);
+        condition.put(MongoConstants.RELATION, relation);
+        //try to cast value to a number; if fails, insert a string
+        //note that in most cases this is a number
+        try {
+            Integer value = new Integer(m_valueCondition);
+            condition.put(MongoConstants.VALUE, value);
+        } catch (NumberFormatException e) {
+            condition.put(MongoConstants.VALUE, m_valueCondition);
+        }
         return condition;
     }
 }

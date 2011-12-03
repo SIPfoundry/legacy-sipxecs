@@ -16,15 +16,23 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 
-public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills {
+public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replicable {
     private String m_name;
     private String m_description;
     private Set<OpenAcdQueue> m_queues = new LinkedHashSet<OpenAcdQueue>();
@@ -86,17 +94,40 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills {
     }
 
     @Override
-    public List<String> getProperties() {
-        List<String> props = new LinkedList<String>();
-        props.add("name");
-        props.add("skillsAtoms");
-        props.add("profiles");
-        props.add("oldName");
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        List<String> skills = new ArrayList<String>();
+        for (OpenAcdSkill skill : getSkills()) {
+            skills.add(skill.getAtom());
+        }
+        props.put(MongoConstants.SKILLS, skills);
+
+        List<String> profiles = new ArrayList<String>();
+        for (OpenAcdAgentGroup profile : getAgentGroups()) {
+            profiles.add(profile.getName());
+        }
+        props.put(MongoConstants.PROFILES, profiles);
+        props.put(MongoConstants.OLD_NAME, getOldName());
         return props;
     }
 
     @Override
-    public String getType() {
-        return "queueGroup";
+    public Set<DataSet> getDataSets() {
+        return Collections.singleton(DataSet.OPENACD);
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        return null;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
     }
 }

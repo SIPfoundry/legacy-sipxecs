@@ -19,6 +19,7 @@ import com.mongodb.util.JSON;
 public final class MongoTestCaseHelper {
     public static final String DOMAIN = "mydomain.org";
     public static final String ID = "_id";
+    public static final String EXCEPTION = "fields and values do not match (they have different legths)";
 
     private MongoTestCaseHelper() {
     }
@@ -56,6 +57,30 @@ public final class MongoTestCaseHelper {
         TestCase.assertTrue(obj.containsField(listField));
         TestCase.assertEquals(count, ((List<DBObject>) obj.get(listField)).size());
 
+    }
+
+    public static final void assertObjectWithFieldsValuesPresent(DBCollection collection, String[] fields,
+            Object[] values) {
+        if (fields.length != values.length) {
+            throw new RuntimeException(EXCEPTION);
+        }
+        DBObject ref = new BasicDBObject();
+        for (int i = 0; i < fields.length; i++) {
+            ref.put(fields[i], values[i]);
+        }
+        TestCase.assertEquals(1, collection.find(ref).count());
+    }
+
+    public static final void assertObjectWithFieldsValuesNotPresent(DBCollection collection, String[] fields,
+            Object[] values) {
+        if (fields.length != values.length) {
+            throw new RuntimeException(EXCEPTION);
+        }
+        DBObject ref = new BasicDBObject();
+        for (int i = 0; i < fields.length; i++) {
+            ref.put(fields[i], values[i]);
+        }
+        TestCase.assertEquals(0, collection.find(ref).count());
     }
 
     public static final void assertObjectWithIdFieldValuePresent(DBCollection collection, Object id, String field,

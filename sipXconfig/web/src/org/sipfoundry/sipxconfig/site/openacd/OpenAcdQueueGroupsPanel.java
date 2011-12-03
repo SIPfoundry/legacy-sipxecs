@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.QueueGroupInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -76,12 +78,21 @@ public abstract class OpenAcdQueueGroupsPanel extends BaseComponent implements P
     }
 
     public void delete() {
-        Collection ids = getSelections().getAllSelected();
+        Collection<Integer> ids = getSelections().getAllSelected();
         if (ids.isEmpty()) {
             return;
         }
         try {
-            List<String> groups = getOpenAcdContext().removeQueueGroups(ids);
+            List<String> groups = new ArrayList<String>();
+            for (Integer id : ids) {
+                OpenAcdQueueGroup qgr = getOpenAcdContext().getQueueGroupById(id);
+                try {
+                    getOpenAcdContext().deleteQueueGroup(qgr);
+                } catch (QueueGroupInUseException e) {
+                    groups.add(qgr.getName());
+                }
+            }
+
             if (!groups.isEmpty()) {
                 String groupNames = StringUtils.join(groups.iterator(), ", ");
                 String errMessage = getMessages().format("msg.err.queueGroupDeletion", groupNames);

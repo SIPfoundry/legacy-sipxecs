@@ -33,8 +33,14 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroup;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -80,7 +86,12 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
                 //unfortunately we need to flush here, otherwise we get inconsistent data
                 //in sipX_context.xml
                 getHibernateTemplate().flush();
-                m_openAcdContext.replicateConfig();
+            } else if (entity instanceof OpenAcdAgentGroup) {
+                OpenAcdAgentGroup aggr = (OpenAcdAgentGroup) entity;
+                getHibernateTemplate().flush();
+                for (OpenAcdAgent agent : aggr.getAgents()) {
+                    m_replicationManager.replicateEntity(agent);
+                }
             }
         } else if (entity instanceof Group) {
             //flush is necessary here in order to get consistent data
@@ -101,6 +112,19 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     public void onDelete(Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.removeEntity((Replicable) entity);
+            if (entity instanceof OpenAcdQueueGroup) {
+                getHibernateTemplate().flush();
+                OpenAcdQueueGroup qgr = (OpenAcdQueueGroup) entity;
+                for (OpenAcdQueue q : qgr.getQueues()) {
+                    m_replicationManager.removeEntity(q);
+                }
+            } else if (entity instanceof OpenAcdAgentGroup) {
+                OpenAcdAgentGroup aggr = (OpenAcdAgentGroup) entity;
+                getHibernateTemplate().flush();
+                for (OpenAcdAgent agent : aggr.getAgents()) {
+                    m_replicationManager.removeEntity(agent);
+                }
+            }
         } else if (entity instanceof Group) {
             //It is important to replicate asynch since large groups might take a while to replicate
             //and we want to return control to the page immadiately.
@@ -117,6 +141,12 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
             }
         } else if (entity instanceof Permission) {
             removePermission((Permission) entity);
+        } else if (entity instanceof OpenAcdSkillGroup) {
+            getHibernateTemplate().flush();
+            OpenAcdSkillGroup skillGroup = (OpenAcdSkillGroup) entity;
+            for (OpenAcdSkill skill : skillGroup.getSkills()) {
+                m_replicationManager.removeEntity(skill);
+            }
         }
     }
 

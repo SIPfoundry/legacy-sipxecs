@@ -16,19 +16,15 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import static org.apache.commons.beanutils.BeanUtils.getSimpleProperty;
-import static org.apache.commons.lang.StringUtils.EMPTY;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 
+import org.sipfoundry.sipxconfig.common.UserChangeEvent;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.BasicDBObject;
@@ -39,53 +35,32 @@ import com.mongodb.WriteResult;
 public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContext,
         BeanFactoryAware {
     enum Command {
-        ADD {
+        RESYNC {
             public String toString() {
-                return "ADD";
-            }
-        },
-
-        DELETE {
-            public String toString() {
-                return "DELETE";
-            }
-        },
-
-        UPDATE {
-            public String toString() {
-                return "UPDATE";
-            }
-        },
-
-        CONFIGURE {
-            public String toString() {
-                return "CONFIGURE";
+                return "RESYNC";
             }
         }
     }
 
     private MongoTemplate m_db;
     private ListableBeanFactory m_beanFactory;
+    private OpenAcdContext m_openAcdContext;
 
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof UserChangeEvent) {
+            UserChangeEvent userEvent = (UserChangeEvent) event;
+            OpenAcdAgent agent = m_openAcdContext.getAgentByUserId(userEvent.getUserId());
+            if (agent != null) {
+                agent.setOldName(userEvent.getOldUserName());
+                agent.getUser().setUserName(userEvent.getUserName());
+                agent.getUser().setFirstName(userEvent.getFirstName());
+                agent.getUser().setLastName(userEvent.getLastName());
 
-    @Override
-    public void deleteObjects(List< ? extends OpenAcdConfigObject> openAcdObjects) {
-        storeCommand(createCommand(Command.DELETE, openAcdObjects));
-    }
-
-    @Override
-    public void addObjects(List< ? extends OpenAcdConfigObject> openAcdObjects) {
-        storeCommand(createCommand(Command.ADD, openAcdObjects));
-    }
-
-    @Override
-    public void updateObjects(List< ? extends OpenAcdConfigObject> openAcdObjects) {
-        storeCommand(createCommand(Command.UPDATE, openAcdObjects));
-    }
-
-    @Override
-    public void configure(List< ? extends OpenAcdConfigObject> openAcdObjects) {
-        storeCommand(createCommand(Command.CONFIGURE, openAcdObjects));
+                ArrayList<OpenAcdAgent> list = new ArrayList<OpenAcdAgent>();
+                list.add(agent);
+                m_openAcdContext.saveAgent(agent);
+            }
+        }
     }
 
     protected void storeCommand(BasicDBObject command) {
@@ -104,55 +79,14 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
         }
     }
 
-    private static BasicDBObject createCommand(Command openAcdCommand,
-            List< ? extends OpenAcdConfigObject> openAcdObjects) {
+    private static BasicDBObject createCommand(Command openAcdCommand) {
         BasicDBObject command = new BasicDBObject();
         command.put("command", openAcdCommand.toString());
-        command.put("count", openAcdObjects.size());
-        command.put("objects", getObjects(openAcdObjects));
         return command;
     }
 
-    private static List<BasicDBObject> getObjects(List< ? extends OpenAcdConfigObject> openAcdObjects) {
-        List<BasicDBObject> objects = new LinkedList<BasicDBObject>();
-        for (OpenAcdConfigObject openAcdObject : openAcdObjects) {
-            BasicDBObject object = new BasicDBObject();
-            object.put("type", openAcdObject.getType());
-            for (String property : openAcdObject.getProperties()) {
-                object.put(property, getDataValue(openAcdObject, property));
-            }
-            if (openAcdObject instanceof EnhancedOpenAcdConfigObject) {
-                object.put("additionalObjects", ((EnhancedOpenAcdConfigObject) openAcdObject).getAdditionalObjects());
-            }
-            objects.add(object);
-        }
-        return objects;
-    }
-
-    private static String getDataValue(Object bean, String name) {
-        try {
-            return getSimpleProperty(bean, name);
-        } catch (IllegalAccessException e) {
-            return EMPTY;
-        } catch (InvocationTargetException e) {
-            return EMPTY;
-        } catch (NoSuchMethodException e) {
-            return EMPTY;
-        }
-    }
-
     public void resync() {
-        Map<String, OpenAcdConfigObjectProvider> beanMap = m_beanFactory
-                .getBeansOfType(OpenAcdConfigObjectProvider.class);
-        for (OpenAcdConfigObjectProvider bean : beanMap.values()) {
-            for (OpenAcdConfigObject configObj : bean.getConfigObjects()) {
-                if (!configObj.isConfigCommand()) {
-                    addObjects(Collections.singletonList(configObj));
-                } else {
-                    configure(Collections.singletonList(configObj));
-                }
-            }
-        }
+        storeCommand(createCommand(Command.RESYNC));
     }
 
     @Override
@@ -166,6 +100,10 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
 
     public void setDb(MongoTemplate db) {
         m_db = db;
+    }
+
+    public void setOpenAcdContext(OpenAcdContext openAcdContext) {
+        m_openAcdContext = openAcdContext;
     }
 
 }

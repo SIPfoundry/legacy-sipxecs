@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,6 +37,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.SkillInUseException;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class OpenAcdSkillsPanel extends BaseComponent implements PageBeginRenderListener {
@@ -76,13 +78,22 @@ public abstract class OpenAcdSkillsPanel extends BaseComponent implements PageBe
     }
 
     public void delete() {
-        Collection ids = getSelections().getAllSelected();
+        Collection<Integer> ids = getSelections().getAllSelected();
         if (ids.isEmpty()) {
             return;
         }
 
         try {
-            List<String> skills = getOpenAcdContext().removeSkills(ids);
+            List<String> skills = new ArrayList<String>();
+            for (Integer id : ids) {
+                OpenAcdSkill skill = getOpenAcdContext().getSkillById(id);
+                try {
+                    getOpenAcdContext().deleteSkill(skill);
+                } catch (SkillInUseException e) {
+                    skills.add(skill.getName());
+                }
+            }
+
             if (!skills.isEmpty()) {
                 String skillNames = StringUtils.join(skills.iterator(), ", ");
                 String errMessage = getMessages().format("msg.err.skillsDeletion", skillNames);

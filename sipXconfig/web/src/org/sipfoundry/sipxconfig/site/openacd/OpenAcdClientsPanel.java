@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,6 +37,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdClient;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.ClientInUseException;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class OpenAcdClientsPanel extends BaseComponent implements PageBeginRenderListener {
@@ -71,12 +73,21 @@ public abstract class OpenAcdClientsPanel extends BaseComponent implements PageB
     }
 
     public void delete() {
-        Collection clientIds = getSelections().getAllSelected();
+        Collection<Integer> clientIds = getSelections().getAllSelected();
         if (clientIds.isEmpty()) {
             return;
         }
         try {
-            List<String> clients = getOpenAcdContext().removeClients(clientIds);
+            List<String> clients = new ArrayList<String>();
+            for (Integer client : clientIds) {
+                OpenAcdClient c = getOpenAcdContext().getClientById(client);
+                try {
+                    getOpenAcdContext().deleteClient(c);
+                } catch (ClientInUseException e) {
+                    clients.add(c.getName());
+                }
+            }
+
             if (!clients.isEmpty()) {
                 String queueNames = StringUtils.join(clients.iterator(), ", ");
                 String errMessage = getMessages().format("msg.err.queueClient", queueNames);

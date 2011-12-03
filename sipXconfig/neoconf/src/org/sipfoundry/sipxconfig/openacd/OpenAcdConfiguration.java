@@ -49,7 +49,6 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
         if (feature.equals(OpenAcdContext.FEATURE)) {
             if (event == FeatureEvent.PRE_ENABLE) {
                 OpenAcdSettings settings = m_openAcdContext.getSettings();
-                m_provisioningContext.configure(settings.getConfigObjects());
             }
         }
     }

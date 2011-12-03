@@ -17,12 +17,11 @@
 package org.sipfoundry.sipxconfig.openacd;
 
 import java.io.Serializable;
-import java.util.List;
-
-import com.mongodb.BasicDBObject;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import com.mongodb.BasicDBObject;
 
 public class OpenAcdRecipeAction extends OpenAcdQueueWithSkills implements Serializable {
     public static enum ACTION {
@@ -111,15 +110,5 @@ public class OpenAcdRecipeAction extends OpenAcdQueueWithSkills implements Seria
         }
         action.put("actionValue", actionValue);
         return action;
-    }
-
-    @Override
-    public String getType() {
-        return null;
-    }
-
-    @Override
-    public List<String> getProperties() {
-        return null;
     }
 }

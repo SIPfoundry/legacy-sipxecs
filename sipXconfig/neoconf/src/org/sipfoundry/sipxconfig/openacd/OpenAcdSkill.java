@@ -16,13 +16,21 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 
-public class OpenAcdSkill extends OpenAcdConfigObject {
+public class OpenAcdSkill extends BeanWithId implements Replicable {
     private String m_name;
     private String m_atom;
     private OpenAcdSkillGroup m_group;
@@ -76,21 +84,6 @@ public class OpenAcdSkill extends OpenAcdConfigObject {
         m_defaultSkill = defaultSkill;
     }
 
-    @Override
-    public List<String> getProperties() {
-        List<String> props = new LinkedList<String>();
-        props.add("name");
-        props.add("atom");
-        props.add("groupName");
-        props.add("description");
-        return props;
-    }
-
-    @Override
-    public String getType() {
-        return "skill";
-    }
-
     public int hashCode() {
         return new HashCodeBuilder().append(m_name).append(m_atom).toHashCode();
     }
@@ -104,5 +97,34 @@ public class OpenAcdSkill extends OpenAcdConfigObject {
         }
         OpenAcdSkill bean = (OpenAcdSkill) other;
         return new EqualsBuilder().append(m_name, bean.getName()).append(m_atom, bean.getAtom()).isEquals();
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        return Collections.singleton(DataSet.OPENACD);
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        return null;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(MongoConstants.ATOM, getAtom());
+        props.put(MongoConstants.GROUP_NAME, getGroupName());
+        props.put(MongoConstants.DESCRIPTION, getDescription());
+        return props;
     }
 }

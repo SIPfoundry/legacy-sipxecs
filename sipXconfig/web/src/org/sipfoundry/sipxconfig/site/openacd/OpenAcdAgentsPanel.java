@@ -80,12 +80,15 @@ public abstract class OpenAcdAgentsPanel extends BaseComponent implements PageBe
     }
 
     public void delete() {
-        Collection ids = getSelections().getAllSelected();
+        Collection<Integer> ids = getSelections().getAllSelected();
         if (ids.isEmpty()) {
             return;
         }
         try {
-            getOpenAcdContext().deleteAgents(ids);
+            for (Integer id : ids) {
+                OpenAcdAgent agent = getOpenAcdContext().getAgentById(id);
+                getOpenAcdContext().deleteAgent(agent);
+            }
         } catch (UserException ex) {
             //forward the error message display to contained page for this component
             //components do not scale very well on UserException automatic catch

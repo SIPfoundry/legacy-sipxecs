@@ -16,13 +16,21 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 
-public class OpenAcdClient extends OpenAcdConfigObject {
+public class OpenAcdClient extends BeanWithId implements Replicable {
 
     private String m_name;
     private String m_identity;
@@ -52,19 +60,6 @@ public class OpenAcdClient extends OpenAcdConfigObject {
         m_description = description;
     }
 
-    @Override
-    public List<String> getProperties() {
-        List<String> props = new LinkedList<String>();
-        props.add("name");
-        props.add("identity");
-        return props;
-    }
-
-    @Override
-    public String getType() {
-        return "client";
-    }
-
     public int hashCode() {
         return new HashCodeBuilder().append(m_name).append(m_identity).toHashCode();
     }
@@ -78,5 +73,32 @@ public class OpenAcdClient extends OpenAcdConfigObject {
         }
         OpenAcdClient bean = (OpenAcdClient) other;
         return new EqualsBuilder().append(m_name, bean.getName()).append(m_identity, bean.getIdentity()).isEquals();
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(MongoConstants.IDENTITY, getIdentity());
+        return props;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        return Collections.singleton(DataSet.OPENACD);
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        return null;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
     }
 }
