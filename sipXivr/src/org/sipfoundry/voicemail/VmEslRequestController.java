@@ -17,12 +17,12 @@ import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.freeswitch.Play;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.Record;
+import org.sipfoundry.commons.userdb.PersonalAttendant;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.ApplicationConfiguraton;
 import org.sipfoundry.sipxivr.common.IvrChoice;
 import org.sipfoundry.sipxivr.eslrequest.AbstractEslRequestController;
-import org.sipfoundry.voicemail.mailbox.MailboxManager;
 import org.sipfoundry.voicemail.mailbox.TempMessage;
 
 public class VmEslRequestController extends AbstractEslRequestController {
@@ -36,7 +36,6 @@ public class VmEslRequestController extends AbstractEslRequestController {
     private String m_operatorAddr;
     private ApplicationConfiguraton m_config;
     private SipXAlarmClient m_alarmClient;
-    private MailboxManager m_mailboxManager;
 
     @Override
     public void extractParameters(Hashtable<String, String> parameters) {
@@ -159,7 +158,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
     }
 
     public void transferToOperator() {
-        transfer(getOperator(m_mailboxManager.getPersonalAttendant(getCurrentUser().getUserName())), true);
+        transfer(getOperator(getCurrentUser().getPersonalAttendant()), true);
     }
 
     /**
@@ -169,7 +168,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
      * @param pa
      * @return
      */
-    public String getOperator(org.sipfoundry.voicemail.mailbox.PersonalAttendant pa) {
+    public String getOperator(PersonalAttendant pa) {
         String transferUrl;
         // Try the Personal Attendant's definition of operator
         transferUrl = pa.getOperator();
@@ -333,10 +332,6 @@ public class VmEslRequestController extends AbstractEslRequestController {
 
     public void setAlarmClient(SipXAlarmClient client) {
         m_alarmClient = client;
-    }
-
-    public void setMailboxManager(MailboxManager manager) {
-        m_mailboxManager = manager;
     }
 
 }

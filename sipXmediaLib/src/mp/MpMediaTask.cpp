@@ -363,7 +363,6 @@ MpFlowGraphBase* MpMediaTask::mediaInfo(void)
    int              numItems;
    MpMediaTask*     pMediaTask;
    MpFlowGraphBase* pFlowGraph;
-   OsStatus         res;
 
    pMediaTask = MpMediaTask::getMediaTask(0);
 
@@ -399,7 +398,7 @@ MpFlowGraphBase* MpMediaTask::mediaInfo(void)
    else
       printf("    Focus:        %p\n", pFlowGraph);
 
-   res = pMediaTask->getManagedFlowGraphs(flowGraphs, 20, numItems);
+   pMediaTask->getManagedFlowGraphs(flowGraphs, 20, numItems);
    for (i=0; i < numItems; i++)
       printf("    FlowGraph[%d]: %p\n", i, flowGraphs[i]);
    return pFlowGraph;

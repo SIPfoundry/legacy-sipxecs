@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.voicemail;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,16 +17,15 @@ import java.util.Vector;
 
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.DistributionList;
+import org.sipfoundry.commons.userdb.Distributions;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.common.DialByName;
 import org.sipfoundry.sipxivr.common.DialByNameChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice.IvrChoiceReason;
-import org.sipfoundry.voicemail.mailbox.Distributions;
 import org.sipfoundry.voicemail.mailbox.GreetingType;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
-import org.sipfoundry.voicemail.mailbox.MailboxPreferences;
 import org.sipfoundry.voicemail.mailbox.TempMessage;
 
 public abstract class AbstractVmAction implements VmAction {
@@ -44,10 +44,11 @@ public abstract class AbstractVmAction implements VmAction {
     }
 
     public GreetingType getActiveGreeting() {
-        MailboxPreferences mailboxPrefs = m_mailboxManager.getMailboxPreferences(getCurrentUser());
-        GreetingType active = mailboxPrefs.getActiveGreeting().getGreetingType();
-        if (active != null) {
-            return active;
+        if (getCurrentUser().getActiveGreeting() != null) {
+            GreetingType active = GreetingType.valueOfById(getCurrentUser().getActiveGreeting());
+            if (active != null) {
+                return active;
+            }
         }
         return GreetingType.STANDARD;
     }
@@ -197,7 +198,7 @@ public abstract class AbstractVmAction implements VmAction {
         Map<String, DistributionList> dlists = null;
         if (dlists == null) {
             // Use the old way (distributionListsFile in the user's mailbox directory)
-            distributions = m_mailboxManager.getDistributions(getCurrentUser());
+            distributions = getCurrentUser().getDistributions();
             if (distributions != null) {
                 validDigits = distributions.getIndices();
             }
@@ -221,7 +222,7 @@ public abstract class AbstractVmAction implements VmAction {
                     userNames = list.getList(m_sysDistLists);
                 }
             } else if (distributions != null) {
-                userNames = distributions.getList(digit);
+                userNames = Arrays.asList(distributions.getList(digit));
             }
 
             if (userNames != null) {

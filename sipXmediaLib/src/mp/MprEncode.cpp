@@ -459,7 +459,6 @@ void MprEncode::doPrimaryCodec(MpBufPtr in, unsigned int startTs)
    unsigned char* pDest;
    int bytesAdded; //$$$
    MpBufSpeech content = MP_SPEECH_UNKNOWN;
-   OsStatus ret;
    UtlBoolean sendNow;
 
    if (NULL == mpPrimaryCodec) return;
@@ -485,7 +484,7 @@ void MprEncode::doPrimaryCodec(MpBufPtr in, unsigned int startTs)
       pDest = mpPacket1Payload + mPacket1PayloadUsed;
 
       bytesAdded = 0;
-      ret = mpPrimaryCodec->encode(pSamplesIn, numSamplesIn, numSamplesOut,
+      mpPrimaryCodec->encode(pSamplesIn, numSamplesIn, numSamplesOut,
                         pDest, payloadBytesLeft, bytesAdded,
                         sendNow, content);
       mPacket1PayloadUsed += bytesAdded;

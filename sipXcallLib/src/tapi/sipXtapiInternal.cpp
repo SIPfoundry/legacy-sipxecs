@@ -450,6 +450,7 @@ UtlBoolean sipxCallSetState(SIPX_CALL hCall,
                 break ;
             case CALLSTATE_TRANSFER:
                 break ;
+            case CALLSTATE_SECURITY_EVENT:
             case CALLSTATE_UNKNOWN:
                 break ;
         }
@@ -772,7 +773,7 @@ void sipxLineObjectFree(const SIPX_LINE hLine)
             if (pData->pLineAliases)
             {
                 UtlVoidPtr* pValue ;
-                while (pValue = (UtlVoidPtr*) pData->pLineAliases->get())
+                while ((pValue = (UtlVoidPtr*) pData->pLineAliases->get()))
                 {
                     Url* pUri = (Url*) pValue->getValue() ;
                     if (pUri)
@@ -861,7 +862,7 @@ SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
         UtlInt* pIndex = NULL;
         UtlVoidPtr* pObj = NULL;
 
-        while (pIndex = dynamic_cast<UtlInt*>( iter() ) )
+        while ((pIndex = dynamic_cast<UtlInt*>( iter() ) ))
         {
             pObj = dynamic_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
             SIPX_LINE_DATA* pData = NULL ;
@@ -884,7 +885,7 @@ SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
                         Url* pUrl ;
                         UtlSListIterator iterator(*pData->pLineAliases) ;
 
-                        while (pValue = (UtlVoidPtr*) iterator())
+                        while ((pValue = (UtlVoidPtr*) iterator()))
                         {
                             pUrl = (Url*) pValue->getValue() ;
 
@@ -1224,9 +1225,9 @@ UtlBoolean sipxIsCallInFocus()
 
         UtlInt* pIndex = NULL;
         UtlVoidPtr* pObj = NULL;
-        SIPX_CALL hCall = 0 ;
+        
 
-        while (pIndex = dynamic_cast<UtlInt*>( iter() ) )
+        while ((pIndex = dynamic_cast<UtlInt*>( iter() ) ))
         {
             pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
             SIPX_CALL_DATA* pData = NULL ;
@@ -1626,7 +1627,7 @@ void sipxDumpCalls()
         UtlVoidPtr* pObj = NULL;
         SIPX_CALL hCall = 0 ;
 
-        while (pIndex = dynamic_cast<UtlInt*>( iter() ) )
+        while ((pIndex = dynamic_cast<UtlInt*>( iter() ) ))
         {
             pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
             SIPX_CALL_DATA* pData = NULL ;

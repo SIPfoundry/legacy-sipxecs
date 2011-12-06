@@ -14,9 +14,11 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 public class BackupBean implements Serializable {
     public enum Type {
-        CONFIGURATION("-c"), VOICEMAIL("-v");
+        CONFIGURATION("-c"), VOICEMAIL("-v"), CDR("-cdr");
 
         private String m_option;
 
@@ -29,14 +31,17 @@ public class BackupBean implements Serializable {
         }
 
         static Type typeFromName(String name) {
-            if (BackupPlan.CONFIGURATION_ARCHIVE.equalsIgnoreCase(name)) {
+            if (StringUtils.equals(BackupPlan.CONFIGURATION_ARCHIVE, name)) {
                 return CONFIGURATION;
+            } else if (StringUtils.equals(BackupPlan.CDR_ARCHIVE, name)) {
+                return CDR;
             }
             return VOICEMAIL;
         }
     }
 
     public static class CompareFolders implements Comparator<Map<Type, BackupBean>> {
+        @Override
         public int compare(Map<Type, BackupBean> o1, Map<Type, BackupBean> o2) {
             BackupBean bean1 = o1.entrySet().iterator().next().getValue();
             BackupBean bean2 = o2.entrySet().iterator().next().getValue();

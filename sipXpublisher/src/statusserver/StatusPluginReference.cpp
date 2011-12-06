@@ -48,13 +48,13 @@ StatusPluginReference::StatusPluginReference(SubscribeServerPluginBase& plugin,
                 // practically there should always be only one permission match tag but there
                 // could be more than one permission associated with a plugin
                 TiXmlElement* permissionMatchElement  = nextNode->ToElement();
-                UtlBoolean permNodePresent = false;
+                
                 //get the user text value from it
                 for( TiXmlNode* permissionNode = permissionMatchElement->FirstChild( XML_TAG_PERMISSION );
                      permissionNode;
                      permissionNode = permissionNode->NextSibling( XML_TAG_PERMISSION ) )
                 {
-                    permNodePresent = true;
+                    
                     TiXmlElement* permissionElement = permissionNode->ToElement();
 
                     //get permission Name

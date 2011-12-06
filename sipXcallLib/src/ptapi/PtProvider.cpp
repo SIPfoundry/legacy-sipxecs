@@ -731,10 +731,10 @@ PtStatus PtProvider::getTerminal(const char* name, PtTerminal& rTerminal)
                 return PT_BUSY;
         }
 
-        TaoObjHandle rObjHandle;
+
         intptr_t temp;
         pe->getEventData(temp);
-        rObjHandle = (TaoObjHandle)temp;
+        
 
         UtlString terminalName;
         pe->getStringData(terminalName);

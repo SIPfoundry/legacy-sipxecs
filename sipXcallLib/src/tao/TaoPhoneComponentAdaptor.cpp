@@ -710,10 +710,10 @@ TaoStatus TaoPhoneComponentAdaptor::deactivateGroup(TaoMessage& rMsg)
 TaoStatus TaoPhoneComponentAdaptor::getAssociatedPhoneLamp(TaoMessage& rMsg)
 {
         //// need work
-        TaoPhoneLamp* rpLamp;
+        
         if (mpLamp)
         {
-                rpLamp = mpLamp;
+                
 
                 rMsg.setMsgSubType(TaoMessage::RESPONSE_PHONECOMPONENT);
                 if (mpSvrTransport->postMessage(rMsg))

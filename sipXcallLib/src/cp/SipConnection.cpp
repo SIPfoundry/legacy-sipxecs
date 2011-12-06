@@ -5816,7 +5816,7 @@ UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
     int msgSubType = eventMessage.getMsgSubType();
     UtlBoolean handleMessage = FALSE;
     const SipMessage* sipMsg = NULL;
-    int messageType;
+
 
     // Do not handle message if marked for deletion
     if (isMarkedForDeletion())
@@ -5826,7 +5826,7 @@ UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
         msgSubType == CallManager::CP_SIP_MESSAGE)
     {
         sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
-        messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
+        
 
         // If the callId, To and From match it belongs to this message
         if(mInviteMsg && mInviteMsg->isSameSession(sipMsg))

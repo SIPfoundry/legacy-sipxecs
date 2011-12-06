@@ -17,13 +17,17 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ACCOUNT;
+import static org.sipfoundry.commons.mongo.MongoConstants.ACTIVEGREETING;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_ATTACH_AUDIO;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_EMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.ATTACH_AUDIO;
+import static org.sipfoundry.commons.mongo.MongoConstants.BUTTONS;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_ENTRY_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXIT_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.DIALPAD;
 import static org.sipfoundry.commons.mongo.MongoConstants.DISPLAY_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.DISTRIB_LISTS;
 import static org.sipfoundry.commons.mongo.MongoConstants.EMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.HASHED_PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOST;
@@ -34,27 +38,44 @@ import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ON_THE_PHONE_MESSAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_PASSWORD;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_SHOW_ON_CALL_DETAILS;
+import static org.sipfoundry.commons.mongo.MongoConstants.ITEM;
+import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_BEGIN_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_END_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
+import static org.sipfoundry.commons.mongo.MongoConstants.PERSONAL_ATT;
 import static org.sipfoundry.commons.mongo.MongoConstants.PORT;
 import static org.sipfoundry.commons.mongo.MongoConstants.SYNC;
 import static org.sipfoundry.commons.mongo.MongoConstants.TLS;
 import static org.sipfoundry.commons.mongo.MongoConstants.USERBUSYPROMPT;
 import static org.sipfoundry.commons.mongo.MongoConstants.VMONDND;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
+import static org.sipfoundry.sipxconfig.vm.DistributionList.SETTING_PATH_DISTRIBUTION_LIST;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.im.ImAccount;
+import org.sipfoundry.sipxconfig.vm.DistributionList;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
+import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-public class Attendant extends DataSetGenerator {
+//TODO: this one is included in group dataset (ReplicationManagerImpl.GROUP_DATASETS)
+//Make sure all are needed, and break this apart if necessary
+public class Mailstore extends DataSetGenerator {
+    private MailboxManager m_mailboxManager;
 
     @Override
     public void generate(Replicable entity, DBObject top) {
@@ -114,11 +135,54 @@ public class Attendant extends DataSetGenerator {
         top.put(IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
         top.put(IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
         top.put(IM_PASSWORD, imAccount.getImPassword());
+        //personal attendant
+        PersonalAttendant pa = m_mailboxManager.getPersonalAttendantForUser(user);
+        if (pa != null) {
+            DBObject pao = new BasicDBObject();
+            if (StringUtils.isNotEmpty(user.getOperator())) {
+                pao.put(OPERATOR, SipUri.fix(user.getOperator(), getSipDomain()));
+            }
+            if (pa.getOverrideLanguage() && StringUtils.isNotEmpty(pa.getLanguage())) {
+                pao.put(LANGUAGE, pa.getLanguage());
+            }
+            if (pa.getMenu() != null && !pa.getMenu().getMenuItems().isEmpty()) {
+                List<DBObject> buttonsList = new ArrayList<DBObject>();
+                for (DialPad dialPad : pa.getMenu().getMenuItems().keySet()) {
+                    DBObject menuItem = new BasicDBObject();
+                    menuItem.put(DIALPAD, dialPad.getName());
+                    menuItem.put(ITEM, SipUri.fix(
+                            pa.getMenu().getMenuItems().get(dialPad).getParameter(), getSipDomain()));
+                    buttonsList.add(menuItem);
+                }
+                pao.put(BUTTONS, buttonsList);
+            }
+            top.put(PERSONAL_ATT, pao);
+        }
+        top.put(ACTIVEGREETING, user.getSettingValue(MailboxPreferences.ACTIVE_GREETING));
+        //DL
+        List<DBObject> dLists = new ArrayList<DBObject>();
+        for (int i = 1; i < DistributionList.MAX_SIZE; i++) {
+            String extensions = user.getSettingValue(
+                    new StringBuilder(SETTING_PATH_DISTRIBUTION_LIST).append(i).toString());
+            if (extensions != null) {
+                DBObject dlist = new BasicDBObject();
+                dlist.put(DIALPAD, i);
+                dlist.put(ITEM, extensions);
+                dLists.add(dlist);
+            }
+        }
+        if (!dLists.isEmpty()) {
+            top.put(DISTRIB_LISTS, dLists);
+        }
         getDbCollection().save(top);
     }
 
     @Override
     protected DataSet getType() {
-        return DataSet.ATTENDANT;
+        return DataSet.MAILSTORE;
+    }
+
+    public void setMailboxManager(MailboxManager mailboxManager) {
+        m_mailboxManager = mailboxManager;
     }
 }

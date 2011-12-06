@@ -7,7 +7,7 @@
  *
  */
 
-package org.sipfoundry.voicemail.mailbox;
+package org.sipfoundry.commons.userdb;
 
 import java.util.Map;
 
@@ -26,14 +26,12 @@ public class PersonalAttendant {
     private String m_operator; // URL to dial when caller presses "0"
     private Map<String, String> m_menu; // Key is digit pressed, value is URL to dial
     private String m_validDigits;
-    private String m_systemOperator;
 
-    public PersonalAttendant(String language, String operator, Map<String, String> menu, String validDigits, String systemOperator){
+    public PersonalAttendant(String language, String operator, Map<String, String> menu, String validDigits){
         m_language = language;
         m_operator = operator;
         m_menu = menu;
         m_validDigits = validDigits;
-        m_systemOperator = systemOperator;
     }
 
     public String getLanguage() {
@@ -41,9 +39,6 @@ public class PersonalAttendant {
     }
     
     public String getOperator() {
-        if (m_operator == null) {
-            return m_systemOperator;
-        }
         return m_operator;
     }
     

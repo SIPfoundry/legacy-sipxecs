@@ -164,6 +164,8 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         g1.setBranch(b1);
         m_settingDao.saveGroup(g1);
         Group g2 = new Group();
+        g2.setResource("user");
+        g2.setName("group2");
         g2.setBranch(b2);
         m_settingDao.saveGroup(g2);
 
@@ -187,6 +189,22 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
             assertEquals("u1", e.getRawParams()[0]);
             assertEquals("b2", e.getRawParams()[1]);
             assertEquals("b1", e.getRawParams()[2]);
+        }
+        
+        User u3 = m_coreContext.newUser();
+        u3.setUserName("u3");
+        m_coreContext.saveUser(u3);
+        
+        m_coreContext.addToGroup(m_settingDao.getGroupByName("user", "group1").getId(),
+                Arrays.asList(m_coreContext.loadUserByUserName("u3").getId()));
+        try {
+            m_coreContext.addToGroup(m_settingDao.getGroupByName("user", "group2").getId(),
+                    Arrays.asList(m_coreContext.loadUserByUserName("u3").getId()));
+            fail();
+        } catch (UserException e) {
+            assertEquals("u3", e.getRawParams()[0]);
+            assertEquals("b1", e.getRawParams()[1]);
+            assertEquals("b2", e.getRawParams()[2]);
         }
     }
 

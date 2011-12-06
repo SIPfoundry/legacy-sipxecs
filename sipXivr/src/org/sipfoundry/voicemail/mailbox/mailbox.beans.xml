@@ -10,9 +10,6 @@
     <property name="secret" value="${SHARED_SECRET}" />
     <property name="messageDescriptorWriter" ref="messageDescriptorWriter" />
     <property name="messageDescriptorReader" ref="messageDescriptorReader" />
-    <property name="mailboxPreferencesWriter" ref="mailboxPreferencesWriter" />
-    <property name="mailboxPreferencesReader" ref="mailboxPreferencesReader" />
-    <property name="distributionsReader" ref="distributionsReader" />
     <property name="emailer" ref="emailer" />
     <property name="mwiManager" ref="mwiManager" />
   </bean>
@@ -20,11 +17,5 @@
   <bean id="messageDescriptorWriter" class="org.sipfoundry.voicemail.mailbox.MessageDescriptorWriter" />
 
   <bean id="messageDescriptorReader" class="org.sipfoundry.voicemail.mailbox.MessageDescriptorReader" />
-
-  <bean id="mailboxPreferencesWriter" class="org.sipfoundry.voicemail.mailbox.MailboxPreferencesWriter" />
-
-  <bean id="mailboxPreferencesReader" class="org.sipfoundry.voicemail.mailbox.MailboxPreferencesReader" />
-
-  <bean id="distributionsReader" class="org.sipfoundry.voicemail.mailbox.DistributionsReader" />
 
 </beans>

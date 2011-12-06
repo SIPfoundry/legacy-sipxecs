@@ -10,14 +10,11 @@
 package org.sipfoundry.sipxconfig.rest;
 
 import static org.easymock.EasyMock.expectLastCall;
-import static org.restlet.data.MediaType.TEXT_XML;
-import static org.restlet.data.MediaType.TEXT_PLAIN;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -26,23 +23,19 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
 import org.easymock.classextension.EasyMock;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
-import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
-import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public class ActiveGreetingResourceTest extends TestCase {
     private User m_user;
     private CoreContext m_coreContext;
-    private MailboxManager m_mboxManager;
     private PermissionManager m_pManager;
     private ActiveGreetingResource m_resource;
 
@@ -78,44 +71,7 @@ public class ActiveGreetingResourceTest extends TestCase {
         expectLastCall().andReturn(m_user);
         EasyMock.replay(m_coreContext);
 
-        m_mboxManager = EasyMock.createMock(MailboxManager.class);
-        m_mboxManager.writePreferencesFile(m_user);
-        expectLastCall().anyTimes();
-        EasyMock.replay(m_mboxManager);
-
         m_resource.setCoreContext(m_coreContext);
-        m_resource.setMailboxManager(m_mboxManager);
-    }
-
-    public void testRepresentXml() throws Exception {
-        Request request = new Request();
-        Map<String, Object> attributes = new HashMap<String, Object>();
-        attributes.put("user", "200");
-        request.setAttributes(attributes);
-        m_resource.setRequest(request);
-        m_resource.init(null, request, null);
-
-        Representation representation = m_resource.represent(new Variant(TEXT_XML));
-        StringWriter writer = new StringWriter();
-        representation.write(writer);
-        String greeting = writer.toString();
-        String expectedXml = IOUtils.toString(getClass().getResourceAsStream("expected-activegreeting.xml"));
-        assertEquals(expectedXml, greeting);
-    }
-
-    public void testRepresent() throws Exception {
-        Request request = new Request();
-        Map<String, Object> attributes = new HashMap<String, Object>();
-        attributes.put("user", "200");
-        request.setAttributes(attributes);
-        m_resource.setRequest(request);
-        m_resource.init(null, request, null);
-
-        Representation representation = m_resource.represent(new Variant(TEXT_PLAIN));
-        StringWriter writer = new StringWriter();
-        representation.write(writer);
-        String greeting = writer.toString();
-        assertEquals("outofoffice", greeting);
     }
 
     public void testStoreRepresentation() throws Exception {
