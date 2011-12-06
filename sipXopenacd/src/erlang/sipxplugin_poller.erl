@@ -300,36 +300,37 @@ process_queue_group(_, Command) ->
 	?WARNING("Unrecognized command: ~s", [Command]),
 	{error, unkown_command}.
 
-process_queue(Queue, Command) ->
-	{_, Name} = lists:nth(2, Queue),
-	{_, QueueGroup} = lists:nth(3, Queue),
-	{_, Skills} = lists:nth(4, Queue),
-	{_, Profiles} = lists:nth(5, Queue),
-	SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
-	ProfilesList = lists:flatmap(fun(X)->[{'_profile',X}] end, string:tokens((erlang:binary_to_list(Profiles)), ", ")),
-	AllSkills = lists:merge(SkillsList, ProfilesList),
-	{_, Weight} = lists:nth(6, Queue),
-	if Command =:= "ADD" ->
-		{_, {_, RecipeSteps}} = lists:nth(8, Queue),
-		if RecipeSteps =:= [] -> RecipeToSave = [];
-			true ->
-				RecipeToSave = lists:flatmap(fun(X) -> [extract_recipe_step(X)] end, RecipeSteps)
-		end,
-		call_queue_config:new_queue(erlang:binary_to_list(Name), binary_to_number(Weight), AllSkills, RecipeToSave, erlang:binary_to_list(QueueGroup)),
-		queue_manager:load_queue(erlang:binary_to_list(Name));
-	Command =:= "DELETE" ->
-		call_queue_config:destroy_queue(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		{_, Oldname} = lists:nth(7, Queue),
-		{_, {_, RecipeSteps}} = lists:nth(8, Queue),
-		if RecipeSteps =:= [] -> RecipeToSave = [];
-			true ->
-				RecipeToSave = lists:flatmap(fun(X) -> [extract_recipe_step(X)] end, RecipeSteps)
-		end,
-		call_queue_config:set_queue(erlang:binary_to_list(Oldname), erlang:binary_to_list(Name), binary_to_number(Weight), AllSkills, RecipeToSave, erlang:binary_to_list(QueueGroup)),
-		queue_manager:load_queue(erlang:binary_to_list(Name));
-	true -> ?WARNING("Unrecognized command", [])
-	end.
+process_queue(Queue, "ADD") ->
+	Name = get_str(<<"name">>, Queue),
+
+	call_queue_config:new_queue(
+		Name,
+		get_str_to_int(<<"weight">>, Queue),
+		get_all_skills(Queue),
+		get_recipes(Queue),
+		get_str(<<"queueGroup">>, Queue)
+	),
+	queue_manager:load_queue(Name);
+
+process_queue(Queue, "DELETE") ->
+	call_queue_config:destroy_queue(
+		get_str(<<"name">>, Queue));
+
+process_queue(Queue, "UPDATE") ->
+	Name = get_str(<<"name">>, Queue),
+
+	call_queue_config:set_queue(
+		get_str(<<"oldName">>, Queue),
+		Name,
+		get_str_to_int(<<"weight">>, Queue),
+		get_all_skills(Queue),
+		get_recipes(Queue),
+		get_str(<<"queueGroup">>, Queue)),
+	queue_manager:load_queue(Name);
+
+process_queue(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
 
 process_fs_media_manager(Config, _Command) ->	
 	%% TODO should be getting a boolean than a string
@@ -380,25 +381,18 @@ process_log_configuration(Config, _Command) ->
 	cpxlog:set_loglevel(ConsoleLogPath, LogLevel).
 
 extract_condition(MongoCondition) ->
-	[{_, Condition}, {_, Relation}, {_, ConditionValue}] = MongoCondition,
-	ConditionAtom = list_to_existing_atom(binary_to_list(Condition)),
-	RelationAtom = list_to_existing_atom(binary_to_list(Relation)),
+	Condition = get_str(<<"condition">>, MongoCondition),
+	Relation = get_atom(<<"relation">>, MongoCondition),
 
-	case ConditionAtom of
+	case Condition of
 		client ->
-			Client = binary_to_list(ConditionValue),
-			{client, RelationAtom, Client};
+			{client, Relation, get_str(<<"value">>, MongoCondition)};
 		type ->
-			%% TODO may cause a memory problem. must handle non-existing atoms
-			Type = list_to_atom(binary_to_list(ConditionValue)),
-			{type, RelationAtom, Type};
+			{type, Relation, get_atom(<<"value">>, MongoCondition)};
 		ticks ->
-			Ticks = binary_to_number(ConditionValue),
-			{ticks, Ticks};
-		_ ->
-			%% would probably be best to handle each type
-			Num = binary_to_number(ConditionValue),
-			{ConditionAtom, Num}
+			{type, get_str_to_int(<<"value">>, MongoCondition)};
+		_ -> %% TODO would probably best to enumerate
+			{Condition, get_str_to_int(<<"value">>, MongoCondition)}
 	end.
 
 process_vm_priority_diff(Object, _Command) ->
@@ -412,21 +406,30 @@ process_vm_priority_diff(Object, _Command) ->
 	end.
 
 extract_recipe_step(RecipeStep) ->
-	[{_, [{_, RecipeAction}, {_, RecipeActionValue}]}, {_, {_, RecipeConditions}}, {_, RecipeFrequency}, {_, RecipeName}] = RecipeStep,
-	RecipeActionAtom = list_to_atom(erlang:binary_to_list(RecipeAction)),
-	if RecipeActionAtom =:= announce ->
-		RecipeActionValueAtom = erlang:binary_to_list(RecipeActionValue);
-	RecipeActionAtom =:= set_priority ->
-		RecipeActionValueAtom = binary_to_number(RecipeActionValue);
-	(RecipeActionAtom =:= add_skills) or (RecipeActionAtom =:= remove_skills) ->
-		RecipeActionValueAtom = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(RecipeActionValue)), ", "));
-		true -> RecipeActionValueAtom = []
-		end,
-	ActionToSave = {RecipeActionAtom, RecipeActionValueAtom},
-	ConditionList = lists:flatmap(fun(X) -> [extract_condition(X)] end, RecipeConditions),
-	{ConditionList,[ActionToSave],list_to_atom(erlang:binary_to_list(RecipeFrequency)),RecipeName}.
+	ActionProps = proplists:get_value(<<"action">>, RecipeStep),
+	{array, ConditionArr} = proplists:get_value(<<"conditions">>, RecipeStep),
+	Frequency = get_atom(<<"frequency">>, RecipeStep),
+	StepName = get_str(<<"stepName">>, RecipeStep),
 
+	%% TODO should be a list
+	Action = get_atom(<<"action">>, ActionProps),
+	ActionValue = case Action of
+		announce ->
+			get_str(<<"actionValue">>, ActionProps);
+		set_priority ->
+			get_str_to_int(<<"actionValue">>, ActionProps);
+		add_skills ->
+			get_atom_list(<<"actionValue">>, ActionProps);
+		remove_skills ->
+			get_atom_list(<<"actionValue">>, ActionProps);
+		_ ->
+			[]
+	end,
 
+	ActionTuple = {Action, ActionValue},
+	Conditions = [extract_condition(X) || X <- ConditionArr],
+
+	{Conditions, [ActionTuple], Frequency, StepName}.
 %% Utils
 
 
@@ -449,11 +452,17 @@ get_agent_security(Agent) ->
     		agent
     end.
 
+get_recipes(Queue) ->	
+	{array, RecipeStepsJ} = proplists:get_value(
+		<<"additionalObjects">>, Queue),
+	
+	[extract_recipe_step(X) || X <- RecipeStepsJ].
+
 get_str(Key, L) ->
 	case proplists:get_value(Key, L) of
 		undefined ->
 			"";
-		Bin ->
+		Bin when is_binary(Bin) ->
 			%% TODO use proper encoding
 			binary_to_list(Bin)
 	end.
@@ -462,7 +471,7 @@ get_atom(Key, L) ->
 	case proplists:get_value(Key, L) of
 		undefined ->
 			undefined;
-		Bin ->
+		Bin when is_binary(Bin) ->
 			%% TODO must use list_to_existing_atom
 			binary_to_atom(Bin, utf8)
 	end.
@@ -470,12 +479,24 @@ get_atom(Key, L) ->
 get_bin(Key, L) ->
 	proplists:get_value(Key, L, <<>>).
 
+get_str_to_int(Key, L) ->
+	case proplists:get_value(Key, L) of
+		undefined ->
+			0;
+		Bin when is_binary(Bin) ->
+			try list_to_integer(binary_to_list(Bin)) of
+				V -> V
+			catch
+				error:badarg -> 0
+			end
+	end.	
+
 %% From a comma separated string
 get_atom_list(Key, L) ->
 	case proplists:get_value(Key, L) of
 		undefined ->
 			[];
-		Bin ->
+		Bin when is_binary(Bin)->
 			split_bin_to_atoms(Bin, <<", ">>)
 	end.
 
@@ -491,15 +512,4 @@ split_bin_to_atoms0([<<>>, Rest], Pattern, Acc) ->
 split_bin_to_atoms0([B, Rest], Pattern, Acc) ->
 	split_bin_to_atoms0(binary:split(Rest, Pattern),
 		Pattern, [binary_to_atom(B, utf8)|Acc]).
-
-binary_to_number(B) ->
-    list_to_number(binary_to_list(B)).
-
-list_to_number(L) ->
-    try list_to_float(L)
-    catch
-        error:badarg ->
-            list_to_integer(L)
-    end.
-
 
