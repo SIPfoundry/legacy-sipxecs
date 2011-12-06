@@ -260,7 +260,7 @@ process_client(Client, "ADD") ->
 	call_queue_config:new_client(
 		get_str(<<"name">>, Client),
 		get_str(<<"identity">>, Client),
-		[]);
+		get_client_options(Client));
 
 process_client(Client, "DELETE") ->
 	call_queue_config:destroy_client(
@@ -269,7 +269,9 @@ process_client(Client, "DELETE") ->
 process_client(Client, "UPDATE") ->
 	call_queue_config:set_client(
 		get_str(<<"identity">>, Client),
-		get_str(<<"name">>, Client), []);
+		get_str(<<"name">>, Client),
+		get_client_options(Client));
+
 process_client(_, Command) ->
 	?WARNING("Unrecognized command: ~s", [Command]).
 
@@ -453,6 +455,17 @@ get_agent_security(Agent) ->
     		agent
     end.
 
+get_client_options(Client) ->
+	Options = proplists:get_value(<<"options">>, Client, []),
+	
+	lists:foldl(
+		fun({<<"vm_priority_diff">>, N}, Acc) when is_float(N) ->
+			[{vm_priority_diff, trunc(N)}|Acc];
+		(Any, Acc) ->
+			?WARNING("Not saving unknown client option: ~p", [Any]),
+			Acc
+		end, [], Options).
+
 get_recipes(Queue) ->	
 	{array, RecipeStepsJ} = proplists:get_value(
 		<<"additionalObjects">>, Queue),
@@ -490,7 +503,7 @@ get_str_to_int(Key, L) ->
 			catch
 				error:badarg -> 0
 			end
-	end.	
+	end.
 
 %% From a comma separated string
 get_atom_list(Key, L) ->
