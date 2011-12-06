@@ -354,22 +354,30 @@ process_fs_media_manager(Config, _Command) ->
 	end.
 
 process_agent_configuration(Config, _Command) ->
-        {_, ListenerEnabled} = lists:nth(2, Config),
-        if ListenerEnabled =:= <<"true">> ->
-		Conf = #cpx_conf{id = agent_dialplan_listener, module_name = agent_dialplan_listener, start_function = start_link, start_args = [], supervisor = agent_connection_sup},
-                cpx_supervisor:update_conf(agent_dialplan_listener, Conf);
-        ListenerEnabled =:= <<"false">> ->
-                cpx_supervisor:destroy(agent_dialplan_listener);
-        true -> ?WARNING("Unrecognized command", [])
-        end.
+	%% TODO should be boolean than string
+	case get_bin(<<"listenerEnabled">>, Config) of
+		<<"true">> ->
+			cpx_supervisor:update_conf(agent_dialplan_listener,
+				#cpx_conf{id = agent_dialplan_listener,
+					module_name = agent_dialplan_listener,
+					start_function = start_link,
+					start_args = [],
+					supervisor = agent_connection_sup});
+		<<"false">> ->
+			cpx_supervisor:destroy(agent_dialplan_listener);
+		_ ->
+			?WARNING("Unrecognized agent_configuration state", [])
+	end.
 
 process_log_configuration(Config, _Command) ->
-        {_, LogLevel} = lists:nth(2, Config),
-        {_, LogDir} = lists:nth(3, Config),
-	LogLevelAtom = list_to_atom(erlang:binary_to_list(LogLevel)),
-	?WARNING("SET NEW LOG LEVEL:~p", [list_to_atom(erlang:binary_to_list(LogLevel))]),
-	cpxlog:set_loglevel(lists:append(erlang:binary_to_list(LogDir), "full.log"), LogLevelAtom),
-	cpxlog:set_loglevel(lists:append(erlang:binary_to_list(LogDir), "console.log"), LogLevelAtom).
+	LogLevel = get_atom(<<"logLevel">>, Config),
+	LogDir = get_str(<<"logDir">>, Config),
+
+	FullLogPath = filename:join(LogDir, "full.log"),
+	ConsoleLogPath = filename:join(LogDir, "console.log"),
+
+	cpxlog:set_loglevel(FullLogPath, LogLevel),
+	cpxlog:set_loglevel(ConsoleLogPath, LogLevel).
 
 extract_condition(MongoCondition) ->
 	[{_, Condition}, {_, Relation}, {_, ConditionValue}] = MongoCondition,
