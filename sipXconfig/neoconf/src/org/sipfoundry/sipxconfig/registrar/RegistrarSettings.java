@@ -16,7 +16,7 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
@@ -70,25 +70,5 @@ public class RegistrarSettings extends BeanWithSettings implements DeployConfigO
     @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         return BeanId.createBeanIdCollection(Collections.singleton(getId()), this.getClass());
-    }
-
-    public Setting getInternalSettings(Location location) {
-        SettingImpl internal = new SettingImpl();
-        Address imXmlRpc = m_addressManager.getSingleAddress(ImManager.XMLRPC_ADDRESS);
-        String openfireUrl = format("http://%s:%d/plugins/sipx-openfire-presence/status", imXmlRpc.getAddress(),
-                imXmlRpc.getPort());
-        internal.addSetting(newSetting("SIP_REDIRECT.900-PRESENCE.OPENFIRE_PRESENCE_SERVER_URL", openfireUrl));
-        String presenceMonitorUrl = format("http://%s:%d/RPC2", location.getAddress(), MONITOR_PORT);
-        internal.addSetting(newSetting("SIP_REDIRECT.900-PRESENCE.LOCAL_PRESENCE_MONITOR_SERVER_URL",
-                presenceMonitorUrl));
-        internal.addSetting(newSetting("SIP_REDIRECT.900-PRESENCE.REALM", m_domainManager.getAuthorizationRealm()));
-        internal.addSetting(newSetting("SIP_REDIRECT.900-PRESENCE.SIP_DOMAIN", m_domainManager.getDomain()));
-        return internal;
-    }
-
-    Setting newSetting(String name, Object value) {
-        Setting s = new SettingImpl(name);
-        s.setValue(value.toString());
-        return s;
     }
 }

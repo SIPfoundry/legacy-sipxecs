@@ -11,9 +11,9 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public class MailboxManagerTestIntegration extends IntegrationTestCase {

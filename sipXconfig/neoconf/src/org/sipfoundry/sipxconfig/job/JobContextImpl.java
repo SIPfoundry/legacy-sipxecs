@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class JobContextImpl implements JobContext {
     private int m_maxJobs = 100;

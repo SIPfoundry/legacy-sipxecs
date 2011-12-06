@@ -31,15 +31,8 @@
       </option>
     </enum>
   </type>
-  <type id="enablestate">
-    <boolean>
-      <true>
-        <value>ENABLE</value>
-      </true>
-      <false>
-        <value>DISABLE</value>
-      </false>
-    </boolean>
+  <type id="nonRootPort">
+    <integer min="1025" max="65535"/>
   </type>
   <group name="callresolver">
     <setting name="CALLRESOLVER_CALL_STATE_DB">
@@ -81,6 +74,10 @@
         <integer />
       </type>
       <value>5433</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_AGENT_PORT" advanced="yes">
+      <type refid="nonRootPort" />
+      <value>8130</value>
     </setting>
   </group>
 </model>

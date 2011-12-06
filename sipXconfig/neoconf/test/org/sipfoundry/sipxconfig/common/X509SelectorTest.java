@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import org.sipfoundry.sipxconfig.cert.X509Selector;
+
 import junit.framework.TestCase;
 
 public class X509SelectorTest extends TestCase {

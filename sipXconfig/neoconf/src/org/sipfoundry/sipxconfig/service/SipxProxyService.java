@@ -13,9 +13,9 @@ import java.util.Collections;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.commons.util.IPAddressUtil;
-import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.ConfigurationFile;
+import org.sipfoundry.sipxconfig.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.annotation.Required;
 

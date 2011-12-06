@@ -12,10 +12,10 @@ package org.sipfoundry.sipxconfig.acd;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class AcdLineTest extends BeanWithSettingsTestCase {
 

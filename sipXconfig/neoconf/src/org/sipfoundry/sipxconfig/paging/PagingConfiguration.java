@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.paging;
 import java.util.List;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
 

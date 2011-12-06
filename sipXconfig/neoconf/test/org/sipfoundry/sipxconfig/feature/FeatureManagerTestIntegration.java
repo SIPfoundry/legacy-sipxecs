@@ -9,8 +9,8 @@ package org.sipfoundry.sipxconfig.feature;
 
 import java.util.Collections;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class FeatureManagerTestIntegration extends IntegrationTestCase {
     FeatureManager m_featureManager;

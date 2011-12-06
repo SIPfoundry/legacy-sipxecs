@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig;
 
+import org.sipfoundry.sipxconfig.test.TestHelper;
+
 /**
  * To be run from ANT scripts when setting up database
  */

@@ -16,10 +16,10 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class XmlModelBuilderTest extends TestCase {
     private ModelBuilder m_builder;

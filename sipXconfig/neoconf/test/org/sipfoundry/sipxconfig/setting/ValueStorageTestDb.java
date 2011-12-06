@@ -13,9 +13,9 @@ import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
-import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingTest.BirdWithSettings;
+import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;
 
 public class ValueStorageTestDb extends SipxDatabaseTestCase {

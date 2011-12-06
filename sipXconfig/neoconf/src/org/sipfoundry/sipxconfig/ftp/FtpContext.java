@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.ftp;
+package org.sipfoundry.sipxconfig.ftp;
 
 public interface FtpContext {
     void openConnection();

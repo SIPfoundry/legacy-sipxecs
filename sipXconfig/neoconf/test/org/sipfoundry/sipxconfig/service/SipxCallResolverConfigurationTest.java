@@ -9,14 +9,14 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.TestHelper.getMockSipxServiceManager;
+import static org.sipfoundry.sipxconfig.test.TestHelper.getMockSipxServiceManager;
 
 import java.util.Arrays;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SipxCallResolverConfigurationTest extends SipxServiceTestBase {
     private SipxCallResolverService m_callResolverService;

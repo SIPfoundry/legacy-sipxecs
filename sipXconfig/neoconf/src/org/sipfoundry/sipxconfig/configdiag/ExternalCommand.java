@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.configdiag;
+package org.sipfoundry.sipxconfig.configdiag;
 
 import java.io.IOException;
 import java.io.InputStream;

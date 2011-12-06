@@ -10,8 +10,8 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class PhoneLogConfigurationTest extends SipxServiceTestBase {
 

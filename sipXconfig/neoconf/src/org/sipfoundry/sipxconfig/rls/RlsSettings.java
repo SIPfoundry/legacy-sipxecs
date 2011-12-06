@@ -26,4 +26,12 @@ public class RlsSettings extends BeanWithSettings implements DeployConfigOnEdit 
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) Rls.FEATURE);
     }
+
+    public int getTcpPort() {
+        return (Integer) getSettingTypedValue("rls-config/SIP_RLS_TCP_PORT");
+    }
+
+    public int getUdpPort() {
+        return (Integer) getSettingTypedValue("rls-config/SIP_RLS_UDP_PORT");
+    }
 }

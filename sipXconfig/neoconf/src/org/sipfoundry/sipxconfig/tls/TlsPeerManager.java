@@ -8,7 +8,7 @@
  *
  */
 
-package org.sipfoundry.sipxconfig.admin.tls;
+package org.sipfoundry.sipxconfig.tls;
 
 import java.util.Collection;
 import java.util.List;

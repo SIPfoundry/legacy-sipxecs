@@ -14,8 +14,8 @@ import java.io.IOException;
 
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class RestorePageTestUi extends WebTestCase {
     private static final String FIRST_BACKUP = "200706101100";

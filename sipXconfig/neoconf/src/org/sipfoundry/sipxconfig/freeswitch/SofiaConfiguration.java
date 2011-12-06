@@ -5,41 +5,33 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.service.freeswitch;
-
-import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.springframework.beans.factory.annotation.Required;
+package org.sipfoundry.sipxconfig.freeswitch;
 
 import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.MEDIA_SERVER;
 
-public class SofiaConfiguration extends SipxServiceConfiguration {
+import org.apache.velocity.VelocityContext;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.springframework.beans.factory.annotation.Required;
 
+public class SofiaConfiguration extends FreeswitchConfigFile {
     private DomainManager m_domainManager;
-
     private CoreContext m_coreContext;
 
     @Override
-    protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(location);
+    protected String getFileName() {
+        return "freeswitch/sofia.conf.xml";
+    }
+
+    @Override
+    protected void setupContext(VelocityContext context, Location location, FreeswitchSettings settings) {
         context.put("domain", m_domainManager.getDomain());
         context.put("realm", m_domainManager.getAuthorizationRealm());
-
         User user = m_coreContext.getSpecialUser(MEDIA_SERVER);
         context.put("userMedia", user);
-
-        SipxService service = getService(SipxFreeswitchService.BEAN_ID);
-        Setting freeswitchConfig = service.getSettings().getSetting("freeswitch-config");
-        context.put("settings", freeswitchConfig);
-
-        return context;
+        context.put("settings", settings.getSettings().getSetting("freeswitch-config"));
     }
 
     @Required
@@ -50,10 +42,5 @@ public class SofiaConfiguration extends SipxServiceConfiguration {
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
-    }
-
-    @Override
-    public boolean isReplicable(Location location) {
-        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
     }
 }

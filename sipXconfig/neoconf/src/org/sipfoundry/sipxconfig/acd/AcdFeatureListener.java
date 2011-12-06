@@ -9,7 +9,7 @@ package org.sipfoundry.sipxconfig.acd;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.feature.SimpleFeatureListener;
 import org.springframework.beans.factory.annotation.Required;

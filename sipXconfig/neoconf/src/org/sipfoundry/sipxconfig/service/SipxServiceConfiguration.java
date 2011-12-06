@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
+import org.sipfoundry.sipxconfig.TemplateConfigurationFile;
 import org.springframework.beans.factory.annotation.Required;
 
 public abstract class SipxServiceConfiguration extends TemplateConfigurationFile {

@@ -11,8 +11,8 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxImbotConfiguration extends SipxServiceConfiguration {

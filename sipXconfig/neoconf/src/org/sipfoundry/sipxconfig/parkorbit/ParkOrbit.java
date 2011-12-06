@@ -7,9 +7,9 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.parkorbit;
+package org.sipfoundry.sipxconfig.parkorbit;
 
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.Setting;
 

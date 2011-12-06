@@ -17,8 +17,8 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
 public class SipxOpenAcdVmArgsConfiguration extends SipxServiceConfiguration {
 

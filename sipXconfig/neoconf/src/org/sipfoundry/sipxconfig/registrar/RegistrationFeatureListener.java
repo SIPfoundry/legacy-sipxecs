@@ -7,7 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.registrar;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.feature.SimpleFeatureListener;
 

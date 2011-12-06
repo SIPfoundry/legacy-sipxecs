@@ -5,43 +5,37 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.service.freeswitch;
+package org.sipfoundry.sipxconfig.freeswitch;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.acccode.AccCodeContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.acccode.AuthCodes;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
-import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionCollector;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Generates default_context.xml.in
  */
-public class DefaultContextConfiguration extends SipxServiceConfiguration {
-
+public class DefaultContextConfiguration extends FreeswitchConfigFile {
     private ConferenceBridgeContext m_conferenceContext;
-    private AccCodeContext m_acccodeContext;
     private FreeswitchExtensionCollector m_freeswitchExtensionCollector;
+    private FeatureManager m_featureManager;
 
     @Override
-    protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(location);
+    protected void setupContext(VelocityContext context, Location location, FreeswitchSettings settings) {
         Bridge bridge = m_conferenceContext.getBridgeByServer(location.getFqdn());
         if (bridge != null) {
             Set conferences = bridge.getConferences();
             context.put("conferences", conferences);
         }
-        if (m_acccodeContext.isEnabled()) {
-            boolean acccodeActive = true;
-            context.put("acccode", acccodeActive);
+        if (m_featureManager.isFeatureEnabled(AuthCodes.FEATURE, location)) {
+            context.put("acccode", true);
         }
         List<FreeswitchExtension> freeswitchExtensions = new ArrayList<FreeswitchExtension>();
         for (FreeswitchExtension extension : m_freeswitchExtensionCollector.getExtensions()) {
@@ -50,7 +44,6 @@ public class DefaultContextConfiguration extends SipxServiceConfiguration {
             }
         }
         context.put("freeswitchExtensions", freeswitchExtensions);
-        return context;
     }
 
     @Required
@@ -59,17 +52,17 @@ public class DefaultContextConfiguration extends SipxServiceConfiguration {
     }
 
     @Required
-    public void setAccCodeContext(AccCodeContext accCodeContext) {
-        m_acccodeContext = accCodeContext;
-    }
-
-    @Required
     public void setFreeswitchExtensionCollector(FreeswitchExtensionCollector collector) {
         m_freeswitchExtensionCollector = collector;
     }
 
     @Override
-    public boolean isReplicable(Location location) {
-        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
+    protected String getFileName() {
+        return "freeswitch/default_context.conf.xml";
+    }
+
+    @Required
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }

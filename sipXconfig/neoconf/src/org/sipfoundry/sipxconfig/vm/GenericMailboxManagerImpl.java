@@ -12,9 +12,9 @@ package org.sipfoundry.sipxconfig.vm;
 import java.io.File;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.BackupBean;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.backup.BackupBean;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;

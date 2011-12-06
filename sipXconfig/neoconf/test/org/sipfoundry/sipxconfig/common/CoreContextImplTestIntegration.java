@@ -11,12 +11,12 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.Arrays;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 /**
  * Contains Integration tests. All tests from CoreContextImplTestDb should be moved here and

@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 
 public class SpecialUser extends BeanWithId implements Replicable {
 

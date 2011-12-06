@@ -20,8 +20,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalStatsImpl;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class AcdHistoricalStatsTest extends TestCase {
 

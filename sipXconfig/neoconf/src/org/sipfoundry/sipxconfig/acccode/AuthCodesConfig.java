@@ -15,8 +15,8 @@ import java.util.Collection;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -36,34 +36,30 @@ public class AuthCodesConfig implements ConfigProvider {
             Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
                     AuthCodes.FEATURE);
             for (Location location : locations) {
-                AuthXmlFile xml = new AuthXmlFile();
                 File file = new File(manager.getLocationDataDirectory(location), "authcodes.xml.cfdat");
                 FileWriter wtr = new FileWriter(file);
-                xml.write(wtr, location);
+                XmlFile xml = new XmlFile(wtr);
+                xml.write(getDocument());
             }
         }
     }
+    public Document getDocument() {
+        Document document = XmlFile.FACTORY.createDocument();
+        // See authcodes.xsd for "authcodes" element schema
+        QName authcodesName = XmlFile.FACTORY.createQName("authcodes", NAMESPACE);
+        Element authcodesElement = document.addElement(authcodesName);
 
-    class AuthXmlFile extends XmlFile {
-        @Override
-        public Document getDocument() {
-            Document document = FACTORY.createDocument();
-            // See authcodes.xsd for "authcodes" element schema
-            QName authcodesName = FACTORY.createQName("authcodes", NAMESPACE);
-            Element authcodesElement = document.addElement(authcodesName);
-
-            Collection<AuthCode> authCodes = m_authCodeManager.getAuthCodes();
-            // See authcodes.xsd for "authcode", "authname" and "authpassword" element schema
-            for (AuthCode authCode : authCodes) {
-                Element codeElement = authcodesElement.addElement(AUTHCODE);
-                codeElement.addAttribute(CODE, authCode.getCode());
-                InternalUser internalUser = authCode.getInternalUser();
-                codeElement.addElement("authname").setText(internalUser.getUserName());
-                codeElement.addElement("authpassword").setText(internalUser.getSipPassword());
-            }
-
-            return document;
+        Collection<AuthCode> authCodes = m_authCodeManager.getAuthCodes();
+        // See authcodes.xsd for "authcode", "authname" and "authpassword" element schema
+        for (AuthCode authCode : authCodes) {
+            Element codeElement = authcodesElement.addElement(AUTHCODE);
+            codeElement.addAttribute(CODE, authCode.getCode());
+            InternalUser internalUser = authCode.getInternalUser();
+            codeElement.addElement("authname").setText(internalUser.getUserName());
+            codeElement.addElement("authpassword").setText(internalUser.getSipPassword());
         }
+
+        return document;
     }
 
     @Required

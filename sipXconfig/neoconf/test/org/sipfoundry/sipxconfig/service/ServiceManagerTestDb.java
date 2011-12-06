@@ -11,9 +11,9 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ServiceManagerTestDb extends TestHelper.TestCaseDb {
     private ServiceManager m_manager;

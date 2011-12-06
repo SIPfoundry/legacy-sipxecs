@@ -18,7 +18,6 @@ import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
@@ -32,6 +31,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 import org.sipfoundry.sipxconfig.setting.type.UsernameSequenceSetting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SettingTypesTest extends TestCase {
 

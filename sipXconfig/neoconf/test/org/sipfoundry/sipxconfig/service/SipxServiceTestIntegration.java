@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class SipxServiceTestIntegration extends IntegrationTestCase {
 

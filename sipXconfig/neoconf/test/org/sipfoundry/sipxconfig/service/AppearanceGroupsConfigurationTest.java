@@ -16,9 +16,9 @@ import static org.easymock.EasyMock.replay;
 
 import java.util.Arrays;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class AppearanceGroupsConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {

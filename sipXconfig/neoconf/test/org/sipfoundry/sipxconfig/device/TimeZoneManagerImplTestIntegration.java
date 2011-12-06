@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.device;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class TimeZoneManagerImplTestIntegration extends IntegrationTestCase {
     private TimeZoneManager m_timeZoneManager;

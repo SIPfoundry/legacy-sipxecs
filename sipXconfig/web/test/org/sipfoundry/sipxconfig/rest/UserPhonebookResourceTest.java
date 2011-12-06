@@ -15,9 +15,9 @@ import static org.easymock.EasyMock.replay;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class UserPhonebookResourceTest extends UserPhonebookSearchResourceTest {
 

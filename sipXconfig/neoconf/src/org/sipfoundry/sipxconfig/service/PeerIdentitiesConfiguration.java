@@ -13,9 +13,9 @@ import java.util.Collection;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
+import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.tls.TlsPeer;
+import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class PeerIdentitiesConfiguration extends XmlFile {

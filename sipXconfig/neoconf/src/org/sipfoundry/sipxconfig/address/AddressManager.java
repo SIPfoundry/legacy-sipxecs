@@ -19,6 +19,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 public class AddressManager implements BeanFactoryAware {
+    public static final AddressType NTP_ADDRESS = new AddressType("ntp");
     private List<AddressProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
     private FeatureManager m_featureManager;

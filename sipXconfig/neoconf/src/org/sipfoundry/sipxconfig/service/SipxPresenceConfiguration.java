@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxPresenceConfiguration extends SipxServiceConfiguration {

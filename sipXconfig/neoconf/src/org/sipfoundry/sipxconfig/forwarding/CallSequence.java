@@ -7,7 +7,7 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.forwarding;
+package org.sipfoundry.sipxconfig.forwarding;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,12 +17,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.callgroup.AbstractCallSequence;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 
 /**
  * CallSequence
@@ -129,10 +128,5 @@ public class CallSequence extends AbstractCallSequence implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
-    }
-
-    @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
-        return null;
     }
 }

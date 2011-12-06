@@ -8,11 +8,19 @@
 package org.sipfoundry.sipxconfig.freeswitch;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxconfig.admin.commserver.BeanWithLocation;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.commserver.BeanWithLocation;
+import org.sipfoundry.sipxconfig.conference.FreeswitchApi;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 
 public class FreeswitchSettings extends BeanWithLocation {
     public static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
@@ -25,7 +33,36 @@ public class FreeswitchSettings extends BeanWithLocation {
     public static final String G729 = "G729";
     public static final String G729_STATUS = "Permitted G.729AB channels";
     public static final Logger LOG = Logger.getLogger("SipxFreeswitchService.class");
-    private FreeswitchFeature m_freeswitchFeature;
+    private static Boolean s_g729;
+    private AddressManager m_addressManager;
+    private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
+
+    public boolean isCodecG729Installed() {
+        if (s_g729 == null) {
+            // cache the result as this is a high traffic call and an expensive call to make
+            // ideally there would be a better place to put this code.
+            Collection<Address> addresses = m_addressManager.getAddresses(FreeswitchFeature.XMLRPC_ADDRESS);
+            for (Address address : addresses) {
+                FreeswitchApi api = m_freeswitchApiProvider.getApi(address.toString());
+                try {
+                    String result = api.g729_status();
+                    if (StringUtils.contains(result, G729_STATUS)) {
+                        s_g729 = true;
+                    } else {
+                        // try also new FS detection algorithm
+                        result = api.g729_available();
+                        if (StringUtils.contains(result, "true")) {
+                            s_g729 = true;
+                        }
+                    }
+                } catch (XmlRpcRemoteException xrre) {
+                    LOG.error(xrre);
+                    s_g729 = false;
+                }
+            }
+        }
+        return s_g729;
+    }
 
     public static enum SystemMohSetting {
         FILES_SRC, SOUNDCARD_SRC, NONE;
@@ -59,14 +96,23 @@ public class FreeswitchSettings extends BeanWithLocation {
             returnList.add("PCMA@20i");
             returnList.add("speex");
             returnList.add("L16");
-            if (m_freeswitchFeature.isCodecG729Installed()) {
+            if (isCodecG729Installed()) {
                 returnList.add(G729);
             }
             return returnList;
         }
     }
 
-    public void setFreeswitchFeature(FreeswitchFeature freeswitchFeature) {
-        m_freeswitchFeature = freeswitchFeature;
+    @Override
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("freeswitch/freeswitch.xml");
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public void setFreeswitchApiProvider(ApiProvider<FreeswitchApi> freeswitchApiProvider) {
+        m_freeswitchApiProvider = freeswitchApiProvider;
     }
 }

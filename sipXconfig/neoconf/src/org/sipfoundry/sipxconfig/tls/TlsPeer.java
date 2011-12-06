@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.tls;
+package org.sipfoundry.sipxconfig.tls;
 
 import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
 

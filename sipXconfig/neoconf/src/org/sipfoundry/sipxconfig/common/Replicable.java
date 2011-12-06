@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 
 /**
  * General contract for the entities that are inserted into Mongo.

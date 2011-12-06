@@ -18,10 +18,10 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.common.InternalUser;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class PeerIdentitiesConfigurationTest extends TestCase {
 

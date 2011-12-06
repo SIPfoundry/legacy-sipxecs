@@ -22,7 +22,6 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.test.Creator;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -32,6 +31,7 @@ import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
 import org.sipfoundry.sipxconfig.test.PhonebookTestHelper;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
 public class ManageVoicemailTestUi extends WebTestCase {

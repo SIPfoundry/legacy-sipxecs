@@ -17,8 +17,8 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalStatsImpl.ColumnTransformer;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ColumnTransformerTest extends TestCase {
 

@@ -8,7 +8,7 @@
  * $
  */
 
-package org.sipfoundry.sipxconfig.admin.update;
+package org.sipfoundry.sipxconfig.update;
 
 import java.util.Date;
 import java.util.List;

@@ -10,7 +10,7 @@ package org.sipfoundry.sipxconfig.feature;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 /**
  * Simple flags denoting that a feature has been enable for disabled globally or to a specific location.

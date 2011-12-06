@@ -14,9 +14,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.TemplateConfigurationFile;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
 public class DomainConfiguration extends TemplateConfigurationFile {
 

@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Arrays;
 
-import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
+import org.sipfoundry.sipxconfig.commserver.ConflictingFeatureCodeValidator;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Setting;

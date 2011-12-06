@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.SipUri;

@@ -9,10 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.moh;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
-import org.sipfoundry.sipxconfig.admin.dialplan.InternalForwardRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
+import org.sipfoundry.sipxconfig.dialplan.CallTag;
+import org.sipfoundry.sipxconfig.dialplan.DialPattern;
+import org.sipfoundry.sipxconfig.dialplan.InternalForwardRule;
+import org.sipfoundry.sipxconfig.dialplan.config.FullTransform;
 
 public class MohRule extends InternalForwardRule {
 

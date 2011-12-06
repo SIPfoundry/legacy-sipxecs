@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.monitoring;
+package org.sipfoundry.sipxconfig.monitoring;
 
 public class MonitoringBean {
 

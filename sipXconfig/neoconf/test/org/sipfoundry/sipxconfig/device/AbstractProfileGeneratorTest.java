@@ -15,7 +15,7 @@ import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class AbstractProfileGeneratorTest extends TestCase {
 

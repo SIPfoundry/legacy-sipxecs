@@ -17,7 +17,7 @@ import java.util.Collections;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class TunnelClientConfigurationFileTest extends TunnelConfigurationTestBase {
 

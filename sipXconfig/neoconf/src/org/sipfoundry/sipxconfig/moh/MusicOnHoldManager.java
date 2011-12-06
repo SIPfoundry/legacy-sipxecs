@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.moh;
 
 import java.io.File;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.User;
 

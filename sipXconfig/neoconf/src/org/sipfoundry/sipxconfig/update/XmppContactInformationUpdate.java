@@ -7,13 +7,13 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.update;
+package org.sipfoundry.sipxconfig.update;
 
-import org.sipfoundry.sipxconfig.admin.commserver.ContactInfoChangeApi;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.commserver.ContactInfoChangeApi;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
+import org.sipfoundry.sipxconfig.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.service.SipxService;

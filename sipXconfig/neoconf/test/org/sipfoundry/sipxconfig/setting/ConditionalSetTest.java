@@ -15,7 +15,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ConditionalSetTest extends TestCase {
     private ConditionalSet m_root;

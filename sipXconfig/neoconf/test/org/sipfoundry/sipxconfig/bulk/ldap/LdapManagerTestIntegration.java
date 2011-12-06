@@ -1,6 +1,6 @@
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class LdapManagerTestIntegration extends IntegrationTestCase {
     private LdapManager m_ldapManager;

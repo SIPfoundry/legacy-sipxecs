@@ -9,7 +9,7 @@ package org.sipfoundry.sipxconfig.tunnel;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 /**
  * Implementations can submit what tunnels they want to allow incoming connections to and/or

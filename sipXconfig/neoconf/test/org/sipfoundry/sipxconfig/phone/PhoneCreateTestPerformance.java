@@ -12,8 +12,8 @@ package org.sipfoundry.sipxconfig.phone;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.test.PerformanceTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import com.clarkware.junitperf.TimedTest;
 

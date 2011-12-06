@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.Collection;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 

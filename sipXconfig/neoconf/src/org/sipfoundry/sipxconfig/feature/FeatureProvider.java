@@ -9,7 +9,7 @@ package org.sipfoundry.sipxconfig.feature;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 /**
  * Implement this to register new features to the system. Manager will ask user which features

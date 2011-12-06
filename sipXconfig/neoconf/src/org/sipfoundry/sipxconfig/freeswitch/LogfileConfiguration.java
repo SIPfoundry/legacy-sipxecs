@@ -5,30 +5,20 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.service.freeswitch;
+package org.sipfoundry.sipxconfig.freeswitch;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
-import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
-public class LogfileConfiguration extends SipxServiceConfiguration {
+public class LogfileConfiguration extends FreeswitchConfigFile {
 
     @Override
-    protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(location);
-
-        SipxService service = getService(SipxFreeswitchService.BEAN_ID);
-        Setting freeswitchConfig = service.getSettings().getSetting("freeswitch-config");
-        context.put("settings", freeswitchConfig);
-
-        return context;
+    protected void setupContext(VelocityContext context, Location location, FreeswitchSettings settings) {
+        context.put("settings", settings);
     }
 
     @Override
-    public boolean isReplicable(Location location) {
-        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
+    protected String getFileName() {
+        return "freeswitch/logfile.conf.xml";
     }
 }

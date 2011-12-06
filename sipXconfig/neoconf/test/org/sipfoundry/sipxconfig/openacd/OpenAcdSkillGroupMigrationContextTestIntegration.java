@@ -16,7 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class OpenAcdSkillGroupMigrationContextTestIntegration extends IntegrationTestCase {
     private OpenAcdSkillGroupMigrationContext m_migrationContext;

@@ -7,7 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class SimpleFeatureListener implements FeatureListener {
 

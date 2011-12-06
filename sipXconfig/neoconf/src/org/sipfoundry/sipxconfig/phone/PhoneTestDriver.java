@@ -14,7 +14,7 @@ import static org.easymock.EasyMock.createNiceControl;
 import static org.easymock.EasyMock.createStrictControl;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
-import static org.sipfoundry.sipxconfig.TestHelper.getMockDomainManager;
+import static org.sipfoundry.sipxconfig.test.TestHelper.getMockDomainManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,11 +24,10 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
@@ -47,6 +46,7 @@ import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public final class PhoneTestDriver {
     public static final String SIPFOUNDRY_ORG = "sipfoundry.org";

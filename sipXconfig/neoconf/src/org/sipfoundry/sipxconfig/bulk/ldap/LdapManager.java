@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
-import org.sipfoundry.sipxconfig.admin.CronSchedule;
+import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.springframework.ldap.DirContextProcessor;
 
@@ -61,6 +61,4 @@ public interface LdapManager {
     void saveSystemSettings(LdapSystemSettings settings);
 
     LdapSystemSettings getSystemSettings();
-
-    void replicateOpenfireConfig();
 }

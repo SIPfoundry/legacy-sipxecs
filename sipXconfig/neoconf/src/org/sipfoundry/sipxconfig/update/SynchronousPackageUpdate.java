@@ -8,11 +8,11 @@
  * $
  */
 
-package org.sipfoundry.sipxconfig.admin.update;
+package org.sipfoundry.sipxconfig.update;
 
 import java.io.Serializable;
 
-import org.sipfoundry.sipxconfig.admin.WaitingListener;
+import org.sipfoundry.sipxconfig.common.WaitingListener;
 
 public class SynchronousPackageUpdate implements Serializable, WaitingListener {
 

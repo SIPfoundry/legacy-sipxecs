@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.permission;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
+import org.sipfoundry.sipxconfig.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.permission.Permission.Type;
 import org.sipfoundry.sipxconfig.setting.Group;
 

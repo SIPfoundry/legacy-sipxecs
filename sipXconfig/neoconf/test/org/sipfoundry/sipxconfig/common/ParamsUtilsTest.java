@@ -11,7 +11,8 @@
 package org.sipfoundry.sipxconfig.common;
 
 import junit.framework.TestCase;
-import org.sipfoundry.sipxconfig.common.AlarmContextImpl.ParamsUtils;
+
+import org.sipfoundry.sipxconfig.alarm.AlarmContextImpl.ParamsUtils;
 
 public class ParamsUtilsTest extends TestCase {
     public void testEscape() {

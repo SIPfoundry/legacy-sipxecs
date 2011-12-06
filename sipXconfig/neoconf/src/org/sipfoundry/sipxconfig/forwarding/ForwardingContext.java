@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.forwarding;
+package org.sipfoundry.sipxconfig.forwarding;
 
 import java.util.Collection;
 import java.util.List;

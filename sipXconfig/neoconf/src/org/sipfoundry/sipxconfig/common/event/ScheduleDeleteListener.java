@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.common.event;
 
-import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
+import org.sipfoundry.sipxconfig.forwarding.Schedule;
 
 public abstract class ScheduleDeleteListener implements DaoEventListener {
 

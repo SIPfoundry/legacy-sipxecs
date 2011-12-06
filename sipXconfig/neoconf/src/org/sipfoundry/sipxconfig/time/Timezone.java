@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.time;
+package org.sipfoundry.sipxconfig.time;
 
 import java.io.BufferedReader;
 import java.io.File;

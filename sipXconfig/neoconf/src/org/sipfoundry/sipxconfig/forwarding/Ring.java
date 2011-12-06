@@ -7,12 +7,12 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.forwarding;
+package org.sipfoundry.sipxconfig.forwarding;
 
 import java.util.Formatter;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
+import org.sipfoundry.sipxconfig.callgroup.AbstractRing;
 
 /**
  * Ring - represents one stage in a call forwaring sequence

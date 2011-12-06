@@ -10,9 +10,9 @@
 
 package org.sipfoundry.sipxconfig.login;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class PrivateUserKeyManagerTestIntegration extends IntegrationTestCase {
     private PrivateUserKeyManager m_manager;

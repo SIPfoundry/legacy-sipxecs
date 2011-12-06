@@ -47,4 +47,12 @@ public class Address {
     public String toString() {
         return format(m_format, m_address, m_port);
     }
+
+    public String getFormat() {
+        return m_format;
+    }
+
+    public void setFormat(String format) {
+        m_format = format;
+    }
 }

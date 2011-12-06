@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.service;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class StatusPluginConfigurationTest extends SipxServiceTestBase {
 

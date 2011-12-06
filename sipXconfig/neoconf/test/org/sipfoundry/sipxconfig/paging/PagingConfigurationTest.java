@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class PagingConfigurationTest extends SipxServiceTestBase {
     private PagingConfiguration m_pagingConfiguration;

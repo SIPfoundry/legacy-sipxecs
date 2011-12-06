@@ -274,14 +274,12 @@ class CallResolverConfigure
   # Call resolver connects to each of these ports on 'localhost' via the
   # magic of stunnel, so it doesn't ever use the hostnames.
   def get_cse_hosts_config
-    ha = false
     cse_hosts = []
     cse_hosts_config = @config[CSE_HOSTS] || "#{@local_db_url.host}:#{@local_db_url.port}"
     cse_hosts_config.split(',').each do |host_string|
       host, port = host_string.split(':')
       host.strip!
       local = host == LOCALHOST
-      ha = true unless local
       if port
         port.strip!
       else
@@ -299,6 +297,7 @@ class CallResolverConfigure
       log.debug("cse_hosts: host name #{host}, host port: #{port}")
       # If at least one of the hosts != 'localhost' we are HA enabled
     end
+    ha = cse_hosts.length > 1
     log.debug("Found host other than localhost - enable HA") if ha
     return cse_hosts, ha
   end

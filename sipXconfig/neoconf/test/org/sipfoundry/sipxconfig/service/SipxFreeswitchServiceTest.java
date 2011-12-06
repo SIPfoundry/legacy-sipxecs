@@ -8,10 +8,10 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService.Defaults;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import junit.framework.TestCase;
 

@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.common.User;
 
 public interface SpeedDialManager extends DialingRuleProvider {

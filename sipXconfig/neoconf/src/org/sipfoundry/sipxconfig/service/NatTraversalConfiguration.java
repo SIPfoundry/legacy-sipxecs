@@ -10,9 +10,9 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.dialplan.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 
 public class NatTraversalConfiguration extends SipxServiceConfiguration {

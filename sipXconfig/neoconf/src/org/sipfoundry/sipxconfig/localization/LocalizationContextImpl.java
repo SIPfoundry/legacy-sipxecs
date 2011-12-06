@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.localization;
+package org.sipfoundry.sipxconfig.localization;
 
 import java.io.File;
 import java.util.List;
@@ -16,9 +16,9 @@ import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;

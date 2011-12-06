@@ -29,23 +29,23 @@
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <!--this goes to the status server-->
-        <routeTo>&lt;${statusService.address}:${statusService.sipPort};transport=tcp&gt;</routeTo>
+        <routeTo>&lt;${statusAddress.address}:${statusAddress.sipPort};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
 #end
       <!-- "reg" event subscriptions. -->
       <fieldMatch fieldName="Event">
         <fieldPattern>reg</fieldPattern>
-        <routeTo>&lt;${location.address}:${registrarService.registrarEventSipPort};transport=tcp&gt;</routeTo>
+        <routeTo>&lt;${regEventAddress.address}:${regEventAddress.registrarEventSipPort};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      <routeTo>&lt;${registrarMappingLocation};x-sipx-routetoreg&gt;</routeTo>
+      <routeTo>&lt;${regAddress};x-sipx-routetoreg&gt;</routeTo>
 
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    <routeTo>&lt;${registrarMappingLocation};x-sipx-routetoreg&gt;</routeTo>
+    <routeTo>&lt;${regAddress};x-sipx-routetoreg&gt;</routeTo>
   </route>
 
 #if(${sbc.enabled})

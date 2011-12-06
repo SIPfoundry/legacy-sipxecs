@@ -5,40 +5,52 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.service.freeswitch;
+package org.sipfoundry.sipxconfig.freeswitch;
 
-import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.springframework.beans.factory.annotation.Required;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
-public class FreeswitchConfiguration extends SipxServiceConfiguration {
+import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 
-    private DomainManager m_domainManager;
-
-    @Override
-    protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(location);
-        context.put("domain", m_domainManager.getDomain());
-
-        SipxService service = getService(SipxFreeswitchService.BEAN_ID);
-        Setting freeswitchConfig = service.getSettings().getSetting("freeswitch-config");
-        context.put("settings", freeswitchConfig);
-
-        return context;
-    }
-
-    @Required
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
-    }
+public class FreeswitchConfiguration implements ConfigProvider, BeanFactoryAware {
+    private FreeswitchFeature m_freeswitch;
+    private ListableBeanFactory m_beanFactory;
 
     @Override
-    public boolean isReplicable(Location location) {
-        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
+    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (request.applies(FreeswitchFeature.FEATURE)) {
+            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
+                    FreeswitchFeature.FEATURE);
+            for (Location location : locations) {
+                File dir = manager.getLocationDataDirectory(location);
+                FreeswitchSettings settings = m_freeswitch.getSettings(location);
+                Map<String, FreeswitchConfigFile> configs = m_beanFactory.getBeansOfType(FreeswitchConfigFile.class);
+                for (FreeswitchConfigFile config : configs.values()) {
+                    FileWriter writer = new FileWriter(new File(dir, config.getFileName()));
+                    config.write(writer, location, settings);
+                    IOUtils.closeQuietly(writer);
+                }
+            }
+
+        }
+    }
+
+    public void setFreeswitch(FreeswitchFeature freeswitch) {
+        m_freeswitch = freeswitch;
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 }

@@ -16,7 +16,7 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
 /**
  * A log4j Layout class that matches the SipFoundry C++ OsSyslog format (within reason)

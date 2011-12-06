@@ -15,10 +15,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class PagingContextImplTestIntegration extends IntegrationTestCase {
     private PagingContext m_pagingContext;

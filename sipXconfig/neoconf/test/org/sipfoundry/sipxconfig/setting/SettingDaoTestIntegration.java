@@ -10,12 +10,12 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class SettingDaoTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;

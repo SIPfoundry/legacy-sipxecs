@@ -13,9 +13,9 @@ import java.io.File;
 
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class MusicOnHoldTestUi extends WebTestCase {
     private File m_tempFile;

@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.callgroup;
+package org.sipfoundry.sipxconfig.callgroup;
 
 import org.sipfoundry.sipxconfig.common.User;
 

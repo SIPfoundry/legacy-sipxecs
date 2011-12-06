@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 
 import org.apache.velocity.app.VelocityEngine;
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class VelocityProfileGeneratorTestIntegration extends IntegrationTestCase {
     private VelocityEngine m_velocityEngine;

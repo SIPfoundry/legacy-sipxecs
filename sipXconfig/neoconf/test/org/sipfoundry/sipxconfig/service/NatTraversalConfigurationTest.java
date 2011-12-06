@@ -25,12 +25,12 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class NatTraversalConfigurationTest extends TestCase {
     private SbcManager m_sbcManager;

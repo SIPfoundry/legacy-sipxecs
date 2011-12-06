@@ -11,8 +11,8 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;
 
 public class SettingDaoTestDb extends SipxDatabaseTestCase {

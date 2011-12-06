@@ -27,7 +27,7 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManager;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
-import org.sipfoundry.sipxconfig.common.AlarmContext;
+import org.sipfoundry.sipxconfig.alarm.AlarmContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;

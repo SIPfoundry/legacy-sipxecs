@@ -10,9 +10,9 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SipxSaaConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {

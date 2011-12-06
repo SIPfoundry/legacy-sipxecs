@@ -7,11 +7,11 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.intercom;
+package org.sipfoundry.sipxconfig.intercom;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.phone.Phone;
 

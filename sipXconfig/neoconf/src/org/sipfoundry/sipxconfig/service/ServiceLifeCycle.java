@@ -10,7 +10,7 @@
 
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 /**
  * Services can implement these methods to add custom processing.

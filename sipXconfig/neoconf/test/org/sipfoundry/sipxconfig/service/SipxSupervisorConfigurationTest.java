@@ -15,8 +15,8 @@ import static org.easymock.EasyMock.replay;
 
 import java.util.ArrayList;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SipxSupervisorConfigurationTest extends SipxServiceTestBase {
     @Override

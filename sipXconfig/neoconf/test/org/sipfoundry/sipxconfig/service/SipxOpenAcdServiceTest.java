@@ -23,9 +23,9 @@ import static org.easymock.EasyMock.verify;
 
 import java.util.ArrayList;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SipxOpenAcdServiceTest extends SipxServiceTestBase {
 

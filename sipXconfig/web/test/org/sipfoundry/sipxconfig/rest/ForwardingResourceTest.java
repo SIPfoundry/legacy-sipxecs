@@ -21,7 +21,6 @@ import org.restlet.data.MediaType;
 import org.restlet.resource.InputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
@@ -29,6 +28,7 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import junit.framework.TestCase;
 

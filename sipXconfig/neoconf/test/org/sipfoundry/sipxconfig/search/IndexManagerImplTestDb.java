@@ -11,10 +11,10 @@ package org.sipfoundry.sipxconfig.search;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.TestHelper.TestCaseDb;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.sipfoundry.sipxconfig.test.TestHelper.TestCaseDb;
 import org.springframework.context.ApplicationContext;
 
 public class IndexManagerImplTestDb extends TestCaseDb {

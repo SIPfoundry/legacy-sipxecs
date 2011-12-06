@@ -7,17 +7,17 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.parkorbit;
+package org.sipfoundry.sipxconfig.parkorbit;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
-import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
+import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
+import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;

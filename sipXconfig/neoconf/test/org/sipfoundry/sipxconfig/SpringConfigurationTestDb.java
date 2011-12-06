@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig;
 
+import org.sipfoundry.sipxconfig.test.TestHelper;
+
 import junit.framework.TestCase;
 
 /**

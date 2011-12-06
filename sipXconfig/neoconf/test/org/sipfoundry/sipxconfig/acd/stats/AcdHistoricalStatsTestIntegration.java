@@ -17,12 +17,12 @@ import java.util.Map;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.postgresql.util.PGInterval;
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalStats;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
 public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {

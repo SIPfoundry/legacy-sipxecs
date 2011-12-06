@@ -8,7 +8,7 @@
  *
  */
 
-package org.sipfoundry.sipxconfig.admin.alarm;
+package org.sipfoundry.sipxconfig.alarm;
 
 import java.io.IOException;
 import java.io.InputStream;

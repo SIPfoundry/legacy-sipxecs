@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.common.event;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDevice;
 
 public abstract class SbcDeviceDeleteListener implements DaoEventListener {
 

@@ -8,6 +8,7 @@
 package org.sipfoundry.sipxconfig.freeswitch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,85 +16,46 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressRequester;
 import org.sipfoundry.sipxconfig.address.AddressType;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationBeanManager;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
-import org.sipfoundry.sipxconfig.conference.FreeswitchApi;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationBeanManager;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
-import org.sipfoundry.sipxconfig.service.LoggingEntity;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService.SystemMohSetting;
-import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
-import org.springframework.beans.factory.annotation.Required;
+import org.sipfoundry.sipxconfig.setting.BeanWithLocationDao;
 
-public class FreeswitchFeature implements LoggingEntity, Replicable, ReplicableProvider, FeatureProvider, AliasOwner {
+public class FreeswitchFeature implements Replicable, ReplicableProvider, FeatureProvider,
+        AliasOwner, AddressProvider {
     public static final LocationFeature FEATURE = new LocationFeature("freeSwitch");
     public static final AddressType SIP_ADDRESS = new AddressType("freeswitch-sip");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("freeswitch-xmlrpc");
-    
-    
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_ADDRESS, XMLRPC_ADDRESS);
     private static final String ALIAS_RELATION = "moh";
-    
+
     private FeatureManager m_featureManager;
     private MusicOnHoldManager m_musicOnHoldManager;
-    private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
     private LocationBeanManager m_locationBeanManager;
+    private BeanWithLocationDao<FreeswitchSettings> m_settingsDao;
+    private String m_name = "freeswitch";
 
-    public boolean isCodecG729Installed() {        
-        List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FreeswitchFeature.FS);
-        String serviceUri = null;
-        FreeswitchApi api = null;
-        String result = null;
-        for (Location location : locations) {
-            serviceUri = getServiceUri(location);
-            api = m_freeswitchApiProvider.getApi(serviceUri);
-            try {
-                result = api.g729_status();
-                if (StringUtils.contains(result, G729_STATUS)) {
-                    return true;
-                }
-                // try also new FS detection algorithm
-                result = api.g729_available();
-                if (StringUtils.contains(result, "true")) {
-                    return true;
-                }
-            } catch (XmlRpcRemoteException xrre) {
-                LOG.error(xrre);
-                return false;
-            }
-        }
-        return false;
-    }
-    
-    String getServiceUri(Location l) {
-        FreeswitchSettings settings = m_locationBeanManager.getBean(FreeswitchSettings.class, l);
-        Address address = getXmlRpcAddress(l);
-        return format("http://%s:%d/RPC2", address.getAddress(), address.getPort());        
-    }
-    
-    Address getXmlRpcAddress(Location l) {
-        return new Address(l.getAddress(), PORT)
+    public FreeswitchSettings getSettings(Location location) {
+        return m_settingsDao.findOne(location);
     }
 
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
-    }
-
-    @Required
-    public void setFreeswitchApiProvider(ApiProvider<FreeswitchApi> freeswitchApiProvider) {
-        m_freeswitchApiProvider = freeswitchApiProvider;
     }
 
     @Override
@@ -122,7 +84,7 @@ public class FreeswitchFeature implements LoggingEntity, Replicable, ReplicableP
 
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     @Override
@@ -133,7 +95,6 @@ public class FreeswitchFeature implements LoggingEntity, Replicable, ReplicableP
 
     @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -184,5 +145,42 @@ public class FreeswitchFeature implements LoggingEntity, Replicable, ReplicableP
 
     public void setLocationBeanManager(LocationBeanManager locationBeanManager) {
         m_locationBeanManager = locationBeanManager;
+    }
+
+    @Override
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
+        return Collections.singleton(XMLRPC_ADDRESS);
+    }
+
+    @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
+            AddressRequester requester) {
+        if (ADDRESSES.contains(type)) {
+            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+            List<Address> addresses = new ArrayList<Address>();
+            for (Location location : locations) {
+                FreeswitchSettings settings = getSettings(location);
+                Address address = new Address();
+                address.setAddress(location.getAddress());
+                if (type.equals(XMLRPC_ADDRESS)) {
+                    address.setFormat("http://%s:%d/RPC2");
+                    address.setPort(settings.getXmlRpcPort());
+                } else {
+                    address.setPort(settings.getFreeswitchSipPort());
+                }
+                addresses.add(address);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return m_name;
+    }
+
+    @Override
+    public void setName(String name) {
+        m_name = name;
     }
 }

@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class FreeswitchApiConnectException extends FreeswitchApiException {
     private static final String ERROR_CONNECT = "&error.connect";

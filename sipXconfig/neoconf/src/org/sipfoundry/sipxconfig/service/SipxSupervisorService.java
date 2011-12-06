@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.LoggingManager;
+import org.sipfoundry.sipxconfig.LoggingManager;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 public class SipxSupervisorService extends SipxService implements LoggingEntity {

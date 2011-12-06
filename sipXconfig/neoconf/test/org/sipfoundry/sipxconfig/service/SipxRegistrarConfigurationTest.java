@@ -18,12 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.registrar.RegistrarSettings;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 

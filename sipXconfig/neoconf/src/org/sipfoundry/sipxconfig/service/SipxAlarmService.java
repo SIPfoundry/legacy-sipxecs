@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.common.AlarmContext;
+import org.sipfoundry.sipxconfig.alarm.AlarmContext;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxAlarmService extends SipxService {

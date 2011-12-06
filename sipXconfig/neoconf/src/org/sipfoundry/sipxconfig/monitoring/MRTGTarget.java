@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.monitoring;
+package org.sipfoundry.sipxconfig.monitoring;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;

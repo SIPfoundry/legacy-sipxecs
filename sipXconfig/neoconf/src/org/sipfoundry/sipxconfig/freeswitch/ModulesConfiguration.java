@@ -5,31 +5,20 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.service.freeswitch;
+package org.sipfoundry.sipxconfig.freeswitch;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
-public class ModulesConfiguration extends SipxServiceConfiguration {
+public class ModulesConfiguration extends FreeswitchConfigFile {
 
     @Override
-    public boolean isReplicable(Location location) {
-        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
+    protected String getFileName() {
+        return "freeswitch/modules.conf.xml";
     }
 
     @Override
-    protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(location);
-        SipxFreeswitchService service = (SipxFreeswitchService) getSipxServiceManager().
-            getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-        boolean g729 = StringUtils.contains(
-                service.getSettings().getSetting(
-                        SipxFreeswitchService.FREESWITCH_CODECS).getValue(), SipxFreeswitchService.G729);
-        context.put("codecG729", g729);
-
-        return context;
+    protected void setupContext(VelocityContext context, Location location, FreeswitchSettings settings) {
+        context.put("codecG729", settings.isCodecG729Installed());
     }
 }

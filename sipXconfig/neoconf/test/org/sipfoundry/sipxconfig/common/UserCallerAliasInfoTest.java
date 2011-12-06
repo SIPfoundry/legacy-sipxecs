@@ -11,8 +11,8 @@ package org.sipfoundry.sipxconfig.common;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class UserCallerAliasInfoTest extends TestCase {
     private User m_user;

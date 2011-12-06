@@ -19,7 +19,7 @@ package org.sipfoundry.sipxconfig.openacd;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 
 public class OpenAcdLine extends OpenAcdExtension {

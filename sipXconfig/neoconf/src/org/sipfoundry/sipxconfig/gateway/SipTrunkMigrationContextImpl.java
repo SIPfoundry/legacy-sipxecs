@@ -14,9 +14,9 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDescriptor;
+import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;

@@ -10,12 +10,10 @@ package org.sipfoundry.sipxconfig.freeswitch;
 import java.util.Formatter;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
-import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer;
-import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer.Operation;
+import org.sipfoundry.sipxconfig.dialplan.CallDigits;
+import org.sipfoundry.sipxconfig.dialplan.MappingRule;
+import org.sipfoundry.sipxconfig.dialplan.MediaServer;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
@@ -88,8 +86,8 @@ public class FreeswitchMediaServer extends MediaServer {
 
     @Override
     public String getHostname() {
-        Address address = m_addressManager.getSingleAddress(FreeswithFeature.SIP_ADDRESS);
-        return String.format("%s:%d", address.getAddress(), address.getPort());
+        // wrong: need to select FS by location
+        return m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS).toString();
     }
 
     private void appendLocale(Formatter f) {

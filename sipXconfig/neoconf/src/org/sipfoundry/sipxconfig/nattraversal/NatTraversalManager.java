@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 public interface NatTraversalManager {
     String CONTEXT_BEAN_NAME = "natTraversalManager";

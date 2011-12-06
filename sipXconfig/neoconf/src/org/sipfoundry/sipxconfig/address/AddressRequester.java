@@ -7,7 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.address;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 /**

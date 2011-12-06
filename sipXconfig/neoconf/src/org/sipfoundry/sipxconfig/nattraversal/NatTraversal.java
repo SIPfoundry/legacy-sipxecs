@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.nattraversal;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;

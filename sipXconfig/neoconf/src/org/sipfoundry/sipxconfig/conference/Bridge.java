@@ -15,9 +15,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationBeanManager;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -81,7 +80,6 @@ public class Bridge extends BeanWithSettings {
         getConferences().remove(conference);
     }
 
-    // trivial get/set
     public String getDescription() {
         return getLocation().getName();
     }
@@ -129,11 +127,6 @@ public class Bridge extends BeanWithSettings {
                 fileType.setDirectory(m_audioDirectory);
             }
         }
-    }
-
-    public String getServiceUri() {
-        return getFeatureSettings(FreeswitchSettings.class, getLocation()).getServiceUri();
-        return getFreeswitchService().getServiceUri(getLocation());
     }
 
     public Location getLocation() {

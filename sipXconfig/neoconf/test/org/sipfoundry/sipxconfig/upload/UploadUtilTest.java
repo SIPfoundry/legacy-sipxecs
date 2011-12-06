@@ -15,8 +15,8 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class UploadUtilTest extends TestCase {
     public void testSetUploads() {

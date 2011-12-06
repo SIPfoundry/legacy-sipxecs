@@ -7,11 +7,11 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.logging;
+package org.sipfoundry.sipxconfig.logging;
 
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 public interface AuditLogContext {
     enum CONFIG_CHANGE_TYPE {

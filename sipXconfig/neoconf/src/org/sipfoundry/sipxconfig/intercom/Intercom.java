@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.intercom;
+package org.sipfoundry.sipxconfig.intercom;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;

@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
 public class PhoneSummaryTestDb extends SipxDatabaseTestCase {

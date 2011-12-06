@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.ftp;
+package org.sipfoundry.sipxconfig.ftp;
 
 import java.io.File;
 import java.io.FileInputStream;

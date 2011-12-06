@@ -11,10 +11,10 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.io.File;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ListParkOrbitsTestUi extends ListWebTestCase {
     private File m_tempFile;

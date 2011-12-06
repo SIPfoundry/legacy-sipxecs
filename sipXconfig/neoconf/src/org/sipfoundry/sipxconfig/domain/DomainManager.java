@@ -9,10 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
-import org.sipfoundry.sipxconfig.admin.localization.Localization;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.localization.Localization;
 
 public interface DomainManager extends DialingRuleProvider {
 

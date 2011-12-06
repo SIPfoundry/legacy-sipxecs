@@ -9,9 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class UserTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;

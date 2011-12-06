@@ -17,9 +17,9 @@ import java.io.InputStream;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class PagingGroupsPageTestUi extends WebTestCase {
     private static final String DEFAULT_BEEP_NAME = "beep.wav";

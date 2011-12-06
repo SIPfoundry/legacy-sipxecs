@@ -12,8 +12,8 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;

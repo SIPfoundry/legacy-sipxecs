@@ -15,6 +15,7 @@ import java.io.Writer;
 
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
@@ -22,6 +23,8 @@ public interface AdminContext extends FeatureProvider, AddressProvider {
     public static final LocationFeature FEATURE = new LocationFeature("admin");
     public static final AddressType HTTP_ADDRESS = new AddressType("adminApi");
     public static final AddressType HTTPS_ADDRESS = new AddressType("secureAdminApi");
+    public static final AddressType TFTP_ADDRESS = new AddressType("tftp");
+    public static final AddressType FTP_ADDRESS = new AddressType("ftp");
 
     final String CONTEXT_BEAN_NAME = "adminContext";
 

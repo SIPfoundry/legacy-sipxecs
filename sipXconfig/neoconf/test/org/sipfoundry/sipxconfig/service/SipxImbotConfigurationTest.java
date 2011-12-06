@@ -11,9 +11,9 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Arrays;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;

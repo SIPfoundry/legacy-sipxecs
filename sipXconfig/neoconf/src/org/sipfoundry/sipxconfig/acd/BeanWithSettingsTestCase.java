@@ -9,11 +9,11 @@ package org.sipfoundry.sipxconfig.acd;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public abstract class BeanWithSettingsTestCase extends TestCase {
 
