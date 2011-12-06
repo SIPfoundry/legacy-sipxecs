@@ -331,17 +331,27 @@ process_queue(Queue, Command) ->
 	true -> ?WARNING("Unrecognized command", [])
 	end.
 
-process_fs_media_manager(Config, _Command) ->
-        {_, Enabled} = lists:nth(2, Config),
-        {_, CNode} = lists:nth(3, Config),
-        {_, DialString} = lists:nth(4, Config),
-        if Enabled =:= <<"true">> ->
-		Conf = #cpx_conf{id = freeswitch_media_manager, module_name = freeswitch_media_manager, start_function = start_link, start_args = [list_to_atom(erlang:binary_to_list(CNode)), [{h323,[]}, {iax2,[]}, {sip,[]}, {dialstring,erlang:binary_to_list(DialString)}]], supervisor = mediamanager_sup},
-                cpx_supervisor:update_conf(freeswitch_media_manager, Conf);
-        Enabled =:= <<"false">> ->
-                cpx_supervisor:destroy(freeswitch_media_manager);
-        true -> ?WARNING("Unrecognized command", [])
-        end.
+process_fs_media_manager(Config, _Command) ->	
+	%% TODO should be getting a boolean than a string
+	case get_bin(<<"enabled">>, Config) of
+		<<"true">> ->
+			cpx_supervisor:update_conf(freeswitch_media_manager,
+				#cpx_conf{
+					id = freeswitch_media_manager,
+					module_name = freeswitch_media_manager,
+					start_function = start_link,
+					start_args = [
+						get_atom(<<"node">>, Config),
+						[{h323,[]}, {iax2,[]}, {sip,[]},
+						 {dialstring,
+						 get_str(<<"dialString">>, Config)}]],
+					supervisor = mediamanager_sup
+				});
+		<<"false">> ->
+			cpx_supervisor:destroy(freeswitch_media_manager);
+		_ ->
+			?WARNING("Unrecognized fs_media_manager state", [])
+	end.
 
 process_agent_configuration(Config, _Command) ->
         {_, ListenerEnabled} = lists:nth(2, Config),
