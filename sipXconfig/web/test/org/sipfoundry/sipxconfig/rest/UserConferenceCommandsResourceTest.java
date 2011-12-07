@@ -103,6 +103,24 @@ public class UserConferenceCommandsResourceTest extends TestCase {
         String generated = getCommandResponse(m_resource);
         assertEquals(INVITATION_SENT_RESPONSE, generated);
     }
+    
+    public void testInviteIm() throws Exception {
+        m_conference.setOwner(m_user);
+
+        ChallengeResponse challengeResponse = new ChallengeResponse(null, TWO_200, new char[0]);
+        Request request = new Request();
+        request.getAttributes().put("confName", CONFERENCE_NAME);
+        request.getAttributes().put("command", "inviteim&401");
+        request.setChallengeResponse(challengeResponse);
+        m_resource.init(null, request, null);
+
+        m_activeConferenceContext.inviteImParticipant(m_user, m_conference, m_resource.getArguments()[1]);
+        expectLastCall().once();
+        replay(m_activeConferenceContext);
+
+        String generated = getCommandResponse(m_resource);
+        assertEquals(INVITATION_SENT_RESPONSE, generated);
+    }    
 
     private String getCommandResponse(UserConferenceCommandsResource resource) throws Exception {
         Representation representation = resource.represent(new Variant(MediaType.TEXT_ALL));

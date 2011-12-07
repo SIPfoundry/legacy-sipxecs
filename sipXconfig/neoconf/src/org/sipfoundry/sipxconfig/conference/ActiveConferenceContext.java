@@ -50,5 +50,7 @@ public interface ActiveConferenceContext {
 
     public void inviteParticipant(User user, Conference conference, String addressSpec);
 
+    public void inviteImParticipant(User user, Conference conference, String imIdToInvite);
+
     public String executeCommand(Conference conference, String[] arguments);
 }

@@ -20,6 +20,7 @@ import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -35,6 +36,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private static final String COMMAND_LIST_DELIM = ">,<";
     private static final String COMMAND_LIST = "list delim " + COMMAND_LIST_DELIM;
     private static final Log LOG = LogFactory.getLog(ActiveConferenceContextImpl.class);
+    private static final String ERROR_INVITE_PARTICIPANT = "&error.inviteParticipant";
 
     private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
     private ConferenceBridgeContext m_conferenceBridgeContext;
@@ -42,6 +44,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private DomainManager m_domainManager;
     private SipService m_sipService;
     private SipxIvrService m_sipxIvrService;
+    private CoreContext m_coreContext;
 
     @Required
     public void setDomainManager(DomainManager domainManager) {
@@ -66,6 +69,11 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     @Required
     public void setSipxIvrService(SipxIvrService sipxIvrService) {
         m_sipxIvrService = sipxIvrService;
+    }
+
+    @Required
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
     @Override
@@ -253,7 +261,17 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
                   dest, true);
         } else {
             LOG.warn("conference does not have owner -- cannot INVITE participant");
-            throw new UserException("&error.inviteParticipant");
+            throw new UserException(ERROR_INVITE_PARTICIPANT);
+        }
+    }
+
+    public void inviteImParticipant(User user, Conference conference, String imIdToInvite) {
+        User userToInvite = m_coreContext.loadUserByConfiguredImId(imIdToInvite);
+        if (userToInvite != null) {
+            inviteParticipant(user, conference, userToInvite.getUserName());
+        } else {
+            LOG.warn("There is no user for the specified ImId -- cannot INVITE participant");
+            throw new UserException(ERROR_INVITE_PARTICIPANT);
         }
     }
 

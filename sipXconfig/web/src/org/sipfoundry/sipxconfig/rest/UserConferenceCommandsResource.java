@@ -32,6 +32,8 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.springframework.beans.factory.annotation.Required;
 
 public class UserConferenceCommandsResource extends UserResource {
+    private static final String INVITATION_SENT = "<command-response>Invitation sent</command-response>";
+    private static final String INCORECT_INVITE_COMMAND = "Incorect invite command";
 
     private ConferenceBridgeContext m_conferenceBridgeContext;
     private ActiveConferenceContext m_activeConferenceContext;
@@ -62,9 +64,16 @@ public class UserConferenceCommandsResource extends UserResource {
         if (StringUtils.equals(m_arguments[0], "invite")) {
             if (m_arguments.length == 2) {
                 m_activeConferenceContext.inviteParticipant(getUser(), conference, m_arguments[1]);
-                return new StringRepresentation("<command-response>Invitation sent</command-response>");
+                return new StringRepresentation(INVITATION_SENT);
             } else {
-                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Incorect invite command");
+                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, INCORECT_INVITE_COMMAND);
+            }
+        } else if (StringUtils.equals(m_arguments[0], "inviteim")) {
+            if (m_arguments.length == 2) {
+                m_activeConferenceContext.inviteImParticipant(getUser(), conference, m_arguments[1]);
+                return new StringRepresentation(INVITATION_SENT);
+            } else {
+                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, INCORECT_INVITE_COMMAND);
             }
         }
         String response = m_activeConferenceContext.executeCommand(conference, m_arguments);
