@@ -172,7 +172,7 @@ public class ValidUsers {
         DBObject queryUserName = QueryBuilder.start(VALID_USER).is(Boolean.TRUE).and(UID).is(userName).get();
         DBObject result = getEntityCollection().findOne(queryUserName);
         if (result != null) {
-            return extractValidUser(getEntityCollection().findOne(queryUserName));
+            return extractValidUser(result);
         }
 
         // check aliases
