@@ -79,7 +79,7 @@ public class SipXVCardProvider implements VCardProvider {
             m_SharedSecret = domain_config.getProperty(PROP_SECRET, DEFAULT_SECRET);
         }
         
-        String clientConfig = this.getClass().getResource(MONGO_CLIENT_CONFIG).getFile();
+        String clientConfig = getConfDir() + MONGO_CLIENT_CONFIG;
         try {
             UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
         } catch (Exception e) {
