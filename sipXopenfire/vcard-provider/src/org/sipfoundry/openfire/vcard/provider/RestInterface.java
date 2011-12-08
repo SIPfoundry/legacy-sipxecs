@@ -29,6 +29,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -37,6 +38,7 @@ import org.dom4j.io.DocumentResult;
 import org.dom4j.io.DocumentSource;
 import org.dom4j.io.SAXReader;
 import org.jivesoftware.util.Log;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.openfire.vcard.provider.SipXVCardProvider;
 
 public class RestInterface {
@@ -270,26 +272,21 @@ public class RestInterface {
 
     }
 
-    public static Element buildVCardFromXMLContactInfo(String userName, String xmlstring, Element avatarFromDB) {
+    public static Element buildVCardFromXMLContactInfo(User user, Element avatarFromDB) {
         try {
             SAXReader sreader = new SAXReader();
-
-            Log.debug("In buildVCardFromXMLContactInfo contactInfo is " + xmlstring);
-
-            Document contactDoc = sreader.read(new StringReader(xmlstring));
-            Element rootElement = contactDoc.getRootElement();
 
             StringBuilder xbuilder = new StringBuilder("<vCard xmlns='vcard-temp'>");
 
             xbuilder.append("<FN>");
-            xbuilder.append(getNodeText(rootElement, "firstName") + " " + getNodeText(rootElement, "lastName"));
+            xbuilder.append(defaultContactValue(user.getDisplayName()));
             xbuilder.append("</FN>");
             xbuilder.append("<N>");
             xbuilder.append("<FAMILY>");
-            xbuilder.append(getNodeText(rootElement, "lastName"));
+            xbuilder.append(defaultContactValue(user.getLastName()));
             xbuilder.append("</FAMILY>");
             xbuilder.append("<GIVEN>");
-            xbuilder.append(getNodeText(rootElement, "firstName"));
+            xbuilder.append(defaultContactValue(user.getFirstName()));
             xbuilder.append("</GIVEN>");
             xbuilder.append("<MIDDLE/>");
             xbuilder.append("</N>");
@@ -305,21 +302,21 @@ public class RestInterface {
             xbuilder.append("</BDAY>");
             xbuilder.append("<ORG>");
             xbuilder.append("<ORGNAME>");
-            xbuilder.append(getNodeText(rootElement, "companyName"));
+            xbuilder.append(defaultContactValue(user.getCompanyName()));
             xbuilder.append("</ORGNAME>");
             xbuilder.append("<ORGUNIT>");
-            xbuilder.append(getNodeText(rootElement, "jobDept"));
+            xbuilder.append(defaultContactValue(user.getJobDepartment()));
             xbuilder.append("</ORGUNIT>");
             xbuilder.append("</ORG>");
             xbuilder.append("<TITLE>");
-            xbuilder.append(getNodeText(rootElement, "jobTitle"));
+            xbuilder.append(defaultContactValue(user.getJobTitle()));
             xbuilder.append("</TITLE>");
             xbuilder.append("<ROLE/>");
             xbuilder.append("<TEL>");
             xbuilder.append("<WORK/>");
             xbuilder.append("<VOICE/>");
             xbuilder.append("<NUMBER>");
-            xbuilder.append(userName);
+            xbuilder.append(defaultContactValue(user.getUserName()));
             xbuilder.append("</NUMBER>");
             xbuilder.append("</TEL>");
 
@@ -327,7 +324,7 @@ public class RestInterface {
             xbuilder.append("<WORK/>");
             xbuilder.append("<FAX/>");
             xbuilder.append("<NUMBER>");
-            xbuilder.append(getNodeText(rootElement, "faxNumber"));
+            xbuilder.append(defaultContactValue(user.getFaxNumber()));
             xbuilder.append("</NUMBER>");
             xbuilder.append("</TEL>");
 
@@ -342,19 +339,19 @@ public class RestInterface {
             xbuilder.append("<EXTADD>");
             xbuilder.append("</EXTADD>");
             xbuilder.append("<STREET>");
-            xbuilder.append(getNodeText(rootElement, "officeAddress/street"));
+            xbuilder.append(defaultContactValue(user.getOfficeStreet()));
             xbuilder.append("</STREET>");
             xbuilder.append("<LOCALITY>");
-            xbuilder.append(getNodeText(rootElement, "officeAddress/city"));
+            xbuilder.append(defaultContactValue(user.getOfficeCity()));
             xbuilder.append("</LOCALITY>");
             xbuilder.append("<REGION>");
-            xbuilder.append(getNodeText(rootElement, "officeAddress/state"));
+            xbuilder.append(defaultContactValue(user.getOfficeState()));
             xbuilder.append("</REGION>");
             xbuilder.append("<PCODE>");
-            xbuilder.append(getNodeText(rootElement, "officeAddress/zip"));
+            xbuilder.append(defaultContactValue(user.getOfficeZip()));
             xbuilder.append("</PCODE>");
             xbuilder.append("<CTRY>");
-            xbuilder.append(getNodeText(rootElement, "officeAddress/country"));
+            xbuilder.append(defaultContactValue(user.getOfficeCountry()));
             xbuilder.append("</CTRY>");
             xbuilder.append("</ADR>");
 
@@ -362,7 +359,7 @@ public class RestInterface {
             xbuilder.append("<HOME/>");
             xbuilder.append("<VOICE/>");
             xbuilder.append("<NUMBER>");
-            xbuilder.append(getNodeText(rootElement, "homePhoneNumber"));
+            xbuilder.append(defaultContactValue(user.getHomeNum()));
             xbuilder.append("</NUMBER>");
             xbuilder.append("</TEL>");
 
@@ -376,7 +373,7 @@ public class RestInterface {
             xbuilder.append("<CELL/>");
             xbuilder.append("<VOICE/>");
             xbuilder.append("<NUMBER>");
-            xbuilder.append(getNodeText(rootElement, "cellPhoneNumber"));
+            xbuilder.append(defaultContactValue(user.getCellNum()));
             xbuilder.append("</NUMBER>");
             xbuilder.append("</TEL>");
 
@@ -390,19 +387,19 @@ public class RestInterface {
             xbuilder.append("<HOME/>");
             xbuilder.append("<EXTADD/>");
             xbuilder.append("<STREET>");
-            xbuilder.append(getNodeText(rootElement, "homeAddress/street"));
+            xbuilder.append(defaultContactValue(user.getHomeStreet()));
             xbuilder.append("</STREET>");
             xbuilder.append("<LOCALITY>");
-            xbuilder.append(getNodeText(rootElement, "homeAddress/city"));
+            xbuilder.append(defaultContactValue(user.getHomeCity()));
             xbuilder.append("</LOCALITY>");
             xbuilder.append("<REGION>");
-            xbuilder.append(getNodeText(rootElement, "homeAddress/state"));
+            xbuilder.append(defaultContactValue(user.getHomeState()));
             xbuilder.append("</REGION>");
             xbuilder.append("<PCODE>");
-            xbuilder.append(getNodeText(rootElement, "homeAddress/zip"));
+            xbuilder.append(defaultContactValue(user.getHomeZip()));
             xbuilder.append("</PCODE>");
             xbuilder.append("<CTRY>");
-            xbuilder.append(getNodeText(rootElement, "homeAddress/country"));
+            xbuilder.append(defaultContactValue(user.getHomeCountry()));
             xbuilder.append("</CTRY>");
             xbuilder.append("</ADR>");
 
@@ -410,17 +407,17 @@ public class RestInterface {
             xbuilder.append("<INTERNET/>");
             xbuilder.append("<PREF/>");
             xbuilder.append("<USERID>");
-            xbuilder.append(getNodeText(rootElement, "emailAddress"));
+            xbuilder.append(defaultContactValue(user.getEmailAddress()));
             xbuilder.append("</USERID>");
             xbuilder.append("</EMAIL>");
 
             xbuilder.append("<JABBERID>");
-            xbuilder.append(getNodeText(rootElement, "imId"));
+            xbuilder.append(defaultContactValue(user.getJid()));
             xbuilder.append("</JABBERID>");
             xbuilder.append("<DESC/>");
 
             if (avatarFromDB == null) {
-                String encodedStr = getEncodedAvatar(getNodeText(rootElement, "avatar"));
+                String encodedStr = getEncodedAvatar(defaultContactValue(user.getAvatar()));
                 if (encodedStr != null) {
                     xbuilder.append("<PHOTO>");
                     xbuilder.append("<TYPE>image/png</TYPE>");
@@ -458,6 +455,10 @@ public class RestInterface {
             return null;
         }
 
+    }
+
+    private static String defaultContactValue(String value) {
+        return StringUtils.defaultString(value, StringUtils.EMPTY);
     }
 
     public static String getNodeText(Element element, String nodeName) {

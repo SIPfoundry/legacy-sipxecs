@@ -55,6 +55,7 @@ public interface MongoConstants {
                                                     // location db
     static final String HOME_PHONE_NUMBER = "hmph";
     static final String CELL_PHONE_NUMBER = "cell";
+    static final String AVATAR = "avt";
     static final String HOME_STREET = "hstr";
     static final String HOME_CITY = "hcty";
     static final String HOME_COUNTRY = "hcntry";

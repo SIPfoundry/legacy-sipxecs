@@ -146,40 +146,15 @@ public class SipXVCardProvider implements VCardProvider {
 
     synchronized Element cacheVCard(String username) {
         Element vCardElement = null;
-        String sipUserName = getAORFromJABBERID(username);
-        if (sipUserName != null) {
-            String resp = null;
-
-            int attempts = 0;
-            boolean tryAgain;
-            do {
-                tryAgain = false;
-                try {
-                    resp = RestInterface.sendRequest(QUERY_METHOD, m_ConfigHostName, sipUserName, m_SharedSecret,
-                            null);
-                } catch (ConnectException e) {
-                    try {
-                        Thread.sleep(ATTEMPT_INTERVAL);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    attempts++;
-                    tryAgain = true;
-                }
-            } while (resp == null && attempts < MAX_ATTEMPTS && tryAgain);
-
-            if (resp != null) {
-                Element avatarFromDB = getAvatarCopy(defaultProvider.loadVCard(username));
-                vCardElement = RestInterface.buildVCardFromXMLContactInfo(sipUserName, resp, avatarFromDB);
-                if (vCardElement != null) {
-                    vcardCache.remove(username);
-                    vcardCache.put(username, vCardElement);
-                } else {
-                    Log.error("In cacheVCard buildVCardFromXMLContactInfo failed! ");
-                }
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUserByJid(username);
+        if (user != null) {
+            Element avatarFromDB = getAvatarCopy(defaultProvider.loadVCard(username));
+            vCardElement = RestInterface.buildVCardFromXMLContactInfo(user, avatarFromDB);
+            if (vCardElement != null) {
+                vcardCache.remove(username);
+                vcardCache.put(username, vCardElement);
             } else {
-                Log.error("In cacheVCard, No valid response from sipXconfig, " + username
-                        + "'s vcard info not loaded!");
+                Log.error("In cacheVCard buildVCardFromXMLContactInfo failed! ");
             }
         } else {
             Log.error("In cacheVCard Failed to find peer SIP user account for XMPP user " + username);

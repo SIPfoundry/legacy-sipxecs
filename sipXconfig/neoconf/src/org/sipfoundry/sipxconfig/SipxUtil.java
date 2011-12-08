@@ -18,15 +18,17 @@ package org.sipfoundry.sipxconfig;
 
 import java.io.File;
 import java.io.IOException;
+
 /**
- * This is a utility class with static utilities methods that can be used in sipxecs source and test layers as well
- * This class should not contain any dependencies on test libraries, otherwise the source sipxecs layer won't be ale to load
- * this class
+ * This is a utility class with static utilities methods that can be used in sipxecs source and
+ * test layers as well This class should not contain any dependencies on test libraries, otherwise
+ * the source sipxecs layer won't be ale to load this class
  */
 public final class SipxUtil {
     private SipxUtil() {
 
     }
+
     public static File createTempDir(String name) throws IOException {
         File createTempFile = File.createTempFile(name, "dir");
         String tempDirPath = createTempFile.getPath();
