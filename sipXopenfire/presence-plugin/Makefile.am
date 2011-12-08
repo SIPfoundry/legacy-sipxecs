@@ -28,7 +28,7 @@ plugin_DEPS = \
 # presence jar include other jars. more like a war.
 presence_JAR = sipx-openfire-presence.jar
 presence_FILES = \
-	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(plugin_JAR_PKGS)) \
+	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(plugin_JAR_RT_PKGS)) \
 	$(plugin_JAR)
 
 config.properties : % : %.in Makefile
