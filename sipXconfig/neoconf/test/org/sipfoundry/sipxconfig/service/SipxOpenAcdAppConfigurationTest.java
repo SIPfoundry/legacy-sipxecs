@@ -21,6 +21,7 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import org.sipfoundry.sipxconfig.openacd.OpenAcdConfiguration;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -40,7 +41,7 @@ public class SipxOpenAcdAppConfigurationTest extends SipxServiceTestBase {
         expectLastCall().andReturn(openAcdService).atLeastOnce();
         replay(sipxServiceManager);
 
-        SipxOpenAcdAppConfiguration out = new SipxOpenAcdAppConfiguration();
+        OpenAcdConfiguration out = new OpenAcdConfiguration();
         out.setSipxServiceManager(sipxServiceManager);
         out.setTemplate("openacd/app.config.vm");
 

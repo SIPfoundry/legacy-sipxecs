@@ -40,7 +40,6 @@ public class RlsConfig implements ConfigProvider, DaoEventListener {
             Location location = manager.getFeatureManager().getLocationForEnabledFeature(Rls.FEATURE);
             if (location != null) {
                 File dir = manager.getLocationDataDirectory(location);
-
                 FileWriter wtr = new FileWriter(new File(dir, "sipxrls-config.cfdat"));
                 RlsSettings settings = m_rls.getSettings();
                 KeyValueConfiguration config = new KeyValueConfiguration(wtr);

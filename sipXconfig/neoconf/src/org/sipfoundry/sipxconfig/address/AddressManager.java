@@ -28,7 +28,7 @@ public class AddressManager implements BeanFactoryAware {
         return getSingleAddress(type, null);
     }
 
-    public Address getSingleAddress(AddressType type, AddressRequester requester) {
+    public Address getSingleAddress(AddressType type, Object requester) {
         // TODO: Consult DNS provider to return SRV addresses when appropriate to return
         // a single address that is really a combination of addresses
         for (AddressProvider provider : getProviders()) {
@@ -45,7 +45,7 @@ public class AddressManager implements BeanFactoryAware {
         return getAddresses(type, null);
     }
 
-    public Collection<Address> getAddresses(AddressType type, AddressRequester requester) {
+    public Collection<Address> getAddresses(AddressType type, Object requester) {
         // TODO: Consult DNS provider to return SRV addresses when appropriate to return
         // a single address that is really a combination of addresses
         List<Address> addresses = new ArrayList<Address>();

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiMarshaller;
+
 import junit.framework.TestCase;
 
 public class FreeswitchApiMarshallerTest extends TestCase {

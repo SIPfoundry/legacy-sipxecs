@@ -8,6 +8,14 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.StringUtils.split;
+import static org.apache.commons.lang.StringUtils.trim;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,27 +33,22 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.im.ImManager;
+import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
-
-import static org.apache.commons.lang.StringUtils.EMPTY;
-import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.apache.commons.lang.StringUtils.join;
-import static org.apache.commons.lang.StringUtils.split;
-import static org.apache.commons.lang.StringUtils.trim;
-import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -89,8 +92,9 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     private PermissionManager m_permissionManager;
     private DomainManager m_domainManager;
+    private ProxyManager m_proxyManager;
 
-    private SipxImbotService m_sipxImbotService;
+    private AddressManager m_addressManager;
 
     private String m_firstName;
 
@@ -339,7 +343,7 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new AbstractUserDefaults(m_permissionManager));
+        addDefaultBeanSettingHandler(this);
     }
 
     @Override
@@ -553,10 +557,6 @@ public abstract class AbstractUser extends BeanWithGroups {
         m_permissionManager = permissionManager;
     }
 
-    public void setSipxImbotService(SipxImbotService sipxImbotService) {
-        m_sipxImbotService = sipxImbotService;
-    }
-
     public AddressBookEntry getAddressBookEntry() {
         return m_addressBookEntry;
     }
@@ -596,20 +596,21 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public String getMusicOnHoldUri() {
         String mohAudioSource = getSettings().getSetting(MOH_AUDIO_SOURCE_SETTING).getValue();
+        MohAddressFactory addresses = m_musicOnHoldManager.getAddressFactory();
 
         switch (MohAudioSource.parseSetting(mohAudioSource)) {
         case FILES_SRC:
-            return m_musicOnHoldManager.getLocalFilesMohUri();
+            return addresses.getLocalFilesMohUri();
         case PERSONAL_FILES_SRC:
-            return m_musicOnHoldManager.getPersonalMohFilesUri(getName());
+            return addresses.getPersonalMohFilesUri(getName());
         case SOUNDCARD_SRC:
-            return m_musicOnHoldManager.getPortAudioMohUri();
+            return addresses.getPortAudioMohUri();
         case SYSTEM_DEFAULT:
-            return m_musicOnHoldManager.getDefaultMohUri();
+            return addresses.getDefaultMohUri();
         case NONE:
-            return m_musicOnHoldManager.getNoneMohUri();
+            return addresses.getNoneMohUri();
         default:
-            return m_musicOnHoldManager.getDefaultMohUri();
+            return addresses.getDefaultMohUri();
         }
     }
 
@@ -637,10 +638,9 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public boolean requestToAddMyAssistantToRoster() {
         boolean result;
-        String paAddress = m_sipxImbotService.getAddress();
-        String httpPort = m_sipxImbotService.getHttpPort();
-
-        String uri = String.format("http://%s:%s/IM/%s/addToRoster", paAddress, httpPort, m_userName);
+        org.sipfoundry.sipxconfig.address.Address imAddress = m_addressManager
+                .getSingleAddress(ImManager.XMLRPC_ADDRESS);
+        String uri = String.format("%s/IM/%s/addToRoster", imAddress.toString(), m_userName);
 
         Request request = new Request(Method.PUT, uri);
 
@@ -668,21 +668,20 @@ public abstract class AbstractUser extends BeanWithGroups {
         }
     }
 
-    public static class AbstractUserDefaults {
-        private final PermissionManager m_permissionManager;
-
-        public AbstractUserDefaults(PermissionManager permissionManager) {
-            m_permissionManager = permissionManager;
-        }
-
-        @SettingEntry(path = CALLFWD_TIMER)
-        public String getDefaultInitDelay() {
-            return m_permissionManager.getDefaultInitDelay();
-        }
+    @SettingEntry(path = CALLFWD_TIMER)
+    public int getDefaultInitDelay() {
+        return m_proxyManager.getSettings().getDefaultInitDelay();
     }
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
 
+    public void setProxyManager(ProxyManager proxyManager) {
+        m_proxyManager = proxyManager;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
 }

@@ -9,6 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXT;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,23 +24,20 @@ import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ProfileNameHandler;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
-
-import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXT;
-import static org.sipfoundry.commons.mongo.MongoConstants.CONF_NAME;
-import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
-import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
 
 public class Conference extends BeanWithSettings implements Replicable {
     public static final String BEAN_NAME = "conferenceConference";
@@ -67,15 +69,14 @@ public class Conference extends BeanWithSettings implements Replicable {
     private String m_did;
     private Bridge m_bridge;
     private User m_owner;
-    private final ConferenceAorDefaults m_defaults;
-
-    public Conference() {
-        m_defaults = new ConferenceAorDefaults(this);
-    }
+    private String m_organizerCode;
+    private String m_remoteSecretAgent;
+    private String m_participantCode;
+    private AddressManager m_addressManager;
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(m_defaults);
+        addDefaultBeanSettingHandler(this);
         getSettingModel2().setDefaultProfileNameHandler(new ConferenceProfileName(this));
     }
 
@@ -144,21 +145,6 @@ public class Conference extends BeanWithSettings implements Replicable {
         m_extension = extension;
     }
 
-    public void generateAccessCodes() {
-        m_defaults.generateAccessCodes();
-    }
-
-    public String getRemoteAdmitSecret() {
-        return m_defaults.getRemoteAdmitSecret();
-    }
-
-    /**
-     * It is called by deployment module every time we provision the bridge
-     */
-    public void generateRemoteAdmitSecret() {
-        m_defaults.generateRemoteAdmitSecret();
-    }
-
     public String getOrganizerAccessCode() {
         return getSettingValue(ORGANIZER_CODE);
     }
@@ -212,47 +198,34 @@ public class Conference extends BeanWithSettings implements Replicable {
         super.setSettingValue(path, value);
     }
 
-    public static class ConferenceAorDefaults {
-        private final Conference m_conference;
-        private String m_organizerCode;
-        private String m_remoteSecretAgent;
-        private String m_participantCode;
+    void generateRemoteAdmitSecret() {
+        m_remoteSecretAgent = RandomStringUtils.randomAlphanumeric(SECRET_LEN);
+    }
 
-        ConferenceAorDefaults(Conference conference) {
-            m_conference = conference;
-        }
+    void generateAccessCodes() {
+        m_organizerCode = RandomStringUtils.randomNumeric(CODE_LEN);
+        m_participantCode = RandomStringUtils.randomNumeric(CODE_LEN);
+    }
 
-        void generateRemoteAdmitSecret() {
-            m_remoteSecretAgent = RandomStringUtils.randomAlphanumeric(SECRET_LEN);
-        }
+    @SettingEntry(path = AOR_RECORD)
+    public String getAorRecord() {
+        Address fs = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        return SipUri.format(StringUtils.defaultString(m_name), fs.getAddress(), fs.getPort());
+    }
 
-        void generateAccessCodes() {
-            m_organizerCode = RandomStringUtils.randomNumeric(CODE_LEN);
-            m_participantCode = RandomStringUtils.randomNumeric(CODE_LEN);
-        }
+    @SettingEntry(path = PARTICIPANT_CODE)
+    public String getParticipantCode() {
+        return m_participantCode;
+    }
 
-        @SettingEntry(path = AOR_RECORD)
-        public String getAorRecord() {
-            String user = m_conference.getName();
-            String host = m_conference.getBridge().getHost();
-            int port = m_conference.getBridge().getFreeswitchService().getFreeswitchSipPort();
-            return SipUri.format((user == null) ? "" : user, host, port);
-        }
+    @SettingEntry(path = ORGANIZER_CODE)
+    public String getOrganizerCode() {
+        return m_organizerCode;
+    }
 
-        @SettingEntry(path = PARTICIPANT_CODE)
-        public String getParticipantCode() {
-            return m_participantCode;
-        }
-
-        @SettingEntry(path = ORGANIZER_CODE)
-        public String getOrganizerCode() {
-            return m_organizerCode;
-        }
-
-        @SettingEntry(path = REMOTE_ADMIT_SECRET)
-        public String getRemoteAdmitSecret() {
-            return m_remoteSecretAgent;
-        }
+    @SettingEntry(path = REMOTE_ADMIT_SECRET)
+    public String getRemoteAdmitSecret() {
+        return m_remoteSecretAgent;
     }
 
     public static class ConferenceProfileName implements ProfileNameHandler {
@@ -357,10 +330,5 @@ public class Conference extends BeanWithSettings implements Replicable {
         }
         props.put(CONF_PIN, getParticipantAccessCode());
         return props;
-    }
-
-    @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
-        return null;
     }
 }

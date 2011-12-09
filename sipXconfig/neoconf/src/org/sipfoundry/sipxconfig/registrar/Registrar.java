@@ -16,7 +16,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
-import org.sipfoundry.sipxconfig.address.AddressRequester;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -71,35 +70,30 @@ public class Registrar implements FeatureProvider, AddressProvider, BeanFactoryA
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            AddressRequester requester) {
-        if (ADDRESSES.contains(type)) {
-            RegistrarSettings settings = getSettings();
-            Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-            List<Address> addresses = new ArrayList<Address>(locations.size());
-            for (Location location : locations) {
-                Address address = new Address();
-                address.setAddress(location.getAddress());
-                if (type.equals(TCP_ADDRESS)) {
-                    address.setPort(settings.get);
-                } else if (type.equals(UDP_ADDRESS)) {
-                    
-                } else if (type.equals(EVENT_ADDRESS)) {
-                    
-                } else if (type.equals(PRESENCE_MONITOR_ADDRESS)) {
-                    
-                }
+            Object requester) {
+        if (!ADDRESSES.contains(type) || manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            return null;
+        }
+
+        RegistrarSettings settings = getSettings();
+        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            Address address = new Address();
+            address.setAddress(location.getAddress());
+            if (type.equals(TCP_ADDRESS)) {
+                address.setPort(settings.getSipTcpPort());
+            } else if (type.equals(UDP_ADDRESS)) {
+                address.setPort(settings.getSipUdpPort());
+            } else if (type.equals(EVENT_ADDRESS)) {
+                address.setPort(settings.getMonitorPort());
+            } else if (type.equals(PRESENCE_MONITOR_ADDRESS)) {
+                address.setPort(settings.getMonitorPort());
+                address.setFormat("http://%s:%d/RPC2");
             }
         }
 
-        
-        String fqdn = location.getFqdn();
-        if (multipleRegistrars) {
-            // more than one service - use DNS SRV
-            return "rr." + fqdn;
-        }
-        return String.format("%s:%s;transport=tcp", fqdn, getSipPort());
-
-        return null;
+        return addresses;
     }
 
     @Override

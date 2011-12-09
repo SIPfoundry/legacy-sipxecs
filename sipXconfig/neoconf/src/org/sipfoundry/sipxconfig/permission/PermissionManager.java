@@ -56,8 +56,6 @@ public interface PermissionManager extends DataObjectSource<Permission> {
 
     Setting getPermissionModel();
 
-    String getDefaultInitDelay();
-
     /*
      * Remove all custom permissions
      */

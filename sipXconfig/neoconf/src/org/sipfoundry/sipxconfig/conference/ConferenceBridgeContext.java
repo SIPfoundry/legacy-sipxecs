@@ -15,9 +15,10 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface ConferenceBridgeContext extends AliasOwner {
-
+    static final LocationFeature FEATURE = new LocationFeature("conference");
     String CONTEXT_BEAN_NAME = "conferenceBridgeContext";
 
     List getBridges();
@@ -62,10 +63,4 @@ public interface ConferenceBridgeContext extends AliasOwner {
 
     List<Conference> filterConferencesByPage(final Integer bridgeId, final Integer ownerGroupId, int firstRow,
             int pageSize, String[] orderBy, boolean orderAscending);
-    /**
-     * Update the conference audio path
-     * Replicates configuration to all locations
-     * @param conf configuration to be replicated
-     */
-    void updateConfAudio();
 }

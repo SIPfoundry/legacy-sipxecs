@@ -31,16 +31,40 @@
       </option>
     </enum>
   </type>
+  <group name="page-dial">
+    <setting name="prefix">
+      <value>*77</value>
+    </setting>    
+  </group>
   <group name="page-config">
-    <setting name="PAGE_SERVER_SIP_PORT" hidden="yes">
+    <setting name="sip.tcpPort" hidden="yes">
       <value>5160</value>
     </setting>
-    <setting name="PAGE_SERVER_SIP_SECURE_PORT" hidden="yes">
+    <setting name="sip.udpPort" hidden="yes">
+      <value>5160</value>
+    </setting>
+    <setting name="sip.tlsPort" hidden="yes">
       <value>5161</value>
     </setting>
-    <setting name="SIP_PAGE_LOG_LEVEL" hidden="yes">
+    <setting name="log.level" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
+    </setting>
+    <setting name="sip.trace" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>NONE</value>
+          </option>
+          <option>
+            <value>TRACE</value>
+          </option>
+          <option>
+            <value>DEBUG</value>
+          </option>
+        </enum>
+      </type>
+      <value>NONE</value>
     </setting>
   </group>
 </model>

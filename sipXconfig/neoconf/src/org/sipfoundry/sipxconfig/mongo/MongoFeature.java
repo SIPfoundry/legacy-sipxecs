@@ -14,7 +14,6 @@ import java.util.Collections;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
-import org.sipfoundry.sipxconfig.address.AddressRequester;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -39,7 +38,7 @@ public class MongoFeature implements AddressProvider, FeatureProvider {
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            AddressRequester requester) {
+            Object requester) {
         Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE_ID);
         Collection<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {

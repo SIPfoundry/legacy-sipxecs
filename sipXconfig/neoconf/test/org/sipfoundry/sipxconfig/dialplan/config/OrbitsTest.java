@@ -23,7 +23,7 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.parkorbit.Orbits;
+import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitConfiguration;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class OrbitsTest extends XMLTestCase {
@@ -77,7 +77,7 @@ public class OrbitsTest extends XMLTestCase {
         parkOrbitContextControl.andReturn(m_parkOrbits);
         parkOrbitContextControl.replay();
 
-        Orbits orbits = new Orbits();
+        ParkOrbitConfiguration orbits = new ParkOrbitConfiguration();
         orbits.setAudioDirectory("/var/sipxdata/parkserver/music");
         orbits.setParkOrbitContext(parkOrbitContext);
         String generatedXml = getFileContent(orbits, null);

@@ -1,6 +1,6 @@
 
 ## Name of the node
--name openacd@$fqdn
+-name openacd@${fqdn}
 
 ## Cookie for distributed erlang
 -setcookie ClueCon
@@ -16,7 +16,7 @@
 ## Increase number of concurrent ports/sockets
 -env ERL_MAX_PORTS 4096
 
--mnesia dir '"$etc_dir/openacd/Mnesia.openacd@$fqdn"'
+-mnesia dir '"@SIPX_VARDIR@/openacd/Mnesia.openacd@${fqdn}"'
 
 ## Tweak GC to run more often
 -env ERL_FULLSWEEP_AFTER 10

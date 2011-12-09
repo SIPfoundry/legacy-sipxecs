@@ -19,7 +19,6 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
-import org.sipfoundry.sipxconfig.address.AddressRequester;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -32,8 +31,9 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings.SystemMohSetting;
+import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService.SystemMohSetting;
 import org.sipfoundry.sipxconfig.setting.BeanWithLocationDao;
 
 public class FreeswitchFeature implements Replicable, ReplicableProvider, FeatureProvider,
@@ -110,32 +110,35 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
 
     @Override
     public Collection<AliasMapping> getAliasMappings(String domainName) {
+        if (!m_featureManager.isFeatureEnabled(FEATURE)) {
+            return null;
+        }
         Collection<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
-        List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(1);
+        List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(locations.size() * 4);
+        MohAddressFactory moh = m_musicOnHoldManager.getAddressFactory();
         for (Location location : locations) {
             FreeswitchSettings setttings = m_locationBeanManager.getBean(FreeswitchSettings.class, location);
             String mohSetting = setttings.getMusicOnHoldSource();
             String contact = null;
             switch (SystemMohSetting.parseSetting(mohSetting)) {
             case SOUNDCARD_SRC:
-                contact = m_musicOnHoldManager.getPortAudioMohUriMapping();
+                contact = moh.getPortAudioMohUriMapping();
                 break;
             case NONE:
-                contact = m_musicOnHoldManager.getNoneMohUriMapping();
+                contact = moh.getNoneMohUriMapping();
                 break;
             case FILES_SRC:
             default:
-                contact = m_musicOnHoldManager.getLocalFilesMohUriMapping();
+                contact = moh.getLocalFilesMohUriMapping();
                 break;
             }
 
-            aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getDefaultMohUri(), contact, ALIAS_RELATION));
-            aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getLocalFilesMohUri(), m_musicOnHoldManager
-                    .getLocalFilesMohUriMapping(), ALIAS_RELATION));
-            aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getPortAudioMohUri(), m_musicOnHoldManager
-                    .getPortAudioMohUriMapping(), ALIAS_RELATION));
-            aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getNoneMohUri(), m_musicOnHoldManager
-                    .getNoneMohUriMapping(), ALIAS_RELATION));
+            aliasMappings.add(new AliasMapping(moh.getDefaultMohUri(), contact, ALIAS_RELATION));
+            aliasMappings.add(new AliasMapping(moh.getLocalFilesMohUri(), moh.getLocalFilesMohUriMapping(),
+                    ALIAS_RELATION));
+            aliasMappings.add(new AliasMapping(moh.getPortAudioMohUri(), moh.getPortAudioMohUriMapping(),
+                    ALIAS_RELATION));
+            aliasMappings.add(new AliasMapping(moh.getNoneMohUri(), moh.getNoneMohUriMapping(), ALIAS_RELATION));
 
             return aliasMappings;
         }
@@ -154,7 +157,7 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            AddressRequester requester) {
+            Object requester) {
         if (ADDRESSES.contains(type)) {
             List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
             List<Address> addresses = new ArrayList<Address>();

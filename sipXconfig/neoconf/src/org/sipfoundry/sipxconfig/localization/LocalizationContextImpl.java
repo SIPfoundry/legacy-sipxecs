@@ -16,15 +16,13 @@ import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 
@@ -38,11 +36,10 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private String m_defaultRegion;
     private String m_defaultLanguage;
     private ResetDialPlanTask m_resetDialPlanTask;
-    private ServiceConfigurator m_serviceConfigurator;
     private DialPlanActivationManager m_dialPlanActivationManager;
     private AutoAttendantManager m_autoAttendantManager;
     private ConferenceBridgeContext m_conferenceBridgeContext;
-    private SipxServiceManager m_sipxServiceManager;
+    private ConfigManager m_configManager;
 
     private DaoEventPublisher m_daoEventPublisher;
 
@@ -52,11 +49,6 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
 
     public void setDefaultRegion(String defaultRegion) {
         m_defaultRegion = defaultRegion;
-    }
-
-    @Required
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
     }
 
     @Required
@@ -72,14 +64,6 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     @Required
     public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
         m_conferenceBridgeContext = conferenceBridgeContext;
-    }
-
-    public SipxServiceManager getSipxServiceManager() {
-        return m_sipxServiceManager;
-    }
-
-    public void setSipxServiceManager(SipxServiceManager serviceManager) {
-        m_sipxServiceManager = serviceManager;
     }
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
@@ -163,7 +147,6 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         m_resetDialPlanTask.reset(regionBeanId);
         m_dialPlanActivationManager.replicateDialPlan(false);
         getHibernateTemplate().saveOrUpdate(localization);
-        replicateImbotService();
     }
 
     /**
@@ -186,18 +169,6 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         // to AutoAttendant prompts directory.
         m_autoAttendantManager.updatePrompts(new File(m_promptsDir, getCurrentLanguageDir()));
         getHibernateTemplate().saveOrUpdate(localization);
-        // new to push domain config and dial plans for all locations...
-        m_serviceConfigurator.initLocations();
-        m_conferenceBridgeContext.updateConfAudio();
-        replicateImbotService();
-        m_daoEventPublisher.publishSave(localization);
         return 1;
-    }
-
-    private void replicateImbotService() {
-        SipxImbotService imbotService = (SipxImbotService) m_sipxServiceManager
-                .getServiceByBeanId(SipxImbotService.BEAN_ID);
-        imbotService.setLocale(getLocalization().getLanguage());
-        m_serviceConfigurator.replicateServiceConfig(imbotService);
     }
 }

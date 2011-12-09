@@ -52,9 +52,9 @@
   </bean>
 
   <bean id="freeswitchApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
-    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.conference.FreeswitchApi" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi" />
     <property name="marshaller">
-      <bean class="org.sipfoundry.sipxconfig.conference.FreeswitchApiMarshaller" />
+      <bean class="org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiMarshaller" />
     </property>
   </bean>
 

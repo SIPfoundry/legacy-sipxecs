@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.commserver.BeanWithLocation;
-import org.sipfoundry.sipxconfig.conference.FreeswitchApi;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;

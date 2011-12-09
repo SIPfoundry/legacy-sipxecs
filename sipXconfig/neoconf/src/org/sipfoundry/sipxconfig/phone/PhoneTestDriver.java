@@ -17,31 +17,22 @@ import static org.easymock.EasyMock.replay;
 import static org.sipfoundry.sipxconfig.test.TestHelper.getMockDomainManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.dialplan.EmergencyInfo;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
-import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
-import org.sipfoundry.sipxconfig.service.ServiceManager;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.sip.SipService;
@@ -50,8 +41,6 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public final class PhoneTestDriver {
     public static final String SIPFOUNDRY_ORG = "sipfoundry.org";
-
-    private static final Map<ServiceDescriptor, String> SERVICES = new HashMap<ServiceDescriptor, String>();
 
     private final IMocksControl m_phoneContextControl;
 
@@ -66,12 +55,6 @@ public final class PhoneTestDriver {
     private IMocksControl m_sipControl;
 
     private String m_serialNumber = "0004f200e06b";
-
-    static {
-        SERVICES.put(UnmanagedService.NTP, "ntp.example.org");
-        SERVICES.put(UnmanagedService.DNS, "10.4.5.1");
-        SERVICES.put(UnmanagedService.SYSLOG, "10.4.5.2");
-    }
 
     private PhoneTestDriver(Phone phone, List<User> users, boolean phonebookManagementEnabled, boolean speedDial,
             boolean sendCheckSyncToMac) {
@@ -106,7 +89,7 @@ public final class PhoneTestDriver {
 
             if (user != null) {
                 user.setPermissionManager(pm);
-                m_musicOnHoldManager.getPersonalMohFilesUri(user.getUserName());
+                m_musicOnHoldManager.getAddressFactory().getPersonalMohFilesUri(user.getUserName());
                 expectLastCall().andReturn("sip:~~mh~" + user.getUserName() + "@" + SIPFOUNDRY_ORG).anyTimes();
                 user.setSettingTypedValue("moh/audio-source", "PERSONAL_FILES_SRC");
                 user.setMusicOnHoldManager(m_musicOnHoldManager);
@@ -238,24 +221,24 @@ public final class PhoneTestDriver {
         defaults.setDomainManager(domainManager);
 
         MusicOnHoldManager musicOnHoldManager = createMock(MusicOnHoldManager.class);
-        musicOnHoldManager.getDefaultMohUri();
+        musicOnHoldManager.getAddressFactory().getDefaultMohUri();
         expectLastCall().andReturn("sip:~~mh~@" + SIPFOUNDRY_ORG).anyTimes();
         defaults.setMusicOnHoldManager(musicOnHoldManager);
         replay(musicOnHoldManager);
         defaults.setLogDirectory("/var/log/sipxpbx");
 
-        SipxService registrarService = new SipxRegistrarService();
-        registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
-        registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
-        registrarService.setModelName("sipxregistrar.xml");
-        registrarService.setModelDir("sipxregistrar");
-
-        SipxService proxyService = new SipxProxyService();
-        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
-        proxyService.setBeanId(SipxProxyService.BEAN_ID);
-        proxyService.setModelName("sipxproxy.xml");
-        proxyService.setModelDir("sipxproxy");
-        proxyService.setSipPort("5555");
+//        SipxService registrarService = new SipxRegistrarService();
+//        registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
+//        registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
+//        registrarService.setModelName("sipxregistrar.xml");
+//        registrarService.setModelDir("sipxregistrar");
+//
+//        SipxService proxyService = new SipxProxyService();
+//        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
+//        proxyService.setBeanId(SipxProxyService.BEAN_ID);
+//        proxyService.setModelName("sipxproxy.xml");
+//        proxyService.setModelDir("sipxproxy");
+//        proxyService.setSipPort("5555");
 
         return defaults;
     }
@@ -298,20 +281,6 @@ public final class PhoneTestDriver {
         mfContext.setConfigDirectory(TestHelper.getEtcDir());
         mfContext.setModelBuilder(new XmlModelBuilder(TestHelper.getSystemEtcDir()));
         phone.setModelFilesContext(mfContext);
-
-        IMocksControl serviceManagerControl = createNiceControl();
-        ServiceManager serviceManager = serviceManagerControl.createMock(ServiceManager.class);
-        for (Map.Entry<ServiceDescriptor, String> entry : SERVICES.entrySet()) {
-            ServiceDescriptor sd = entry.getKey();
-            String addr = entry.getValue();
-            serviceManager.getEnabledServicesByType(sd);
-            UnmanagedService us = new UnmanagedService();
-            us.setDescriptor(sd);
-            us.setAddress(addr);
-            serviceManagerControl.andReturn(Collections.singletonList(us)).anyTimes();
-        }
-        serviceManagerControl.replay();
-        defaults.setServiceManager(serviceManager);
 
         IMocksControl pagingContextControl = createNiceControl();
         PagingContext pagingContext = pagingContextControl.createMock(PagingContext.class);

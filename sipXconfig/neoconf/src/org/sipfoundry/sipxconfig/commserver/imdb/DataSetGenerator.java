@@ -9,16 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-
-import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
 import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
+
+import org.sipfoundry.sipxconfig.common.Replicable;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 
 public class DataSetGenerator extends AbstractDataSetGenerator {
 
@@ -57,10 +56,4 @@ public class DataSetGenerator extends AbstractDataSetGenerator {
         // empty implementation
         return null;
     }
-
-    @Override
-    public SipxFreeswitchService getSipxFreeswitchService() {
-        return getSipxFreeswitchService();
-    }
-
 }

@@ -12,9 +12,11 @@ package org.sipfoundry.sipxconfig.domain;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.localization.Localization;
 
 public interface DomainManager extends DialingRuleProvider {
+    public static final GlobalFeature FEATURE = new GlobalFeature("domain");
 
     static final String CONTEXT_BEAN_NAME = "domainManager";
 

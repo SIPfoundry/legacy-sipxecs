@@ -5,35 +5,38 @@
   <type id="loglevel">
     <enum>
       <option>
-        <value>DEBUG</value>
+        <value>debug</value>
       </option>
       <option>
-        <value>INFO</value>
+        <value>info</value>
       </option>
       <option>
-        <value>NOTICE</value>
+        <value>notice</value>
       </option>
       <option>
-       <value>WARNING</value>
+       <value>warning</value>
       </option>
       <option>
-        <value>ERR</value>
+        <value>error</value>
       </option>
       <option>
-        <value>CRIT</value>
+        <value>critical</value>
       </option>
       <option>
-        <value>ALERT</value>
+        <value>alert</value>
       </option>
       <option>
-        <value>EMERG</value>
+        <value>emergency</value>
       </option>
     </enum>
   </type>
   <group name="openacd-config">
-    <setting name="SIPX_OPENACD_LOG_LEVEL" hidden="yes">
+    <setting name="log_level">
       <type refid="loglevel" />
       <value>NOTICE</value>
+    </setting>
+    <setting name="log_dir" advanced="yes">
+      <type><string/></type>
     </setting>
   </group>
   <group name="freeswitch_media_manager">

@@ -13,38 +13,42 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class PresenceConfig implements ConfigProvider {
-    private FeatureManager m_featureManager;
     private PresenceServer m_presenceServer;
+    private DomainManager m_domainManager;
 
     @Override
-    public void replicate(ConfigManager manager) throws IOException {
-        Collection<Location> locations = m_featureManager.getLocationsForEnabledFeature(PresenceServer.FEATURE);
+    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (!request.applies(PresenceServer.FEATURE)) {
+            return;
+        }
+
+        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
+                PresenceServer.FEATURE);
         PresenceSettings settings = m_presenceServer.getSettings();
+        String domainName = m_domainManager.getDomainName();
+        String realm = m_domainManager.getAuthorizationRealm();
         for (Location location : locations) {
             File locationDataDirectory = manager.getLocationDataDirectory(location);
-            FileWriter wtr = null;
+            FileWriter wtr = new FileWriter(new File(locationDataDirectory, "presence-config.cfdat"));
             try {
-                wtr = new FileWriter(new File(locationDataDirectory, "sipxpresence-config.cfdat"));
                 KeyValueConfiguration config = new KeyValueConfiguration(wtr);
                 config.write(settings.getSettings());
                 config.write("SIP_PRESENCE_BIND_IP", location.getAddress());
+                config.write("SIP_PRESENCE_DOMAIN_NAME", domainName);
+                config.write("SIP_PRESENCE_AUTHENTICATE_REALM", realm);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
-    }
-
-    @Required
-    public void setFeatureManager(FeatureManager featureManager) {
-        m_featureManager = featureManager;
     }
 
     @Required

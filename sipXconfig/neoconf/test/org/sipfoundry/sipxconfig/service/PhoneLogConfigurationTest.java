@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.phonelog.PhoneLogConfiguration;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 

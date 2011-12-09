@@ -20,16 +20,12 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 public interface PagingContext extends DialingRuleProvider, AliasOwner {
     public static LocationFeature FEATURE = new LocationFeature("page");
     public static AddressType SIP_TCP = new AddressType("pageTcp");
+    public static AddressType SIP_UDP = new AddressType("pageUdp");
+    public static AddressType SIP_TLS = new AddressType("pageTls");
 
-    String getPagingPrefix();
+    PagingSettings getSettings();
 
-    void setPagingPrefix(String prefix);
-
-    String getSipTraceLevel();
-
-    void setSipTraceLevel(String traceLevel);
-
-    PagingServer getPagingServer();
+    void saveSettings(PagingSettings settings);
 
     List<PagingGroup> getPagingGroups();
 
@@ -39,6 +35,7 @@ public interface PagingContext extends DialingRuleProvider, AliasOwner {
 
     void savePagingGroup(PagingGroup group);
 
-    void clear();
+    String getAudioDirectory();
 
+    void clear();
 }

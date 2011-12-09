@@ -8,11 +8,16 @@
 package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -20,7 +25,12 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ConfigManager {
+public class ConfigManager implements AddressProvider {
+    public static final AddressType SUPERVISOR_ADDRESS = new AddressType("supervisorXmlRpc");
+    public enum ConfigStatus {
+        OK, IN_PROGRESS, FAILED
+    }
+
     private File m_cfDataDir;
     private DomainManager m_domainManager;
     private FeatureManager m_featureManager;
@@ -43,6 +53,11 @@ public class ConfigManager {
         m_affectedFeatures.add(feature);
     }
 
+    public void replicationRequired(Feature ... features) {
+        // (re)start timer
+        m_affectedFeatures.addAll(Arrays.asList(features));
+    }
+
     public String getCfDataDir() {
         return m_cfDataDir.getAbsolutePath();
     }
@@ -53,6 +68,14 @@ public class ConfigManager {
 
     public File getLocationDataDirectory(Location location) {
         return new File(m_cfDataDir, String.valueOf(location.getId()));
+    }
+
+    /**
+     * cfengine promises can emit an unbounded lists of health status identified by a unique key
+     * controlled within the promise itself.
+     */
+    public ConfigStatus getStatus(Location location, String key) {
+        return ConfigStatus.OK;
     }
 
     /**
@@ -101,5 +124,19 @@ public class ConfigManager {
 
     public void setLocationManager(LocationsManager locationManager) {
         m_locationManager = locationManager;
+    }
+
+    @Override
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
+        return Collections.singleton(SUPERVISOR_ADDRESS);
+    }
+
+    @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+        if (type.equals(SUPERVISOR_ADDRESS)) {
+            // this will eventually phase out in favor of sipxsupervisor-lite
+            return Collections.singleton(new Address(null, 8092));
+        }
+        return null;
     }
 }

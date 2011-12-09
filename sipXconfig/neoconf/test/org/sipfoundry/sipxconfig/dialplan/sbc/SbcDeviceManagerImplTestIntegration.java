@@ -56,14 +56,14 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
     public void testSave() {
         SbcDescriptor model = m_modelSource.getModel("sbcGenericModel");
         SbcDevice newSbcDevice = m_sdm.newSbcDevice(model);
-        m_sdm.storeSbcDevice(newSbcDevice);
+        m_sdm.saveSbcDevice(newSbcDevice);
         assertFalse(newSbcDevice.isNew());
         flush();
 
         assertEquals(1, countRowsInTable("sbc_device"));
 
         newSbcDevice.setName("abc");
-        m_sdm.storeSbcDevice(newSbcDevice);
+        m_sdm.saveSbcDevice(newSbcDevice);
     }
 
     public void testSaveErrorMaxAllowed() {
@@ -71,12 +71,12 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         model.setMaxAllowed(1);
         SbcDevice newSbcDevice = m_sdm.newSbcDevice(model);
         newSbcDevice.setName("aaa");
-        m_sdm.storeSbcDevice(newSbcDevice);
+        m_sdm.saveSbcDevice(newSbcDevice);
         flush();
         try {
             newSbcDevice = m_sdm.newSbcDevice(model);
             newSbcDevice.setName("bbb");
-            m_sdm.storeSbcDevice(newSbcDevice);
+            m_sdm.saveSbcDevice(newSbcDevice);
             fail("Creation of two bridges should not be accepted.");
         } catch (UserException e) {
             // ok - 2 bridges failed
@@ -87,13 +87,13 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         SbcDescriptor model = m_modelSource.getModel("sbcGenericModel");
         SbcDevice newSbcDevice = m_sdm.newSbcDevice(model);
         newSbcDevice.setName("aaa");
-        m_sdm.storeSbcDevice(newSbcDevice);
+        m_sdm.saveSbcDevice(newSbcDevice);
         flush();
 
         try {
             newSbcDevice = m_sdm.newSbcDevice(model);
             newSbcDevice.setName("aaa");
-            m_sdm.storeSbcDevice(newSbcDevice);
+            m_sdm.saveSbcDevice(newSbcDevice);
             fail("Should not accept duplicated name.");
         } catch (UserException e) {
             // ok - duplicate name

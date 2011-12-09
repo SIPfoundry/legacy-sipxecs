@@ -15,10 +15,8 @@ import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 public class ConferenceFeature implements FeatureListener, FeatureProvider {
-    public static final LocationFeature CONFERENCE = new LocationFeature("conference");
     private ConferenceBridgeContext m_conferengeBridgeContext;
 
     @Override
@@ -28,25 +26,26 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
 
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
-        return Collections.singleton(CONFERENCE);
+        return Collections.singleton(ConferenceBridgeContext.FEATURE);
     }
 
     @Override
     public void enableLocationFeature(FeatureEvent event, LocationFeature feature, Location location) {
-        if (feature.equals(CONFERENCE)) {
-            Bridge bridge = m_conferengeBridgeContext.getBridgeByServer(location.getFqdn());
-            if (bridge == null && event == FeatureEvent.PRE_ENABLE) {
-                bridge = m_conferengeBridgeContext.newBridge();
-                bridge.setService(location.getService(SipxFreeswitchService.BEAN_ID));
-                m_conferengeBridgeContext.store(bridge);
-            }
-            if (bridge != null && event == FeatureEvent.POST_ENABLE) {
-                deploy(bridge);
-            }
-            if (bridge != null && event == FeatureEvent.PRE_DISABLE) {
-                m_conferengeBridgeContext.removeConferences(Collections.singleton(bridge.getId()));
-                deploy(bridge);
-            }
+        if (!feature.equals(ConferenceBridgeContext.FEATURE)) {
+            return;
+        }
+
+        Bridge bridge = m_conferengeBridgeContext.getBridgeByServer(location.getFqdn());
+        if (bridge == null && event == FeatureEvent.PRE_ENABLE) {
+            bridge = m_conferengeBridgeContext.newBridge();
+            m_conferengeBridgeContext.store(bridge);
+        }
+        if (bridge != null && event == FeatureEvent.POST_ENABLE) {
+            deploy(bridge);
+        }
+        if (bridge != null && event == FeatureEvent.PRE_DISABLE) {
+            m_conferengeBridgeContext.removeConferences(Collections.singleton(bridge.getId()));
+            deploy(bridge);
         }
     }
 

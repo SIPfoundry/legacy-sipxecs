@@ -7,17 +7,23 @@
  */
 package org.sipfoundry.sipxconfig.proxy;
 
+
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.commons.util.IPAddressUtil;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingsValidator;
 
 public class ProxySettings extends BeanWithSettings implements DeployConfigOnEdit, SettingsValidator {
     public static final String LOG_SETTING = "proxy-configuration/SIPX_PROXY_LOG_LEVEL";
-    public static final String SIP_PORT_SETTING = "proxy-configuration/SIP_PORT";
+    public static final String SIP_PORT_SETTING = "proxy-configuration/SIPX_PROXY_TCP_PORT";
+    public static final String SIP_UDP_PORT_SETTING = "proxy-configuration/SIPX_PROXY_UDP_PORT";
     public static final String SIP_SECURE_PORT_SETTING = "proxy-configuration/TLS_SIP_PORT";
     public static final String ENABLE_BRIDGE_PROXY_RELAY = "proxy-configuration/ENABLE_BRIDGE_PROXY_RELAY";
     public static final String AUTOBAN_THRESHOLD_VIOLATORS = "call-rate-limit/SIPX_PROXY_AUTOBAN_THRESHOLD_VIOLATORS";
@@ -27,12 +33,16 @@ public class ProxySettings extends BeanWithSettings implements DeployConfigOnEdi
     public static final String WHITE_LIST = "call-rate-limit/SIPX_PROXY_WHITE_LIST";
     public static final String BLACK_LIST = "call-rate-limit/SIPX_PROXY_BLACK_LIST";
 
-    public String getSipPort() {
-        return getSettingValue(SIP_PORT_SETTING);
+    public int getSipTcpPort() {
+        return (Integer) getSettingTypedValue(SIP_PORT_SETTING);
     }
 
-    public String getSecureSipPort() {
-        return getSettingValue(SIP_SECURE_PORT_SETTING);
+    public int getSipUdpPort() {
+        return (Integer) getSettingTypedValue(SIP_UDP_PORT_SETTING);
+    }
+
+    public int getSecureSipPort() {
+        return (Integer) getSettingTypedValue(SIP_SECURE_PORT_SETTING);
     }
 
     public boolean isEnabledBridgeProxyRelay() {
@@ -63,6 +73,10 @@ public class ProxySettings extends BeanWithSettings implements DeployConfigOnEdi
         return (String) getSettingTypedValue(BLACK_LIST);
     }
 
+    public int getDefaultInitDelay() {
+        return (Integer) getSettingTypedValue("proxy-configuration/SIPX_PROXY_DEFAULT_SERIAL_EXPIRES");
+    }
+
     @Override
     public void validate(Setting settings) {
         ProxySettings p = (ProxySettings) settings;
@@ -85,5 +99,10 @@ public class ProxySettings extends BeanWithSettings implements DeployConfigOnEdi
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxproxy.xml");
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) ProxyManager.FEATURE);
     }
 }

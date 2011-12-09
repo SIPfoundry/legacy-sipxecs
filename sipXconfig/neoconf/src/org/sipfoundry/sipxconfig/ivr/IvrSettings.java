@@ -17,8 +17,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class IvrSettings extends BeanWithSettings implements DeployConfigOnEdit {
     private static final String HTTPS_PORT = "ivr/httpsPort";
-    private static final String NAME_DIAL_PFX = "ivr/nameDialPrefix";
-    private static final String DEFAULT_TUI = "ivr/defaultTui";
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
@@ -30,15 +28,7 @@ public class IvrSettings extends BeanWithSettings implements DeployConfigOnEdit 
         return getModelFilesContext().loadModelFile("sipxivr/sipxivr.xml");
     }
 
-    public String getHttpsPort() {
-        return getSettingValue(HTTPS_PORT);
-    }
-
-    public String getNameDialPrefix() {
-        return getSettingValue(NAME_DIAL_PFX);
-    }
-
-    public String getDefaultTui() {
-        return getSettingValue(DEFAULT_TUI);
+    public int getHttpsPort() {
+        return (Integer) getSettingTypedValue(HTTPS_PORT);
     }
 }

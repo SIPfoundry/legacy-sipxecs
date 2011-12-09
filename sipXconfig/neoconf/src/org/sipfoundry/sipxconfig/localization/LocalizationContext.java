@@ -9,7 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.localization;
 
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+
 public interface LocalizationContext {
+    static final GlobalFeature FEATURE = new GlobalFeature("localization");
     static final String DEFAULT = "default";
     static final String PROMPTS_DEFAULT = "stdprompts";
 

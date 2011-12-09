@@ -18,15 +18,15 @@ import java.util.List;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.dialplan.sbc.DefaultSbc;
-import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDevice;
-import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDeviceManager;
-import org.sipfoundry.sipxconfig.dialplan.sbc.SbcManager;
-import org.sipfoundry.sipxconfig.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
+import org.sipfoundry.sipxconfig.sbc.DefaultSbc;
+import org.sipfoundry.sipxconfig.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.sbc.SbcManager;
 
 /**
  * Controls very initial SIP message routing from proxy based on SIP method and potentialy message

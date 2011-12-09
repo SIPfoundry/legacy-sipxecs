@@ -22,7 +22,11 @@ public interface FeatureManager {
 
     public Set<LocationFeature> getEnabledLocationFeatures(Location location);
 
+    public void enableLocationFeature(LocationFeature feature, Location location, boolean enable);
+
     public void enableLocationFeatures(Set<LocationFeature> features, Location location);
+
+    public void enableGlobalFeature(GlobalFeature feature, boolean enable);
 
     public void enableGlobalFeatures(Set<GlobalFeature> features);
 

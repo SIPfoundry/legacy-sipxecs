@@ -13,18 +13,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxParkService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
@@ -42,8 +39,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private SettingDao m_settingDao;
-    private SipxServiceManager m_sipxServiceManager;
-    private ServiceConfigurator m_serviceConfigurator;
+    private ConfigManager m_configManager;
 
     public void storeParkOrbit(ParkOrbit parkOrbit) {
         // Check for duplicate names and extensions before saving the park orbit
@@ -64,8 +60,9 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         if (ids.isEmpty()) {
             return;
         }
+        // TODO: this inadvertantly circumvent daoevenlisteners
         removeAll(ParkOrbit.class, ids);
-        activateParkOrbits();
+        m_configManager.replicationRequired(FEATURE);
     }
 
     public ParkOrbit loadParkOrbit(Integer id) {
@@ -74,13 +71,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
     public Collection getParkOrbits() {
         return getHibernateTemplate().loadAll(ParkOrbit.class);
-    }
-
-    public void activateParkOrbits() {
-        //m_replicationContext.generate(DataSet.ALIAS);
-        SipxService parkService = m_sipxServiceManager
-                .getServiceByBeanId(SipxParkService.BEAN_ID);
-        m_serviceConfigurator.replicateServiceConfig(parkService);
     }
 
     public String getDefaultMusicOnHold() {
@@ -102,23 +92,8 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     }
 
     @Required
-    public void setReplicationContext(SipxReplicationContext replicationContext) {
-        m_replicationContext = replicationContext;
-    }
-
-    @Required
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Required
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
     }
 
     public boolean isAliasInUse(String alias) {
@@ -143,6 +118,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         HibernateTemplate template = getHibernateTemplate();
         Collection orbits = template.loadAll(ParkOrbit.class);
         template.deleteAll(orbits);
+        m_configManager.replicationRequired(FEATURE);
     }
 
     public ParkOrbit newParkOrbit() {
@@ -181,7 +157,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
         protected void onEntitySave(Group group) {
             if (PARK_ORBIT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
-                activateParkOrbits();
+                m_configManager.replicationRequired(FEATURE);
             }
         }
     }

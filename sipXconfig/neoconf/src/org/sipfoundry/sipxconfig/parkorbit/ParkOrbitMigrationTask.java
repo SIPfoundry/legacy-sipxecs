@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 public class ParkOrbitMigrationTask extends InitTaskListener {
 
     private static final Log LOG = LogFactory.getLog(ParkOrbitMigrationTask.class);
-    private Orbits m_orbitsGenerator;
+    private ParkOrbitConfiguration m_orbitsGenerator;
     private MusicOnHoldManager m_musicOnHoldManager;
 
     @Override
@@ -40,11 +40,11 @@ public class ParkOrbitMigrationTask extends InitTaskListener {
         }
     }
 
-    public Orbits getOrbitsGenerator() {
+    public ParkOrbitConfiguration getOrbitsGenerator() {
         return m_orbitsGenerator;
     }
 
-    public void setOrbitsGenerator(Orbits orbitsGenerator) {
+    public void setOrbitsGenerator(ParkOrbitConfiguration orbitsGenerator) {
         m_orbitsGenerator = orbitsGenerator;
     }
 

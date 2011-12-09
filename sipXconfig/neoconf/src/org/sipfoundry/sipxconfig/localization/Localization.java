@@ -9,10 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.localization;
 
-import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
+import java.util.Collection;
+import java.util.Collections;
 
-public class Localization extends BeanWithId {
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.feature.Feature;
+
+public class Localization extends BeanWithId implements DeployConfigOnEdit {
 
     private String m_region;
 
@@ -44,5 +49,10 @@ public class Localization extends BeanWithId {
             return null;
         }
         return split[split.length - 1];
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) LocalizationContext.FEATURE);
     }
 }

@@ -139,7 +139,7 @@ public abstract class ManageLoggingLevels extends SipxBasePage implements PageBe
                 services.add((SipxService) entity);
             } else if (entity instanceof BridgeSbc) {
                 SbcDeviceManager sbcDeviceContext = getSbcDeviceManager();
-                sbcDeviceContext.storeSbcDevice((BridgeSbc) entity);
+                sbcDeviceContext.saveSbcDevice((BridgeSbc) entity);
                 getDialPlanActivationManager().replicateDialPlan(true);
                 getServiceConfigurator().markServiceForRestart(serviceToRestart);
             } else if (entity instanceof AcdServer) {

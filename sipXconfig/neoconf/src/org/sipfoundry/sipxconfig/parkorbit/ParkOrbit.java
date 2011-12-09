@@ -9,11 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.parkorbit;
 
-import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class ParkOrbit extends BackgroundMusic implements NamedObject {
+public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployConfigOnEdit {
 
     private String m_name;
     private String m_extension;
@@ -73,5 +78,10 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject {
 
     public String getTransferKey() {
         return (String) getSettingTypedValue("general/transferKey");
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) ParkOrbitContext.FEATURE);
     }
 }

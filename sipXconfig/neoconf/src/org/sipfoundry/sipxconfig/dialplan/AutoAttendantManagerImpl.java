@@ -23,7 +23,6 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -36,7 +35,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         BeanFactoryAware {
     private static final String AUTO_ATTENDANT = "auto attendant";
     private static final Log LOG = LogFactory.getLog(AutoAttendantManagerImpl.class);
-    private ServiceConfigurator m_serviceConfigurator;
     private AliasManager m_aliasManager;
     private SettingDao m_settingDao;
     private BeanFactory m_beanFactory;
@@ -151,11 +149,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(systemId + "Prototype");
         aa.resetToFactoryDefault();
         return aa;
-    }
-
-    @Required
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
     }
 
     private Collection getAutoAttendantsWithName(String alias) {

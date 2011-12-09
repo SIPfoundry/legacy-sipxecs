@@ -9,33 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.registrar;
 
-import static java.lang.String.format;
-
 import java.util.Collection;
 import java.util.Collections;
 
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.im.ImManager;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.springframework.beans.factory.annotation.Required;
 
 public class RegistrarSettings extends BeanWithSettings implements DeployConfigOnEdit, AliasOwner {
-    public static final int SIP_PORT = 5070; // not configurable at this time
-    public static final int MONITOR_PORT = 9096; // not configurable at this time
     private static final String PICKUP_CODE = "call-pick-up/SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE";
     private static final String RETRIEVE_CODE = "call-pick-up/SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE";
     private AliasManager m_aliasManager;
-    private AddressManager m_addressManager;
-    private DomainManager m_domainManager;
 
     public void assignAvailableAliases() {
         String pickup = m_aliasManager.getNextAvailableNumericBasedAlias(getDirectedCallPickupCode());
@@ -50,6 +39,18 @@ public class RegistrarSettings extends BeanWithSettings implements DeployConfigO
 
     public String getCallRetrieveCode() {
         return getSettingValue(RETRIEVE_CODE);
+    }
+
+    public int getSipTcpPort() {
+        return (Integer) getSettingTypedValue("registrar-config/SIP_REGISTRAR_TCP_PORT");
+    }
+
+    public int getSipUdpPort() {
+        return (Integer) getSettingTypedValue("registrar-config/SIP_REGISTRAR_UDP_PORT");
+    }
+
+    public int getMonitorPort() {
+        return (Integer) getSettingTypedValue("registrar-config/SIP_REGISTRAR_REG_EVENT_PORT");
     }
 
     @Override
@@ -70,5 +71,10 @@ public class RegistrarSettings extends BeanWithSettings implements DeployConfigO
     @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         return BeanId.createBeanIdCollection(Collections.singleton(getId()), this.getClass());
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) Registrar.FEATURE);
     }
 }

@@ -31,17 +31,19 @@ import java.util.regex.PatternSyntaxException;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
-public class OpenAcdExtension extends FreeswitchExtension implements Replicable {
+public class OpenAcdExtension extends FreeswitchExtension implements Replicable, DeployConfigOnEdit {
     public static final String DESTINATION_NUMBER = "destination_number";
     public static final String DESTINATION_NUMBER_PATTERN = "^%s$";
     public static final String EMPTY_STRING = "";
@@ -181,11 +183,16 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
 
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return (!isEnabled() ? null : Collections.singleton((Feature) FreeswitchFeature.FEATURE));
     }
 
 }

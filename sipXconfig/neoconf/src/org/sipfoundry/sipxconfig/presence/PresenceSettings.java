@@ -12,7 +12,6 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
@@ -26,12 +25,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class PresenceSettings extends BeanWithSettings implements AliasOwner {
     public static final String PRESENCE_SIGN_IN_CODE = "presence-config/SIP_PRESENCE_SIGN_IN_CODE";
     public static final String PRESENCE_SIGN_OUT_CODE = "presence-config/SIP_PRESENCE_SIGN_OUT_CODE";
-    public static final String PRESENCE_SERVER_SIP_PORT = "presence-config/PRESENCE_SERVER_SIP_PORT";
-    public static final String PRESENCE_API_PORT = "presence-config/SIP_PRESENCE_HTTP_PORT";
-    public static final String LOG_SETTING = "presence-config/SIP_PRESENCE_LOG_LEVEL";
-    private static final String API_URI = "sip:%s:%d";
     private AliasManager m_aliasManager;
-    private FeatureManager m_featureManager;
 
     public void assignAvailableAliases() {
         String signIn = m_aliasManager.getNextAvailableNumericBasedAlias(getSignInCode());
@@ -53,12 +47,16 @@ public class PresenceSettings extends BeanWithSettings implements AliasOwner {
         return getSettingValue(PRESENCE_SIGN_OUT_CODE);
     }
 
-    public int getSipPort() {
-        return ((Integer) getSettingTypedValue(PRESENCE_SIGN_OUT_CODE)).intValue();
+    public int getSipTcpPort() {
+        return (Integer) getSettingTypedValue("presence-config/SIP_PRESENCE_TCP_PORT");
+    }
+
+    public int getSipUdpPort() {
+        return (Integer) getSettingTypedValue("presence-config/SIP_PRESENCE_UDP_PORT");
     }
 
     public int getApiPort() {
-        return ((Integer) getSettingTypedValue(PRESENCE_API_PORT)).intValue();
+        return (Integer) getSettingTypedValue("presence-config/SIP_PRESENCE_HTTP_PORT");
     }
 
     @Override
@@ -74,10 +72,5 @@ public class PresenceSettings extends BeanWithSettings implements AliasOwner {
     @Required
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
-    }
-
-    @Required
-    public void setFeatureManager(FeatureManager featureManager) {
-        m_featureManager = featureManager;
     }
 }

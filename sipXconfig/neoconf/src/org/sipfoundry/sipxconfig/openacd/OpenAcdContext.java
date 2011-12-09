@@ -24,9 +24,15 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
 
 public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner, ReplicableProvider {
+    public static final LocationFeature FEATURE = new LocationFeature("openacd");
+
+    OpenAcdSettings getSettings();
+
+    void saveSettings(OpenAcdSettings settings);
 
     void saveExtension(OpenAcdExtension extension);
 

@@ -62,7 +62,7 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
         addArgument(command, null, proxyTcp);
         addArgument(command, null, proxyUdp);
         addArgument(command, null, proxyTls);
-        Collection<Address> xmpp = m_addressManager.getAddresses(ImManager.ADDRESS);
+        Collection<Address> xmpp = m_addressManager.getAddresses(ImManager.XMPP_ADDRESS);
         addArgument(command, "-x", xmpp);
         if (provideDns) {
             command.addArgument("-p");

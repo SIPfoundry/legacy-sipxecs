@@ -10,10 +10,6 @@
 package org.sipfoundry.sipxconfig.commserver;
 
 import java.util.List;
-import java.util.Set;
-
-import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
-import org.sipfoundry.sipxconfig.service.SipxService;
 
 public interface LocationsManager {
     String CONTEXT_BEAN_NAME = "locationsManager";
@@ -38,16 +34,6 @@ public interface LocationsManager {
     void saveLocation(Location location);
 
     /**
-     * Update Nat settings for the corresponding location and publish nat event
-     * (we need to separate location save from nat location save because we need
-     * different location services set to restart, tracked by nat event)
-     * @param location
-     * @param nat
-     */
-    void saveNatLocation(Location location, NatLocation nat);
-
-
-    /**
      * Saves new location in DB without publishing any events (used on location migration task)
      * (no publish)
      *
@@ -60,17 +46,5 @@ public interface LocationsManager {
 
     void deleteLocation(Location location);
 
-    List<Location> getLocationsForService(SipxService service);
-
-    /**
-     * Returning first location of the server which this bundle is installed on.
-     *
-     * @param bundleName - service bundle name
-     * @return single location of the server which this bundle is installed on. If the bundle
-     *         isn't installed on any server it will return null.
-     */
-    Location getLocationByBundle(String bundleName);
-
     void updateLocation(Location location);
-    public Set<String> getReplications(Location location);
 }

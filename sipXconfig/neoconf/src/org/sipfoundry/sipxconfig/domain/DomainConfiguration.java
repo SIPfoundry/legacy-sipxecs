@@ -9,41 +9,45 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.TemplateConfigurationFile;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
-public class DomainConfiguration extends TemplateConfigurationFile {
-
-    public static final char SEPARATOR_CHAR = ' ';
-    private Domain m_domain;
-    private String m_language;
-    private String m_configServerHost;
+public class DomainConfiguration implements ConfigProvider {
     private LocationsManager m_locationsManager;
-
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
-    public void generate(Domain domain, String configServerHost, String language) {
-        m_domain = domain;
-        m_language = language;
-        m_configServerHost = configServerHost;
-    }
+    private DomainManager m_domainManager;
 
     @Override
-    protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(location);
-        context.put("domain", m_domain);
-        context.put("domainAliases", getDomainAliases(m_domain));
-        context.put("language", m_language);
-        context.put("configServerHost", m_configServerHost);
-        return context;
+    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (request.applies(DomainManager.FEATURE)) {
+            Domain domain = m_domainManager.getDomain();
+            List<Location> locations = manager.getLocationManager().getLocationsList();
+            for (Location location : locations) {
+                File dir = manager.getLocationDataDirectory(location);
+                FileWriter wtr = new FileWriter(new File(dir, "domain-config"));
+                KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+                config.write("SIP_DOMAIN_NAME", m_domainManager.getDomainName());
+                config.write("SIP_DOMAIN_ALIASES", getDomainAliases(domain));
+                config.write("SIP_REALM", domain.getSipRealm());
+                config.write("SHARED_SECRET", domain.getSharedSecret());
+                config.write("DEFAULT_LANGUAGE", m_domainManager.getExistingLocalization().getLanguage());
+                config.write("SUPERVISOR_PORT", "8092");
+                config.write("CONFIG_HOSTS", m_locationsManager.getPrimaryLocation().getFqdn());
+                IOUtils.closeQuietly(wtr);
+            }
+        }
     }
 
     /**
@@ -63,6 +67,6 @@ public class DomainConfiguration extends TemplateConfigurationFile {
             aliases.add(location.getFqdn());
         }
 
-        return StringUtils.join(aliases, SEPARATOR_CHAR);
+        return StringUtils.join(aliases, ' ');
     }
 }

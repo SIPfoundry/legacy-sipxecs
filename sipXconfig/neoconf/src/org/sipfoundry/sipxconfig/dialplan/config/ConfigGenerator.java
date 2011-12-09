@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -46,39 +47,42 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (request.applies(DialPlanContext.FEATURE)) {
-            Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                    ProxyManager.FEATURE);
-            String domainName = manager.getDomainManager().getDomainName();
-            for (Location location : locations) {
-                File dir = manager.getLocationDataDirectory(location);
-                Writer[] writers = new Writer[] {
-                    new FileWriter(new File(dir, "mappingrules.xml")),
-                    new FileWriter(new File(dir, "authrules.xml")),
-                    new FileWriter(new File(dir, "fallbackrules.xml")),
-                    new FileWriter(new File(dir, "forwardingrules.xml"))
-                };
+        if (!request.applies(DialPlanContext.FEATURE, LocalizationContext.FEATURE) || request.isFirstTime(this)) {
+            return;
+        }
 
-                RulesFile[] files = new RulesFile[] {
-                        m_beanFactory.getBean(MappingRules.class),
-                        m_beanFactory.getBean(AuthRules.class),
-                        m_beanFactory.getBean(FallbackRules.class),
-                        m_beanFactory.getBean(ForwardingRules.class),
-                };
+        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
+                ProxyManager.FEATURE);
+        String domainName = manager.getDomainManager().getDomainName();
+        for (Location location : locations) {
+            File dir = manager.getLocationDataDirectory(location);
+            Writer[] writers = new Writer[] {
+                new FileWriter(new File(dir, "mappingrules.xml")),
+                new FileWriter(new File(dir, "authrules.xml")),
+                new FileWriter(new File(dir, "fallbackrules.xml")),
+                new FileWriter(new File(dir, "forwardingrules.xml"))
+            };
 
-                for (RulesFile file : files) {
-                    file.setLocation(location);
-                    file.setDomainName(domainName);
-                }
+            RulesFile[] files = new RulesFile[] {
+                    m_beanFactory.getBean(MappingRules.class),
+                    m_beanFactory.getBean(AuthRules.class),
+                    m_beanFactory.getBean(FallbackRules.class),
+                    m_beanFactory.getBean(ForwardingRules.class),
+            };
 
-                generateXml(files);
+            for (RulesFile file : files) {
+                file.setLocation(location);
+                file.setDomainName(domainName);
+            }
 
-                for (int i = 0; i < files.length; i++) {
-                    files[i].write(writers[i]);
-                    IOUtils.closeQuietly(writers[i]);
-                }
+            generateXml(files);
+
+            for (int i = 0; i < files.length; i++) {
+                files[i].write(writers[i]);
+                IOUtils.closeQuietly(writers[i]);
             }
         }
+        request.firstTimeOver(this);
     }
 
     private void generateXml(RulesFile[] files) {

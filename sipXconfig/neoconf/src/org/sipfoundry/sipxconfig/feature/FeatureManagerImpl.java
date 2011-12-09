@@ -205,6 +205,13 @@ public class FeatureManagerImpl extends HibernateDaoSupport implements BeanFacto
                 features, location);
     }
 
+    public void enableLocationFeature(LocationFeature feature, Location location, boolean enable) {
+        Set<LocationFeature> features = getEnabledLocationFeatures(location);
+        if (update(features, feature, enable)) {
+            enableLocationFeatures(features, location);
+        }
+    }
+
     @Override
     public List<Location> getLocationsForEnabledFeature(LocationFeature feature) {
         throw new RuntimeException("TODO 1");
@@ -213,5 +220,30 @@ public class FeatureManagerImpl extends HibernateDaoSupport implements BeanFacto
     @Override
     public Location getLocationForEnabledFeature(LocationFeature feature) {
         throw new RuntimeException("TODO 2");
+    }
+
+    @Override
+    public void enableGlobalFeature(GlobalFeature feature, boolean enable) {
+        Set<GlobalFeature> features = getEnabledGlobalFeatures();
+        if (update(features, feature, enable)) {
+            enableGlobalFeatures(features);
+        }
+    }
+
+    private <T extends Feature> boolean update(Collection<T> features, T feature, boolean enable) {
+        if (features.contains(feature)) {
+            if (!enable) {
+                features.remove(feature);
+            } else {
+                return false;
+            }
+        } else {
+            if (enable) {
+                features.add(feature);
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -9,18 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.feature.Feature;
 
 /**
  * Single holder of domain name
  */
-public class Domain extends BeanWithId {
+public class Domain extends BeanWithId implements DeployConfigOnEdit {
     private static final int SECRET_SIZE = 18;
 
     private String m_name;
@@ -107,5 +111,10 @@ public class Domain extends BeanWithId {
         random.nextBytes(secretBytes);
         m_sharedSecret = new String(new Base64().encode(secretBytes));
         return true;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) DomainManager.FEATURE);
     }
 }

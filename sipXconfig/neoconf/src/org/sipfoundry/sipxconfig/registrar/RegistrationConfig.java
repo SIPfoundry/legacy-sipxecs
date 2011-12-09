@@ -12,18 +12,18 @@ import static java.lang.String.format;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.springframework.beans.factory.annotation.Required;
 
 public class RegistrationConfig implements ConfigProvider {
@@ -32,28 +32,33 @@ public class RegistrationConfig implements ConfigProvider {
     private AddressManager m_addressManager;
 
     @Override
-    public void replicate(ConfigManager manager) throws IOException {
+    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (!request.applies(Registrar.FEATURE) || !manager.getFeatureManager().isFeatureEnabled(Registrar.FEATURE)) {
+            return;
+        }
+
         Collection<Location> locations = m_featureManager.getLocationsForEnabledFeature(Registrar.FEATURE);
         RegistrarSettings settings = m_registrar.getSettings();
         String domainName = manager.getDomainManager().getDomainName();
         String realm = manager.getDomainManager().getAuthorizationRealm();
+        Address imApi = m_addressManager.getSingleAddress(ImManager.XMLRPC_ADDRESS);
+        Address presenceApi = m_addressManager.getSingleAddress(Registrar.PRESENCE_MONITOR_ADDRESS);
         for (Location location : locations) {
-            File f = new File(manager.getLocationDataDirectory(location), "sipxregistrar-config.cfdat");
-            FileWriter w = new FileWriter(f);
+            File dir = manager.getLocationDataDirectory(location);
+            Writer w = new FileWriter(new File(dir, "registrar-config.cfdat"));
             KeyValueConfiguration file = new KeyValueConfiguration(w);
-            file.write(settings.getSettings());
-            Address imXmlRpc = m_addressManager.getSingleAddress(ImManager.XMLRPC_ADDRESS);
-            
-            String openfireUrl = format("http://%s:%d/plugins/sipx-openfire-presence/status", imXmlRpc.getAddress(),
-                    imXmlRpc.getPort());            
-            file.write("SIP_REDIRECT.900-PRESENCE.OPENFIRE_PRESENCE_SERVER_URL", openfireUrl);
-            
-            String presenceMonitorUrl = format("http://%s:%d/RPC2", location.getAddress(), MONITOR_PORT);
-            
-            file.write("SIP_REDIRECT.900-PRESENCE.LOCAL_PRESENCE_MONITOR_SERVER_URL",
-                    presenceMonitorUrl);
+            file.write(settings.getSettings().getSetting("registrar-config"));
+            if (imApi != null) {
+                String openfireUrl = format("http://%s:%d/plugins/sipx-openfire-presence/status", imApi.getAddress(),
+                        imApi.getPort());
+                file.write("SIP_REDIRECT.900-PRESENCE.OPENFIRE_PRESENCE_SERVER_URL", openfireUrl);
+            }
+            file.write("SIP_REDIRECT.900-PRESENCE.LOCAL_PRESENCE_MONITOR_SERVER_URL", presenceApi.toString());
             file.write("SIP_REDIRECT.900-PRESENCE.REALM", realm);
             file.write("SIP_REDIRECT.900-PRESENCE.SIP_DOMAIN", domainName);
+
+            //TODO: Port a lot more settings
+
             w.close();
         }
     }

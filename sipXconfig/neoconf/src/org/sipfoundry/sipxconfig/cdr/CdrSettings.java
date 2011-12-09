@@ -11,10 +11,12 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class CdrSettings extends BeanWithSettings {
-    private static final String CDR_REMOTE_ACCESS_IP = "callresolver/SIP_CALLRESOLVER_REMOTE_ACCESS";
-
     public int getAgentPort() {
         return (Integer) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_AGENT_PORT");
+    }
+
+    public String getDbName() {
+        return getSettingValue("callresolver/CALLRESOLVER_CALL_STATE_DB");
     }
 
     @Override

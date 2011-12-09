@@ -17,6 +17,10 @@ public class Address {
     public Address() {
     }
 
+    public Address(String address) {
+        m_address = address;
+    }
+
     public Address(String address, int port) {
         m_address = address;
         m_port = port;

@@ -266,5 +266,4 @@ public class LocalMailboxManagerImpl extends AbstractMailboxManager implements M
         File file = mailbox.getVoicemailPreferencesFile();
         getMailboxPreferencesWriter().writeObject(new MailboxPreferences(user), file);
     }
-
 }

@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
-import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -40,7 +39,6 @@ public class DeviceDefaults {
     private DialPlanContext m_dialPlanContext;
     private DomainManager m_domainManager;
     private TimeZoneManager m_timeZoneManager;
-    private ServiceManager m_serviceManager;
     private String m_defaultNtpService = "pool.ntp.org";
     private String m_logDirectory;
     private LocationsManager m_locationsManager;
@@ -69,7 +67,7 @@ public class DeviceDefaults {
     }
 
     public String getPagingPrefix() {
-        return m_pagingContext.getPagingPrefix();
+        return m_pagingContext.getSettings().getPrefix();
     }
 
     public String getDomainName() {
@@ -205,7 +203,7 @@ public class DeviceDefaults {
     }
 
     public String getMusicOnHoldUri() {
-        return m_musicOnHoldManager.getDefaultMohUri();
+        return m_musicOnHoldManager.getAddressFactory().getDefaultMohUri();
     }
 
     public void setLogDirectory(String logDirectory) {

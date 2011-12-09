@@ -11,69 +11,36 @@ package org.sipfoundry.sipxconfig.moh;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.ConfigurationFile;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListener {
-    public static final String LOCAL_FILES_SOURCE_SUFFIX = "l";
-    public static final String PORT_AUDIO_SOURCE_SUFFIX = "p";
-    public static final String USER_FILES_SOURCE_SUFFIX = "u";
-    public static final String NONE_SUFFIX = "n";
-
+public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListener, BeanFactoryAware {
     public static final Log LOG = LogFactory.getLog(MusicOnHoldManagerImpl.class);
-
-    private static final String MOH = "moh";
-
-    private SipxServiceManager m_sipxServiceManager;
     private String m_audioDirectory;
-    private SipxReplicationContext m_replicationContext;
-    private ServiceConfigurator m_serviceConfigurator;
-    private CoreContext m_coreContext;
-
     private String m_mohUser;
+    private ListableBeanFactory m_beanFactory;
 
     /**
      * Music on hold implementation requires that ~~mh~u calls are forwarded to Media Server. We
      * are adding the rule here.
      */
     public List<DialingRule> getDialingRules() {
-        DialingRule rule = new MohRule(getSipxFreeswitchAddressAndPort(), m_mohUser + USER_FILES_SOURCE_SUFFIX);
+        MohAddressFactory factory = getAddressFactory();
+        DialingRule rule = new MohRule(factory.getMediaAddress().toString(), factory.getFilesMohUser());
         return Collections.singletonList(rule);
-    }
-
-    public void replicateMohConfiguration() {
-        SipxFreeswitchService service = getSipxFreeswitchService();
-        Set< ? extends ConfigurationFile> configurationFiles = service.getConfigurations();
-
-        for (ConfigurationFile configurationFile : configurationFiles) {
-            if (configurationFile instanceof LocalStreamConfiguration) {
-                m_replicationContext.replicate(configurationFile);
-                m_serviceConfigurator.markServiceForRestart(service);
-            }
-        }
     }
 
     public String getAudioDirectoryPath() {
@@ -95,12 +62,10 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
 
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         if (alias.startsWith(m_mohUser)) {
-            List<Integer> ids = new ArrayList<Integer>(1);
-            ids.add(getSipxFreeswitchService().getId());
-            Collection bids = BeanId.createBeanIdCollection(ids, SipxFreeswitchService.class);
-            return bids;
+            // id = 1 because there's only 1 MOH instance
+            return BeanId.createBeanIdCollection(Collections.singleton(1), this.getClass());
         }
-        return CollectionUtils.EMPTY_COLLECTION;
+        return Collections.emptyList();
     }
 
     public boolean isAliasInUse(String alias) {
@@ -126,47 +91,9 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     public void onSave(Object entity) {
     }
 
-    public String getPersonalMohFilesUri(String userName) {
-        return getMohUri(m_mohUser + USER_FILES_SOURCE_SUFFIX + userName);
-    }
-
-    public String getPortAudioMohUri() {
-        return getMohUri(m_mohUser + PORT_AUDIO_SOURCE_SUFFIX);
-    }
-
-    public String getLocalFilesMohUri() {
-        return getMohUri(m_mohUser + LOCAL_FILES_SOURCE_SUFFIX);
-    }
-
-    public String getNoneMohUri() {
-        return getMohUri(m_mohUser + NONE_SUFFIX);
-    }
-
-    /**
-     * The Moh URI used by the system
-     */
-    public String getDefaultMohUri() {
-        return getMohUri(m_mohUser);
-    }
-
     @Required
     public void setAudioDirectory(String audioDirectory) {
         m_audioDirectory = audioDirectory;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Required
-    public void setReplicationContext(SipxReplicationContext replicationContext) {
-        m_replicationContext = replicationContext;
-    }
-
-    @Required
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
     }
 
     @Required
@@ -174,8 +101,8 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         m_mohUser = mohUser;
     }
 
-    private SipxFreeswitchService getSipxFreeswitchService() {
-        return (SipxFreeswitchService) m_sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+    public MohAddressFactory getAddressFactory() {
+        return m_beanFactory.getBean(MohAddressFactory.class);
     }
 
     /**
@@ -196,53 +123,8 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         }
     }
 
-    public String getPortAudioMohUriMapping() {
-        return getMohUriMapping(PORT_AUDIO_SOURCE_SUFFIX);
-    }
-
-    public String getLocalFilesMohUriMapping() {
-        return getMohUriMapping(LOCAL_FILES_SOURCE_SUFFIX);
-    }
-
-    public String getNoneMohUriMapping() {
-        return getMohUriMapping(NONE_SUFFIX);
-    }
-
-    /**
-     * Build an alias which maps directly to the MOH server
-     *
-     * IVR@{FS}:{FSPort};action=moh; add "moh=l" for localstream files add "moh=p" for portaudio
-     * (sound card) add "moh=u{username} for personal audio files add "moh=n" for disabled MOH
-     *
-     */
-    private String getMohUriMapping(String mohParam) {
-        Map<String, String> params = new LinkedHashMap<String, String>();
-        params.put("action", MOH);
-        if (mohParam != null) {
-            params.put(MOH, mohParam);
-        }
-        return SipUri.format("IVR", getSipxFreeswitchAddressAndPort(), params);
-    }
-
-    private String getMohUri(String mohParam) {
-        return SipUri.format(mohParam, getSipxFreeswitchService().getDomainName(), false);
-    }
-
-    private String getSipxFreeswitchAddressAndPort() {
-        SipxFreeswitchService service = getSipxFreeswitchService();
-        String host;
-        if (service.getAddresses().size() > 1) {
-            // HACK: this assumes that one of the freeswitch instances runs on a primary location
-            // (but that neeeds to be true in order for MOH to work anyway)
-            host = service.getLocationsManager().getPrimaryLocation().getAddress();
-        } else {
-            host = service.getAddress();
-        }
-
-        return host + ":" + service.getFreeswitchSipPort();
-    }
-
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 }

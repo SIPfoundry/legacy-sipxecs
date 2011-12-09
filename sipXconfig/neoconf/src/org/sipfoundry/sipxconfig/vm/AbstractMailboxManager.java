@@ -9,20 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
-import static org.springframework.dao.support.DataAccessUtils.singleResult;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantManager;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter;
 
@@ -33,19 +32,20 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
     private File m_stdpromptDirectory;
     private CoreContext m_coreContext;
-    private SipxServiceManager m_sipxServiceManager;
     private LocationsManager m_locationsManager;
+    private AddressManager m_addressManager;
     private DistributionListsWriter m_distributionListsWriter;
     private DistributionListsReader m_distributionListsReader;
     private PersonalAttendantWriter m_personalAttendantWriter;
     private String m_host;
-    private String m_port;
+    private Integer m_port;
     private boolean m_active;
     private String m_binDir;
 
+    private FeatureManager m_featureManager;
+
     public boolean isSystemCpui() {
-        SipxIvrService ivrService = (SipxIvrService) m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
-        return ivrService.getDefaultTui().equals(VoicemailTuiType.CALLPILOT.getValue());
+        return m_featureManager.isFeatureEnabled(Ivr.CALLPILOT);
     }
 
     public String getStdpromptDirectory() {
@@ -115,14 +115,6 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         return m_coreContext;
     }
 
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    protected SipxServiceManager getSipxServiceManager() {
-        return m_sipxServiceManager;
-    }
-
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
@@ -182,7 +174,7 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         return m_host;
     }
 
-    protected String getPort() {
+    protected int getPort() {
         if (m_port == null) {
             init();
         }
@@ -191,16 +183,16 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
 
     public void init() {
         m_active = true;
-        SipxIvrService ivrService = (SipxIvrService) getSipxServiceManager().getServiceByBeanId(
-                SipxIvrService.BEAN_ID);
-
-        Location ivrLocation = (Location) singleResult(getLocationsManager().getLocationsForService(ivrService));
-        if (ivrLocation != null) {
-            m_host = ivrLocation.getFqdn();
-            m_port = ivrService.getHttpsPort();
+        Address ivrAddress = m_addressManager.getSingleAddress(Ivr.REST_API);
+        if (ivrAddress != null) {
+            m_host = ivrAddress.getAddress();
+            m_port = ivrAddress.getPort();
         }
     }
 
-    public abstract void deleteMailbox(String userId);
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
 
+    public abstract void deleteMailbox(String userId);
 }

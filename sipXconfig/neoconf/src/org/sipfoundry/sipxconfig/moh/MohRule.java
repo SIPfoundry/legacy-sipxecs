@@ -9,10 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.moh;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.dialplan.DialPattern;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.InternalForwardRule;
 import org.sipfoundry.sipxconfig.dialplan.config.FullTransform;
+import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
 public class MohRule extends InternalForwardRule {
 
@@ -33,5 +39,10 @@ public class MohRule extends InternalForwardRule {
             setHost(hostNameAndPort);
             setUrlParams("action=moh", "moh=u{vdigits}");
         }
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Arrays.asList(DialPlanContext.FEATURE, FreeswitchFeature.FEATURE);
     }
 }

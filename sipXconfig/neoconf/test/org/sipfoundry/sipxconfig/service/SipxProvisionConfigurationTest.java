@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.provision.ProvisionConfiguration;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -68,7 +69,7 @@ public class SipxProvisionConfigurationTest extends SipxServiceTestBase {
         Setting servletPortSetting = provisionService.getSettings().getSetting("provision-config/servletPort");
         servletPortSetting.setValue("6050");
 
-        SipxProvisionConfiguration out = new SipxProvisionConfiguration();
+        ProvisionConfiguration out = new ProvisionConfiguration();
 
         SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, provisionService);
         out.setSipxServiceManager(sipxServiceManager);

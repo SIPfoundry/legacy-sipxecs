@@ -14,12 +14,11 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.forwarding.CallSequence;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.job.JobContext;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,8 +30,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     private ReplicationManager m_replicationManager;
     private JobContext m_jobContext;
     private LocationsManager m_locationsManager;
-
-    protected abstract ServiceConfigurator getServiceConfigurator();
 
     @Override
     public void generate(final Replicable entity) {

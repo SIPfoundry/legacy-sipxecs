@@ -17,16 +17,17 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.dialplan.PagingRule;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
-import org.springframework.beans.factory.annotation.Required;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.dialplan.PagingRule;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.springframework.dao.support.DataAccessUtils;
 
 public abstract class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
@@ -35,26 +36,18 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
     private static final String PARAM_PAGING_GROUP_NUMBER = "pageGroupNumber";
     private static final String PARAM_PAGING_GROUP_ID = "pagingGroupId";
     private static final String ERROR_ALIAS_IN_USE = "&error.aliasinuse";
-
-    private DialPlanActivationManager m_dialPlanActivationManager;
-
-    private PagingProvisioningContext m_pagingProvisioningContext;
     private AliasManager m_aliasManager;
+    private BeanWithSettingsDao<PagingSettings> m_settingsDao;
+    private ConfigManager m_configManager;
+    private FeatureManager m_featureManager;
 
-    protected abstract PagingServer createPagingServer();
-
-    public PagingServer getPagingServer() {
-        List pagingServers = getHibernateTemplate().loadAll(PagingServer.class);
-        PagingServer ps = (PagingServer) DataAccessUtils.singleResult(pagingServers);
-        if (ps == null) {
-            ps = createPagingServer();
-            getHibernateTemplate().save(ps);
-        }
-        return ps;
+    public PagingSettings getSettings() {
+        return m_settingsDao.findOne();
     }
 
-    public String getPagingPrefix() {
-        return getPagingServer().getPrefix();
+    public void saveSettings(PagingSettings settings) {
+        checkAliasUse(getPagingGroups(), settings.getPrefix());
+        m_settingsDao.upsert(settings);
     }
 
     public List<PagingGroup> getPagingGroups() {
@@ -65,30 +58,21 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
         return (PagingGroup) getHibernateTemplate().load(PagingGroup.class, pagingGroupId);
     }
 
-    public void setPagingPrefix(String prefix) {
-        for (PagingGroup group : getPagingGroups()) {
-            String code = new StringBuilder(prefix).append(group.getPageGroupNumber()).toString();
-            if (!m_aliasManager.canObjectUseAlias(group, code)) {
-                throw new UserException(ERROR_ALIAS_IN_USE, code);
-            }
+    void checkAliasUse(List<PagingGroup> groups, String prefix) {
+        for (PagingGroup group : groups) {
+            checkAliasUse(group, prefix);
         }
-        getPagingServer().setPrefix(prefix);
-        m_dialPlanActivationManager.replicateDialPlan(true);
     }
 
-    public String getSipTraceLevel() {
-        return getPagingServer().getSipTraceLevel();
-    }
-
-    public void setSipTraceLevel(String traceLevel) {
-        getPagingServer().setSipTraceLevel(traceLevel);
-    }
-
-    public void savePagingGroup(PagingGroup group) {
-        String code = getPagingPrefix() + group.getPageGroupNumber();
+    void checkAliasUse(PagingGroup group, String prefix) {
+        String code = prefix + group.getPageGroupNumber();
         if (!m_aliasManager.canObjectUseAlias(group, code)) {
             throw new UserException(ERROR_ALIAS_IN_USE, code);
         }
+    }
+
+    public void savePagingGroup(PagingGroup group) {
+        checkAliasUse(group, getSettings().getPrefix());
         if (group.isNew()) {
             // check if new object
             checkForDuplicateNames(group);
@@ -132,8 +116,10 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
     }
 
     public void deletePagingGroupsById(Collection<Integer> groupsIds) {
-        removeAll(PagingGroup.class, groupsIds);
-        m_pagingProvisioningContext.deploy();
+        if (groupsIds != null && groupsIds.size() > 0) {
+            removeAll(PagingGroup.class, groupsIds);
+            m_configManager.replicationRequired(FEATURE);
+        }
     }
 
     public void clear() {
@@ -141,7 +127,11 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
     }
 
     public List< ? extends DialingRule> getDialingRules() {
-        String prefix = getPagingPrefix();
+        if (!m_featureManager.isFeatureEnabled(FEATURE)) {
+            return null;
+        }
+
+        String prefix = getSettings().getPrefix();
         if (StringUtils.isEmpty(prefix)) {
             return Collections.emptyList();
         }
@@ -151,15 +141,6 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
 
     public UserDeleteListener createUserDeleteListener() {
         return new OnUserDelete();
-    }
-
-    @Required
-    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
-        m_dialPlanActivationManager = dialPlanActivationManager;
-    }
-
-    public void setPagingProvisioningContext(PagingProvisioningContext pagingProvisioningContext) {
-        m_pagingProvisioningContext = pagingProvisioningContext;
     }
 
     private class OnUserDelete extends UserDeleteListener {
@@ -175,15 +156,20 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
                 }
             }
             if (affectPaging) {
-                m_pagingProvisioningContext.deploy();
+                m_configManager.replicationRequired(FEATURE);
             }
         }
     }
 
     @Override
     public boolean isAliasInUse(String alias) {
+        if (!m_featureManager.isFeatureEnabled(FEATURE)) {
+            return false;
+        }
+
+        String prefix = getSettings().getPrefix();
         for (PagingGroup pg : getPagingGroups()) {
-            String code = new StringBuilder(getPagingPrefix()).append(pg.getPageGroupNumber()).toString();
+            String code = new StringBuilder(prefix).append(pg.getPageGroupNumber()).toString();
             if (StringUtils.equals(alias, code)) {
                 return true;
             }
@@ -193,14 +179,18 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
 
     @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
+        if (!m_featureManager.isFeatureEnabled(FEATURE)) {
+            return null;
+        }
+
+        String prefix = getSettings().getPrefix();
         Collection<Integer> ids = new ArrayList<Integer>();
         for (PagingGroup pg : getPagingGroups()) {
-            String code = new StringBuilder(getPagingPrefix()).append(pg.getPageGroupNumber()).toString();
+            String code = new StringBuilder(prefix).append(pg.getPageGroupNumber()).toString();
             if (StringUtils.equals(alias, code)) {
                 ids.add(pg.getId());
             }
         }
-
         return BeanId.createBeanIdCollection(ids, PagingGroup.class);
     }
 

@@ -16,18 +16,24 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
+
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.mongodb.BasicDBObject;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
-public class OpenAcdQueue extends OpenAcdQueueWithSkills {
+import com.mongodb.BasicDBObject;
+
+public class OpenAcdQueue extends OpenAcdQueueWithSkills implements DeployConfigOnEdit {
     private String m_name;
     private String m_description;
     private OpenAcdQueueGroup m_group;
@@ -144,5 +150,10 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills {
             objects.add(recipeStep);
         }
         return objects;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) FreeswitchFeature.FEATURE);
     }
 }

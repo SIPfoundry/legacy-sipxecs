@@ -48,15 +48,15 @@
       <type refid="feature-code" />
       <value>*86</value>
     </setting>
-    <setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
+    <setting name="SIP_PRESENCE_UDP_PORT" advanced="yes">
       <type refid="port-number" />
       <value>5130</value>
     </setting>
-    <setting name="PRESENCE_SERVER_HTTP_PORT" advanced="yes">
+    <setting name="SIP_PRESENCE_TCP_PORT" advanced="yes">
       <type refid="port-number" />
-      <value>8111</value>
+      <value>5130</value>
     </setting>
-    <setting name="SIP_PRESENCE_HTTP_PORT" hidden="yes">
+    <setting name="SIP_PRESENCE_HTTP_PORT" advanced="yes">
       <type refid="port-number" />
       <value>8111</value>
     </setting>

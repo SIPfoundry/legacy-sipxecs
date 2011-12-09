@@ -13,21 +13,22 @@ import java.io.File;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.backup.BackupBean;
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
 public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAware, DaoEventListener {
-    private LocationsManager m_locationsManager;
+    private FeatureManager m_featureManager;
     private MailboxManager m_manager;
     private BeanFactory m_beanFactory;
 
     public void init() {
-        Location voicemailLocation = m_locationsManager.getLocationByBundle("voicemailBundle");
+        Location voicemailLocation = m_featureManager.getLocationForEnabledFeature(Ivr.FEATURE);
         AbstractMailboxManager remote = m_beanFactory.getBean(RemoteMailboxManagerImpl.class);
         AbstractMailboxManager local = m_beanFactory.getBean(LocalMailboxManagerImpl.class);
         if (voicemailLocation != null && !voicemailLocation.isPrimary()) {
@@ -165,10 +166,6 @@ public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAwa
         return m_manager.getMailboxRestoreLog();
     }
 
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
@@ -190,4 +187,7 @@ public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAwa
         }
     }
 
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
 }

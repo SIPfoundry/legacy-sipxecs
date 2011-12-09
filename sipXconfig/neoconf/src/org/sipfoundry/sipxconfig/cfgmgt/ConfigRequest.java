@@ -8,6 +8,7 @@
 package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.feature.Feature;
@@ -21,6 +22,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  */
 public final class ConfigRequest {
     private Set<Feature> m_affectedFeatures;
+    private Set<Object> m_tokens = new HashSet<Object>();
     private boolean m_always;
 
     private ConfigRequest() {
@@ -42,6 +44,14 @@ public final class ConfigRequest {
         ConfigRequest request = new ConfigRequest();
         request.m_always = true;
         return request;
+    }
+
+    public boolean isFirstTime(Object token) {
+        return m_tokens.contains(token);
+    }
+
+    public void firstTimeOver(Object token) {
+        m_tokens.add(token);
     }
 
     /**

@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -21,13 +22,9 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.ListableBeanFactory;
 
-public class ProxyManager implements FeatureProvider, AddressProvider, BeanFactoryAware {
-    public static final String ID = "proxy";
-    public static final LocationFeature FEATURE = new LocationFeature(ID);
+public class ProxyManager implements FeatureProvider, AddressProvider {
+    public static final LocationFeature FEATURE = new LocationFeature("proxy");
     public static final AddressType TCP_ADDRESS = new AddressType("proxyTcp");
     public static final AddressType UDP_ADDRESS = new AddressType("procyUdp");
     public static final AddressType TLS_ADDRESS = new AddressType("proxyTls");
@@ -36,15 +33,6 @@ public class ProxyManager implements FeatureProvider, AddressProvider, BeanFacto
     });
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<ProxySettings> m_settingsDoa;
-    private ListableBeanFactory m_beanFactory;
-
-    public void initialize() {
-        ProxySettings settings = getSettings();
-        if (settings == null) {
-            settings = m_beanFactory.getBean(ProxySettings.class);
-            m_settingsDoa.upsert(settings);
-        }
-    }
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
@@ -60,13 +48,18 @@ public class ProxyManager implements FeatureProvider, AddressProvider, BeanFacto
         return m_settingsDoa.findOne();
     }
 
+    public void saveSettings(ProxySettings settings) {
+        m_settingsDoa.upsert(settings);
+    }
+
     @Override
-    public Collection<AddressType> getSupportedAddressTypes() {
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
         return ADDRESS_TYPES;
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressType type) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
+            Object requester) {
         Collection<Address> addresses = null;
         if (ADDRESS_TYPES.contains(type)) {
             Collection<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
@@ -84,10 +77,5 @@ public class ProxyManager implements FeatureProvider, AddressProvider, BeanFacto
         }
 
         return addresses;
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 }

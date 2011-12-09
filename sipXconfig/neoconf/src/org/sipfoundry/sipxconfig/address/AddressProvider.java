@@ -14,5 +14,5 @@ public interface AddressProvider {
     public Collection<AddressType> getSupportedAddressTypes(AddressManager manager);
 
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            AddressRequester requester);
+            Object requester);
 }

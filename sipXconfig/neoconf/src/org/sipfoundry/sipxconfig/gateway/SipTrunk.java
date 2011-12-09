@@ -9,12 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDevice;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingEntry;
-
 import static org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport.NONE;
 import static org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport.UDP;
+
+import org.sipfoundry.sipxconfig.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SipTrunk extends Gateway {
     public static final String BEAN_ID = "gwSipTrunk";

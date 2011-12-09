@@ -10,6 +10,7 @@ package org.sipfoundry.sipxconfig.cfgmgt;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -17,7 +18,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Convert settings into key-value files that are common in configuration files and in files used
  * in cfengine scripts to feed into final configurations files.
  */
-public class KeyValueConfiguration extends AbstractSettingVisitor {
+public class KeyValueConfiguration {
     private IOException m_error;
     private Writer m_out;
     private String m_delimitor = " : ";
@@ -32,7 +33,14 @@ public class KeyValueConfiguration extends AbstractSettingVisitor {
     }
 
     public void write(Setting settings) throws IOException {
-        settings.acceptVisitor(this);
+        settings.acceptVisitor(new SettingsWriter());
+        if (m_error != null) {
+            throw m_error;
+        }
+    }
+
+    public void write(String prefix, Setting settings) throws IOException {
+        settings.acceptVisitor(new SettingsWriter(prefix));
         if (m_error != null) {
             throw m_error;
         }
@@ -45,12 +53,27 @@ public class KeyValueConfiguration extends AbstractSettingVisitor {
         m_out.append('\n');
     }
 
-    @Override
-    public void visitSetting(Setting setting) {
-        try {
-            write(setting.getName(), setting.getValue());
-        } catch (IOException e) {
-            m_error = e;
+    class SettingsWriter extends AbstractSettingVisitor {
+        private String m_prefix;
+
+        SettingsWriter() {
+        }
+
+        SettingsWriter(String prefix) {
+            m_prefix = prefix;
+        }
+
+        @Override
+        public void visitSetting(Setting setting) {
+            try {
+                String key = setting.getName();
+                if (StringUtils.isNotBlank(m_prefix)) {
+                    key = m_prefix + key;
+                }
+                write(key, setting.getValue());
+            } catch (IOException e) {
+                m_error = e;
+            }
         }
     }
 }

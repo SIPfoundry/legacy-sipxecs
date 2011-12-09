@@ -13,14 +13,21 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.FtpBackupPlan;
 import org.sipfoundry.sipxconfig.backup.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.bulk.ExportCsv;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -31,15 +38,40 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * Backup provides Java interface to backup scripts
  */
 public abstract class AdminContextImpl extends HibernateDaoSupport implements AdminContext, ApplicationListener {
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
+            TFTP_ADDRESS, FTP_ADDRESS);
     private String m_binDirectory;
-
     private String m_libExecDirectory;
-
     private ExportCsv m_exportCsv;
 
     public abstract FtpBackupPlan createFtpBackupPlan();
 
     public abstract LocalBackupPlan createLocalBackupPlan();
+
+    @Override
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
+        return ADDRESSES;
+    }
+
+    @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+        if (ADDRESSES.contains(type)) {
+            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+            List<Address> addresses = new ArrayList<Address>(locations.size());
+            for (Location location : locations) {
+                Address address = new Address();
+                address.setAddress(location.getAddress());
+                if (type.equals(HTTP_ADDRESS)) {
+                    address.setPort(12000);
+                } else if (type.equals(HTTPS_ADDRESS)) {
+                    address.setPort(8443);
+                }
+            }
+            return addresses;
+
+        }
+        return null;
+    }
 
     public String getBinDirectory() {
         return m_binDirectory;

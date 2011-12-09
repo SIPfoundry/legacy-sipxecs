@@ -30,7 +30,18 @@
       </option>
     </enum>
   </type>
-  <group name="logging" hidden="yes">
+  <type id="nonRootPort">
+    <integer min="1025" max="65535"/>
+  </type>
+  <group name="saa-config" hidden="yes">
+    <setting name="SIP_SAA_UDP_PORT">
+      <type refid="nonRootPort"/>
+      <value></value>
+    </setting>
+    <setting name="SIP_SAA_TCP_PORT">
+      <type refid="nonRootPort"/>
+      <value></value>
+    </setting>
     <setting name="SIP_SAA_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>

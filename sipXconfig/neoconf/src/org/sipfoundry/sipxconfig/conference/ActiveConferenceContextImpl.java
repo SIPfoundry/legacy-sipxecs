@@ -17,10 +17,16 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiConnectException;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParser;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParserImpl;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
@@ -36,6 +42,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private ConferenceBridgeContext m_conferenceBridgeContext;
     private final FreeswitchApiResultParser m_freeswitchApiParser = new FreeswitchApiResultParserImpl();
     private DomainManager m_domainManager;
+    private AddressManager m_addressManager;
     private SipService m_sipService;
 
     @Required
@@ -60,10 +67,9 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
 
     public int getActiveConferenceCount(Bridge bridge) {
         LOG.debug("Requesting count of active conferences from bridge " + bridge.getName());
-        FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
         String result = null;
         try {
-            result = api.conference(COMMAND_LIST);
+            result = api(bridge).conference(COMMAND_LIST);
         } catch (XmlRpcRemoteException xrre) {
             throw new FreeswitchApiConnectException(bridge, xrre);
         }
@@ -74,12 +80,17 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return conferenceCount;
     }
 
+    private FreeswitchApi api(Bridge bridge) {
+        String url = m_addressManager.getSingleAddress(FreeswitchFeature.XMLRPC_ADDRESS, bridge.getLocation())
+                .toString();
+        return m_freeswitchApiProvider.getApi(url);
+    }
+
     public List<ActiveConference> getActiveConferences(Bridge bridge) {
         LOG.debug("Requesting list of active conferences from bridge " + bridge.getName());
-        FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
         String result = null;
         try {
-            result = api.conference(COMMAND_LIST);
+            result = api(bridge).conference(COMMAND_LIST);
         } catch (XmlRpcRemoteException xrre) {
             throw new FreeswitchApiConnectException(bridge, xrre);
         }
@@ -113,12 +124,11 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         LOG.debug("Requesting list of members for conference \"" + conference.getName() + "\"");
         Bridge bridge = conference.getBridge();
         String conferenceName = conference.getName();
-        FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
         String result = null;
         List<ActiveConferenceMember> members = new ArrayList<ActiveConferenceMember>();
 
         try {
-            result = api.conference(conferenceName + " " + COMMAND_LIST);
+            result = api(bridge).conference(conferenceName + " " + COMMAND_LIST);
             // if (m_freeswitchApiParser.verifyConferenceAction(result, conference)) {
             members = m_freeswitchApiParser.getConferenceMembers(result, conference);
             // }
@@ -197,10 +207,8 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
                 conference.getName()));
         Bridge bridge = conference.getBridge();
         String conferenceName = conference.getName();
-        FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
-
         try {
-            String result = api.conference(String.format("%s %s", conferenceName, command));
+            String result = api(bridge).conference(String.format("%s %s", conferenceName, command));
             return m_freeswitchApiParser.verifyConferenceAction(result, conference);
         } catch (XmlRpcRemoteException xrre) {
             throw new FreeswitchApiConnectException(bridge, xrre);
@@ -213,11 +221,9 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
                 command, conference.getName(), member.getName()));
         Bridge bridge = conference.getBridge();
         String conferenceName = conference.getName();
-        FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
-
         String result = "";
         try {
-            result = api.conference(String.format("%s %s %d", conferenceName, command, member
+            result = api(bridge).conference(String.format("%s %s %d", conferenceName, command, member
                     .getId()));
             return m_freeswitchApiParser.verifyMemberAction(result, member);
         } catch (XmlRpcRemoteException xrre) {

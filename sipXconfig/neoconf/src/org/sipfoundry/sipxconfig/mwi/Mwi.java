@@ -7,14 +7,15 @@
  */
 package org.sipfoundry.sipxconfig.mwi;
 
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
-import org.sipfoundry.sipxconfig.address.AddressRequester;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -45,19 +46,31 @@ public class Mwi implements AddressProvider, FeatureProvider {
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes() {
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
         return ADDRESSES;
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressType type, AddressRequester requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
         if (ADDRESSES.contains(type)) {
             MwiSettings settings = getSettings();
-            manager.getFeatureManager().g
-            if (type.equals(obj) {
-                
+            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+            List<Address> addresses = new ArrayList<Address>(locations.size());
+            for (Location location : locations) {
+                Address address = new Address();
+                address.setAddress(location.getAddress());
+                if (type.equals(HTTP_API)) {
+                    address.setPort(settings.getHttpApiPort());
+                    address.setFormat("https://%s:%d/cgi/StatusEvent.cgi");
+                } else if (type.equals(SIP_UDP)) {
+                    address.setPort(settings.getUdpPort());
+                } else {
+                    address.setPort(settings.getTcp());
+                }
+                addresses.add(address);
             }
+            return addresses;
         }
+        return null;
     }
-
 }

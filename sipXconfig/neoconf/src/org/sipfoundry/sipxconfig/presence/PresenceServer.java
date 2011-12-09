@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.presence;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,12 +23,11 @@ import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
-import org.sipfoundry.sipxconfig.address.AddressRequester;
 import org.sipfoundry.sipxconfig.address.AddressType;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -42,13 +42,11 @@ import org.springframework.beans.factory.ListableBeanFactory;
 public class PresenceServer implements FeatureProvider, AddressProvider, BeanFactoryAware {
     public static final LocationFeature FEATURE = new LocationFeature("acdPresence");
     public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi");
-    public static final AddressType UDP_SIP_ADDRESS = new AddressType("acdPresenceUdp");
-    public static final AddressType TCP_SIP_ADDRESS = new AddressType("acdPresenceTcp");
-    public static final AddressType TLS_SIP_ADDRESS = new AddressType("acdPresenceTls");    
+    public static final AddressType SIP_TCP_ADDRESS = new AddressType("acdPresenceTcp");
+    public static final AddressType SIP_UDP_ADDRESS = new AddressType("acdPresenceUdp");
     public static final String OBJECT_CLASS_KEY = "object-class";
     private static final Log LOG = LogFactory.getLog(PresenceServer.class);
-    private static final List<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, UDP_SIP_ADDRESS, TCP_SIP_ADDRESS,
-            TLS_SIP_ADDRESS);
+    private static final List<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS);
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<PresenceSettings> m_settingsDao;
@@ -99,7 +97,7 @@ public class PresenceServer implements FeatureProvider, AddressProvider, BeanFac
         if (!m_featureManager.isFeatureEnabled(PresenceServer.FEATURE)) {
             return null;
         }
-        String presenceServiceUri = m_addressManager.getSingleAddress(PresenceServer.API_ADDRESS).toString();
+        String presenceServiceUri = m_addressManager.getSingleAddress(PresenceServer.HTTP_ADDRESS).toString();
         XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
         factory.setServiceInterface(SignIn.class);
         factory.setServiceUrl(presenceServiceUri);
@@ -169,22 +167,34 @@ public class PresenceServer implements FeatureProvider, AddressProvider, BeanFac
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes() {
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
         return ADDRESSES;
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressType type, AddressRequester source) {
-        if (ADDRESSES.contains(type)) {
-            PresenceSettings settings = getSettings();
-            if (settings != null) {
-                if (type.equals(HTTP_ADDRESS)) {
-                    Location location = m_featureManager.getLocationForEnabledFeature(FEATURE);
-                    Address address = new Address(location.getAddress(), settings.getApiPort(), "http://%s:%d/RPC2");
-                }
-                return Collections.singleton(address);
-            }
+    public java.util.Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
+            Object requester) {
+        if (!ADDRESSES.contains(type) || manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            return null;
         }
-        return null;
+
+        PresenceSettings settings = getSettings();
+        List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            Address address = new Address();
+            address.setAddress(location.getAddress());
+            if (type.equals(HTTP_ADDRESS)) {
+                address.setPort(settings.getApiPort());
+                address.setFormat("http://%s:%d/RPC2");
+            } else if (type.equals(SIP_TCP_ADDRESS)) {
+                address.setPort(settings.getSipTcpPort());
+            } else if (type.equals(SIP_UDP_ADDRESS)) {
+                address.setPort(settings.getSipUdpPort());
+            }
+            addresses.add(address);
+        }
+
+        return addresses;
     }
 }

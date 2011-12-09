@@ -9,9 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.tls;
 
-import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
+import java.util.Collection;
+import java.util.Collections;
 
-public class TlsPeer extends BeanWithUserPermissions {
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
+import org.sipfoundry.sipxconfig.feature.Feature;
+
+public class TlsPeer extends BeanWithUserPermissions implements DeployConfigOnEdit {
     private String m_name;
 
     public String getName() {
@@ -22,4 +27,8 @@ public class TlsPeer extends BeanWithUserPermissions {
         m_name = name;
     }
 
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) TlsPeerManager.FEATURE);
+    }
 }

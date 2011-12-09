@@ -24,13 +24,10 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.localization.Localization;
-import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.dao.support.DataAccessUtils;
 
 public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
@@ -42,7 +39,6 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     private LocationsManager m_locationsManager;
     private Domain m_domain;
     protected abstract DomainConfiguration createDomainConfiguration();
-    protected abstract ServiceConfigurator getServiceConfigurator();
 
     /**
      * @return non-null unless test environment
@@ -73,23 +69,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         }
         getHibernateTemplate().saveOrUpdate(domain);
         getHibernateTemplate().flush();
-
-        // As domain change is critical change, force to replicate
-        // all affected services' configurations.
-        getServiceConfigurator().replicateAllServiceConfig();
         m_domain = null;
-    }
-
-    public void replicateDomainConfig(SipxReplicationContext replicationContext, Location location) {
-        Domain existingDomain = getExistingDomain();
-        if (existingDomain == null) {
-            throw new DomainNotInitializedException();
-        }
-        DomainConfiguration domainConfiguration = createDomainConfiguration();
-        String language = getExistingLocalization().getLanguage();
-        domainConfiguration.generate(existingDomain, getConfigServerHostname(), language);
-
-        replicationContext.replicate(location, domainConfiguration);
     }
 
     protected Domain getExistingDomain() {
@@ -174,8 +154,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     private Set<String> getAlliasesFromDomainConfig(Properties domainConfig) {
         Set<String> aliases = new LinkedHashSet<String>();
-        String[] domainConfigAliases = StringUtils.split(domainConfig.getProperty("SIP_DOMAIN_ALIASES"),
-                DomainConfiguration.SEPARATOR_CHAR);
+        String[] domainConfigAliases = StringUtils.split(domainConfig.getProperty("SIP_DOMAIN_ALIASES"), ' ');
         if (domainConfigAliases != null) {
             for (String alias : domainConfigAliases) {
                 if (!alias.equals(domainConfig.getProperty(SIP_DOMAIN_NAME))) {

@@ -17,13 +17,12 @@
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -31,7 +30,6 @@ import com.mongodb.DBObject;
 public abstract class AbstractDataSetGenerator {
     private MongoTemplate m_imdb;
     private CoreContext m_coreContext;
-    public abstract SipxFreeswitchService getSipxFreeswitchService();
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;

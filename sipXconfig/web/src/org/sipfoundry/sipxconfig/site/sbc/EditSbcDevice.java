@@ -156,7 +156,7 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
         }
 
         SbcDeviceManager sbcDeviceContext = getSbcDeviceManager();
-        sbcDeviceContext.storeSbcDevice(sbcDevice);
+        sbcDeviceContext.saveSbcDevice(sbcDevice);
 
         // refresh SbcDevice - it cannot be new any more
         if (getSbcDeviceId() == null) {

@@ -114,7 +114,9 @@ public class AuditLogContextImpl implements AuditLogContext, ApplicationContextA
     }
 
     private int getNumberOfReplications(Location location) {
-        return m_locationsManager.getReplications(location).size();
+        // TODO
+        return 0;
+//        return m_locationsManager.getReplications(location).size();
     }
 
     /*

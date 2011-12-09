@@ -38,7 +38,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.address.AddressRequester;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.common.User;
@@ -522,7 +521,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            AddressRequester requester) {
+            Object requester) {
         if (type.equals(CDR_API)) {
             Location location = m_featureManager.getLocationForEnabledFeature(FEATURE);
             if (location != null) {

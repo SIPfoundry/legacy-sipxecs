@@ -231,7 +231,7 @@ public abstract class TestPage extends SipxBasePage {
         getSbcDescriptor().setModelId(SIPX_BRIDGE_MODEL);
         SbcDevice bridge = getSbcDeviceManager().newSbcDevice(getSbcDescriptor());
         bridge.setName("bridge");
-        getSbcDeviceManager().storeSbcDevice(bridge);
+        getSbcDeviceManager().saveSbcDevice(bridge);
         getSbcManager().clear();
     }
 
@@ -357,7 +357,7 @@ public abstract class TestPage extends SipxBasePage {
         bridgeSbc.setSettingTypedValue("bridge-configuration/location-id", getLocationsManager()
                 .getPrimaryLocation().getId());
         bridgeSbc.setProcessContext(processContext);
-        getSbcDeviceManager().storeSbcDevice(bridgeSbc);
+        getSbcDeviceManager().saveSbcDevice(bridgeSbc);
     }
 
     public void deleteBridgeSbc() {

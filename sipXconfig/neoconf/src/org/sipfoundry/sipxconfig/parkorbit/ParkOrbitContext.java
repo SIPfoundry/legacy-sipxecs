@@ -30,8 +30,6 @@ public interface ParkOrbitContext extends AliasOwner {
 
     Collection<ParkOrbit> getParkOrbits();
 
-    void activateParkOrbits();
-
     String getDefaultMusicOnHold();
 
     void setDefaultMusicOnHold(String newMusic);

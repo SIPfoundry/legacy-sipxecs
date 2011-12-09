@@ -22,9 +22,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.sipfoundry.sipxconfig.ConfigurationFile;
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
@@ -36,11 +33,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
@@ -63,10 +55,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private BeanFactory m_beanFactory;
     private DomainManager m_domainManager;
     private DaoEventPublisher m_daoEventPublisher;
-
-    private SipxServiceManager m_sipxServiceManager;
-    private SipxReplicationContext m_replicationContext;
-    private ServiceConfigurator m_serviceConfigurator;
     private ConferenceFeature m_conferenceFeature;
 
     public List getBridges() {
@@ -163,8 +151,8 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         List<Bridge> bridges = getHibernateTemplate().loadAll(Bridge.class);
         for (Bridge b : bridges) {
             if (b != null) {
-                if (b.getService() != null) {
-                    if (b.getService().getLocation().getFqdn().equalsIgnoreCase(hostname)) {
+                if (b.getLocation() != null) {
+                    if (b.getLocation().getFqdn().equalsIgnoreCase(hostname)) {
                         bridgeForServer = b;
                         break;
                     }
@@ -300,32 +288,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return SipUri.fix(conference.getExtension(), domain);
     }
 
-    private void onLocationSpecificServiceDelete(LocationSpecificService locationService) {
-        SipxService service = locationService.getSipxService();
-        if (service instanceof SipxFreeswitchService) {
-            Bridge bridge = getBridgeForLocationId(locationService.getLocation().getId());
-            if (bridge != null) {
-                getHibernateTemplate().delete(bridge);
-            }
-        }
-    }
-
-    private void onLocationDelete(Location location) {
-        getHibernateTemplate().update(location);
-        Bridge bridge = getBridgeForLocationId(location.getId());
-        if (bridge != null) {
-            getHibernateTemplate().delete(bridge);
-        }
-    }
-
-    public void onDelete(Object entity) {
-        if (entity instanceof LocationSpecificService) {
-            onLocationSpecificServiceDelete((LocationSpecificService) entity);
-        } else if (entity instanceof Location) {
-            onLocationDelete((Location) entity);
-        }
-    }
-
     public Bridge getBridgeForLocationId(Integer locationId) {
         HibernateTemplate hibernate = getHibernateTemplate();
         List<Bridge> servers = hibernate.findByNamedQueryAndNamedParam("bridgeForLocationId", "locationId",
@@ -344,30 +306,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         m_daoEventPublisher = daoEventPublisher;
     }
 
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-    public void setReplicationContext(SipxReplicationContext replicationContext) {
-        m_replicationContext = replicationContext;
-    }
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
-    }
-
-    public void updateConfAudio() {
-        SipxFreeswitchService service = getSipxFreeswitchService();
-        Set< ? extends ConfigurationFile> configurationFiles = service.getConfigurations();
-        for (ConfigurationFile configurationFile : configurationFiles) {
-            if (configurationFile instanceof ConferenceConfiguration) {
-                m_replicationContext.replicate(configurationFile);
-                m_serviceConfigurator.markServiceForRestart(service);
-            }
-        }
-    }
-
-    private SipxFreeswitchService getSipxFreeswitchService() {
-        return (SipxFreeswitchService) m_sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-    }
 
     @Override
     public List<Replicable> getReplicables() {

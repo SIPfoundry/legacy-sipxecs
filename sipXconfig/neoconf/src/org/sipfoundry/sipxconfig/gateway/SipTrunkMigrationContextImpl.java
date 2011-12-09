@@ -14,12 +14,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDescriptor;
-import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDevice;
-import org.sipfoundry.sipxconfig.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;
+import org.sipfoundry.sipxconfig.sbc.SbcDescriptor;
+import org.sipfoundry.sipxconfig.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.setting.Storage;
 
 public class SipTrunkMigrationContextImpl extends SipxHibernateDaoSupport implements
@@ -67,7 +67,7 @@ public class SipTrunkMigrationContextImpl extends SipxHibernateDaoSupport implem
         // prevent name conflicts
         sbcDevice.setName(address + "_" + System.currentTimeMillis());
         sbcDevice.setAddress(address);
-        m_sbcDeviceManager.storeSbcDevice(sbcDevice);
+        m_sbcDeviceManager.saveSbcDevice(sbcDevice);
         getHibernateTemplate().flush();
 
         return sbcDevice.getId();

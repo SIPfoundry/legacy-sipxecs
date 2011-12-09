@@ -22,18 +22,12 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
-import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
-import org.sipfoundry.sipxconfig.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
-import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
-import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
-import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
+public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
     public static final Log LOG = LogFactory.getLog(LocationsManagerImpl.class);
     private static final String LOCATION_PROP_NAME = "fqdn";
     private static final String LOCATION_PROP_PRIMARY = "primary";
@@ -41,13 +35,6 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
     private DaoEventPublisher m_daoEventPublisher;
-
-    protected abstract NatTraversalManager getNatTraversalManager();
-    /* delayed injections - working around circular reference */
-    protected abstract ServiceConfigurator getServiceConfigurator();
-    protected abstract ReplicationManager getReplicationManager();
-    protected abstract DomainConfiguration getDomainConfiguration();
-    protected abstract ConfigGenerator getDialPlanConfigGenerator();
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
@@ -109,15 +96,6 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
     }
 
     @Override
-    public void saveNatLocation(Location location, NatLocation nat) {
-        location.setNat(nat);
-        getHibernateTemplate().saveOrUpdate(location);
-        // There is a 1-1 relation between Nat and Location
-        nat.setLocation(location);
-        getNatTraversalManager().activateNatLocation(location);
-    }
-
-    @Override
     public void saveLocation(Location location) {
         boolean sendProfiles = false;
         if (location.isNew()) {
@@ -126,7 +104,6 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
             }
             location.fqdnOrIpHasChangedOnSave();
             location.setCallTraffic(true);
-            location.setReplicateConfig(true);
             getHibernateTemplate().save(location);
         } else {
             boolean isFqdnOrIpChanged = isFqdnOrIpChanged(location);
@@ -140,13 +117,7 @@ public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Locat
                 throw new UserException("&error.primary.config", location.getFqdn(), location.getAddress());
             }
             location.fqdnOrIpHasChangedOnSave();
-            if (getOriginalValue(location, "replicateConfig").equals(Boolean.FALSE) && location.isReplicateConfig()) {
-                sendProfiles = true;
-            }
             getHibernateTemplate().update(location);
-            if (sendProfiles) {
-                getServiceConfigurator().sendProfiles(Collections.singletonList(location));
-            }
         }
     }
 

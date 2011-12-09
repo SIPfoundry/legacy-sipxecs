@@ -22,7 +22,6 @@ import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
-import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 
 public class Location extends BeanWithId {
     // security role
@@ -46,9 +45,16 @@ public class Location extends BeanWithId {
     private Timestamp m_lastAttempt;
     private List<String> m_installedBundles;
     private Set<String> m_failedReplications;
-    private NatLocation m_nat = new NatLocation();
     private Branch m_branch;
     private boolean m_setFqdnOrIpChangedOnSave;
+    private boolean m_useStun = true;
+    private String m_stunAddress = "stun.ezuce.com";
+    private int m_stunInterval = 60; // seconds
+    private String m_publicAddress;
+    private int m_publicPort = 5060;
+    private int m_publicTlsPort = 5061;
+    private int m_startRtpPort = 30000;
+    private int m_stopRtpPort = 31000;
 
     public String getName() {
         return m_name;
@@ -93,12 +99,68 @@ public class Location extends BeanWithId {
         m_installedBundles = installedBundles;
     }
 
-    public NatLocation getNat() {
-        return m_nat;
+    public void setUseStun(boolean useStun) {
+        m_useStun = useStun;
     }
 
-    public void setNat(NatLocation nat) {
-        m_nat = nat;
+    public boolean isUseStun() {
+        return m_useStun;
+    }
+
+    public String getPublicAddress() {
+        return m_publicAddress;
+    }
+
+    public void setPublicAddress(String publicAddress) {
+        m_publicAddress = publicAddress;
+    }
+
+    public int getPublicPort() {
+        return m_publicPort;
+    }
+
+    public void setPublicPort(int publicPort) {
+        m_publicPort = publicPort;
+    }
+
+    public int getPublicTlsPort() {
+        return m_publicTlsPort;
+    }
+
+    public void setPublicTlsPort(int publicTlsPort) {
+        m_publicTlsPort = publicTlsPort;
+    }
+
+    public int getStartRtpPort() {
+        return m_startRtpPort;
+    }
+
+    public void setStartRtpPort(int startRtpPort) {
+        m_startRtpPort = startRtpPort;
+    }
+
+    public int getStopRtpPort() {
+        return m_stopRtpPort;
+    }
+
+    public void setStopRtpPort(int stopRtpPort) {
+        m_stopRtpPort = stopRtpPort;
+    }
+
+    public String getStunAddress() {
+        return m_stunAddress;
+    }
+
+    public void setStunAddress(String stunAddress) {
+        m_stunAddress = stunAddress;
+    }
+
+    public int getStunInterval() {
+        return m_stunInterval;
+    }
+
+    public void setStunInterval(int stunInterval) {
+        m_stunInterval = stunInterval;
     }
 
     /**

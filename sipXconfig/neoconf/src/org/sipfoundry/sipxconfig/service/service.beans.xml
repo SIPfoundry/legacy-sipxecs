@@ -101,7 +101,7 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="peerIdentitiesConfiguration" class="org.sipfoundry.sipxconfig.service.PeerIdentitiesConfiguration" scope="prototype"
+  <bean id="peerIdentitiesConfiguration" class="org.sipfoundry.sipxconfig.proxy.ProxyConfiguration" scope="prototype"
     parent="defaultConfigurationFile">
     <property name="name" value="peeridentities.xml"/>
     <property name="tlsPeerManager" ref="tlsPeerManager" />
@@ -401,7 +401,7 @@
     </property>
   </bean>
   
-  <bean id="phoneLogConfiguration" class="org.sipfoundry.sipxconfig.service.PhoneLogConfiguration" scope="prototype"
+  <bean id="phoneLogConfiguration" class="org.sipfoundry.sipxconfig.phonelog.PhoneLogConfiguration" scope="prototype"
     parent="serviceConfigurationFile">
     <property name="template" value="sipxconfig/phonelog-config.vm" />
     <property name="name" value="phonelog-config" />
@@ -668,7 +668,7 @@
     </property>
   </bean>
 
-  <bean id="sipxProvisionConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProvisionConfiguration"
+  <bean id="sipxProvisionConfiguration" class="org.sipfoundry.sipxconfig.provision.ProvisionConfiguration"
     parent="serviceConfigurationFile">
     <property name="name" value="sipxprovision-config" />
     <property name="template" value="sipxprovision/sipxprovision-config.vm" />
@@ -706,7 +706,7 @@
     <property name="logDir" value="${sysdir.log}" />
   </bean>
 
-  <bean id="sipxOpenAcdAppConfiguration" class="org.sipfoundry.sipxconfig.service.SipxOpenAcdAppConfiguration"
+  <bean id="sipxOpenAcdAppConfiguration" class="org.sipfoundry.sipxconfig.openacd.OpenAcdConfiguration"
     parent="serviceConfigurationFile">
     <property name="name" value="app.config" />
     <property name="template" value="openacd/app.config.vm" />

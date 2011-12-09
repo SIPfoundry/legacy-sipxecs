@@ -15,7 +15,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
-import org.sipfoundry.sipxconfig.address.AddressRequester;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -52,7 +51,7 @@ public class AcdStats implements FeatureProvider, AddressProvider {
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            AddressRequester requester) {
+            Object requester) {
         List<Address> addresses = null;
         if (type.equals(API_ADDRESS)) {
             List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);

@@ -40,6 +40,9 @@
       </option>
     </enum>
   </type>
+  <type id="nonRootPort">
+    <integer min="1025" max="65535"/>
+  </type>
   <type id="feature-code">
     <string>
       <pattern>[0-9*#]+</pattern>
@@ -102,10 +105,22 @@
       <value>N</value>
     </setting>
   </group>
-  <group name="logging" hidden="yes">
-    <setting name="SIP_REGISTRAR_LOG_LEVEL">
+  <group name="registrar-config">
+    <setting name="SIP_REGISTRAR_TCP_PORT" advanced="yes">
+      <type refid="nonRootPort" />
+      <value>5070</value>
+    </setting>  
+    <setting name="SIP_REGISTRAR_UDP_PORT" advanced="yes">
+      <type refid="nonRootPort" />
+      <value>5070</value>
+    </setting>  
+    <setting name="SIP_REGISTRAR_REG_EVENT_PORT" advanced="yes">
+      <type refid="nonRootPort" />
+      <value>9096</value>
+    </setting>  
+    <setting name="SIP_REGISTRAR_LOG_LEVEL" advanced="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
-    </setting>
+    </setting>    
   </group>
 </model>
