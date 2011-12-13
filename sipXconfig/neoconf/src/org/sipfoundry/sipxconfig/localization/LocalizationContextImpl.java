@@ -9,17 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.localization;
 
+
 import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
@@ -27,21 +23,13 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class LocalizationContextImpl extends SipxHibernateDaoSupport implements LocalizationContext {
-
-    private static final Log LOG = LogFactory.getLog(LocalizationContextImpl.class);
-
     private static final String PROMPTS_PREFIX = "stdprompts_";
-
     private String m_promptsDir;
     private String m_defaultRegion;
     private String m_defaultLanguage;
     private ResetDialPlanTask m_resetDialPlanTask;
     private DialPlanActivationManager m_dialPlanActivationManager;
     private AutoAttendantManager m_autoAttendantManager;
-    private ConferenceBridgeContext m_conferenceBridgeContext;
-    private ConfigManager m_configManager;
-
-    private DaoEventPublisher m_daoEventPublisher;
 
     public void setPromptsDir(String promptsDir) {
         m_promptsDir = promptsDir;
@@ -59,15 +47,6 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     @Required
     public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
         m_autoAttendantManager = autoAttendantManager;
-    }
-
-    @Required
-    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
-        m_conferenceBridgeContext = conferenceBridgeContext;
-    }
-
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 
     public void setDefaultLanguage(String defaultLanguage) {

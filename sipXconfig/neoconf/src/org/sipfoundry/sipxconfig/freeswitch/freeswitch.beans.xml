@@ -4,4 +4,21 @@
 
   <bean id="freeswitchExtensionCollector" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionCollector" />
 
+  <bean id="freeswitchMediaServer" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer" scope="prototype">
+    <property name="label" value="Internal Voicemail Server" />
+    <property name="localizationContext" ref="localizationContext" />
+    <property name="addressManager" ref="addressManager" />
+  </bean>
+  
+  <bean id="freeswitchFeature" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature">
+    <property name="featureManager" ref="featureManager" />
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
+    <property name="settingsDao" ref="beanWithLocationDao" />
+  </bean>
+  
+  <bean id="freeswitchSettings" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings">
+    <property name="addressManager" ref="addressManager" />  
+    <property name="freeswitchApiProvider" ref="freeswitchApiProvider"/>
+  </bean>
+
 </beans>

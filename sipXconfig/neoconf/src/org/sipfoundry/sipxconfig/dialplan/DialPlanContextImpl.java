@@ -17,8 +17,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.logging.AuditLogContext;
-import org.sipfoundry.sipxconfig.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -28,20 +26,20 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.support.DataAccessUtils;
 
 /**
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
 public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        DialPlanContext, ApplicationContextAware {
+        DialPlanContext {
 
     private static final String AUDIT_LOG_CONFIG_TYPE = "Dialing Rule";
     private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
@@ -52,7 +50,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     private static final String VOICEMAIL = "voicemail";
     private AliasManager m_aliasManager;
     private ListableBeanFactory m_beanFactory;
-    private ApplicationContext m_applicationContext;
     private AuditLogContext m_auditLogContext;
 
     /**
@@ -425,10 +422,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     private Collection getAttendantRulesWithExtensionOrDid(String extension) {
         return getHibernateTemplate().findByNamedQueryAndNamedParam("attendantRuleIdsWithExtensionOrDid", VALUE,
                 extension);
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        m_applicationContext = applicationContext;
     }
 
     @Required

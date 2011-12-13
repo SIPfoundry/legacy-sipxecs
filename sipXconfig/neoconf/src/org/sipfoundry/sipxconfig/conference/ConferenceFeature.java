@@ -12,6 +12,7 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -30,7 +31,8 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
     }
 
     @Override
-    public void enableLocationFeature(FeatureEvent event, LocationFeature feature, Location location) {
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
         if (!feature.equals(ConferenceBridgeContext.FEATURE)) {
             return;
         }
@@ -50,39 +52,42 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
     }
 
     public void deploy(Bridge bridge) {
-//
-//        // bridge to deploy should always have service associated
-//        if (bridge.getService() == null) {
-//            return;
-//        }
-//        // need to replicate all conferences that are on the bridge
-//        for (Conference conf : bridge.getConferences()) {
-//            m_replicationContext.generate(conf);
-//        }
-//
-//        // only need to replicate files that do not require restart
-//        Location location = bridge.getLocation();
-//        SipxFreeswitchService freeswitchService = bridge.getFreeswitchService();
-//        // we need to flush here. sipX_context.xml replication needs up-to-date info in sql tables
-//        getHibernateTemplate().flush();
-//        m_serviceConfigurator.replicateServiceConfig(location, freeswitchService, true, false);
-//        m_processContext.markServicesForReload(singleton(freeswitchService));
-//        if (m_serviceManager.isServiceInstalled(SipxIvrService.BEAN_ID)) {
-//            SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
-//            m_serviceConfigurator.replicateServiceConfig(ivrService, true);
-//        }
-//        if (m_serviceManager.isServiceInstalled(SipxRecordingService.BEAN_ID)) {
-//            SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxRecordingService.BEAN_ID);
-//            m_serviceConfigurator.replicateServiceConfig(location, ivrService, true);
-//        }
-//        if (m_serviceManager.isServiceInstalled(SipxImbotService.BEAN_ID)) {
-//            SipxService imbotService = m_serviceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
-//            m_serviceConfigurator.replicateServiceConfig(location, imbotService, true);
-//        }
+        //
+        // // bridge to deploy should always have service associated
+        // if (bridge.getService() == null) {
+        // return;
+        // }
+        // // need to replicate all conferences that are on the bridge
+        // for (Conference conf : bridge.getConferences()) {
+        // m_replicationContext.generate(conf);
+        // }
+        //
+        // // only need to replicate files that do not require restart
+        // Location location = bridge.getLocation();
+        // SipxFreeswitchService freeswitchService = bridge.getFreeswitchService();
+        // // we need to flush here. sipX_context.xml replication needs up-to-date info in sql
+        // tables
+        // getHibernateTemplate().flush();
+        // m_serviceConfigurator.replicateServiceConfig(location, freeswitchService, true, false);
+        // m_processContext.markServicesForReload(singleton(freeswitchService));
+        // if (m_serviceManager.isServiceInstalled(SipxIvrService.BEAN_ID)) {
+        // SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+        // m_serviceConfigurator.replicateServiceConfig(ivrService, true);
+        // }
+        // if (m_serviceManager.isServiceInstalled(SipxRecordingService.BEAN_ID)) {
+        // SipxService ivrService =
+        // m_serviceManager.getServiceByBeanId(SipxRecordingService.BEAN_ID);
+        // m_serviceConfigurator.replicateServiceConfig(location, ivrService, true);
+        // }
+        // if (m_serviceManager.isServiceInstalled(SipxImbotService.BEAN_ID)) {
+        // SipxService imbotService =
+        // m_serviceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
+        // m_serviceConfigurator.replicateServiceConfig(location, imbotService, true);
+        // }
     }
 
     @Override
-    public void enableGlobalFeature(FeatureEvent event, GlobalFeature feature) {
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 
     public void setConferengeBridgeContext(ConferenceBridgeContext conferengeBridgeContext) {

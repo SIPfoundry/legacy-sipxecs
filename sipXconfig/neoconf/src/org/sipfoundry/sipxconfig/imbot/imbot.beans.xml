@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="imBot" class="org.sipfoundry.sipxconfig.imbot.ImBot">
+    <property name="settingsDao" ref="beanWithSettingsDao" />
+  </bean>
+
+  <bean id="imBotSettings" class="org.sipfoundry.sipxconfig.imbot.ImBotSettings">
+  </bean>
+  
+  <bean id="imBotConfiguration" class="org.sipfoundry.sipxconfig.imbot.ImBotConfiguration">
+    <property name="imbot" ref="imBot" />
+  </bean>
+
+</beans>

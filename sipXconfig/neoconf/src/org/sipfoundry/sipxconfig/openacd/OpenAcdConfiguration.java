@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
@@ -39,7 +40,8 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
     private OpenAcdProvisioningContext m_provisioningContext;
 
     @Override
-    public void enableLocationFeature(FeatureEvent event, LocationFeature feature, Location location) {
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
         if (!feature.equals(OpenAcdContext.FEATURE)) {
             return;
         }
@@ -53,7 +55,7 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
     }
 
     @Override
-    public void enableGlobalFeature(FeatureEvent event, GlobalFeature feature) {
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 
     @Override

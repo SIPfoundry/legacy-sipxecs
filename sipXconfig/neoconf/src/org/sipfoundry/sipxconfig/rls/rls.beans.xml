@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="rlsSettings" class="org.sipfoundry.sipxconfig.rls.RlsSettings" scope="prototype">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+
+  <bean id="rlsLists" class="org.sipfoundry.sipxconfig.rls.ResourceLists">
+    <property name="coreContext" ref="coreContext" />
+    <property name="validUsers" ref="validUsers" />
+  </bean>
+
+  <bean id="rls" class="org.sipfoundry.sipxconfig.rls.Rls">
+    <property name="settingsDao" ref="beanWithSettingsDao" />
+  </bean>
+
+  <bean id="rlsConfig" class="org.sipfoundry.sipxconfig.rls.RlsConfig">
+    <property name="rls" ref="rls" />
+  </bean>
+
+</beans>

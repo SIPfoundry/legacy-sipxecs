@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
   <bean id="abstractGatewayModel" class="org.sipfoundry.sipxconfig.gateway.GatewayModel" abstract="true">
     <property name="defaultProfileLocation" ref="tftpProfileLocation" />
   </bean>
@@ -15,7 +16,11 @@
   <bean id="sipTrunkStandard" class="org.sipfoundry.sipxconfig.gateway.SipTrunkModel" parent="abstractGatewayModel">
     <property name="label" value="SIP trunk" />
   </bean>
-
+  
+  <bean id="gatewayOnEdit" class="org.sipfoundry.sipxconfig.gateway.GatewayOnEdit">
+    <property name="gatewayContext" ref="gatewayContext" />
+  </bean>
+  
   <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" scope="prototype" parent="beanWithSettings">
     <property name="profileGenerator" ref="velocityProfileGenerator" />
     <property name="gatewayModelSource" ref="nakedGatewayModelSource" />
@@ -44,7 +49,6 @@
   <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
     <property name="auditLogContext" ref="auditLogContext" />
   </bean>

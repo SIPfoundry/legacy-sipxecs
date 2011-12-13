@@ -18,12 +18,10 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class PresenceConfig implements ConfigProvider {
     private PresenceServer m_presenceServer;
-    private DomainManager m_domainManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -34,8 +32,8 @@ public class PresenceConfig implements ConfigProvider {
         Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
                 PresenceServer.FEATURE);
         PresenceSettings settings = m_presenceServer.getSettings();
-        String domainName = m_domainManager.getDomainName();
-        String realm = m_domainManager.getAuthorizationRealm();
+        String domainName = manager.getDomainManager().getDomainName();
+        String realm = manager.getDomainManager().getAuthorizationRealm();
         for (Location location : locations) {
             File locationDataDirectory = manager.getLocationDataDirectory(location);
             FileWriter wtr = new FileWriter(new File(locationDataDirectory, "presence-config.cfdat"));

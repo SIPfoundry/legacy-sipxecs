@@ -6,8 +6,6 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="coreContext" ref="coreContext" />
     <property name="daoEventPublisher" ref="daoEventPublisher"/>
-    <property name="locationsManager" ref="locationsManager"/>
-    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
   </bean>
 
   <bean id="authCodeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -15,5 +13,19 @@
               value="org.sipfoundry.sipxconfig.acccode.AuthCodeManager" />
     <property name="target" ref="authCodeManagerImpl" />
   </bean>
+  
+  <bean id="authCodes" class="org.sipfoundry.sipxconfig.accode.AuthCodes">
+    <property name="authCodeManager" ref="authCodeManager" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="featureManager" ref="featureManager" />
+    <property name="settingsDao" ref="beanWithSettingsDao" />
+  </bean>
 
+  <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig">
+    <property name="authCodeManager" ref="authCodeManager" />
+  </bean>
+  
+  <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" scope="prototype">
+  </bean>
+  
 </beans>

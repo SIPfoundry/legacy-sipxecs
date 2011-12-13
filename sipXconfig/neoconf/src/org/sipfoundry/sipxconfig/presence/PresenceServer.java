@@ -28,10 +28,12 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.feature.FeatureListener.FeatureEvent;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
@@ -39,7 +41,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class PresenceServer implements FeatureProvider, AddressProvider, BeanFactoryAware {
+public class PresenceServer implements FeatureProvider, AddressProvider, BeanFactoryAware, FeatureListener {
     public static final LocationFeature FEATURE = new LocationFeature("acdPresence");
     public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi");
     public static final AddressType SIP_TCP_ADDRESS = new AddressType("acdPresenceTcp");
@@ -196,5 +198,19 @@ public class PresenceServer implements FeatureProvider, AddressProvider, BeanFac
         }
 
         return addresses;
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        if (feature.equals(PresenceServer.FEATURE)) {
+            if (event == FeatureEvent.PRE_ENABLE) {
+                initialize();
+            }
+        }
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 }

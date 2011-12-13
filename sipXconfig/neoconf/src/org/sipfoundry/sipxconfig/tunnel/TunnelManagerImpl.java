@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -25,29 +22,13 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * with services on another machine without allowing unauthorized connections for services that either
  * don't have authentication mechanisms or are to cumbersome to configure such as the mongo database service.
  */
-public abstract class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, DaoEventListener {
+public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware {
     private ListableBeanFactory m_beanFactory;
     private volatile Collection<TunnelProvider> m_providers;
-    private ConfigManager m_configManager;
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
-    }
-
-    public void onDelete(Object entity) {
-        if (entity instanceof Location) {
-            m_configManager.replicationRequired(TunnelManager.FEATURE);
-        }
-    }
-
-    public void onSave(Object entity) {
-        if (entity instanceof Location) {
-            Location l = (Location) entity;
-            if (l.hasFqdnOrIpChangedOnSave()) {
-                m_configManager.replicationRequired(TunnelManager.FEATURE);
-            }
-        }
     }
 
     /**
@@ -69,9 +50,5 @@ public abstract class TunnelManagerImpl implements TunnelManager, BeanFactoryAwa
 
     public void setProviders(Collection<TunnelProvider> providers) {
         m_providers = providers;
-    }
-
-    public void setConfigManager(ConfigManager configManager) {
-        m_configManager = configManager;
     }
 }

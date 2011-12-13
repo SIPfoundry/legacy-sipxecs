@@ -7,8 +7,6 @@
   -->
   <bean id="tlsPeerManagerImpl" class="org.sipfoundry.sipxconfig.admin.tls.TlsPeerManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="coreContext" ref="coreContext" />
     <property name="daoEventPublisher" ref="daoEventPublisher"/>
   </bean>

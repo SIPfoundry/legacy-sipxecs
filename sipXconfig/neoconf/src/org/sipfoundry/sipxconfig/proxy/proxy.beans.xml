@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="proxySettings" class="org.sipfoundry.sipxconfig.proxy.ProxySettings" scope="prototype">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+
+  <bean id="proxy" class="org.sipfoundry.sipxconfig.proxy.ProxyManager">
+    <property name="settingsDao" ref="beanWithSettingsDao" />
+    <property name="featureManager" ref="featureManager" />
+  </bean>
+
+  <bean id="proxyConfig" class="org.sipfoundry.sipxconfig.proxy.ProxyConfig">
+    <property name="cdrManager" ref="cdrManager" />
+    <property name="tlsPeerManager" ref="tlsPeerManager" />
+    <property name="proxyManager" ref="proxyManager" />
+  </bean>
+
+</beans>

@@ -23,13 +23,11 @@ import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public class SaaConfiguration implements ConfigProvider {
     private VelocityEngine m_velocityEngine;
     private SaaManager m_saaManager;
     private CoreContext m_coreContext;
-    private DomainManager m_domainManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -38,8 +36,8 @@ public class SaaConfiguration implements ConfigProvider {
         }
 
         SaaSettings settings = m_saaManager.getSettings();
-        String domainName = m_domainManager.getDomainName();
-        String realm = m_domainManager.getAuthorizationRealm();
+        String domainName = manager.getDomainManager().getDomainName();
+        String realm = manager.getDomainManager().getAuthorizationRealm();
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(SaaManager.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
@@ -85,9 +83,5 @@ public class SaaConfiguration implements ConfigProvider {
 
     public void setSaaManager(SaaManager saaManager) {
         m_saaManager = saaManager;
-    }
-
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
     }
 }

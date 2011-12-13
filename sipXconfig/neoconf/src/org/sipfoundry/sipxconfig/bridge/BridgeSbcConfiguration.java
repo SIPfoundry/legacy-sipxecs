@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
 
 public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
     private SbcDeviceManager m_sbcDeviceManager;
-    private FeatureManager m_featureManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -46,12 +45,13 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
     }
 
     @Override
-    public void enableLocationFeature(FeatureEvent event, LocationFeature feature, Location location) {
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
         if (!feature.equals(ProxyManager.FEATURE)) {
             return;
         }
 
-        if (!m_featureManager.isFeatureEnabled(BridgeSbcContext.FEATURE)) {
+        if (!manager.isFeatureEnabled(BridgeSbcContext.FEATURE)) {
             return;
         }
 
@@ -65,6 +65,10 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
     }
 
     @Override
-    public void enableGlobalFeature(FeatureEvent event, GlobalFeature feature) {
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+    }
+
+    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
+        m_sbcDeviceManager = sbcDeviceManager;
     }
 }

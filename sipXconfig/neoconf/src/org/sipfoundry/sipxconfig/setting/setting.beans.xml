@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
   <bean id="settingDaoImpl" class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
@@ -9,9 +10,7 @@
 
   <bean id="settingDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setting.SettingDao" />
-    <property name="target">
-      <ref local="settingDaoImpl" />
-    </property>
+    <property name="target" ref="settingDaoImpl"/>
   </bean>
 
   <bean id="loadModelCacheAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
@@ -20,6 +19,15 @@
         <property name="cache" ref="methodCache" />
       </bean>
     </property>
+  </bean>
+
+  <bean id="beanWithSettingDaoImpl" class="org.sipfoundry.sipxconfig.setting.BeanWithSettingsDaoImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean id="beanWithSettingDao" class="org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setting.BeanWithSettingDao" />
+    <property name="target" ref="beanWithSettingDaoImpl"/>
   </bean>
 
   <bean id="modelBuilderImpl" class="org.sipfoundry.sipxconfig.setting.XmlModelBuilder">

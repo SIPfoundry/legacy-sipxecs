@@ -17,15 +17,13 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
-import org.sipfoundry.sipxconfig.common.event.ScheduleDeleteListener;
-import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -126,50 +124,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
-    }
-
-    public UserDeleteListener createUserDeleteListener() {
-        return new OnUserDelete();
-    }
-
-    public ScheduleDeleteListener createScheduleDeleteListener() {
-        return new OnScheduleDelete();
-    }
-
-    private class OnUserDelete extends UserDeleteListener {
-        @Override
-        protected void onUserDelete(User user) {
-            removeCallSequenceForUserId(user.getId());
-            removeSchedulesForUserID(user.getId());
-        }
-    }
-
-    private class OnScheduleDelete extends ScheduleDeleteListener {
-        @Override
-        protected void onScheduleDelete(Schedule schedule) {
-            if (schedule instanceof GeneralSchedule) {
-                // get all dialing rules and set schedule to Always
-                List<DialingRule> rules = getDialingRulesForScheduleId(schedule.getId());
-                if (rules != null) {
-                    for (DialingRule rule : rules) {
-                        rule.setSchedule(null);
-                    }
-                    getHibernateTemplate().saveOrUpdateAll(rules);
-                }
-            } else {
-                Collection<CallSequence> css = new HashSet<CallSequence>();
-                // get all rings and set schedule to Always
-                List<Ring> rings = getRingsForScheduleId(schedule.getId());
-                if (rings != null) {
-                    for (Ring ring : rings) {
-                        ring.setSchedule(null);
-                        css.add(ring.getCallSequence());
-                    }
-                    getHibernateTemplate().saveOrUpdateAll(rings);
-                }
-                notifyCommserver(css);
-            }
-        }
     }
 
     private Collection<CallSequence> getCallSequencesForGroup(Group group) {
@@ -337,5 +291,42 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Schedule) {
+            Schedule schedule = (Schedule) entity;
+            if (schedule instanceof GeneralSchedule) {
+                // get all dialing rules and set schedule to Always
+                List<DialingRule> rules = getDialingRulesForScheduleId(schedule.getId());
+                if (rules != null) {
+                    for (DialingRule rule : rules) {
+                        rule.setSchedule(null);
+                    }
+                    getHibernateTemplate().saveOrUpdateAll(rules);
+                }
+            } else {
+                Collection<CallSequence> css = new HashSet<CallSequence>();
+                // get all rings and set schedule to Always
+                List<Ring> rings = getRingsForScheduleId(schedule.getId());
+                if (rings != null) {
+                    for (Ring ring : rings) {
+                        ring.setSchedule(null);
+                        css.add(ring.getCallSequence());
+                    }
+                    getHibernateTemplate().saveOrUpdateAll(rings);
+                }
+                notifyCommserver(css);
+            }
+        } else if (entity instanceof User) {
+            User user = (User) entity;
+            removeCallSequenceForUserId(user.getId());
+            removeSchedulesForUserID(user.getId());
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
     }
 }

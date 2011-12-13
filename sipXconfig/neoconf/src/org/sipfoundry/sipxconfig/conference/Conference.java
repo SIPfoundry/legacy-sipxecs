@@ -331,4 +331,8 @@ public class Conference extends BeanWithSettings implements Replicable {
         props.put(CONF_PIN, getParticipantAccessCode());
         return props;
     }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
 }

@@ -26,9 +26,7 @@
     <property name="loggingManager" ref="loggingManager"/>
   </bean>
 
-  <bean id="sbcSipXbridgeConfiguration" parent="defaultConfigurationFile"
-    class="org.sipfoundry.sipxconfig.admin.bridge.BridgeSbcConfigurationFile">
-    <property name="name" value="sipxbridge.xml" />
+  <bean id="sbcSipXbridgeConfiguration" class="org.sipfoundry.sipxconfig.admin.bridge.BridgeSbcConfiguration">
     <property name="sbcDeviceManager" ref="sbcDeviceManager" />
   </bean>
 
@@ -41,5 +39,7 @@
 
   <bean id="bridgeSbcStatistics" class="org.sipfoundry.sipxconfig.admin.bridge.BridgeSbcStatistics">
     <property name="bridgeSbcApiProvider" ref="bridgeSbcApiProvider" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="configManager" ref="configManager" />    
   </bean>
 </beans>

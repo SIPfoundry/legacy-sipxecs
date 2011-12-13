@@ -12,10 +12,11 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 public class SimpleFeatureListener implements FeatureListener {
 
     @Override
-    public void enableLocationFeature(FeatureEvent event, LocationFeature feature, Location location) {
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
     }
 
     @Override
-    public void enableGlobalFeature(FeatureEvent event, GlobalFeature feature) {
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 }

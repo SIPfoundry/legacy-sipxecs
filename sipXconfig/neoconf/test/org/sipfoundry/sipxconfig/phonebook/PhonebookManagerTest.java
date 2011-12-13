@@ -31,7 +31,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
 import org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -44,6 +43,7 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhoneEntryCompar
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhonebookEntryPredicate;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.StringArrayPhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.UserPhonebookEntry;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.PhonebookTestHelper;
 import org.springframework.orm.hibernate3.HibernateTemplate;

@@ -15,25 +15,25 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.LocationBeanManager;
 import org.sipfoundry.sipxconfig.dialplan.AuthorizationCodeRule;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
-import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
 public class AuthCodes implements ReplicableProvider, DialingRuleProvider, FeatureProvider {
     public static final LocationFeature FEATURE = new LocationFeature("authCode");
     private AuthCodeManager m_authCodeManager;
     private AddressManager m_addressManager;
     private FeatureManager m_featureManager;
-    private LocationBeanManager m_locationBeanManager;
+    private BeanWithSettingsDao<AuthCodeSettings> m_settingsDao;
 
     public List< ? extends DialingRule> getDialingRules() {
         AuthCodeSettings settings = getSettings();
@@ -53,11 +53,7 @@ public class AuthCodes implements ReplicableProvider, DialingRuleProvider, Featu
     }
 
     public AuthCodeSettings getSettings() {
-        Collection<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
-        if (locations.size() > 0) {
-            return m_locationBeanManager.getBean(AuthCodeSettings.class, locations.iterator().next());
-        }
-        return null;
+        return m_settingsDao.findOne();
     }
 
     public boolean isEnabled() {

@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.alarm;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.commserver.AlarmApi;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;

@@ -11,11 +11,11 @@ package org.sipfoundry.sipxconfig.conference;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ConferenceTest extends BeanWithSettingsTestCase {

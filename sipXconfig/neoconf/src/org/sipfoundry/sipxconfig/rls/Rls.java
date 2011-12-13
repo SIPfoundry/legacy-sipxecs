@@ -28,7 +28,6 @@ public class Rls implements AddressProvider, FeatureProvider {
     public static final AddressType TCP_SIP = new AddressType("rlsTcp");
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(UDP_SIP, TCP_SIP);
     private BeanWithSettingsDao<RlsSettings> m_settingsDao;
-    private Rls m_rls;
 
     public RlsSettings getSettings() {
         return m_settingsDao.findOne();
@@ -54,23 +53,27 @@ public class Rls implements AddressProvider, FeatureProvider {
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Object requester) {
-        if (ADDRESSES.contains(type)) {
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-            if (locations.size() > 0) {
-                List<Address> addresses = new ArrayList<Address>(locations.size());
-                for (Location location : locations) {
-                    Address address = new Address();
-                    address.setAddress(location.getAddress());
-                    if (type.equals(UDP_SIP)) {
-                        address.setPort(m_rls.getSettings().getUdpPort());
-                    } else {
-                        address.setPort(m_rls.getSettings().getTcpPort());
-                    }
-                    addresses.add(address);
-                }
-                return addresses;
-            }
+        if (!ADDRESSES.contains(type)) {
+            return null;
         }
-        return null;
+
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        if (locations.isEmpty()) {
+            return null;
+        }
+
+        RlsSettings settings = getSettings();
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            Address address = new Address();
+            address.setAddress(location.getAddress());
+            if (type.equals(UDP_SIP)) {
+                address.setPort(settings.getUdpPort());
+            } else {
+                address.setPort(settings.getTcpPort());
+            }
+            addresses.add(address);
+        }
+        return addresses;
     }
 }

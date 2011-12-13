@@ -40,6 +40,7 @@ public class ConfigManager implements AddressProvider {
     // thread-safe under theory there could be a lot of thread posting changes
     // not because it was proven to have threading issues as a unsynchronized collection
     private Set<Feature> m_affectedFeatures = Collections.synchronizedSet(new HashSet<Feature>());
+    private boolean m_allFeaturesAffected;
 
     /**
      * Denote a change in objects related to this feature. Normally code would not have to call
@@ -56,6 +57,13 @@ public class ConfigManager implements AddressProvider {
     public void replicationRequired(Feature ... features) {
         // (re)start timer
         m_affectedFeatures.addAll(Arrays.asList(features));
+    }
+
+    /**
+     * Full resync everywhere. Not to be called frivolously.
+     */
+    public void allFeaturesAffected() {
+        m_allFeaturesAffected = true;
     }
 
     public String getCfDataDir() {

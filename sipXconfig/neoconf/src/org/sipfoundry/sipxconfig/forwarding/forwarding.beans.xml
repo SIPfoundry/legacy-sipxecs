@@ -13,12 +13,7 @@
     <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
 
-  <bean id="forwardingContextUserDelete" factory-bean="forwardingContextImpl" factory-method="createUserDeleteListener" />
-
-  <bean id="forwardingContextScheduleDelete" factory-bean="forwardingContextImpl" factory-method="createScheduleDeleteListener" />
-
-  <bean id="forwardingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
-    depends-on="forwardingContextUserDelete,forwardingContextScheduleDelete">
+  <bean id="forwardingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext" />
     <property name="target">
       <ref local="forwardingContextImpl" />

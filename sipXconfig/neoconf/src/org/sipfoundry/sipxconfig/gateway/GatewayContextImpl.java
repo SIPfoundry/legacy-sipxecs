@@ -23,8 +23,6 @@ import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
-import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
@@ -64,8 +62,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     private DialPlanContext m_dialPlanContext;
 
     private BeanFactory m_beanFactory;
-
-    private ReplicationManager m_replicationManager;
 
     private DialPlanActivationManager m_dialPlanActivationManager;
 
@@ -228,10 +224,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         m_dialPlanContext = dialPlanContext;
     }
 
-    public void setReplicationManager(ReplicationManager replicationContext) {
-        m_replicationManager = replicationContext;
-    }
-
     public void setAuditLogContext(AuditLogContext auditLogContext) {
         m_auditLogContext = auditLogContext;
     }
@@ -253,23 +245,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_GATEWAY_ID_BY_SERIAL_NUMBER, "value",
                 serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_GATEWAY_ID_BY_SERIAL_NUMBER);
-    }
-
-    public SbcDeviceDeleteListener createSbcDeviceDeleteListener() {
-        return new OnSbcDeviceDelete();
-    }
-
-    private class OnSbcDeviceDelete extends SbcDeviceDeleteListener {
-        @Override
-        protected void onSbcDeviceDelete(SbcDevice sbcDevice) {
-            List<SipTrunk> sipTrunks = getGatewayByType(SipTrunk.class);
-            for (SipTrunk sipTrunk : sipTrunks) {
-                if (sbcDevice.equals(sipTrunk.getSbcDevice())) {
-                    sipTrunk.setSbcDevice(null);
-                    saveGateway(sipTrunk);
-                }
-            }
-        }
     }
 
     @Override

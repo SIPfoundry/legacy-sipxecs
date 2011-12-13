@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.nattraversal;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
@@ -28,11 +29,12 @@ public class NatTraversal implements FeatureListener {
     }
 
     @Override
-    public void enableLocationFeature(FeatureEvent event, LocationFeature feature, Location location) {
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
     }
 
     @Override
-    public void enableGlobalFeature(FeatureEvent event, GlobalFeature feature) {
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
         if (feature.equals(FEATURE)) {
             if (event == FeatureEvent.PRE_ENABLE) {
                 NatSettings settings = getSettings();

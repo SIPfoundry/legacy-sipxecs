@@ -16,20 +16,16 @@ import java.io.Writer;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class RegistrationConfig implements ConfigProvider {
-    private FeatureManager m_featureManager;
     private Registrar m_registrar;
-    private AddressManager m_addressManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -37,12 +33,12 @@ public class RegistrationConfig implements ConfigProvider {
             return;
         }
 
-        Collection<Location> locations = m_featureManager.getLocationsForEnabledFeature(Registrar.FEATURE);
+        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(Registrar.FEATURE);
         RegistrarSettings settings = m_registrar.getSettings();
         String domainName = manager.getDomainManager().getDomainName();
         String realm = manager.getDomainManager().getAuthorizationRealm();
-        Address imApi = m_addressManager.getSingleAddress(ImManager.XMLRPC_ADDRESS);
-        Address presenceApi = m_addressManager.getSingleAddress(Registrar.PRESENCE_MONITOR_ADDRESS);
+        Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
+        Address presenceApi =  manager.getAddressManager().getSingleAddress(Registrar.PRESENCE_MONITOR_ADDRESS);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             Writer w = new FileWriter(new File(dir, "registrar-config.cfdat"));
@@ -64,17 +60,7 @@ public class RegistrationConfig implements ConfigProvider {
     }
 
     @Required
-    public void setFeatureManager(FeatureManager featureManager) {
-        m_featureManager = featureManager;
-    }
-
-    @Required
     public void setRegistrar(Registrar registrar) {
         m_registrar = registrar;
-    }
-
-    @Required
-    public void setAddressManager(AddressManager addressManager) {
-        m_addressManager = addressManager;
     }
 }

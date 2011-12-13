@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
+import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantSettingListener;
 
 public class PersonalAttendantSettingListenerTest extends TestCase {
 

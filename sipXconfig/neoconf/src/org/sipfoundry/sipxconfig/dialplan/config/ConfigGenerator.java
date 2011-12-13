@@ -40,14 +40,10 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
     private DialingRuleProvider m_dialingRuleProvider;
     private DialPlanContext m_planContext;
     private ListableBeanFactory m_beanFactory;
-    private MappingRules m_mappingRules;
-    private AuthRules m_authRules;
-    private FallbackRules m_fallbackRules;
-    private ForwardingRules m_forwardingRules;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(DialPlanContext.FEATURE, LocalizationContext.FEATURE) || request.isFirstTime(this)) {
+        if (!request.applies(DialPlanContext.FEATURE, LocalizationContext.FEATURE)) {
             return;
         }
 
@@ -82,7 +78,6 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
                 IOUtils.closeQuietly(writers[i]);
             }
         }
-        request.firstTimeOver(this);
     }
 
     private void generateXml(RulesFile[] files) {
@@ -121,21 +116,5 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) m_beanFactory;
-    }
-
-    public void setMappingRules(MappingRules mappingRules) {
-        m_mappingRules = mappingRules;
-    }
-
-    public void setAuthRules(AuthRules authRules) {
-        m_authRules = authRules;
-    }
-
-    public void setFallbackRules(FallbackRules fallbackRules) {
-        m_fallbackRules = fallbackRules;
-    }
-
-    public void setForwardingRules(ForwardingRules forwardingRules) {
-        m_forwardingRules = forwardingRules;
     }
 }

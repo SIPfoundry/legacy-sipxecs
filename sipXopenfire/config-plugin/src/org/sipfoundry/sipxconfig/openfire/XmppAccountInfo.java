@@ -16,19 +16,18 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.im.ImAccount;
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.imbot.ImBot;
+import org.sipfoundry.sipxconfig.imbot.ImBotSettings;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
-import org.springframework.beans.factory.annotation.Required;
 
-public class XmppAccountInfo extends XmlFile {
+public class XmppAccountInfo {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/xmpp-account-info-00-00";
     private static final String MUC_SUBDOMAIN = "conference";
     private static final String USER = "user";
@@ -36,41 +35,22 @@ public class XmppAccountInfo extends XmlFile {
     private static final String PASSWORD = "password";
     private static final String DESCRIPTION = "description";
     private static final String DISPLAY_NAME = "display-name";
+    
     private CoreContext m_coreContext;
     private ConferenceBridgeContext m_conferenceContext;
-    private SipxServiceManager m_sipxServiceManager;
     private ValidUsers m_validUsers;
+    private ImBot m_imbot;
 
-    @Required
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
-    }
-
-    @Required
-    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceContext) {
-        m_conferenceContext = conferenceContext;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Override
-    public boolean isLocationDependent() {
-       return false;
-    }
-
-    @Override
     public Document getDocument() {
-        Document document = FACTORY.createDocument();
+        ImBotSettings imbotSettings = m_imbot.getSettings();
+        Document document = XmlFile.FACTORY.createDocument();
         final Element accountInfos = document.addElement("xmpp-account-info", NAMESPACE);
 
-        createPaUserAccount(accountInfos);
+        createPaUserAccount(accountInfos, imbotSettings);
 
         List<Group> groups = m_coreContext.getGroups();
         for (Group group : groups) {
-            createXmmpGroup(group, accountInfos);
+            createXmmpGroup(group, accountInfos, imbotSettings);
         }
 
         List<Conference> conferences = m_conferenceContext.getAllConferences();
@@ -80,11 +60,9 @@ public class XmppAccountInfo extends XmlFile {
         return document;
     }
 
-    private void createPaUserAccount(Element accountInfos) {
-        SipxImbotService imbotService = (SipxImbotService) m_sipxServiceManager
-                .getServiceByBeanId(SipxImbotService.BEAN_ID);
-        String paUserName = imbotService.getPersonalAssistantImId();
-        String paPassword = imbotService.getPersonalAssistantImPassword();
+    private void createPaUserAccount(Element accountInfos, ImBotSettings imbotSettings) {
+        String paUserName = imbotSettings.getPersonalAssistantImId();
+        String paPassword = imbotSettings.getPersonalAssistantImPassword();
 
         User paUser = m_coreContext.newUser();
         paUser.setUserName(paUserName);
@@ -148,7 +126,7 @@ public class XmppAccountInfo extends XmlFile {
         chatRoom.addElement(elementName).setText(value.toString());
     }
 
-    private void createXmmpGroup(Group group, Element accountInfos) {
+    private void createXmmpGroup(Group group, Element accountInfos, ImBotSettings settings) {
         // HACK: we assume that 'replicate-group' is a standard boolean setting
         Boolean replicate = (Boolean) group.getSettingTypedValue(new BooleanSetting(), "im/im-group");
         if (replicate == null || !replicate) {
@@ -175,9 +153,7 @@ public class XmppAccountInfo extends XmlFile {
                 "im/add-pa-to-group");
         if (addPersonalAssistant != null && addPersonalAssistant) {
             Element userElement = xmmpGroup.addElement(USER);
-            SipxImbotService imbotService = (SipxImbotService) m_sipxServiceManager
-                    .getServiceByBeanId(SipxImbotService.BEAN_ID);
-            String paUserName = imbotService.getPersonalAssistantImId();
+            String paUserName = settings.getPersonalAssistantImId();
             userElement.addElement(USER_NAME).setText(paUserName);
         }
     }
@@ -188,5 +164,17 @@ public class XmppAccountInfo extends XmlFile {
 
     public void setValidUsers(ValidUsers validUsers) {
         m_validUsers = validUsers;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    public void setConferenceContext(ConferenceBridgeContext conferenceContext) {
+        m_conferenceContext = conferenceContext;
+    }
+
+    public void setImbot(ImBot imbot) {
+        m_imbot = imbot;
     }
 }

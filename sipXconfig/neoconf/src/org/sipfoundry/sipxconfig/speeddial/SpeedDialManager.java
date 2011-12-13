@@ -28,6 +28,8 @@ public interface SpeedDialManager extends DialingRuleProvider {
 
     void deleteSpeedDialsForUser(int userId);
 
+    void deleteSpeedDialsForGroup(int groupId);
+
     void saveSpeedDialSynchToGroup(SpeedDial speedDial);
 
     boolean isSpeedDialDefinedForUserId(Integer userId);

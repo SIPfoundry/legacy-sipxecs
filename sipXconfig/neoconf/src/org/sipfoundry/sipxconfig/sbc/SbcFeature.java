@@ -13,6 +13,7 @@ import java.util.Collections;
 import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -22,7 +23,8 @@ public class SbcFeature implements FeatureProvider, FeatureListener {
     private SbcDeviceManager m_sbcDeviceManager;
 
     @Override
-    public void enableLocationFeature(FeatureEvent event, LocationFeature feature, Location location) {
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
         if (feature.equals(SBC)) {
             BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location);
             if (event == FeatureEvent.PRE_ENABLE && bridgeSbc == null) {
@@ -35,7 +37,7 @@ public class SbcFeature implements FeatureProvider, FeatureListener {
     }
 
     @Override
-    public void enableGlobalFeature(FeatureEvent event, GlobalFeature feature) {
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 
     public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {

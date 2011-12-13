@@ -31,6 +31,10 @@ public class MongoFeature implements AddressProvider, FeatureProvider {
         return m_settingsDao.findOne();
     }
 
+    public void saveSettings(MongoSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
+
     @Override
     public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
         return Collections.singleton(ADDRESS_ID);

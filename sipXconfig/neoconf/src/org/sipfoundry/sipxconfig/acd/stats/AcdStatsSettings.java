@@ -18,6 +18,6 @@ public class AcdStatsSettings extends BeanWithSettings {
     }
 
     public int getAcdStatsPort() {
-        return ((Integer) getSettingTypedValue("configagent-config/CONFIG_SERVER_AGENT_PORT")).intValue();
+        return (Integer) getSettingTypedValue("configagent-config/CONFIG_SERVER_AGENT_PORT");
     }
 }

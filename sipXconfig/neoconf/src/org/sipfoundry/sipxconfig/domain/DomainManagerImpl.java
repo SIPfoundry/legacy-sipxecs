@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.domain;
 
 import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,21 +25,19 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.localization.Localization;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
+public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
     private static final String DOMAIN_CONFIG_ERROR = "Unable to load initial domain-config file.";
-
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
     private static final String SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
-    private String m_domainConfigFilename;
-    private LocationsManager m_locationsManager;
     private Domain m_domain;
-    protected abstract DomainConfiguration createDomainConfiguration();
+    private ConfigManager m_configManager;
+    private String m_domainConfigFilename;
 
     /**
      * @return non-null unless test environment
@@ -69,6 +68,10 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         }
         getHibernateTemplate().saveOrUpdate(domain);
         getHibernateTemplate().flush();
+
+        // hmmm, should each feature that uses the domain name be watching for
+        // DomainManger.FEATURE?
+        m_configManager.allFeaturesAffected();
         m_domain = null;
     }
 
@@ -136,18 +139,6 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         return getDomain().getSipRealm();
     }
 
-    public void setDomainConfigFilename(String domainConfigFilename) {
-        m_domainConfigFilename = domainConfigFilename;
-    }
-
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
-    private String getConfigServerHostname() {
-        return m_locationsManager.getPrimaryLocation().getFqdn();
-    }
-
     public String getSharedSecret() {
         return getDomain().getSharedSecret();
     }
@@ -176,5 +167,9 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
             getHibernateTemplate().flush();
         }
         m_domain = null;
+    }
+
+    public void setDomainConfigFilename(String domainConfigFilename) {
+        m_domainConfigFilename = domainConfigFilename;
     }
 }

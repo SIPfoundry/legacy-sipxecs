@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-  <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl">
+  
+  <bean id="abstractMailboxManager" abstract="true">
+    <property name="coreContext" ref="coreContext" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="featureManager" ref="featureManager" />
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="binDir" value="${sysdir.bin}" />
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="distributionListsReader">
       <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader" />
@@ -23,47 +29,21 @@
         <property name="velocityEngine" ref="velocityEngine" />
       </bean>
     </property>
-    <property name="coreContext" ref="coreContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="locationsManager" ref="locationsManager"/>
-    <property name="binDir" value="${sysdir.bin}" />
+  </bean>
+  
+  <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl" parent="abstractMailboxManager">
   </bean>
 
   <bean id="xpathTemplate" class="org.springframework.xml.xpath.Jaxp13XPathTemplate"/>
   <bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
 
-  <bean id="remoteMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.RemoteMailboxManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="distributionListsReader">
-      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader" />
-    </property>
-    <property name="distributionListsWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsWriter">
-        <property name="velocityEngine" ref="velocityEngine" />
-      </bean>
-    </property>
-    <property name="personalAttendantWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter">
-        <property name="generator" ref="velocityProfileGenerator" />
-        <property name="velocityEngine" ref="velocityEngine" />
-        <property name="coreContext" ref="coreContext" />
-      </bean>
-    </property>
-    <property name="mailboxPreferencesWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
-        <property name="velocityEngine" ref="velocityEngine" />
-      </bean>
-    </property>
-    <property name="coreContext" ref="coreContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="locationsManager" ref="locationsManager"/>
+  <bean id="remoteMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.RemoteMailboxManagerImpl"  parent="abstractMailboxManager">
     <property name="xpathTemplate" ref="xpathTemplate"/>
     <property name="restTemplate" ref="restTemplate"/>
-    <property name="binDir" value="${sysdir.bin}" />
   </bean>
 
   <bean id="genericMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.GenericMailboxManagerImpl" init-method="init">
-    <property name="locationsManager" ref="locationsManager"/>
+    <property name="featureManager" ref="featureManager" />
   </bean>
 
   <bean id="mailboxManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

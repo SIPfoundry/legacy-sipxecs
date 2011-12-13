@@ -6,9 +6,7 @@
   -->
   <bean id="intercomManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.intercom.IntercomManagerImpl">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory" />
-    </property>
+    <property name="sessionFactory" ref="sessionFactory"/>
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
   </bean>
 

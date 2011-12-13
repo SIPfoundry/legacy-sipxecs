@@ -8,57 +8,54 @@
  */
 package org.sipfoundry.sipxconfig.openfire;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.XMPP_SERVER;
 
-import org.apache.commons.lang.StringUtils;
+import java.io.IOException;
+import java.io.Writer;
+
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.service.SipxRestService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
+import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.XMPP_SERVER;
-
-public class SipxOpenfireConfiguration extends SipxServiceConfiguration {
-    private static final String HOST_PORT_SEPERATOR = ":";
-    private static final int SERVER_TO_SERVER_PORT_MIN = 1024;
-    private static final int SERVER_TO_SERVER_PORT_MAX = 65535;
-
+public class SipxOpenfireConfiguration {
     private CoreContext m_coreContext;
+    private AddressManager m_addressManager;
+    private Openfire m_openfire;
+    private DomainManager m_domainManager;
+    private VelocityEngine m_velocityEngine;
 
-    @Override
-    protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(location);
-        SipxService openfireService = getSipxOpenfireService();
-        context.put("settings", openfireService.getSettings());
-        context.put("service", openfireService);
-
-        SipxService restService = getService(SipxRestService.BEAN_ID);
-        context.put("restService", restService);
-
+    public void write(Writer writer, Location location) throws IOException {
+        VelocityContext context = new VelocityContext();
+        OpenfireSettings settings = m_openfire.getSettings();
+        Address proxyAddress = m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS);
+        Address restAddress = m_addressManager.getSingleAddress(RestServer.HTTPS_API);
+        Address restExtAddress = m_addressManager.getSingleAddress(RestServer.EXTERNAL_API);
+        
+        context.put("settings", settings);
         String username = XMPP_SERVER.getUserName();
         User user = m_coreContext.getSpecialUser(XMPP_SERVER);
         context.put("username", username);
-        context.put("password", user.getSipPassword());
+        context.put("location", location);
+        context.put("password", user.getSipPassword());       
         context.put("resource-list", SpeedDial.getResourceListId(username, true));
-
-        List<Map<String, String>> allowedServers = getServers(openfireService.getSettings().getSetting(
-                SipxOpenfireService.SERVER_TO_SERVER_ALLOWED_SERVERS_SETTING).getValue());
-        List<Map<String, String>> disallowedServers = getServers(openfireService.getSettings().getSetting(
-                SipxOpenfireService.SERVER_TO_SERVER_DISALLOWED_SERVERS_SETTING).getValue());
-        context.put("allowedServers", allowedServers);
-        context.put("disallowedServers", disallowedServers);
-
-        return context;
+        context.put("domainName", m_domainManager.getDomainName());
+        context.put("proxy", proxyAddress);
+        context.put("restAddress", restAddress);
+        context.put("restExtAddress", restExtAddress);
+        try {
+            m_velocityEngine.mergeTemplate("openfire/sipxopenfire.vm", context, writer);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 
     @Required
@@ -66,44 +63,19 @@ public class SipxOpenfireConfiguration extends SipxServiceConfiguration {
         m_coreContext = coreContext;
     }
 
-    private List<Map<String, String>> getServers(String settingValue) {
-        List<Map<String, String>> serversList = new ArrayList<Map<String, String>>();
-        if (settingValue == null) {
-            return serversList;
-        }
-
-        Set<String> servers = new LinkedHashSet<String>();
-        String[] rawServersArray = StringUtils.split(settingValue, ",");
-
-        for (String rawServer : rawServersArray) {
-            String server = rawServer.trim();
-            String port = StringUtils.substringAfterLast(server, HOST_PORT_SEPERATOR);
-            if (port.isEmpty() || Integer.valueOf(port) < SERVER_TO_SERVER_PORT_MIN
-                    || Integer.valueOf(port) > SERVER_TO_SERVER_PORT_MAX) {
-                port = String.valueOf(getSipxOpenfireService().getSettingTypedValue(
-                        SipxOpenfireService.SERVER_TO_SERVER_DEFAULT_REMOTE_PORT));
-            }
-
-            servers.add(StringUtils.substringBeforeLast(server, HOST_PORT_SEPERATOR) + HOST_PORT_SEPERATOR
-                    + port);
-        }
-
-        for (String server : servers) {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("host", StringUtils.substringBeforeLast(server, HOST_PORT_SEPERATOR));
-            map.put("port", StringUtils.substringAfterLast(server, HOST_PORT_SEPERATOR));
-            serversList.add(map);
-        }
-
-        return serversList;
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 
-    @Override
-    public boolean isReplicable(Location location) {
-        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxOpenfireService.BEAN_ID);
+    public void setOpenfire(Openfire openfire) {
+        m_openfire = openfire;
     }
 
-    private SipxService getSipxOpenfireService() {
-        return getService(SipxOpenfireService.BEAN_ID);
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+
+    public void setVelocityEngine(VelocityEngine velocityEngine) {
+        m_velocityEngine = velocityEngine;
     }
 }

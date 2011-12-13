@@ -18,12 +18,13 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public class Acd implements FeatureProvider, AddressProvider {
+public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
     public static final LocationFeature FEATURE = new LocationFeature("acd");
     public static final AddressType CONFIG_ADDRESS = new AddressType("acdConfig");
     public static final AddressType MONITOR_ADDRESS = new AddressType("acdMonitor");
@@ -80,5 +81,23 @@ public class Acd implements FeatureProvider, AddressProvider {
             }
         }
         return addresses;
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        if (!Acd.FEATURE.equals(feature)) {
+            return;
+        }
+        if (event == FeatureEvent.PRE_ENABLE) {
+            m_acdContext.addNewServer(location);
+        } else if (event == FeatureEvent.POST_DISABLE) {
+            List<AcdServer> servers = m_acdContext.getServers();
+            m_acdContext.removeServers(servers);
+        }
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 }

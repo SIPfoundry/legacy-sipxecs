@@ -45,7 +45,6 @@ import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -93,7 +92,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     private MongoTemplate m_imdb;
     private ValidUsers m_validUsers;
-    private ApiProvider<FileApi> m_fileApiProvider;
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
     private ListableBeanFactory m_beanFactory;
@@ -150,10 +148,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         }
 
     };
-
-    public void setFileApiProvider(ApiProvider<FileApi> fileApiProvider) {
-        m_fileApiProvider = fileApiProvider;
-    }
 
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {

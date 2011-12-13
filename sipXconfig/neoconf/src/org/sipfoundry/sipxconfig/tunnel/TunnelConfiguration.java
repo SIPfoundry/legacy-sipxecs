@@ -18,15 +18,17 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.springframework.beans.factory.annotation.Required;
 
-public class TunnelConfiguration implements ConfigProvider {
+public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
     private VelocityEngine m_velocityEngine;
     private TunnelManager m_tunnelManager;
+    private ConfigManager m_configManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -103,5 +105,26 @@ public class TunnelConfiguration implements ConfigProvider {
     @Required
     public void setTunnelManager(TunnelManager tunnelManager) {
         m_tunnelManager = tunnelManager;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Location) {
+            m_configManager.replicationRequired(TunnelManager.FEATURE);
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        if (entity instanceof Location) {
+            Location l = (Location) entity;
+            if (l.hasFqdnOrIpChangedOnSave()) {
+                m_configManager.replicationRequired(TunnelManager.FEATURE);
+            }
+        }
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

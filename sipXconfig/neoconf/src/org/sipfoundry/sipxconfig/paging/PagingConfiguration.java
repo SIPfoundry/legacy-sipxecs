@@ -20,36 +20,35 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public class PagingConfiguration implements ConfigProvider {
     private PagingContext m_pagingContext;
-    private DomainManager m_domainManager;
     private String m_audioDirectory;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (request.applies(PagingContext.FEATURE)) {
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(PagingContext.FEATURE);
-            PagingSettings settings = m_pagingContext.getSettings();
-            String domainName = m_domainManager.getDomainName();
-            for (Location location : locations) {
-                File dir = manager.getLocationDataDirectory(location);
-                FileWriter writer = new FileWriter(new File(dir, "sipxpaging.properties"));
-                KeyValueConfiguration config = new KeyValueConfiguration(writer);
-                config.write(settings.getSettings().getSetting("page-config"));
-                List<PagingGroup> groups = m_pagingContext.getPagingGroups();
-                for (int i = 0; i < groups.size(); i++) {
-                    PagingGroup g = groups.get(i);
-                    if (g.isEnabled()) {
-                        config.write(i + ".user", g.getPageGroupNumber());
-                        config.write(i + ".description", g.getPageGroupNumber());
-                        config.write(i + ".urls", g.formatUserList(domainName));
-                        String beep = format("file://%s/%s", m_audioDirectory, g.getSound());
-                        config.write(i + ".beep", beep);
-                        long millis = ((long) g.getTimeout()) * 1000;
-                        config.write(i + ".timeout", millis);
-                    }
+        if (!request.applies(PagingContext.FEATURE)) {
+            return;
+        }
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(PagingContext.FEATURE);
+        PagingSettings settings = m_pagingContext.getSettings();
+        String domainName = manager.getDomainManager().getDomainName();
+        for (Location location : locations) {
+            File dir = manager.getLocationDataDirectory(location);
+            FileWriter writer = new FileWriter(new File(dir, "sipxpage.properties"));
+            KeyValueConfiguration config = new KeyValueConfiguration(writer);
+            config.write(settings.getSettings().getSetting("page-config"));
+            List<PagingGroup> groups = m_pagingContext.getPagingGroups();
+            for (int i = 0; i < groups.size(); i++) {
+                PagingGroup g = groups.get(i);
+                if (g.isEnabled()) {
+                    config.write(i + ".user", g.getPageGroupNumber());
+                    config.write(i + ".description", g.getPageGroupNumber());
+                    config.write(i + ".urls", g.formatUserList(domainName));
+                    String beep = format("file://%s/%s", m_audioDirectory, g.getSound());
+                    config.write(i + ".beep", beep);
+                    long millis = ((long) g.getTimeout()) * 1000;
+                    config.write(i + ".timeout", millis);
                 }
             }
         }
@@ -57,10 +56,6 @@ public class PagingConfiguration implements ConfigProvider {
 
     public void setPagingContext(PagingContext pagingContext) {
         m_pagingContext = pagingContext;
-    }
-
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
     }
 
     public void setAudioDirectory(String audioDirectory) {

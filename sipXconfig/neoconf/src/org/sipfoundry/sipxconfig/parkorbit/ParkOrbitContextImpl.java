@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
@@ -34,8 +33,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
     private static final String PARK_ORBIT_GROUP_ID = "park_orbit";
-
-    private SipxReplicationContext m_replicationContext;
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private SettingDao m_settingDao;

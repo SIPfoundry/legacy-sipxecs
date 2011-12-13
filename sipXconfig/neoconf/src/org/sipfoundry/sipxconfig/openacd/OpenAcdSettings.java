@@ -23,22 +23,13 @@ public class OpenAcdSettings extends BeanWithSettings implements OpenAcdConfigOb
     private static final String LOG_DIR = "openacd-config/log_dir";
     private DomainManager m_domainManager;
     private String m_logDirectory;
+    private String m_audioDirectory;
 
     public OpenAcdSettings() {
-        this(null);
+        addDefaultBeanSettingHandler(new Defaults());
     }
 
-    OpenAcdSettings(Object defaults) {
-        addDefaultBeanSettingHandler(defaults != null ? defaults : new Defaults(this));
-    }
-
-    static class Defaults {
-        private OpenAcdSettings m_settings;
-
-        Defaults(OpenAcdSettings settings) {
-            m_settings = settings;
-        }
-
+    class Defaults {
         @SettingEntry(path = C_NODE)
         public String getCNode() {
             // change this when installing on different locations will be supported
@@ -50,12 +41,12 @@ public class OpenAcdSettings extends BeanWithSettings implements OpenAcdConfigOb
             // change this when installing on different locations will be supported
             return String.format(
                     "{ignore_early_media=true}sofia/%s/$1;sipx-noroute=VoiceMail;sipx-userforward=false",
-                    m_settings.m_domainManager.getDomainName());
+                    m_domainManager.getDomainName());
         }
 
         @SettingEntry(path = LOG_DIR)
         public String getLogDir() {
-            return m_settings.m_logDirectory;
+            return m_logDirectory;
         }
     }
 
@@ -103,5 +94,13 @@ public class OpenAcdSettings extends BeanWithSettings implements OpenAcdConfigOb
 
     public void setLogDirectory(String logDirectory) {
         m_logDirectory = logDirectory;
+    }
+
+    public void setAudioDirectory(String audioDirectory) {
+        m_audioDirectory = audioDirectory;
+    }
+
+    public String getAudioDirectory() {
+        return m_audioDirectory;
     }
 }

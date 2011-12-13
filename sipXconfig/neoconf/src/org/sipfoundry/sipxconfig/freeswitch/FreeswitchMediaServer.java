@@ -31,12 +31,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  */
 public class FreeswitchMediaServer extends MediaServer {
     private static final String USER_PART = "IVR";
-    private int m_port;
     private AddressManager m_addressManager;
-
-    public void setPort(int port) {
-        m_port = port;
-    }
 
     @Override
     public String getDigitStringForOperation(Operation operation, CallDigits userDigits) {

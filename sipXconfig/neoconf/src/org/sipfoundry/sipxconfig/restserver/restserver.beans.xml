@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="restServerSettings" class="org.sipfoundry.sipxconfig.restserver.RestServerSettings" scope="prototype">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+
+  <bean id="restServer" class="org.sipfoundry.sipxconfig.restserver.RestServerManager">
+    <property name="settingsDao" ref="beanWithSettingsDao" />
+    <property name="velocityEngine" ref="velocityEngine"/>
+  </bean>
+
+</beans>

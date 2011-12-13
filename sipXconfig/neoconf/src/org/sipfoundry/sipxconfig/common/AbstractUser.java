@@ -93,7 +93,6 @@ public abstract class AbstractUser extends BeanWithGroups {
     private PermissionManager m_permissionManager;
     private DomainManager m_domainManager;
     private ProxyManager m_proxyManager;
-
     private AddressManager m_addressManager;
 
     private String m_firstName;

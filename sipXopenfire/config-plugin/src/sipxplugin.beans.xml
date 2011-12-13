@@ -6,46 +6,31 @@
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-  <bean id="sipxOpenfireService" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireService" scope="prototype"
-    parent="sipxService">
-    <property name="processName" value="SipXopenfire" />
-    <property name="modelName" value="openfire.xml" />
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="modelDir" value="openfire" />
-    <property name="editable" value="true" />
-    <property name="groupTitleEnabled" value="true" />
-    <property name="configurations">
-      <list>
-        <ref bean="sipxOpenfireConfiguration" />
-        <ref bean="openfireConfiguration" />
-        <ref bean="xmppAccountInfo" />
-        <ref bean="sipxRegistrarConfiguration" />
-      </list>
-    </property>
-    <property name="affectedServices">
-      <list>
-        <ref bean="sipxRegistrarService" />
-        <ref bean="sipxImbotService" />
-      </list>
-    </property>
-    <property name="bundles">
-      <set>
-        <ref bean="imBundle" />
-      </set>
-    </property>
+  <bean id="openfire" class="org.sipfoundry.sipxconfig.openfire.OpenfireService">
+    <property name="settingsDao" ref="beanWithSettingsDao"/>
   </bean>
 
-  <bean id="sipxOpenfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireConfiguration"
-    scope="prototype" parent="serviceConfigurationFile">
-    <property name="template" value="openfire/sipxopenfire.vm" />
-    <property name="name" value="sipxopenfire.xml" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="restartRequired" value="true" />
+  <bean id="openfireSettings" class="org.sipfoundry.sipxconfig.openfire.OpenfireSettings">
+    <property name="localizationContext" ref="localizationContext"/>
+  </bean>
+  
+  <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration">
+    <property name="config" ref="openfireXml"/>
+    <property name="sipxConfig" ref="openfireSipxXml"/>
+    <property name="accountConfig" ref="openfireAccountXml"/>
+    <property name="ldapManager" ref="ldapManager"/>
+    <property name="configManager" ref="configManager"/>  
+  </bean>
+
+  <bean id="openfireSipxXml" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireConfiguration">
     <property name="coreContext" ref="coreContext" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="openfire" ref="openfire" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="velocityEngine" ref="velocityEngine" />
   </bean>
 
-  <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration"
-    scope="prototype" parent="openfireConfigurationFile">
+  <bean id="openfireXml" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="openfire/openfire.vm" />
     <property name="name" value="openfire.xml" />
@@ -60,26 +45,10 @@
     <property name="serviceInterface" value="org.sipfoundry.sipxconfig.openfire.OpenfireApi" />
   </bean>
 
-  <bean id="xmppAccountInfo" class="org.sipfoundry.sipxconfig.openfire.XmppAccountInfo"
-    parent="defaultConfigurationFile">
-    <property name="name" value="xmpp-account-info.xml"/>
+  <bean id="openfireAccountXml" class="org.sipfoundry.sipxconfig.openfire.XmppAccountInfo">
     <property name="coreContext" ref="coreContext" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
-    <property name="restartRequired" value="false" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="validUsers" ref="validUsers" />
+    <property name="imbot" ref="imBot" />
   </bean>
-
-  <bean id="sipxOpenfireDaoListener" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireDaoListener">
-    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />
-    <property name="configurationFiles">
-      <list>
-        <ref bean="xmppAccountInfo" />
-        <ref bean="sipxOpenfireConfiguration" />
-      </list>
-    </property>
-  </bean>
-
 </beans>

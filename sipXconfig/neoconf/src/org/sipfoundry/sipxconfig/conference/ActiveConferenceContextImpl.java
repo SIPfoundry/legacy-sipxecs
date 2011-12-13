@@ -263,4 +263,8 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
 
         return activeConference;
     }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
 }

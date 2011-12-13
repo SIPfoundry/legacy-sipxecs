@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
   <bean id="acdHistoryDataSource" parent="dataSource">
     <property name="jdbcUrl" value="jdbc:postgresql://localhost/SIPXACD_HISTORY" />
   </bean>
@@ -8,14 +9,17 @@
   <bean id="acdHistoricalStatsImpl" class="org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalStatsImpl">
     <property name="dataSource" ref="acdHistoryDataSource" />
     <property name="reportScript" value="${sysdir.bin}/sipxconfig-report"/>
-    <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
-    <property name="acdHistoricalConfiguration" ref="acdHistoricalConfiguration" />
+    <property name="settingsDao" ref="beanWithSettingsDao" />    
   </bean>
 
   <bean id="acdHistoricalStats" class="org.springframework.aop.framework.ProxyFactoryBean"
     parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalStats"/>
     <property name="target" ref="acdHistoricalStatsImpl"/>
+  </bean>
+
+  <bean id="acdHistoricalSettings" class="org.sipfoundry.sipxconfig.acd.stats.history.AcdHistoricalSettings" scope="prototype">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
   <!--

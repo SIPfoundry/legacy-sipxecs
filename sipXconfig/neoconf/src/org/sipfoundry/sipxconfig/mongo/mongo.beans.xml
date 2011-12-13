@@ -9,6 +9,14 @@
   <bean id="mongoTunnnel" class="org.sipfoundry.sipxconfig.mongo.MongoTunnelProvider" />
   
   <bean id="mongo" class="org.sipfoundry.sipxconfig.mongo.MongoFeature">
+    <property name="settingsDao" ref="beanWithSettingsDao"/>
+  </bean>
+  
+  <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfig">
+    <property name="mongo" ref="mongo"/>
+  </bean>
+
+  <bean id="mongoSettings" class="org.sipfoundry.sipxconfig.mongo.MongoSettings">
   </bean>
   
 </beans>

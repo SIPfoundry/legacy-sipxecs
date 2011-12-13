@@ -32,15 +32,16 @@ public class AuthCodesConfig implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (request.applies(AuthCodes.FEATURE)) {
-            Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                    AuthCodes.FEATURE);
-            for (Location location : locations) {
-                File file = new File(manager.getLocationDataDirectory(location), "authcodes.xml.cfdat");
-                FileWriter wtr = new FileWriter(file);
-                XmlFile xml = new XmlFile(wtr);
-                xml.write(getDocument());
-            }
+        if (!request.applies(AuthCodes.FEATURE)) {
+            return;
+        }
+        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
+                AuthCodes.FEATURE);
+        for (Location location : locations) {
+            File file = new File(manager.getLocationDataDirectory(location), "authcodes.xml.cfdat");
+            FileWriter wtr = new FileWriter(file);
+            XmlFile xml = new XmlFile(wtr);
+            xml.write(getDocument());
         }
     }
     public Document getDocument() {

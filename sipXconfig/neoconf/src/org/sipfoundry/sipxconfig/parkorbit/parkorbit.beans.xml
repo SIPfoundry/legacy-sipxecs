@@ -3,9 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits"
-    parent="defaultConfigurationFile">
-    <property name="name" value="orbits.xml"/>
+  <bean id="parkConfig" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ParkOrbitConfiguration">
     <property name="parkOrbitContext" ref="parkOrbitContext" />
   </bean>
 
@@ -15,11 +13,9 @@
 
   <bean id="parkOrbitContextImpl" class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContextImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="aliasManager" ref="aliasManager" />
     <property name="settingDao" ref="settingDao" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="configManager" ref="configManager" />    
   </bean>
 
   <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -27,9 +23,6 @@
     <property name="target">
       <ref local="parkOrbitContextImpl" />
     </property>
-  </bean>
-
-  <bean id="parkOrbitSaveDefaultGroup" factory-bean="parkOrbitContextImpl" factory-method="createGroupSaveListener">
   </bean>
 
   <bean id="parkOrbitMigrationTask" class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitMigrationTask">

@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.springframework.beans.factory.BeanFactory;
@@ -34,7 +33,6 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, BeanFactoryAware {
     private DomainManager m_domainManager;
     private BeanFactory m_beanFactory;
-    private FeatureManager m_featureManager;
     private DaoEventPublisher m_daoEventPublisher;
 
     public DefaultSbc loadDefaultSbc() {

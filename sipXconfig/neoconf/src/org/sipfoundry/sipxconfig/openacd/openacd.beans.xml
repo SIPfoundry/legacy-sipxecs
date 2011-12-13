@@ -29,7 +29,7 @@
   </bean>
 
   <bean id="openAcdDb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
-    <constructor-arg ref="mongoDbFactory"/>  
+    <constructor-arg ref="mongoDbFactory"/>
 	<property name="dbname" value="openacd${sysdir.mongo_ns}"/>
   </bean>
 
@@ -62,4 +62,15 @@
       </list>
     </property>
   </bean>
+  
+  <bean id="openAcdConfig" class="org.sipfoundry.sipxconfig.openfire.OpenAcdConfiguration">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="openAcdContext" ref="openAcdContext" />
+    <property name="provisioningContext" ref="openAcdProvisioningContext" />
+  </bean>
+  
+  <bean id="openAcdSettings" class="org.sipfoundry.sipxconfig.openfire.OpenAcdSettings" scope="prototype">
+    <property name="domainManager" ref="domainManager"/>
+  </bean>
+  
 </beans>

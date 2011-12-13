@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.cert;
 
+
 import static org.apache.commons.lang.StringUtils.join;
 
 import java.io.File;
@@ -38,7 +39,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.commserver.SoftwareAdminApi;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
@@ -89,8 +89,6 @@ public class CertificateManagerImpl implements CertificateManager {
     private String m_certdbDirectory;
 
     private String m_libExecDirectory;
-
-    private SipxReplicationContext m_sipxReplicationContext;
 
     private ApiProvider<SoftwareAdminApi> m_softwareAdminApiProvider;
 
@@ -561,5 +559,9 @@ public class CertificateManagerImpl implements CertificateManager {
             }
             deleteCRTAuthorityTmpDirectory();
         }
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

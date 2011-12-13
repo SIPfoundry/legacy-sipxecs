@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
   <bean id="sbcManagerImpl" class="org.sipfoundry.sipxconfig.admin.sbc.SbcManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="domainManager" ref="domainManager" />
-    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
-    <property name="natTraversalManager" ref="natTraversalManager" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
   </bean>
 
   <bean id="sbcManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -18,6 +17,12 @@
   
   <bean id="sbcFeature" class="org.sipfoundry.sipxconfig.admin.sbc.SbcFeature">
     <property name="sbcDeviceManager" ref="sbcManager"/>
+  </bean>
+
+  <bean id="sbcOnEdit" class="org.sipfoundry.sipxconfig.admin.sbc.SbcOnEditListener">
+    <property name="featureManager" ref="featureManager" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager"/>
+    <property name="sbcManager" ref="sbcManager"/>
   </bean>
 
   <!--
@@ -47,8 +52,7 @@
   <bean id="sbcDeviceManagerSbcDeviceDelete" factory-bean="sbcDeviceManagerImpl"
     factory-method="createSbcDeviceDeleteListener" />
 
-  <bean id="sbcDeviceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
-    depends-on="sbcDeviceManagerSbcDeviceDelete">
+  <bean id="sbcDeviceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.sbc.SbcDeviceManager" />
     <property name="target">
       <ref local="sbcDeviceManagerImpl" />

@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-  
-  <bean id="tunnelManager" class="org.sipfoundry.sipxconfig.tunnel.TunnelManagerImpl">
-	<property name="locationsManager" ref="locationsManager"/>
-	<lookup-method name="getSipxReplicationContext" bean="sipxReplicationContextDao"/>
-	<property name="clientFile" ref="tunnelClientConfig"/>
-	<property name="serverFile" ref="tunnelServerConfig"/>
+
+  <bean id="tunnelManagerImpl" class="org.sipfoundry.sipxconfig.tunnel.TunnelManagerImpl">
   </bean>
   
+  <alias name="tunnelManager" alias="tunnelManagerImpl"/>
+
   <bean id="tunnelConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelConfiguration">
-    <property name="velocityEngine" ref="velocityEngine"/>
-    <property name="tunnelManager" ref="tunnelManager"/>
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="tunnelManager" ref="tunnelManager" />
+    <property name="configManager" ref="configManager" />
   </bean>
- 
+
 </beans>

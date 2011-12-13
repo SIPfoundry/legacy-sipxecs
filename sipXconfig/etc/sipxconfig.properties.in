@@ -12,8 +12,9 @@ sipxCallResolverService.agentPort=8130
 sipxStatusService.httpsPort=8101
 sipxSaaService.tcpPort=5170
 sipxSaaService.udpPort=5170
-sipxPageService.audioDir=@SIPX_VARDIR@/sipxpage/music
-sipxOpenAcdService.audioDir=@SIPX_VARDIR@/configserver/phone/acd/audio
+parkConfig.audioDirectory=@SIPX_VARDIR@/sipxpage/music
+pageSettings.audioDirectory=@SIPX_VARDIR@/sipxpage/music
+openAcdSettings.audioDirectory=@SIPX_VARDIR@/configserver/phone/acd/audio
 
 sipImpl.port=5180
 

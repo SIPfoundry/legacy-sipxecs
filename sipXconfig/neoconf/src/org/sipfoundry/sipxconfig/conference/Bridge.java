@@ -130,10 +130,14 @@ public class Bridge extends BeanWithSettings {
     }
 
     public Location getLocation() {
-        return getLocation();
+        return m_location;
     }
 
     public String getHost() {
         return getLocation().getFqdn();
+    }
+
+    public void setLocation(Location location) {
+        m_location = location;
     }
 }

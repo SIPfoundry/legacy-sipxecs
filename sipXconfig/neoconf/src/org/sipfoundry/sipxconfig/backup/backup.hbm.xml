@@ -41,4 +41,5 @@
     <property name="scheduledDay" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType" />
     <many-to-one name="backupPlan" column="backup_plan_id" class="BackupPlan" />
   </class>
+  
 </hibernate-mapping>

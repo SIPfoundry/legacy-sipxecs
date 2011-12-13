@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
   <bean id="featureManagerImpl" class="org.sipfoundry.sipxconfig.feature.FeatureManagerImpl">
-    <property name="configJdbcTemplate" ref="configJdbcTemplate"/>
+    <property name="jdbcTemplate" ref="configJdbcTemplate"/>
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>

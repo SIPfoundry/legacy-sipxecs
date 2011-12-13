@@ -20,7 +20,6 @@ import java.util.concurrent.Executors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
@@ -29,7 +28,6 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.Location.State;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
@@ -41,13 +39,11 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
- * This class aggregates some of the conditions that will trigger a replication. Initially it was meant to
- * aggregate conditions for Mongo replication but others were added.
- * The main methods are the event listeners methods onSave() and onDelete().
- * See DaoEventDispatcher to understand sipXecs event system, namely the order in which events
- * are triggered and methods processed.
- * The replication methods will throw a UserException which will veto the save/delete operation.
- * Stuff other than the delegation of replication to managers should be kept to a bare minimum.
+ * !!! NONE OF THIS CODE SHOULD BE HERE !!!
+ *
+ * If specific packages need to do specific things based on save/delete to specific objects, that logic
+ * should exist with the project.
+ *
  */
 public class ReplicationTrigger extends SipxHibernateDaoSupport implements ApplicationListener, DaoEventListener {
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
@@ -58,8 +54,6 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
     private ExecutorService m_executorService;
-    private FeatureManager m_featureManager;
-    private ConfigManager m_configManager;
 
     /** no replication at start-up by default */
     private boolean m_replicateOnStartup;
@@ -302,9 +296,5 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
      */
     public void setExecutorService(ExecutorService executorService) {
         m_executorService = executorService;
-    }
-
-    public void setConfigManager(ConfigManager configManager) {
-        m_configManager = configManager;
     }
 }

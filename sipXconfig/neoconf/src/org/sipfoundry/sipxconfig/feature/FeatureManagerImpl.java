@@ -137,10 +137,10 @@ public class FeatureManagerImpl extends HibernateDaoSupport implements BeanFacto
         disabledFeatures.removeAll(features);
         for (FeatureListener listener : getFeatureListeners()) {
             for (LocationFeature feature : features) {
-                listener.enableLocationFeature(enable, feature, location);
+                listener.enableLocationFeature(null, enable, feature, location);
             }
             for (LocationFeature feature : disabledFeatures) {
-                listener.enableLocationFeature(disable, feature, location);
+                listener.enableLocationFeature(null, disable, feature, location);
             }
         }
     }
@@ -151,10 +151,10 @@ public class FeatureManagerImpl extends HibernateDaoSupport implements BeanFacto
         disabledFeatures.removeAll(features);
         for (FeatureListener listener : getFeatureListeners()) {
             for (GlobalFeature feature : features) {
-                listener.enableGlobalFeature(enable, feature);
+                listener.enableGlobalFeature(null, enable, feature);
             }
             for (GlobalFeature feature : disabledFeatures) {
-                listener.enableGlobalFeature(disable, feature);
+                listener.enableGlobalFeature(null, disable, feature);
             }
         }
     }
@@ -245,5 +245,9 @@ public class FeatureManagerImpl extends HibernateDaoSupport implements BeanFacto
             }
         }
         return true;
+    }
+
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        m_jdbcTemplate = jdbcTemplate;
     }
 }

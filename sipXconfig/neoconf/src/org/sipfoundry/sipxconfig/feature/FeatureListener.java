@@ -15,7 +15,8 @@ public interface FeatureListener {
         PRE_ENABLE, POST_ENABLE, PRE_DISABLE, POST_DISABLE
     };
 
-    public void enableLocationFeature(FeatureEvent event, LocationFeature feature, Location location);
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location);
 
-    public void enableGlobalFeature(FeatureEvent event, GlobalFeature feature);
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature);
 }

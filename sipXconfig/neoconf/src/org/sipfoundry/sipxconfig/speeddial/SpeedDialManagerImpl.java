@@ -15,13 +15,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
-import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
-import org.sipfoundry.sipxconfig.common.event.UserGroupSaveDeleteListener;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -134,6 +133,15 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     }
 
     @Override
+    public void deleteSpeedDialsForGroup(int groupId) {
+        List<SpeedDialGroup> groups = findSpeedDialForGroupId(groupId);
+        for (SpeedDialGroup group : groups) {
+            m_daoEventPublisher.publishDelete(group);
+        }
+        getHibernateTemplate().deleteAll(groups);
+    }
+
+    @Override
     public void deleteSpeedDialsForUser(int userId) {
         List<SpeedDial> speedDials = findSpeedDialForUserId(userId);
         if (!speedDials.isEmpty()) {
@@ -142,31 +150,6 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
             }
             getHibernateTemplate().deleteAll(speedDials);
             getHibernateTemplate().flush();
-        }
-    }
-
-    public UserDeleteListener createUserDeleteListener() {
-        return new OnUserDelete();
-    }
-
-    public UserGroupSaveDeleteListener createUserGroupDeleteListener() {
-        return new OnUserGroupDelete();
-    }
-
-    private class OnUserDelete extends UserDeleteListener {
-        @Override
-        protected void onUserDelete(User user) {
-            deleteSpeedDialsForUser(user.getId());
-        }
-    }
-
-    private class OnUserGroupDelete extends UserGroupSaveDeleteListener {
-        @Override
-        protected void onUserGroupDelete(Group user) {
-            List<SpeedDialGroup> speedDialGroups = findSpeedDialForGroupId(user.getId());
-            if (!speedDialGroups.isEmpty()) {
-                getHibernateTemplate().deleteAll(speedDialGroups);
-            }
         }
     }
 

@@ -41,7 +41,6 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     private Integer m_port;
     private boolean m_active;
     private String m_binDir;
-
     private FeatureManager m_featureManager;
 
     public boolean isSystemCpui() {
@@ -195,4 +194,8 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     }
 
     public abstract void deleteMailbox(String userId);
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
 }

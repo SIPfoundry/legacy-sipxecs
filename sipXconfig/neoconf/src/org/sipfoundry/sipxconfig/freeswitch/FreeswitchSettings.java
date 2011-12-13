@@ -23,16 +23,13 @@ import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 
 public class FreeswitchSettings extends BeanWithLocation {
-    public static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
-    public static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
-    public static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
-    public static final String RELOAD_XML_JOB_TITLE = "FreeSWITCH reload configuration";
-    public static final String FREESWITCH_CODECS = "freeswitch-config/FREESWITCH_CODECS";
-    public static final String BEAN_ID = "sipxFreeswitchService";
-    public static final String LOG_SETTING = "freeswitch-config/FREESWITCH_SIP_DEBUG";
-    public static final String G729 = "G729";
-    public static final String G729_STATUS = "Permitted G.729AB channels";
-    public static final Logger LOG = Logger.getLogger("SipxFreeswitchService.class");
+    private static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
+    private static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
+    private static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
+    private static final String FREESWITCH_CODECS = "freeswitch-config/FREESWITCH_CODECS";
+    private static final String G729 = "G729";
+    private static final String G729_STATUS = "Permitted G.729AB channels";
+    private static final Logger LOG = Logger.getLogger(FreeswitchSettings.class);
     private static Boolean s_g729;
     private AddressManager m_addressManager;
     private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;

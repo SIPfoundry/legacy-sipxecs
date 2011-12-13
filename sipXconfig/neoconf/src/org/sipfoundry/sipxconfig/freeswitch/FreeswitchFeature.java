@@ -23,8 +23,8 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.commserver.BeanWithLocationDao;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.LocationBeanManager;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -34,7 +34,6 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings.SystemMohSetting;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
-import org.sipfoundry.sipxconfig.setting.BeanWithLocationDao;
 
 public class FreeswitchFeature implements Replicable, ReplicableProvider, FeatureProvider,
         AliasOwner, AddressProvider {
@@ -46,7 +45,6 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
 
     private FeatureManager m_featureManager;
     private MusicOnHoldManager m_musicOnHoldManager;
-    private LocationBeanManager m_locationBeanManager;
     private BeanWithLocationDao<FreeswitchSettings> m_settingsDao;
     private String m_name = "freeswitch";
 
@@ -117,7 +115,7 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
         List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(locations.size() * 4);
         MohAddressFactory moh = m_musicOnHoldManager.getAddressFactory();
         for (Location location : locations) {
-            FreeswitchSettings setttings = m_locationBeanManager.getBean(FreeswitchSettings.class, location);
+            FreeswitchSettings setttings = m_settingsDao.findOne(location);
             String mohSetting = setttings.getMusicOnHoldSource();
             String contact = null;
             switch (SystemMohSetting.parseSetting(mohSetting)) {
@@ -144,10 +142,6 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
         }
 
         return aliasMappings;
-    }
-
-    public void setLocationBeanManager(LocationBeanManager locationBeanManager) {
-        m_locationBeanManager = locationBeanManager;
     }
 
     @Override

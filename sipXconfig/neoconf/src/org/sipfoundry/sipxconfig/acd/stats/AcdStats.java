@@ -17,7 +17,6 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -27,7 +26,6 @@ import org.springframework.beans.factory.annotation.Required;
 public class AcdStats implements FeatureProvider, AddressProvider {
     public static final LocationFeature FEATURE = new LocationFeature("acdStats");
     public static final AddressType API_ADDRESS = new AddressType("acdStatsApi");
-    private FeatureManager m_featureManager;
     private BeanWithSettingsDao<AcdStatsSettings> m_settingsDao;
 
     public AcdStatsSettings getSettings() {
@@ -52,15 +50,17 @@ public class AcdStats implements FeatureProvider, AddressProvider {
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Object requester) {
+        if (!type.equals(API_ADDRESS)) {
+            return null;
+        }
+
         List<Address> addresses = null;
-        if (type.equals(API_ADDRESS)) {
-            List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
-            if (locations != null && !locations.isEmpty()) {
-                AcdStatsSettings settings = getSettings();
-                addresses = new ArrayList<Address>(locations.size());
-                for (Location location : locations) {
-                    addresses.add(new Address(location.getAddress(), settings.getAcdStatsPort()));
-                }
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        if (locations != null && !locations.isEmpty()) {
+            AcdStatsSettings settings = getSettings();
+            addresses = new ArrayList<Address>(locations.size());
+            for (Location location : locations) {
+                addresses.add(new Address(location.getAddress(), settings.getAcdStatsPort()));
             }
         }
         return addresses;

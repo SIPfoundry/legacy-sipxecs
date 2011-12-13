@@ -7,9 +7,9 @@
  */
 package org.sipfoundry.sipxconfig.commserver;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 
-public abstract class BeanWithLocation extends BeanWithSettings {
+public abstract class BeanWithLocation extends BeanWithGroups {
     private Location m_location;
 
     public Location getLocation() {

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="registrarSettings" class="org.sipfoundry.sipxconfig.registrar.RegistrarSettings" scope="prototype">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="aliasManager" ref="aliasManager"/>
+  </bean>
+
+  <bean id="registrar" class="org.sipfoundry.sipxconfig.registrar.RegistrarManager">
+    <property name="settingsDao" ref="beanWithSettingsDao" />
+  </bean>
+
+  <bean id="registrarConfig" class="org.sipfoundry.sipxconfig.registrar.RegistrarConfig">
+    <property name="registrar" ref="registrar" />
+  </bean>
+
+</beans>

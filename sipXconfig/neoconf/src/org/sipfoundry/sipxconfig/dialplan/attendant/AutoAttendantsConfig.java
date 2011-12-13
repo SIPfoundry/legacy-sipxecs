@@ -60,5 +60,13 @@ public class AutoAttendantsConfig extends EntitySaveListener<Group> implements C
         }
         request.firstTimeOver(this);
     }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
+
+    public void setXml(AutoAttendantXmlConfig xml) {
+        m_xml = xml;
+    }
 }
 
