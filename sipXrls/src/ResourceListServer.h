@@ -96,10 +96,10 @@ class ResourceListServer : public UtlContainableAtomic
                       int serverDefaultExpiration,
                       /// Maximum expiration to grant incoming SUBSCRIBEs.
                       int serverMaxExpiration,
-                      /// Name of the subscription DB to use (for testing purposes)
-                      const UtlString&  subscriptionDbName = SubscribeDB::defaultNamespace().c_str(),
-                      /// Name of the credentials DB to use (for testing purposes)
-                      const UtlString&  credentialsDbName = "credential"
+                      /// subscription DB to use
+                      SubscribeDB&  subscriptionDb,
+                      /// entity DB to use
+                      EntityDB&  entityDb
       );
 
    //! Destroy the ResourceListServer.

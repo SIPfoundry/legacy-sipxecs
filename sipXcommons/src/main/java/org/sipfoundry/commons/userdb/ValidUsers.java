@@ -19,8 +19,10 @@ import static org.sipfoundry.commons.mongo.MongoConstants.ALT_EMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.ATTACH_AUDIO;
+import static org.sipfoundry.commons.mongo.MongoConstants.AVATAR;
 import static org.sipfoundry.commons.mongo.MongoConstants.BUTTONS;
 import static org.sipfoundry.commons.mongo.MongoConstants.CELL_PHONE_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.COMPANY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_ENTRY_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXIT_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXT;
@@ -32,9 +34,15 @@ import static org.sipfoundry.commons.mongo.MongoConstants.DIALPAD;
 import static org.sipfoundry.commons.mongo.MongoConstants.DISPLAY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.DISTRIB_LISTS;
 import static org.sipfoundry.commons.mongo.MongoConstants.EMAIL;
+import static org.sipfoundry.commons.mongo.MongoConstants.FAX_NUMBER;
 import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.HASHED_PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOME_PHONE_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_CITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_COUNTRY;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_STATE;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_STREET;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_ZIP;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOST;
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
@@ -42,11 +50,18 @@ import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ON_THE_PHONE_MESSAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_PASSWORD;
+import static org.sipfoundry.commons.mongo.MongoConstants.JOB_DEPT;
+import static org.sipfoundry.commons.mongo.MongoConstants.JOB_TITLE;
 import static org.sipfoundry.commons.mongo.MongoConstants.ITEM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_BEGIN_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_END_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_CITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_COUNTRY;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STATE;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STREET;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_ZIP;
 import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
 import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
@@ -73,7 +88,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
 
 import com.mongodb.BasicDBList;
@@ -97,8 +111,7 @@ public class ValidUsers {
     private static final String IMDB_PERM_VOICEMAIL = "Voicemail";
     private static final String IMDB_PERM_RECPROMPTS = "RecordSystemPrompts";
     private static final String IMDB_PERM_TUICHANGEPIN = "tui-change-pin";
-
-    private MongoDbTemplate m_imdb;
+    private DB m_imdb;
 
     public List<User> getValidUsers() {
         List<User> users = new ArrayList<User>();
@@ -174,7 +187,7 @@ public class ValidUsers {
         DBObject queryUserName = QueryBuilder.start(VALID_USER).is(Boolean.TRUE).and(UID).is(userName).get();
         DBObject result = getEntityCollection().findOne(queryUserName);
         if (result != null) {
-            return extractValidUser(getEntityCollection().findOne(queryUserName));
+            return extractValidUser(result);
         }
 
         // check aliases
@@ -320,14 +333,7 @@ public class ValidUsers {
     }
 
     private DBCollection getEntityCollection() {
-        DBCollection entity = null;
-        try {
-            DB imdb = m_imdb.getDb();
-            entity = imdb.getCollection("entity");
-        } catch (Exception ex) {
-            System.exit(1);
-        }
-        return entity;
+        return getImdb().getCollection("entity");
     }
 
     private static User extractValidUserFromAlias(DBObject aliasObj) {
@@ -432,6 +438,26 @@ public class ValidUsers {
         user.setAltJid(getStringValue(obj, ALT_IM_ID));
         user.setImPassword(getStringValue(obj, IM_PASSWORD));
         user.setOnthePhoneMessage(getStringValue(obj, IM_ON_THE_PHONE_MESSAGE));
+        user.setCompanyName(getStringValue(obj, COMPANY_NAME));
+        user.setJobDepartment(getStringValue(obj, JOB_DEPT));
+        user.setJobTitle(getStringValue(obj, JOB_TITLE));
+        user.setFaxNumber(getStringValue(obj, FAX_NUMBER));
+
+        // office details
+        user.setOfficeStreet(getStringValue(obj, OFFICE_STREET));
+        user.setOfficeCity(getStringValue(obj, OFFICE_CITY));
+        user.setOfficeState(getStringValue(obj, OFFICE_STATE));
+        user.setOfficeZip(getStringValue(obj, OFFICE_ZIP));
+        user.setOfficeCountry(getStringValue(obj, OFFICE_COUNTRY));
+
+        // home details
+        user.setHomeCity(getStringValue(obj, HOME_CITY));
+        user.setHomeState(getStringValue(obj, HOME_STATE));
+        user.setHomeZip(getStringValue(obj, HOME_ZIP));
+        user.setHomeCountry(getStringValue(obj, HOME_COUNTRY));
+        user.setHomeStreet(getStringValue(obj, HOME_STREET));
+
+        user.setAvatar(getStringValue(obj, AVATAR));
 
         // active greeting related data
         if (obj.keySet().contains(ACTIVEGREETING)) {
@@ -652,11 +678,11 @@ public class ValidUsers {
         }
     }
 
-    public MongoDbTemplate getImdb() {
+    public DB getImdb() {
         return m_imdb;
     }
 
-    public void setImdb(MongoDbTemplate imdb) {
+    public void setImdb(DB imdb) {
         m_imdb = imdb;
     }
 }

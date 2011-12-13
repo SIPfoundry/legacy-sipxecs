@@ -15,7 +15,7 @@
 #include "digitmaps/FallbackRulesUrlMapping.h"
 #include "sipdb/ResultSet.h"
 
-#include "testlib/FileTestContext.h"
+#include "sipxunit/FileTestContext.h"
 #include "net/SipMessage.h"
 
 class FallbackRulesUrlMappingTest : public CppUnit::TestCase

@@ -53,13 +53,13 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 
 /// constructor
 CallerAlias::CallerAlias(const UtlString& pluginName ///< the name for this instance
-                         )
-   : AuthPlugin(pluginName),
-     mpSipRouter( 0 ),
-    _pEntities(0)
+) :
+	AuthPlugin(pluginName)
 {
-   
-};
+	MongoDB::ConnectionInfo info(MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS);
+	mpEntityDb = new EntityDB(info);
+}
+;
 
 /// Nothing configurable outside the database right now
 void
@@ -334,17 +334,15 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
 void CallerAlias::announceAssociatedSipRouter( SipRouter* sipRouter )
 {
     mpSipRouter = sipRouter;
-    if (!_pEntities)
-    {
-        _pEntities = new Collection(EntityDB::defaultNamespace());
-    }
 }
 
 /// destructor
 CallerAlias::~CallerAlias()
 {
-   delete _pEntities;
-   _pEntities = 0;
+   if (mpEntityDb != NULL) {
+	   delete mpEntityDb;
+	   mpEntityDb = 0;
+   }
 }
 
 static std::string string_right(const std::string& str, size_t size)
@@ -363,9 +361,6 @@ bool CallerAlias::getCallerAlias (
   UtlString& callerAlias_
 ) const
 {
-    if (!_pEntities)
-        return false;
-
     EntityRecord userEntity;
     EntityRecord gatewayEntity;
     bool hasUserEntity = false;
@@ -373,9 +368,8 @@ bool CallerAlias::getCallerAlias (
     std::string callerAlias;
     OS_LOG_INFO(FAC_SIP, "CallerAlias::getCallerAlias - EntityDB::findByIdentity for identity=" << identity.str() << " domain=" << domain.str());
 
-    hasUserEntity = _pEntities->collection().findByIdentity(identity.str(), userEntity);
-    hasGatewayEntity = _pEntities->collection().findByIdentity(domain.str(), gatewayEntity);
-
+    hasUserEntity = mpEntityDb->findByIdentity(identity.str(), userEntity);
+    hasGatewayEntity = mpEntityDb->findByIdentity(domain.str(), gatewayEntity);
     if (hasGatewayEntity && gatewayEntity.callerId().transformExtension)
     {
         size_t loc = identity.str().find("@");

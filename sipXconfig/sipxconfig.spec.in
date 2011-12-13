@@ -1,4 +1,6 @@
 #!BuildIgnore: post-build-checks
+%define debug_package %{nil}
+
 Name: @PACKAGE@
 Version: @VERSION@
 Release: @PACKAGE_REVISION@
@@ -50,6 +52,12 @@ Requires: sipxcommserverlib >= %version
 Requires: sipxacdstatistics-client >= %version
 Requires: sipxcdr-client >= %version
 Requires: sipxpbx >= %version
+
+# doesn't really require mongo server on same machine, but 
+# hard to see a reason why this isn't true and there needs
+# to be a mongo server somewhere to might as well be here.
+Requires: sipxmongo-server >= %version
+
 Requires: postgresql-server
 Requires: ruby
 Requires: rubygems
@@ -257,8 +265,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/database/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/itspTemplates
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mongod
-%config(noreplace) %{sipxpbxconf}/mongod/*
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mongo
+%config(noreplace) %{sipxpbxconf}/mongo/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mrtg
 %config(noreplace) %{sipxpbxconf}/mrtg/*
 %dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/nattraversal
@@ -457,5 +465,5 @@ fi
 %defattr(644,sipxchange,sipxchange,755)
 %attr(755,sipxchange,sipxchange) %{_bindir}/sipx-tunnel
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/tunnel-process.xml
-%config(noreplace) %{sipxpbxconf}/mongod/mongod.vm
+
 

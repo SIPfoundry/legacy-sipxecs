@@ -54,6 +54,21 @@ public class User {
     private String m_imDisplayName;
     private String m_imPassword;
     private String m_activeGreeting;
+    private String m_companyName;
+    private String m_jobDepartment;
+    private String m_jobTitle;
+    private String m_faxNumber;
+    private String m_officeStreet;
+    private String m_officeCity;
+    private String m_officeState;
+    private String m_officeZip;
+    private String m_officeCountry;
+    private String m_homeStreet;
+    private String m_homeCity;
+    private String m_homeState;
+    private String m_homeZip;
+    private String m_homeCountry;
+    private String m_avatar;
     private PersonalAttendant m_personalAttendant;
     private Distributions m_distributions;
 
@@ -441,5 +456,144 @@ public class User {
             m_distributions = new Distributions();
         }
         return m_distributions;
+    }
+
+    public void setCompanyName(String company) {
+        m_companyName = company;
+    }
+
+    public String getCompanyName() {
+        return m_companyName;
+    }
+
+    public String getJobDepartment() {
+        return m_jobDepartment;
+    }
+
+    public void setJobDepartment(String jobDepartment) {
+        m_jobDepartment = jobDepartment;
+    }
+
+    public String getJobTitle() {
+        return m_jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        m_jobTitle = jobTitle;
+    }
+    public String getFaxNumber() {
+        return m_faxNumber;
+    }
+
+    public void setFaxNumber(String faxNumber) {
+        m_faxNumber = faxNumber;
+    }
+
+    public String getOfficeStreet() {
+        return m_officeStreet;
+    }
+
+    public void setOfficeStreet(String officeStreet) {
+        m_officeStreet = officeStreet;
+    }
+
+    public String getOfficeCity() {
+        return m_officeCity;
+    }
+
+    public void setOfficeCity(String officeCity) {
+        m_officeCity = officeCity;
+    }
+
+    public String getOfficeState() {
+        return m_officeState;
+    }
+
+    public void setOfficeState(String officeState) {
+        m_officeState = officeState;
+    }
+
+    public String getOfficeZip() {
+        return m_officeZip;
+    }
+
+    public void setOfficeZip(String officeZip) {
+        m_officeZip = officeZip;
+    }
+
+    public String getOfficeCountry() {
+        return m_officeCountry;
+    }
+
+    public void setOfficeCountry(String officeCountry) {
+        m_officeCountry = officeCountry;
+    }
+
+    public String getHomeStreet() {
+        return m_homeStreet;
+    }
+
+    public void setHomeStreet(String homeStreet) {
+        m_homeStreet = homeStreet;
+    }
+
+    public String getHomeCity() {
+        return m_homeCity;
+    }
+
+    public void setHomeCity(String homeCity) {
+        m_homeCity = homeCity;
+    }
+
+    public String getHomeState() {
+        return m_homeState;
+    }
+
+    public void setHomeState(String homeState) {
+        m_homeState = homeState;
+    }
+
+    public String getHomeZip() {
+        return m_homeZip;
+    }
+
+    public void setHomeZip(String homeZip) {
+        m_homeZip = homeZip;
+    }
+
+    public String getHomeCountry() {
+        return m_homeCountry;
+    }
+
+    public void setHomeCountry(String homeCountry) {
+        m_homeCountry = homeCountry;
+    }
+
+    public String getAvatar() {
+        return m_avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        m_avatar = avatar;
+    }
+
+    public String getFirstName() {
+        if (m_displayName != null) {
+            String[] nameTokens = StringUtils.split(m_displayName, " ");
+            if (nameTokens != null && nameTokens.length > 0) {
+                return StringUtils.split(m_displayName, " ")[0];
+            }
+        }
+        return StringUtils.EMPTY;
+    }
+
+    public String getLastName() {
+        if (m_displayName != null) {
+            String[] nameTokens = StringUtils.split(m_displayName, " ");
+            if (nameTokens != null && nameTokens.length > 1) {
+                return StringUtils.split(m_displayName, " ")[1];
+            }
+        }
+        return StringUtils.EMPTY;
     }
 }

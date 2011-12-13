@@ -22,7 +22,7 @@ AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
   fi
   
   if [ ! test -d $RPM_DIST_DIR ]; then
-    AC_MSG_ERROR(Directory $REPO_DIR is missing)
+    mkdir -p "$RPM_DIST_DIR"
   fi
 
   AC_ARG_WITH([distdir],

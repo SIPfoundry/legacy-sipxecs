@@ -63,7 +63,7 @@ public:
    CallTracker( const ssize_t handle,
                 const NatTraversalRules* pNatRules,
                 MediaRelay* pMediaRelayToUse,
-                RegDB::Ptr pRegDB,
+                RegDB* pRegDB,
                 NatMaintainer* pNatMaintainer,
                 UtlString instanceNameForRouteState );
 
@@ -300,8 +300,6 @@ private:
    const NatTraversalRules* mpNatTraversalRules;
    /// Pointer to object that abstracts the Media Relay
    MediaRelay*              mpMediaRelayToUse;
-   /// Pointer to registration DB used in some instances to resolve the location of certain endpoints
-   RegDB::Ptr _pRegDB;
    /// Map that holds the SessionContext objects allocated by the CallTracker.  Map is indexed by SessionContextHandles
    UtlHashMap               mSessionContextsMap;
    /// Map that maps BranchIds to the handle of the SessionContext that can handle the request or response that bears the branchId
@@ -329,6 +327,8 @@ private:
    SdpBody*                 mpSavedOriginalSdpOfferCopy;
    // List of handle of SessionContexts that are ready to be deleted
    vector<UtlString>        mListOfSessionContextsReadyForDeletion;
+   /// Pointer to registration DB used in some instances to resolve the location of certain endpoints
+   RegDB*                   mpRegDb;
 
    friend class CallTrackerTest;
    friend class NatTraversalAgentTest;

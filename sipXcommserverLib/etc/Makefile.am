@@ -1,1 +1,0 @@
-cfgdir = @SIPX_CONFDIR@

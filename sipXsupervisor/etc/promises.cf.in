@@ -1,0 +1,25 @@
+bundle common g {
+  vars:
+    any::
+      # all files in plugin.d dir with extension *.cf will be loaded
+      "plugins" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -name '*.cf'", "noshell"),"\n", "10");
+
+      # only files in base plugin.d dir with automatically use bundle.  plugin.d/foo.cf will load bundle "foo", but
+      # plugin.d/mylib/bar.cf will not load bundle "bar"
+      "bundles" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -maxdepth 1 -name '*.cf' -printf '%f\n' | /bin/sed 's/.cf//g'", "useshell"),"\n", "10");
+}
+
+body common control {
+  bundlesequence => { 
+    "sipx_module",
+    "sipx",
+    @(g.bundles)
+  };
+
+  inputs => { 
+    "@SIPX_CFINPUTS@/sipx.cf",
+    "@SIPX_CFINPUTS@/cfengine_stdlib.cf",
+    @(g.plugins)
+  };
+}
+

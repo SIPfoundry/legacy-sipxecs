@@ -153,7 +153,7 @@ main(int argc, char* argv[] )
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if(argString.compareTo("-v") == 0)
       {
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "Version: %s %s\n", VERSION, PACKAGE_REVISION);
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "Version: %s %s\n", PACKAGE_VERSION, PACKAGE_REVISION);
          return(1);
       }
       else if( argString.compareTo("-i") == 0)

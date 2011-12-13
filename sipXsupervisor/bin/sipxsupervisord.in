@@ -1,0 +1,95 @@
+#!/bin/bash
+#
+# sipxsupervisord         Start/Stop the cfengine server daemon.
+#
+# chkconfig: - 96 20
+# description: sipxsupervisord is responsible from giving out configuration files to
+#              those cfengine clients, who wish to update their configs.
+#              For more information, visit http://www.cfengine.org
+# processname: cf-serverd
+# config: /var/cfengine/masterfiles
+
+# Source function library.
+. /etc/init.d/functions
+
+config="@SIPX_CFINPUTS@/sipxsupervisord.cf"
+exec="/usr/sbin/cf-serverd"
+prog=$(basename $exec)
+# used to tell which config is in use.
+configid=/var/run/sipxsupervisord-configid
+
+[ -e /etc/sysconfig/sipxsupervisord ] && . /etc/sysconfig/sipxsupervisord
+
+lockfile=/var/lock/subsys/$prog
+
+check_setup() {
+	[ ! -f /var/cfengine/ppkeys/localhost.priv ] && /usr/sbin/cfkey
+	if [ ! -f @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini ] ; then 
+	    echo -e "127.0.0.1\n::1" > @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini
+	fi
+	if [ ! -f @SIPX_CONFDIR@/sipxsupervisord-allowed-users.ini ] ; then 
+	    echo -e "root\n@SIPXPBXUSER@" > @SIPX_CONFDIR@/sipxsupervisord-allowed-users.ini
+	fi
+}
+
+start() {
+        check_setup
+	echo -n $config > $configid
+	echo -n $"Starting $prog: "
+	daemon $exec -f $config
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch $lockfile
+	return $RETVAL
+}
+
+nofork() {
+        check_setup
+	$exec -v -f $config
+}
+
+stop() {
+	echo -n $"Stopping $prog: "
+	killproc $prog
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f $lockfile
+	return $RETVAL
+}
+
+restart() {
+  	stop
+	start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+fdrstatus() {
+	status $prog
+}
+
+case "$1" in
+    start|stop|restart|reload|nofork)
+	$1
+	;;    
+    force-reload)
+        force_reload
+        ;;
+    status)
+  	fdrstatus
+	;;
+    # condrestart - only restarts if service *is* running
+    condrestart)
+        [ ! -f $lockfile ] || restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|condstart|reload|force-reload|nofork}"
+        exit 3
+esac
+exit $?

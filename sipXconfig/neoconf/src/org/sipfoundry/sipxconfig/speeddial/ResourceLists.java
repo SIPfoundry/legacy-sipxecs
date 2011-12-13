@@ -9,21 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
-import java.util.Iterator;
-
-import com.mongodb.BasicDBList;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.SipUri;
-import org.springframework.beans.factory.annotation.Required;
-
 import static org.sipfoundry.commons.mongo.MongoConstants.BUTTONS;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.NAME;
@@ -34,6 +19,21 @@ import static org.sipfoundry.commons.mongo.MongoConstants.USER;
 import static org.sipfoundry.commons.mongo.MongoConstants.USER_CONS;
 import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.XMPP_SERVER;
 import static org.sipfoundry.sipxconfig.speeddial.SpeedDial.getResourceListId;
+
+import java.util.Iterator;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SipUri;
+import org.springframework.beans.factory.annotation.Required;
+
+import com.mongodb.BasicDBList;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 public class ResourceLists extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01";

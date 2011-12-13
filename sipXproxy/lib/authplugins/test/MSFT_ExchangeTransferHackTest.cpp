@@ -19,7 +19,7 @@
 #include "ForwardRules.h"
 #include <sipxproxy/SipRouter.h>
 
-#include "testlib/FileTestContext.h"
+#include "sipxunit/FileTestContext.h"
 #include "MSFT_ExchangeTransferHack.h"
 
 class MSFT_ExchangeTransferHackTest : public CppUnit::TestCase

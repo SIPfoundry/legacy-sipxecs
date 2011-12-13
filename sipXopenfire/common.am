@@ -25,6 +25,10 @@ plugin_JAR_PKGS = \
 	xmlrpc-client \
 	xmlrpc-server
 
+plugin_JAR_RT_PKGS = \
+	com.noelios.restlet \
+	org.restlet
+
 # NOTE: this list of dependencies affects compile and runtime becasue it 
 # is copied into startup script so just be aware what you're affecting.
 plugin_PKGS = \

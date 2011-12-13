@@ -16,6 +16,9 @@
 #include "os/OsDateTime.h"
 #include "os/OsLogger.h"
 #include "sipdb/ResultSet.h"
+#include "registry/SipRegistrar.h"
+#include "sipdb/EntityDB.h"
+#include "sipdb/RegDB.h"
 
 
 // DEFINES
@@ -106,6 +109,7 @@ SipRedirectorRegDB::lookUp(
    // Give the ~~in~ URIs separate processing.
    UtlString user;
    requestUriCopy.getUserId(user);
+   RegDB* regDb = SipRegistrar::getInstance(NULL)->getRegDB();
    if (user.index(URI_IN_PREFIX) == 0)
    {
       // This is a ~~in~ URI.
@@ -125,14 +129,13 @@ SipRedirectorRegDB::lookUp(
          //   getUnexpiredContactsUserInstrument(requestUriCopy, instrumentp, timeNow, registrations);
          UtlString identity;
          requestUriCopy.getIdentity(identity);
-         _dataStore.regDB().getUnexpiredContactsUserInstrument(identity.str(), instrumentp, timeNow, registrations);
+         regDb->getUnexpiredContactsUserInstrument(identity.str(), instrumentp, timeNow, registrations);
       }
       else
       {
          // This is a ~~in~[instrument] URI.
          const char* instrumentp = user.data() + sizeof (URI_IN_PREFIX) - 1;
-
-          _dataStore.regDB().getUnexpiredContactsInstrument(instrumentp, timeNow, registrations);
+         regDb->getUnexpiredContactsInstrument(instrumentp, timeNow, registrations);
       }         
    }
    else
@@ -145,7 +148,7 @@ SipRedirectorRegDB::lookUp(
 
       UtlString identity;
      requestUriCopy.getIdentity(identity);
-     _dataStore.regDB().getUnexpiredContactsUser(identity.str(), timeNow, registrations);
+     regDb->getUnexpiredContactsUser(identity.str(), timeNow, registrations);
 
    }
 
@@ -175,7 +178,8 @@ SipRedirectorRegDB::lookUp(
           requestUriCopy.getIdentity(identity);
           EntityRecord entity;
 
-          foundUserCfwdTimer = _dataStore.entityDB().findByIdentity(identity.str(), entity);
+          EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+          foundUserCfwdTimer = entityDb->findByIdentity(identity.str(), entity);
           if (foundUserCfwdTimer)
             userCfwdTimer << entity.callForwardTime();
       }

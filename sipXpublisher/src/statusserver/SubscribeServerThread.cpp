@@ -196,7 +196,7 @@ UtlBoolean SubscribeServerThread::insertRow(
       OsLock mutex(mLock);
       // (We must supply a dummy XML version number.)
       Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::insertRow() calling SubscriptionDB::getInstance()->InsertRow()\n") ;
-      status = SubscribeDB::defaultCollection().collection().insertRow(
+      StatusServer::getInstance()->getSubscribeDb()->upsert(
          SUBSCRIPTION_COMPONENT_STATUS,
          uri, callid, contact, expires, subscribeCseq, eventTypeKey, eventType,
          id, to, from, key, recordRoute, notifyCseq,
@@ -216,12 +216,11 @@ void SubscribeServerThread::removeRow(
    const int& subscribeCseq )
 {
    {
-      SubscribeDB::defaultCollection().collection().removeRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid, subscribeCseq);
+      StatusServer::getInstance()->getSubscribeDb()->remove(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid, subscribeCseq);
    }
 
    schedulePersist();
 }
-
 
 /// Remove an error row from the subscription DB and schedule persisting the DB
 void SubscribeServerThread::removeErrorRow (
@@ -230,7 +229,7 @@ void SubscribeServerThread::removeErrorRow (
    const UtlString& callid )
 {
    {
-      SubscribeDB::defaultCollection().collection().removeErrorRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid);
+      StatusServer::getInstance()->getSubscribeDb()->removeError(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid);
    }
 
    schedulePersist();
@@ -528,6 +527,8 @@ SubscribeServerThread::isAuthorized (
     identityUrl.setUserId(requestUser);
     identityUrl.setHostAddress(mDefaultDomain);
 
+    EntityDB* entityDb = StatusServer::getInstance()->getEntityDb();
+
     if( pluginContainer )
     {
         // if the plugin has permissions, we must match all these against the IMDB
@@ -537,7 +538,7 @@ SubscribeServerThread::isAuthorized (
             // All required permissions should match
 
             EntityRecord entity;
-            EntityDB::defaultCollection().collection().findByIdentity(identityUrl, entity);
+            entityDb->findByIdentity(identityUrl, entity);
             std::set<std::string> permissions = entity.permissions();
 
             int numDBPermissions = permissions.size();
@@ -638,6 +639,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
         UtlString requestUserBase;
         UtlString requestUriParam;
         int requestAuthIndex = 0;
+        EntityDB* entityDb = StatusServer::getInstance()->getEntityDb();
         // can have multiple authorization / authorization-proxy headers
         // headers search for a realm match
         while ( message->getDigestAuthorizationData ( &requestUser,
@@ -715,11 +717,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
                 UtlString passTokenDB;
 
                 // then get the credentials for this realm
-                if (EntityDB::defaultCollection().collection().getCredential(mailboxUrl,
-                                                                       mRealm,
-                                                                       requestUserBase,
-                                                                       passTokenDB,
-                                                                       authTypeDB))
+                if (entityDb->getCredential(mailboxUrl, mRealm, requestUserBase, passTokenDB, authTypeDB))
                 {
                     // the Digest Password is calculated from the request
                     // user, passtoken, nonce and request URI
@@ -978,10 +976,8 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
        // Critical Section here
        OsLock mutex(mLock);
 
-       bool exists = SubscribeDB::defaultCollection().collection().subscriptionExists(
-          SUBSCRIPTION_COMPONENT_STATUS,
-          to, from, callId, OsDateTime::getSecsSinceEpoch());
-
+       bool exists = StatusServer::getInstance()->getSubscribeDb()->subscriptionExists(
+                SUBSCRIPTION_COMPONENT_STATUS, to, from, callId, OsDateTime::getSecsSinceEpoch());
        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription subscriptionExists(..., '%s', '%s', '%s', %d) = %d",
                      to.data(), from.data(),
                      callId.data(), (int) OsDateTime::getSecsSinceEpoch(),

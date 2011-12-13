@@ -14,7 +14,7 @@ ivr_PKGS = \
 	mongo \
 	sipxcommons \
 	cglib \
-	xmlrpc-common \ 
+	xmlrpc-common \
 	ws-commons-util \
 	commons-fileupload \
 	xmlrpc-client \
@@ -23,6 +23,10 @@ ivr_PKGS = \
 	org.springframework.web \
 	org.springframework.context \
 	org.springframework.core \
+	org.springframework.jdbc \
+	org.springframework.transaction \
 	org.springframework.expression \
 	org.springframework.aop \
-	org.springframework.asm
+	org.springframework.asm \
+	spring-data-commons-core \
+	spring-data-mongodb

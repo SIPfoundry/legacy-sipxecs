@@ -57,8 +57,8 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
                                        int serverMinExpiration,
                                        int serverDefaultExpiration,
                                        int serverMaxExpiration,
-                                       const UtlString&  subscriptionDbName,
-                                       const UtlString&  credentialDbName) :
+                                       SubscribeDB&  subscriptionDb,
+                                       EntityDB&  entityDb) :
    mDomainName(domainName),
    mEventType(eventType),
    mContentType(contentType),
@@ -112,8 +112,9 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       OsServerTask::DEF_MAX_MSGS, // queueSize
       FALSE // bUseNextAvailablePort
       ),
-   mSubscriptionMgr(SUBSCRIPTION_COMPONENT_RLS, mDomainName, subscriptionDbName),
-   mPolicyHolder(domainName, realm, credentialDbName),
+
+   mSubscriptionMgr(SUBSCRIPTION_COMPONENT_RLS, mDomainName, subscriptionDb),
+   mPolicyHolder(domainName, realm, entityDb),
    mSubscribeServer(SipSubscribeServer::terminationReasonSilent,
                     mServerUserAgent, mEventPublisher, mSubscriptionMgr,
                     mPolicyHolder),

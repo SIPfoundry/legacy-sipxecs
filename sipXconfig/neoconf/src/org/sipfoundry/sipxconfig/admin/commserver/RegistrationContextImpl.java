@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
@@ -28,7 +28,7 @@ import com.mongodb.DBObject;
 public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
     private static final String DB_COLLECTION_NAME = "registrar";
-    private MongoDbTemplate m_nodedb;
+    private MongoTemplate m_nodedb;
 
     /**
      * @see org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext#getRegistrations()
@@ -75,11 +75,11 @@ public class RegistrationContextImpl implements RegistrationContext {
         return result;
     }
 
-    public MongoDbTemplate getNodedb() {
+    public MongoTemplate getNodedb() {
         return m_nodedb;
     }
 
-    public void setNodedb(MongoDbTemplate nodedb) {
+    public void setNodedb(MongoTemplate nodedb) {
         m_nodedb = nodedb;
     }
 }

@@ -26,6 +26,8 @@
 #include "registry/SipRedirectServer.h"
 #include "xmlparser/ExtractContent.h"
 #include "net/SipMessage.h"
+#include "sipdb/EntityDB.h"
+#include "registry/SipRegistrar.h"
 
 // DEFINES
 
@@ -376,6 +378,30 @@ SipRedirectorPickUp::finalize()
    }
 }
 
+/**
+ * Add entity uri to contact list
+ */
+class SipRedirectorAddContact
+{
+public:
+    SipRedirectorAddContact(const RedirectPlugin& plugin, ContactList& contactList) :
+        mContactList(contactList), mpPlugin(plugin)
+    {
+    }
+
+    void add(mongo::BSONObj& obj)
+    {
+        EntityRecord entity;
+        entity = obj;
+        const UtlString uri = entity.identity().c_str();
+        const Url contactUri(uri);
+        mContactList.add(contactUri, mpPlugin);
+    }
+
+private:
+    ContactList& mContactList;
+    const RedirectPlugin& mpPlugin;
+};
 
 
 RedirectPlugin::LookUpStatus
@@ -469,7 +495,19 @@ SipRedirectorPickUp::lookUp(
          // Only the SUBSCRIBE method is acceptable for
          // ~~sp~allcredentials, to prevent "INVITE ~~sp~allcredentials@..."
          // from ringing every phone!
-         _dataStore.getAllEntityUri(contactList, *this);
+          mongo::BSONObj query;
+          SipRedirectorAddContact add(*this, contactList);
+          RegDB* regDb = SipRegistrar::getInstance(NULL)->getRegDB();
+          // pass in boost function point to be called for each record. reducing memory footprint
+          // by not returning a collection of every user, only to copy them into contact list.
+          // For the record, i think this contactlist implementation is flawed and that it should
+          // be changed to CoR Design Pattern allowing all plugins to decide in real time if they
+          // wish to act on a uri.  If for no other reason, this copy of the users is out of date
+          // the instant it's loaded into contact list. -- Douglas
+
+          // TODO: is code is flawed? as registrations change, will this still function with
+          // changes.  Unclear but recommendations to use CoR will address --Douglas
+          regDb->forEach(query, bind(&SipRedirectorAddContact::add, &add, _1));
          return RedirectPlugin::SUCCESS;
       }
       else
@@ -1272,7 +1310,8 @@ SipRedirectorPickUp::addCredentials (UtlString domain, UtlString realm)
       UtlString authtype;
       bool bSuccess = false;
 
-      if (_dataStore.entityDB().getCredential(identity, realm, user, ha1_authenticator, authtype))
+      EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+      if (entityDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
          if ((line = new SipLine( identity // user entered url
                                  ,identity // identity url

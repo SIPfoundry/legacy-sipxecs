@@ -21,17 +21,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 
 public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCase {
     private OpenAcdContextImpl m_openAcdContextImpl;
     private OpenAcdSkillGroupMigrationContext m_migrationContext;
     private OpenAcdProvisioningContext m_openAcdProvisioningContext;
+    private MongoTemplate m_openAcdDb;
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
@@ -252,9 +254,10 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         queue.setGroup(m_openAcdContextImpl.getQueueGroupByName("Default"));
         m_openAcdContextImpl.saveQueue(queue);
 
-        MongoDbTemplate openacd = m_openAcdProvisioningContext.getDb();
-        openacd.drop();
-        DBCollection collection = openacd.getDb().getCollection("commands");
+        DB db = m_openAcdDb.getDb();        
+        db.dropDatabase();
+        
+        DBCollection collection = db.getCollection("commands");
 
         m_openAcdProvisioningContext.resync();
         //TODO: improve this test by adding all config objects, and
@@ -285,6 +288,10 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
 
     public void setOpenAcdProvisioningContext(OpenAcdProvisioningContext openAcdProvisioningContext) {
         m_openAcdProvisioningContext = openAcdProvisioningContext;
+    }
+
+    public void setOpenAcdDb(MongoTemplate openAcdDb) {
+        m_openAcdDb = openAcdDb;
     }
 
 }

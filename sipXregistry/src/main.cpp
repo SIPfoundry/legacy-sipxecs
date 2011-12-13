@@ -158,6 +158,13 @@ initSysLog(OsConfigDb* pConfig)
    }
 }
 
+bool isInterrupted = false;
+
+void catchInterrupt(int param)
+{
+   isInterrupted = true;
+}
+
 /** The main entry point to the sipregistrar */
 int
 main(int argc, char* argv[] )
@@ -174,7 +181,7 @@ main(int argc, char* argv[] )
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if (argString.compareTo("-v") == 0)
       {
-         osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
+         osPrintf("Version: %s (%s)\n", PACKAGE_VERSION, PACKAGE_REVISION);
          return(1);
       }
       else if ( argString.compareTo("-i") == 0)
@@ -243,21 +250,14 @@ main(int argc, char* argv[] )
       }
    }
 
-   // Fetch Pointer to the OsServer task object, note that
-   // object uses the IMDB so it is important to shut this thread
-   // cleanly before the signal handler exits
    SipRegistrar* registrar = SipRegistrar::getInstance(configDb);
-
    registrar->setNodeConfig(nodeFile.data());
-
    registrar->start();
-
    pServerTask = static_cast<OsServerTask*>(registrar);
-
-   // Do not exit, let the services run...
-   while( !Os::UnixSignals::instance().isTerminateSignalReceived() && !pServerTask->isShutDown() )
+   signal(SIGINT, catchInterrupt);
+   while( !isInterrupted && !pServerTask->isShutDown())
    {
-      OsTask::delay(1 * OsTime::MSECS_PER_SEC);
+       sleep(2000);
    }
    Os::Logger::instance().log(LOG_FACILITY, PRI_NOTICE, "main: cleaning up.");
 

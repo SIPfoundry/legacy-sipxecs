@@ -51,7 +51,8 @@ libsipXcommserver_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
 	@ODBC_LIBS@ \
 	sipdb/libsipdb.la \
-	-lboost_regex-mt
+	-lboost_regex-mt \
+	-lboost_program_options-mt
 
 libsipXcommserver_la_SOURCES = \
     alarm/Alarm.cpp \

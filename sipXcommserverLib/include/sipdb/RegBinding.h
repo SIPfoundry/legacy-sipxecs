@@ -27,11 +27,11 @@ public:
     typedef boost::shared_ptr<RegBinding> Ptr;
     RegBinding();
     RegBinding(const RegBinding& binding);
-    RegBinding(const MongoDB::BSONObj& bson);
+    RegBinding(const mongo::BSONObj& bson);
     ~RegBinding();
     void swap(RegBinding& binding);
     RegBinding& operator=(const RegBinding& binding);
-    RegBinding& operator=(const MongoDB::BSONObj& bson);
+    RegBinding& operator=(const mongo::BSONObj& bson);
     const std::string& getIdentity() const;
     const std::string& getUri() const;
     const std::string& getCallId() const;

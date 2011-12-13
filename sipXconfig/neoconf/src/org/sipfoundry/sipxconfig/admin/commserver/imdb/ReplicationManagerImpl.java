@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -36,7 +38,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -103,7 +105,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
     private boolean m_enabled = true;
 
-    private MongoDbTemplate m_imdb;
+    private MongoTemplate m_imdb;
     private ValidUsers m_validUsers;
     private ApiProvider<FileApi> m_fileApiProvider;
     private LocationsManager m_locationsManager;
@@ -178,7 +180,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         m_auditLogContext = auditLogContext;
     }
 
-    public void dropDatasetDb() throws Exception {
+    public void dropDatasetDb() {
         m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION).drop();
     }
 
@@ -283,32 +285,23 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * This method will print out replication time.
      */
     @Override
-    public boolean replicateAllData() {
+    public void replicateAllData() {
         Location primary = m_locationsManager.getPrimaryLocation();
-        boolean success = false;
-        try {
-            dropDatasetDb();
-            int membersCount = m_coreContext.getAllUsersCount();
-            doParallelAsyncReplication(membersCount, ReplicationWorker.class, null);
-            // get the rest of Replicables and replicate them
-            Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
-            for (ReplicableProvider provider : beanMap.values()) {
-                for (Replicable entity : provider.getReplicables()) {
-                    replicateEntity(entity);
-                }
+        dropDatasetDb();
+        int membersCount = m_coreContext.getAllUsersCount();
+        doParallelAsyncReplication(membersCount, ReplicationWorker.class, null);
+        // get the rest of Replicables and replicate them
+        Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
+        for (ReplicableProvider provider : beanMap.values()) {
+            for (Replicable entity : provider.getReplicables()) {
+                replicateEntity(entity);
             }
-            // Replicate the external aliases
-            ExternalAlias extalias = new ExternalAlias();
-            extalias.setFiles(m_externalAliases.getFiles());
-            replicateEntity(extalias);
-            m_auditLogContext.logReplicationMongo(DATABASE_REGENERATION, primary);
-            success = true;
-        } catch (Exception e) {
-            m_auditLogContext.logReplicationMongoFailed(DATABASE_REGENERATION, primary, e);
-            LOG.error("Regeneration of database failed", e);
-            throw new UserException(e);
         }
-        return success;
+        // Replicate the external aliases
+        ExternalAlias extalias = new ExternalAlias();
+        extalias.setFiles(m_externalAliases.getFiles());
+        replicateEntity(extalias);
+        m_auditLogContext.logReplicationMongo(DATABASE_REGENERATION, primary);
     }
 
     /**
@@ -476,8 +469,7 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * (i.e. if we hit send profiles, then do a change on group with 20.000 members)
      */
     private synchronized void doParallelAsyncReplication(int membersCount,
-            Class<? extends ReplicationWorker> cls, Object type)
-        throws Exception {
+            Class<? extends ReplicationWorker> cls, Object type) {
         ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
         Long start = System.currentTimeMillis();
         int pageSize = m_pageSize;
@@ -494,11 +486,26 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
                 + " threads using chunks of " + pageSize
                 + " users");
         for (int i = 0; i < pages; i++) {
-            ReplicationWorker worker = ct.newInstance(this, i * pageSize, pageSize, type);
+            ReplicationWorker worker = null;
+            try {
+                worker = ct.newInstance(this, i * pageSize, pageSize, type);
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
             futures.add(replicationExecutorService.submit(worker));
         }
         for (Future<Void> future : futures) {
-            future.get();
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
         }
         replicationExecutorService.shutdown();
         Long end = System.currentTimeMillis();
@@ -511,32 +518,24 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * and register the tunnels.
      */
     @Override
-    public boolean replicateLocation(Location location) {
-        boolean success = false;
-        try {
-            if (location.isRegistered()) {
-                DBCollection nodeCollection = m_imdb.getDb().getCollection(MongoConstants.NODE_COLLECTION);
-                DBObject search = new BasicDBObject();
-                search.put(ID, location.getId());
-                DBCursor cursor = nodeCollection.find(search);
-                DBObject node = new BasicDBObject();
-                if (cursor.hasNext()) {
-                    node = cursor.next();
-                }
-                node.put(ID, location.getId());
-                node.put(IP, location.getAddress());
-                node.put(DESCRIPTION, location.getName());
-                node.put(MASTER, location.isPrimary());
-                nodeCollection.save(node);
+    public void replicateLocation(Location location) {
+        if (location.isRegistered()) {
+            DBCollection nodeCollection = m_imdb.getDb().getCollection(MongoConstants.NODE_COLLECTION);
+            DBObject search = new BasicDBObject();
+            search.put(ID, location.getId());
+            DBCursor cursor = nodeCollection.find(search);
+            DBObject node = new BasicDBObject();
+            if (cursor.hasNext()) {
+                node = cursor.next();
             }
-            registerTunnels(location);
-            success = true;
-            m_auditLogContext.logReplicationMongo(LOCATION_REGISTRATION, location);
-        } catch (Exception e) {
-            m_auditLogContext.logReplicationMongoFailed(LOCATION_REGISTRATION, location, e);
-            throw new UserException("Cannot register location in mongo db: " + e);
+            node.put(ID, location.getId());
+            node.put(IP, location.getAddress());
+            node.put(DESCRIPTION, location.getName());
+            node.put(MASTER, location.isPrimary());
+            nodeCollection.save(node);
         }
-        return success;
+        registerTunnels(location);
+        m_auditLogContext.logReplicationMongo(LOCATION_REGISTRATION, location);
     }
 
     @Override
@@ -709,30 +708,28 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
      * Replicates file on all locations
      */
     @Override
-    public boolean replicateFile(Location location, ConfigurationFile file) {
+    public void replicateFile(Location location, ConfigurationFile file) {
         Location p = m_locationsManager.getPrimaryLocation();
         if (p != null) {
-            return replicateFile(p.getFqdn(), location, file);
+            replicateFile(p.getFqdn(), location, file);
         }
-        return true;
     }
 
-    boolean replicateFile(String primaryHostname, Location location, ConfigurationFile file) {
+    void replicateFile(String primaryHostname, Location location, ConfigurationFile file) {
         if (!m_enabled) {
-            return true;
+            return;
         }
 
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
-        boolean success = false;
         if (!location.isRegistered() || !location.isReplicateConfig()) {
-            return success;
+            return;
         }
         if (!file.isReplicable(location)) {
             LOG.info("File " + file.getName() + " cannot be replicated on location: " + location.getFqdn());
-            success = true;
-            return success;
+            return;
         }
+        boolean success = false;
         try {
             outStream = new ByteArrayOutputStream();
             LOG.debug("Generate location dependent content for " + file.getName()
@@ -745,9 +742,6 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
 
             FileApi api = m_fileApiProvider.getApi(location.getProcessMonitorUrl());
             success = api.replace(primaryHostname, file.getPath(), PERMISSIONS, content);
-            if (success) {
-                m_auditLogContext.logReplication(file.getName(), location);
-            }
         } catch (XmlRpcRemoteException e) {
             LOG.error("File replication failed: " + file.getName() + "; on " + location.getFqdn(), e);
         } catch (UnsupportedEncodingException e) {
@@ -757,11 +751,12 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
             LOG.error(EXCEPTION_LOG, e);
             throw new RuntimeException(e);
         } finally {
-            if (!success) {
+            if (success) {
+                m_auditLogContext.logReplication(file.getName(), location);
+            } else {
                 m_auditLogContext.logReplicationFailed(file.getName(), location, null);
             }
         }
-        return success;
     }
 
     public void setEnabled(boolean enabled) {
@@ -813,11 +808,11 @@ public class ReplicationManagerImpl extends HibernateDaoSupport implements Repli
         m_validUsers = validUsers;
     }
 
-    public MongoDbTemplate getImdb() {
+    public MongoTemplate getImdb() {
         return m_imdb;
     }
 
-    public void setImdb(MongoDbTemplate imdb) {
+    public void setImdb(MongoTemplate imdb) {
         m_imdb = imdb;
     }
 }

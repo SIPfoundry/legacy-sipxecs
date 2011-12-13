@@ -1,0 +1,106 @@
+bundle edit_line replace_contents(contents) {
+   insert_lines:
+     "$(contents)";
+
+   delete_lines:
+      ".*";
+}
+
+bundle agent mongodb {
+  methods:
+    "mongod" usebundle => "mongodb_install";
+    "mongod" usebundle => "mongodb_config";
+    "mongod" usebundle => "mongodb_running";
+    "any" usebundle => "mongo_client";
+}
+
+bundle agent mongodb_config {
+  vars:
+     mongod::
+      # not working at the moment
+      # "conf[replSet]" string => "sipxecs";
+
+      # TODO: bind to 127.0.0.1 under normal circumstances
+      "conf[bind_ip]" string => "0.0.0.0";
+
+      # TODO: take from a sequence
+      "conf[port]" string => "27017";
+
+  files:
+    mongod::
+      "$(sipx.mongod_conf)"
+        create => "false",
+        perms => m("644"),
+        edit_line => set_variable_values("mongodb_config.conf"),
+        classes => if_repaired("restart_mongod");
+
+  commands:
+    restart_mongod::
+      "/etc/init.d/mongod"
+        args => "restart";
+}
+
+# install mongodb-server if this system is supposed to have it running
+# according to mongodb-server spec, rpm will add to chkconfig and
+# automatically start it.
+bundle agent mongodb_install {
+  packages:
+   redhat.mongod::
+     "sipxmongo"
+        package_method => yum_rpm,
+        package_policy => "add";
+}
+
+# not meant to replace monitoring service that will restart crashed mongo
+# this just ensures it's running incase it was shutdown for some reason
+bundle agent mongodb_running {
+  processes:
+    mongod::
+      "mongod"
+        restart_class => "start_mongod";
+
+  commands:
+    start_mongod::
+      "/etc/init.d/mongod start";
+}
+
+bundle agent mongodb_repair {
+  files:
+    mongod::
+      "$(sipx.crontab)"
+        create => "true",
+        edit_line => mongodb_auto_repair();
+}
+
+
+# Once a minute, will check if mongod died and needs repair/restarting
+# If mongod was stopped normally, this script leaves mongod stopped.
+# cfengine best practices recommends running cf-agent on a cron or
+# with cf-execd and using time based classes to schedule things.
+bundle edit_line mongodb_auto_repair(edit) {
+  classes:
+    "install_repairer" not => regline(".*$(sipx.SIPX_BINDIR)/mongod-repair.*", "$(edit.filename)");
+
+  insert_lines:
+    install_repairer::
+      "* * * * * $(sipx.SIPX_BINDIR)/mongod-repair";
+}
+
+# Todo, support multiple mongo servers
+bundle agent mongo_client {
+  vars:
+    "client_ini[connectionString]" string => "$(sipx.mongod_servers)";
+    "client_ini[connectionUrl]" string => "mongodb://$(sipx.mongod_servers)";
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/mongo-client.ini"
+        create => "true",
+        perms => m("644"),
+        edit_line => set_variable_values("mongo_client.client_ini");
+
+  # no need to restart anything because clients only use config to bootstrap connection
+  # to mongo. Once connected they get updates via mongo itself. There is the rare case
+  # going from single server to double server combined w/single going down would 
+  # leave clients unable to switch over. Need to verify this.
+}

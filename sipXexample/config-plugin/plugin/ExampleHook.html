@@ -1,7 +1,10 @@
 <!-- 
- - UI placed on menus or potentially on any page in the system. 
- - All of these examples come from AdminNavigation.html but any page can have hooks including other
- - plugin pages
+ - UI placed on menus or potentially on any page in the system that has a hook declared with
+ -    <span jwcid="@common/Plugin" blockId="SomeBlockId"/>
+ - where "SomeBlockId" is some unique id to the application and described in more detail below..
+ -
+ - All of these examples hooks get used in the AdminNavigation.html but any page can have 
+ - hooks including other plugin pages.
  -
  - You need to follow this very specific convention of your hook will not be used
  -    jwcid="[Hook ID][Block ID]@Block"

@@ -16,7 +16,7 @@ BuildRequires: pcre-devel >= 4.5
 BuildRequires: unixODBC-devel >= 2.2
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
-BuildRequires: mongodb-devel
+BuildRequires: mongodb-devel >= 2.0.0
 BuildRequires: glibc-headers
 %if %{_vendor} == redhat
 BuildRequires: httpd-devel
@@ -43,9 +43,9 @@ Requires: sipxtacklib >= %version
 Requires: unixODBC >= 2.2
 Requires: ruby
 Requires: patch
-Requires: mongodb-server
 # bind-utils required for dig
 Requires: bind-utils
+Requires: sipxmongo >= %version
 Obsoletes: %{name}-doc
 
 Prefix: %_prefix
@@ -71,7 +71,7 @@ Requires: xerces-c-devel >= 2.6.0
 %endif
 Requires: sipxportlib-devel >= %version
 Requires: sipxtacklib-devel >= %version
-Requires: mongodb-devel
+Requires: mongodb-devel >= 2.0.0
 Requires: unixODBC-devel >= 2.2
 
 Group: Development/Libraries
@@ -109,12 +109,6 @@ if ! /usr/bin/id sipxchange >/dev/null 2>&1; then
   /usr/sbin/useradd -M -r -g sipxchange -d %{_sysconfdir}/sipxpbx -s /bin/bash -c sipxchange sipxchange 2>&1
 fi
 
-%post
-# verified as idempotent
-chkconfig --add mongod
-chkconfig mongod on
-service mongod start
-
 %files
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
@@ -142,7 +136,6 @@ service mongod start
 %attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxcdrpostgres
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-time-manager-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-change-timezone-init
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-mongodadmin
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxpackage-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxswadmin-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxzoneadmin-init

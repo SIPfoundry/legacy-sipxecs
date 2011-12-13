@@ -47,8 +47,8 @@ AppearanceAgent::AppearanceAgent(const UtlString& domainName,
                                        int serverMinExpiration,
                                        int serverDefaultExpiration,
                                        int serverMaxExpiration,
-                                       const UtlString&  subscriptionDbName,
-                                       const UtlString&  credentialDbName) :
+                                       SubscribeDB& subscribeDb,
+                                       EntityDB& entityDb) :
    mDomainName(domainName),
    mAppearanceGroupFile(*appearanceGroupFile),
    mRefreshInterval(refreshInterval),
@@ -78,8 +78,8 @@ AppearanceAgent::AppearanceAgent(const UtlString& domainName,
       OsServerTask::DEF_MAX_MSGS, // queueSize
       FALSE // bUseNextAvailablePort
       ),
-   mSubscriptionMgr(SUBSCRIPTION_COMPONENT_SAA, mDomainName, subscriptionDbName),
-   mPolicyHolder(domainName, realm, credentialDbName),
+   mSubscriptionMgr(SUBSCRIPTION_COMPONENT_SAA, mDomainName, subscribeDb),
+   mPolicyHolder(domainName, realm, entityDb),
    mSubscribeServer(SipSubscribeServer::terminationReasonSilent,
                     mServerUserAgent, mEventPublisher, mSubscriptionMgr,
                     mPolicyHolder),

@@ -29,7 +29,11 @@ const int RegistrarPersist::SIP_REGISTRAR_DEFAULT_PERSIST_INTERVAL = 20;  // uni
 // FORWARD DECLARATIONS
 
 
-/// Constructor
+//
+// NOTE: This class does not actually "persist" anymore.  MongoDB manages that.  It does
+// clean out old expired registrations though.
+//
+
 RegistrarPersist::RegistrarPersist(SipRegistrar& sipRegistrar) :
    OsServerTask("RegistrarPersist"),
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),

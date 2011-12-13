@@ -27,7 +27,7 @@ ssize_t CallTracker::sNextAvailableSessionContextHandle = 0;
 CallTracker::CallTracker( ssize_t handle,
                           const NatTraversalRules* pNatRules,
                           MediaRelay* pMediaRelayToUse,
-                          RegDB::Ptr pRegDB,
+                          RegDB* pRegDB,
                           NatMaintainer* pNatMaintainer,
                           UtlString instanceNameForRouteState ) :
    mHandle( handle ),
@@ -37,13 +37,13 @@ CallTracker::CallTracker( ssize_t handle,
    mNumberOfTicksWithoutActiveDialogs( 0 ),
    mpNatMaintainer( pNatMaintainer ),
    mpCallerPinholeInformation( 0 ),
-   mpSavedOriginalSdpOfferCopy( 0 )
+   mpSavedOriginalSdpOfferCopy( 0 ),
+   mpRegDb( pRegDB )
 {
    mPid = OsProcess::getCurrentPID();
    Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "+CallTracker tracker %p created; Handle=%zd+",
                                        this,
                                        mHandle );
-   _pRegDB = pRegDB;
 }
 
 CallTracker::~CallTracker()
@@ -485,7 +485,7 @@ SessionContext* CallTracker::createSessionContextAndSetHandle( const SipMessage&
       // session context handle successfully generated - allocate a new SessionContext
       // object to track the session and insert it into our mSessionContextsMap.
       UtlString* pMapKey = new UtlString( sessionContextHandle );
-      pSessionContext = new SessionContext( request, mpNatTraversalRules, sessionContextHandle, mpMediaRelayToUse, _pRegDB, this );
+      pSessionContext = new SessionContext( request, mpNatTraversalRules, sessionContextHandle, mpMediaRelayToUse, mpRegDb, this );
       if( pSessionContext && mSessionContextsMap.insertKeyAndValue( pMapKey, pSessionContext ) )
       {
          // Session Context successfully inserted into our mSessionContextsMap.  Encode

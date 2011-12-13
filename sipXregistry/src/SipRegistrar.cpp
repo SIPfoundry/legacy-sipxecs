@@ -8,10 +8,10 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "registry/RegDataStore.h"
-
 #include <assert.h>
 #include <stdlib.h>
+#include <mongo/client/dbclient.h>
+#include <mongo/client/connpool.h>
 
 // APPLICATION INCLUDES
 #include "os/OsBSem.h"
@@ -32,6 +32,7 @@
 #include "RegisterEventServer.h"
 #include "RegistrarPersist.h"
 #include "SipRegistrarServer.h"
+#include <assert.h>
 
 
 // EXTERNAL FUNCTIONS
@@ -70,7 +71,10 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    mRegistrarServer(new SipRegistrarServer(*this)),
    mRegistrarMsgQ(NULL),
    mRegisterEventServer(NULL),
-   mRegistrarPersist(NULL)
+   mRegistrarPersist(NULL),
+   mpRegDb(NULL),
+   mpSubscribeDb(NULL),
+   mpEntityDb(NULL)
 {
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar constructed.");
 
@@ -134,6 +138,11 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
       addValidDomain(hostAlias,port);
       aliasIndex++;
    }
+
+   mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
+   mpRegDb = new RegDB(MongoDB::ConnectionInfo(mongoConn, RegDB::NS));
+   mpSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
+   mpEntityDb = new EntityDB(MongoDB::ConnectionInfo(mongoConn, EntityDB::NS));
 
    mConfigDb->get("SIP_REGISTRAR_BIND_IP", mBindIp);
    if ((mBindIp.isNull()) || !OsSocket::isIp4Address(mBindIp))
@@ -329,8 +338,25 @@ SipRegistrar::~SipRegistrar()
    // all other threads have been shut down
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ task shut down - complete destructor");
 
-
    mValidDomains.destroyAll();
+
+   if (mpRegDb != NULL)
+   {
+       delete mpRegDb;
+       mpRegDb = NULL;
+   }
+
+   if (mpSubscribeDb != NULL)
+   {
+       delete mpSubscribeDb;
+       mpSubscribeDb = NULL;
+   }
+
+   if (mpEntityDb != NULL)
+   {
+       delete mpEntityDb;
+       mpEntityDb = NULL;
+   }
 }
 
 /// Get the default domain name for this registrar

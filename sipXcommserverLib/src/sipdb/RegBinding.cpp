@@ -62,7 +62,7 @@ void RegBinding::swap(RegBinding& binding)
     std::swap(_expired, binding._expired);
 }
 
-RegBinding::RegBinding(const MongoDB::BSONObj& bson)
+RegBinding::RegBinding(const mongo::BSONObj& bson)
 {
     if (bson.hasField("identity"))
       _identity = bson.getStringField("identity");
@@ -107,7 +107,7 @@ RegBinding::RegBinding(const MongoDB::BSONObj& bson)
       _expired = bson.getBoolField("expired");
 }
 
-RegBinding& RegBinding::operator=(const MongoDB::BSONObj& bson)
+RegBinding& RegBinding::operator=(const mongo::BSONObj& bson)
 {
     if (bson.hasField("identity"))
       _identity = bson.getStringField("identity");

@@ -140,8 +140,7 @@ class CallerAlias : public AuthPlugin
               );
 
    SipRouter* mpSipRouter;
-   typedef MongoDB::Collection<EntityDB> Collection;
-   Collection*_pEntities;
+   EntityDB* mpEntityDb;
 };
 
 #endif // _CALLERALIAS_H_

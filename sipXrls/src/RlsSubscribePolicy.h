@@ -15,6 +15,7 @@
 // APPLICATION INCLUDES
 #include <net/SipSubscribeServerEventHandler.h>
 #include <sipXecsService/SipNonceDb.h>
+#include <sipdb/EntityDB.h>
 
 // DEFINES
 // MACROS
@@ -44,9 +45,8 @@ public:
     RlsSubscribePolicy(UtlString defaultDomain,
                        ///< our SIP domain
                        UtlString realm,
-                       ///< realm to use for authentication
-                       UtlString credentialDbName = "credential"
-                       ///< name of the credential DB to use.
+                       ///< credential DB to use.
+                       EntityDB& entityDb
        );
 
     //! Destructor
@@ -89,9 +89,8 @@ private:
     long mNonceExpiration;
     //! The SIP domain.
     UtlString mDefaultDomain;
-    //! Name of the credentail DB to use
-    UtlString mCredentialDbName;
-
+    //!  credentail DB to use
+    EntityDB& mEntityDb;
 };
 
 /* ============================ INLINE METHODS ============================ */

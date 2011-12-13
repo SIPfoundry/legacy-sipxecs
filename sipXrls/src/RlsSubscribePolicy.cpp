@@ -36,11 +36,11 @@
 // Constructor
 RlsSubscribePolicy::RlsSubscribePolicy(UtlString defaultDomain,
                                        UtlString realm,
-                                       UtlString credentialDbName)
+                                       EntityDB& entityDb)
    : mRealm(realm),
      mNonceExpiration(RLS_SUBSCRIBE_NONCE_EXPIRATION),
      mDefaultDomain(defaultDomain),
-     mCredentialDbName(credentialDbName)
+     mEntityDb(entityDb)
 {
 }
 
@@ -160,11 +160,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
          UtlString passTokenDB;
 
          // then get the credentials for this user & realm
-         if (EntityDB::defaultCollection().collection().getCredential( authUserBase
-                                                         ,authRealm
-                                                         ,authIdentity
-                                                         ,passTokenDB
-                                                         ,authTypeDB ))
+         if (mEntityDb.getCredential(authUserBase, authRealm, authIdentity, passTokenDB, authTypeDB))
          {
             // only DIGEST is used, so the authTypeDB above is ignored
             if ((isAuthorized =

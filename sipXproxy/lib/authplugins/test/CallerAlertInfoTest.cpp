@@ -9,8 +9,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "cppunit/TestCase.h"
 #include "sipxunit/TestUtilities.h"
-#include "testlib/FileTestContext.h"
-#include "testlib/SipDbTestContext.h"
+#include "sipxunit/FileTestContext.h"
 
 #include "os/OsDefs.h"
 #include "os/OsLogger.h"

@@ -30,8 +30,3 @@ nobase_include_HEADERS =  \
     filereader/RefreshingFileReader.h \
     odbc/OdbcWrapper.h \
     persist/SipPersistentSubscriptionMgr.h
-
-noinst_HEADERS = \
-    testlib/FileTestContext.h \
-    testlib/RegistrationDbTestContext.h \
-    testlib/SipDbTestContext.h

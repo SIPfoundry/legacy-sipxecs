@@ -67,6 +67,7 @@
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="restartRequired" value="false" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="validUsers" ref="validUsers" />
   </bean>
 
   <bean id="sipxOpenfireDaoListener" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireDaoListener">

@@ -9,13 +9,11 @@
 
 #ifndef _REGISTERPLUGIN_H_
 #define _REGISTERPLUGIN_H_
-#include "registry/RegDataStore.h"
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "utl/Plugin.h"
-#include "registry/RegDataStore.h"
 
 // DEFINES
 // MACROS
@@ -102,9 +100,6 @@ public:
     static const char* Prefix;  ///< the configuration file prefix = "SIP_REGISTRAR"
     static const char* Factory; ///< the factory routine name = "getRegisterPlugin"
 
-    RegDataStore& dataStore();
-   RegDataStore _dataStore;
-
   protected:
 
     /// Constructor is private so that it is only callable from the subclasses
@@ -126,14 +121,5 @@ public:
     RegisterPlugin& operator=(const RegisterPlugin&);
 
 };
-
-//
-// Inlines
-//
-
-inline RegDataStore& RegisterPlugin::dataStore()
-{
-    return _dataStore;
-}
 
 #endif // _REGISTERPLUGIN_H_

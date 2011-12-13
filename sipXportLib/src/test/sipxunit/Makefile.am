@@ -23,7 +23,8 @@ libsipXunit_la_SOURCES =  \
     TestOutputter.h \
 	 TestOsSysLogListener.cpp \
 	 TestOsSysLogListener.h \
-    TestTemplate.cpp
+    TestTemplate.cpp \
+    FileTestContext.cpp
 
 libsipXunit_la_LIBADD = \
 	-lcppunit \
@@ -31,6 +32,7 @@ libsipXunit_la_LIBADD = \
 
 sipxincludedir = $(includedir)/sipxunit
 sipxinclude_HEADERS = \
-    TestUtilities.h
+    TestUtilities.h \
+    FileTestContext.h
 
 DISTCLEANFILES = Makefile.in

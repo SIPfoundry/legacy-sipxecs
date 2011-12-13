@@ -43,9 +43,9 @@ test_SRC = $(shell cd $(srcdir); find org \( \
 	 -name '*.java' \
 	\) )
 
-javac-test : test.properties sipxconfig.properties domain-config
-
-CLEANFILES = test.properties sipxconfig.properties domain-config
+TEST_CONFIG_FILES = test.properties sipxconfig.properties domain-config
+javac-test : $(TEST_CONFIG_FILES)
+CLEANFILES = $(TEST_CONFIG_FILES)
 
 test.properties sipxconfig.properties : SIPX_CONFDIR=$(top_srcdir)/etc/sipxpbx
 sipxconfig.properties : $(top_srcdir)/etc/sipxconfig.properties.in Makefile
@@ -54,7 +54,7 @@ sipxconfig.properties : $(top_srcdir)/etc/sipxconfig.properties.in Makefile
 	mv $@.tmp $@
 	
 domain-config : Makefile
-	@echo "$$domain_config" | tr -d '\011' >> $@	
+	@echo "$$domain_config" | tr -d '\011' >> $@
 
 # send autoconf variables to prop file available to test env.
 local.etc.dir = $(top_srcdir)/etc/sipxpbx
@@ -121,6 +121,7 @@ define sipxconfig_properties
 	dataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCONFIG_TEST
 	cdrDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCDR_TEST
 	acdHistoryDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST
+	mongoDbFactory.connectionUrl=mongodb://localhost:27017
 	sysdir.mongo_ns=_TEST
 endef
 export sipxconfig_properties

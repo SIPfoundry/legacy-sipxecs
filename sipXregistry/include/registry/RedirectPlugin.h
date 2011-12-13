@@ -10,8 +10,6 @@
 #ifndef _REDIRECTPLUGIN_H_
 #define _REDIRECTPLUGIN_H_
 
-#include "registry/RegDataStore.h"
-
 // SYSTEM INCLUDES
 #include <vector>
 // APPLICATION INCLUDES
@@ -294,9 +292,6 @@ class RedirectPlugin : public Plugin
     * This call must not block.
     */
    virtual void cancel(RequestSeqNo request);
-
-   RegDataStore& dataStore();
-   RegDataStore _dataStore;
 
   protected:
 
@@ -728,13 +723,5 @@ private:
 
 };
 
-//
-// Inlines
-//
-
-inline RegDataStore& RedirectPlugin::dataStore()
-{
-    return _dataStore;
-}
 
 #endif // _REDIRECTPLUGIN_H_

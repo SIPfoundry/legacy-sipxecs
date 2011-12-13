@@ -28,7 +28,7 @@ using namespace std;
 // TYPEDEFS
 // STATIC INITIALIZERS
 
-NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
+NatMaintainer::NatMaintainer( SipRouter* sipRouter, RegDB* pRegDb, SubscribeDB* pSubscribeDb ) :
    mRefreshRoundNumber( 0 ),
    mNextSeqValue( 1 ),
    mTimerMutex( OsMutex::Q_FIFO ),
@@ -36,12 +36,10 @@ NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
    mpEndpointsKeptAliveList(
       new KeepAliveEndpointDescriptor[ NUMBER_OF_UDP_PORTS ] ),
    mpKeepAliveMessage( 0 ),
-   mExternalKeepAliveListMutex( OsMutex::Q_FIFO )
+   mExternalKeepAliveListMutex( OsMutex::Q_FIFO ),
+   mpRegDb ( pRegDb ),
+   mpSubscribeDb ( pSubscribeDb )
 {
-
-    _pRegDB = RegDB::Ptr(new RegDB::RegDBCollection(RegDB::defaultNamespace()));
-    _pSubscribeDB = SubscribeDB::Ptr(new SubscribeDB::Collection(SubscribeDB::defaultNamespace()));
-
    mTimerMutex.acquire();
 
    // Build SIP Options message that will be used to keep remote NATed NAT & firewall pinholes open.
@@ -154,7 +152,7 @@ void NatMaintainer::sendKeepAliveToRegContactList(const UtlString& identityToMat
 {
     int timeNow = OsDateTime::getSecsSinceEpoch();
     RegDB::Bindings bindings;
-    _pRegDB->collection().getUnexpiredContactsUserContaining(
+    mpRegDb->getUnexpiredContactsUserContaining(
         identityToMatch.str(),
         timeNow,
         bindings);
@@ -177,7 +175,7 @@ void NatMaintainer::sendKeepAliveToSubscribeContactList(UtlString& identityToMat
 {
     int timeNow = OsDateTime::getSecsSinceEpoch();
     std::vector<std::string> bindings;
-    _pSubscribeDB->collection().getUnexpiredContactsFieldsContaining(
+    mpSubscribeDb->getUnexpiredContactsFieldsContaining(
         identityToMatch,
         timeNow,
         bindings);

@@ -18,6 +18,7 @@
 #include "sipdb/SubscribeDB.h"
 #include "sipdb/EntityDB.h"
 #include "statusserver/Notifier.h"
+#include "statusserver/StatusServer.h"
 
 // DEFINES
 // MACROS
@@ -133,10 +134,10 @@ Notifier::sendNotifyForeachSubscription (
     int timeNow = (int)OsDateTime::getSecsSinceEpoch();
 
     // Get all subscriptions associated with this identity
-    SubscribeDB::defaultCollection().collection().getUnexpiredSubscriptions(
+    StatusServer* server = StatusServer::getInstance();
+    SubscribeDB* subscribeDb = server->getSubscribeDb();
+    subscribeDb->getUnexpiredSubscriptions(
            SUBSCRIPTION_COMPONENT_STATUS, key, event, timeNow, subscriptions );
-
-
 
     // Add the static configured contacts.
     UtlString userUri(key);
@@ -146,7 +147,7 @@ Notifier::sendNotifyForeachSubscription (
     UtlString userToUri;
     UtlString userCallid;
     EntityRecord entity;
-    if (EntityDB::defaultCollection().collection().findByIdentity(std::string(key), entity))
+    if (server->getEntityDb()->findByIdentity(std::string(key), entity))
     {
         std::vector<EntityRecord::StaticUserLoc> staticUserLoc = entity.staticUserLoc();
         if (staticUserLoc.size() > 0)
@@ -249,7 +250,7 @@ Notifier::sendNotifyForeachSubscription (
 
             // Update the Notify sequence number (CSeq) in the IMDB
             // (We must supply a dummy XML version number.)
-            SubscribeDB::defaultCollection().collection().updateNotifyUnexpiredSubscription (
+            subscribeDb->updateNotifyUnexpiredSubscription (
                SUBSCRIPTION_COMPONENT_STATUS, to, from, callid,
                eventtype, id, timeNow, notifycseq, 0 );
         }

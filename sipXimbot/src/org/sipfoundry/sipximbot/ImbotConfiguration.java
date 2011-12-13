@@ -30,6 +30,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     private String m_logLevel; // The desired logging level in SipFoundry format (not log4j!)
     private String m_logFile; // The file to log into
     private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
+    private String m_configDirectory;
     private String m_sipxchangeDomainName; // The domain name of this system
     private String m_realm;
     private String m_3pccSecureUrl; // The url of the third party call controller via HTTPS
@@ -76,8 +77,8 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     }
     
     void properties() {
-        String path = System.getProperty("conf.dir");
-        if (path == null) {
+        m_configDirectory = System.getProperty("conf.dir");
+        if (m_configDirectory == null) {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);
         }
@@ -86,7 +87,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
         String keyStore = System.getProperty("javax.net.ssl.keyStore");
         if (keyStore == null) {
             // Take an educated guess as to where it should be
-            keyStore = path+"/ssl/ssl.keystore";
+            keyStore = m_configDirectory+"/ssl/ssl.keystore";
             System.setProperty("javax.net.ssl.keyStore", keyStore);
             System.setProperty("javax.net.ssl.keyStorePassword", "changeit"); // Real security!
  //           System.setProperty("java.protocol.handler.pkgs", "com.sun.net.ssl.internal.www.protocol");
@@ -95,7 +96,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
         String trustStore = System.getProperty("javax.net.ssl.trustStore");
         if (trustStore == null) {
             // Take an educated guess as to where it should be
-            trustStore = path+"/ssl/authorities.jks";
+            trustStore = m_configDirectory+"/ssl/authorities.jks";
             System.setProperty("javax.net.ssl.trustStore", trustStore);
             System.setProperty("javax.net.ssl.trustStoreType", "JKS");
             System.setProperty("javax.net.ssl.trustStorePassword", "changeit"); // Real security!
@@ -105,7 +106,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
         FileInputStream inStream;
         Properties props = null;
         try {
-        	s_propertiesFile = new File(path + "/" + name);
+        	s_propertiesFile = new File(m_configDirectory + "/" + name);
             s_lastModified = s_propertiesFile.lastModified();
             inStream = new FileInputStream(s_propertiesFile);
             props = new Properties();
@@ -238,5 +239,9 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     @Override
     public int getEventSocketPort() {
         return 0;
+    }
+
+    public String getConfigDirectory() {
+        return m_configDirectory;
     }
 }

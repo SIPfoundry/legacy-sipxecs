@@ -114,7 +114,8 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
       UtlString authtype;
       UtlString realm(mpAcdLineManager->getAcdServer()->getRealm());
 
-      if (EntityDB::defaultCollection().collection().getCredential(mUri, realm, user, ha1_authenticator, authtype))
+      EntityDB *entityDb = mpAcdCallManager->getAcdServer()->getEntityDB();
+      if (entityDb->getCredential(mUri, realm, user, ha1_authenticator, authtype))
       {
          if (SIPX_RESULT_SUCCESS
              == sipxLineAddDigestCredential(lineHandle, user, ha1_authenticator, realm))
@@ -144,7 +145,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
          Url defaultAcdIdentity;
          mpAcdLineManager->getAcdServer()->getDefaultIdentity(defaultAcdIdentity);
 
-         if (EntityDB::defaultCollection().collection().getCredential(defaultAcdIdentity, realm,
+         if (entityDb->getCredential(defaultAcdIdentity, realm,
                                          user, ha1_authenticator, authtype))
          {
             if (SIPX_RESULT_SUCCESS

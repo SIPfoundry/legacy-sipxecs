@@ -113,8 +113,8 @@ SipRegistrarServer::initialize(
     {
         std::string serverId = localAddress.data();
         serverId += "/";
-        serverId += "RegDataStore::_bindingsNameSpace";
-        _dataStore.regDB().setLocalAddress(serverId);
+        serverId += "RegDB::_bindingsNameSpace";
+        SipRegistrar::getInstance(NULL)->getRegDB()->setLocalAddress(serverId);
     }
 
     // Initialize the normal (non-NATed) minimum and maximum expiry values
@@ -345,8 +345,9 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     registerMessage.getCSeqField( &registerCseqInt, &method );
 
     // Check that this call-id and cseq are newer than what we have in the db
+    RegDB* regDb = SipRegistrar::getInstance(NULL)->getRegDB();
     //if (! imdb->isOutOfSequence(toUrl, registerCallidStr, registerCseqInt))
-    if (!_dataStore.regDB().isOutOfSequence(registerToStr.str(), registerCallidStr.str(), registerCseqInt))
+    if (!regDb->isOutOfSequence(registerToStr.str(), registerCallidStr.str(), registerCseqInt))
     {
         // ****************************************************************
         // We now make two passes over all the contacts - the first pass
@@ -578,7 +579,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             gruuValue = new UtlString( "" );
                          }
 
-RegBinding::Ptr pRegBinding(new RegBinding());
+                        RegBinding::Ptr pRegBinding(new RegBinding());
                          pRegBinding->setContact(contactValue->str());
                          pRegBinding->setExpirationTime(expiresValue->getValue());
                          pRegBinding->setQvalue(qvalueValue->str());
@@ -625,8 +626,7 @@ RegBinding::Ptr pRegBinding(new RegBinding());
                         && 1 == contactIndexCount
                         )
                     {
-
-                        _dataStore.regDB().expireAllBindings(
+                        regDb->expireAllBindings(
                             identity,
                             registerCallidStr.str(),
                             registerCseqInt,
@@ -716,13 +716,13 @@ RegBinding::Ptr pRegBinding(new RegBinding());
 
                             pRecord->setExpirationTime(expirationTime);
 
-                           _dataStore.regDB().updateBinding(pRecord);
+                           regDb->updateBinding(pRecord);
 
                         } // iterate over good contact entries
 
                         // If there were any bindings not dealt with explicitly in this
                         // message that used the same callid, then expire them.
-                        _dataStore.regDB().expireOldBindings(
+                        regDb->expireOldBindings(
                             identity,
                             registerCallidStr.str(),
                             registerCseqInt,
@@ -903,11 +903,8 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         UtlString identity_;
                         toUri.getIdentity(identity_);
                         RegDB::Bindings registrations;
-                         _dataStore.regDB().getUnexpiredContactsUser(
-                            identity_.str(),
-                            timeNow,
-                            registrations);
-
+                        SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUser(identity_.str(),
+                            timeNow, registrations);
                         bool requestSupportsGruu =
                            message.isInSupportedField("gruu");
 #ifdef GRUU_WORKAROUND
@@ -1302,7 +1299,8 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
                 Url discardUriFromDB;
 
                 // then get the credentials for this user & realm
-                if (_dataStore.entityDB().getCredential( toUri
+
+                if (SipRegistrar::getInstance(NULL)->getEntityDB()->getCredential( toUri
                                    ,requestRealm
                                    ,requestUserBase
                                    ,passTokenDB
@@ -1390,34 +1388,38 @@ void SipRegistrarServer::cleanAndPersist()
    int oldestTimeToKeep = timeNow - (  mNormalExpiryIntervals.mMaxExpiresTime < MAX_RETENTION_TIME
                                      ? mNormalExpiryIntervals.mMaxExpiresTime : MAX_RETENTION_TIME );
 
-   // Send reg event notices for any expired rows, including the rows we
-   // are about to delete.  It's possible that there hasn't been a
-   // notify telling that they're terminated yet, and we have to make
-   // sure to generate one before the row is deleted.
-   RegisterEventServer* s = mRegistrar.getRegisterEventServer();
-   if (s)
-   {
-       RegDB::Bindings bindings;
-      _dataStore.regDB().getAllOldBindings(timeNow, bindings);
+//  We've concluded this is not strictly nec. and that RLS will timeout when re-subscribing to
+//  expired phone. It was also determined this function is harmful when a system restarts after
+//  being down of an extended period of time as EACH registrar will blast expired events for
+//  EACH registration in the database (whether there are subscriptions or not).  Thereby causing a
+//  downed system to thrash and never be able to come back up as it's probably in the middle
+//  of a blast of new registrations   --Douglas
+//
+//   // Send reg event notices for any expired rows, including the rows we
+//   // are about to delete.  It's possible that there hasn't been a
+//   // notify telling that they're terminated yet, and we have to make
+//   // sure to generate one before the row is deleted.
+//   RegisterEventServer* s = mRegistrar.getRegisterEventServer();
+//   RegDB* regDb = SipRegistrar::getInstance(NULL)->getRegDB();
+//   if (s)
+//   {
+//       RegDB::Bindings bindings;
+//       regDb->getAllOldBindings(timeNow, bindings);
+//
+//      for (RegDB::Bindings::const_iterator iter = bindings.begin(); iter != bindings.end(); iter++)
+//      {
+//          std::string uri = iter->getUri();
+//          std::string instrument = iter->getInstrument();
+//
+//          Url aor_uri(uri.c_str(), FALSE); // Parse name-addr format.
+//          UtlString aor_addr;
+//           aor_uri.getUri(aor_addr); // Generate addr-spec (URI) format.
+//          s->generateAndPublishContent(aor_addr, aor_uri, instrument.c_str());
+//      }
+//
+//   }
 
-      for (RegDB::Bindings::const_iterator iter = bindings.begin(); iter != bindings.end(); iter++)
-      {
-          std::string uri = iter->getUri();
-          std::string instrument = iter->getInstrument();
-
-          Url aor_uri(uri.c_str(), FALSE); // Parse name-addr format.
-          UtlString aor_addr;
-           aor_uri.getUri(aor_addr); // Generate addr-spec (URI) format.
-          s->generateAndPublishContent(aor_addr, aor_uri, instrument.c_str());
-      }
-      
-   }
-
-   if (mRegistrar.getNodeConfig().empty())
-      _dataStore.regDB().cleanAndPersist(oldestTimeToKeep, true);
-   else
-     _dataStore.regDB().cleanAndPersist(oldestTimeToKeep, mRegistrar.getNodeConfig(), true);
-
+    SipRegistrar::getInstance(NULL)->getRegDB()->cleanAndPersist(oldestTimeToKeep);
 }
 
 

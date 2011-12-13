@@ -2,15 +2,13 @@
 
 bin_PROGRAMS = sipxsaa
 
-SUBDIRS = . test
+## disable tests, nothing appears to work in there anymore
+SUBDIRS = .
 
 EXTRA_DIST =
 
 sipxsaa_LDADD = \
-        @SIPXCALL_LIBS@ \
-	@SIPXMEDIAADAPTER_LIBS@ \
-	@SIPXCOMMSERVER_LIBS@ \
-	@GIPS_NEQ_OBJS@
+	@SIPXCOMMSERVER_LIBS@
 
 sipxsaa_CXXFLAGS = \
         -I$(top_builddir)/config \

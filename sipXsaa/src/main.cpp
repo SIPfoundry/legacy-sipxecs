@@ -178,7 +178,7 @@ void initSysLog(OsConfigDb* pConfig)
 }
 
 // Get and add the credentials for sipXsaa
-SipLineMgr* addCredentials (UtlString domain, UtlString realm)
+SipLineMgr* addCredentials (EntityDB& entityDb, UtlString domain, UtlString realm)
 {
    SipLine* line = NULL;
    SipLineMgr* lineMgr = NULL;
@@ -193,7 +193,7 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
       UtlString authtype;
       bool bSuccess = false;
 
-      if (EntityDB::defaultCollection().collection().getCredential(identity, realm, user, ha1_authenticator, authtype))
+      if (entityDb.getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
          if ((line = new SipLine( identity // user entered url
                                  ,identity // identity url
@@ -414,7 +414,10 @@ int main(int argc, char* argv[])
    }
 
    // add the ~~sipXsaa credentials so that sipXsaa can respond to challenges
-   SipLineMgr* lineMgr = addCredentials(domainName, realm);
+   mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
+   SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
+   EntityDB entityDb(MongoDB::ConnectionInfo(mongoConn, EntityDB::NS));
+   SipLineMgr* lineMgr = addCredentials(entityDb, domainName, realm);
    if(NULL == lineMgr)
    {
       return 1;
@@ -432,7 +435,9 @@ int main(int argc, char* argv[])
                           20,
                           serverMinExpiration,
                           serverDefaultExpiration,
-                          serverMaxExpiration);
+                          serverMaxExpiration,
+                          subscribeDb,
+                          entityDb);
       saa.start();
 
       // Loop forever until signaled to shut down

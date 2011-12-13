@@ -18,6 +18,8 @@
 #include "os/OsServerTask.h"
 #include "net/SipUserAgent.h"
 #include "statusserver/PluginXmlParser.h"
+#include "sipdb/EntityDB.h"
+#include "sipdb/SubscribeDB.h"
 
 // DEFINES
 // MACROS
@@ -93,6 +95,9 @@ public:
         const UtlString& separatedList,
         OsConfigDb& list);
 
+    EntityDB* getEntityDb() { return mEntityDb; }
+    SubscribeDB* getSubscribeDb() { return mSubscribeDb; }
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -122,6 +127,8 @@ private:
     PluginXmlParser mPluginTable;
     OsServerSocket* mpServerSocket;
     HttpServer* mHttpServer;
+    SubscribeDB* mSubscribeDb;
+    EntityDB* mEntityDb;
 
     // Private constructor for singleton implementation
     StatusServer (

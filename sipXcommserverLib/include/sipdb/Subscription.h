@@ -18,8 +18,8 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include "utl/UtlString.h"
 #include "sipdb/MongoDB.h"
+#include "utl/UtlString.h"
 
 
 class Subscription
@@ -27,7 +27,7 @@ class Subscription
 public:
     Subscription();
     Subscription(const Subscription& subscription);
-    Subscription(const MongoDB::BSONObj& bson);
+    Subscription(const mongo::BSONObj& bson);
     Subscription(
         const UtlString& component,
         const UtlString& uri,
@@ -48,7 +48,7 @@ public:
 
     ~Subscription();
     Subscription& operator=(const Subscription& subscription);
-    Subscription& operator=(const MongoDB::BSONObj& bson);
+    Subscription& operator=(const mongo::BSONObj& bson);
     void swap(Subscription& subscription);
     std::string& oid();
     std::string& component();

@@ -27,6 +27,7 @@
 #include "SipRedirectorPresenceRouting.h"
 #include "registry/SipRedirectServer.h"
 #include "sipdb/EntityDB.h"
+#include "registry/SipRegistrar.h"
 
 // DEFINES
 #define CONFIG_SETTING_REALM "REALM"
@@ -360,7 +361,8 @@ SipRedirectorPresenceRouting::lookUp(
    // If the request URI can be found in the identity column of the credentials
    // database, then a request is to a local user, find out its presence state...
    EntityRecord entity;
-   if (_dataStore.entityDB().findByIdentity(requestUri, entity))
+   EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+   if (entityDb->findByIdentity(requestUri, entity))
    {
        realm = entity.realm().c_str();
        authType = entity.authType().c_str();
@@ -807,19 +809,24 @@ OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
 
 OsStatus PresenceRoutingUserPreferences::parseDocument()
 {
-  EntityDB::Entities entities;
-  EntityDB::defaultCollection().collection().getAllEntities(entities);
-  for(EntityDB::Entities::iterator iter = entities.begin(); iter != entities.end(); iter++)
-  {
-      if( !iter->userId().empty() )
-      {
-          UtlString* pUsername = new UtlString(iter->userId().c_str());
-          UtlBool* pbVmOnDnd = new UtlBool( FALSE );
-          if (iter->vmOnDnd())
-              pbVmOnDnd->setValue(TRUE);
-          mUserVmOnDndPreferences.insertKeyAndValue( pUsername, pbVmOnDnd );
-      }
-  }
+    // TODO: Code is flawed, the list of users will change and their vm dnd settings will change,
+    // and this code will not know about the changes.  We need to port this to be more dynamic
+    // and use mongo queries for lookups. --Douglas
+
+//  EntityDB::Entities entities;
+//  EntityDB::defaultCollection().collection().getAllEntities(entities);
+//  for(EntityDB::Entities::iterator iter = entities.begin(); iter != entities.end(); iter++)
+//  {
+//      if( !iter->userId().empty() )
+//      {
+//          UtlString* pUsername = new UtlString(iter->userId().c_str());
+//          UtlBool* pbVmOnDnd = new UtlBool( FALSE );
+//          if (iter->vmOnDnd())
+//              pbVmOnDnd->setValue(TRUE);
+//          mUserVmOnDndPreferences.insertKeyAndValue( pUsername, pbVmOnDnd );
+//      }
+//  }
+
   return OS_SUCCESS;
 }
 

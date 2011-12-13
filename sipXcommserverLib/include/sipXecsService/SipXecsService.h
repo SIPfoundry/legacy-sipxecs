@@ -17,7 +17,6 @@
 
 // DEFINES
 // TYPEDEFS
-typedef const char* const DirectoryType;
 
 // CONSTANTS
 

@@ -1,164 +1,102 @@
-# Make sure initddir is defined on el5 and possibly other distros
-%{!?_initddir: %define _initddir %{_initrddir}}
+Name: mongodb
+Version: 2.0.0
+Release: 1%{?dist}
+Summary: mongo client shell and tools
+License: AGPL 3.0
+URL: http://www.mongodb.org
+Group: Applications/Databases
 
-%global         daemon mongod
-Name:           mongodb
-Version:        1.6.4
-Release:        3%{?dist}
-Summary:        High-performance, schema-free document-oriented database
-Group:          Applications/Databases
-License:        AGPLv3 and zlib and ASL 2.0
-# util/md5 is under the zlib license
-# manpages and bson are under ASL 2.0
-# everything else is AGPLv3
-URL:            http://www.mongodb.org
-Obsoletes:	mongo
-Obsoletes:	mongo-debuginfo
-
-Source0:        http://fastdl.mongodb.org/src/%{name}-src-r%{version}.tar.gz
-Source1:        %{name}.init
-Source2:        %{name}.logrotate
-Source3:        %{name}.conf
-Patch0:         %{name}-cppflags.patch
-Patch1:         %{name}-client-ldflags.patch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
-BuildRequires:  gcc-c++
-BuildRequires:  python-devel
-BuildRequires:  scons
-BuildRequires:  boost-devel
-BuildRequires:  pcre-devel
-BuildRequires:  js-devel
-BuildRequires:  readline-devel
-BuildRequires:  ncurses-devel
-BuildRequires:  libpcap-devel
-
-Requires(post): chkconfig
-Requires(preun): chkconfig
-
-Requires(pre):  shadow-utils
-
-# This is for /sbin/service
-Requires(postun): initscripts
-
-# Mongodb must run on a little-endian CPU (see bug #630898)
-ExcludeArch:    ppc ppc64 %{sparc} s390 s390x
+Source0: %{name}-src-r%{version}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires: js-devel, readline-devel, boost-devel, pcre-devel
+BuildRequires: gcc-c++, scons
 
 %description
-Mongo (from "humongous") is a high-performance, open source, schema-free
-document-oriented database. MongoDB is written in C++ and offers the following
-features:
-    * Collection oriented storage: easy storage of object/JSON-style data
-    * Dynamic queries
-    * Full index support, including on inner objects and embedded arrays
-    * Query profiling
-    * Replication and fail-over support
-    * Efficient storage of binary data including large objects (e.g. photos
-    and videos)
-    * Auto-sharding for cloud-level scalability (currently in early alpha)
-    * Commercial Support Available
+Mongo (from "huMONGOus") is a schema-free document-oriented database.
+It features dynamic profileable queries, full indexing, replication
+and fail-over support, efficient storage of large binary data objects,
+and auto-sharding.
 
-A key goal of MongoDB is to bridge the gap between key/value stores (which are
-fast and highly scalable) and traditional RDBMS systems (which are deep in
-functionality).
-
-%package devel
-Summary:        MongoDB header files
-Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
-Provides:       %{name}-static = %{version}-%{release}
-Obsoletes:	mongo-devel
-
-%description devel
-This package provides the header files and C++ driver for MongoDB. MongoDB is
-a high-performance, open source, schema-free document-oriented database.
+This package provides the mongo shell, import/export tools, and other
+client utilities.
 
 %package server
-Summary:        MongoDB server, sharding server and support scripts
-Group:          Applications/Databases
-Requires:       %{name} = %{version}-%{release}
-Obsoletes:	mongo-server
+Summary: mongo server, sharding server, and support scripts
+Group: Applications/Databases
+Requires: mongodb
 
 %description server
-This package provides the mongo server software, mongo sharding server
-software, default configuration files, and init scripts.
+Mongo (from "huMONGOus") is a schema-free document-oriented database.
 
+This package provides the mongo server software, mongo sharding server
+softwware, default configuration files, and init.d scripts.
+
+%package devel
+Summary: Headers and libraries for mongo development. 
+Group: Applications/Databases
+
+%description devel
+Mongo (from "huMONGOus") is a schema-free document-oriented database.
+
+This package provides the mongo static library and header files needed
+to develop mongo client software.
 
 %prep
-%setup -q -n mongodb-src-r%{version}
-
-# allow cppflags overriding
-%patch0 -p1 -b .cppflags
-%if %{_vendor} == redhat && 0%{?fedora} <= 6
-%patch1 -p0 -b .ldflags
-%endif
-
-# spurious permissions
-chmod -x README
-chmod -x db/repl/rs_exception.h
-chmod -x db/resource.h
-
-# wrong end-of-file encoding
-sed -i 's/\r//' db/repl/rs_exception.h
-sed -i 's/\r//' db/resource.h
-sed -i 's/\r//' README
+%setup -n mongodb-src-r%{version}
 
 %build
-scons %{?_smp_mflags} --cppflags="%{optflags} -fno-strict-aliasing -fPIC" --sharedclient --extralib=ncurses .
-
+scons --prefix=$RPM_BUILD_ROOT/usr --sharedclient --full all
 
 %install
-rm -rf %{buildroot}
-scons install . --cppflags="%{optflags} -fno-strict-aliasing -fPIC" --sharedclient --prefix=%{buildroot}%{_prefix} --nostrip --full
-rm -f %{buildroot}%{_libdir}/libmongoclient.a
-
-mkdir -p %{buildroot}%{_sharedstatedir}/%{name}
-
-mkdir -p %{buildroot}%{_localstatedir}/log/%{name}
-install -p -D -m 755 %{SOURCE1} %{buildroot}%{_initddir}/%{daemon}
-install -p -D -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-install -p -D -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/mongodb.conf
-
-mkdir -p %{buildroot}%{_mandir}/man1
-cp -p debian/*.1 %{buildroot}%{_mandir}/man1/
-
-mkdir -p %{buildroot}%{_localstatedir}/run/%{name}
-mkdir -p %{buildroot}%{_localstatedir}/lib/%{name}
+scons --prefix=$RPM_BUILD_ROOT/usr --sharedclient --full install
+mkdir -p $RPM_BUILD_ROOT/usr/share/man/man1
+cp debian/*.1 $RPM_BUILD_ROOT/usr/share/man/man1/
+mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
+cp rpm/init.d-mongod $RPM_BUILD_ROOT/etc/rc.d/init.d/mongod
+chmod a+x $RPM_BUILD_ROOT/etc/rc.d/init.d/mongod
+mkdir -p $RPM_BUILD_ROOT/etc
+cp rpm/mongod.conf $RPM_BUILD_ROOT/etc/mongod.conf
+mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
+cp rpm/mongod.sysconfig $RPM_BUILD_ROOT/etc/sysconfig/mongod
+mkdir -p $RPM_BUILD_ROOT/var/lib/mongo
+mkdir -p $RPM_BUILD_ROOT/var/log/mongo
+touch $RPM_BUILD_ROOT/var/log/mongo/mongod.log
 
 %clean
-rm -rf %{buildroot}
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
+scons -c
+rm -rf $RPM_BUILD_ROOT
 
 %pre server
-getent group %{name} >/dev/null || groupadd -r %{name}
-getent passwd %{name} >/dev/null || \
-useradd -r -g %{name} -d %{_sharedstatedir}/%{name} -s /sbin/nologin \
--c "MongoDB Database Server" %{name}
-exit 0
+if ! /usr/bin/id -g mongod &>/dev/null; then
+    /usr/sbin/groupadd -r mongod
+fi
+if ! /usr/bin/id mongod &>/dev/null; then
+    /usr/sbin/useradd -M -r -g mongod -d /var/lib/mongo -s /bin/false \
+	-c mongod mongod > /dev/null 2>&1
+fi
 
 %post server
-/sbin/chkconfig --add %{daemon}
-
+if test $1 = 1
+then
+  /sbin/chkconfig --add mongod
+fi
 
 %preun server
-if [ $1 = 0 ] ; then
-    /sbin/service  stop >/dev/null 2>&1
-    /sbin/chkconfig --del %{daemon}
+if test $1 = 0
+then
+  /sbin/chkconfig --del mongod
 fi
-
 
 %postun server
-if [ "$1" -ge "1" ] ; then
-    /sbin/service %{daemon} condrestart >/dev/null 2>&1 || :
+if test $1 -ge 1
+then
+  /sbin/service mongod condrestart >/dev/null 2>&1 || :
 fi
-
 
 %files
 %defattr(-,root,root,-)
-%doc README GNU-AGPL-3.0.txt APACHE-2.0.txt
+%doc README GNU-AGPL-3.0.txt
+
 %{_bindir}/mongo
 %{_bindir}/mongodump
 %{_bindir}/mongoexport
@@ -166,8 +104,8 @@ fi
 %{_bindir}/mongoimport
 %{_bindir}/mongorestore
 %{_bindir}/mongostat
-%{_bindir}/mongosniff
 %{_bindir}/bsondump
+%{_bindir}/mongotop
 %{_libdir}/libmongoclient.so
 
 %{_mandir}/man1/mongo.1*
@@ -179,90 +117,34 @@ fi
 %{_mandir}/man1/mongosniff.1*
 %{_mandir}/man1/mongostat.1*
 %{_mandir}/man1/mongorestore.1*
+%{_mandir}/man1/bsondump.1*
 
 %files server
 %defattr(-,root,root,-)
-%{_initddir}/%{daemon}
+%config(noreplace) /etc/mongod.conf
 %{_bindir}/mongod
 %{_bindir}/mongos
-%{_mandir}/man1/mongod.1*
+#%{_mandir}/man1/mongod.1*
 %{_mandir}/man1/mongos.1*
-%dir %attr(0755, %{name}, root) %{_sharedstatedir}/%{name}
-%dir %attr(0755, %{name}, root) %{_localstatedir}/log/%{name}
-%dir %attr(0755, %{name}, root) %{_localstatedir}/run/%{name}
-%dir %attr(0755, %{name}, root) %{_localstatedir}/lib/%{name}
-%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%config(noreplace) %{_sysconfdir}/mongodb.conf
+/etc/rc.d/init.d/mongod
+/etc/sysconfig/mongod
+#/etc/rc.d/init.d/mongos
+%attr(0755,mongod,mongod) %dir /var/lib/mongo
+%attr(0755,mongod,mongod) %dir /var/log/mongo
+%attr(0640,mongod,mongod) %config(noreplace) %verify(not md5 size mtime) /var/log/mongo/mongod.log
 
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/mongo
+%{_libdir}/libmongoclient.a
 
 %changelog
-* Mon Dec 06 2010 Nathaniel McCallum <nathaniel@natemccallum.com> - 1.6.4-3
-- Add post/postun ldconfig... oops!
+* Wed Oct 19 2011 Douglas Hubler <dhubler@ezuce.com>
+- add includes in devel package
+- add client.so in core package
+- typo bsondum.1* -> bsondump.1*
+* Thu Jan 28 2010 Richard M Kreuter <richard@10gen.com>
+- Minor fixes.
 
-* Mon Dec 06 2010 Nathaniel McCallum <nathaniel@natemccallum.com> - 1.6.4-2
-- Enable --sharedclient option, remove static lib
-
-* Sat Dec 04 2010 Nathaniel McCallum <nathaniel@natemccallum.com> - 1.6.4-1
-- New upstream release
-
-* Fri Oct 08 2010 Nathaniel McCallum <nathaniel@natemccallum.com> - 1.6.3-4
-- Put -fPIC onto both the build and install scons calls
-
-* Fri Oct 08 2010 Nathaniel McCallum <nathaniel@natemccallum.com> - 1.6.3-3
-- Define _initddir when it doesn't exist for el5 and others
-
-* Fri Oct 08 2010 Nathaniel McCallum <nathaniel@natemccallum.com> - 1.6.3-2
-- Added -fPIC build option which was dropped by accident
-
-* Thu Oct  7 2010 Ionuț C. Arțăriși <mapleoin@fedoraproject.org> - 1.6.3-1
-- removed js Requires
-- new upstream release
-- added more excludearches: sparc s390, s390x and bugzilla pointer
-
-* Tue Sep  7 2010 Ionuț C. Arțăriși <mapleoin@fedoraproject.org> - 1.6.2-2
-- added ExcludeArch for ppc
-
-* Fri Sep  3 2010 Ionuț C. Arțăriși <mapleoin@fedoraproject.org> - 1.6.2-1
-- new upstream release 1.6.2
-- send mongod the USR1 signal when doing logrotate
-- use config options when starting the daemon from the initfile
-- removed dbpath patch: rely on config
-- added pid directory to config file and created the dir in the spec
-- made the init script use options from the config file
-- changed logpath in mongodb.conf
-
-* Wed Sep  1 2010 Ionuț C. Arțăriși <mapleoin@fedoraproject.org> - 1.6.1-1
-- new upstream release 1.6.1
-- patched SConstruct to allow setting cppflags
-- stopped using sed and chmod macros
-
-* Fri Aug  6 2010 Ionuț C. Arțăriși <mapleoin@fedoraproject.org> - 1.6.0-1
-- new upstream release: 1.6.0
-- added -server package
-- added new license file to %%docs
-- fix spurious permissions and EOF encodings on some files
-
-* Tue Jun 15 2010 Ionuț C. Arțăriși <mapleoin@fedoraproject.org> - 1.4.3-2
-- added explicit js requirement
-- changed some names
-
-* Wed May 26 2010 Ionuț C. Arțăriși <mapleoin@fedoraproject.org> - 1.4.3-1
-- updated to 1.4.3
-- added zlib license for util/md5
-- deleted upstream deb/rpm recipes
-- made scons not strip binaries
-- made naming more consistent in logfile, lockfiles, init scripts etc.
-- included manpages and added corresponding license
-- added mongodb.conf to sources
-
-* Fri Oct  2 2009 Ionuț Arțăriși <mapleoin@fedoraproject.org> - 1.0.0-3
-- fixed libpath issue for 64bit systems
-
-* Thu Oct  1 2009 Ionuț Arțăriși <mapleoin@fedoraproject.org> - 1.0.0-2
-- added virtual -static package
-
-* Mon Aug 31 2009 Ionuț Arțăriși <mapleoin@fedoraproject.org> - 1.0.0-1
-- Initial release.
+* Sat Oct 24 2009 Joe Miklojcik <jmiklojcik@shopwiki.com> - 
+- Wrote mongo.spec.

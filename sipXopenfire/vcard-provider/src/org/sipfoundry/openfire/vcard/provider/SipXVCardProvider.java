@@ -44,6 +44,7 @@ public class SipXVCardProvider implements VCardProvider {
      */
     static final String DOMAIN_CONFIG_FILENAME = "/domain-config";
     static final String PLUGIN_CONFIG_FILENAME = "/config.properties";
+    static final String MONGO_CLIENT_CONFIG = "/mongo-client.ini";
     static final String PROP_SIPX_CONF_DIR = "sipxpbx.conf.dir";
     static final String PROP_CONFIG_HOST_NAME = "CONFIG_HOSTS";
     static final String PROP_SECRET = "SHARED_SECRET";
@@ -76,6 +77,13 @@ public class SipXVCardProvider implements VCardProvider {
 
             m_ConfigHostName = domain_config.getProperty(PROP_CONFIG_HOST_NAME, DEFAULT_DOMAIN_NAME).split(" ")[0];
             m_SharedSecret = domain_config.getProperty(PROP_SECRET, DEFAULT_SECRET);
+        }
+        
+        String clientConfig = getConfDir() + MONGO_CLIENT_CONFIG;
+        try {
+            UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
+        } catch (Exception e) {
+            Log.error(e);
         }
 
         Log.info("CONFIG_HOSTS is " + m_ConfigHostName);
@@ -138,40 +146,15 @@ public class SipXVCardProvider implements VCardProvider {
 
     synchronized Element cacheVCard(String username) {
         Element vCardElement = null;
-        String sipUserName = getAORFromJABBERID(username);
-        if (sipUserName != null) {
-            String resp = null;
-
-            int attempts = 0;
-            boolean tryAgain;
-            do {
-                tryAgain = false;
-                try {
-                    resp = RestInterface.sendRequest(QUERY_METHOD, m_ConfigHostName, sipUserName, m_SharedSecret,
-                            null);
-                } catch (ConnectException e) {
-                    try {
-                        Thread.sleep(ATTEMPT_INTERVAL);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    attempts++;
-                    tryAgain = true;
-                }
-            } while (resp == null && attempts < MAX_ATTEMPTS && tryAgain);
-
-            if (resp != null) {
-                Element avatarFromDB = getAvatarCopy(defaultProvider.loadVCard(username));
-                vCardElement = RestInterface.buildVCardFromXMLContactInfo(sipUserName, resp, avatarFromDB);
-                if (vCardElement != null) {
-                    vcardCache.remove(username);
-                    vcardCache.put(username, vCardElement);
-                } else {
-                    Log.error("In cacheVCard buildVCardFromXMLContactInfo failed! ");
-                }
+        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUserByJid(username);
+        if (user != null) {
+            Element avatarFromDB = getAvatarCopy(defaultProvider.loadVCard(username));
+            vCardElement = RestInterface.buildVCardFromXMLContactInfo(user, avatarFromDB);
+            if (vCardElement != null) {
+                vcardCache.remove(username);
+                vcardCache.put(username, vCardElement);
             } else {
-                Log.error("In cacheVCard, No valid response from sipXconfig, " + username
-                        + "'s vcard info not loaded!");
+                Log.error("In cacheVCard buildVCardFromXMLContactInfo failed! ");
             }
         } else {
             Log.error("In cacheVCard Failed to find peer SIP user account for XMPP user " + username);

@@ -99,14 +99,13 @@ Subscription::Subscription(
     _expires = expires;
 }
 
-Subscription::Subscription(const MongoDB::BSONObj& bson)
+Subscription::Subscription(const mongo::BSONObj& bson)
 {
     operator=(bson);
 }
 
 Subscription::~Subscription()
 {
-
 }
 
 Subscription& Subscription::operator=(const Subscription& subscription)
@@ -116,68 +115,60 @@ Subscription& Subscription::operator=(const Subscription& subscription)
     return *this;
 }
 
-Subscription& Subscription::operator=(const MongoDB::BSONObj& bsonObj)
+Subscription& Subscription::operator=(const mongo::BSONObj& bsonObj)
 {
-    try
-    {
-        _oid = bsonObj.getStringField(Subscription::oid_fld());
+	_oid = bsonObj.getStringField(Subscription::oid_fld());
 
-        if (bsonObj.hasField(Subscription::component_fld()))
-            _component = bsonObj.getStringField(Subscription::component_fld());
+	if (bsonObj.hasField(Subscription::component_fld()))
+		_component = bsonObj.getStringField(Subscription::component_fld());
 
-        if (bsonObj.hasField(Subscription::uri_fld()))
-            _uri = bsonObj.getStringField(Subscription::uri_fld());
+	if (bsonObj.hasField(Subscription::uri_fld()))
+		_uri = bsonObj.getStringField(Subscription::uri_fld());
 
-        if (bsonObj.hasField(Subscription::callId_fld()))
-            _callId = bsonObj.getStringField(Subscription::callId_fld());
+	if (bsonObj.hasField(Subscription::callId_fld()))
+		_callId = bsonObj.getStringField(Subscription::callId_fld());
 
-        if (bsonObj.hasField(Subscription::contact_fld()))
-            _contact = bsonObj.getStringField(Subscription::contact_fld());
+	if (bsonObj.hasField(Subscription::contact_fld()))
+		_contact = bsonObj.getStringField(Subscription::contact_fld());
 
-        if (bsonObj.hasField(Subscription::notifyCseq_fld()))
-            _notifyCseq = bsonObj.getIntField(Subscription::notifyCseq_fld());
+	if (bsonObj.hasField(Subscription::notifyCseq_fld()))
+		_notifyCseq = bsonObj.getIntField(Subscription::notifyCseq_fld());
 
-        if (bsonObj.hasField(Subscription::subscribeCseq_fld()))
-            _subscribeCseq = bsonObj.getIntField(Subscription::subscribeCseq_fld());
+	if (bsonObj.hasField(Subscription::subscribeCseq_fld()))
+		_subscribeCseq = bsonObj.getIntField(Subscription::subscribeCseq_fld());
 
-        if (bsonObj.hasField(Subscription::eventTypeKey_fld()))
-            _eventTypeKey = bsonObj.getStringField(Subscription::eventTypeKey_fld());
+	if (bsonObj.hasField(Subscription::eventTypeKey_fld()))
+		_eventTypeKey = bsonObj.getStringField(Subscription::eventTypeKey_fld());
 
-        if (bsonObj.hasField(Subscription::eventType_fld()))
-            _eventType = bsonObj.getStringField(Subscription::eventType_fld());
+	if (bsonObj.hasField(Subscription::eventType_fld()))
+		_eventType = bsonObj.getStringField(Subscription::eventType_fld());
 
-        if (bsonObj.hasField(Subscription::id_fld()))
-            _id = bsonObj.getStringField(Subscription::id_fld());
+	if (bsonObj.hasField(Subscription::id_fld()))
+		_id = bsonObj.getStringField(Subscription::id_fld());
 
-        if (bsonObj.hasField(Subscription::toUri_fld()))
-            _toUri = bsonObj.getStringField(Subscription::toUri_fld());
+	if (bsonObj.hasField(Subscription::toUri_fld()))
+		_toUri = bsonObj.getStringField(Subscription::toUri_fld());
 
-        if (bsonObj.hasField(Subscription::fromUri_fld()))
-            _fromUri = bsonObj.getStringField(Subscription::fromUri_fld());
+	if (bsonObj.hasField(Subscription::fromUri_fld()))
+		_fromUri = bsonObj.getStringField(Subscription::fromUri_fld());
 
-        if (bsonObj.hasField(Subscription::key_fld()))
-            _key = bsonObj.getStringField(Subscription::key_fld());
+	if (bsonObj.hasField(Subscription::key_fld()))
+		_key = bsonObj.getStringField(Subscription::key_fld());
 
-        if (bsonObj.hasField(Subscription::recordRoute_fld()))
-            _recordRoute = bsonObj.getStringField(Subscription::recordRoute_fld());
+	if (bsonObj.hasField(Subscription::recordRoute_fld()))
+		_recordRoute = bsonObj.getStringField(Subscription::recordRoute_fld());
 
-        if (bsonObj.hasField(Subscription::accept_fld()))
-            _accept = bsonObj.getStringField(Subscription::accept_fld());
+	if (bsonObj.hasField(Subscription::accept_fld()))
+		_accept = bsonObj.getStringField(Subscription::accept_fld());
 
-        if (bsonObj.hasField(Subscription::file_fld()))
-            _file = bsonObj.getStringField(Subscription::file_fld());
+	if (bsonObj.hasField(Subscription::file_fld()))
+		_file = bsonObj.getStringField(Subscription::file_fld());
 
-        if (bsonObj.hasField(Subscription::version_fld()))
-            _version = bsonObj.getIntField(Subscription::version_fld());
+	if (bsonObj.hasField(Subscription::version_fld()))
+		_version = bsonObj.getIntField(Subscription::version_fld());
 
-        if (bsonObj.hasField(Subscription::expires_fld()))
-            _expires = bsonObj.getIntField(Subscription::expires_fld());
-
-    }
-    catch(std::exception e)
-    {
-        OS_LOG_ERROR(FAC_ODBC, "MongoDB Exception: (Subscription::operator=)" << e.what());
-    }
+	if (bsonObj.hasField(Subscription::expires_fld()))
+		_expires = bsonObj.getIntField(Subscription::expires_fld());
 
     return *this;
 }

@@ -34,6 +34,8 @@
 #include "utl/UtlString.h"
 #include "utl/UtlRegex.h"
 #include "net/NetMd5Codec.h"
+#include "registry/SipRegistrar.h"
+#include "sipdb/EntityDB.h"
 #include <net/CallId.h>
 
 // DEFINES
@@ -423,8 +425,8 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
       UtlString passToken;
       UtlString authType;
 
-      if (dataStore().entityDB().getCredential( userBase, realm, subscribeUser
-                                                     ,passToken, authType))
+      EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+      if (entityDb->getCredential(userBase, realm, subscribeUser, passToken, authType))
       {
          // Construct a nonce
          UtlString serverNonce;

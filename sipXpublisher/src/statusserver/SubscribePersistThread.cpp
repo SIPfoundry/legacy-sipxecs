@@ -16,6 +16,7 @@
 #include "statusserver/SubscribePersistThread.h"
 #include "statusserver/SubscribeServerThread.h"
 #include "statusserver/StatusServer.h"
+#include "assert.h"
 
 // DEFINES
 // CONSTANTS

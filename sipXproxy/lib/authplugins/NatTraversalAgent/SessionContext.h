@@ -164,7 +164,7 @@ public:
                    const NatTraversalRules* pNatRules,
                    const UtlString& handle,
                    MediaRelay* pMediaRelayToUse,
-                   RegDB::Ptr pRegDB,
+                   RegDB* pRegDB,
                    CallTrackerInterfaceForSessionContext* pOwningCallTracker );
 
    // destructor
@@ -249,7 +249,7 @@ public:
     */
    static EndpointDescriptor* createCalleeEndpointDescriptor( const SipMessage& sipRequest,
                                                               const NatTraversalRules& natTraversalRules,
-                                                              RegDB::Ptr regDB );
+                                                              RegDB* regDb );
 
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
@@ -292,7 +292,6 @@ private:
    UtlHashMap mDialogTrackersMap;
    CallTrackerInterfaceForSessionContext* mpOwningCallTracker;
    vector<UtlString> mListOfDialogTrackersReadyForDeletion;
-   RegDB::Ptr _pRegDB;
    friend class SessionContextTest;
 };
 

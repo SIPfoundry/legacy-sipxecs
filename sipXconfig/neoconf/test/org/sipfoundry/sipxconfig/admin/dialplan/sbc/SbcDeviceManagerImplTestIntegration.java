@@ -9,14 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
-import static java.util.Arrays.asList;
-
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 
@@ -25,7 +20,6 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
 
     private ModelSource<SbcDescriptor> m_modelSource;
 
-    private LocationsManager m_locationsManager;
 
     public void testNewSbc() {
         Collection<SbcDescriptor> models = m_modelSource.getModels();
@@ -58,34 +52,6 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         assertTrue(allSbcDeviceIds.contains(1003));
     }
 
-    public void testGetSbcDevice() {
-        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
-        SbcDevice sbc = m_sdm.getSbcDevice(1001);
-
-        assertEquals(Integer.valueOf(1001), sbc.getId());
-        assertEquals("Sbc1001", sbc.getName());
-        assertEquals("10.1.2.4", sbc.getAddress());
-        assertEquals("101122334455", sbc.getSerialNumber());
-        assertEquals("description1", sbc.getDescription());
-    }
-
-    public void testGetSbcBridge() {
-        Location location = new Location();
-        location.setName("test location");
-        location.setAddress("10.1.2.6");
-        location.setFqdn("location1");
-        location.setInstalledBundles(asList("borderControllerBundle"));
-        m_locationsManager.saveLocation(location);
-
-        BridgeSbc bridgeSbc = m_sdm.getBridgeSbc(location);
-        assertEquals("sipXbridge-" + location.getId().toString(), bridgeSbc.getName());
-        assertEquals("10.1.2.6", bridgeSbc.getAddress());
-        assertEquals("Internal SBC on location1", bridgeSbc.getDescription());
-
-        m_locationsManager.deleteLocation(location);
-        bridgeSbc = m_sdm.getBridgeSbc(location);
-        assertTrue(bridgeSbc==null);
-    }
 
     public void testSave() {
         SbcDescriptor model = m_modelSource.getModel("sbcGenericModel");
@@ -148,9 +114,5 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setSbcModelSource(ModelSource<SbcDescriptor> modelSource) {
         m_modelSource = modelSource;
-    }
-
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
     }
 }

@@ -35,14 +35,12 @@ CHECK_POSTGRES
 AC_CONFIG_FILES([
   Makefile
   include/Makefile
-  etc/Makefile
   bin/Makefile
   bin/ssl-cert/Makefile
   src/Makefile
   src/sipdb/Makefile
   src/xsdvalid/Makefile
   src/test/Makefile
-  src/test/testlib/Makefile
   meta/Makefile
   src/sipxrestorebinary/Makefile
   src/sipxpackage/Makefile

@@ -1,0 +1,34 @@
+# cfengine cheatsheet
+#
+# Natural order of promises inside a bundle
+#  vars
+#  classes
+#  outputs
+#  interfaces
+#  files
+#  packages
+#  environments
+#  methods
+#  processes
+#  services
+#  commands
+#  storage
+#  databases
+#  reports
+
+bundle agent sipx_module {
+  commands:
+    any::
+      "@SIPX_CFMODULES@/sipx"
+        module => "true",
+	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
+}
+
+bundle agent sipx {
+  vars:
+   SuSE::
+     "crontab" string => "/var/spool/cron/tabs/root";
+
+   !SuSE::
+     "crontab" string => "/var/spool/cron/root";
+}

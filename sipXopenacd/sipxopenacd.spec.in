@@ -21,7 +21,6 @@ BuildRoot: %{_tmppath}/%name-%version-root
 
 Requires: sipxcommserverlib >= %version
 Requires: openacd
-Requires: mongodb-server
 Requires: erlang
 Requires: erlmongo
 

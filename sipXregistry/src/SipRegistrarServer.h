@@ -18,7 +18,6 @@
 #include "os/OsServerTask.h"
 #include "sipXecsService/SipNonceDb.h"
 #include "utl/PluginHooks.h"
-#include "registry/RegDataStore.h"
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -116,7 +115,6 @@ protected:
     /// An additional contact to be added to all success responses, if not null.
     UtlString mAdditionalContact;
 
-
     /// Validate bindings, and if all are OK then apply them to the registry db
     RegisterStatus applyRegisterToDirectory(
         const Url& toUrl,  /**< To header name-addr from the message,
@@ -149,8 +147,6 @@ protected:
 
     /// determine whether or not the registant is located behind a remote NAT.
     bool isRegistrantBehindNat( const SipMessage& registerRequest ) const;
-
-    RegDataStore _dataStore;
 };
 
 #endif // SIPREGISTRARSERVER_H

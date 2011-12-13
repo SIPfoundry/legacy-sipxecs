@@ -17,7 +17,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.commons.mongo.MongoDbTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -31,7 +31,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 public abstract class AbstractDataSetGenerator {
-    private MongoDbTemplate m_imdb;
+    private MongoTemplate m_imdb;
     private CoreContext m_coreContext;
     public abstract SipxFreeswitchService getSipxFreeswitchService();
 
@@ -85,11 +85,11 @@ public abstract class AbstractDataSetGenerator {
         return id;
     }
 
-    public MongoDbTemplate getImdb() {
+    public MongoTemplate getImdb() {
         return m_imdb;
     }
 
-    public void setImdb(MongoDbTemplate imdb) {
+    public void setImdb(MongoTemplate imdb) {
         m_imdb = imdb;
     }
 

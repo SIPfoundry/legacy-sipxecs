@@ -68,7 +68,7 @@ class NatMaintainer : public OsTask
 {
 
 public:
-   NatMaintainer( SipRouter* sipRouter );
+   NatMaintainer( SipRouter* sipRouter, RegDB* pRegDb, SubscribeDB* pSubscribeDb );
    virtual ~NatMaintainer();
    /// Start running the NatMaintainer task.
    virtual int run( void* runArg );
@@ -95,8 +95,6 @@ private:
    };
 
    uint32_t mRefreshRoundNumber;      ///< Counter of refresh rounds.
-   RegDB::Ptr _pRegDB;  ///< The registration DB.
-   SubscribeDB::Ptr _pSubscribeDB;  ///< The subscription DB.
    int             mNextSeqValue;     ///< Sequence number to use in next OPTIONS wave 
    UtlString       mBaseCallId;       ///< Call-id from which all the others will be derived
    
@@ -111,6 +109,8 @@ private:
    /// List of TransportData's describing endpoints to which to send keepalives.
    UtlSList    mExternalKeepAliveList;
    OsMutex     mExternalKeepAliveListMutex; ///< mutex protecting mExternalKeepAliveList
+   RegDB*  mpRegDb;  ///< The registration DB.
+   SubscribeDB* mpSubscribeDb;  ///< The subscription DB.
 
    /// Send keepalives to the list of URIs (as UtlString's) in contactList.
    void sendKeepAliveToContactList( UtlSList& contactList );

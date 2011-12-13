@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">  
   <bean id="acdComponent" abstract="true" class="org.sipfoundry.sipxconfig.acd.AcdComponent"
     parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
@@ -40,6 +40,10 @@
     parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.AcdContext"/>
     <property name="target" ref="acdContextImpl"/>
+  </bean>
+
+  <bean id="acdReplicationProvider" class="org.sipfoundry.sipxconfig.acd.AcdReplicationProvider">
+    <property name="acdContext" ref="acdContext"/>
   </bean>
 
   <bean id="acdMigrationTrigger" class="org.sipfoundry.sipxconfig.acd.AcdMigrationTrigger">

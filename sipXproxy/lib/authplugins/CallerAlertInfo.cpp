@@ -22,6 +22,7 @@
 #include <sipxproxy/RouteState.h>
 #include <sipxproxy/SipRouter.h>
 #include "CallerAlertInfo.h"
+#include <assert.h>
 
 // DEFINES
 #define FIELD_NAME "Alert-Info"

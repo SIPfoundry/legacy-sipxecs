@@ -27,15 +27,29 @@
 
 #include <queue>
 #include <vector>
-#undef VERSION
-#include <mongo/client/dbclient.h>
-#include <mongo/db/jsobj.h>
-#include <boost/thread/mutex.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/functional/hash.hpp>
 
-#include "os/OsLogger.h"
+// Avoids this error
+//   /usr/include/mongo/client/../pch.h:116:15: error: expected unqualified-id before string constant
+#undef VERSION
+
+#include <mongo/client/dbclient.h>
+
+// unfortunately mongo undefines assert and for some c++ files, that's bad
+// so we universally include it here whether c++ uses it or not.
+#include <assert.h>
+
+#include <boost/exception/all.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/shared_array.hpp>
+#include <exception>
+#include <boost/function.hpp>
+
+
+// is assert is undefined, just include it again
+//  include <assert.h>
+
+// cannot seem to redfine it so safer to undefine it
+#undef VERSION
 
 #define BSON_NOT_EQUAL(val) BSON("$ne"<< val)
 #define BSON_LESS_THAN(val) BSON("$lt"<< val)
@@ -44,217 +58,118 @@
 #define BSON_GREATER_THAN_EQUAL(val) BSON("$gte" << val)
 #define BSON_ELEM_MATCH(val) BSON("$elemMatch" << val)
 #define BSON_OR(val) BSON("$or" << val)
-class MongoDB : boost::noncopyable
+
+typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
+
+namespace MongoDB
 {
+
+class ConfigError: public boost::exception, public std::exception {
 public:
-    typedef boost::shared_ptr<MongoDB> Ptr;
-    typedef boost::shared_ptr<mongo::DBClientConnection> Client;
-    typedef std::auto_ptr<mongo::DBClientCursor> Cursor;
-    typedef mongo::BSONObj BSONObj;
-    typedef mongo::BSONElement BSONElement;
-    typedef mongo::BSONObjBuilder BSONObjBuilder;
-    typedef mongo::BSONArray BSONArray;
-    typedef mongo::Query Query;
-    typedef boost::recursive_mutex Mutex;
-    typedef boost::lock_guard<Mutex> mutex_lock;
-
-    class PooledConnection
-    {
-    public:
-        PooledConnection(MongoDB& db) : _db(db){_client = _db.acquire();}
-        ~PooledConnection(){ _db.relinquish(_client); }
-        MongoDB::Client& operator->(){return _client;}
-        bool operator!(){return _client.get() == 0;}
-        MongoDB::Client& target(){return _client;}
-    private:
-        MongoDB& _db;
-        MongoDB::Client _client;
-    };
-
-    template  <class T>
-    class Collection
-    {
-    public:
-        Collection(const std::string& ns, const std::string& server = "localhost:27017") :
-            _pDb(MongoDB::acquireServer(server)),
-            _collection(*_pDb, ns){}
-        T& collection(){ return _collection; }
-        MongoDB& db(){ return *_pDb; }
-
-    private:
-        MongoDB::Ptr _pDb;
-        T _collection;
-    };
-
-    class DBInterface : boost::noncopyable
-    {
-    public:
-        typedef boost::shared_ptr<DBInterface> Ptr;
-        DBInterface(MongoDB& db, const std::string& internalAddress, const std::string& ns) : _db(db), _ns(ns), _internalAddress(internalAddress){}
-        const std::string& getNameSpace() const { return _ns; };
-        MongoDB& db() { return _db; }
-        MongoDB::Cursor items()
-        {
-            MongoDB::BSONObj query;
-            std::string error;
-            return db().find(
-                _ns,
-                query,
-                error);
-        }
-
-        const std::string& getInternalAddress() const { return _internalAddress; }
-    protected:
-        MongoDB& _db;
-        std::string _ns;
-        std::string _internalAddress;
-    };
-
-    class DBInterfaceSet : public std::vector<DBInterface::Ptr>
-    {
-    public:
-        DBInterfaceSet(const std::string& ns) :
-            std::vector<DBInterface::Ptr>(),
-            _ns(ns)
-        {
-        }
-        ~DBInterfaceSet()
-        {
-        }
-
-        bool attachNode(const std::string& nodeAddress)
-        {
-          return attachNode(nodeAddress, nodeAddress, _ns);
-        }
-
-        bool attachNode(const std::string& nodeAddress, const std::string& internalAddress, const std::string& ns)
-        {
-            MongoDB::Ptr pNode = MongoDB::acquireServer(nodeAddress);
-            if (!pNode)
-                return false;
-
-            push_back(DBInterface::Ptr(new DBInterface(*(pNode.get()), internalAddress, ns)));
-            _nodes.push_back(pNode);
-            return true;
-        }
-    protected:
-        std::string _ns;
-        std::vector<MongoDB::Ptr> _nodes;
-    };
-
-    MongoDB();
-
-    MongoDB(const std::string& server);
-
-    ~MongoDB();
-
-    Query createQuery(const std::string& json) const;
-    
-    Cursor find(
-        const std::string& ns,
-        const BSONObj& query,
-        std::string& error);
-
-    bool insert(
-        const std::string& ns,
-        const BSONObj& obj,
-        std::string& error);
-
-    bool insertUnique(
-        const std::string& ns,
-        const BSONObj& query,
-        const BSONObj& obj,
-        std::string& error);
-
-    bool update(
-        const std::string& ns,
-        const BSONObj& query,
-        const mongo::BSONObj& obj,
-        std::string& error,
-        bool allowInsert = false,
-        bool allowMultiple = false);
-
-    bool updateUnique(
-        const std::string& ns,
-        const BSONObj& query,
-        const BSONObj& obj,
-        std::string& error);
-
-    bool updateOrInsert(
-        const std::string& ns,
-        const BSONObj& query,
-        const BSONObj& obj,
-        std::string& error);
-
-    bool updateMultiple(
-        const std::string& ns,
-        const BSONObj& query,
-        const BSONObj& obj,
-        std::string& error);
-
-    bool remove(
-        const std::string& ns,
-        const BSONObj& query,
-        std::string& error);
-
-    bool removeAll(const std::string& ns);
-
-    void createInitialPool(size_t initialCount = 10, bool autoReconnect = true);
-
-    void relinquish(const Client& pClient);
-
-    Client acquire();
-
-    const std::string& getServer() const;
-
-    void setServer(const std::string& server);
-
-    static MongoDB::Ptr acquireServer(const std::string& server);
-
-    static void releaseServers();
-private:
-    Mutex _mutex;
-    std::queue<Client> _queue;
-    std::string _server;
-    static Mutex _serversMutex;
-    static std::map<std::string, MongoDB::Ptr> _dbServers;
-    bool _autoReconnect;
+    ConfigError() {
+    }
 };
 
-
-
-//
-// Inlines
-//
-
-inline bool MongoDB::updateOrInsert(
-    const std::string& ns,
-    const BSONObj& query,
-    const BSONObj& obj,
-    std::string& error)
+class ConnectionInfo
 {
-    return update(ns, query, obj, error, true, false);
-}
+public:
+	ConnectionInfo(const ConnectionInfo& rhs) :
+		_connectionString(rhs._connectionString), _ns(rhs._ns)
+	{
+	}
+	;
 
-inline bool MongoDB::updateMultiple(
-    const std::string& ns,
-    const BSONObj& query,
-    const BSONObj& obj,
-    std::string& error)
+	ConnectionInfo(const mongo::ConnectionString& connectionString, const std::string& ns) :
+		_connectionString(connectionString), _ns(ns)
+	{
+	}
+	;
+
+	virtual ~ConnectionInfo()
+	{
+	}
+	;
+
+	/**
+	 * Read just the connection string from a file.
+	 *
+	 * Example:
+	 *    MyDB db(ConnectionInfo(ConnectionInfo::connectionStringFromFile(), "mydb.mycollection"));
+	 *
+	 * Example:
+	 *    ConnectionString connString = ConnectionInfo::connectionStringFromFile();
+	 *    MyDB db1(ConnectionInfo(connString, "mydb.mycollection1"));
+	 *    MyDB db2(ConnectionInfo(connString, "mydb.mycollection2"));
+	 *
+	 * Example file contents:
+	 * ======================
+	 * sipxecs/localhost:27017,localhost:27018
+	 * ======================
+	 */
+	static const mongo::ConnectionString connectionStringFromFile(
+			const std::string& configFile = "");
+
+	static const mongo::ConnectionString connectionString(const std::string& str);
+
+	const mongo::ConnectionString& getConnectionString() const
+	{
+		return _connectionString;
+	}
+	;
+
+	const std::string& getNS() const
+	{
+		return _ns;
+	}
+	;
+
+private:
+	mongo::ConnectionString _connectionString;
+	std::string _ns;
+};
+
+class BaseDB
 {
-    return update(ns, query, obj, error, false, true);
-}
+public:
+	BaseDB(const ConnectionInfo& info) :
+		_info(info)
+	{
+	}
+	;
 
-inline const std::string& MongoDB::getServer() const
-{
-    return _server;
-}
+	virtual ~BaseDB()
+	{
+	}
+	;
 
-inline void MongoDB::setServer(const std::string& server)
-{
-    _server = server;
-}
+	// This does something for each record. Efficient because it doesn't store each record into a collection
+	// then pass back the collection for you to iterate over.
+	//
+	// NOTE: You can easily load _all_ objects which would prohibit your function from working on a large
+	// production system depending on the circumstance.
+	//
+	// Example:
+	//   include <boost/bind.hpp>
+	//
+	//   class X {
+	//      void y(mongo::BSONObj o) {
+	//         println("%s\n", o.getStringField("a"));
+	//      }
+	//   };
+	//
+	//   BaseDB d(info);
+	//   X z;
+	//   mongo::BSONObj all;
+	//   d.forEach(all, bind(&X::y, &z, _1));   // _1 is required means a single argument
+	//
+	void forEach(mongo::BSONObj& query, boost::function<void(mongo::BSONObj)> doSomething);
 
+protected:
+	mutable ConnectionInfo _info;
+};
+
+}
+;
 
 #endif	/* MONGODB_H */
 

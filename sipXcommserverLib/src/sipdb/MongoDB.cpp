@@ -1,298 +1,69 @@
-/*
- * Copyright (c) 2011 eZuce, Inc. All rights reserved.
- *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- */
-
+#include <string>
+#include <iostream>
+#include <fstream>
+//#include <boost/program_options.hpp>
+#include <boost/config.hpp>
+#include <boost/program_options/detail/config_file.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <mongo/client/dbclient.h>
+#include <mongo/client/connpool.h>
 #include "sipdb/MongoDB.h"
 
+using namespace MongoDB;
+using namespace std;
 
-std::map<std::string, MongoDB::Ptr> MongoDB::_dbServers;
-MongoDB::Mutex MongoDB::_serversMutex;
+namespace pod = boost::program_options::detail;
 
-MongoDB::Ptr MongoDB::acquireServer(const std::string& server)
+const mongo::ConnectionString ConnectionInfo::connectionStringFromFile(const string& configFile)
 {
-    MongoDB::mutex_lock lock(MongoDB::_serversMutex);
-    if (MongoDB::_dbServers.find(server) != MongoDB::_dbServers.end())
-        return _dbServers[server];
-    MongoDB::Ptr pServer = MongoDB::Ptr(new MongoDB(server));
-    pServer->createInitialPool();
-    MongoDB::_dbServers[server] = pServer;
-    return pServer;
-}
-
-void MongoDB::releaseServers()
-{
-    MongoDB::mutex_lock lock(MongoDB::_serversMutex);
-    MongoDB::_dbServers.clear();
-}
-
-MongoDB::MongoDB() :
-  _autoReconnect(true)
-{
-}
-
-MongoDB::MongoDB(const std::string& server) :
-  _server(server),
-  _autoReconnect(true)
-{
-}
-
-MongoDB::~MongoDB()
-{
+	const char* configFileStr = (configFile.size() == 0 ? SIPX_CONFDIR "/mongo-client.ini" : configFile.c_str());
+    ifstream file(configFileStr);
+    if (!file)
     {
-        mutex_lock lock(_mutex);
-        while(_queue.size() > 0)
-            _queue.pop();
+        BOOST_THROW_EXCEPTION(ConfigError() <<  errmsg_info(std::string("Missing file ")  + configFileStr));
     }
-}
-
-void MongoDB::createInitialPool(size_t initialCount, bool autoReconnect)
-{
-    _autoReconnect = autoReconnect;
-
-    mutex_lock lock(_mutex);
-
-    if (!_queue.empty())
-    {
-      //
-      // This means createInitialPool() has already been called prior
-      //
-      return;
-    }
-
-    for (size_t i = 0; i < initialCount; i++)
-    {
-        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection(autoReconnect);
-        if (_server.empty())
-            _server = "localhost:27017";
-
-        std::string errorMessage;
-
-
-        if (_server.find(":") == std::string::npos)
-            _server += ":27017";
-
-        mongo::HostAndPort hostPort(_server);
-        if (pConnection->connect(hostPort, errorMessage))
-        {
-            _queue.push(Client(pConnection));
+    set<string> options;
+    options.insert("*");
+    string connectionString;
+    for (boost::program_options::detail::config_file_iterator i(file, options), e; i != e; ++i) {
+        if (i->string_key == "connectionString") {
+            connectionString = i->value[0];
+            break;
         }
-        else
+    }
+    file.close();
+    if (connectionString.size() == 0)
+    {
+        BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(std::string("Invalid contents, missing parameter 'connectionString' in file ")  + configFileStr));
+    }
+
+    return ConnectionInfo::connectionString(connectionString);
+}
+
+
+const mongo::ConnectionString ConnectionInfo::connectionString(const string& connectionString)
+{
+	string errmsg;
+	mongo::ConnectionString cs = mongo::ConnectionString::parse(connectionString, errmsg);
+	if (!cs.isValid()) {
+	    BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(errmsg));
+	}
+
+	return cs;
+}
+
+void BaseDB::forEach(mongo::BSONObj& query, boost::function<void(mongo::BSONObj)> doSomething)
+{
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+    if (pCursor.get() && pCursor->more())
+    {
+        while (pCursor->more())
         {
-            delete pConnection;
+            doSomething(pCursor->next());
         }
-
     }
-}
 
-MongoDB::Client MongoDB::acquire()
-{
-    mutex_lock lock(_mutex);
-
-    if (_queue.size() > 0)
-    {
-        Client pConnection = _queue.back();
-        _queue.pop();
-        return pConnection;
-    }
-    else
-    {
-        mongo::DBClientConnection* pConnection = new mongo::DBClientConnection(_autoReconnect);
-        std::string errorMessage;
-
-        if (_server.find(":") == std::string::npos)
-          _server += ":27017";
-
-        mongo::HostAndPort hostPort(_server);
-        if (pConnection->connect(hostPort, errorMessage))
-        {
-            return Client(pConnection);
-        }
-        else
-        {
-            delete pConnection;
-            return Client();
-        }
-
-    }
-    return Client();
-}
-
-void MongoDB::relinquish(const Client& pConnection)
-{
-    if (!pConnection)
-        return;
-    mutex_lock lock(_mutex);
-    _queue.push(pConnection);
-}
-
-MongoDB::Cursor MongoDB::find(
-    const std::string& ns,
-    const BSONObj& query,
-    std::string& error)
-{
-    mutex_lock lock(_mutex);
-    try
-    {
-        MongoDB::PooledConnection pConnection(*this);
-        if (!pConnection)
-            return MongoDB::Cursor();
-        return pConnection->query(ns, Query(query));
-    }
-    catch(std::exception& e)
-    {
-        error = e.what();
-        return MongoDB::Cursor();
-    }
-    return MongoDB::Cursor();
-}
-
-
-bool MongoDB::insert(
-    const std::string& ns,
-    const mongo::BSONObj& obj,
-    std::string& error)
-{
-    mutex_lock lock(_mutex);
-    try
-    {
-        MongoDB::PooledConnection pConnection(*this);
-        if (!pConnection)
-            return false;
-        pConnection->insert( ns , obj);
-        return true;
-    }
-    catch(std::exception& e)
-    {
-        error = e.what();
-        return false;
-    }
-    return false;
-}
-
-bool MongoDB::insertUnique(
-    const std::string& ns,
-    const BSONObj& query,
-    const BSONObj& obj,
-    std::string& error)
-{
-    mutex_lock lock(_mutex);
-    try
-    {
-        MongoDB::PooledConnection pConnection(*this);
-        if (!pConnection)
-            return false;
-        MongoDB::Cursor pCursor = find(ns, query, error);
-        if (pCursor.get() && pCursor->more())
-        {
-            error = "Unique Record Exception";
-            return false;
-        }
-        pConnection->insert( ns , obj);
-        return true;
-    }
-    catch(std::exception& e)
-    {
-        error = e.what();
-        return false;
-    }
-    return false;
-}
-
-bool MongoDB::update(
-    const std::string& ns,
-    const BSONObj& query,
-    const BSONObj& obj,
-    std::string& error,
-    bool allowInsert,
-    bool allowMultiple)
-{
-    mutex_lock lock(_mutex);
-    try
-    {
-        Query updateQuery(query);
-
-        MongoDB::PooledConnection pConnection(*this);
-        if (!pConnection)
-            return false;
-        pConnection->update(ns, updateQuery, obj, allowInsert, allowMultiple);
-        return true;
-    }
-    catch(std::exception& e)
-    {
-        error = e.what();
-        return false;
-    }
-    return false;
-}
-
-bool MongoDB::updateUnique(
-    const std::string& ns,
-    const BSONObj& query,
-    const BSONObj& obj,
-    std::string& error)
-{
-    mutex_lock lock(_mutex);
-    try
-    {
-        Query updateQuery(query);
-
-        MongoDB::PooledConnection pConnection(*this);
-        if (!pConnection)
-            return false;
-        MongoDB::Cursor pCursor = find(ns, query, error);
-        if (pCursor.get() && pCursor->itcount() > 1)
-        {
-            error = "Unique Record Exception";
-            return false;
-        }
-        pConnection->update(ns, updateQuery, obj, false, false);
-        return true;
-    }
-    catch(std::exception& e)
-    {
-        error = e.what();
-        return false;
-    }
-    return false;
-}
-
-bool MongoDB::remove(
-    const std::string& ns,
-    const BSONObj& query,
-    std::string& error)
-{
-    mutex_lock lock(_mutex);
-    try
-    {
-        MongoDB::PooledConnection pConnection(*this);
-        if (!pConnection)
-            return false;
-        pConnection->remove(ns, Query(query), false);
-        return true;
-    }
-    catch(std::exception& e)
-    {
-        error = e.what();
-        return false;
-    }
-    return false;
-}
-
-bool MongoDB::removeAll(const std::string& ns)
-{
-    mutex_lock lock(_mutex);
-    BSONObj query;
-    std::string error;
-    return remove(ns, query, error);
+    conn.done();
 }
 
