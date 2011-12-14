@@ -321,7 +321,6 @@ process_queue(Queue, "DELETE") ->
 
 process_queue(Queue, "UPDATE") ->
 	Name = get_str(<<"name">>, Queue),
-
 	call_queue_config:set_queue(
 		get_str(<<"oldName">>, Queue),
 		Name,
@@ -384,7 +383,7 @@ process_log_configuration(Config, _Command) ->
 	cpxlog:set_loglevel(ConsoleLogPath, LogLevel).
 
 extract_condition(MongoCondition) ->
-	Condition = get_str(<<"condition">>, MongoCondition),
+	Condition = get_atom(<<"condition">>, MongoCondition),
 	Relation = get_atom(<<"relation">>, MongoCondition),
 
 	case Condition of
@@ -393,7 +392,7 @@ extract_condition(MongoCondition) ->
 		type ->
 			{type, Relation, get_atom(<<"value">>, MongoCondition)};
 		ticks ->
-			{type, get_str_to_int(<<"value">>, MongoCondition)};
+			{ticks, get_str_to_int(<<"value">>, MongoCondition)};
 		_ -> %% TODO would probably best to enumerate
 			{Condition, get_str_to_int(<<"value">>, MongoCondition)}
 	end.
