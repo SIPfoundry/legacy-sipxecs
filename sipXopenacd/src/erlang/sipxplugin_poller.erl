@@ -14,309 +14,516 @@
 -module(sipxplugin_poller).
 -author("eZuce").
 
--import(mongoapi).
--import(application).
--import(agent_auth).
--import(call_queue_config).
--import(queue_manager).
--import(cpx_supervisor).
--import(cpxlog).
--export([start/0, stop/0, init/1, loop/2]).
+-behavior(gen_server).
+
+%% API
+-export([start/0, stop/0,
+	get_last_poll_time/0]).
+
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3]).
+
+-record(state, {timer, last_poll_time}).
+-define(SERVER, ?MODULE).
 
 -include("log.hrl").
 -include("cpx.hrl").
 -include("queue.hrl").
+-include("call.hrl").
+-include("agent.hrl").
 
 start() ->
-	gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+	gen_server:start_link({local, ?SERVER}, ?SERVER, [], []).
 
 stop() ->
-	gen_server:call(?MODULE, stop).
+	gen_server:call(?SERVER, stop).
 
+get_last_poll_time() ->
+	gen_server:call(?SERVER, get_last_poll_time).
+%%====================================================================
+%% gen_server callbacks
+%%====================================================================
+
+%%--------------------------------------------------------------------
+%% Function: init(Args) -> {ok, State} |
+%%                         {ok, State, Timeout} |
+%%                         ignore               |
+%%                         {stop, Reason}
+%% Description: Initiates the server
+%%--------------------------------------------------------------------
 init([]) ->
-	{ok, start_poller()}.
-
-start_poller() ->
 	mongodb:singleServer(def),
 	mongodb:connect(def),
-	init_poller(10000).
+	{ok, Timer} = timer:send_interval(10000, tick),
+	State = #state{timer = Timer},
 
-% @doc Spawn a poller process
-%
-% @spec init(PollInterval::integer())
+	{ok, State}.
+%--------------------------------------------------------------------
+%% Function: %% handle_call(Request, From, State) -> {reply, Reply, State} |
+%%                                      {reply, Reply, State, Timeout} |
+%%                                      {noreply, State} |
+%%                                      {noreply, State, Timeout} |
+%%                                      {stop, Reason, Reply, State} |
+%%                                      {stop, Reason, State}
+%% Description: Handling call messages
+%%--------------------------------------------------------------------
+handle_call(get_last_poll_time, _From, State) ->
+	{reply, State#state.last_poll_time, State};
+handle_call(stop, _From, State) ->
+	{stop, normal, ok, State};
+handle_call(_Request, _From, State) ->
+	Reply = ok,
+	{reply, Reply, State}.
 
-init_poller(PollInterval) ->
-    spawn_link(
-		sipxplugin_poller, loop, [PollInterval, 0]
-	).
+%%--------------------------------------------------------------------
+%% Function: handle_cast(Msg, State) -> {noreply, State} |
+%%                                      {noreply, State, Timeout} |
+%%                                      {stop, Reason, State}
+%% Description: Handling cast messages
+%%--------------------------------------------------------------------
+handle_cast(_Msg, State) ->
+  {noreply, State}.
 
-loop(PollInterval, LastPollTime) ->
-	receive
-		exit -> ok
-	after
-		PollInterval ->
-			{NewPollTime} =
-				get_new_config(LastPollTime),
-			loop(PollInterval, NewPollTime)
-    end.
+%%--------------------------------------------------------------------
+%% Function: handle_info(Info, State) -> {noreply, State} |
+%%                                       {noreply, State, Timeout} |
+%%                                       {stop, Reason, State}
+%% Description: Handling all non call/cast messages
+%%--------------------------------------------------------------------
+handle_info(tick, State) ->
+	PollTime = erlang:now(),
+	get_new_config(),
+	{noreply, State#state{last_poll_time = PollTime}};
 
-get_new_config(LastPollTime) ->
-	NewPollTime = calendar:datetime_to_gregorian_seconds(
-		{ date(), time() }
-	),
+handle_info(_Info, State) ->
+  {noreply, State}.
+
+%%--------------------------------------------------------------------
+%% Function: terminate(Reason, State) -> void()
+%% Description: This function is called by a gen_server when it is about to
+%% terminate. It should be the opposite of Module:init/1 and do any necessary
+%% cleaning up. When it returns, the gen_server terminates with Reason.
+%% The return value is ignored.
+%%--------------------------------------------------------------------
+terminate(_Reason, _State) ->
+  ok.
+
+%%--------------------------------------------------------------------
+%% Func: code_change(OldVsn, State, Extra) -> {ok, NewState}
+%% Description: Convert process state when code is changed
+%%--------------------------------------------------------------------
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.
+
+%%--------------------------------------------------------------------
+%%% Internal functions
+%%--------------------------------------------------------------------
+
+get_new_config() ->
 	%connect to openacd db and count objects in commands collection
 	Mong = mongoapi:new(def,<<"openacd">>),
-	CommandCount = Mong:count("commands"),
-	if CommandCount =:= 0 -> ?DEBUG("No Command to execute", []);
-		true ->
-			%if command count > 0 retrieve all commands and process them
-			?WARNING("No of Commands to execute ~p", [CommandCount]),
-			{Status, Commands} = Mong:find("commands", [], undefined, 0, CommandCount),
+	
+	case Mong:find("commands", [], undefined, 0, 0) of
+		{ok, []} ->
+			?DEBUG("No Command to execute", []);
+		{ok, Commands} ->
 			lists:foreach(fun(Cmd) ->
 				get_command_values(Cmd, Mong)
 			end, Commands)
-	end,
-    { NewPollTime }.
-
+	end.
+	
 get_command_values(Data, Mong) ->
-	if Data =:= [] -> ?DEBUG("No Data", []);
-		true ->
+	case Data of
+		[] ->
+			?DEBUG("No Data", []);
+		_ ->
 			% command format { "_id" : ObjectId("4ce62e892957ca4fc97387a1"), "command" : "ADD", "count" : 2, "objects" : []}
 			?DEBUG("Processing Mongo DB Command: ~p", [Data]),
-			[{_, Id}, {_, CmdValue}, {_, Count}, {_, {_, Objects}}] = Data,
+
+			Id = proplists:get_value(<<"_id">>, Data),
+			CommandBin = proplists:get_value(<<"command">>, Data),
+			{array, Objects} = proplists:get_value(<<"objects">>, Data),
+
+			Command = binary_to_list(CommandBin),
+
 			lists:foreach(fun(Object) ->
 				% objects to process starts with type e.g. "type" : "agent", "name" : "bond", "pin" : "1234"
-				{_, Type} = lists:nth(1, Object),
-				if Type =:= <<"agent">> ->
-					process_agent(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"profile">> ->
-					process_profile(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"skill">> ->
-					process_skill(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"client">> ->
-					process_client(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"queueGroup">> ->
-					process_queue_group(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"queue">> ->
-					process_queue(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"freeswitch_media_manager">> ->
-					process_fs_media_manager(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"agent_configuration">> ->
-					process_agent_configuration(Object, erlang:binary_to_list(CmdValue));
-				Type =:= <<"log_configuration">> ->
-					process_log_configuration(Object, erlang:binary_to_list(CmdValue));
-				true -> ?WARNING("Unrecognized type", [])
+
+				Type = proplists:get_value(<<"type">>, Object),
+
+				case Type of
+					<<"agent">> ->
+						process_agent(Object, Command);
+					<<"profile">> ->
+						process_profile(Object, Command);
+					<<"skill">> ->
+						process_skill(Object, Command);
+					<<"client">> ->
+						process_client(Object, Command);
+					<<"queueGroup">> ->
+						process_queue_group(Object, Command);
+					<<"queue">> ->
+						process_queue(Object, Command);
+					<<"freeswitch_media_manager">> ->
+						process_fs_media_manager(Object, Command);
+					<<"agent_configuration">> ->
+						process_agent_configuration(Object, Command);
+					<<"log_configuration">> ->
+						process_log_configuration(Object, Command);
+					<<"vm_priority_diff">> ->
+						process_vm_priority_diff(Object, Command);
+					_ ->
+						?WARNING("Unrecognized type", [])
 				end
 			end, Objects),
+
 			Mong:runCmd([{"findandmodify", "commands"},{"query", [{"_id",Id}]},{"remove",1}])
 	end.
 
-process_agent(Agent, Command) ->
-	{_, Name} = lists:nth(2, Agent),
-	{_, Pin} = lists:nth(3, Agent),
-	{_, Group} = lists:nth(4, Agent),
-	{_, Skills} = lists:nth(5, Agent),
-	{_, Queues} = lists:nth(6, Agent),
-	{_, Clients} = lists:nth(7, Agent),
-	{_, Firstname} = lists:nth(8, Agent),
-	{_, Lastname} = lists:nth(9, Agent),
-	{_, Security} = lists:nth(11, Agent),
-	SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
-	QueuesList = lists:flatmap(fun(X)->[{'_queue',X}] end, string:tokens((erlang:binary_to_list(Queues)), ", ")),
-        ClientsList = lists:flatmap(fun(X)->[{'_brand',X}] end, string:tokens((erlang:binary_to_list(Clients)), ", ")),
-        AllSkills = lists:merge(lists:merge(QueuesList, ClientsList), SkillsList),
-	if Security =:= <<"SUPERVISOR">> ->
-		SecurityAtom = supervisor;
-	Security =:= <<"ADMIN">> ->
-		SecurityAtom = admin;
-	true -> SecurityAtom = agent
-	end,
-	if Command =:= "ADD" ->
-		agent_auth:add_agent(erlang:binary_to_list(Name), erlang:binary_to_list(Firstname), erlang:binary_to_list(Lastname), erlang:binary_to_list(Pin), AllSkills, SecurityAtom, erlang:binary_to_list(Group));
-	Command =:= "DELETE" ->
-		agent_auth:destroy(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		{_, Oldname} = lists:nth(10, Agent),
-		{_, [Old]} = agent_auth:get_agent(erlang:binary_to_list(Oldname)),
-		agent_auth:set_agent(element(2, Old), erlang:binary_to_list(Name), erlang:binary_to_list(Pin), AllSkills, SecurityAtom, erlang:binary_to_list(Group), erlang:binary_to_list(Firstname), erlang:binary_to_list(Lastname));
-	true -> ?WARNING("Unrecognized command", [])
+process_agent(Agent, "ADD") ->
+	agent_auth:add_agent(
+		get_str(<<"name">>, Agent),
+		get_str(<<"firstName">>, Agent),
+		get_str(<<"lastName">>, Agent),
+		get_str(<<"pin">>, Agent),
+		get_all_skills(Agent),
+		get_agent_security(Agent),
+		get_str(<<"group">>, Agent));
+
+process_agent(Agent, "DELETE") ->
+	agent_auth:destroy(
+		get_str(<<"name">>, Agent));
+
+process_agent(Agent, "UPDATE") ->
+	OldName = get_str(<<"oldName">>, Agent),
+	case agent_auth:get_agent(OldName) of
+		{atomic, [Old]} ->
+			%% TODO must be an atomic operation
+			Id = Old#agent_auth.id,			
+			agent_auth:set_agent(Id,
+				get_str(<<"name">>, Agent),
+				get_str(<<"pin">>, Agent),
+				get_all_skills(Agent),
+				get_agent_security(Agent),
+				get_str(<<"group">>, Agent),
+				get_str(<<"firstName">>, Agent),
+				get_str(<<"lastName">>, Agent));
+		{atomic, []} ->
+			?WARNING("Failed to update non-existing agent: ~s",
+				[OldName])
+	end;
+process_agent(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
+
+process_profile(Profile, "ADD") ->
+	agent_auth:new_profile(get_str(<<"name">>, Profile),
+		get_all_skills(Profile));
+
+process_profile(Profile, "DELETE") ->
+	agent_auth:destroy_profile(get_str(<<"name">>, Profile));
+
+process_profile(Profile, "UPDATE") ->
+	agent_auth:set_profile(
+		get_str(<<"oldName">>, Profile),
+		get_str(<<"name">>, Profile),
+		get_all_skills(Profile));
+
+process_profile(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
+
+process_skill(Skill, "ADD") ->
+	call_queue_config:new_skill(
+		get_atom(<<"atom">>, Skill),
+		get_str(<<"name">>, Skill),
+		get_str(<<"description">>, Skill),
+		get_str(<<"groupName">>, Skill));
+
+process_skill(Skill, "DELETE") ->
+	call_queue_config:destroy_skill(
+		get_str(<<"name">>, Skill));
+
+process_skill(Skill, "UPDATE") ->
+	call_queue_config:set_skill(
+		get_atom(<<"atom">>, Skill),
+		get_str(<<"name">>, Skill),
+		get_str(<<"description">>, Skill),
+		get_str(<<"groupName">>, Skill));
+
+process_skill(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
+
+process_client(Client, "ADD") ->
+	call_queue_config:new_client(
+		get_str(<<"name">>, Client),
+		get_str(<<"identity">>, Client),
+		get_client_options(Client));
+
+process_client(Client, "DELETE") ->
+	call_queue_config:destroy_client(
+		get_str(<<"identity">>, Client));
+
+process_client(Client, "UPDATE") ->
+	call_queue_config:set_client(
+		get_str(<<"identity">>, Client),
+		get_str(<<"name">>, Client),
+		get_client_options(Client));
+
+process_client(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]).
+
+process_queue_group(QueueGroup, "ADD") ->
+	NewQgroup = #queue_group{
+		name = get_str(<<"name">>, QueueGroup),
+		sort = 10,
+		recipe = [],
+		skills = get_all_skills(QueueGroup)},
+	call_queue_config:new_queue_group(NewQgroup);
+process_queue_group(QueueGroup, "DELETE") ->
+	call_queue_config:destroy_queue_group(
+		get_str(<<"name">>, QueueGroup));
+process_queue_group(QueueGroup, "UPDATE") ->
+	OldName = get_str(<<"oldName">>, QueueGroup),
+	%% warn: this is not atomic
+	case call_queue_config:get_queue_group(OldName) of
+		{atomic, []} ->
+			?WARNING("Queue group ~s not found!", [OldName]);
+		{atomic, [OldQueueGroup]} ->
+			NewQueueGroup = OldQueueGroup#queue_group{
+				name = get_str(<<"name">>, QueueGroup),
+				sort = 10,
+				skills = get_all_skills(QueueGroup)
+			},
+			call_queue_config:set_queue_group(OldName, NewQueueGroup)
+	end;
+process_queue_group(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
+
+process_queue(Queue, "ADD") ->
+	Name = get_str(<<"name">>, Queue),
+
+	call_queue_config:new_queue(
+		Name,
+		get_str_to_int(<<"weight">>, Queue),
+		get_all_skills(Queue),
+		get_recipes(Queue),
+		get_str(<<"queueGroup">>, Queue)
+	),
+	queue_manager:load_queue(Name);
+
+process_queue(Queue, "DELETE") ->
+	call_queue_config:destroy_queue(
+		get_str(<<"name">>, Queue));
+
+process_queue(Queue, "UPDATE") ->
+	Name = get_str(<<"name">>, Queue),
+
+	call_queue_config:set_queue(
+		get_str(<<"oldName">>, Queue),
+		Name,
+		get_str_to_int(<<"weight">>, Queue),
+		get_all_skills(Queue),
+		get_recipes(Queue),
+		get_str(<<"queueGroup">>, Queue)),
+	queue_manager:load_queue(Name);
+
+process_queue(_, Command) ->
+	?WARNING("Unrecognized command: ~s", [Command]),
+	{error, unkown_command}.
+
+process_fs_media_manager(Config, _Command) ->	
+	%% TODO should be getting a boolean than a string
+	case get_bin(<<"enabled">>, Config) of
+		<<"true">> ->
+			cpx_supervisor:update_conf(freeswitch_media_manager,
+				#cpx_conf{
+					id = freeswitch_media_manager,
+					module_name = freeswitch_media_manager,
+					start_function = start_link,
+					start_args = [
+						get_atom(<<"node">>, Config),
+						[{h323,[]}, {iax2,[]}, {sip,[]},
+						 {dialstring,
+						 get_str(<<"dialString">>, Config)}]],
+					supervisor = mediamanager_sup
+				});
+		<<"false">> ->
+			cpx_supervisor:destroy(freeswitch_media_manager);
+		_ ->
+			?WARNING("Unrecognized fs_media_manager state", [])
 	end.
 
-process_profile(Profile, Command) ->
-	{_, Name} = lists:nth(2, Profile),
-	{_, Skills} = lists:nth(3, Profile),
-        {_, Queues} = lists:nth(4, Profile),
-        {_, Clients} = lists:nth(5, Profile),
-        SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
-	QueuesList = lists:flatmap(fun(X)->[{'_queue',X}] end, string:tokens((erlang:binary_to_list(Queues)), ", ")),
-	ClientsList = lists:flatmap(fun(X)->[{'_brand',X}] end, string:tokens((erlang:binary_to_list(Clients)), ", ")),
-	AllSkills = lists:merge(lists:merge(QueuesList, ClientsList), SkillsList),
-	if Command =:= "ADD" ->
-		agent_auth:new_profile(erlang:binary_to_list(Name), AllSkills);
-	Command =:= "DELETE" ->
-		agent_auth:destroy_profile(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		{_, Oldname} = lists:nth(6, Profile),
-		Old = agent_auth:get_profile(erlang:binary_to_list(Oldname)),
-		agent_auth:set_profile(erlang:binary_to_list(Oldname), erlang:binary_to_list(Name), AllSkills);
-	true -> ?WARNING("Unrecognized command", [])
+process_agent_configuration(Config, _Command) ->
+	%% TODO should be boolean than string
+	case get_bin(<<"listenerEnabled">>, Config) of
+		<<"true">> ->
+			cpx_supervisor:update_conf(agent_dialplan_listener,
+				#cpx_conf{id = agent_dialplan_listener,
+					module_name = agent_dialplan_listener,
+					start_function = start_link,
+					start_args = [],
+					supervisor = agent_connection_sup});
+		<<"false">> ->
+			cpx_supervisor:destroy(agent_dialplan_listener);
+		_ ->
+			?WARNING("Unrecognized agent_configuration state", [])
 	end.
 
-process_skill(Skill, Command) ->
-	{_, Name} = lists:nth(2, Skill),
-	{_, Atom} = lists:nth(3, Skill),
-	{_, Group} = lists:nth(4, Skill),
-	{_, Description} = lists:nth(5, Skill),
-	if Description =:= null ->
-		Descr = "";
-	true -> Descr = erlang:binary_to_list(Description)
-	end,
-	if Command =:= "ADD" ->
-		call_queue_config:new_skill(list_to_atom(erlang:binary_to_list(Atom)), erlang:binary_to_list(Name), Descr, erlang:binary_to_list(Group));
-	Command =:= "DELETE" ->
-		call_queue_config:destroy_skill(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		call_queue_config:set_skill(list_to_atom(erlang:binary_to_list(Atom)), erlang:binary_to_list(Name), Descr, erlang:binary_to_list(Group));
-	true -> ?WARNING("Unrecognized command", [])
-	end.
+process_log_configuration(Config, _Command) ->
+	LogLevel = get_atom(<<"logLevel">>, Config),
+	LogDir = get_str(<<"logDir">>, Config),
 
-process_client(Client, Command) ->
-	{_, Name} = lists:nth(2, Client),
-	{_, Identity} = lists:nth(3, Client),
-	if Command =:= "ADD" ->
-		call_queue_config:new_client(erlang:binary_to_list(Name), erlang:binary_to_list(Identity), []);
-	Command =:= "DELETE" ->
-		call_queue_config:destroy_client(erlang:binary_to_list(Identity));
-	Command =:= "UPDATE" ->
-		call_queue_config:set_client(erlang:binary_to_list(Identity), erlang:binary_to_list(Name), []);
-	true -> ?WARNING("Unrecognized command", [])
-	end.
+	FullLogPath = filename:join(LogDir, "full.log"),
+	ConsoleLogPath = filename:join(LogDir, "console.log"),
 
-process_queue_group(QueueGroup, Command) ->
-	{_, Name} = lists:nth(2, QueueGroup),
-	{_, Skills} = lists:nth(3, QueueGroup),
-	{_, Profiles} = lists:nth(4, QueueGroup),
-	SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
-	ProfilesList = lists:flatmap(fun(X)->[{'_profile',X}] end, string:tokens((erlang:binary_to_list(Profiles)), ", ")),
-	AllSkills = lists:merge(SkillsList, ProfilesList),
-	if Command =:= "ADD" ->
-		NewQgroup = #queue_group{name = erlang:binary_to_list(Name), sort = 10, recipe = [], skills = AllSkills},
-		call_queue_config:new_queue_group(NewQgroup);
-	Command =:= "DELETE" ->
-		call_queue_config:destroy_queue_group(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		{_, Oldname} = lists:nth(5, QueueGroup),
-		{_, [{_, _, OldRecipe, _, _, _, _}]} = call_queue_config:get_queue_group(erlang:binary_to_list(Oldname)),
-		Qgroup = #queue_group{name = erlang:binary_to_list(Name), sort = 10, recipe = OldRecipe, skills = AllSkills},
-		call_queue_config:set_queue_group(erlang:binary_to_list(Oldname), Qgroup);
-	true -> ?WARNING("Unrecognized command", [])
-	end.
-
-process_queue(Queue, Command) ->
-	{_, Name} = lists:nth(2, Queue),
-	{_, QueueGroup} = lists:nth(3, Queue),
-	{_, Skills} = lists:nth(4, Queue),
-	{_, Profiles} = lists:nth(5, Queue),
-	SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
-	ProfilesList = lists:flatmap(fun(X)->[{'_profile',X}] end, string:tokens((erlang:binary_to_list(Profiles)), ", ")),
-	AllSkills = lists:merge(SkillsList, ProfilesList),
-	{_, Weight} = lists:nth(6, Queue),
-	if Command =:= "ADD" ->
-		{_, {_, RecipeSteps}} = lists:nth(8, Queue),
-		if RecipeSteps =:= [] -> RecipeToSave = [];
-			true ->
-				RecipeToSave = lists:flatmap(fun(X) -> [extract_recipe_step(X)] end, RecipeSteps)
-		end,
-		call_queue_config:new_queue(erlang:binary_to_list(Name), binary_to_number(Weight), AllSkills, RecipeToSave, erlang:binary_to_list(QueueGroup)),
-		queue_manager:load_queue(erlang:binary_to_list(Name));
-	Command =:= "DELETE" ->
-		call_queue_config:destroy_queue(erlang:binary_to_list(Name));
-	Command =:= "UPDATE" ->
-		{_, Oldname} = lists:nth(7, Queue),
-		{_, {_, RecipeSteps}} = lists:nth(8, Queue),
-		if RecipeSteps =:= [] -> RecipeToSave = [];
-			true ->
-				RecipeToSave = lists:flatmap(fun(X) -> [extract_recipe_step(X)] end, RecipeSteps)
-		end,
-		call_queue_config:set_queue(erlang:binary_to_list(Oldname), erlang:binary_to_list(Name), binary_to_number(Weight), AllSkills, RecipeToSave, erlang:binary_to_list(QueueGroup)),
-		queue_manager:load_queue(erlang:binary_to_list(Name));
-	true -> ?WARNING("Unrecognized command", [])
-	end.
-
-process_fs_media_manager(Config, Command) ->
-        {_, Enabled} = lists:nth(2, Config),
-        {_, CNode} = lists:nth(3, Config),
-        {_, DialString} = lists:nth(4, Config),
-        if Enabled =:= <<"true">> ->
-		Conf = #cpx_conf{id = freeswitch_media_manager, module_name = freeswitch_media_manager, start_function = start_link, start_args = [list_to_atom(erlang:binary_to_list(CNode)), [{h323,[]}, {iax2,[]}, {sip,[]}, {dialstring,erlang:binary_to_list(DialString)}]], supervisor = mediamanager_sup},
-                cpx_supervisor:update_conf(freeswitch_media_manager, Conf);
-        Enabled =:= <<"false">> ->
-                cpx_supervisor:destroy(freeswitch_media_manager);
-        true -> ?WARNING("Unrecognized command", [])
-        end.
-
-process_agent_configuration(Config, Command) ->
-        {_, ListenerEnabled} = lists:nth(2, Config),
-        if ListenerEnabled =:= <<"true">> ->
-		Conf = #cpx_conf{id = agent_dialplan_listener, module_name = agent_dialplan_listener, start_function = start_link, start_args = [], supervisor = agent_connection_sup},
-                cpx_supervisor:update_conf(agent_dialplan_listener, Conf);
-        ListenerEnabled =:= <<"false">> ->
-                cpx_supervisor:destroy(agent_dialplan_listener);
-        true -> ?WARNING("Unrecognized command", [])
-        end.
-
-process_log_configuration(Config, Command) ->
-        {_, LogLevel} = lists:nth(2, Config),
-        {_, LogDir} = lists:nth(3, Config),
-	LogLevelAtom = list_to_atom(erlang:binary_to_list(LogLevel)),
-	?WARNING("SET NEW LOG LEVEL:~p", [list_to_atom(erlang:binary_to_list(LogLevel))]),
-	cpxlog:set_loglevel(lists:append(erlang:binary_to_list(LogDir), "full.log"), LogLevelAtom),
-	cpxlog:set_loglevel(lists:append(erlang:binary_to_list(LogDir), "console.log"), LogLevelAtom).
+	cpxlog:set_loglevel(FullLogPath, LogLevel),
+	cpxlog:set_loglevel(ConsoleLogPath, LogLevel).
 
 extract_condition(MongoCondition) ->
-	[{_, Condition}, {_, Relation}, {_, ConditionValue}] = MongoCondition,
-	ConditionAtom = list_to_existing_atom(binary_to_list(Condition)),
-	RelationAtom = list_to_existing_atom(binary_to_list(Relation)),
+	Condition = get_str(<<"condition">>, MongoCondition),
+	Relation = get_atom(<<"relation">>, MongoCondition),
 
-	case ConditionAtom of
+	case Condition of
 		client ->
-			Client = binary_to_list(ConditionValue),
-			{client, RelationAtom, Client};
+			{client, Relation, get_str(<<"value">>, MongoCondition)};
 		type ->
-			%% TODO may cause a memory problem. must handle non-existing atoms
-			Type = list_to_atom(binary_to_list(ConditionValue)),
-			{type, RelationAtom, Type};
+			{type, Relation, get_atom(<<"value">>, MongoCondition)};
 		ticks ->
-			Ticks = binary_to_number(ConditionValue),
-			{ticks, Ticks};
+			{type, get_str_to_int(<<"value">>, MongoCondition)};
+		_ -> %% TODO would probably best to enumerate
+			{Condition, get_str_to_int(<<"value">>, MongoCondition)}
+	end.
+
+process_vm_priority_diff(Object, _Command) ->
+	case proplists:get_value(<<"diff">>, Object) of
+		Diff when is_number(Diff) ->
+			DiffI = trunc(Diff),
+			?DEBUG("Setting vm priority diff to ~b", [DiffI]),
+			cpx_supervisor:set_value(vm_priority_diff, DiffI);
 		_ ->
-			%% would probably be best to handle each type
-			Num = binary_to_number(ConditionValue),
-			{ConditionAtom, Num}
+			ok
 	end.
 
 extract_recipe_step(RecipeStep) ->
-	[{_, [{_, RecipeAction}, {_, RecipeActionValue}]}, {_, {_, RecipeConditions}}, {_, RecipeFrequency}, {_, RecipeName}] = RecipeStep,
-	RecipeActionAtom = list_to_atom(erlang:binary_to_list(RecipeAction)),
-	if RecipeActionAtom =:= announce ->
-		RecipeActionValueAtom = erlang:binary_to_list(RecipeActionValue);
-	RecipeActionAtom =:= set_priority ->
-		RecipeActionValueAtom = binary_to_number(RecipeActionValue);
-	(RecipeActionAtom =:= add_skills) or (RecipeActionAtom =:= remove_skills) ->
-		RecipeActionValueAtom = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(RecipeActionValue)), ", "));
-		true -> RecipeActionValueAtom = []
-		end,
-	ActionToSave = {RecipeActionAtom, RecipeActionValueAtom},
-	ConditionList = lists:flatmap(fun(X) -> [extract_condition(X)] end, RecipeConditions),
-	{ConditionList,[ActionToSave],list_to_atom(erlang:binary_to_list(RecipeFrequency)),RecipeName}.
+	ActionProps = proplists:get_value(<<"action">>, RecipeStep),
+	{array, ConditionArr} = proplists:get_value(<<"conditions">>, RecipeStep),
+	Frequency = get_atom(<<"frequency">>, RecipeStep),
+	StepName = get_str(<<"stepName">>, RecipeStep),
 
-binary_to_number(B) ->
-    list_to_number(binary_to_list(B)).
+	%% TODO should be a list
+	Action = get_atom(<<"action">>, ActionProps),
+	ActionValue = case Action of
+		announce ->
+			get_str(<<"actionValue">>, ActionProps);
+		set_priority ->
+			get_str_to_int(<<"actionValue">>, ActionProps);
+		add_skills ->
+			get_atom_list(<<"actionValue">>, ActionProps);
+		remove_skills ->
+			get_atom_list(<<"actionValue">>, ActionProps);
+		_ ->
+			[]
+	end,
 
-list_to_number(L) ->
-    try list_to_float(L)
-    catch
-        error:badarg ->
-            list_to_integer(L)
+	ActionTuple = {Action, ActionValue},
+	Conditions = [extract_condition(X) || X <- ConditionArr],
+
+	{Conditions, [ActionTuple], Frequency, StepName}.
+%% Utils
+
+
+get_all_skills(Props) ->
+	Skills = get_atom_list(<<"skillsAtoms">>, Props),
+	Queues = [{'_queue', X} || 
+		X <- get_atom_list(<<"queuesName">>, Props)],
+	Clients = [{'_brand', X} ||
+		X <- get_atom_list(<<"clientsName">>, Props)],
+    Skills ++ Queues ++ Clients.
+
+get_agent_security(Agent) ->
+	SecurityBin = get_bin(<<"security">>, Agent),
+    case SecurityBin of
+    	<<"SUPERVISOR">> ->
+    		supervisor;
+    	<<"ADMIN">> ->
+    		admin;
+    	_ ->
+    		agent
     end.
+
+get_client_options(Client) ->
+	Options = proplists:get_value(<<"options">>, Client, []),
+	
+	lists:foldl(
+		fun({<<"vm_priority_diff">>, N}, Acc) when is_float(N) ->
+			[{vm_priority_diff, trunc(N)}|Acc];
+		(Any, Acc) ->
+			?WARNING("Not saving unknown client option: ~p", [Any]),
+			Acc
+		end, [], Options).
+
+get_recipes(Queue) ->	
+	{array, RecipeStepsJ} = proplists:get_value(
+		<<"additionalObjects">>, Queue),
+	
+	[extract_recipe_step(X) || X <- RecipeStepsJ].
+
+get_str(Key, L) ->
+	case proplists:get_value(Key, L) of
+		undefined ->
+			"";
+		Bin when is_binary(Bin) ->
+			%% TODO use proper encoding
+			binary_to_list(Bin)
+	end.
+
+get_atom(Key, L) ->
+	case proplists:get_value(Key, L) of
+		undefined ->
+			undefined;
+		Bin when is_binary(Bin) ->
+			%% TODO must use list_to_existing_atom
+			binary_to_atom(Bin, utf8)
+	end.
+
+get_bin(Key, L) ->
+	proplists:get_value(Key, L, <<>>).
+
+get_str_to_int(Key, L) ->
+	case proplists:get_value(Key, L) of
+		undefined ->
+			0;
+		Bin when is_binary(Bin) ->
+			try list_to_integer(binary_to_list(Bin)) of
+				V -> V
+			catch
+				error:badarg -> 0
+			end
+	end.
+
+%% From a comma separated string
+get_atom_list(Key, L) ->
+	case proplists:get_value(Key, L) of
+		undefined ->
+			[];
+		Bin when is_binary(Bin)->
+			split_bin_to_atoms(Bin, <<", ">>)
+	end.
+
+split_bin_to_atoms(Subject, Pattern) ->
+	split_bin_to_atoms0(binary:split(Subject, Pattern), Pattern, []).
+
+split_bin_to_atoms0([<<>>], _, Acc) ->
+	lists:reverse(Acc);
+split_bin_to_atoms0([B], _, Acc) ->
+	lists:reverse([binary_to_atom(B, utf8)|Acc]);
+split_bin_to_atoms0([<<>>, Rest], Pattern, Acc) ->
+	split_bin_to_atoms0(binary:split(Rest, Pattern), Pattern, Acc);
+split_bin_to_atoms0([B, Rest], Pattern, Acc) ->
+	split_bin_to_atoms0(binary:split(Rest, Pattern),
+		Pattern, [binary_to_atom(B, utf8)|Acc]).
 
