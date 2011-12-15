@@ -26,11 +26,6 @@ public abstract class Ciscospa extends Phone {
     protected Ciscospa() {
     }
 
-    @Override
-    public CiscospaModel getModel() {
-        return (CiscospaModel) super.getModel();
-    }
-
     public int getMaxLineCount() {
         return getModel().getMaxLineCount();
     }
@@ -45,7 +40,7 @@ public abstract class Ciscospa extends Phone {
      */
     @Override
     protected void copyFiles(ProfileLocation location) {
-        CiscospaModel model = getModel();
+        CiscospaModel model = (CiscospaModel) getModel();
         String defaultConfigName = model.getDefaultConfigName();
         if (null == defaultConfigName) {
             return;
