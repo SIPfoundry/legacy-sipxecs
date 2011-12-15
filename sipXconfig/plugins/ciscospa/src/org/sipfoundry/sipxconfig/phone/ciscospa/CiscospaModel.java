@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.phone.Ciscospa;
+package org.sipfoundry.sipxconfig.phone.ciscospa;
 
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 

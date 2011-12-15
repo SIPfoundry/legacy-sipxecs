@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.phone.ciscospa;
 
 import junit.framework.TestCase;
 
-public class ciscospaModelTest extends TestCase {
+public class CiscospaModelTest extends TestCase {
 
     public void testGetDefaultConfigName() {
 //        ciscospaModel linksysModel = new ciscospaModel();

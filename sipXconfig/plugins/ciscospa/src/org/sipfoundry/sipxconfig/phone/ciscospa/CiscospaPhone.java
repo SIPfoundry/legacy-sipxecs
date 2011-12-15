@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.phone.Ciscospa;
+package org.sipfoundry.sipxconfig.phone.ciscospa;
 
 import java.util.ArrayList;
 import java.util.Collection;
