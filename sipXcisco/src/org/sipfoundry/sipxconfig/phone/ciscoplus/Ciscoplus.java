@@ -23,11 +23,6 @@ public abstract class Ciscoplus extends Phone {
     protected Ciscoplus() {
     }
 
-    @Override
-    public CiscoplusModel getModel() {
-        return (CiscoplusModel) super.getModel();
-    }
-
     public int getMaxLineCount() {
         return getModel().getMaxLineCount();
     }
