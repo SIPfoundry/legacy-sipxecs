@@ -12,6 +12,7 @@ sipx = \
   sipXcallLib \
   sipXmongo \
   sipXcommserverLib \
+  sipXsupervisor \
   sipXcommons \
   sipXacd \
   sipXacdStatistics \
@@ -41,7 +42,6 @@ sipx = \
   sipXrecording \
   sipXregistry \
   sipXsaa \
-  sipXsupervisor \
   sipXopenacd \
   sipXecs \
   sipXpolycom \
