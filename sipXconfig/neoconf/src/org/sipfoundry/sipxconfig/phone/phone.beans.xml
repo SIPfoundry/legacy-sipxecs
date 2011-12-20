@@ -15,8 +15,7 @@
     <property name="modelSource" ref="phoneModelSource" />
   </bean>
 
-  <bean id="phoneContextImpl" class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="phoneContextImpl" class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl" parent="abstractDaoImpl">
     <property name="settingDao" ref="settingDaoImpl" />
     <property name="coreContext" ref="coreContext" />
     <property name="systemDirectory" value="${sysdir.etc}" />
@@ -24,7 +23,6 @@
     <property name="intercomManager" ref="intercomManager" />
     <property name="phonebookManager" ref="phonebookManager" />
     <property name="speedDialManager" ref="speedDialManager" />
-    <property name="daoEventPublisher" ref="daoEventPublisher"/>
     <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 

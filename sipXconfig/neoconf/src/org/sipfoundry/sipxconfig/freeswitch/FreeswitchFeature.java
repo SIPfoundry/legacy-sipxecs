@@ -35,12 +35,14 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings.SystemMohSetting;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 
-public class FreeswitchFeature implements Replicable, ReplicableProvider, FeatureProvider,
-        AliasOwner, AddressProvider {
+public class FreeswitchFeature implements Replicable, ReplicableProvider, FeatureProvider, AliasOwner,
+        AddressProvider {
     public static final LocationFeature FEATURE = new LocationFeature("freeSwitch");
     public static final AddressType SIP_ADDRESS = new AddressType("freeswitch-sip");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("freeswitch-xmlrpc");
-    private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_ADDRESS, XMLRPC_ADDRESS);
+    public static final AddressType EVENT_ADDRESS = new AddressType("freeswitch-event");
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_ADDRESS, XMLRPC_ADDRESS,
+            EVENT_ADDRESS);
     private static final String ALIAS_RELATION = "moh";
 
     private FeatureManager m_featureManager;
@@ -150,25 +152,33 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
-        if (ADDRESSES.contains(type)) {
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-            List<Address> addresses = new ArrayList<Address>();
-            for (Location location : locations) {
-                FreeswitchSettings settings = getSettings(location);
-                Address address = new Address();
-                address.setAddress(location.getAddress());
-                if (type.equals(XMLRPC_ADDRESS)) {
-                    address.setFormat("http://%s:%d/RPC2");
-                    address.setPort(settings.getXmlRpcPort());
-                } else {
-                    address.setPort(settings.getFreeswitchSipPort());
-                }
-                addresses.add(address);
-            }
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+        if (!ADDRESSES.contains(type)) {
+            return null;
         }
-        return null;
+
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        if (locations.isEmpty()) {
+            return null;
+        }
+
+        List<Address> addresses = new ArrayList<Address>();
+        for (Location location : locations) {
+            FreeswitchSettings settings = getSettings(location);
+            Address address = new Address();
+            address.setAddress(location.getAddress());
+            if (type.equals(XMLRPC_ADDRESS)) {
+                address.setFormat("http://%s:%d/RPC2");
+                address.setPort(settings.getXmlRpcPort());
+            } else if (type.equals(EVENT_ADDRESS)) {
+                address.setPort(settings.getEventSocketPort());
+            } else if (type.equals(SIP_ADDRESS)) {
+                address.setPort(settings.getFreeswitchSipPort());
+            }
+            addresses.add(address);
+        }
+
+        return addresses;
     }
 
     @Override

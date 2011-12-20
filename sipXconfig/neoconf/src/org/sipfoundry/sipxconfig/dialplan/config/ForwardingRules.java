@@ -33,7 +33,6 @@ import org.sipfoundry.sipxconfig.sbc.SbcManager;
  * content.
  */
 public class ForwardingRules extends RulesFile {
-    private String m_templateFile = "commserver/forwardingrules.vm";
     private SbcManager m_sbcManager;
     private List<String> m_routes;
     private SbcDeviceManager m_sbcDeviceManager;
@@ -79,6 +78,7 @@ public class ForwardingRules extends RulesFile {
         context.put("dollar", "$");
 
         // set required sipx services in context
+        context.put("domainName", getDomainName());
         context.put("proxyAddress", m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS));
         context.put("statusAddress", m_addressManager.getSingleAddress(Mwi.SIP_TCP));
         context.put("regEventAddress", m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS));
@@ -94,9 +94,17 @@ public class ForwardingRules extends RulesFile {
         }
         context.put("bridgeSbcs", bridgeSbcs);
         try {
-            m_velocityEngine.mergeTemplate(m_templateFile, context, writer);
+            m_velocityEngine.mergeTemplate("commserver/forwardingrules.vm", context, writer);
         } catch (Exception e) {
             throw new IOException(e);
         }
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public void setVelocityEngine(VelocityEngine velocityEngine) {
+        m_velocityEngine = velocityEngine;
     }
 }

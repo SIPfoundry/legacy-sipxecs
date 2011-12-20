@@ -7,7 +7,11 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,15 +23,18 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.ScheduledDay;
-import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule.Operator;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
-import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
-import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.common.ScheduledDay;
+import org.sipfoundry.sipxconfig.dialplan.MappingRule.Operator;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.dialplan.config.UrlTransform;
+import org.sipfoundry.sipxconfig.forwarding.GeneralSchedule;
+import org.sipfoundry.sipxconfig.forwarding.Schedule;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.beans.factory.BeanFactory;
 
@@ -61,7 +68,11 @@ public class InternalRuleTest extends TestCase {
         m_schedule.setWorkingTime(wt);
 
         m_mediaServer = new FreeswitchMediaServer();
-        FreeswitchMediaServerTest.configureMediaServer(m_mediaServer);
+        AddressManager addressManager = createMock(AddressManager.class);
+        addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address("192.168.1.1")).anyTimes();
+        replay(addressManager);
+        m_mediaServer.setAddressManager(addressManager);
 
         m_localizationContext = EasyMock.createNiceMock(LocalizationContext.class);
         m_mediaServer.setLocalizationContext(m_localizationContext);

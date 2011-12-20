@@ -7,6 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.freeswitch;
 
+
 import java.util.Formatter;
 import java.util.Map;
 
@@ -90,5 +91,9 @@ public class FreeswitchMediaServer extends MediaServer {
         if (language != null) {
             f.format(";locale=%s", language);
         }
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

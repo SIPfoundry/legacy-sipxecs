@@ -14,13 +14,14 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant.AttendantProfileContext;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant.MenuItem;

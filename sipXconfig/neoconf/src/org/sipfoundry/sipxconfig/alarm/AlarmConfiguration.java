@@ -14,6 +14,7 @@ import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -34,33 +35,68 @@ public class AlarmConfiguration implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (request.applies(Alarms.FEATURE)) {
-            if (manager.getFeatureManager().isFeatureEnabled(Alarms.FEATURE)) {
-                List<Alarm> alarms = m_alarmServerManager.getAlarmTypes();
-                List<AlarmGroup> groups = getAlarmGroups();
-                Location[] locations = manager.getLocationManager().getLocations();
-                for (Location location : locations) {
-                    File dir = manager.getLocationDataDirectory(location);
+        if (!request.applies(Alarms.FEATURE)) {
+            return;
+        }
 
-                    VelocityContext context = new VelocityContext();
-                    new AlarmsXml().context(context, alarms);
-                    write(context, new File(dir, "alarms.xml"), "alarms/alarms.vm");
+        if (!manager.getFeatureManager().isFeatureEnabled(Alarms.FEATURE)) {
+            return;
+        }
+        List<Alarm> alarms = m_alarmServerManager.getAlarmTypes();
+        AlarmServer alarmServer = m_alarmServerManager.getAlarmServer();
+        String host = m_alarmServerManager.getHost();
+        Location[] locations = manager.getLocationManager().getLocations();
+        for (Location location : locations) {
+            File dir = manager.getLocationDataDirectory(location);
 
-                    context = new VelocityContext();
-                    new AlarmGroupsXml().context(context, groups);
-                    write(context, new File(dir, "alarm-groups.xml"), "alarms/alarm-groups.vm");
+            Writer alarmsXml = new FileWriter(new File(dir, "sipXalarms-config.xml"));
+            try {
+                writeAlarmsXml(alarmsXml, alarms);
+            } finally {
+                IOUtils.closeQuietly(alarmsXml);
+            }
 
-                    context = new VelocityContext();
-                    new AlarmConfigXml().context(context);
-                    write(context, new File(dir, "alarm-config.xml"), "commserver/alarm-config.vm");
-                }
+            Writer alarmsGroupsXml = new FileWriter(new File(dir, "alarm-groups.xml"));
+            try {
+                // alters groups collection so get fresh copy for each location. clone could be ok too.
+                List<AlarmGroup> groups = m_alarmServerManager.getAlarmGroups();
+                writeAlarmGroupsXml(alarmsGroupsXml, groups);
+            } finally {
+                IOUtils.closeQuietly(alarmsGroupsXml);
+            }
+
+            Writer alarmsConfigXml = new FileWriter(new File(dir, "alarm-config.xml"));
+            try {
+                writeAlarmConfigXml(alarmsConfigXml, alarmServer, host);
+            } finally {
+                IOUtils.closeQuietly(alarmsConfigXml);
             }
         }
     }
 
-    void write(VelocityContext context, File file, String template) throws IOException {
-        FileWriter wtr = new FileWriter(file);
-        IOUtils.closeQuietly(wtr);
+    void writeAlarmsXml(Writer wtr, List<Alarm> alarms) throws IOException {
+        VelocityContext context = new VelocityContext();
+        context.put("alarms", alarms);
+        write(wtr, context, "alarms/sipXalarms-config.vm");
+    }
+
+    void writeAlarmGroupsXml(Writer wtr, List<AlarmGroup> groups) throws IOException {
+        VelocityContext context = new VelocityContext();
+        setContactAddresses(groups);
+        context.put("groups", groups);
+        write(wtr, context, "alarms/alarm-groups.vm");
+    }
+
+    void writeAlarmConfigXml(Writer wtr, AlarmServer server, String host) throws IOException {
+        VelocityContext context = new VelocityContext();
+        context.put("enabled", server.isAlarmNotificationEnabled());
+        String fromEmailAddress = defaultIfEmpty(server.getFromEmailAddress(), "postmaster@" + host);
+        context.put("fromEmailAddress", fromEmailAddress);
+        context.put("hostName", host);
+        write(wtr, context, "commserver/alarm-config.vm");
+    }
+
+    void write(Writer wtr, VelocityContext context, String template) throws IOException {
         try {
             m_velocityEngine.mergeTemplate(template, context, wtr);
         } catch (Exception e) {
@@ -69,8 +105,7 @@ public class AlarmConfiguration implements ConfigProvider {
         wtr.flush();
     }
 
-    List<AlarmGroup> getAlarmGroups() {
-        List<AlarmGroup> alarmGroups = m_alarmServerManager.getAlarmGroups();
+    void setContactAddresses(List<AlarmGroup> alarmGroups) {
         for (AlarmGroup group : alarmGroups) {
             List<String> userEmailAddresses = new ArrayList<String>();
             Set<User> users = group.getUsers();
@@ -86,30 +121,6 @@ public class AlarmConfiguration implements ConfigProvider {
             }
 
             group.setUserEmailAddresses(userEmailAddresses);
-        }
-        return alarmGroups;
-    }
-
-    class AlarmsXml {
-        void context(VelocityContext context, List<Alarm> alarms) {
-            context.put("alarms", alarms);
-        }
-    }
-
-    class AlarmGroupsXml {
-        void context(VelocityContext context, List<AlarmGroup> groups) {
-            context.put("groups", groups);
-        }
-    }
-
-    class AlarmConfigXml {
-        void context(VelocityContext context) {
-            AlarmServer alarmServer = m_alarmServerManager.getAlarmServer();
-            String host = m_alarmServerManager.getHost();
-            context.put("enabled", alarmServer.isAlarmNotificationEnabled());
-            String fromEmailAddress = defaultIfEmpty(alarmServer.getFromEmailAddress(), "postmaster@" + host);
-            context.put("fromEmailAddress", fromEmailAddress);
-            context.put("hostName", m_alarmServerManager.getHost());
         }
     }
 

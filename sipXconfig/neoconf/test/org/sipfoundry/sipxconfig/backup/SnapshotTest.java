@@ -8,17 +8,16 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
+import static org.apache.commons.lang.StringUtils.join;
+
 import java.io.File;
 import java.util.Date;
 
-import org.sipfoundry.sipxconfig.admin.Snapshot.SnapshotResult;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.backup.Snapshot;
-import org.sipfoundry.sipxconfig.common.UserException;
-
 import junit.framework.TestCase;
 
-import static org.apache.commons.lang.StringUtils.join;
+import org.sipfoundry.sipxconfig.backup.Snapshot.SnapshotResult;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class SnapshotTest extends TestCase {
 

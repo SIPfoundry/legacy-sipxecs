@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
@@ -42,7 +43,7 @@ public class DeviceDefaults {
     private String m_defaultNtpService = "pool.ntp.org";
     private String m_logDirectory;
     private LocationsManager m_locationsManager;
-    private MusicOnHoldManager m_musicOnHoldManager;
+    private MohAddressFactory m_musicOnHold;
     private PagingContext m_pagingContext;
     private Registrar m_registar;
     private AddressManager m_addressManager;
@@ -194,7 +195,11 @@ public class DeviceDefaults {
 
     @Required
     public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
-        m_musicOnHoldManager = musicOnHoldManager;
+        setMohAddressFactory(musicOnHoldManager.getAddressFactory());
+    }
+
+    public void setMohAddressFactory(MohAddressFactory musicOnHold) {
+        m_musicOnHold = musicOnHold;
     }
 
     @Required
@@ -203,7 +208,7 @@ public class DeviceDefaults {
     }
 
     public String getMusicOnHoldUri() {
-        return m_musicOnHoldManager.getAddressFactory().getDefaultMohUri();
+        return m_musicOnHold.getDefaultMohUri();
     }
 
     public void setLogDirectory(String logDirectory) {

@@ -3,14 +3,14 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   <bean id="timeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.time.TimeManager</value>
+      <value>org.sipfoundry.sipxconfig.time.TimeManager</value>
     </property>
     <property name="target">
       <ref local="timeManagerImpl" />
     </property>
   </bean>
 
-  <bean id="timeManagerImpl" class="org.sipfoundry.sipxconfig.admin.time.TimeManagerImpl" autowire="byType">
+  <bean id="timeManagerImpl" class="org.sipfoundry.sipxconfig.time.TimeManagerImpl" autowire="byType">
     <property name="libExecDirectory" value="${sysdir.libexec}" />
     <property name="binDirectory" value="${sysdir.bin}" />
     <property name="ntpConfigFile" value="${sysdir.tmp}/ntpConfig.cfg" />

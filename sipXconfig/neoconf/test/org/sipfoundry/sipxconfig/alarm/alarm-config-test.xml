@@ -9,7 +9,7 @@
    <!-- Configurable global settings for alarm actions -->
    <actions>
       <log enabled="true">
-         <file>/usr/local/sipx/var/log/sipxpbx/sipXalarms.log</file>
+         <file>@SIPX_LOGDIR@/sipXalarms.log</file>
       </log>
       <email enabled="true">
          <!-- Alarm notification emails will be sent from this address. -->

@@ -36,9 +36,6 @@
       <pattern>[0-9*#]+</pattern>
     </string>
   </type>
-  <type id="port-number">
-    <integer required="yes" min="1024" max="65534" />
-  </type>
   <group name="authcode">
     <setting name="SIP_AUTH_CODE_PREFIX">
       <type refid="feature-code" required="yes" />
@@ -50,11 +47,7 @@
       </type>
     </setting>
   </group>
-  <group name="acccode" hidden="yes">
-    <setting name="freeswitch.eventSocketPort" hidden="yes">
-      <type refid="port-number" />
-      <value>8184</value>
-    </setting>
+  <group name="acccode-config" hidden="yes">
     <setting name="log.level" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>

@@ -9,34 +9,46 @@
  */
 package org.sipfoundry.sipxconfig.parkorbit;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
+import org.sipfoundry.sipxconfig.common.event.SupressDaoEvent;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements ParkOrbitContext,
-        BeanFactoryAware {
+public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements ParkOrbitContext, BeanFactoryAware {
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
-    private static final String PARK_ORBIT_GROUP_ID = "park_orbit";
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private SettingDao m_settingDao;
-    private ConfigManager m_configManager;
+    private BeanWithSettingsDao<ParkSettings> m_beanWithSettingsDao;
+
+    public ParkSettings getSettings() {
+        return m_beanWithSettingsDao.findOne();
+    }
+
+    @SupressDaoEvent
+    public void saveSettings(ParkSettings settings) {
+        m_beanWithSettingsDao.upsert(settings);
+    }
 
     public void storeParkOrbit(ParkOrbit parkOrbit) {
         // Check for duplicate names and extensions before saving the park orbit
@@ -50,6 +62,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
             throw new ExtensionInUseException(parkOrbitTypeName, extension);
         }
 
+        getDaoEventPublisher().publishSave(parkOrbit);
         getHibernateTemplate().saveOrUpdate(parkOrbit);
     }
 
@@ -57,9 +70,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         if (ids.isEmpty()) {
             return;
         }
-        // TODO: this inadvertantly circumvent daoevenlisteners
         removeAll(ParkOrbit.class, ids);
-        m_configManager.replicationRequired(FEATURE);
     }
 
     public ParkOrbit loadParkOrbit(Integer id) {
@@ -96,14 +107,14 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     public boolean isAliasInUse(String alias) {
         // Look for the ID of a park orbit with the specified alias as its name or extension.
         // If there is one, then the alias is in use.
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_PARK_ORBIT_IDS_WITH_ALIAS, VALUE, alias);
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PARK_ORBIT_IDS_WITH_ALIAS, VALUE,
+                alias);
         return SipxCollectionUtils.safeSize(objs) > 0;
     }
 
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_PARK_ORBIT_IDS_WITH_ALIAS, VALUE, alias);
+        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PARK_ORBIT_IDS_WITH_ALIAS,
+                VALUE, alias);
         Collection bids = BeanId.createBeanIdCollection(ids, ParkOrbit.class);
         return bids;
     }
@@ -112,15 +123,11 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
      * Remove all park orbits - mostly used for testing
      */
     public void clear() {
-        HibernateTemplate template = getHibernateTemplate();
-        Collection orbits = template.loadAll(ParkOrbit.class);
-        template.deleteAll(orbits);
-        m_configManager.replicationRequired(FEATURE);
+        removeAll(ParkOrbit.class);
     }
 
     public ParkOrbit newParkOrbit() {
-        ParkOrbit orbit = (ParkOrbit) m_beanFactory.getBean(ParkOrbit.class.getName(),
-                ParkOrbit.class);
+        ParkOrbit orbit = (ParkOrbit) m_beanFactory.getBean(ParkOrbit.class.getName(), ParkOrbit.class);
 
         // All auto attendants share same group: default
         Set groups = orbit.getGroups();
@@ -143,19 +150,42 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         m_settingDao = settingDao;
     }
 
-    public EntitySaveListener<Group> createGroupSaveListener() {
-        return new OnGroupSave();
+    public static boolean isParkOrbitGroup(Group group) {
+        return PARK_ORBIT_GROUP_ID.equals(group.getResource());
     }
 
-    private class OnGroupSave extends EntitySaveListener<Group> {
-        public OnGroupSave() {
-            super(Group.class);
+    @Override
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
+        return Collections.singleton(SIP_TCP_PORT);
+    }
+
+    @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+        if (!type.equalsAnyOf(SIP_TCP_PORT, SIP_UDP_PORT, SIP_RTP_PORT)) {
+            return null;
         }
 
-        protected void onEntitySave(Group group) {
-            if (PARK_ORBIT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
-                m_configManager.replicationRequired(FEATURE);
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        if (locations.isEmpty()) {
+            return null;
+        }
+
+        ParkSettings settings = getSettings();
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            Address address = new Address(location.getAddress());
+            if (type.equals(SIP_TCP_PORT)) {
+                address.setPort(settings.getSipTcpPort());
+            } else if (type.equals(SIP_UDP_PORT)) {
+                address.setPort(settings.getSipUdpPort());
+            } else if (type.equals(SIP_RTP_PORT)) {
+                address.setPort(settings.getRtpPort());
             }
         }
+        return addresses;
+    }
+
+    public void setBeanWithSettingsDao(BeanWithSettingsDao<ParkSettings> beanWithSettingsDao) {
+        m_beanWithSettingsDao = beanWithSettingsDao;
     }
 }

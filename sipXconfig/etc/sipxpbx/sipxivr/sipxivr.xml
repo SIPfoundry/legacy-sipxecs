@@ -32,30 +32,34 @@
     </enum>
   </type>
   <group name="ivr">
-    <setting name="log.file" hidden="yes">
-      <value>sipxivr.log</value>
-    </setting>
-    <setting name="log.level" hidden="yes">
+    <setting name="log.level">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="freeswitch.eventSocketPort" hidden="yes">
-      <type>
-        <integer />
-      </type>
-      <value>8084</value>
-    </setting>
-    <setting name="httpsPort" advanced="yes">
+    <setting name="ivr.httpsPort" advanced="yes">
       <type>
         <integer />
       </type>
       <value>8085</value>
     </setting>
-    <setting name="voiceMailExpiry" advanced="yes">
+    <setting name="ivr.voiceMailExpiry" advanced="yes">
       <type>
         <integer min="0" />
       </type>
       <value>7</value>
     </setting>
+    <setting name="ivr.nameDialPrefix" advanced="yes">
+      <type>
+        <string required="yes"/>
+      </type>
+      <value>11</value>
+    </setting>
+    <setting name="ivr.defaultTui" advanced="yes">
+      <type>
+        <string required="yes"/>
+      </type>
+      <value>stdui</value>
+    </setting>
+    
   </group>
 </model>

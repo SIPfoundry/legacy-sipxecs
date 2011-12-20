@@ -49,7 +49,7 @@
   <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
     <property name="auditLogContext" ref="auditLogContext" />
   </bean>
 

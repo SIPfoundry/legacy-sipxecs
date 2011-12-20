@@ -27,20 +27,9 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.cert.CertificateDecorator;
-import org.sipfoundry.sipxconfig.cert.CertificateManagerImpl;
-import org.sipfoundry.sipxconfig.service.SipxBridgeService;
-import org.sipfoundry.sipxconfig.service.SipxConfigService;
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
-import org.sipfoundry.sipxconfig.service.SipxProvisionService;
-import org.sipfoundry.sipxconfig.service.SipxRecordingService;
-import org.sipfoundry.sipxconfig.service.SipxRestService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class CertificateManagerTest extends TestCase {
@@ -211,37 +200,39 @@ public class CertificateManagerTest extends TestCase {
     }
 
     public void testImportKeyAndCertificate() throws Exception {
-        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(new SipxConfigService()).atLeastOnce();
-        sipxServiceManager.getServiceByBeanId(SipxBridgeService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(new SipxBridgeService()).atLeastOnce();
-        sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(new SipxIvrService()).atLeastOnce();
-        sipxServiceManager.getServiceByBeanId(SipxRecordingService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(new SipxRecordingService()).atLeastOnce();
-        sipxServiceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(new SipxImbotService()).atLeastOnce();
-        sipxServiceManager.getServiceByBeanId("sipxOpenfireService");
-        EasyMock.expectLastCall().andReturn(new SipxService() {}).atLeastOnce();
-        sipxServiceManager.getServiceByBeanId(SipxProvisionService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(new SipxProvisionService()).atLeastOnce();
-        sipxServiceManager.getServiceByBeanId(SipxRestService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(new SipxRestService()).atLeastOnce();
-
+//        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+//        sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
+//        EasyMock.expectLastCall().andReturn(new SipxConfigService()).atLeastOnce();
+//        sipxServiceManager.getServiceByBeanId(SipxBridgeService.BEAN_ID);
+//        EasyMock.expectLastCall().andReturn(new SipxBridgeService()).atLeastOnce();
+//        sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+//        EasyMock.expectLastCall().andReturn(new SipxIvrService()).atLeastOnce();
+//        sipxServiceManager.getServiceByBeanId(SipxRecordingService.BEAN_ID);
+//        EasyMock.expectLastCall().andReturn(new SipxRecordingService()).atLeastOnce();
+//        sipxServiceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
+//        EasyMock.expectLastCall().andReturn(new SipxImbotService()).atLeastOnce();
+//        sipxServiceManager.getServiceByBeanId("sipxOpenfireService");
+//        EasyMock.expectLastCall().andReturn(new SipxService() {}).atLeastOnce();
+//        sipxServiceManager.getServiceByBeanId(SipxProvisionService.BEAN_ID);
+//        EasyMock.expectLastCall().andReturn(new SipxProvisionService()).atLeastOnce();
+//        sipxServiceManager.getServiceByBeanId(SipxRestService.BEAN_ID);
+//        EasyMock.expectLastCall().andReturn(new SipxRestService()).atLeastOnce();
+//
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
         locationsManager.getPrimaryLocation();
         EasyMock.expectLastCall().andReturn(m_primaryLocation).atLeastOnce();
-
-        SipxProcessContext processContext = EasyMock.createMock(SipxProcessContext.class);
-        processContext.markServicesForRestart(EasyMock.eq(m_primaryLocation), (Collection) EasyMock.anyObject());
-        EasyMock.expectLastCall().atLeastOnce();
-
-        m_manager.setSipxServiceManager(sipxServiceManager);
-        m_manager.setProcessContext(processContext);
+        
+        m_manager.setConfigManager(org.easymock.classextension.EasyMock.createNiceMock(ConfigManager.class));
+//
+//        SipxProcessContext processContext = EasyMock.createMock(SipxProcessContext.class);
+//        processContext.markServicesForRestart(EasyMock.eq(m_primaryLocation), (Collection) EasyMock.anyObject());
+//        EasyMock.expectLastCall().atLeastOnce();
+//
+//        m_manager.setSipxServiceManager(sipxServiceManager);
+//        m_manager.setProcessContext(processContext);
         m_manager.setLocationsManager(locationsManager);
-
-        EasyMock.replay(sipxServiceManager, locationsManager, processContext);
+//
+//        EasyMock.replay(sipxServiceManager, locationsManager, processContext);
 
         String sslDirectory = TestHelper.getTestOutputDirectory() + File.separator + "certs" +
             File.separator + "ssl";

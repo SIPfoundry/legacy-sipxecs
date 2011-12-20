@@ -7,7 +7,7 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.alarm;
+package org.sipfoundry.sipxconfig.alarm;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

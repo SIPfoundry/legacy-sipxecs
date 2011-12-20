@@ -38,6 +38,7 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
         for (BridgeSbc bridge : bridges) {
             Location location = bridge.getLocation();
             if (locations.contains(location)) {
+                // strange object for profile location to be compatible with device module
                 ProfileLocation profileLocation = bridge.getProfileLocation();
                 bridge.generateFiles(profileLocation);
             }

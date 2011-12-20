@@ -7,7 +7,7 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.localization;
+package org.sipfoundry.sipxconfig.localization;
 
 import junit.framework.TestCase;
 

@@ -13,10 +13,8 @@
     </property>
   </bean>
 
-  <bean id="speedDialManagerImpl" class="org.sipfoundry.sipxconfig.speeddial.SpeedDialManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="speedDialManagerImpl" class="org.sipfoundry.sipxconfig.speeddial.SpeedDialManagerImpl" parent="abstractDaoImpl">
     <property name="coreContext" ref="coreContext" />
-    <property name="daoEventPublisher" ref="daoEventPublisher" />
   </bean>
   
   <bean id="speedDialOnEdit" class="org.sipfoundry.sipxconfig.speeddial.SpeadDialOnEdit">

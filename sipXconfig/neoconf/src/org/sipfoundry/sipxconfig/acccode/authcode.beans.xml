@@ -2,10 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="authCodeManagerImpl" class="org.sipfoundry.sipxconfig.acccode.AuthCodeManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="authCodeManagerImpl" class="org.sipfoundry.sipxconfig.acccode.AuthCodeManagerImpl" parent="abstractDaoImpl">
     <property name="coreContext" ref="coreContext" />
-    <property name="daoEventPublisher" ref="daoEventPublisher"/>
   </bean>
 
   <bean id="authCodeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -14,11 +12,19 @@
     <property name="target" ref="authCodeManagerImpl" />
   </bean>
   
-  <bean id="authCodes" class="org.sipfoundry.sipxconfig.accode.AuthCodes">
+  <bean id="authCodes" class="org.sipfoundry.sipxconfig.acccode.AuthCodes">
     <property name="authCodeManager" ref="authCodeManager" />
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
-    <property name="settingsDao" ref="beanWithSettingsDao" />
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
   <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig">

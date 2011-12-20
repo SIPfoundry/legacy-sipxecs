@@ -7,7 +7,7 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;

@@ -9,11 +9,18 @@
   <bean id="acdHistoricalStatsImpl" class="org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalStatsImpl">
     <property name="dataSource" ref="acdHistoryDataSource" />
     <property name="reportScript" value="${sysdir.bin}/sipxconfig-report"/>
-    <property name="settingsDao" ref="beanWithSettingsDao" />    
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.acd.stats.history.AcdHistoricalSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
-  <bean id="acdHistoricalStats" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="acdHistoricalStats" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalStats"/>
     <property name="target" ref="acdHistoricalStatsImpl"/>
   </bean>

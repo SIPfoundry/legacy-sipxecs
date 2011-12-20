@@ -12,21 +12,21 @@ package org.sipfoundry.sipxconfig.dns;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+
+import java.util.Arrays;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.configdiag.ExternalCommandContext;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.dns.DnsTestContextImpl;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-
-import static java.util.Collections.singleton;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.configdiag.ExternalCommandContext;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.im.ImManager;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 
 public class DnsTestContextTest extends TestCase {
     DnsTestContextImpl m_dnsTestContext;
@@ -35,12 +35,13 @@ public class DnsTestContextTest extends TestCase {
     protected void setUp() {
         ExternalCommandContext commandContext = EasyMock.createMock(ExternalCommandContext.class);
         String command = getClass().getClassLoader().getResource(
-                "org/sipfoundry/sipxconfig/admin/mock-dns-test.sh").getFile();
+                "org/sipfoundry/sipxconfig/dns/mock-dns-test.sh").getFile();
         m_dnsTestContext = new DnsTestContextImpl(commandContext, command);
 
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
         expectLastCall().andReturn("example.org").anyTimes();
+        replay(coreContext);
 
         Location l1 = new Location();
         l1.setFqdn("test1.example.org");
@@ -48,31 +49,35 @@ public class DnsTestContextTest extends TestCase {
         Location l2 = new Location();
         l2.setFqdn("test2.example.org");
         l2.setAddress("4.3.2.1");
-        LocationsManager locationsManager = createMock(LocationsManager.class);
-        locationsManager.getLocations();
-        expectLastCall().andReturn(new Location[] {l1,l2}).anyTimes();
-
-        SipxService proxyService = new SipxProxyService();
-        proxyService.setProcessName("SIPXProxy");
-        proxyService.setBeanName(SipxProxyService.BEAN_ID);
-        proxyService.setModelDir("sipxproxy");
-        proxyService.setModelName("sipxproxy.xml");
-        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
-        Setting proxySettings = proxyService.getSettings();
-        proxySettings.getSetting("proxy-configuration/SIP_PORT").setValue("5061");
-        proxySettings.getSetting("proxy-configuration/TLS_SIP_PORT").setValue("5062");
-        l1.setServiceDefinitions(singleton(proxyService));
-        SipxServiceManager serviceManager = createMock(SipxServiceManager.class);
-        serviceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
-        expectLastCall().andReturn(proxyService).anyTimes();
-        serviceManager.getServiceByBeanId("sipxOpenfireService");
-        expectLastCall().andReturn(null).anyTimes();
-
-        replay(coreContext,locationsManager, serviceManager);
-
+        List<Location> locations = Arrays.asList(l1, l2);
+        
+        Address[][] addresses = new Address[][] { 
+                new Address[] { new Address("tcp1", 5061), new Address("tcp2", 5061)},
+                new Address[] { new Address("udp1", 5061), new Address("udp2", 5061)},
+                new Address[] { new Address("tls1", 5062), new Address("tls2", 5062)},
+                new Address[] { new Address("xmpp1", 106), new Address("xmpp2", 106)}
+        };
+        
+        AddressManager addressManager = createMock(AddressManager.class);
+        m_dnsTestContext.setAddressManager(addressManager);
+        addressManager.getAddresses(ProxyManager.TCP_ADDRESS);
+        expectLastCall().andReturn(Arrays.asList(addresses[0])).once();
+        addressManager.getAddresses(ProxyManager.UDP_ADDRESS);
+        expectLastCall().andReturn(Arrays.asList(addresses[1])).once();
+        addressManager.getAddresses(ProxyManager.TLS_ADDRESS);
+        expectLastCall().andReturn(Arrays.asList(addresses[2])).once();
+        addressManager.getAddresses(ImManager.XMPP_ADDRESS);
+        expectLastCall().andReturn(Arrays.asList(addresses[3])).once();
+        replay(addressManager);
+        
+        FeatureManager featureManager = createMock(FeatureManager.class);
+        featureManager.getLocationsForEnabledFeature(ProxyManager.FEATURE);
+        expectLastCall().andReturn(locations).once();
+        featureManager.getLocationsForEnabledFeature(ImManager.FEATURE);
+        expectLastCall().andReturn(null).once();
+        replay(featureManager);
+        m_dnsTestContext.setFeatureManager(featureManager);
         m_dnsTestContext.setCoreContext(coreContext);
-        m_dnsTestContext.setLocationsManager(locationsManager);
-        m_dnsTestContext.setSipxServiceManager(serviceManager);
     }
 
     public void testValid() {

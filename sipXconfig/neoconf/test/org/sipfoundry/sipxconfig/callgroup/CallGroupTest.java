@@ -7,18 +7,16 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.callgroup;
+package org.sipfoundry.sipxconfig.callgroup;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 
 public class CallGroupTest extends TestCase {
 

@@ -7,7 +7,7 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.mail;
+package org.sipfoundry.sipxconfig.mail;
 
 import junit.framework.TestCase;
 

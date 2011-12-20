@@ -4,20 +4,17 @@
   <!--
   - LOCALIZATION C O N T E X T
   -->
-  <bean id="localizationContextImpl" class="org.sipfoundry.sipxconfig.admin.localization.LocalizationContextImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="localizationContextImpl" class="org.sipfoundry.sipxconfig.localization.LocalizationContextImpl" parent="abstractDaoImpl">
     <property name="promptsDir" value="${sysdir.doc}"/>
     <property name="defaultRegion" value="na" />
     <property name="defaultLanguage" value="en" />
     <property name="resetDialPlanTask" ref="resetDialPlanTask" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />
-    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
     <property name="autoAttendantManager" ref="autoAttendantManager" />
   </bean>
 
   <bean id="localizationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.localization.LocalizationContext</value>
+      <value>org.sipfoundry.sipxconfig.localization.LocalizationContext</value>
     </property>
     <property name="target">
       <ref local="localizationContextImpl" />

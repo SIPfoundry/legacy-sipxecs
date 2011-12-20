@@ -7,11 +7,11 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.parkorbit;
+package org.sipfoundry.sipxconfig.parkorbit;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ParkOrbitTest extends TestCase {

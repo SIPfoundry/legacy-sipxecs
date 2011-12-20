@@ -209,7 +209,7 @@ public class Conference extends BeanWithSettings implements Replicable {
 
     @SettingEntry(path = AOR_RECORD)
     public String getAorRecord() {
-        Address fs = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        Address fs = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
         return SipUri.format(StringUtils.defaultString(m_name), fs.getAddress(), fs.getPort());
     }
 

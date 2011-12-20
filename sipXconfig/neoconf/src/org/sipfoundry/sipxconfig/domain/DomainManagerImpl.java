@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.domain;
 
 import java.io.File;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.localization.Localization;
@@ -36,7 +34,6 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
     private static final String SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
     private Domain m_domain;
-    private ConfigManager m_configManager;
     private String m_domainConfigFilename;
 
     /**
@@ -71,7 +68,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
 
         // hmmm, should each feature that uses the domain name be watching for
         // DomainManger.FEATURE?
-        m_configManager.allFeaturesAffected();
+        // m_configManager.allFeaturesAffected();
         m_domain = null;
     }
 
@@ -121,6 +118,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
             parseDomainConfig(domain, domainConfig);
             domain.initSecret();
             saveDomain(domain);
+            getDaoEventPublisher().publishSave(domain);
         } catch (FileNotFoundException fnfe) {
             LOG.fatal(DOMAIN_CONFIG_ERROR, fnfe);
         } catch (IOException ioe) {
@@ -164,6 +162,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         Collection<Domain> domains = getHibernateTemplate().loadAll(Domain.class);
         if (!domains.isEmpty()) {
             getHibernateTemplate().deleteAll(domains);
+            getDaoEventPublisher().publishDeleteCollection(domains);
             getHibernateTemplate().flush();
         }
         m_domain = null;

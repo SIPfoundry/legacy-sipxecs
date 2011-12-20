@@ -7,12 +7,12 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.dialplan.config.FullTransform;
+import org.sipfoundry.sipxconfig.dialplan.config.Transform;
 
 public class PagingRuleTest extends TestCase {
     private PagingRule m_rule;

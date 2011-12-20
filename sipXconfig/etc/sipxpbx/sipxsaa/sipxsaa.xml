@@ -36,11 +36,11 @@
   <group name="saa-config" hidden="yes">
     <setting name="SIP_SAA_UDP_PORT">
       <type refid="nonRootPort"/>
-      <value></value>
+      <value>5170</value>
     </setting>
     <setting name="SIP_SAA_TCP_PORT">
       <type refid="nonRootPort"/>
-      <value></value>
+      <value>5170</value>
     </setting>
     <setting name="SIP_SAA_LOG_LEVEL">
       <type refid="loglevel" />

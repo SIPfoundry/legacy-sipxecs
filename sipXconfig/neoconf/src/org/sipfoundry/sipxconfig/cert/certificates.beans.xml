@@ -5,14 +5,14 @@
 
   <bean id="certificateManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.CertificateManager</value>
+      <value>org.sipfoundry.sipxconfig.cert.CertificateManager</value>
     </property>
     <property name="target">
       <ref local="certificateManagerImpl" />
     </property>
   </bean>
 
-  <bean id="certificateManagerImpl" class="org.sipfoundry.sipxconfig.admin.CertificateManagerImpl" autowire="byType">
+  <bean id="certificateManagerImpl" class="org.sipfoundry.sipxconfig.cert.CertificateManagerImpl" autowire="byType">
 	<property name="binCertDirectory" value="${sysdir.bin}/ssl-cert"/>
     <property name="certDirectory" value="${sysdir.var}/configserver/web-cert"/>
 	<property name="sslDirectory" value="${sysdir.etc}/ssl"/>

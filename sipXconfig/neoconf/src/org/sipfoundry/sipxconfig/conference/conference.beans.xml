@@ -34,10 +34,6 @@
     <property name="domainManager" ref="domainManager" />
     <property name="daoEventPublisher" ref="daoEventPublisher"/>
     <property name="conferenceFeature" ref="conferenceFeature" />
-    <property name="conferenceBundle" ref="conferenceBundle" />
-    <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
-    <property name="replicationContext" ref="sipxReplicationContextDao" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />    
   </bean>
   
   <bean id="conferenceFeature" class="org.sipfoundry.sipxconfig.conference.ConferenceFeature">
@@ -72,20 +68,6 @@
     <property name="domainManager" ref="domainManager" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="addressManager" ref="addressManager" />
-  </bean>
-
-  <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioning" />
-    <property name="target">
-      <bean class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioningImpl">
-        <property name="sessionFactory" ref="sessionFactory" />
-        <!-- eager replication here -->
-        <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
-        <property name="replicationContext" ref="sipxReplicationContextDao" />
-        <property name="sipxServiceManager" ref="sipxServiceManager" />
-        <property name="sipxProcessContext" ref="sipxProcessContext" />
-      </bean>
-    </property>
   </bean>
 
   <bean id="identity" class="org.sipfoundry.sipxconfig.conference.BridgeConferenceIdentityImpl">

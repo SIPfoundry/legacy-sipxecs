@@ -16,27 +16,29 @@ import org.sipfoundry.sipxconfig.backup.BackupBean;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
 public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAware, DaoEventListener {
-    private FeatureManager m_featureManager;
     private MailboxManager m_manager;
     private BeanFactory m_beanFactory;
 
     public void init() {
-        Location voicemailLocation = m_featureManager.getLocationForEnabledFeature(Ivr.FEATURE);
+
+        // TODO: Why do we distinguish local and remote,  everything should be considered remote
+        // IMHO -- Douglas
+
+        //Location voicemailLocation = m_featureManager.getLocationForEnabledFeature(Ivr.FEATURE);
         AbstractMailboxManager remote = m_beanFactory.getBean(RemoteMailboxManagerImpl.class);
         AbstractMailboxManager local = m_beanFactory.getBean(LocalMailboxManagerImpl.class);
-        if (voicemailLocation != null && !voicemailLocation.isPrimary()) {
+        //
+        if (true) { //voicemailLocation != null && !voicemailLocation.isPrimary()) {
             m_manager = (MailboxManager) remote;
             local.setActive(false);
-        } else {
-            m_manager = (MailboxManager) local;
-            remote.setActive(false);
+//        } else {
+//            m_manager = (MailboxManager) local;
+//            remote.setActive(false);
         }
         ((AbstractMailboxManager) m_manager).init();
     }
@@ -185,9 +187,5 @@ public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAwa
         if (entity instanceof Location) {
             init();
         }
-    }
-
-    public void setFeatureManager(FeatureManager featureManager) {
-        m_featureManager = featureManager;
     }
 }

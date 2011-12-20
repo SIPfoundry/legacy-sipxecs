@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.config;
+package org.sipfoundry.sipxconfig.dialplan.config;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createStrictMock;
@@ -18,7 +18,6 @@ import static org.sipfoundry.sipxconfig.test.XmlUnitHelper.assertElementInNamesp
 import static org.sipfoundry.sipxconfig.test.XmlUnitHelper.setNamespaceAware;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,29 +30,24 @@ import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
-import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
-import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.domain.Domain;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.dialplan.CallDigits;
+import org.sipfoundry.sipxconfig.dialplan.CallPattern;
+import org.sipfoundry.sipxconfig.dialplan.CallTag;
+import org.sipfoundry.sipxconfig.dialplan.CustomDialingRule;
+import org.sipfoundry.sipxconfig.dialplan.DialPattern;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.EmergencyRule;
+import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.service.SipxPageService;
-import org.sipfoundry.sipxconfig.service.SipxParkService;
-import org.sipfoundry.sipxconfig.service.SipxRlsService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.paging.PagingContext;
+import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class FallbackRulesTest extends XMLTestCase {
-
-    // Object Under Test
     private FallbackRules m_out;
 
     public FallbackRulesTest() {
@@ -64,50 +58,16 @@ public class FallbackRulesTest extends XMLTestCase {
     @Override
     public void setUp() {
         m_out = new FallbackRules();
-
-        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
-        domainManager.getDomain();
-        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
-        EasyMock.replay(domainManager);
-
-        m_out.setDomainManager(domainManager);
-
-        Location serviceLocation = new Location();
-        serviceLocation.setAddress("192.168.1.5");
-        List<Location> locations = new ArrayList<Location>();
-        locations.add(serviceLocation);
-        LocationsManager locationsManager = EasyMock.createNiceMock(LocationsManager.class);
-
-        SipxParkService parkService = new SipxParkService();
-        parkService.setBeanName(SipxParkService.BEAN_ID);
-        parkService.setParkServerSipPort("9905");
-        locationsManager.getLocationsForService(parkService);
-        EasyMock.expectLastCall().andReturn(locations).anyTimes();
-        parkService.setLocationsManager(locationsManager);
-
-        SipxRlsService rlsService = new SipxRlsService();
-        rlsService.setRlsPort("9906");
-        rlsService.setBeanName(SipxRlsService.BEAN_ID);
-        locationsManager.getLocationsForService(rlsService);
-        EasyMock.expectLastCall().andReturn(locations).anyTimes();
-        rlsService.setLocationsManager(locationsManager);
-
-        SipxPageService pageService = new SipxPageService() {
-            @Override
-            public String getSipPort() {
-                return "9910";
-            }
-        };
-        pageService.setBeanName(SipxPageService.BEAN_ID);
-        locationsManager.getLocationsForService(pageService);
-        EasyMock.expectLastCall().andReturn(locations).anyTimes();
-        pageService.setLocationsManager(locationsManager);
-
-        EasyMock.replay(locationsManager);
-
-        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, parkService, rlsService,
-                pageService);
-        m_out.setSipxServiceManager(sipxServiceManager);
+        m_out.setDomainName("example.org");
+        AddressManager addressManager = createMock(AddressManager.class);
+        addressManager.getSingleAddress(Rls.TCP_SIP, DialPlanContext.FEATURE);
+        expectLastCall().andReturn(new Address("rls.example.org", 100));
+        addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, DialPlanContext.FEATURE);
+        expectLastCall().andReturn(new Address("park.example.org", 101));        
+        addressManager.getSingleAddress(PagingContext.SIP_TCP, DialPlanContext.FEATURE);
+        expectLastCall().andReturn(new Address("page.example.org", 102));        
+        replay(addressManager);
+        m_out.setAddressManager(addressManager);
     }
 
     public void testGenerateRuleWithGateways() throws Exception {
@@ -161,7 +121,7 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.generate(rule);
         m_out.generate(emergencyRule);
         m_out.end();
-        m_out.localizeDocument(TestHelper.createDefaultLocation());
+        m_out.setLocation(TestHelper.createDefaultLocation());
 
         Document document = m_out.getDocument();
 
@@ -223,7 +183,7 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.generate(rule);
         m_out.generate(emergencyRule);
         m_out.end();
-        m_out.localizeDocument(TestHelper.createDefaultLocation());
+        m_out.setLocation(TestHelper.createDefaultLocation());
 
         Document document = m_out.getDocument();
         assertElementInNamespace(document.getRootElement(),
@@ -293,7 +253,7 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.generate(rule);
         m_out.generate(emergencyRule);
         m_out.end();
-        m_out.localizeDocument(TestHelper.createDefaultLocation());
+        m_out.setLocation(TestHelper.createDefaultLocation());
 
         Document document = m_out.getDocument();
 
@@ -315,7 +275,7 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.begin();
         m_out.generate(rule);
         m_out.end();
-        m_out.localizeDocument(TestHelper.createDefaultLocation());
+        m_out.setLocation(TestHelper.createDefaultLocation());
 
         Document document = m_out.getDocument();
 

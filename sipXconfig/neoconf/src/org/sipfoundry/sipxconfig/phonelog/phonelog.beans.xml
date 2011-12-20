@@ -5,7 +5,7 @@
   <bean id="phoneLogConfig" class="org.sipfoundry.sipxconfig.phonelog.PhoneLogConfiguration">
   </bean>
 
-  <bean id="phoneLog" class="org.sipfoundry.sipxconfig.phoneLog">
+  <bean id="phoneLog" class="org.sipfoundry.sipxconfig.phonelog.PhoneLog">
   </bean>
 
 </beans>

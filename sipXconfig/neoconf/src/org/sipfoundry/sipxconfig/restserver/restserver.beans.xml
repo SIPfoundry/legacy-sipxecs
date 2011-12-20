@@ -6,8 +6,20 @@
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
-  <bean id="restServer" class="org.sipfoundry.sipxconfig.restserver.RestServerManager">
-    <property name="settingsDao" ref="beanWithSettingsDao" />
+  <bean id="restServer" class="org.sipfoundry.sipxconfig.restserver.RestServer">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.restserver.RestServerSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="restServerConfiguration" class="org.sipfoundry.sipxconfig.restserver.RestConfiguration">
+    <property name="restServer" ref="restServer" />
     <property name="velocityEngine" ref="velocityEngine"/>
   </bean>
 

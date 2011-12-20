@@ -20,12 +20,12 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.commserver.BeanWithLocation;
-import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.commserver.BeanWithLocation;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -132,7 +132,7 @@ public class AuthCodeSettings extends BeanWithLocation implements DeployConfigOn
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("sipxacd.xml");
+        return getModelFilesContext().loadModelFile("sipxacccode/sipxacccode.xml");
     }
 
     @Override

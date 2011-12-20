@@ -30,20 +30,24 @@ public class FreeswitchConfiguration implements ConfigProvider, BeanFactoryAware
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (request.applies(FreeswitchFeature.FEATURE)) {
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                    FreeswitchFeature.FEATURE);
-            for (Location location : locations) {
-                File dir = manager.getLocationDataDirectory(location);
-                FreeswitchSettings settings = m_freeswitch.getSettings(location);
-                Map<String, FreeswitchConfigFile> configs = m_beanFactory.getBeansOfType(FreeswitchConfigFile.class);
-                for (FreeswitchConfigFile config : configs.values()) {
-                    FileWriter writer = new FileWriter(new File(dir, config.getFileName()));
-                    config.write(writer, location, settings);
-                    IOUtils.closeQuietly(writer);
-                }
-            }
+        if (!request.applies(FreeswitchFeature.FEATURE)) {
+            return;
+        }
 
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
+                FreeswitchFeature.FEATURE);
+        if (locations.isEmpty()) {
+            return;
+        }
+        for (Location location : locations) {
+            File dir = manager.getLocationDataDirectory(location);
+            FreeswitchSettings settings = m_freeswitch.getSettings(location);
+            Map<String, FreeswitchConfigFile> configs = m_beanFactory.getBeansOfType(FreeswitchConfigFile.class);
+            for (FreeswitchConfigFile config : configs.values()) {
+                FileWriter writer = new FileWriter(new File(dir, config.getFileName()));
+                config.write(writer, location, settings);
+                IOUtils.closeQuietly(writer);
+            }
         }
     }
 

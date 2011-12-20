@@ -18,11 +18,7 @@
     scope="prototype">
     <property name="location" ref="location"/>
     <property name="port" value="8110"/>
-    <property name="acdContext">
-      <ref local="acdContextImpl"/>
-    </property>
-    <property name="sipxServiceManager" ref="sipxServiceManager"/>
-    <property name="loggingManager" ref="loggingManager"/>
+    <property name="acdContext" ref="acdContextImpl"/>
   </bean>
   <bean id="acdAgent" class="org.sipfoundry.sipxconfig.acd.AcdAgent" parent="acdComponent"
     scope="prototype"/>
@@ -33,15 +29,13 @@
   <bean id="acdAudio" class="org.sipfoundry.sipxconfig.acd.AcdAudio" parent="acdComponent"
     scope="prototype"/>
 
-  <bean id="acdContextImpl" class="org.sipfoundry.sipxconfig.acd.AcdContextImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
+  <bean id="acdContextImpl" class="org.sipfoundry.sipxconfig.acd.AcdContextImpl" parent="abstractDaoImpl">
     <property name="locationsManager" ref="locationsManager"/>
 	<property name="aliasManager" ref="aliasManager"/>
 	<property name="coreContext" ref="coreContext"/>
   </bean>
 
-  <bean id="acdContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="acdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.AcdContext"/>
     <property name="target" ref="acdContextImpl"/>
   </bean>
@@ -61,11 +55,10 @@
     </property>
     <property name="target">
       <bean class="org.sipfoundry.sipxconfig.acd.AcdProvisioningContextImpl">
-        <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
-        <property name="sessionFactory" ref="sessionFactory"/>
-        <property name="serviceConfigurator" ref="serviceConfigurator"/>
-		<property name="sipxServiceManager" ref="sipxServiceManager"/>
         <property name="jobContext" ref="jobContext"/>
+        <property name="configManager" ref="configManager"/>
+        <property name="acdContext" ref="acdContext"/>
+        <property name="addressManager" ref="addressManager"/>
       </bean>
     </property>
   </bean>

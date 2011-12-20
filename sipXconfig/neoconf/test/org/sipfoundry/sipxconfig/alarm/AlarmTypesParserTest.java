@@ -7,7 +7,7 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.alarm;
+package org.sipfoundry.sipxconfig.alarm;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;

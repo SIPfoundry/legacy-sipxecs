@@ -47,7 +47,7 @@ public class BridgeSbcStatistics {
         if (!isOk(bridgeSbc)) {
             return null;
         }
-        Address address = m_addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS, bridgeSbc);
+        Address address = m_addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS, BridgeSbcContext.FEATURE);
         BridgeSbcXmlRpcApi api = m_bridgeSbcApiProvider.getApi(address.toString());
         return api;
     }

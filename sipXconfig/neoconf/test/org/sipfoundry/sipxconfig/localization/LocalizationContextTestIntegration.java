@@ -7,10 +7,10 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.localization;
+package org.sipfoundry.sipxconfig.localization;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxImbotService;

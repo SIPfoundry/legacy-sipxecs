@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
+public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
     /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
     private static final String ALERT_INFO = "sipXpage";
     private static final String PARAM_PAGING_GROUP_NUMBER = "pageGroupNumber";

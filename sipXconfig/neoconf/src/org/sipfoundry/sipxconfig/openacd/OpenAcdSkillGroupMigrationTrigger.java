@@ -16,7 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import org.sipfoundry.sipxconfig.common.InitTaskListener;
+import org.sipfoundry.sipxconfig.admin.InitTaskListener;
 import org.springframework.beans.factory.annotation.Required;
 
 public class OpenAcdSkillGroupMigrationTrigger extends InitTaskListener {

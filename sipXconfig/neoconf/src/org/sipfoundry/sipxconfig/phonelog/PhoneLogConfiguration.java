@@ -34,11 +34,15 @@ public class PhoneLogConfiguration implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(location);
             Writer onOff = new FileWriter(new File(dir, "phonelog-config"));
             try {
-                KeyValueConfiguration config = new KeyValueConfiguration(onOff);
-                config.write("PHONELOG_ENABLED", "TRUE");
+                write(onOff);
             } finally {
                 IOUtils.closeQuietly(onOff);
             }
         }
+    }
+
+    void write(Writer wtr) throws IOException {
+        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        config.write("PHONELOG_ENABLED", "TRUE");
     }
 }

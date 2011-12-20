@@ -25,29 +25,31 @@ public class ProvisionSettings extends BeanWithSettings {
     private Address m_adminAddress;
 
     public ProvisionSettings() {
-        addDefaultBeanSettingHandler(new Object() {
-            @SettingEntry(path = "provision-config/provision.sipxchangeDomainName")
-            public String getDomainName() {
-                return m_coreContext.getDomainName();
-            }
-            @SettingEntry(path = "provision-config/provision.username")
-            public String getUserName() {
-                return getProvisionUser().getUserName();
-            }
-            @SettingEntry(path = "provision-config/provision.password")
-            public String getPassword() {
-                return getProvisionUser().getSipPassword();
-            }
-            @SettingEntry(path = ADMIN_URL)
-            public String getConfigUrl() {
-                return getAdminAddress().toString();
-            }
-        });
+        addDefaultBeanSettingHandler(new Defaults());
+    }
+
+    public class Defaults {
+        @SettingEntry(path = "provision-config/provision.sipxchangeDomainName")
+        public String getDomainName() {
+            return m_coreContext.getDomainName();
+        }
+        @SettingEntry(path = "provision-config/provision.username")
+        public String getUserName() {
+            return getProvisionUser().getUserName();
+        }
+        @SettingEntry(path = "provision-config/provision.password")
+        public String getPassword() {
+            return getProvisionUser().getSipPassword();
+        }
+        @SettingEntry(path = ADMIN_URL)
+        public String getConfigUrl() {
+            return getAdminAddress().toString();
+        }
     }
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("sipxprovision/sipxprovison.xml");
+        return getModelFilesContext().loadModelFile("sipxprovision/sipxprovision.xml");
     }
 
     public int getPort() {
@@ -66,5 +68,13 @@ public class ProvisionSettings extends BeanWithSettings {
             m_user = m_coreContext.getSpecialUser(SpecialUserType.PHONE_PROVISION);
         }
         return m_user;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

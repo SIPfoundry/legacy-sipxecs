@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.domain;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,20 +36,29 @@ public class DomainConfiguration implements ConfigProvider {
         }
         DomainManager domainManager = manager.getDomainManager();
         Domain domain = domainManager.getDomain();
+        String fqdn = m_locationsManager.getPrimaryLocation().getFqdn();
+        String lang = manager.getDomainManager().getExistingLocalization().getLanguage();
         List<Location> locations = manager.getLocationManager().getLocationsList();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            FileWriter wtr = new FileWriter(new File(dir, "domain-config"));
-            KeyValueConfiguration config = new KeyValueConfiguration(wtr);
-            config.write("SIP_DOMAIN_NAME", domainManager.getDomainName());
-            config.write("SIP_DOMAIN_ALIASES", getDomainAliases(domain));
-            config.write("SIP_REALM", domain.getSipRealm());
-            config.write("SHARED_SECRET", domain.getSharedSecret());
-            config.write("DEFAULT_LANGUAGE", domainManager.getExistingLocalization().getLanguage());
-            config.write("SUPERVISOR_PORT", "8092");
-            config.write("CONFIG_HOSTS", m_locationsManager.getPrimaryLocation().getFqdn());
-            IOUtils.closeQuietly(wtr);
+            Writer wtr = new FileWriter(new File(dir, "domain-config"));
+            try {
+                write(wtr, domain, fqdn, lang);
+            } finally {
+                IOUtils.closeQuietly(wtr);
+            }
         }
+    }
+
+    void write(Writer wtr, Domain domain, String fqdn, String lang) throws IOException {
+        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        config.write("SIP_DOMAIN_NAME", domain.getName());
+        config.write("SIP_DOMAIN_ALIASES", getDomainAliases(domain));
+        config.write("SIP_REALM", domain.getSipRealm());
+        config.write("SHARED_SECRET", domain.getSharedSecret());
+        config.write("DEFAULT_LANGUAGE", lang);
+        config.write("SUPERVISOR_PORT", "8092");
+        config.write("CONFIG_HOSTS", fqdn);
     }
 
     /**
@@ -69,5 +79,9 @@ public class DomainConfiguration implements ConfigProvider {
         }
 
         return StringUtils.join(aliases, ' ');
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

@@ -124,13 +124,13 @@
     </property>
     <property name="mappingResources">
       <list>
-        <value>org/sipfoundry/sipxconfig/acccode/acccode.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/acccode/authcode.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/callgroup/callGroup.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/commserver/location.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/parkorbit/parkOrbit.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/forwarding/ring.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/admin.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/backup.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/backup/backup.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/ftp/ftp.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/intercom/intercom.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/dialplan/dialingRule.hbm.xml</value>
@@ -160,7 +160,6 @@
         <value>org/sipfoundry/sipxconfig/device/timezone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/branch/branch.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/tls/tls.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/authcode/authcode.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/freeswitch/freeswitch.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/openacd/openacd.hbm.xml</value>
       </list>
@@ -171,8 +170,8 @@
         <value>sbcGeneric</value>
         <value>abstractPhone</value>
         <value>upload</value>
-        <value>abstractService</value>
-        <value>sipxService</value>
+        <!--  value>beanWithSettings</value -->
+        <!--  value>beanWithLocation</value -->
       </list>
     </property>
   </bean>
@@ -203,6 +202,12 @@
     <property name="indexer" ref="fastIndexer" />
     <property name="beanIndexHelper" ref="beanIndexHelper"/>
   </bean>
+  
+  <bean id="abstractDaoImpl" abstract="true">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>    
+  </bean>
+  
   <!--
     - Use this instead of 'hibernateInterceptor' when you want to
     - load spring beans from hibernate mappings.  See common/common.beans.xml for example
@@ -216,6 +221,7 @@
       </list>
     </property>
   </bean>
+  
   <bean id="onDeleteAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
     <property name="advice">
       <ref local="onDeleteEventDispatcher" />
@@ -318,5 +324,4 @@
   <bean id="beanWithSettings" abstract="true">
     <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
-
 </beans>

@@ -20,11 +20,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
-import org.sipfoundry.sipxconfig.admin.mail.MailSenderContextImpl;
-import org.sipfoundry.sipxconfig.backup.BackupPlan;
-import org.sipfoundry.sipxconfig.backup.DailyBackupSchedule;
-import org.sipfoundry.sipxconfig.backup.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
+import org.sipfoundry.sipxconfig.mail.MailSenderContextImpl;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl;
 

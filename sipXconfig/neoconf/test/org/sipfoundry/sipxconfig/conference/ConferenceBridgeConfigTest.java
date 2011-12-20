@@ -13,42 +13,48 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 
-import java.util.Arrays;
+import java.io.StringWriter;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ConferenceBridgeConfigTest extends TestCase {
-    public void testGenerate() throws Exception {
+    public void testGenerate() throws Exception {                
         Location location1 = new Location();
         location1.setUniqueId();
         location1.setFqdn("test.example.com");
 
-        SipxFreeswitchService sipxService = new SipxFreeswitchService();
-        sipxService.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
-        LocationSpecificService service = new LocationSpecificService(sipxService);
-        service.setLocation(location1);
-
         Bridge bridge = new Bridge();
-        bridge.setService(service);
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         bridge.getSettings();
 
         User user1 = new User();
         user1.setUserName("221");
 
+        Domain domain = new Domain("example.com");
+        DomainManager domainManager = createMock(DomainManager.class);
+        domainManager.getDomain();
+        expectLastCall().andReturn(domain);
+        replay(domainManager);
+        
+        AddressManager addressManager = createMock(AddressManager.class);
+        addressManager.getSingleAddress(Ivr.REST_API, ConferenceBridgeContext.FEATURE);
+        expectLastCall().andReturn(new Address("ivr.example.com", 1111)).anyTimes();
+        addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
+        expectLastCall().andReturn(new Address("fs.example.com", 2222)).anyTimes();        
+        replay(addressManager);
+        
         Conference conf1 = new Conference();
         conf1.setModelFilesContext(TestHelper.getModelFilesContext());
         conf1.initialize();
@@ -59,6 +65,7 @@ public class ConferenceBridgeConfigTest extends TestCase {
         conf1.setSettingValue(Conference.MAX_LEGS, "0");
         conf1.setSettingValue(Conference.AUTO_RECORDING, "1");
         conf1.setUniqueId();
+        conf1.setAddressManager(addressManager);
         bridge.addConference(conf1);
 
         Conference conf2 = new Conference();
@@ -69,30 +76,9 @@ public class ConferenceBridgeConfigTest extends TestCase {
         conf2.setExtension("234");
         conf2.setSettingValue(Conference.MAX_LEGS, "4");
         conf2.setUniqueId();
+        conf2.setAddressManager(addressManager);
         bridge.addConference(conf2);
-
-        Domain domain = new Domain("example.com");
-        DomainManager domainManager = createMock(DomainManager.class);
-        domainManager.getDomain();
-        expectLastCall().andReturn(domain);
-        replay(domainManager);
-
-        SipxIvrService ivrService = new SipxIvrService();
-        ivrService.setModelFilesContext(TestHelper.getModelFilesContext());
-        ivrService.setModelDir("sipxivr");
-        ivrService.setModelName("sipxivr.xml");
-        ivrService.setBeanName(SipxIvrService.BEAN_ID);
-        ivrService.setSettingValue("ivr/httpsPort", "8085");
-
-        LocationsManager locationsManager = createMock(LocationsManager.class);
-        locationsManager.getLocationsForService(ivrService);
-        expectLastCall().andReturn(Arrays.asList(location1));
-        replay(locationsManager);
-
-        ivrService.setLocationsManager(locationsManager);
-
-        SipxServiceManager serviceManager = TestHelper.getMockSipxServiceManager(true, ivrService);
-
+        
         ConferenceBridgeContext confContext = createMock(ConferenceBridgeContext.class);
         confContext.getBridgeByServer("test.example.com");
         expectLastCall().andReturn(bridge);
@@ -101,10 +87,13 @@ public class ConferenceBridgeConfigTest extends TestCase {
         ConferenceBridgeConfig config = new ConferenceBridgeConfig();
         config.setDomainManager(domainManager);
         config.setConferenceBridgeContext(confContext);
-        config.setSipxServiceManager(serviceManager);
+        config.setAddressManager(addressManager);
 
-        String generatedXml = AbstractConfigurationFile.getFileContent(config, location1);
-        String referenceXml = IOUtils.toString(getClass().getResourceAsStream("conference_bridge_config.test.xml"));
-        assertEquals(referenceXml, generatedXml);
+        StringWriter actual = new StringWriter();
+        XmlFile f = new XmlFile(actual);
+        f.write(config.getDocument(location1));
+
+        String expected = IOUtils.toString(getClass().getResourceAsStream("conference_bridge_config.test.xml"));
+        assertEquals(expected.trim(), actual.toString().trim());
     }
 }

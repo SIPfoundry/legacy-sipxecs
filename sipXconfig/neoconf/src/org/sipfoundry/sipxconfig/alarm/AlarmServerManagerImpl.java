@@ -22,12 +22,10 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -48,7 +46,6 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private String m_configDirectory;
     private String m_alarmsStringsDirectory;
     private String m_mibsDirectory;
-    private ConfigManager m_configManager;
     private LocationsManager m_locationsManager;
 
     @Required
@@ -91,13 +88,12 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
                 // Remove matching group numbers from alarm before removing the alarm group.
                 clearAlarmStorage(group.getName(), alarms);
                 getHibernateTemplate().delete(group);
+                getDaoEventPublisher().publishDelete(group);
             } else {
                 affectDefaultGroup = true;
             }
         }
-        m_configManager.replicationRequired(Alarms.FEATURE);
         return affectDefaultGroup;
-
     }
 
     @Required
@@ -286,20 +282,22 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         return DataAccessUtils.intResult(count) == 0;
     }
 
-    public UserDeleteListener createUserDeleteListener() {
-        return new OnUserDelete();
-    }
+    @Override
+    public void onDelete(Object entity) {
+        if (!(entity instanceof User)) {
+            return;
+        }
 
-    private class OnUserDelete extends UserDeleteListener {
-        @Override
-        protected void onUserDelete(User user) {
-            List<AlarmGroup> groups = getAlarmGroups();
-            for (AlarmGroup group : groups) {
-                Set<User> users = group.getUsers();
-                if (users.remove(user)) {
-                    getHibernateTemplate().saveOrUpdate(group);
-                }
+        List<AlarmGroup> groups = getAlarmGroups();
+        for (AlarmGroup group : groups) {
+            Set<User> users = group.getUsers();
+            if (users.remove((User) entity)) {
+                getHibernateTemplate().saveOrUpdate(group);
             }
         }
+    }
+
+    @Override
+    public void onSave(Object entity) {
     }
 }

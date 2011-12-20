@@ -8,57 +8,28 @@
 package org.sipfoundry.sipxconfig.provision;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
-public class Provision implements FeatureProvider, ConfigProvider, AddressProvider {
+public class Provision implements FeatureProvider, AddressProvider {
     public static final LocationFeature FEATURE = new LocationFeature("provision");
     public static final AddressType PROVISION_SERVICE = new AddressType("provisionService");
     private BeanWithSettingsDao<ProvisionSettings> m_settingsDao;
 
     public ProvisionSettings getSettings() {
         return m_settingsDao.findOne();
-    }
-
-    @Override
-    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(FEATURE)) {
-            return;
-        }
-
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-        ProvisionSettings settings = getSettings();
-        for (Location location : locations) {
-            File dir = manager.getLocationDataDirectory(location);
-            Writer prov = new FileWriter(new File(dir, "sipxprovision-config.cfdat"));
-            try {
-                KeyValueConfiguration config = new KeyValueConfiguration(prov, "=");
-                config.write(settings.getSettings().getSetting("provision-config"));
-            } finally {
-                IOUtils.closeQuietly(prov);
-            }
-        }
     }
 
     @Override

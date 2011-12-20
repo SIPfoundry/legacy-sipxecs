@@ -28,7 +28,7 @@ public class SbcFeature implements FeatureProvider, FeatureListener {
         if (feature.equals(SBC)) {
             BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location);
             if (event == FeatureEvent.PRE_ENABLE && bridgeSbc == null) {
-                m_sbcDeviceManager.newSbc(location);
+                m_sbcDeviceManager.newBridgeSbc(location);
             }
             if (event == FeatureEvent.POST_DISABLE && bridgeSbc != null) {
                 m_sbcDeviceManager.deleteSbcDevice(bridgeSbc.getId());

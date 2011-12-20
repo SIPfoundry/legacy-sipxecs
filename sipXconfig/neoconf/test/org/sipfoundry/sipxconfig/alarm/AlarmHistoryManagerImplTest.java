@@ -8,7 +8,7 @@
  *
  */
 
-package org.sipfoundry.sipxconfig.admin.alarm;
+package org.sipfoundry.sipxconfig.alarm;
 
 import java.io.InputStream;
 import java.util.Calendar;
@@ -16,8 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 import junit.framework.TestCase;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManagerImpl;
 
 public class AlarmHistoryManagerImplTest extends TestCase {
 

@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.registrar.RegistrationContextImpl;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;

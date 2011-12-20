@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.configdiag;
+package org.sipfoundry.sipxconfig.configdiag;
 
 import java.io.File;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public class ExternalCommandTest extends TestCase {
     public void setUp() {
         m_out = new ExternalCommand();
         m_command = getClass().getClassLoader().getResource(
-                "org/sipfoundry/sipxconfig/admin/configdiag/external-command-test.sh").getFile();
+                "org/sipfoundry/sipxconfig/configdiag/external-command-test.sh").getFile();
     }
 
     public void testExecuteExpectSuccess() {

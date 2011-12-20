@@ -7,16 +7,13 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.tls;
-
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+package org.sipfoundry.sipxconfig.tls;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class TlsPeerManagerImplTestIntegration extends ImdbTestCase {

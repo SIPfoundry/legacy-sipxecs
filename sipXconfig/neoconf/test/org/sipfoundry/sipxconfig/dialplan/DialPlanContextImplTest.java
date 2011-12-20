@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -127,8 +127,7 @@ public class DialPlanContextImplTest extends TestCase {
             return m_plan;
         }
 
-        @Override
-        public DialPlanActivationManager getDialPlanActivationManager() {
+        public DialPlanActivationManager getDialPlanActivationManager() { 
             DialPlanActivationManager dpam = createNiceMock(DialPlanActivationManager.class);
             return dpam;
         }

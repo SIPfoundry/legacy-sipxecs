@@ -15,8 +15,7 @@ import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.TimeOfDay.TimeOfDayFormat;
-import org.sipfoundry.sipxconfig.common.TimeOfDay;
+import org.sipfoundry.sipxconfig.common.TimeOfDay.TimeOfDayFormat;
 
 public class TimeOfDayTest extends TestCase {
     private TimeOfDayFormat m_format;

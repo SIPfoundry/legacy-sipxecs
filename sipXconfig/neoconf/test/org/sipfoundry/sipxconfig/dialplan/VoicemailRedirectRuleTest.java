@@ -3,14 +3,14 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
 
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.dialplan.config.FullTransform;
+import org.sipfoundry.sipxconfig.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class VoicemailRedirectRuleTest extends TestCase {

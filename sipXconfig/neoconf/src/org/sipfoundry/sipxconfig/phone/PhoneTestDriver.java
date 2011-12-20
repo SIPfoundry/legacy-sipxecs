@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.easymock.IMocksControl;
+import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -29,7 +30,7 @@ import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -46,7 +47,7 @@ public final class PhoneTestDriver {
 
     private final PhoneContext m_phoneContext;
 
-    private final MusicOnHoldManager m_musicOnHoldManager;
+    private final MohAddressFactory m_mohAddresses;
 
     private final List<Line> m_lines = new ArrayList<Line>();
 
@@ -75,7 +76,7 @@ public final class PhoneTestDriver {
 
         phone.setSerialNumber(m_serialNumber);
 
-        m_musicOnHoldManager = createMock(MusicOnHoldManager.class);
+        m_mohAddresses = EasyMock.createMock(MohAddressFactory.class);
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext(TestHelper.getSystemEtcDir()));
@@ -89,14 +90,14 @@ public final class PhoneTestDriver {
 
             if (user != null) {
                 user.setPermissionManager(pm);
-                m_musicOnHoldManager.getAddressFactory().getPersonalMohFilesUri(user.getUserName());
-                expectLastCall().andReturn("sip:~~mh~" + user.getUserName() + "@" + SIPFOUNDRY_ORG).anyTimes();
+                m_mohAddresses.getPersonalMohFilesUri(user.getUserName());
+                EasyMock.expectLastCall().andReturn("sip:~~mh~" + user.getUserName() + "@" + SIPFOUNDRY_ORG).anyTimes();
                 user.setSettingTypedValue("moh/audio-source", "PERSONAL_FILES_SRC");
-                user.setMusicOnHoldManager(m_musicOnHoldManager);
+                user.setMohAddresses(m_mohAddresses);
             }
         }
 
-        replay(m_musicOnHoldManager);
+        EasyMock.replay(m_mohAddresses);
 
         m_sipControl = createStrictControl();
         m_sip = m_sipControl.createMock(SipService.class);
@@ -220,11 +221,11 @@ public final class PhoneTestDriver {
         domainManager.getDomain().setName(SIPFOUNDRY_ORG);
         defaults.setDomainManager(domainManager);
 
-        MusicOnHoldManager musicOnHoldManager = createMock(MusicOnHoldManager.class);
-        musicOnHoldManager.getAddressFactory().getDefaultMohUri();
-        expectLastCall().andReturn("sip:~~mh~@" + SIPFOUNDRY_ORG).anyTimes();
-        defaults.setMusicOnHoldManager(musicOnHoldManager);
-        replay(musicOnHoldManager);
+        MohAddressFactory mohAddresses = EasyMock.createMock(MohAddressFactory.class);
+        mohAddresses.getDefaultMohUri();
+        EasyMock.expectLastCall().andReturn("sip:~~mh~@" + SIPFOUNDRY_ORG).anyTimes();
+        defaults.setMohAddressFactory(mohAddresses);
+        EasyMock.replay(mohAddresses);
         defaults.setLogDirectory("/var/log/sipxpbx");
 
 //        SipxService registrarService = new SipxRegistrarService();

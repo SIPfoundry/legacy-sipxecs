@@ -35,7 +35,5 @@ public interface PagingContext extends DialingRuleProvider, AliasOwner {
 
     void savePagingGroup(PagingGroup group);
 
-    String getAudioDirectory();
-
     void clear();
 }

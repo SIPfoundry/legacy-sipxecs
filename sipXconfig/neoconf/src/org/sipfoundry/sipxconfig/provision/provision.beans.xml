@@ -9,7 +9,18 @@
   </bean>
 
   <bean id="provision" class="org.sipfoundry.sipxconfig.provision.Provision">
-    <property name="settingsDao" ref="beanWithSettingsDao" />
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.provision.ProvisionSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
+  <bean id="provisionConfiguration" class="org.sipfoundry.sipxconfig.provision.ProvisionConfiguration">
+    <property name="provision" ref="provision" />
+  </bean>
 </beans>

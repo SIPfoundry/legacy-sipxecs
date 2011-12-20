@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.commserver" default-lazy="false">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.commserver" default-lazy="false">
 
   <class name="Location" table="location">
     <id name="id" column="location_id" type="int" unsaved-value="-1">
@@ -17,36 +17,22 @@
     <property name="registered" />
     <property name="callTraffic" />
     <property name="replicateConfig" />
-    <property name="state" column="state" type="org.sipfoundry.sipxconfig.admin.commserver.Location$LocationState" />
+    <property name="state" column="state" type="org.sipfoundry.sipxconfig.commserver.Location$LocationState" />
     <property name="lastAttempt" />
-    <bag name="services" cascade="all,delete-orphan" inverse="true">
-      <key column="location_id" not-null="true" />
-      <one-to-many class="org.sipfoundry.sipxconfig.service.LocationSpecificService" />
-    </bag>
-    <bag name="installedBundles" table="location_bundle">
-      <key column="location_id" not-null="true" foreign-key="location_bundle_fk" />
-      <element type="string" column="bundle_bean" not-null="true" />
-    </bag>
     <set name="failedReplications" table="location_failed_replications">
       <key column="location_id" not-null="true" foreign-key="location_failed_replications_fk" />
       <element type="string" column="entity_name" not-null="true" />
     </set>
-    <component name="nat">
-      <property name="useStun" />
-      <property name="stunAddress" />
-      <property name="stunInterval" />
-      <property name="publicAddress" />
-      <property name="publicPort" />
-      <property name="publicTlsPort" />
-      <property name="startRtpPort" />
-      <property name="stopRtpPort" />
-    </component>
+    <property name="useStun" />
+    <property name="stunAddress" />
+    <property name="stunInterval" />
+    <property name="publicAddress" />
+    <property name="publicPort" />
+    <property name="publicTlsPort" />
+    <property name="startRtpPort" />
+    <property name="stopRtpPort" />
     <many-to-one name="branch" column="branch_id" not-found="ignore" />
   </class>
-  <query name="locationsByBundle">
-    <![CDATA[select location from Location location
-        where :locationBundle in elements(location.installedBundles)]]>
-  </query>
 
   <query name="locationsForBranch">
     <![CDATA[from Location l where l.branch = :branch]]>

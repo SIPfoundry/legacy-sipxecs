@@ -23,8 +23,8 @@ import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
@@ -38,14 +38,11 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext, BeanFactoryAware,
         ReplicableProvider {
-
     private static final String QUERY_GATEWAY_ID_BY_SERIAL_NUMBER = "gatewayIdsWithSerialNumber";
-
     private static final String AUDIT_LOG_CONFIG_TYPE = "Gateway";
 
     private static class DuplicateNameException extends UserException {
         private static final String ERROR = "A gateway with name \"{0}\" already exists.";
-
         public DuplicateNameException(String name) {
             super(ERROR, name);
         }
@@ -53,19 +50,15 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     private static class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A gateway with serial number \"{0}\" already exists.";
-
         public DuplicateSerialNumberException(String name) {
             super(ERROR, name);
         }
     }
 
     private DialPlanContext m_dialPlanContext;
-
     private BeanFactory m_beanFactory;
-
-    private DialPlanActivationManager m_dialPlanActivationManager;
-
     private AuditLogContext m_auditLogContext;
+    private DaoEventPublisher m_daoEventPublisher;
 
     public GatewayContextImpl() {
         super();
@@ -105,8 +98,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
         } else {
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
-            // Replicate occurs only for update gateway
-            m_dialPlanActivationManager.replicateDialPlan(true);
         }
 
         SbcDevice sbc = gateway.getSbcDevice();
@@ -125,6 +116,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         ProfileLocation location = gateway.getModel().getDefaultProfileLocation();
         gateway.removeProfiles(location);
         getHibernateTemplate().delete(gateway);
+        m_daoEventPublisher.publishDelete(gateway);
         m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
         return true;
     }
@@ -144,11 +136,11 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             if (sbc != null) {
                 sbcSet.add(sbc);
             }
+            m_daoEventPublisher.publishDelete(gw);
             deleteGateway(gw.getId());
         }
 
         getHibernateTemplate().flush();
-        m_dialPlanActivationManager.replicateDialPlan(true);
         for (Iterator i = sbcSet.iterator(); i.hasNext();) {
             SbcDevice sbc = (SbcDevice) i.next();
             sbc.generateProfiles(sbc.getProfileLocation());
@@ -228,10 +220,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         m_auditLogContext = auditLogContext;
     }
 
-    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
-        m_dialPlanActivationManager = dialPlanActivationManager;
-    }
-
     public void removePortsFromGateway(Integer gatewayId, Collection<Integer> portIds) {
         Gateway gateway = getGateway(gatewayId);
         for (Integer portId : portIds) {
@@ -254,5 +242,9 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             replicables.add(gw);
         }
         return replicables;
+    }
+
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
 }

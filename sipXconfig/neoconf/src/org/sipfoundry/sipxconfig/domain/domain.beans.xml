@@ -2,15 +2,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.domain.DomainManager"/>
-    <property name="target" ref="domainManagerImpl"/>
+  <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl" parent="abstractDaoImpl">
+    <property name="domainConfigFilename" value="${sysdir.etc}/domain-config"/>
   </bean>
 
-  <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="configManager" ref="configManager" />    
-    <property name="domainConfigFilename" value="${sysdir.etc}/domain-config"/>
+  <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.domain.DomainManager"/>
+    <property name="target">
+      <ref local="domainManagerImpl"/>
+    </property>
   </bean>
 
   <bean id="domainConfiguration" class="org.sipfoundry.sipxconfig.domain.DomainConfiguration">

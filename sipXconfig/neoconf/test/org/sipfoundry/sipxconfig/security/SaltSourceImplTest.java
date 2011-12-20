@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 import junit.framework.TestCase;
 

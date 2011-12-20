@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.presence;
 
+
 import java.util.Hashtable;
 
 import junit.framework.TestCase;
@@ -38,7 +39,7 @@ public class PresenceServerTest extends TestCase {
         signin.put("user-action", "sip:joe@example.com");
 
         IMocksControl apiCtrl = EasyMock.createControl();
-        PresenceServerImpl.SignIn api = apiCtrl.createMock(PresenceServerImpl.SignIn.class);
+        PresenceServer.SignIn api = apiCtrl.createMock(PresenceServer.SignIn.class);
         api.action(signin);
         apiCtrl.andReturn(SUCCESS_RESPONSE);
         apiCtrl.replay();
@@ -46,7 +47,7 @@ public class PresenceServerTest extends TestCase {
         User joe = new User();
         joe.setUserName("joe");
 
-        PresenceServerImpl impl = new PresenceServerImpl();
+        PresenceServer impl = new PresenceServer();
         impl.setCoreContext(coreContext);
         impl.userAction(api, "user-action", joe);
 
@@ -59,12 +60,12 @@ public class PresenceServerTest extends TestCase {
         response.put("result-code", new Integer(0));
         response.put("result-text", "testing error handling");
         try {
-            PresenceServerImpl.checkErrorCode(response);
+            PresenceServer.checkErrorCode(response);
             fail("Expected exception");
         } catch (UserException e) {
             assertTrue(true);
         }
 
-        PresenceServerImpl.checkErrorCode(SUCCESS_RESPONSE);
+        PresenceServer.checkErrorCode(SUCCESS_RESPONSE);
     }
 }

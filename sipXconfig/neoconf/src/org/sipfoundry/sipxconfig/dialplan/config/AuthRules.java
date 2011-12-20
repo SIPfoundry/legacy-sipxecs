@@ -145,6 +145,10 @@ public class AuthRules extends RulesXmlFile {
         permissionMatch.addElement(PERMISSION).setText(PermissionName.NO_ACCESS.getName());
     }
 
+    Document getPreLocalizedDocument() {
+        return m_doc;
+    }
+
     @Override
     public Document getDocument() {
         Location location = getLocation();

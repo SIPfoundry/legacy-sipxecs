@@ -9,10 +9,5 @@
       <ref bean="sessionFactory"/>
     </property>
   </bean>
-  
-  <bean id="exportCsv" class="org.sipfoundry.sipxconfig.bulk.ExportCsv">
-    <property name="coreContext" ref="coreContext" />
-    <property name="phoneContext" ref="phoneContext" />
-  </bean>
     
 </beans>

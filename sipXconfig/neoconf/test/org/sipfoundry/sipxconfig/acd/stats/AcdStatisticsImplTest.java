@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -21,10 +20,11 @@ import junit.framework.TestCase;
 import org.apache.commons.collections.Predicate;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl.AgentNameFilter;
-import org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl.AgentTransformer;
-import org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl.CallTransformer;
-import org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl.QueueTransformer;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.stats.AcdStatistics.AgentNameFilter;
+import org.sipfoundry.sipxconfig.acd.stats.AcdStatistics.AgentTransformer;
+import org.sipfoundry.sipxconfig.acd.stats.AcdStatistics.CallTransformer;
+import org.sipfoundry.sipxconfig.acd.stats.AcdStatistics.QueueTransformer;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class AcdStatisticsImplTest extends TestCase {
@@ -34,7 +34,7 @@ public class AcdStatisticsImplTest extends TestCase {
         qs.setQueueUri("sip:abc@example.org");
 
         Set<String> name = Collections.singleton("abc");
-        Predicate filter = new AcdStatisticsImpl.QueueNameFilter(name);
+        Predicate filter = new AcdStatistics.QueueNameFilter(name);
         assertTrue(filter.evaluate(qs));
 
         qs.setQueueUri("sip:something_else@example.org");
@@ -162,7 +162,7 @@ public class AcdStatisticsImplTest extends TestCase {
         acdStatsServiceCtrl.andReturn(stats).times(2);
         acdStatsServiceCtrl.replay();
 
-        AdcStatsContextMock statsContext = new AdcStatsContextMock(acdStatsService);
+        AcdContext statsContext = EasyMock.createNiceMock(AcdContext.class);
 
         // filtered query
         List callsStats = statsContext.getCallsStats(null, "sip:queue1@example.org");
@@ -199,7 +199,7 @@ public class AcdStatisticsImplTest extends TestCase {
         acdStatsServiceCtrl.andReturn(stats).times(3);
         acdStatsServiceCtrl.replay();
 
-        AdcStatsContextMock statsContext = new AdcStatsContextMock(acdStatsService);
+        AdcStatsContext statsContext = new AcdStatistics();
 
         // filtered query
         List agentStats = statsContext.getAgentsStats(null, "sip:queue1@example.org");
@@ -218,21 +218,6 @@ public class AcdStatisticsImplTest extends TestCase {
         assertEquals(3, agentStats.size());
 
         acdStatsServiceCtrl.verify();
-    }
-
-    private static class AdcStatsContextMock extends AcdStatisticsImpl {
-
-        private final AcdStatsService m_service;
-
-        AdcStatsContextMock(AcdStatsService service) {
-            super(null);
-            m_service = service;
-        }
-
-        @Override
-        public AcdStatsService getAcdStatsService(Serializable acdServerId) {
-            return m_service;
-        }
     }
 
     public void testAgentNameFilterAgentStats() {

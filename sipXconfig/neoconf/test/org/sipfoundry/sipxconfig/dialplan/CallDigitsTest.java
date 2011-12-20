@@ -7,9 +7,9 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
 
-import static org.sipfoundry.sipxconfig.admin.dialplan.CallDigits.findFirstNonEscapedSpecialChar;
+import static org.sipfoundry.sipxconfig.dialplan.CallDigits.findFirstNonEscapedSpecialChar;
 import junit.framework.TestCase;
 
 public class CallDigitsTest extends TestCase {

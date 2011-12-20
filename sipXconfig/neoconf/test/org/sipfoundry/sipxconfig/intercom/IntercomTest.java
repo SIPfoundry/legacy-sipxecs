@@ -5,7 +5,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.intercom;
+package org.sipfoundry.sipxconfig.intercom;
 
 import java.util.Set;
 

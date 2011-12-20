@@ -23,6 +23,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.persister.entity.EntityPersister;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Storage;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
@@ -32,6 +33,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements DataObjectSource<T> {
+    private DaoEventPublisher m_daoEventPublisher;
 
     public T load(Class<T> c, Serializable id) {
         return (T) getHibernateTemplate().load(c, id);
@@ -134,6 +136,7 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
             Integer id = (Integer) i.next();
             Object entity = template.load(klass, id);
             entities.add(entity);
+            m_daoEventPublisher.publishDelete(entity);
         }
         template.deleteAll(entities);
         // HACK: this is to fix XCF-1732, it should not be needed but FLASH_AUTO strategy does not
@@ -144,6 +147,9 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
     protected void removeAll(Class<T> klass) {
         HibernateTemplate template = getHibernateTemplate();
         List entities = template.loadAll(klass);
+        for (Object entity : entities) {
+            m_daoEventPublisher.publishDelete(entity);
+        }
         template.deleteAll(entities);
     }
 
@@ -212,5 +218,13 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
             }
             return props[propIndex];
         }
+    }
+
+    public DaoEventPublisher getDaoEventPublisher() {
+        return m_daoEventPublisher;
+    }
+
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
 }

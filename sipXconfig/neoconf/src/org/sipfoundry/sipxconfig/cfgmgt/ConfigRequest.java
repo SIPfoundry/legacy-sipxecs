@@ -7,14 +7,14 @@
  */
 package org.sipfoundry.sipxconfig.cfgmgt;
 
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.springframework.util.CollectionUtils;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * Provides a general area where configuration needs to be rebuilt. Once generated into proper

@@ -136,4 +136,8 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
 
         return sbcRoutes;
     }
+
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }
 }

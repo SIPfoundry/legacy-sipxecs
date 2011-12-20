@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
+package org.sipfoundry.sipxconfig.dialplan.attendant;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,12 +16,12 @@ import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.ScheduledDay;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.Interval;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.InvalidPeriodException;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.OverlappingPeriodsException;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.SameStartAndStopHoursException;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.common.ScheduledDay;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.Interval;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.InvalidPeriodException;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.OverlappingPeriodsException;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.SameStartAndStopHoursException;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 
 public class WorkingTimeTest extends TestCase {
 

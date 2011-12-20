@@ -44,8 +44,6 @@ public interface SbcDeviceManager {
 
     boolean isInternalSbcEnabled();
 
-    void newSbc(Location location);
-
     void newBridgeSbc(Location location);
 
     List<Sbc> getSbcsForSbcDeviceId(Integer sbcDeviceId);

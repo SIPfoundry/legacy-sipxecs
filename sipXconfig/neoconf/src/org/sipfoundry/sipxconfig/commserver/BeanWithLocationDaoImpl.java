@@ -14,28 +14,29 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 public class BeanWithLocationDaoImpl<T extends BeanWithLocation> extends SipxHibernateDaoSupport<T> implements
         BeanWithLocationDao<T> {
 
+    private Class m_class;
+
+    public BeanWithLocationDaoImpl(Class<T> type) {
+        m_class = type;
+    }
+
     @Override
     public List<T> findAll() {
-        // TODO Auto-generated method stub
-        return null;
+        return (List<T>) getHibernateTemplate().loadAll(m_class);
     }
 
     @Override
     public T findOne(Location location) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new RuntimeException("TODO1");
     }
 
     @Override
-    public void upsert(T bean) {
-        // TODO Auto-generated method stub
-
+    public void saveOrUpdate(T bean) {
+        getHibernateTemplate().saveOrUpdate(bean);
     }
 
     @Override
     public List<T> findAll(Location location) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new RuntimeException("TODO2");
     }
-
 }

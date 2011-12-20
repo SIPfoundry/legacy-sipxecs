@@ -10,19 +10,23 @@
 package org.sipfoundry.sipxconfig.sbc;
 
 
+
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SbcDevice extends Device implements NamedObject, DeployConfigOnEdit {
+    private static final Collection<Feature> REPLICATE_ON_CHANGE = Arrays.asList((Feature) SbcFeature.SBC,
+            (Feature) DialPlanContext.FEATURE);
     private String m_address;
 
     private int m_port;
@@ -115,6 +119,6 @@ public class SbcDevice extends Device implements NamedObject, DeployConfigOnEdit
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) SbcFeature.SBC);
+        return REPLICATE_ON_CHANGE;
     }
 }

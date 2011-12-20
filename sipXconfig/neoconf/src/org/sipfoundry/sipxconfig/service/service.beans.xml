@@ -7,7 +7,15 @@
     http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
   <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService">
-    <property name="settingsDao" ref="beanWithSettingsDao" />    
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.service.UnmanagedServiceSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
   <bean id="unmanagedServiceSettings" class="org.sipfoundry.sipxconfig.service.UnmanagedServiceSettings">

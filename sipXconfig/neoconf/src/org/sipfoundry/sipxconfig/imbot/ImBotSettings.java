@@ -15,10 +15,10 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class ImBotSettings extends BeanWithSettings {
-    private static final String PA_USER_NAME_SETTING = "imbot/imId";
-    private static final String PA_PASSWORD_SETTING = "imbot/imPassword";
-    private static final String HTTP_PORT = "imbot/httpPort";
-    private static final String LOCALE_SETTING = "imbot/locale";
+    private static final String PA_USER_NAME_SETTING = "imbot/_imbot.paUserName";
+    private static final String PA_PASSWORD_SETTING = "imbot/imbot.paPassword";
+    private static final String HTTP_PORT = "imbot/imbot.httpPort";
+    private static final String LOCALE_SETTING = "imbot/imbot.locale";
     private static final int PASS_LENGTH = 8;
 
     @Override
@@ -28,6 +28,10 @@ public class ImBotSettings extends BeanWithSettings {
 
     public String getPersonalAssistantImId() {
         return getSettingValue(PA_USER_NAME_SETTING);
+    }
+
+    public void setPersonalAssistantImPassword(String password) {
+        setSettingValue(PA_PASSWORD_SETTING, password);
     }
 
     public String getPersonalAssistantImPassword() {

@@ -94,6 +94,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     private DomainManager m_domainManager;
     private ProxyManager m_proxyManager;
     private AddressManager m_addressManager;
+    private MohAddressFactory m_mohAddresses;
 
     private String m_firstName;
 
@@ -114,8 +115,6 @@ public abstract class AbstractUser extends BeanWithGroups {
     private boolean m_isShared;
 
     private Branch m_branch;
-
-    private MusicOnHoldManager m_musicOnHoldManager;
 
     private final Client m_restClient = new Client(Protocol.HTTP);
 
@@ -225,7 +224,11 @@ public abstract class AbstractUser extends BeanWithGroups {
     }
 
     public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
-        m_musicOnHoldManager = musicOnHoldManager;
+        m_mohAddresses = musicOnHoldManager.getAddressFactory();
+    }
+
+    public void setMohAddresses(MohAddressFactory mohAddresses) {
+        m_mohAddresses = mohAddresses;
     }
 
     private List<String> getNumericAliases() {
@@ -594,8 +597,11 @@ public abstract class AbstractUser extends BeanWithGroups {
     }
 
     public String getMusicOnHoldUri() {
+        return getMusicOnHoldUri(m_mohAddresses);
+    }
+
+    String getMusicOnHoldUri(MohAddressFactory addresses) {
         String mohAudioSource = getSettings().getSetting(MOH_AUDIO_SOURCE_SETTING).getValue();
-        MohAddressFactory addresses = m_musicOnHoldManager.getAddressFactory();
 
         switch (MohAudioSource.parseSetting(mohAudioSource)) {
         case FILES_SRC:
@@ -682,5 +688,9 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    protected AddressManager getAddressManager() {
+        return m_addressManager;
     }
 }

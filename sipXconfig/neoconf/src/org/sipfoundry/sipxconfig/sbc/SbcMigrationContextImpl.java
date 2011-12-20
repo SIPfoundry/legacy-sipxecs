@@ -25,11 +25,8 @@ import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;
 
 public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements SbcMigrationContext {
     public static final Log LOG = LogFactory.getLog(SbcMigrationContextImpl.class);
-
     private static final String SQL = "alter table sbc drop column address";
-
     private SbcDeviceManager m_sbcDeviceManager;
-
     private BeanFactoryModelSource<SbcDescriptor> m_sbcModelSource;
 
     private Sbc getSbc(Integer id) {

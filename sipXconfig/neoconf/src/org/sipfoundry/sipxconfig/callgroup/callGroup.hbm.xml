@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.callgroup" default-lazy="false">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.callgroup" default-lazy="false">
   <!--
     - User Ring
   -->
@@ -12,7 +12,7 @@
       </generator>
     </id>
     <property name="expiration" />
-    <property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$UserType" />
+    <property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.callgroup.AbstractRing$UserType" />
     <many-to-one name="callGroup" column="call_group_id" not-null="true" insert="false" update="false" />
     <many-to-one name="user" column="user_id" not-null="true" cascade="none" />
   </class>

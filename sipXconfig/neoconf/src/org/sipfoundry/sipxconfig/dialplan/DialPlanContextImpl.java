@@ -38,7 +38,7 @@ import org.springframework.dao.support.DataAccessUtils;
 /**
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
-public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
+public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         DialPlanContext {
 
     private static final String AUDIT_LOG_CONFIG_TYPE = "Dialing Rule";
@@ -88,6 +88,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         DialPlan dialPlan = getDialPlan();
         dialPlan.addRule(position, rule);
         getHibernateTemplate().saveOrUpdate(dialPlan);
+        getDaoEventPublisher().publishSave(dialPlan);
         m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
     }
 
@@ -100,9 +101,11 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
             DialPlan dialPlan = getDialPlan();
             dialPlan.addRule(rule);
             getHibernateTemplate().saveOrUpdate(dialPlan);
+            getDaoEventPublisher().publishSave(dialPlan);
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         } else {
             getHibernateTemplate().saveOrUpdate(rule);
+            getDaoEventPublisher().publishSave(rule);
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         }
     }
@@ -203,12 +206,15 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     public void deleteRules(Collection<Integer> selectedRows) {
         List<DialingRule> rulesToDelete = new ArrayList<DialingRule>();
         for (Integer id : selectedRows) {
-            rulesToDelete.add(getRule(id));
+            DialingRule rule = getRule(id);
+            getDaoEventPublisher().publishDelete(rule);
+            rulesToDelete.add(rule);
         }
 
         DialPlan dialPlan = getDialPlan();
         dialPlan.removeRules(selectedRows);
         getHibernateTemplate().saveOrUpdate(dialPlan);
+        getDaoEventPublisher().publishSave(dialPlan);
         for (DialingRule rule : rulesToDelete) {
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         }
@@ -221,9 +227,9 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         for (DialingRule rule : selectedRules) {
             // Create a copy of the rule with a unique name
             DialingRule ruleDup = (DialingRule) duplicateBean(rule, DIALING_RULE_IDS_WITH_NAME_QUERY);
-
             rules.add(ruleDup);
         }
+        getDaoEventPublisher().publishSave(dialPlan);
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
@@ -262,6 +268,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         newDialPlan.setOperator(operator);
 
         getHibernateTemplate().save(newDialPlan);
+        getDaoEventPublisher().publishSave(newDialPlan);
         // Flush the session to cause the delete to take immediate effect.
         // Otherwise we can get name collisions on dialing rules when we load the
         // default dial plan, causing a DB integrity exception, even though the
@@ -297,6 +304,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         DialPlan dialPlan = getDialPlan();
         dialPlan.moveRules(selectedRows, step);
         getHibernateTemplate().saveOrUpdate(dialPlan);
+        getDaoEventPublisher().publishSave(dialPlan);
     }
 
     /**
@@ -306,6 +314,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         DialPlan dialPlan = getDialPlan();
         if (dialPlan.removeEmptyRules()) {
             getHibernateTemplate().saveOrUpdate(dialPlan);
+            getDaoEventPublisher().publishSave(dialPlan);
         }
     }
 
@@ -354,6 +363,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         for (DialingRule rule : rules) {
             rule.removeGateways(gatewayIds);
             storeRule(rule);
+            getDaoEventPublisher().publishSave(rule);
         }
     }
 

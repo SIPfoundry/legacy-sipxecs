@@ -17,4 +17,30 @@ public class AddressType {
     public String getId() {
         return m_id;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AddressType)) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+        AddressType rhs = (AddressType) obj;
+        return m_id.equals(rhs.m_id);
+    }
+
+    @Override
+    public int hashCode() {
+        return m_id.hashCode();
+    }
+
+    public boolean equalsAnyOf(AddressType... types) {
+        for (int i = 0; i < types.length; i++) {
+            if (this.equals(types[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

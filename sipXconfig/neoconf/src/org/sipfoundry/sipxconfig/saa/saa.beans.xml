@@ -7,7 +7,15 @@
   </bean>
 
   <bean id="saaManager" class="org.sipfoundry.sipxconfig.saa.SaaManager">
-    <property name="settingsDao" ref="beanWithSettingsDao" />
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.saa.SaaSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
   <bean id="saaConfiguration" class="org.sipfoundry.sipxconfig.saa.SaaConfiguration">

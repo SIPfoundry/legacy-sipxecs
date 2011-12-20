@@ -7,38 +7,34 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.alarm;
+package org.sipfoundry.sipxconfig.alarm;
 
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import static java.util.Arrays.asList;
 
-import org.easymock.EasyMock;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.service.SipxAlarmService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
-public class AlarmGroupsConfigurationTest extends SipxServiceTestBase {
-    private AlarmGroupsConfiguration m_alarmGroupsConf;
+public class AlarmGroupsConfigurationTest {
+    private AlarmConfiguration m_alarmConf;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        m_alarmGroupsConf = new AlarmGroupsConfiguration();
-        m_alarmGroupsConf.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_alarmGroupsConf.setTemplate("alarms/alarm-groups.vm");
-
-        SipxAlarmService alarmService = new SipxAlarmService();
-        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(alarmService).anyTimes();
-        EasyMock.replay(sipxServiceManager);
-        m_alarmGroupsConf.setSipxServiceManager(sipxServiceManager);
+        m_alarmConf = new AlarmConfiguration();
+        m_alarmConf.setVelocityEngine(TestHelper.getVelocityEngine());
     }
 
+    @Test
     public void testGenerateAlarmServer() throws Exception {
         AlarmGroup group1 = new AlarmGroup();
         group1.setName("emergency");
@@ -53,15 +49,14 @@ public class AlarmGroupsConfigurationTest extends SipxServiceTestBase {
         m_snmpAddresses.add(alarmTrapReceiver);
         group1.setSnmpAddresses(m_snmpAddresses);
 
-        AlarmServerManager alarmServerManager = EasyMock.createMock(AlarmServerManager.class);
-        alarmServerManager.getAlarmGroups();
-        EasyMock.expectLastCall().andReturn(asList(group1)).anyTimes();
-        EasyMock.replay(alarmServerManager);
-        m_alarmGroupsConf.setAlarmServerManager(alarmServerManager);
+        StringWriter actual = new StringWriter();
+        m_alarmConf.writeAlarmGroupsXml(actual, asList(group1));
 
-        assertCorrectFileGeneration(m_alarmGroupsConf, "alarm-groups-test.xml");
+        InputStream expected = getClass().getResourceAsStream("alarm-groups-test.xml");
+        assertEquals(IOUtils.toString(expected), actual.toString());
     }
 
+    @Test
     public void testGenerateAlarmServerWithUsers() throws Exception {
         User user1 = new User();
         user1.setUniqueId();
@@ -86,13 +81,11 @@ public class AlarmGroupsConfigurationTest extends SipxServiceTestBase {
         alarmTrapReceiver.setPort(162);
         m_snmpAddresses.add(alarmTrapReceiver);
         group1.setSnmpAddresses(m_snmpAddresses);
+        
+        StringWriter actual = new StringWriter();
+        m_alarmConf.writeAlarmGroupsXml(actual, asList(group1));
 
-        AlarmServerManager alarmServerManager = EasyMock.createMock(AlarmServerManager.class);
-        alarmServerManager.getAlarmGroups();
-        EasyMock.expectLastCall().andReturn(asList(group1)).anyTimes();
-        EasyMock.replay(alarmServerManager);
-        m_alarmGroupsConf.setAlarmServerManager(alarmServerManager);
-
-        assertCorrectFileGeneration(m_alarmGroupsConf, "alarm-groups-users-test.xml");
+        InputStream expected = getClass().getResourceAsStream("alarm-groups-users-test.xml");
+        assertEquals(IOUtils.toString(expected), actual.toString());
     }
 }

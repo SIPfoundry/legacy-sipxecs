@@ -72,6 +72,10 @@ public class FreeswitchSettings extends BeanWithLocation {
         }
     }
 
+    public int getEventSocketPort() {
+        return 8184; // not configurable at this time, no particular reason. --Douglas
+    }
+
     public int getXmlRpcPort() {
         return (Integer) getSettingTypedValue(FREESWITCH_XMLRPC_PORT);
     }

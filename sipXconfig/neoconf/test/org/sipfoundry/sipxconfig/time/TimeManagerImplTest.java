@@ -3,8 +3,10 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.admin.time;
+package org.sipfoundry.sipxconfig.time;
 
+import java.io.File;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,9 +23,16 @@ public class TimeManagerImplTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         m_manager = new TimeManagerImpl();
-        m_manager.setBinDirectory(TestHelper.getSourceDirectory(TimeManagerImplTest.class));
-        m_manager.setLibExecDirectory(TestHelper.getSourceDirectory(TimeManagerImplTest.class));
+        String dir = getThisDirectory();
+        m_manager.setBinDirectory(dir);
+        m_manager.setLibExecDirectory(dir);
         m_manager.setNtpConfigFile("tempNtpConfigFile");
+    }
+    
+    String getThisDirectory() {
+        URL resource = getClass().getResource("sipx-time-manager");
+        String file = resource.getFile();
+        return new File(file).getParent();
     }
 
     public void testGetStatus() throws Exception {

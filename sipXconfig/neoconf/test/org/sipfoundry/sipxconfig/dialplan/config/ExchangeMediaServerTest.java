@@ -7,15 +7,14 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.config;
-
-import junit.framework.TestCase;
-
-import org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+package org.sipfoundry.sipxconfig.dialplan.config;
 
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.replay;
+import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.dialplan.ExchangeMediaServer;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 
 public class ExchangeMediaServerTest extends TestCase {
 

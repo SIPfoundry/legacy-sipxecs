@@ -9,28 +9,23 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
-import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
-
 import junit.framework.TestCase;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import org.easymock.classextension.EasyMock;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.EmergencyInfo;
+import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 
 public class DeviceDefaultsTest extends TestCase {
 
-    public void testGetMusicOnHoldUri() {
+    public void testGetMusicOnHoldUri() {        
         DeviceDefaults defaults = new DeviceDefaults();
+        MohAddressFactory moh = EasyMock.createMock(MohAddressFactory.class);
+        moh.getDefaultMohUri();
+        EasyMock.expectLastCall().andReturn("sip:~~mh~@example.org").anyTimes();
+        EasyMock.replay(moh);
 
-        MusicOnHoldManager musicOnHoldManager = createMock(MusicOnHoldManager.class);
-        musicOnHoldManager.getDefaultMohUri();
-        expectLastCall().andReturn("sip:~~mh~@example.org").anyTimes();
-        replay(musicOnHoldManager);
-
-        defaults.setMusicOnHoldManager(musicOnHoldManager);
+        defaults.setMohAddressFactory(moh);
 
         assertEquals("sip:~~mh~@example.org", defaults.getMusicOnHoldUri());
     }
@@ -44,11 +39,11 @@ public class DeviceDefaultsTest extends TestCase {
 
         EmergencyInfo ei = new EmergencyInfo("gateway.example.com", 5060, "111");
 
-        DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
+        DialPlanContext dialPlanContext = EasyMock.createMock(DialPlanContext.class);
         dialPlanContext.getLikelyEmergencyInfo();
-        expectLastCall().andReturn(ei).anyTimes();
+        EasyMock.expectLastCall().andReturn(ei).anyTimes();
 
-        replay(dialPlanContext);
+        EasyMock.replay(dialPlanContext);
 
         defaults.setRouteEmergencyCallsDirectly(true);
         defaults.setDialPlanContext(dialPlanContext);
@@ -63,6 +58,6 @@ public class DeviceDefaultsTest extends TestCase {
         assertNull(defaults.getEmergencyNumber());
         assertNull(defaults.getEmergencyPort());
 
-        verify(dialPlanContext);
+        EasyMock.verify(dialPlanContext);
     }
 }

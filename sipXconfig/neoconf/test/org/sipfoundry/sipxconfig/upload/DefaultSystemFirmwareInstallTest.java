@@ -32,7 +32,7 @@ public class DefaultSystemFirmwareInstallTest extends TestCase {
 
     @Override
     protected void setUp() throws IOException {
-        File thisDir = new File(TestHelper.getSourceDirectory(getClass()));
+        File thisDir = new File(getClass().getResource("file1.txt").getFile()).getParentFile();
 
         m_firmwareDir = TestHelper.createTempDir("firmware-test");
 

@@ -31,7 +31,6 @@
 
   <bean id="dataSetGenerator" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.commserver.imdb.DataSetGenerator">
-    <lookup-method name="getSipxFreeswitchService" bean="sipxFreeswitchService"/>
   </bean>
   <bean id="aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.commserver.imdb.Aliases">
@@ -64,7 +63,7 @@
   </bean>
   
   <bean id="replicationManagerImpl"
-    class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl">
+    class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl" parent="abstractDaoImpl">
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
     <property name="coreContext" ref="coreContext" />
@@ -73,9 +72,6 @@
     <property name="dataSetGenerator" ref="dataSetGenerator" />
     <property name="validUsers" ref="validUsers"/>
     <property name="imdb" ref="imdb"/>
-    <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>
   </bean>
   
   <bean id="replicationTrigger"

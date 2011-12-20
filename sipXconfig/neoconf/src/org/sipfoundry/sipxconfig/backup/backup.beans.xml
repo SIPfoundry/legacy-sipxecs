@@ -2,7 +2,24 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="backupPlan" class="org.sipfoundry.sipxconfig.admin.BackupPlan" abstract="true">
+  <bean id="backupManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.backup.BackupManager</value>
+    </property>
+    <property name="target">
+      <ref local="backupManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="backupManagerImpl" class="org.sipfoundry.sipxconfig.backup.BackupManagerImpl" autowire="byType">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="binDirectory" value="${sysdir.bin}" />
+    <property name="libExecDirectory" value="${sysdir.libexec}" />
+    <lookup-method name="createLocalBackupPlan" bean="localBackupPlan" />
+    <lookup-method name="createFtpBackupPlan" bean="ftpBackupPlan" />
+  </bean>
+
+  <bean id="backupPlan" class="org.sipfoundry.sipxconfig.backup.BackupPlan" abstract="true">
     <property name="mailSenderContext" ref="mailSenderContext" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="emailFromAddress" value="backup" />
@@ -12,8 +29,8 @@
     <property name="backupPlan" ref="backupPlan" />  
   </bean>
 
-  <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.admin.LocalBackupPlan" parent="backupPlan"></bean>
+  <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.backup.LocalBackupPlan" parent="backupPlan"></bean>
 
-  <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.admin.FtpBackupPlan" parent="backupPlan"></bean>
+  <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.backup.FtpBackupPlan" parent="backupPlan"></bean>
 
 </beans>

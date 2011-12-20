@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-lazy="false" package="org.sipfoundry.sipxconfig.admin.dialplan">
+<hibernate-mapping default-lazy="false" package="org.sipfoundry.sipxconfig.dialplan">
 
   <class name="AutoAttendant" table="auto_attendant">
     <id name="id" column="auto_attendant_id" type="int" unsaved-value="-1">
@@ -20,7 +20,7 @@
         <composite-element class="AttendantMenuItem">
           <!-- explicit column names, default prepended 'element_' -->
           <property name="action" column="action"
-            type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction$UserType" />
+            type="org.sipfoundry.sipxconfig.dialplan.AttendantMenuAction$UserType" />
           <property name="parameter" column="parameter" />
         </composite-element>
       </map>

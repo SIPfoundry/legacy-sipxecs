@@ -7,88 +7,58 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
-
-import java.util.Arrays;
-
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 
 public class FreeswitchMediaServerTest extends TestCase {
     private FreeswitchMediaServer m_mediaServer;
+    private AddressManager m_addressManager;
 
     @Override
     protected void setUp() throws Exception {
         m_mediaServer = new FreeswitchMediaServer();
-        m_mediaServer.setPort(15060);
+        
+        m_addressManager = createMock(AddressManager.class);
+        m_mediaServer.setAddressManager(m_addressManager);
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address("ivr.example.org", 3333)).anyTimes();
+        replay(m_addressManager);
 
         LocationsManager locationsManager = createMock(LocationsManager.class);
-        Location serviceLocation = TestHelper.createDefaultLocation();
-
-        SipxIvrService service = new SipxIvrService();
-        service.setBeanName(SipxIvrService.BEAN_ID);
-        service.setLocationsManager(locationsManager);
-
-        locationsManager.getLocationsForService(service);
-        expectLastCall().andReturn(Arrays.asList(serviceLocation)).anyTimes();
-
         LocalizationContext localizationContext = createMock(LocalizationContext.class);
         localizationContext.getCurrentLanguage();
         expectLastCall().andReturn("en_US").anyTimes();
-
         replay(locationsManager, localizationContext);
-
-        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, service);
-        m_mediaServer.setSipxServiceManager(sipxServiceManager);
+        
         m_mediaServer.setLocalizationContext(localizationContext);
     }
 
-    public void testBuildAttendantUrl() {
+    public void testBuildAttendantUrl() {        
         String uri = m_mediaServer.buildAttendantUrl("operator");
-        assertEquals("<sip:IVR@192.168.1.1:15060;action=autoattendant;schedule_id=operator;locale=en_US>", uri);
+        assertEquals("<sip:IVR@ivr.example.org:3333;action=autoattendant;schedule_id=operator;locale=en_US>", uri);
     }
 
     public void testBuildVoicemailDepositUrl() {
         String uri = m_mediaServer.buildVoicemailDepositUrl("q=0.1");
-        assertEquals("<sip:IVR@192.168.1.1:15060;mailbox={vdigits};action=deposit;locale=en_US>;q=0.1", uri);
+        assertEquals("<sip:IVR@ivr.example.org:3333;mailbox={vdigits};action=deposit;locale=en_US>;q=0.1", uri);
 
         uri = m_mediaServer.buildVoicemailDepositUrl(null);
-        assertEquals("<sip:IVR@192.168.1.1:15060;mailbox={vdigits};action=deposit;locale=en_US>", uri);
+        assertEquals("<sip:IVR@ivr.example.org:3333;mailbox={vdigits};action=deposit;locale=en_US>", uri);
     }
 
     public void testBuildVoicemailRetrieveUrl() {
         String uri = m_mediaServer.buildVoicemailRetrieveUrl();
-        assertEquals("<sip:IVR@192.168.1.1:15060;action=retrieve;locale=en_US>", uri);
-    }
-
-    /**
-     * Configure an instance of media server with necessary dependencies for test purposes only.
-     */
-    public static final void configureMediaServer(FreeswitchMediaServer mediaServer) {
-        LocationsManager locationsManager = createMock(LocationsManager.class);
-
-        Location serviceLocation = TestHelper.createDefaultLocation();
-
-        SipxIvrService mediaService = new SipxIvrService();
-        mediaService.setBeanName(SipxIvrService.BEAN_ID);
-        mediaService.setLocationsManager(locationsManager);
-
-        locationsManager.getLocationsForService(mediaService);
-        expectLastCall().andReturn(Arrays.asList(serviceLocation)).anyTimes();
-        replay(locationsManager);
-
-        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, mediaService);
-        mediaServer.setSipxServiceManager(sipxServiceManager);
+        assertEquals("<sip:IVR@ivr.example.org:3333;action=retrieve;locale=en_US>", uri);
     }
 }

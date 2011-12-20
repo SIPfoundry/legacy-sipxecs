@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class IvrSettings extends BeanWithSettings implements DeployConfigOnEdit {
-    private static final String HTTPS_PORT = "ivr/httpsPort";
+    private static final String HTTPS_PORT = "ivr/ivr.httpsPort";
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {

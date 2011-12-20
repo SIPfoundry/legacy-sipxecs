@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan" default-lazy="false">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.dialplan" default-lazy="false">
   <class name="DialPlan" table="dial_plan">
     <id name="id" column="dial_plan_id" type="int" unsaved-value="-1">
       <generator class="sequence">
@@ -30,13 +30,13 @@
       <many-to-many class="org.sipfoundry.sipxconfig.gateway.Gateway" column="gateway_id" />
     </list>
 
-	<many-to-one name="schedule" column="schedule_id" class="org.sipfoundry.sipxconfig.admin.forwarding.Schedule" />
+	<many-to-one name="schedule" column="schedule_id" class="org.sipfoundry.sipxconfig.forwarding.Schedule" />
 
     <joined-subclass name="CustomDialingRule" table="custom_dialing_rule">
       <key column="custom_dialing_rule_id" />
       <component name="callPattern" class="CallPattern">
         <property name="digits" column="call_pattern_digits"
-          type="org.sipfoundry.sipxconfig.admin.dialplan.CallDigits$UserType" />
+          type="org.sipfoundry.sipxconfig.dialplan.CallDigits$UserType" />
         <property name="prefix" column="call_pattern_prefix" />
       </component>
       <list name="dialPatterns" table="dial_pattern">
@@ -98,13 +98,13 @@
       <property name="extension" />
       <property name="did" />
       <component name="afterHoursAttendant"
-        class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant">
+        class="org.sipfoundry.sipxconfig.dialplan.attendant.ScheduledAttendant">
         <many-to-one name="attendant" column="after_hours_attendant_id" class="AutoAttendant"
           cascade="none" foreign-key="fk_after_hours_attendant_auto_attendant" />
         <property name="enabled" column="after_hours_attendant_enabled" />
       </component>
       <component name="holidayAttendant"
-        class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday">
+        class="org.sipfoundry.sipxconfig.dialplan.attendant.Holiday">
         <many-to-one name="attendant" column="holiday_attendant_id" class="AutoAttendant"
           cascade="none" foreign-key="fk_holiday_dates_attendant_dialing_rule" />
         <property name="enabled" column="holiday_attendant_enabled" />
@@ -116,7 +116,7 @@
         </list>
       </component>
       <component name="workingTimeAttendant"
-        class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime">
+        class="org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime">
         <many-to-one name="attendant" column="working_time_attendant_id" class="AutoAttendant"
           cascade="none" foreign-key="fk_attendant_working_hours_attendant_dialing_rule" />
         <property name="enabled" column="working_time_attendant_enabled" />
@@ -125,11 +125,11 @@
             foreign-key="fk_attendant_working_hours_attendant_dialing_rule" />
           <index column="index" />
           <composite-element
-            class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime$WorkingHours">
+            class="org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime$WorkingHours">
             <property name="start" type="org.sipfoundry.sipxconfig.common.UtcTimestampType" />
             <property name="stop" type="org.sipfoundry.sipxconfig.common.UtcTimestampType" />
             <property name="enabled" />
-            <property name="day" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType" />
+            <property name="day" type="org.sipfoundry.sipxconfig.common.ScheduledDay$UserType" />
           </composite-element>
         </array>
       </component>
@@ -139,7 +139,7 @@
       <key column="site_to_site_dialing_rule_id" />
       <component name="callPattern" class="CallPattern">
         <property name="digits" column="call_pattern_digits"
-          type="org.sipfoundry.sipxconfig.admin.dialplan.CallDigits$UserType" />
+          type="org.sipfoundry.sipxconfig.dialplan.CallDigits$UserType" />
         <property name="prefix" column="call_pattern_prefix" />
       </component>
       <list name="dialPatterns" table="site_to_site_dial_pattern">

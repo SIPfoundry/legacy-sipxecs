@@ -31,6 +31,7 @@ public class Registrar implements FeatureProvider, AddressProvider, BeanFactoryA
     public static final AddressType TCP_ADDRESS = new AddressType("registrar-tcp");
     public static final AddressType EVENT_ADDRESS = new AddressType("registrar-event");
     public static final AddressType UDP_ADDRESS = new AddressType("registrar-udp");
+    public static final AddressType XMLRPC_ADDRESS = new AddressType("registrar-xmlrpc");
     public static final AddressType PRESENCE_MONITOR_ADDRESS = new AddressType("registrar-presence");
 
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
@@ -87,8 +88,10 @@ public class Registrar implements FeatureProvider, AddressProvider, BeanFactoryA
                 address.setPort(settings.getSipUdpPort());
             } else if (type.equals(EVENT_ADDRESS)) {
                 address.setPort(settings.getMonitorPort());
+            } else if (type.equals(XMLRPC_ADDRESS)) {
+                address.setPort(settings.getXmlRpcPort());
             } else if (type.equals(PRESENCE_MONITOR_ADDRESS)) {
-                address.setPort(settings.getMonitorPort());
+                address.setPort(settings.getPresencePort());
                 address.setFormat("http://%s:%d/RPC2");
             }
         }

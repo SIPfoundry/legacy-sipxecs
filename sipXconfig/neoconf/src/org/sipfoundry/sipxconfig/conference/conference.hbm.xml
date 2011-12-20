@@ -9,7 +9,7 @@
         <param name="sequence">meetme_seq</param>
       </generator>
     </id>
-    <many-to-one name="service" class="org.sipfoundry.sipxconfig.service.LocationSpecificService"
+    <many-to-one name="location" class="org.sipfoundry.sipxconfig.commserver.Location"
                  column="location_specific_service_id" />
 
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
@@ -56,11 +56,11 @@
   </query>
 
   <query name="bridgeForLocationId">
-    <![CDATA[from Bridge bridge where bridge.service.location.id = :locationId]]>
+    <![CDATA[from Bridge bridge where bridge.location.id = :locationId]]>
   </query>
 
   <query name="bridgeByHost">
-    <![CDATA[from Bridge bridge where bridge.service.location.fqdn = :value]]>
+    <![CDATA[from Bridge bridge where bridge.location.fqdn = :value]]>
   </query>
 
   <query name="searchConferences">

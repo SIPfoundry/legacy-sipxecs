@@ -3,7 +3,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.admin.localization;
+package org.sipfoundry.sipxconfig.localization;
 
 import java.util.Arrays;
 import java.util.List;

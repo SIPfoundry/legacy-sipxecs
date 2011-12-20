@@ -8,7 +8,7 @@ package org.sipfoundry.sipxconfig.phone;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
+import org.sipfoundry.sipxconfig.intercom.IntercomManager;
 
 public class PhoneContextImplTest extends TestCase {
     private PhoneContextImpl m_impl;

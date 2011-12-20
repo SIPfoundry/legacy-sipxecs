@@ -24,7 +24,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
-public abstract class SipxReplicationContextImpl implements ApplicationEventPublisherAware, SipxReplicationContext {
+public class SipxReplicationContextImpl implements ApplicationEventPublisherAware, SipxReplicationContext {
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
     private ApplicationEventPublisher m_applicationEventPublisher;
     private ReplicationManager m_replicationManager;
@@ -113,6 +113,11 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     @Override
     public void publishEvent(ApplicationEvent event) {
         m_applicationEventPublisher.publishEvent(event);
+    }
+
+    @Override
+    public void replicateWork(Replicable entity) {
+        throw new RuntimeException("No clear what should happen here --Douglas");
     }
 
 }

@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
+package org.sipfoundry.sipxconfig.dialplan.attendant;
 
 import java.sql.Timestamp;
 import java.util.Date;

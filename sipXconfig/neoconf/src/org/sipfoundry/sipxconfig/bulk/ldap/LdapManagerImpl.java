@@ -211,7 +211,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         LdapConnectionParams connectionParams = getConnectionParams();
         connectionParams.setSchedule(schedule);
         getHibernateTemplate().update(connectionParams);
-
+        getDaoEventPublisher().publishSave(connectionParams);
         m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule, this));
     }
 
@@ -222,6 +222,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         }
         AttrMap attrMap = (AttrMap) m_applicationContext.getBean("attrMap", AttrMap.class);
         getHibernateTemplate().save(attrMap);
+        getDaoEventPublisher().publishSave(attrMap);
         return attrMap;
     }
 
@@ -256,6 +257,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
     public void setConnectionParams(LdapConnectionParams params) {
         getHibernateTemplate().saveOrUpdate(params);
+        getDaoEventPublisher().publishSave(params);
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) {

@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -26,10 +26,10 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.filter.IncludeTableFilter;
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.dialplan.attendant.Holiday;
+import org.sipfoundry.sipxconfig.dialplan.attendant.ScheduledAttendant;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;

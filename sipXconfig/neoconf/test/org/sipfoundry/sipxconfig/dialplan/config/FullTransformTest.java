@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.config;
+package org.sipfoundry.sipxconfig.dialplan.config;
 
 import java.util.List;
 

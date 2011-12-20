@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.forwarding;
+package org.sipfoundry.sipxconfig.forwarding;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,8 +15,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.callgroup.AbstractRing;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**

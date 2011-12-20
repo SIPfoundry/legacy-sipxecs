@@ -13,8 +13,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.dbunit.dataset.ITable;
-import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings.AuthenticationOptions;
+import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.test.TestHelper.TestCaseDb;
 import org.springframework.context.ApplicationContext;

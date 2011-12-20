@@ -11,12 +11,13 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class CdrSettings extends BeanWithSettings {
+
     public int getAgentPort() {
         return (Integer) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_AGENT_PORT");
     }
 
-    public String getDbName() {
-        return getSettingValue("callresolver/CALLRESOLVER_CALL_STATE_DB");
+    public int getPostresPort() {
+        return 5433; // not configurable
     }
 
     @Override

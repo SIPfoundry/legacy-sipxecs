@@ -31,22 +31,44 @@
       </option>
     </enum>
   </type>
+  <type id="nonRootPort">
+    <integer min="1025" max="65535" required="yes"/>
+  </type>
   <group name="status-config">
+    <setting name="SIP_STATUS_TCP_PORT" advanced="yes">
+      <type refid="nonRootPort"/>
+      <value>5110</value>
+    </setting>
+    <setting name="SIP_STATUS_UDP_PORT" advanced="yes">
+      <type refid="nonRootPort"/>
+      <value>5110</value>
+    </setting>
+    <setting name="SIP_STATUS_HTTP_PORT" advanced="yes">
+      <type refid="nonRootPort"/>
+      <value>8100</value>
+    </setting>
+    <setting name="SIP_STATUS_HTTPS_PORT" advanced="yes">
+      <type refid="nonRootPort"/>
+      <value>8101</value>
+    </setting>
     <setting name="SIP_STATUS_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="SIP_STATUS_HTTP_PORT" hidden="yes">
-      <type>
-        <string />
-      </type>
-      <value>8100</value>
+    <setting name="SIP_STATUS_AUTHENTICATE_ALGORITHM" hidden="yes">
+      <type><string/></type>
     </setting>
-    <setting name="SIP_STATUS_SIP_PORT" hidden="yes">
-      <type>
-        <string />
-      </type>
-      <value>5110</value>
+    <setting name="SIP_STATUS_AUTHENTICATE_QOP" hidden="yes">
+      <type><string/></type>
+    </setting>
+    <setting name="SIP_STATUS_MAX_EXPIRES" advanced="yes">
+      <type><integer/></type>
+    </setting>
+    <setting name="SIP_STATUS_MIN_EXPIRES" advanced="yes">
+      <type><integer/></type>
+    </setting>
+    <setting name="SIP_STATUS_LOG_CONSOLE" hidden="yes">
+      <type><string/></type>
     </setting>
   </group>
 </model>

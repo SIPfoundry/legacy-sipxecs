@@ -11,14 +11,12 @@ package org.sipfoundry.sipxconfig.speeddial;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -26,7 +24,6 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements SpeedDialManager {
     private CoreContext m_coreContext;
-    private DaoEventPublisher m_daoEventPublisher;
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -135,9 +132,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     @Override
     public void deleteSpeedDialsForGroup(int groupId) {
         List<SpeedDialGroup> groups = findSpeedDialForGroupId(groupId);
-        for (SpeedDialGroup group : groups) {
-            m_daoEventPublisher.publishDelete(group);
-        }
+        getDaoEventPublisher().publishDeleteCollection(groups);
         getHibernateTemplate().deleteAll(groups);
     }
 
@@ -145,9 +140,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     public void deleteSpeedDialsForUser(int userId) {
         List<SpeedDial> speedDials = findSpeedDialForUserId(userId);
         if (!speedDials.isEmpty()) {
-            for (SpeedDial sd : speedDials) {
-                m_daoEventPublisher.publishDelete(sd);
-            }
+            getDaoEventPublisher().publishDeleteCollection(speedDials);
             getHibernateTemplate().deleteAll(speedDials);
             getHibernateTemplate().flush();
         }
@@ -169,12 +162,6 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     @Override
     public void clear() {
-        Collection c = getHibernateTemplate().loadAll(SpeedDial.class);
-        getHibernateTemplate().deleteAll(c);
-    }
-
-    @Required
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
+        removeAll(SpeedDial.class);
     }
 }

@@ -20,10 +20,17 @@
     </property>
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
-    <property name="settingsDao" ref="beanWithSettingsDao" />    
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.cdr.CdrSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
-  <!-- We probably do not need to proxy this -->
   <alias alias="cdrManager" name="cdrManagerImpl" />
   
   <bean id="cdrSettings" class="org.sipfoundry.sipxconfig.cdr.CdrSettings" scope="prototype">

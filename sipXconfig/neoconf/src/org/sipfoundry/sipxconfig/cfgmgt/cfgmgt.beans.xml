@@ -4,11 +4,13 @@
   xsi:schemaLocation=
   "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
   
-  <bean id="configManager" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigManager">
+  <bean id="configManagerImpl" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigManagerImpl">
     <property name="locationManager" ref="locationsManager" />
     <property name="domainManager" ref="domainManager" />
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
   </bean>
+  
+  <alias alias="configManager" name="configManagerImpl"/>
     
 </beans>

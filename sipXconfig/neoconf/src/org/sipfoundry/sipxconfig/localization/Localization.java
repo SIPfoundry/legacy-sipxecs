@@ -9,12 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.localization;
 
+
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 public class Localization extends BeanWithId implements DeployConfigOnEdit {
@@ -53,6 +55,6 @@ public class Localization extends BeanWithId implements DeployConfigOnEdit {
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) LocalizationContext.FEATURE);
+        return Arrays.asList((Feature) LocalizationContext.FEATURE, (Feature) DialPlanContext.FEATURE);
     }
 }

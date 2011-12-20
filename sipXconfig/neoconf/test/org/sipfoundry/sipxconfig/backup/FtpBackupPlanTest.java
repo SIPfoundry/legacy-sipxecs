@@ -9,23 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
-import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
-import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
-import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
-import org.sipfoundry.sipxconfig.backup.BackupBean;
-import org.sipfoundry.sipxconfig.backup.BackupPlan;
-import org.sipfoundry.sipxconfig.backup.FtpBackupPlan;
-
 import static org.apache.commons.lang.ArrayUtils.EMPTY_STRING_ARRAY;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.backup.BackupBean.Type;
+import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.ftp.FtpContext;
 
 public class FtpBackupPlanTest extends TestCase {
 

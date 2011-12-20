@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-  <bean id="callGroupContextImpl" class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="callGroupContextImpl" class="org.sipfoundry.sipxconfig.callgroup.CallGroupContextImpl" parent="abstractDaoImpl">
     <property name="coreContext" ref="coreContextImpl" />
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="aliasManager" ref="aliasManager" />
@@ -13,13 +12,13 @@
 
   <bean id="callGroupContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
     depends-on="callGroupContextUserDelete">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext" />
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.callgroup.CallGroupContext" />
     <property name="target">
       <ref local="callGroupContextImpl" />
     </property>
   </bean>
 
-  <bean id="callGroupSipPasswordInit" class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupSipPasswordInit">
+  <bean id="callGroupSipPasswordInit" class="org.sipfoundry.sipxconfig.callgroup.CallGroupSipPasswordInit">
     <property name="callGroupContext" ref="callGroupContext" />
     <property name="taskNames">
       <list>

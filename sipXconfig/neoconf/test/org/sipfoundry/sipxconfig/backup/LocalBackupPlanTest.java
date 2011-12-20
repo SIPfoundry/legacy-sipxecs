@@ -16,10 +16,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
-import org.sipfoundry.sipxconfig.backup.BackupBean;
-import org.sipfoundry.sipxconfig.backup.BackupPlan;
-import org.sipfoundry.sipxconfig.backup.LocalBackupPlan;
+import org.sipfoundry.sipxconfig.backup.BackupBean.Type;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class LocalBackupPlanTest extends TestCase {

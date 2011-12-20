@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.parkorbit;
+package org.sipfoundry.sipxconfig.parkorbit;
 
 import java.util.Arrays;
 import java.util.Collection;

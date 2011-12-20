@@ -9,6 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.addAll;
+import static org.apache.commons.collections.CollectionUtils.filter;
+import static org.apache.commons.collections.CollectionUtils.find;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections.CollectionUtils.select;
+import static org.apache.commons.lang.StringUtils.join;
+import static org.sipfoundry.sipxconfig.common.DaoUtils.checkDuplicates;
+import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
+import static org.sipfoundry.sipxconfig.common.DaoUtils.requireOneOrZero;
+import static org.springframework.dao.support.DataAccessUtils.singleResult;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,11 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.addAll;
-
-import com.glaforge.i18n.io.CharsetToolkit;
 
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
@@ -75,15 +82,7 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.apache.commons.collections.CollectionUtils.filter;
-import static org.apache.commons.collections.CollectionUtils.find;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
-import static org.apache.commons.collections.CollectionUtils.select;
-import static org.apache.commons.lang.StringUtils.join;
-import static org.sipfoundry.sipxconfig.common.DaoUtils.checkDuplicates;
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
-import static org.sipfoundry.sipxconfig.common.DaoUtils.requireOneOrZero;
-import static org.springframework.dao.support.DataAccessUtils.singleResult;
+import com.glaforge.i18n.io.CharsetToolkit;
 
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager,
         DaoEventListener {
@@ -101,7 +100,6 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     private BulkParser m_csvParser;
     private BulkParser m_vcardParser;
-    private VcardWriter m_vcardWriter;
     private String m_vcardEncoding;
     private GeneralPhonebookSettings m_generalPhonebookSettings;
 
@@ -130,7 +128,9 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public void deletePhonebooks(Collection<Integer> ids) {
         for (Integer id : ids) {
-            deletePhonebook(getPhonebook(id));
+            Phonebook phonebook = getPhonebook(id);
+            getDaoEventPublisher().publishDelete(phonebook);
+            deletePhonebook(phonebook);
         }
     }
 
@@ -153,6 +153,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public void updatePhonebookEntry(PhonebookEntry entry) {
         getHibernateTemplate().merge(entry);
+        getDaoEventPublisher().publishSave(entry);
     }
 
     public void deletePhonebookEntry(PhonebookEntry entry) {
@@ -771,10 +772,6 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public void setPhonebookManagementEnabled(boolean phonebookManagementEnabled) {
         m_phonebookManagementEnabled = phonebookManagementEnabled;
-    }
-
-    public void setVcardWriter(VcardWriter vcardWriter) {
-        m_vcardWriter = vcardWriter;
     }
 
     public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out, PhonebookFormat format)

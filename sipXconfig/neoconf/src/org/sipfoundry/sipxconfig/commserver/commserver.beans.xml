@@ -7,17 +7,7 @@
 	<property name="fqdn" value="localhost"/>
   </bean>
 
-  <bean id="locationsManagerImpl"
-    class="org.sipfoundry.sipxconfig.commserver.LocationsManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="daoEventPublisher" ref="daoEventPublisher" />
-    <lookup-method name="getNatTraversalManager" bean="natTraversalManager" />
-    <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
-    <lookup-method name="getReplicationManager" bean="replicationManagerImpl" />
-    <lookup-method name="getSipxServiceManager" bean="sipxServiceManagerImpl" />
-    <lookup-method name="getDomainConfiguration" bean="domainConfiguration" />
-    <lookup-method name="getAcdHistoricalConfiguration" bean="acdHistoricalConfiguration" />
-    <lookup-method name="getDialPlanConfigGenerator" bean="dialPlanConfigGenerator" />
+  <bean id="locationsManagerImpl" class="org.sipfoundry.sipxconfig.commserver.LocationsManagerImpl" parent="abstractDaoImpl">
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -29,17 +19,16 @@
     </property>
   </bean>
   
-  <bean id="beanWithLocationDaoImpl" class="org.sipfoundry.sipxconfig.commserver.BeanWithLocationDaoImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
+  <bean id="beanWithLocationDaoImpl" class="org.sipfoundry.sipxconfig.commserver.BeanWithLocationDaoImpl" abstract="true" parent="abstractDaoImpl">
   </bean>
   
   <bean id="beanWithLocationDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.commserver.BeanWithLocationDao</value>
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.BeanWithLocationDao"/>
+    <!-- 
     <property name="target">
       <ref local="beanWithLocationDaoImpl" />
     </property>
+    -->
   </bean>
 
   <bean id="fileApiProvider"
@@ -63,7 +52,6 @@
     <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="jobContext" ref="jobContext" />
-    <lookup-method name="getServiceConfigurator" bean="serviceConfigurator"/>
   </bean>
 
   <bean id="sipxReplicationContextDao"
@@ -98,13 +86,7 @@
     <property name="timeout" value="10000" />
   </bean>
 
-  <bean id="registrationContext"
-    class="org.sipfoundry.sipxconfig.commserver.RegistrationContextImpl">
-    <property name="nodedb" ref="nodeDb"/>
-  </bean>
-
-  <bean id="initialConfig"
-    class="org.sipfoundry.sipxconfig.commserver.InitialConfig">
+  <bean id="initialConfig" class="org.sipfoundry.sipxconfig.commserver.InitialConfig">
     <property name="tmpDirectory" value="${sysdir.tmp}"/>
     <property name="binDirectory" value="${sysdir.libexec}"/>
   </bean>

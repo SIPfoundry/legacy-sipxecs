@@ -300,6 +300,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 affectDefaultAgentGroup = true;
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(groups);
         getHibernateTemplate().deleteAll(groups);
         m_provisioningContext.deleteObjects(agents);
         m_provisioningContext.deleteObjects(groups);
@@ -365,8 +366,10 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
             agents.add(agent);
             OpenAcdAgentGroup group = agent.getGroup();
             group.removeAgent(agent);
+            getDaoEventPublisher().publishSave(group);
             getHibernateTemplate().save(group);
         }
+        getDaoEventPublisher().publishDeleteCollection(agents);
         m_provisioningContext.deleteObjects(agents);
     }
 
@@ -457,6 +460,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 groups.add(group);
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(groups);
         getHibernateTemplate().deleteAll(groups);
         if (!skills.isEmpty()) {
             m_provisioningContext.deleteObjects(skills);
@@ -549,6 +553,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 skills.add(skill);
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(skills);
         getHibernateTemplate().deleteAll(skills);
         m_provisioningContext.deleteObjects(skills);
 
@@ -691,6 +696,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 clients.add(client);
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(clients);
         getHibernateTemplate().deleteAll(clients);
         m_provisioningContext.deleteObjects(clients);
 
@@ -908,6 +914,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 groups.add(group);
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(queues);
         getHibernateTemplate().deleteAll(queues);
         m_provisioningContext.deleteObjects(queues);
 
@@ -971,5 +978,9 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<OpenAcdSettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 }

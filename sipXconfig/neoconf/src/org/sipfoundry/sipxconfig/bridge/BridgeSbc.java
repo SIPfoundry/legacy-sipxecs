@@ -45,8 +45,6 @@ public class BridgeSbc extends SbcDevice {
 
     private GatewayContext m_gatewayContext;
     private LocationsManager m_locationsManager;
-    private String m_profileName;
-    private String m_profileDirectory;
     private Location m_location;
     private ProxyManager m_proxyManager;
     private ConfigManager m_configManager;
@@ -59,16 +57,6 @@ public class BridgeSbc extends SbcDevice {
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
-    }
-
-    @Required
-    public void setProfileName(String profileName) {
-        m_profileName = profileName;
-    }
-
-    @Required
-    public void setProfileDirectory(String profileDirectory) {
-        m_profileDirectory = profileDirectory;
     }
 
     public void setLocation(Location location) {
@@ -272,5 +260,13 @@ public class BridgeSbc extends SbcDevice {
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) SbcManager.FEATURE, (Feature) BridgeSbcContext.FEATURE);
+    }
+
+    public void setProxyManager(ProxyManager proxyManager) {
+        m_proxyManager = proxyManager;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

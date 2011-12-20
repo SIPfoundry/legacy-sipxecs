@@ -64,35 +64,47 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
             return;
         }
 
-        OpenAcdSettings settings = m_openAcdContext.getSettings();
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(OpenAcdContext.FEATURE);
+        if (locations.isEmpty()) {
+            return;
+        }
+
+        OpenAcdSettings settings = m_openAcdContext.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             Writer vmArgs = new FileWriter(new File(dir, "vm.args"));
             try {
-                VelocityContext context = new VelocityContext();
-                context.put("fqdn", location.getFqdn());
-                try {
-                    m_velocityEngine.mergeTemplate("sipxopenacd/vm.args.vm", context, vmArgs);
-                } catch (Exception e) {
-                    throw new IOException(e);
-                }
+                writeVmArgs(vmArgs, location);
             } finally {
                 IOUtils.closeQuietly(vmArgs);
             }
 
             Writer app = new FileWriter(new File(dir, "app.config"));
             try {
-                VelocityContext context = new VelocityContext();
-                context.put("log_level", settings.getLogLevel());
-                try {
-                    m_velocityEngine.mergeTemplate("sipxopenacd/app.config.vm", context, app);
-                } catch (Exception e) {
-                    throw new IOException(e);
-                }
+                writeAppConfig(app, settings);
             } finally {
                 IOUtils.closeQuietly(app);
             }
+        }
+    }
+
+    void writeVmArgs(Writer wtr, Location location) throws IOException {
+        VelocityContext context = new VelocityContext();
+        context.put("fqdn", location.getFqdn());
+        try {
+            m_velocityEngine.mergeTemplate("openacd/vm.args.vm", context, wtr);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
+    void writeAppConfig(Writer wtr, OpenAcdSettings settings) throws IOException {
+        VelocityContext context = new VelocityContext();
+        context.put("log_level", settings.getLogLevel());
+        try {
+            m_velocityEngine.mergeTemplate("openacd/app.config.vm", context, wtr);
+        } catch (Exception e) {
+            throw new IOException(e);
         }
     }
 

@@ -7,8 +7,8 @@ package org.sipfoundry.sipxconfig.gateway;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport;
+import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 

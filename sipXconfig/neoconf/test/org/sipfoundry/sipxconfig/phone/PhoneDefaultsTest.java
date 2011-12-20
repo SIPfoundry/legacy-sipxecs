@@ -12,8 +12,8 @@ package org.sipfoundry.sipxconfig.phone;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 
 public class PhoneDefaultsTest extends TestCase {

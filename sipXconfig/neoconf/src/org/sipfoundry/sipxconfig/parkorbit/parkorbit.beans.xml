@@ -3,35 +3,36 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="parkConfig" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ParkOrbitConfiguration">
+  <bean id="parkConfig" class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitConfiguration">
     <property name="parkOrbitContext" ref="parkOrbitContext" />
-  </bean>
-
-  <bean id="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit"
-    class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit" scope="prototype" parent="beanWithSettings">
-  </bean>
-
-  <bean id="parkOrbitContextImpl" class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContextImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="aliasManager" ref="aliasManager" />
-    <property name="settingDao" ref="settingDao" />
     <property name="configManager" ref="configManager" />    
   </bean>
 
-  <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext" />
-    <property name="target">
-      <ref local="parkOrbitContextImpl" />
+  <bean id="org.sipfoundry.sipxconfig.parkorbit.ParkOrbit"
+    class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbit" scope="prototype" parent="beanWithSettings">
+  </bean>
+  
+  <bean id="parkSettings" class="org.sipfoundry.sipxconfig.parkorbit.ParkSettings">
+  </bean>
+
+  <bean id="parkOrbitContextImpl" class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContextImpl" parent="abstractDaoImpl">
+    <property name="aliasManager" ref="aliasManager" />
+    <property name="settingsDao" ref="settingDao"/>
+    <property name="beanWithSettingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.parkorbit.ParkSettings"/>
+          </bean>
+        </property>
+      </bean>
     </property>
   </bean>
 
-  <bean id="parkOrbitMigrationTask" class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitMigrationTask">
-    <property name="orbitsGenerator" ref="orbitsGenerator" />
-    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
-    <property name="taskNames">
-      <list>
-        <value>legacy_park_server_migration</value>
-      </list>
+  <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext" />
+    <property name="target">
+      <ref local="parkOrbitContextImpl" />
     </property>
   </bean>
 </beans>

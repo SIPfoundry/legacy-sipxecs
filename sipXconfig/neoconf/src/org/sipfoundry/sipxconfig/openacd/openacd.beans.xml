@@ -12,13 +12,21 @@
   <bean id="freeswitchMediaCommand" class="org.sipfoundry.sipxconfig.openacd.FreeswitchMediaCommand" scope="prototype">
   </bean>
 
-  <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl">
+  <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl" parent="abstractDaoImpl">
     <lookup-method name="newOpenAcdLine" bean="openAcdLine"/>
     <lookup-method name="newOpenAcdCommand" bean="openAcdCommand"/>
-    <property name="sessionFactory" ref="sessionFactory" />
     <property name="aliasManager" ref="aliasManager" />
     <property name="provisioningContext" ref="openAcdProvisioningContext" />
     <property name="featureManager" ref="featureManager" />
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.openacd.OpenAcdSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
   
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -63,13 +71,13 @@
     </property>
   </bean>
   
-  <bean id="openAcdConfig" class="org.sipfoundry.sipxconfig.openfire.OpenAcdConfiguration">
+  <bean id="openAcdConfig" class="org.sipfoundry.sipxconfig.openacd.OpenAcdConfiguration">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="openAcdContext" ref="openAcdContext" />
     <property name="provisioningContext" ref="openAcdProvisioningContext" />
   </bean>
   
-  <bean id="openAcdSettings" class="org.sipfoundry.sipxconfig.openfire.OpenAcdSettings" scope="prototype">
+  <bean id="openAcdSettings" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSettings" scope="prototype">
     <property name="domainManager" ref="domainManager"/>
   </bean>
   

@@ -7,21 +7,24 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.alarm;
+package org.sipfoundry.sipxconfig.alarm;
+
+import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
+import org.junit.Test;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
-public class AlarmConfigurationTest extends TestCase {
+public class AlarmConfigurationTest {
+    
+    @Test
     public void testGenerateAlarms() throws Exception {
         AlarmConfiguration alarmConf = new AlarmConfiguration();
         alarmConf.setVelocityEngine(TestHelper.getVelocityEngine(TestHelper.getSystemEtcDir()));
-        alarmConf.setTemplate("alarms/sipXalarms-config.vm");
 
         Alarm alarm1 = new Alarm();
         alarm1.setAlarmId("LOGIN_FAILED");
@@ -37,12 +40,11 @@ public class AlarmConfigurationTest extends TestCase {
         alarm2.setSeverity("crit");
         alarm2.setComponent("sipXsupervisor");
         alarm2.setGroupName("disabled");
+        
+        StringWriter actual = new StringWriter(); 
+        alarmConf.writeAlarmsXml(actual, Arrays.asList(alarm1, alarm2));
 
-        alarmConf.generate(Arrays.asList(alarm1, alarm2));
-
-        String generatedXml = AbstractConfigurationFile.getFileContent(alarmConf, null);
-
-        InputStream referenceXmlStream = getClass().getResourceAsStream("alarms-config-test.xml");
-        assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
+        InputStream expected = getClass().getResourceAsStream("alarms-config-test.xml");
+        assertEquals(IOUtils.toString(expected), actual.toString());
     }
 }

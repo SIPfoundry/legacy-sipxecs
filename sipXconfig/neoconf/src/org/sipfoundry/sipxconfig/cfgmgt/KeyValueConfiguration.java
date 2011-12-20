@@ -9,6 +9,8 @@ package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
@@ -21,15 +23,22 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class KeyValueConfiguration {
     private IOException m_error;
     private Writer m_out;
-    private String m_delimitor = " : ";
+    private String m_delimitor;
 
     public KeyValueConfiguration(Writer w) {
-        this(w, null);
+        this(w, " : ");
     }
 
     public KeyValueConfiguration(Writer w, String delimitor) {
         m_out = w;
         m_delimitor = delimitor;
+    }
+
+    public void write(Collection<Setting> settings) throws IOException {
+        Iterator<Setting> i = settings.iterator();
+        while (i.hasNext()) {
+            write(i.next());
+        }
     }
 
     public void write(Setting settings) throws IOException {
@@ -49,7 +58,7 @@ public class KeyValueConfiguration {
     public void write(String key, Object value) throws IOException {
         m_out.write(key);
         m_out.write(m_delimitor);
-        m_out.append(String.valueOf(value));
+        m_out.append(value == null ? "" :  String.valueOf(value));
         m_out.append('\n');
     }
 

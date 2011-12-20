@@ -15,11 +15,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.dialplan.IntercomRule;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.dialplan.IntercomRule;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -31,8 +30,6 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
     public static final String CONTEXT_BEAN_NAME = "intercomManagerImpl";
 
     private BeanFactory m_beanFactory;
-
-    private DialPlanActivationManager m_dialPlanActivationManager;
 
     public Intercom newIntercom() {
         return (Intercom) m_beanFactory.getBean(Intercom.class.getName());
@@ -57,7 +54,6 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
 
     public void saveIntercom(Intercom intercom) {
         getHibernateTemplate().saveOrUpdate(intercom);
-        m_dialPlanActivationManager.replicateDialPlan(true);
     }
 
     public List<Intercom> loadIntercoms() {
@@ -69,7 +65,8 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
      */
     public void clear() {
         HibernateTemplate template = getHibernateTemplate();
-        Collection intercoms = template.loadAll(Intercom.class);
+        Collection<Intercom> intercoms = template.loadAll(Intercom.class);
+        getDaoEventPublisher().publishDeleteCollection(intercoms);
         template.deleteAll(intercoms);
     }
 
@@ -103,9 +100,4 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
-
-    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
-        m_dialPlanActivationManager = dialPlanActivationManager;
-    }
-
 }

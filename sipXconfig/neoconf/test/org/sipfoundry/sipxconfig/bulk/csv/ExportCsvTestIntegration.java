@@ -14,7 +14,6 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.bulk.ExportCsv;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;

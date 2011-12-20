@@ -7,7 +7,13 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -16,27 +22,22 @@ import java.util.List;
 import java.util.TimeZone;
 
 import junit.framework.JUnit4TestAdapter;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.admin.ScheduledDay;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
-import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
-import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
+import org.sipfoundry.sipxconfig.common.ScheduledDay;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.dialplan.config.FullTransform;
+import org.sipfoundry.sipxconfig.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.forwarding.GeneralSchedule;
+import org.sipfoundry.sipxconfig.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * CustomDialingRuleTest

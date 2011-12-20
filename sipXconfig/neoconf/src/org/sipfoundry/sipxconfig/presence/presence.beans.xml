@@ -5,7 +5,15 @@
   <bean id="presenceServer" class="org.sipfoundry.sipxconfig.presence.PresenceServer">
     <property name="coreContext" ref="coreContext"/>
     <property name="featureManager" ref="featureManager" />
-    <property name="settingsDao" ref="beanWithSettingsDao" />
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.presence.PresenceSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
     <property name="addressManager" ref="addressManager" />
   </bean>
 

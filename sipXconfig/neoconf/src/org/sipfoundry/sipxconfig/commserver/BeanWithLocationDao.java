@@ -17,5 +17,5 @@ public interface BeanWithLocationDao<T extends BeanWithLocation> {
 
     public T findOne(Location location);
 
-    public void upsert(T bean);
+    public void saveOrUpdate(T bean);
 }

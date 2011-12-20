@@ -7,10 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -29,24 +29,34 @@ public class CdrConfiguration implements ConfigProvider {
             return;
         }
 
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(ProxyManager.FEATURE);
-        CdrSettings settings = m_cdrManager.getSettings();
-        StringBuilder cseHosts = new StringBuilder();
-        for (int i = 0; i < locations.size(); i++) {
-            if (i > 0) {
-                cseHosts.append(',');
-            }
-            cseHosts.append(locations.get(i).getAddress()).append(':').append(settings.getAgentPort());
+        List<Location> proxyLocations = manager.getFeatureManager().getLocationsForEnabledFeature(ProxyManager.FEATURE);
+        if (proxyLocations.isEmpty()) {
+            return;
         }
 
-        for (Location location : locations) {
+        CdrSettings settings = m_cdrManager.getSettings();
+        for (Location location : proxyLocations) {
             File dir = manager.getLocationDataDirectory(location);
             FileWriter wtr = new FileWriter(new File(dir, "callresolver-config"));
-            KeyValueConfiguration config = new KeyValueConfiguration(wtr);
-            config.write(settings.getSettings());
-            // legacy, not sure if it should be just ip or home interface
-            config.write("SIP_CALLRESOLVER_AGENT_ADDR", "0.0.0.0");
-            config.write("SIP_CALLRESOLVER_CSE_HOSTS", cseHosts.toString());
+            write(wtr, proxyLocations, settings);
         }
+    }
+
+    static String cseHosts(List<Location> locations, int port) {
+        StringBuilder cseHosts = new StringBuilder("localhost");
+        for (int i = 0; i < locations.size(); i++) {
+            cseHosts.append(", ");
+            cseHosts.append(locations.get(i).getFqdn()).append(':').append(port);
+        }
+        return cseHosts.toString();
+    }
+
+    void write(Writer wtr, List<Location> proxyLocations, CdrSettings settings) throws IOException {
+        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        config.write(settings.getSettings());
+        // legacy, not sure if it should be just ip or home interface
+        config.write("SIP_CALLRESOLVER_AGENT_ADDR", "0.0.0.0");
+        String cseHosts = cseHosts(proxyLocations, settings.getPostresPort());
+        config.write("SIP_CALLRESOLVER_CSE_HOSTS", cseHosts);
     }
 }

@@ -17,9 +17,11 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class TimeZoneManagerImpl extends SipxHibernateDaoSupport implements TimeZoneManager {
+
     public void setDeviceTimeZone(DeviceTimeZone dtz) {
         HibernateTemplate hibernate = getHibernateTemplate();
         hibernate.saveOrUpdate(dtz);
+        getDaoEventPublisher().publishSave(dtz);
     }
 
     public DeviceTimeZone getDeviceTimeZone() {

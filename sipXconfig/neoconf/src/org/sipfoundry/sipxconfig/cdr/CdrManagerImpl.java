@@ -522,14 +522,16 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Object requester) {
-        if (type.equals(CDR_API)) {
-            Location location = m_featureManager.getLocationForEnabledFeature(FEATURE);
-            if (location != null) {
-                CdrSettings settings = getSettings();
-                return Collections.singleton(new Address(location.getAddress(), settings.getAgentPort()));
-            }
+        if (!type.equals(CDR_API)) {
+            return null;
         }
-        return null;
+        Location location = m_featureManager.getLocationForEnabledFeature(FEATURE);
+        if (location == null) {
+            return null;
+        }
+
+        CdrSettings settings = getSettings();
+        return Collections.singleton(new Address(location.getAddress(), settings.getAgentPort()));
     }
 
     public void setAddressManager(AddressManager addressManager) {

@@ -5,9 +5,11 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
+package org.sipfoundry.sipxconfig.dialplan.sbc;
 
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.sbc.SbcRoutes;
 
 public class SbcRoutesTest extends TestCase {
 

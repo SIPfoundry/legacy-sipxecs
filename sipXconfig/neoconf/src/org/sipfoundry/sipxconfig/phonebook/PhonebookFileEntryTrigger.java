@@ -18,7 +18,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.common.InitTaskListener;
+import org.sipfoundry.sipxconfig.admin.InitTaskListener;
 
 public class PhonebookFileEntryTrigger extends InitTaskListener {
     private static final Log LOG = LogFactory.getLog(PhonebookFileEntryTrigger.class);

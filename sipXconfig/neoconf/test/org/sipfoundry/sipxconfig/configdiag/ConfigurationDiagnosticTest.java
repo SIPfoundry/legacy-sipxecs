@@ -3,13 +3,13 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.admin.configdiag;
+package org.sipfoundry.sipxconfig.configdiag;
 
 import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticResult.Status;
+import org.sipfoundry.sipxconfig.configdiag.ConfigurationDiagnosticResult.Status;
 
 public class ConfigurationDiagnosticTest extends TestCase {
 

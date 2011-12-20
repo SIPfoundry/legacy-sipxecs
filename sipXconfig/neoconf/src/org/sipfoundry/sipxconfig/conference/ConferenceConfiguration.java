@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.springframework.beans.factory.annotation.Required;
@@ -49,23 +50,9 @@ public class ConferenceConfiguration implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(location);
             Writer wtr = new FileWriter(new File(dir, "conference.conf.xml"));
             try {
-                VelocityContext context = new VelocityContext();
-                context.put("domain", m_domainManager.getDomain());
-                // FieldMethodizer is used to allow for easy access to static fields (string constants)
-                context.put("Bridge", new FieldMethodizer(Bridge.class.getName()));
-                context.put("Conference", new FieldMethodizer(Conference.class.getName()));
-                context.put("mohLocalStreamUrl", m_mohLocalStreamUrl);
-                context.put("portAudioUrl", m_portAudioUrl);
-
                 String fqdn = location.getFqdn();
                 Bridge bridge = m_conferenceBridgeContext.getBridgeByServer(fqdn);
-                context.put("bridge", bridge);
-                if (bridge != null) {
-                    Set<Conference> conferences = bridge.getConferences();
-
-                    context.put("conferences", conferences);
-                }
-                m_velocityEngine.mergeTemplate("sipxconference/conference.conf.xml.vm", context, wtr);
+                writeXml(wtr, location, m_domainManager.getDomain(), bridge);
             } catch (Exception e) {
                 throw new IOException(e);
             } finally {
@@ -79,6 +66,28 @@ public class ConferenceConfiguration implements ConfigProvider {
             } finally {
                 IOUtils.closeQuietly(xml);
             }
+        }
+    }
+
+    void writeXml(Writer wtr, Location location, Domain domain, Bridge bridge) throws IOException {
+        VelocityContext context = new VelocityContext();
+        context.put("domain", domain);
+        // FieldMethodizer is used to allow for easy access to static fields (string constants)
+        context.put("Bridge", new FieldMethodizer(Bridge.class.getName()));
+        context.put("Conference", new FieldMethodizer(Conference.class.getName()));
+        context.put("mohLocalStreamUrl", m_mohLocalStreamUrl);
+        context.put("portAudioUrl", m_portAudioUrl);
+
+        context.put("bridge", bridge);
+        if (bridge != null) {
+            Set<Conference> conferences = bridge.getConferences();
+
+            context.put("conferences", conferences);
+        }
+        try {
+            m_velocityEngine.mergeTemplate("sipxconference/conference.conf.xml.vm", context, wtr);
+        } catch (Exception e) {
+            throw new IOException(e);
         }
     }
 
@@ -100,5 +109,13 @@ public class ConferenceConfiguration implements ConfigProvider {
     @Required
     public void setPortAudioUrl(String portAudioUrl) {
         m_portAudioUrl = portAudioUrl;
+    }
+
+    public void setVelocityEngine(VelocityEngine velocityEngine) {
+        m_velocityEngine = velocityEngine;
+    }
+
+    public void setBridgeConfig(ConferenceBridgeConfig bridgeConfig) {
+        m_bridgeConfig = bridgeConfig;
     }
 }

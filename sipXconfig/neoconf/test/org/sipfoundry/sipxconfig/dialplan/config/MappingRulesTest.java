@@ -7,11 +7,16 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.config;
+package org.sipfoundry.sipxconfig.dialplan.config;
 
-import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,28 +32,27 @@ import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer;
-import org.sipfoundry.sipxconfig.admin.dialplan.FreeswitchMediaServerTest;
-import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer;
-import org.sipfoundry.sipxconfig.admin.dialplan.VoicemailRedirectRule;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendant;
+import org.sipfoundry.sipxconfig.dialplan.CallTag;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.dialplan.ExchangeMediaServer;
+import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.dialplan.MappingRule;
+import org.sipfoundry.sipxconfig.dialplan.MediaServer;
+import org.sipfoundry.sipxconfig.dialplan.VoicemailRedirectRule;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.moh.MohRule;
+import org.sipfoundry.sipxconfig.paging.PagingContext;
+import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.rls.RlsRule;
-import org.sipfoundry.sipxconfig.service.SipxPageService;
-import org.sipfoundry.sipxconfig.service.SipxParkService;
-import org.sipfoundry.sipxconfig.service.SipxRlsService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.test.XmlUnitHelper;
 
@@ -57,64 +61,35 @@ import org.sipfoundry.sipxconfig.test.XmlUnitHelper;
  */
 public class MappingRulesTest extends XMLTestCase {
     private static final String VOICEMAIL_SERVER = "https%3A%2F%2F192.168.1.1%3A443";
-
-    private final DomainManager m_domainManager;
-
-    // Object Under Test
-    private final MappingRules m_out;
+    private MappingRules m_out;
+    private AddressManager m_addressManager;
 
     public MappingRulesTest() {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
-
-        m_domainManager = TestHelper.getMockDomainManager();
-        EasyMock.replay(m_domainManager);
-
+    }    
+    
+    public void setUp() {
         m_out = new MappingRules();
-        m_out.setDomainManager(m_domainManager);
-
-        Location serviceLocation = new Location();
-        serviceLocation.setAddress("192.168.1.5");
-        List<Location> locations = new ArrayList<Location>();
-        locations.add(serviceLocation);
-        LocationsManager locationsManager = EasyMock.createNiceMock(LocationsManager.class);
-
-        SipxParkService parkService = new SipxParkService();
-        parkService.setBeanName(SipxParkService.BEAN_ID);
-        parkService.setParkServerSipPort("9905");
-        locationsManager.getLocationsForService(parkService);
-        EasyMock.expectLastCall().andReturn(locations).anyTimes();
-        parkService.setLocationsManager(locationsManager);
-
-        SipxRlsService rlsService = new SipxRlsService();
-        rlsService.setBeanName(SipxRlsService.BEAN_ID);
-        rlsService.setRlsPort("9906");
-        locationsManager.getLocationsForService(rlsService);
-        EasyMock.expectLastCall().andReturn(locations).anyTimes();
-        rlsService.setLocationsManager(locationsManager);
-
-        SipxPageService pageService = new SipxPageService() {
-            @Override
-            public String getSipPort() {
-                return "9910";
-            }
-        };
-        pageService.setBeanName(SipxPageService.BEAN_ID);
-        locationsManager.getLocationsForService(pageService);
-        EasyMock.expectLastCall().andReturn(locations).anyTimes();
-        pageService.setLocationsManager(locationsManager);
-
-        EasyMock.replay(locationsManager);
-
-        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, parkService, rlsService,
-                pageService);
-        m_out.setSipxServiceManager(sipxServiceManager);
+        m_out.setDomainName("example.org");
+        m_out.setLocation(TestHelper.createDefaultLocation());
+        
+        m_addressManager = createMock(AddressManager.class);
+        m_addressManager.getSingleAddress(Rls.TCP_SIP, DialPlanContext.FEATURE);
+        expectLastCall().andReturn(new Address("192.168.1.5", 9906)).anyTimes();
+        m_addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, DialPlanContext.FEATURE);
+        expectLastCall().andReturn(new Address("park.example.org", 100)).anyTimes();
+        m_addressManager.getSingleAddress(PagingContext.SIP_TCP, DialPlanContext.FEATURE);
+        expectLastCall().andReturn(new Address("page.example.org", 101)).anyTimes();
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address("192.168.1.1")).anyTimes();
+        replay(m_addressManager);
+        m_out.setAddressManager(m_addressManager);
     }
 
     public void testGetDocument() throws Exception {
         m_out.begin();
         m_out.end();
-        m_out.localizeDocument(TestHelper.createDefaultLocation());
         Document document = m_out.getDocument();
 
         String xml = TestHelper.asString(document);
@@ -147,7 +122,6 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.setExternalRulesFileName(resource.getFile());
         m_out.begin();
         m_out.end();
-        m_out.localizeDocument(TestHelper.createDefaultLocation());
         Document document = m_out.getDocument();
 
         String xml = TestHelper.asString(document);
@@ -167,7 +141,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.setExternalRulesFileName(resource.getFile() + " ");
         m_out.begin();
         m_out.end();
-        m_out.localizeDocument(TestHelper.createDefaultLocation());
+        m_out.setLocation(TestHelper.createDefaultLocation());
         Document document = m_out.getDocument();
 
         String xml = TestHelper.asString(document);
@@ -201,7 +175,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.begin();
         m_out.end();
         Element hostMatch = m_out.getFirstHostMatch();
-        Document document = m_out.getDocument();
+        Document document = m_out.getPreLocalizedDocument();
         assertSame(document, hostMatch.getDocument());
         XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
@@ -298,7 +272,8 @@ public class MappingRulesTest extends XMLTestCase {
         LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
 
         FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
-        FreeswitchMediaServerTest.configureMediaServer(mediaServer);
+        mediaServer.setAddressManager(m_addressManager);
+        //FreeswitchMediaServerTest.configureMediaServer(mediaServer);
 
         mediaServer.setLocalizationContext(lc);
         MediaServer exchangeMediaServer = new ExchangeMediaServer("exchange.example.com", "102");
@@ -322,28 +297,19 @@ public class MappingRulesTest extends XMLTestCase {
             m_out.generate(rule);
         }
         m_out.end();
-        m_out.localizeDocument(TestHelper.createDefaultLocation());
-
-        String generatedXml = getFileContent(m_out, null);
+        m_out.setLocation(TestHelper.createDefaultLocation());
+        String generatedXml = toString(m_out);
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("mappingrules-multiple-servers.test.xml");
 
         assertEquals(IOUtils.toString(referenceXmlStream, "UTF-8"), generatedXml);
         EasyMock.verify(lc);
     }
-
-    public void testEquals() throws Exception {
-        AbstractConfigurationFile f1 = new MappingRules();
-        f1.setName("mappingrules.xml");
-        AbstractConfigurationFile f2 = new MappingRules();
-        f2.setName("mappingrules.xml");
-        AbstractConfigurationFile f3 = new FallbackRules();
-        f3.setName("fallbackrules.xml");
-        assertEquals(f1, f2);
-        assertNotSame(f1, f2);
-        assertEquals(f1.hashCode(), f2.hashCode());
-        assertFalse(f1.equals(null));
-        assertFalse(f1.equals(f3));
+    
+    private String toString(MappingRules rules) throws IOException {
+        StringWriter wtr = new StringWriter();
+        rules.write(wtr);        
+        return wtr.toString();        
     }
 
     public void testHostPatternProvider() throws Exception {

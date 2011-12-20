@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.commserver;
+package org.sipfoundry.sipxconfig.commserver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +16,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
+import org.sipfoundry.sipxconfig.commserver.imdb.RegistrationItem;
+import org.sipfoundry.sipxconfig.registrar.RegistrationMetrics;
 
 public class RegistrationMetricsTest extends TestCase {
     private RegistrationMetrics m_metrics;

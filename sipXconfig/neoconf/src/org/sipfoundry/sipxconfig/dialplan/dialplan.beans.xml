@@ -117,11 +117,9 @@
   <!--
     - D I A L P L A N  C O N T E X T
   -->
-  <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.dialplan.DialPlanContextImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.dialplan.DialPlanContextImpl" parent="abstractDaoImpl">
     <property name="aliasManager" ref="aliasManager" />
     <property name="auditLogContext" ref="auditLogContext" />
-    <lookup-method name="getDialPlanActivationManager" bean="dialPlanActivationManager" />
   </bean>
 
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -152,8 +150,7 @@
     <property name="prompt" value="afterhours.wav" />
   </bean>
 
-  <bean id="autoAttendantManagerImpl" class="org.sipfoundry.sipxconfig.dialplan.AutoAttendantManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="autoAttendantManagerImpl" class="org.sipfoundry.sipxconfig.dialplan.AutoAttendantManagerImpl" parent="abstractDaoImpl">
     <property name="aliasManager" ref="aliasManager" />
     <property name="settingDao" ref="settingDao" />
   </bean>

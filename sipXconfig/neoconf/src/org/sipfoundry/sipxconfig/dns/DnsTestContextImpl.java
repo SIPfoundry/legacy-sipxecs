@@ -9,16 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.configdiag.ExternalCommand;
 import org.sipfoundry.sipxconfig.configdiag.ExternalCommandContext;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.springframework.beans.factory.annotation.Required;
@@ -29,6 +30,7 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
     private boolean m_runTestNeeded = true;
     private CoreContext m_coreContext;
     private AddressManager m_addressManager;
+    private FeatureManager m_featureManager;
 
     private final ExternalCommandContext m_commandContext;
     private final String m_commandString;
@@ -52,23 +54,26 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
         // - all locations with the proxyService installed
         // - other servers in the clusters
         // - XMPP service locations
-        Collection<Address> addresses = new ArrayList<Address>();
+        List<Location> proxies = m_featureManager.getLocationsForEnabledFeature(ProxyManager.FEATURE);
+        addArgument(command, null, proxies);
+
+        List<Location> xmpps = m_featureManager.getLocationsForEnabledFeature(ImManager.FEATURE);
+        if (xmpps != null) {
+            addArgument(command, "-x", xmpps);
+        }
+        if (provideDns) {
+            command.addArgument("-p");
+        }
+        // port for XMPP?
+        //Collection<Address> xmpp = m_addressManager.getAddresses(ImManager.XMPP_ADDRESS);
+
+        // set TCP and UDP ports
         Collection<Address> proxyTcp = m_addressManager.getAddresses(ProxyManager.TCP_ADDRESS);
         Collection<Address> proxyUdp = m_addressManager.getAddresses(ProxyManager.UDP_ADDRESS);
         Collection<Address> proxyTls = m_addressManager.getAddresses(ProxyManager.TLS_ADDRESS);
         int tcpPort = proxyTcp.iterator().next().getPort();
         int udpPort = proxyUdp.iterator().next().getPort();
         int tlsPort = proxyTls.iterator().next().getPort();
-        addArgument(command, null, proxyTcp);
-        addArgument(command, null, proxyUdp);
-        addArgument(command, null, proxyTls);
-        Collection<Address> xmpp = m_addressManager.getAddresses(ImManager.XMPP_ADDRESS);
-        addArgument(command, "-x", xmpp);
-        if (provideDns) {
-            command.addArgument("-p");
-        }
-
-        // set TCP and UDP ports
         command.addArgument("--port-TCP");
         command.addArgument(String.valueOf(tcpPort));
         command.addArgument("--port-UDP");
@@ -79,12 +84,12 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
         return command;
     }
 
-    private void addArgument(ExternalCommand command, String param, Collection<Address> addresses) {
-        for (Address address : addresses) {
+    private void addArgument(ExternalCommand command, String param, Collection<Location> addresses) {
+        for (Location address : addresses) {
             if (param != null) {
                 command.addArgument(param);
             }
-            command.addArgument(address.getAddress() + '\'' + address.getPort());
+            command.addArgument(address.getFqdn() + '/' + address.getAddress());
         }
     }
 
@@ -132,5 +137,9 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
     @Required
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }

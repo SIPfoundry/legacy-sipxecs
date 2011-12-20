@@ -10,40 +10,74 @@ package org.sipfoundry.sipxconfig.acccode;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 
+import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.InternalUser;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.springframework.beans.factory.annotation.Required;
 
 public class AuthCodesConfig implements ConfigProvider {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/authcodes-00-00";
     private static final String AUTHCODE = "authcode";
     private static final String CODE = "code";
-    // please note: US locale always...
     private AuthCodeManager m_authCodeManager;
+    private AuthCodes m_authCodes;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(AuthCodes.FEATURE)) {
             return;
         }
-        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                AuthCodes.FEATURE);
+
+        Collection<Location> locations = manager.getFeatureManager()
+                .getLocationsForEnabledFeature(AuthCodes.FEATURE);
+        if (locations.isEmpty()) {
+            return;
+        }
+
+        AuthCodeSettings settings = m_authCodes.getSettings();
+        Address fs = manager.getAddressManager().getSingleAddress(FreeswitchFeature.EVENT_ADDRESS);
+        Domain domain = manager.getDomainManager().getDomain();
         for (Location location : locations) {
-            File file = new File(manager.getLocationDataDirectory(location), "authcodes.xml.cfdat");
-            FileWriter wtr = new FileWriter(file);
-            XmlFile xml = new XmlFile(wtr);
-            xml.write(getDocument());
+            File dir = manager.getLocationDataDirectory(location);
+            Writer xml = new FileWriter(new File(dir, "authcodes.xml"));
+            try {
+                XmlFile config = new XmlFile(xml);
+                config.write(getDocument());
+            } finally {
+                IOUtils.closeQuietly(xml);
+            }
+
+            Writer flat = new FileWriter(new File(dir, "sipxacccode.properties.cfdat"));
+            try {
+                writeConfig(flat, settings, domain, fs.getPort());
+            } finally {
+                IOUtils.closeQuietly(xml);
+            }
         }
     }
+
+    void writeConfig(Writer wtr, AuthCodeSettings settings, Domain domain, int freeswithPort) throws IOException {
+        KeyValueConfiguration config = new KeyValueConfiguration(wtr, "=");
+        config.write(settings.getSettings().getSetting("acccode-config"));
+        config.write("acccode.sipxchangeDomainName", domain.getName());
+        config.write("acccode.realm", domain.getSipRealm());
+        config.write("freeswitch.eventSocketPort", freeswithPort);
+    }
+
     public Document getDocument() {
         Document document = XmlFile.FACTORY.createDocument();
         // See authcodes.xsd for "authcodes" element schema
@@ -66,5 +100,13 @@ public class AuthCodesConfig implements ConfigProvider {
     @Required
     public void setAuthCodeManager(AuthCodeManager authCodeManager) {
         m_authCodeManager = authCodeManager;
+    }
+
+    public AuthCodeManager getAuthCodeManager() {
+        return m_authCodeManager;
+    }
+
+    public void setAuthCodes(AuthCodes authCodes) {
+        m_authCodes = authCodes;
     }
 }

@@ -60,9 +60,18 @@
       <type refid="port-number" />
       <value>8111</value>
     </setting>
-    <setting name="SIP_PRESENCE_LOG_LEVEL" hidden="yes">
+    <setting name="SIP_PRESENCE_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>
+    </setting>
+    <setting name="SIP_PRESENCE_SIGN_IN_CONFIRMATION_AUDIO">
+      <type><string/></type>
+    </setting>
+    <setting name="SIP_PRESENCE_SIGN_OUT_CONFIRMATION_AUDIO">
+      <type><string/></type>
+    </setting>
+    <setting name="SIP_PRESENCE_ERROR_AUDIO">
+      <type><string/></type>
     </setting>
   </group>
 </model>

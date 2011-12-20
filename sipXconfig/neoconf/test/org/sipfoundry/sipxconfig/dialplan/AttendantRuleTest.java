@@ -7,37 +7,36 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
+
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
-import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.RulesXmlFile;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.dialplan.attendant.Holiday;
+import org.sipfoundry.sipxconfig.dialplan.attendant.ScheduledAttendant;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.dialplan.config.MappingRules;
+import org.sipfoundry.sipxconfig.dialplan.config.RulesXmlFile;
+import org.sipfoundry.sipxconfig.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class AttendantRuleTest extends TestCase {
@@ -64,12 +63,17 @@ public class AttendantRuleTest extends TestCase {
     }
 
     public void testAppendToGenerationRules() {
-        LocalizationContext lc = createNiceMock(LocalizationContext.class);
-        replay(lc);
-
         AttendantRule rule = new AttendantRule();
         FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
-        FreeswitchMediaServerTest.configureMediaServer(mediaServer);
+
+        AddressManager addressManager = createMock(AddressManager.class);
+        addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address("ivr.example.org", 3333)).anyTimes();
+        replay(addressManager);        
+        mediaServer.setAddressManager(addressManager);
+        
+        LocalizationContext lc = createNiceMock(LocalizationContext.class);
+        replay(lc);
         mediaServer.setLocalizationContext(lc);
 
         rule.setMediaServer(mediaServer);
@@ -100,33 +104,23 @@ public class AttendantRuleTest extends TestCase {
         assertTrue(transforms[0] instanceof UrlTransform);
         UrlTransform urlTransform = (UrlTransform) transforms[0];
 
-        assertEquals("<sip:IVR@192.168.1.1:0;action=autoattendant;schedule_id=aa_-1>", urlTransform.getUrl());
+        assertEquals("<sip:IVR@ivr.example.org:3333;action=autoattendant;schedule_id=aa_-1>", urlTransform.getUrl());
     }
 
     public void testMappingRulesIvr() throws Exception {
+        AttendantRule rule = new AttendantRule();
+        FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
+
         LocalizationContext lc = createMock(LocalizationContext.class);
         expect(lc.getCurrentLanguage()).andReturn("en_US");
         replay(lc);
-
-        AttendantRule rule = new AttendantRule();
-        FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
         mediaServer.setLocalizationContext(lc);
-        mediaServer.setPort(15060);
-
-        LocationsManager locationsManager = createMock(LocationsManager.class);
-        Location serviceLocation = TestHelper.createDefaultLocation();
-
-        SipxIvrService service = new SipxIvrService();
-        service.setBeanName(SipxIvrService.BEAN_ID);
-        service.setLocationsManager(locationsManager);
-
-        locationsManager.getLocationsForService(service);
-        expectLastCall().andReturn(Arrays.asList(serviceLocation)).anyTimes();
-
-        replay(locationsManager);
-
-        SipxServiceManager sipxServiceManager = TestHelper.getMockSipxServiceManager(true, service);
-        mediaServer.setSipxServiceManager(sipxServiceManager);
+        
+        AddressManager addressManager = createMock(AddressManager.class);
+        addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address("zzz.example.org", 4444)).anyTimes();
+        replay(addressManager);        
+        mediaServer.setAddressManager(addressManager);
 
         rule.setMediaServer(mediaServer);
         rule.setName("abc");
@@ -135,7 +129,7 @@ public class AttendantRuleTest extends TestCase {
         rule.setEnabled(true);
 
         RulesXmlFile mappingRules = new MappingRules();
-        mappingRules.setDomainManager(m_domainManager);
+        mappingRules.setDomainName("example.org");
         List<DialingRule> rules = new ArrayList<DialingRule>();
         rule.appendToGenerationRules(rules);
         mappingRules.begin();
@@ -143,11 +137,11 @@ public class AttendantRuleTest extends TestCase {
             mappingRules.generate(r);
         }
         mappingRules.end();
-
-        String generatedXml = getFileContent(mappingRules, null);
+        
+        StringWriter actual = new StringWriter();
+        mappingRules.write(actual);
         InputStream referenceXmlStream = getClass().getResourceAsStream("sipxivr-aa-rules.test.xml");
-
-        assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
+        assertEquals(IOUtils.toString(referenceXmlStream).trim(), actual.toString().trim());
     }
 
     public void testIsInternal() {

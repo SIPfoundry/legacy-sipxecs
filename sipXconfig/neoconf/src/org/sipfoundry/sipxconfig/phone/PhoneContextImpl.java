@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import static org.apache.commons.collections.CollectionUtils.select;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,8 +26,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.commons.util.ShortHash;
-import org.sipfoundry.sipxconfig.intercom.Intercom;
-import org.sipfoundry.sipxconfig.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -33,9 +34,10 @@ import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
+import org.sipfoundry.sipxconfig.intercom.Intercom;
+import org.sipfoundry.sipxconfig.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.phonebook.GooglePhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
@@ -53,9 +55,6 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-
-import static org.apache.commons.collections.CollectionUtils.select;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
@@ -82,8 +81,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private PhonebookManager m_phonebookManager;
 
     private SpeedDialManager m_speedDialManager;
-
-    private DaoEventPublisher m_daoEventPublisher;
 
     private JdbcTemplate m_jdbcTemplate;
 
@@ -112,11 +109,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         m_speedDialManager = speedDialManager;
     }
 
-    @Required
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
-    }
-
     public void setConfigJdbcTemplate(JdbcTemplate template) {
         m_jdbcTemplate = template;
     }
@@ -142,6 +134,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
                 new DuplicateSerialNumberException(serialNumber));
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         hibernate.saveOrUpdate(phone);
+        getDaoEventPublisher().publishSave(phone);
     }
 
     public void deletePhone(Phone phone) {
@@ -157,6 +150,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void storeLine(Line line) {
         line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
         getHibernateTemplate().saveOrUpdate(line);
+        getDaoEventPublisher().publishSave(line);
     }
 
     public void deleteLine(Line line) {
@@ -314,11 +308,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public void addToGroup(Integer groupId, Collection<Integer> ids) {
-        DaoUtils.addToGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, Phone.class, ids);
+        DaoUtils.addToGroup(getHibernateTemplate(), getDaoEventPublisher(), groupId, Phone.class, ids);
     }
 
     public void removeFromGroup(Integer groupId, Collection<Integer> ids) {
-        DaoUtils.removeFromGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, Phone.class, ids);
+        DaoUtils.removeFromGroup(getHibernateTemplate(), getDaoEventPublisher(), groupId, Phone.class, ids);
     }
 
     public void addUsersToPhone(Integer phoneId, Collection<Integer> ids) {

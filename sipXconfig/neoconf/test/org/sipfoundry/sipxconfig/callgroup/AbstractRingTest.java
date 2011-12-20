@@ -7,11 +7,11 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.callgroup;
+package org.sipfoundry.sipxconfig.callgroup;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
+import org.sipfoundry.sipxconfig.dialplan.ForkQueueValue;
 
 public class AbstractRingTest extends TestCase {
 

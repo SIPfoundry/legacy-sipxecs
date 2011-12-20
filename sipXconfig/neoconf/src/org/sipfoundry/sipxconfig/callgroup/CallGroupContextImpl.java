@@ -81,6 +81,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         if (!m_aliasManager.canObjectUseAlias(callGroup, callGroup.getDid())) {
             throw new ExtensionInUseException(huntGroupTypeName, callGroup.getDid());
         }
+        getDaoEventPublisher().publishSave(callGroup);
         getHibernateTemplate().saveOrUpdate(callGroup);
         // activate call groups every time the call group is saved
         m_replicationContext.generate(callGroup);
@@ -144,6 +145,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             CallGroup callGroup = ring.getCallGroup();
             callGroup.removeRing(ring);
             hibernate.save(callGroup);
+            getDaoEventPublisher().publishSave(callGroup);
         }
     }
 
@@ -167,6 +169,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
 
             groupDup.setEnabled(false);
             storeCallGroup(groupDup);
+            getDaoEventPublisher().publishSave(groupDup);
         }
     }
 
@@ -177,6 +180,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     public void clear() {
         HibernateTemplate template = getHibernateTemplate();
         Collection<CallGroup> callGroups = template.loadAll(CallGroup.class);
+        getDaoEventPublisher().publishDelete(callGroups);
         template.deleteAll(callGroups);
         for (CallGroup cg : callGroups) {
             m_replicationContext.generate(cg);

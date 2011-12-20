@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.forwarding;
+package org.sipfoundry.sipxconfig.forwarding;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,9 +18,9 @@ import java.util.TimeZone;
 
 import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
-import org.sipfoundry.sipxconfig.admin.ScheduledDay;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.ScheduledDay;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;

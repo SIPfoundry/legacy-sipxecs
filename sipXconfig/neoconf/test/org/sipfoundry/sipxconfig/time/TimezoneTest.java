@@ -3,7 +3,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.admin.time;
+package org.sipfoundry.sipxconfig.time;
 
 import java.io.Reader;
 import java.io.StringReader;

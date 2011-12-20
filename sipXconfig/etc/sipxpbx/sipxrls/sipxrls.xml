@@ -34,23 +34,27 @@
     <type id="port">
       <integer min="1025" max="65535"/>
     </type>
-    <group name="rls-config">
-	    <setting name="SIP_RLS_LOG_LEVEL">
-	      <type refid="loglevel" />
-	      <value>NOTICE</value>
-	    </setting>
-      <setting name="SIP_RLS_UDP_PORT" hidden="yes">
-        <type refid="port"/>
-        </type>
-        <value>5140</value>
-      </setting>
-      <setting name="SIP_RLS_TCP_PORT" hidden="yes">
-        <type refid="port"/>
-        <value>5140</value>
-      </setting>
-      <setting name="SIP_RLS_SERVER_MIN_EXPIRATION" hidden="yes">
-        <type><integer/></type>
-        <value>1800</value>
-      </setting>      
-    </group>
+  <group name="rls-config">
+    <setting name="SIP_RLS_LOG_LEVEL">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="SIP_RLS_LOG_CONSOLE" hidden="yes">
+      <type><string/></type>
+    </setting>
+    <setting name="SIP_RLS_UDP_PORT" hidden="yes">
+      <type refid="port" />
+      <value>5140</value>
+    </setting>
+    <setting name="SIP_RLS_TCP_PORT" hidden="yes">
+      <type refid="port" />
+      <value>5140</value>
+    </setting>
+    <setting name="SIP_RLS_SERVER_MIN_EXPIRATION" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>1800</value>
+    </setting>
+  </group>
 </model>

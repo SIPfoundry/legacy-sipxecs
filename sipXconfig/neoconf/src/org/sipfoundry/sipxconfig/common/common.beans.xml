@@ -4,18 +4,13 @@
   <!--
   - C O R E  C O N T E X T   I M P L
   -->
-  <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
+  <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl" parent="abstractDaoImpl">
     <lookup-method name="newUser" bean="org.sipfoundry.sipxconfig.common.User"/>
     <lookup-method name="newInternalUser" bean="org.sipfoundry.sipxconfig.common.InternalUser"/>
-    <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>
-    <property name="daoEventPublisher" ref="daoEventPublisher"/>
     <property name="settingDao" ref="settingDao"/>
-    <property name="aliasManager ref="aliasManager"/>
+    <property name="aliasManager" ref="aliasManager"/>
     <property name="debug" value="false" />
     <property name="domainManager" ref="domainManager"/>
-    <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
     <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
   <!--
@@ -37,19 +32,13 @@
   <!--
   - E X T E N S I O N  P O O L  C O N T E X T   I M P L
   -->
-  <bean id="extensionPoolContextImpl" class="org.sipfoundry.sipxconfig.common.ExtensionPoolContextImpl">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>
-    <property name="coreContext">
-      <ref bean="coreContext"/>
-    </property>
+  <bean id="extensionPoolContextImpl" class="org.sipfoundry.sipxconfig.common.ExtensionPoolContextImpl" parent="abstractDaoImpl">
+    <property name="coreContext" ref="coreContext"/>
   </bean>
   <!--
   - E X T E N S I O N  P O O L  C O N T E X T
   -->
-  <bean id="extensionPoolContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="extensionPoolContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.common.ExtensionPoolContext</value>
     </property>

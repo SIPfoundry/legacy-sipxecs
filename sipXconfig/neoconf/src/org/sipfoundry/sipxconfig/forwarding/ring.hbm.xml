@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.forwarding" default-lazy="false">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.forwarding" default-lazy="false">
   <!--
     - Ring
   -->
@@ -14,7 +14,7 @@
     <property name="number" />
     <property name="expiration" />
     <property name="enabled" />
-    <property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$UserType" />
+    <property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.callgroup.AbstractRing$UserType" />
     <many-to-one name="callSequence" column="user_id" class="CallSequence" not-null="true" insert="false"
       update="false" />
     <many-to-one name="schedule" column="schedule_id" class="Schedule" />
@@ -46,14 +46,14 @@
     <discriminator column="schedule_type" type="character" />
     <property name="name" />
     <property name="description" />
-    <component name="workingTime" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime">
+    <component name="workingTime" class="org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime">
       <array name="workingHours" table="schedule_hours" batch-size="7">
         <key column="schedule_id" foreign-key="fk_schedule_hours_schedule" />
         <list-index column="schedule_hours_id" />
-        <composite-element class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime$WorkingHours">
+        <composite-element class="org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime$WorkingHours">
           <property name="start" type="org.sipfoundry.sipxconfig.common.UtcTimestampType" />
           <property name="stop" type="org.sipfoundry.sipxconfig.common.UtcTimestampType" />
-          <property name="day" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType" />
+          <property name="day" type="org.sipfoundry.sipxconfig.common.ScheduledDay$UserType" />
         </composite-element>
       </array>
     </component>

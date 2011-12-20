@@ -8,7 +8,7 @@
  * $
  */
 
-package org.sipfoundry.sipxconfig.admin.forwarding;
+package org.sipfoundry.sipxconfig.forwarding;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -16,9 +16,9 @@ import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.ScheduledDay;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.common.ScheduledDay;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 
 public class ScheduleTest extends TestCase {
     private static final String COLON = ":";

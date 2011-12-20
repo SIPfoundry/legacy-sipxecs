@@ -98,7 +98,7 @@ public class ProxySettings extends BeanWithSettings implements DeployConfigOnEdi
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("sipxproxy.xml");
+        return getModelFilesContext().loadModelFile("sipxproxy/sipxproxy.xml");
     }
 
     @Override

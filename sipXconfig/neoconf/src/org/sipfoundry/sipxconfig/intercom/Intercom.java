@@ -9,7 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.intercom;
 
+
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.commons.lang.time.DateUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -19,7 +26,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 // BeanWithGroups is overkill here because it inherits from BeanWithSettings and
 // Intercom doesn't have settings.  But there is no easy way to fix that, given
 // that Java doesn't support mixins or multiple inheritance of implementations.
-public class Intercom extends BeanWithGroups {
+public class Intercom extends BeanWithGroups implements DeployConfigOnEdit {
     private boolean m_enabled;
     private String m_prefix;
     private int m_timeout;
@@ -76,5 +83,10 @@ public class Intercom extends BeanWithGroups {
     /** Set the timeout (seconds) after which the phone auto-answers */
     public void setTimeoutInSeconds(int timeout) {
         setTimeout(timeout * (int) DateUtils.MILLIS_PER_SECOND);
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) DialPlanContext.FEATURE);
     }
 }

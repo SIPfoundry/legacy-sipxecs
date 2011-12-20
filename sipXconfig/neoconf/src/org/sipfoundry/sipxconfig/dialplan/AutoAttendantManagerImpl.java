@@ -53,6 +53,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         clearUnsavedValueStorage(aa.getValueStorage());
         getHibernateTemplate().saveOrUpdate(aa);
         getHibernateTemplate().flush();
+        getDaoEventPublisher().publishSave(aa);
     }
 
     public AutoAttendant getOperator() {
@@ -90,6 +91,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
     public void deleteAutoAttendantsByIds(Collection<Integer> attendantIds) {
         for (Integer id : attendantIds) {
             AutoAttendant aa = getAutoAttendant(id);
+            getDaoEventPublisher().publishDelete(aa);
             deleteAutoAttendant(aa);
         }
     }
@@ -169,6 +171,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         attendant = createSystemAttendant(attendantId);
         attendant.addGroup(getDefaultAutoAttendantGroup());
         getHibernateTemplate().saveOrUpdate(attendant);
+        getDaoEventPublisher().publishSave(attendant);
         return attendant;
     }
 
@@ -177,6 +180,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
      */
     public void clear() {
         List attendants = getHibernateTemplate().loadAll(AutoAttendant.class);
+        getDaoEventPublisher().publishDelete(attendants);
         getHibernateTemplate().deleteAll(attendants);
     }
 
@@ -200,6 +204,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         }
         specialMode.setAttendant(aa);
         getHibernateTemplate().saveOrUpdate(specialMode);
+        getDaoEventPublisher().publishSave(specialMode);
     }
 
     public void deselectSpecial(AutoAttendant aa) {
@@ -211,6 +216,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
 
         specialMode.setAttendant(null);
         getHibernateTemplate().saveOrUpdate(specialMode);
+        getDaoEventPublisher().publishSave(specialMode);
     }
 
     public AutoAttendant getSelectedSpecialAttendant() {

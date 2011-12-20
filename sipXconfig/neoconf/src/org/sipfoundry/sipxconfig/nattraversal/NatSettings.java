@@ -18,6 +18,10 @@ public class NatSettings extends BeanWithSettings {
         return getModelFilesContext().loadModelFile("nattraversal/nattraversal.xml");
     }
 
+    public int getXmlRpcPort() {
+        return (Integer) getSettingTypedValue("relay-config/xml-rpc-port");
+    }
+
     public boolean isBehindNat() {
         return (Boolean) getSettingTypedValue(BEHIND_NAT);
     }

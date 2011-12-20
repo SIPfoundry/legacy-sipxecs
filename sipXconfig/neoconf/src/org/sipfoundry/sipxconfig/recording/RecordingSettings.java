@@ -22,16 +22,18 @@ public class RecordingSettings extends BeanWithSettings implements DeployConfigO
     private DomainManager m_domainManager;
 
     public RecordingSettings() {
-        addDefaultBeanSettingHandler(new Object() {
-            @SettingEntry(path = "recording/recording.sipxchangeDomainName")
-            public String getDomainName() {
-                return m_domainManager.getDomainName();
-            }
-            @SettingEntry(path = "recording/recording.realm")
-            public String getRealm() {
-                return m_domainManager.getAuthorizationRealm();
-            }
-        });
+        addDefaultBeanSettingHandler(new Defaults());
+    }
+
+    public class Defaults {
+        @SettingEntry(path = "recording/recording.sipxchangeDomainName")
+        public String getDomainName() {
+            return m_domainManager.getDomainName();
+        }
+        @SettingEntry(path = "recording/recording.realm")
+        public String getRealm() {
+            return m_domainManager.getAuthorizationRealm();
+        }
     }
 
     @Override
@@ -42,5 +44,9 @@ public class RecordingSettings extends BeanWithSettings implements DeployConfigO
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) Recording.FEATURE);
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

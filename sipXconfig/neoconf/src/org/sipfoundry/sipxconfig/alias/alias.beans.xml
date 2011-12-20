@@ -6,10 +6,7 @@
   - A L I A S  M A N A G E R
   -->
 
-  <bean id="aliasManagerImpl" class="org.sipfoundry.sipxconfig.alias.AliasManagerImpl">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>
+  <bean id="aliasManagerImpl" class="org.sipfoundry.sipxconfig.alias.AliasManagerImpl" parent="abstractDaoImpl">
   </bean>
 
   <bean id="aliasManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

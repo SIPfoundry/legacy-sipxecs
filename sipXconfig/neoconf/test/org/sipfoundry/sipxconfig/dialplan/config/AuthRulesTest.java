@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.config;
+package org.sipfoundry.sipxconfig.dialplan.config;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -25,14 +25,12 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.junit.Assert;
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
-import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
-import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.SiteToSiteDialingRule;
-import org.sipfoundry.sipxconfig.domain.Domain;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.dialplan.CallDigits;
+import org.sipfoundry.sipxconfig.dialplan.CallPattern;
+import org.sipfoundry.sipxconfig.dialplan.CustomDialingRule;
+import org.sipfoundry.sipxconfig.dialplan.DialPattern;
+import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.dialplan.SiteToSiteDialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -54,7 +52,7 @@ public class AuthRulesTest {
     public void testGetDoc() throws Exception {
         AuthRules rules = new AuthRules();
         rules.begin();
-        Document doc = rules.getDocument();
+        Document doc = rules.getPreLocalizedDocument();
 
         String xml = TestHelper.asString(doc);
         XMLAssert.assertXMLEqual("<mappings xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00\"/>",
@@ -97,7 +95,7 @@ public class AuthRulesTest {
         authRules.generate(rule);
         authRules.end();
 
-        Document document = authRules.getDocument();
+        Document document = authRules.getPreLocalizedDocument();
         String domDoc = TestHelper.asString(document);
 
         XMLAssert.assertXpathEvaluatesTo("test rule", "/mappings/hostMatch/name", domDoc);
@@ -158,7 +156,7 @@ public class AuthRulesTest {
         authRules.generate(rule);
         authRules.end();
 
-        Document document = authRules.getDocument();
+        Document document = authRules.getPreLocalizedDocument();
         String domDoc = TestHelper.asString(document);
 
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
@@ -225,7 +223,7 @@ public class AuthRulesTest {
         authRules.generate(rule);
         authRules.end();
 
-        Document document = authRules.getDocument();
+        Document document = authRules.getPreLocalizedDocument();
         String domDoc = TestHelper.asString(document);
 
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
@@ -280,7 +278,7 @@ public class AuthRulesTest {
         authRules.generate(rule);
         authRules.end();
 
-        Document document = authRules.getDocument();
+        Document document = authRules.getPreLocalizedDocument();
         String domDoc = TestHelper.asString(document);
 
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
@@ -316,7 +314,7 @@ public class AuthRulesTest {
         rules.begin();
         rules.generateNoAccess(Arrays.asList(gateways));
         String lastHostMatch = "/mappings/hostMatch/";
-        Document document = rules.getDocument();
+        Document document = rules.getPreLocalizedDocument();
         String domDoc = TestHelper.asString(document);
         // "no access" match at the end of the file
         for (int i = 0; i < gateways.length; i++) {
@@ -332,7 +330,7 @@ public class AuthRulesTest {
     public void testNamespace() {
         AuthRules rules = new AuthRules();
         rules.begin();
-        Document doc = rules.getDocument();
+        Document doc = rules.getPreLocalizedDocument();
 
         Element rootElement = doc.getRootElement();
         XmlUnitHelper.assertElementInNamespace(rootElement,
@@ -351,17 +349,12 @@ public class AuthRulesTest {
         rule.setCallPattern(callPattern);
         rule.setPermissionNames(Arrays.asList("LocalDialing"));
 
-        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
-        domainManager.getDomain();
-        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
-        EasyMock.replay(domainManager);
-
         MockAuthRules authRules = new MockAuthRules();
-        authRules.setDomainManager(domainManager);
+        authRules.setLocation(TestHelper.createDefaultLocation());
+        authRules.setDomainName("example.org");
         authRules.begin();
         authRules.generate(rule);
         authRules.end();
-        authRules.localizeDocument(TestHelper.createDefaultLocation());
 
         Document document = authRules.getDocument();
         String domDoc = TestHelper.asString(document);
@@ -382,17 +375,12 @@ public class AuthRulesTest {
         rule.setCallPattern(callPattern);
         rule.setPermissionNames(Arrays.asList("LocalDialing"));
 
-        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
-        domainManager.getDomain();
-        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
-        EasyMock.replay(domainManager);
-
         MockAuthRules authRules = new MockAuthRules();
-        authRules.setDomainManager(domainManager);
+        authRules.setLocation(TestHelper.createDefaultLocation());
+        authRules.setDomainName("example.org");
         authRules.begin();
         authRules.generate(rule);
         authRules.end();
-        authRules.localizeDocument(TestHelper.createDefaultLocation());
 
         Document document = authRules.getDocument();
         String domDoc = TestHelper.asString(document);

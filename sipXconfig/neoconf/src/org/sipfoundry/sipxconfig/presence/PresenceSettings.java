@@ -7,7 +7,9 @@
  */
 package org.sipfoundry.sipxconfig.presence;
 
+
 import java.util.Collection;
+import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
@@ -15,8 +17,6 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Even though presence server can be on a specific location, there can only be one of them so
@@ -36,7 +36,7 @@ public class PresenceSettings extends BeanWithSettings implements AliasOwner {
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("sipxpresence.xml");
+        return getModelFilesContext().loadModelFile("sipxpresence/sipxpresence.xml");
     }
 
     public String getSignInCode() {

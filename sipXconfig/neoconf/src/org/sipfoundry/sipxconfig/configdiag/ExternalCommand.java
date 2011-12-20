@@ -103,6 +103,7 @@ public class ExternalCommand {
     }
 
     public void addArgument(String arg) {
+        assert arg != null;
         m_args.add(arg);
     }
 

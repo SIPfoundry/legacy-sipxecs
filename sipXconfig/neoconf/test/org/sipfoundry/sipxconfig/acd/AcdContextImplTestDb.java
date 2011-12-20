@@ -22,14 +22,11 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -108,8 +105,8 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testRemoveServers() throws Exception {
         TestHelper.insertFlat("acd/agents.db.xml");
-
-        m_context.removeServers(Collections.singletonList(SERVER_ID));
+        AcdServer server = m_context.loadServer(SERVER_ID);
+        m_context.removeServers(Collections.singletonList(server));
         IDataSet dataSet = TestHelper.getConnection().createDataSet();
         assertEquals(0, dataSet.getTable("acd_server").getRowCount());
         assertEquals(0, dataSet.getTable("acd_queue").getRowCount());
@@ -144,24 +141,24 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         m_locationsManager.saveLocation(location);
         acdServer.setLocation(location);
 
-        SipxPresenceService presenceService = org.easymock.classextension.EasyMock
-                .createMock(SipxPresenceService.class);
-        presenceService.getPresenceServerPort();
-        EasyMock.expectLastCall().andReturn(5130).atLeastOnce();
-        presenceService.getPresenceApiPort();
-        EasyMock.expectLastCall().andReturn(8111).atLeastOnce();
-        presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE);
-        EasyMock.expectLastCall().andReturn("*88").atLeastOnce();
-        presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE);
-        EasyMock.expectLastCall().andReturn("*81").atLeastOnce();
-        org.easymock.classextension.EasyMock.replay(presenceService);
-
-        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(presenceService).atLeastOnce();
-        EasyMock.replay(sipxServiceManager);
-
-        acdServer.setSipxServiceManager(sipxServiceManager);
+//        SipxPresenceService presenceService = org.easymock.classextension.EasyMock
+//                .createMock(SipxPresenceService.class);
+//        presenceService.getPresenceServerPort();
+//        EasyMock.expectLastCall().andReturn(5130).atLeastOnce();
+//        presenceService.getPresenceApiPort();
+//        EasyMock.expectLastCall().andReturn(8111).atLeastOnce();
+//        presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE);
+//        EasyMock.expectLastCall().andReturn("*88").atLeastOnce();
+//        presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE);
+//        EasyMock.expectLastCall().andReturn("*81").atLeastOnce();
+//        org.easymock.classextension.EasyMock.replay(presenceService);
+//
+//        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+//        sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
+//        EasyMock.expectLastCall().andReturn(presenceService).atLeastOnce();
+//        EasyMock.replay(sipxServiceManager);
+//
+//        acdServer.setSipxServiceManager(sipxServiceManager);
 
         assertNotNull(acdServer);
         Setting settingRoot = acdServer.getSettings();

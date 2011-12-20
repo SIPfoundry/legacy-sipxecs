@@ -7,8 +7,20 @@
     <property name="domainManager" ref="domainManager"/>
   </bean>
 
-  <bean id="recording" class="org.sipfoundry.sipxconfig.recording.RecordingManager">
-    <property name="settingsDao" ref="beanWithSettingsDao" />
+  <bean id="recording" class="org.sipfoundry.sipxconfig.recording.Recording">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.recording.RecordingSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="recordingConfiguration" class="org.sipfoundry.sipxconfig.recording.RecordingConfiguration">
+    <property name="recording" ref="recording" />
   </bean>
 
 </beans>

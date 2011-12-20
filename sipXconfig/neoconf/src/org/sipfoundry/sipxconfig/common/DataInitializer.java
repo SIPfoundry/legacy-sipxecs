@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.common;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.admin.InitializationTask;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 

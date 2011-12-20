@@ -5,8 +5,8 @@
 <model>
   <type id="enabledDisabled">
     <boolean>
-      <true>'ENABLED'</true>
-      <false>'DISABLED'</false>
+      <true><value>'ENABLED'</value></true>
+      <false><value>'DISABLED'</value></false>
     </boolean>
   </type>
   <group name="history">

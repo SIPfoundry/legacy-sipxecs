@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.sbc;
 
-import org.sipfoundry.sipxconfig.common.InitTaskListener;
+import org.sipfoundry.sipxconfig.admin.InitTaskListener;
 
 public class SbcMigrationTrigger extends InitTaskListener {
     private SbcMigrationContext m_sbcMigrationContext;

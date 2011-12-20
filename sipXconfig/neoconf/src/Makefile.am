@@ -52,7 +52,16 @@ SPRING_XML = \
 	$(shell cd $(srcdir); find -name '*.beans.xml') \
 	beanRefContext.xml
 
-validate-xml : $(SPRING_XML)
+HIBERNATE_XML = \
+	$(shell cd $(srcdir); find -name '*.hbm.xml')
+
+validate-xml : validate-spring-xml validate-hibernate-xml;
+
+validate-hibernate-xml : $(HIBERNATE_XML)
+	xmllint --noout --dtdvalid http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd \
+	$^
+
+validate-spring-xml : $(SPRING_XML)
 	xmllint --noout \
 	  --schema $(SIPX_DATADIR)/schema/spring-beans-2.0.xsd  \
 	$^

@@ -260,6 +260,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     public void clear() {
         HibernateTemplate template = getHibernateTemplate();
         Collection<Permission> permissions = loadCustomPermissions();
+        getDaoEventPublisher().publishDeleteCollection(permissions);
         template.deleteAll(permissions);
     }
 

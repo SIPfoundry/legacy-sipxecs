@@ -134,6 +134,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         } else {
             getHibernateTemplate().save(acdComponent);
         }
+        getDaoEventPublisher().publishSave(acdComponent);
     }
 
     @Override
@@ -181,6 +182,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             AcdServer server = loadServer(id);
             servers.add(server);
         }
+        getDaoEventPublisher().publishDelete(servers);
         hibernate.deleteAll(servers);
     }
 
@@ -194,8 +196,10 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             AcdServer acdServer = line.getAcdServer();
             line.associateQueue(null);
             acdServer.removeLine(line);
+            getDaoEventPublisher().publishDelete(line);
             servers.add(acdServer);
         }
+        getDaoEventPublisher().publishSave(servers);
         hibernate.saveOrUpdateAll(servers);
     }
 
@@ -212,6 +216,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             AcdQueue queue = (AcdQueue) hibernate.load(AcdQueue.class, id);
             AcdServer acdServer = queue.getAcdServer();
             acdServer.removeQueue(queue);
+            getDaoEventPublisher().publishDelete(queue);
             queue.cleanLines();
             queue.cleanAgents();
             cleanReferencesToOverflowQueue(queue);
@@ -277,7 +282,9 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
                 server.removeAgent(agent);
             }
         }
+        getDaoEventPublisher().publishSave(server);
         hibernate.save(server);
+        getDaoEventPublisher().publishSave(queue);
         hibernate.save(queue);
     }
 

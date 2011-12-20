@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.Permission.Type;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -36,7 +35,6 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport<AuthCode> imple
     private static final Log LOG = LogFactory.getLog(AuthCodeManagerImpl.class);
 
     private CoreContext m_coreContext;
-    private DaoEventPublisher m_daoEventPublisher;
 
 
     @Override
@@ -48,7 +46,7 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport<AuthCode> imple
     public void deleteAuthCodes(Collection<Integer> allSelected) {
         List<AuthCode> codes = getAuthCodes(allSelected);
         for (AuthCode code : codes) {
-            m_daoEventPublisher.publishDelete(code);
+            getDaoEventPublisher().publishDelete(code);
         }
         getHibernateTemplate().deleteAll(codes);
     }
@@ -158,10 +156,5 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport<AuthCode> imple
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    @Required
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 }

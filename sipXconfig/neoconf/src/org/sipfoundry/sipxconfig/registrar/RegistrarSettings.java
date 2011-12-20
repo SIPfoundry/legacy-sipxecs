@@ -41,6 +41,10 @@ public class RegistrarSettings extends BeanWithSettings implements DeployConfigO
         return getSettingValue(RETRIEVE_CODE);
     }
 
+    public int getXmlRpcPort() {
+        return (Integer) getSettingTypedValue("registrar-config/SIP_REGISTRAR_XMLRPC_PORT");
+    }
+
     public int getSipTcpPort() {
         return (Integer) getSettingTypedValue("registrar-config/SIP_REGISTRAR_TCP_PORT");
     }
@@ -53,9 +57,13 @@ public class RegistrarSettings extends BeanWithSettings implements DeployConfigO
         return (Integer) getSettingTypedValue("registrar-config/SIP_REGISTRAR_REG_EVENT_PORT");
     }
 
+    public int getPresencePort() {
+        return (Integer) getSettingTypedValue("registrar-config/_SIP_REGISTRAR_PRESENCE_PORT");
+    }
+
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("sipxregistrar.xml");
+        return getModelFilesContext().loadModelFile("sipxregistrar/sipxregistrar.xml");
     }
 
     @Required

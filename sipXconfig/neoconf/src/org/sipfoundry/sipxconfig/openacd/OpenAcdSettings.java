@@ -76,7 +76,7 @@ public class OpenAcdSettings extends BeanWithSettings implements OpenAcdConfigOb
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("sipxopenacd/sipxopenacd.xml");
+        return getModelFilesContext().loadModelFile("openacd/sipxopenacd.xml");
     }
 
     public void setDomainManager(DomainManager domainManager) {

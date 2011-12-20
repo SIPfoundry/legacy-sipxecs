@@ -9,18 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.acccode;
 
+
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
 import org.sipfoundry.sipxconfig.feature.Feature;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class AuthCode extends BeanWithUserPermissions implements DeployConfigOnEdit {
     private String m_code;

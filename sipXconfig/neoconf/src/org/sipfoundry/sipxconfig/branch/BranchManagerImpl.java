@@ -20,14 +20,12 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implements BranchManager {
 
     private static final String NAME_PROP_NAME = "name";
-    private DaoEventPublisher m_daoEventPublisher;
     private JdbcTemplate m_jdbcTemplate;
 
     @Override
@@ -86,7 +84,7 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         }
         m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
         for (Branch branch : branches) {
-            m_daoEventPublisher.publishDelete(branch);
+            getDaoEventPublisher().publishDelete(branch);
         }
     }
 
@@ -119,10 +117,6 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
     @Override
     public void clear() {
         removeAll(Branch.class);
-    }
-
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 
     public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {

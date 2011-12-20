@@ -51,6 +51,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     public void deleteUploads(Collection<Integer> uploadIds) {
         Upload[] uploads = DaoUtils.loadBeansArrayByIds(this, Upload.class, uploadIds);
         for (Upload upload : uploads) {
+            getDaoEventPublisher().publishDelete(upload);
             deleteUpload(upload);
         }
     }
@@ -93,7 +94,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     }
 
     public void clear() {
-        getHibernateTemplate().deleteAll(getUpload());
+        removeAll(Upload.class);
     }
 
     public void deploy(Upload upload) {
@@ -120,6 +121,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
         }
         upload.deploy();
         saveUpload(upload);
+        getDaoEventPublisher().publishSave(upload);
     }
 
     public void undeploy(UploadSpecification spec) {
@@ -141,6 +143,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     public void undeploy(Upload upload) {
         upload.undeploy();
         saveUpload(upload);
+        getDaoEventPublisher().publishSave(upload);
     }
 
     static class AlreadyDeployedException extends UserException {
@@ -154,7 +157,5 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
         AlreadyDeployedException(int size, String label) {
             super("There are already {0} files sets of type \"{1}\" deployed. " + ERROR, size, label);
         }
-
     }
-
 }

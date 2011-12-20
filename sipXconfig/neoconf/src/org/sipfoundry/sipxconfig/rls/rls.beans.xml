@@ -12,7 +12,15 @@
   </bean>
 
   <bean id="rls" class="org.sipfoundry.sipxconfig.rls.Rls">
-    <property name="settingsDao" ref="beanWithSettingsDao" />
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.rls.RlsSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
   <bean id="rlsConfig" class="org.sipfoundry.sipxconfig.rls.RlsConfig">

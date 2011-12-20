@@ -7,7 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
@@ -15,7 +15,7 @@ public interface BeanWithSettingsDao<T> extends DataObjectSource<BeanWithSetting
 
     public T findOne();
 
-    public Collection<T> findAll();
+    public List<T> findAll();
 
     public void upsert(T object);
 }

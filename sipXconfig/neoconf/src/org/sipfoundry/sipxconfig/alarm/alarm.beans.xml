@@ -8,11 +8,9 @@
     <property name="serviceInterface" value="org.sipfoundry.sipxconfig.alarm.AlarmApi" />
   </bean>
 
-!!!
   <bean id="alarmConfiguration" class="org.sipfoundry.sipxconfig.alarm.AlarmConfiguration">
     <property name="velocityEngine" ref="velocityEngine" />
-    <property name="template" value="alarms/sipXalarms-config.vm" />
-    <property name="name" value="alarms/sipXalarms-config.xml" />
+    <property name="alarmServerManager" value="alarmServerManager" />
   </bean>
 
   <bean id="alarmContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -37,15 +35,13 @@
     <property name="locationsManager" ref="locationsManager" />
   </bean>
 
-  <bean id="alarmServerManagerImpl" class="org.sipfoundry.sipxconfig.alarm.AlarmServerManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="alarmServerManagerImpl" class="org.sipfoundry.sipxconfig.alarm.AlarmServerManagerImpl" parent="abstractDaoImpl">
     <property name="locationsManager" ref="locationsManager" />    
     <property name="sipxUser" value="${sysdir.user}" />
     <property name="logDirectory" value="${sysdir.log}" />
     <property name="configDirectory" value="${sysdir.etc}" />
     <property name="alarmsStringsDirectory" value="${sysdir.alarmsStrings}" />
     <property name="mibsDirectory" value="${sipxpbx.mibs.dir}" />
-    <property name="configManager" value="configManager" />    
   </bean>
 
   <bean id="alarmServerManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

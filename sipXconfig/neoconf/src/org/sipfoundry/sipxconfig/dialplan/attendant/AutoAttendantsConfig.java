@@ -44,8 +44,7 @@ public class AutoAttendantsConfig extends EntitySaveListener<Group> implements C
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(DialPlanContext.FEATURE, AutoAttendants.FEATURE, LocalizationContext.FEATURE)
-                || !request.isFirstTime(this)) {
+        if (!request.applies(DialPlanContext.FEATURE, AutoAttendants.FEATURE, LocalizationContext.FEATURE)) {
             return;
         }
 
@@ -58,7 +57,6 @@ public class AutoAttendantsConfig extends EntitySaveListener<Group> implements C
             config.write(doc);
             IOUtils.closeQuietly(wtr);
         }
-        request.firstTimeOver(this);
     }
 
     public void setConfigManager(ConfigManager configManager) {

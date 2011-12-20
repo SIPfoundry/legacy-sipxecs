@@ -18,10 +18,7 @@ import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
 import org.springframework.beans.factory.BeanFactory;
@@ -30,14 +27,12 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements SbcDeviceManager,
-        BeanFactoryAware, DaoEventListener {
-    private static final String BORDER_CONTROLLER = "borderController";
+public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements SbcDeviceManager,
+        BeanFactoryAware {
     private static final String SBC_ID = "sbcId";
     private static final String SBC_NAME = "sbcName";
     private static final String AUDIT_LOG_CONFIG_TYPE = "SBC Device";
     private BeanFactory m_beanFactory;
-    private DaoEventPublisher m_daoEventPublisher;
     private SbcDescriptor m_sipXbridgeSbcModel;
     private AuditLogContext m_auditLogContext;
 
@@ -51,14 +46,9 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         m_sipXbridgeSbcModel = sipXbridgeSbcModel;
     }
 
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
-    }
-
-    public abstract DialPlanActivationManager getDialPlanActivationManager();
-
     public void clear() {
         Collection<SbcDevice> sbcs = getSbcDevices();
+        getDaoEventPublisher().publishDeleteCollection(sbcs);
         for (SbcDevice sbcDevice : sbcs) {
             deleteSbcDevice(sbcDevice.getId());
         }
@@ -66,7 +56,7 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
 
     public void deleteSbcDevice(Integer id) {
         SbcDevice sbcDevice = getSbcDevice(id);
-        m_daoEventPublisher.publishDelete(sbcDevice);
+        getDaoEventPublisher().publishDelete(sbcDevice);
         getHibernateTemplate().delete(sbcDevice);
         m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, sbcDevice.getName());
     }
@@ -79,10 +69,9 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     public void deleteSbcDevices(Collection<Integer> ids) {
         for (Integer id : ids) {
             SbcDevice sbcDevice = getSbcDevice(id);
-            m_daoEventPublisher.publishDelete(sbcDevice);
+            getDaoEventPublisher().publishDelete(sbcDevice);
             deleteSbcDevice(id);
         }
-        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     public Collection<Integer> getAllSbcDeviceIds() {
@@ -163,6 +152,7 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         // Please note that sbc_device table is not related with location table
         bridgeSbc.setSettingTypedValue("bridge-configuration/location-id", location.getId());
         saveSbcDevice(bridgeSbc);
+        getDaoEventPublisher().publishSave(bridgeSbc);
     }
 
 
@@ -192,7 +182,6 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, sbc.getName());
         } else {
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, sbc.getName());
-            getDialPlanActivationManager().replicateDialPlan(true);
             sbc.generateProfiles(sbc.getProfileLocation());
             sbc.restart();
         }

@@ -32,27 +32,40 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (request.applies(TunnelManager.FEATURE)) {
-            List<Location> locations = Arrays.asList(manager.getLocationManager().getLocations());
-            for (Location location : locations) {
-                File dir = manager.getLocationDataDirectory(location);
-                List<AllowedIncomingTunnel> in = getIncomingTunnels(location, locations);
-                write(dir, in, "tunnel/tunnel-client.conf.vm", "tunnel/tunnel-client.conf.cfdat");
-                List<RemoteOutgoingTunnel> out = getOutgoingTunnels(location, locations);
-                write(dir, out, "tunnel/tunnel-server.conf.vm", "tunnel/tunnel-server.conf.cfdat");
+        if (!request.applies(TunnelManager.FEATURE)) {
+            return;
+        }
+        List<Location> locations = Arrays.asList(manager.getLocationManager().getLocations());
+        if (locations.isEmpty()) {
+            return;
+        }
+        for (Location location : locations) {
+            File dir = manager.getLocationDataDirectory(location);
+
+            List<AllowedIncomingTunnel> in = getIncomingTunnels(location, locations);
+            Writer inConfig = new FileWriter(new File(dir, "tunnel/tunnel-client.conf.cfdat"));
+            try {
+                writeIncomingTunnels(inConfig, in);
+            } finally {
+                IOUtils.closeQuietly(inConfig);
+            }
+
+            List<RemoteOutgoingTunnel> out = getOutgoingTunnels(location, locations);
+            Writer outConfig = new FileWriter(new File(dir, "tunnel/tunnel-server.conf.cfdat"));
+            try {
+                writeOutgoingTunnels(outConfig, out);
+            } finally {
+                IOUtils.closeQuietly(inConfig);
             }
         }
     }
 
-    void write(File dir, List<? extends AbstractTunnel> tunnels, String template, String dst) throws IOException {
-        FileWriter writer = null;
-        try {
-            File file = new File(dir, dst);
-            writer = new FileWriter(file);
-            writeTunnels(writer, template, tunnels);
-        } finally {
-            IOUtils.closeQuietly(writer);
-        }
+    void writeIncomingTunnels(Writer wtr, List<AllowedIncomingTunnel> tunnels) throws IOException {
+        writeTunnels(wtr, "tunnel/tunnel-server.conf.vm", tunnels);
+    }
+
+    void writeOutgoingTunnels(Writer wtr, List<RemoteOutgoingTunnel> tunnels) throws IOException {
+        writeTunnels(wtr, "tunnel/tunnel-client.conf.vm", tunnels);
     }
 
     List<RemoteOutgoingTunnel> getOutgoingTunnels(Location location, List<Location> locations) {
@@ -64,7 +77,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
         return tunnels;
     }
 
-    void writeTunnels(Writer writer, String template, List<? extends AbstractTunnel> tunnels) throws IOException {
+    void writeTunnels(Writer writer, String template, List< ? extends AbstractTunnel> tunnels) throws IOException {
         VelocityContext context = new VelocityContext();
         context.put("tunnelManager", m_tunnelManager);
         context.put("tunnels", tunnels);

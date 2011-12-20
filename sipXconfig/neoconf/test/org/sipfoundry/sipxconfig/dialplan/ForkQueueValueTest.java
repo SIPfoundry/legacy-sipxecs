@@ -7,13 +7,13 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan;
+package org.sipfoundry.sipxconfig.dialplan;
 
 import java.util.Locale;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
+import org.sipfoundry.sipxconfig.forwarding.Ring;
 
 /**
  * ForkQueueValueTest

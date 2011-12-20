@@ -24,31 +24,59 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ParkOrbitConfiguration implements ConfigProvider {
+public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/orbits-00-00";
     private String m_audioDirectory;
     private ParkOrbitContext m_parkOrbitContext;
+    private ConfigManager m_configManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (request.applies(ParkOrbitContext.FEATURE)) {
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                    ParkOrbitContext.FEATURE);
-            for (Location location : locations) {
-                File dir = manager.getLocationDataDirectory(location);
-                Writer writer = new FileWriter(new File(dir, "orbits.xml"));
-                XmlFile config = new XmlFile(writer);
+        if (!request.applies(ParkOrbitContext.FEATURE)) {
+            return;
+        }
+
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
+                ParkOrbitContext.FEATURE);
+        if (locations.isEmpty()) {
+            return;
+        }
+
+        ParkSettings settings = m_parkOrbitContext.getSettings();
+        for (Location location : locations) {
+            File dir = manager.getLocationDataDirectory(location);
+            Writer xml = new FileWriter(new File(dir, "orbits.xml"));
+            try {
+                XmlFile config = new XmlFile(xml);
                 config.write(getDocument());
-                IOUtils.closeQuietly(writer);
+                IOUtils.closeQuietly(xml);
+            } finally {
+                IOUtils.closeQuietly(xml);
+            }
+
+            Writer config = new FileWriter(new File(dir, "sipxpark-config"));
+            try {
+                write(config, location, settings);
+            } finally {
+                IOUtils.closeQuietly(xml);
             }
         }
     }
 
-    public Document getDocument() {
+    void write(Writer writer, Location location, ParkSettings settings) throws IOException {
+        KeyValueConfiguration config = new KeyValueConfiguration(writer);
+        config.write(settings.getSettings().getSetting("park-config"));
+        config.write("SIP_PARK_BIND_IP", location.getAddress());
+    }
+
+    Document getDocument() {
         Document document = XmlFile.FACTORY.createDocument();
         Element orbits = document.addElement("orbits", NAMESPACE);
         File dir = new File(m_audioDirectory);
@@ -106,5 +134,25 @@ public class ParkOrbitConfiguration implements ConfigProvider {
     @Required
     public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
         m_parkOrbitContext = parkOrbitContext;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Group) {
+            onChange((Group) entity);
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        if (entity instanceof Group) {
+            onChange((Group) entity);
+        }
+    }
+
+    public void onChange(Group group) {
+        if (ParkOrbitContext.PARK_ORBIT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
+            m_configManager.replicationRequired(ParkOrbitContext.FEATURE);
+        }
     }
 }

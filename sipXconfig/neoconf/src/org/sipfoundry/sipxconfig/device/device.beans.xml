@@ -5,14 +5,14 @@
   <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.device.DeviceDefaults">
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="domainManager" ref="domainManager" />
-    <property name="serviceManager" ref="serviceManager" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="logDirectory" value="${sysdir.log}"></property>
     <property name="timeZoneManager" ref="timeZoneManager" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="pagingContext" ref="pagingContext" />
     <property name="musicOnHoldManager" ref="musicOnHoldManager" />
     <property name="routeEmergencyCallsDirectly" value="false" />
+    <property name="addressManager" value="addressManager" />
+    <property name="registar" value="registar" />
   </bean>
 
 
@@ -50,8 +50,7 @@
     </property>
   </bean>
 
-  <bean id="timeZoneManagerImpl" class="org.sipfoundry.sipxconfig.device.TimeZoneManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="timeZoneManagerImpl" class="org.sipfoundry.sipxconfig.device.TimeZoneManagerImpl" parent="abstractDaoImpl">
   </bean>
 
   <bean id="timeZoneInit" class="org.sipfoundry.sipxconfig.device.TimeZoneInit">

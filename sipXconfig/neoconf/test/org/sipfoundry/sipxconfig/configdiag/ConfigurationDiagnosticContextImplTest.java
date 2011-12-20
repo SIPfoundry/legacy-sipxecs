@@ -7,14 +7,14 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.configdiag;
+package org.sipfoundry.sipxconfig.configdiag;
 
 import java.io.File;
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticResult.Status;
+import org.sipfoundry.sipxconfig.configdiag.ConfigurationDiagnosticResult.Status;
 
 public class ConfigurationDiagnosticContextImplTest extends TestCase {
 
@@ -22,7 +22,7 @@ public class ConfigurationDiagnosticContextImplTest extends TestCase {
 
     public void setUp() {
         m_out = new ConfigurationDiagnosticContextImpl();
-        String testFilename = getClass().getClassLoader().getResource("org/sipfoundry/sipxconfig/admin/configdiag/10simple.test.xml").getFile();
+        String testFilename = getClass().getClassLoader().getResource("org/sipfoundry/sipxconfig/configdiag/10simple.test.xml").getFile();
         String descriptorPath = new File(testFilename).getParent();
         m_out.setDescriptorPath(descriptorPath);
     }

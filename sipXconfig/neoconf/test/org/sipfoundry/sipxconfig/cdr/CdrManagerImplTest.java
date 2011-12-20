@@ -15,8 +15,6 @@ import static org.easymock.EasyMock.verify;
 
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.URL;
-import java.rmi.RemoteException;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.text.FieldPosition;
@@ -29,20 +27,16 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 import org.easymock.internal.matchers.InstanceOf;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.CdrsResultReader;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.ColumnInfo;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.ColumnInfoFactory;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.DefaultColumnInfoFactory;
-import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.dialplan.CallTag;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 public class CdrManagerImplTest extends TestCase {
@@ -315,38 +309,5 @@ public class CdrManagerImplTest extends TestCase {
                 writer.toString());
 
         verify(rs);
-    }
-
-    public void testGetCdrService() throws Exception {
-        final String host = "cdr.example.org";
-        final int port = 9999;
-
-        CdrManagerImpl out = new CdrManagerImpl();
-
-        CdrServiceProvider serviceProvider = EasyMock.createMock(CdrServiceProvider.class);
-        serviceProvider.getCdrService(new URL("http", host, port, StringUtils.EMPTY));
-        EasyMock.expectLastCall().andReturn(new CdrService() {
-            public ActiveCall[] getActiveCalls() throws RemoteException {
-                return null;
-            }
-        });
-        out.setCdrServiceProvider(serviceProvider);
-
-        SipxCallResolverService sipxCallResolverService = new SipxCallResolverService() {
-            public String getAgentAddress() {
-                return host;
-            }
-        };
-        sipxCallResolverService.setAgentPort(port);
-        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(sipxCallResolverService).anyTimes();
-        out.setSipxServiceManager(sipxServiceManager);
-
-        EasyMock.replay(serviceProvider, sipxServiceManager);
-
-        CdrService cdrService = out.getCdrService();
-        assertNotNull(cdrService);
-        EasyMock.verify(serviceProvider, sipxServiceManager);
     }
 }

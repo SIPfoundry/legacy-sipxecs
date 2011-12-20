@@ -24,7 +24,6 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
@@ -34,7 +33,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private static final String LOCATION_PROP_IP = "ipAddress";
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
-    private DaoEventPublisher m_daoEventPublisher;
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
@@ -89,11 +87,11 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     /**
      * Stores location without publishing events. Used for migrating locations.
-     */
     @Override
     public void storeMigratedLocation(Location location) {
         getHibernateTemplate().saveOrUpdate(location);
     }
+     */
 
     @Override
     public void saveLocation(Location location) {
@@ -119,15 +117,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
             location.fqdnOrIpHasChangedOnSave();
             getHibernateTemplate().update(location);
         }
-    }
-
-    /**
-     * Use thie method when you want to update location ant not to be intercepted by DAO events
-     * @param location
-     */
-    @Override
-    public void updateLocation(Location location) {
-        getHibernateTemplate().merge(location);
     }
 
     /**
@@ -171,9 +160,5 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     @Override
     public Location getPrimaryLocation() {
         return loadLocationByUniqueProperty(LOCATION_PROP_PRIMARY, true);
-    }
-
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 }

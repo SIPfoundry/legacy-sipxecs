@@ -7,9 +7,9 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.configdiag;
+package org.sipfoundry.sipxconfig.configdiag;
 
-import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticResult.Status;
+import org.sipfoundry.sipxconfig.configdiag.ConfigurationDiagnosticResult.Status;
 
 import junit.framework.TestCase;
 

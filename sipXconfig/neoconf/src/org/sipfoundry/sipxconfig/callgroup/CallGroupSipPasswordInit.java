@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.callgroup;
 
-import org.sipfoundry.sipxconfig.common.InitTaskListener;
+import org.sipfoundry.sipxconfig.admin.InitTaskListener;
 
 /**
  * Upgrades DB by initializing SIP password field of all existing call groups.

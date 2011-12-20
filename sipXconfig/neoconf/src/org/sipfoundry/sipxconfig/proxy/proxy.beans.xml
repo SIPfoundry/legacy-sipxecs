@@ -7,11 +7,19 @@
   </bean>
 
   <bean id="proxy" class="org.sipfoundry.sipxconfig.proxy.ProxyManager">
-    <property name="settingsDao" ref="beanWithSettingsDao" />
+    <property name="settingsDao">
+      <bean parent="beanWithSettingDao">
+        <property name="target">
+          <bean parent="beanWithSettingDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.proxy.ProxySettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
     <property name="featureManager" ref="featureManager" />
   </bean>
 
-  <bean id="proxyConfig" class="org.sipfoundry.sipxconfig.proxy.ProxyConfig">
+  <bean id="proxyConfiguration" class="org.sipfoundry.sipxconfig.proxy.ProxyConfiguration">
     <property name="cdrManager" ref="cdrManager" />
     <property name="tlsPeerManager" ref="tlsPeerManager" />
     <property name="proxyManager" ref="proxyManager" />
