@@ -19,6 +19,7 @@ debuglevel=lines
 
 # U T I L
 sipxivr.lib.dir=@SIPX_JAVADIR@/sipXivr
+sipxconfig.lib.dir=@SIPX_JAVADIR@/sipXconfig
 sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
 sipxcommons.jar=${sipxcommons.dir}/sipxcommons.jar
 junit.jar=${sipxcommons.dir}/junit.jar
@@ -31,6 +32,7 @@ commons-logging.jar=${sipxcommons.dir}/commons-logging.jar
 jetty.jar=${sipxcommons.dir}/jetty.jar
 javax.servlet.jar=${sipxcommons.dir}/javax.servlet.jar
 javamail.jar=${sipxcommons.dir}/javamail.jar
+iText.jar=${sipxconfig.lib.dir}/iText-2.1.7.jar
 sipxopenfire.dir=@SIPX_JAVADIR@/sipXopenfire
 sipxopenfireplugin.jar=${sipxopenfire.dir}/plugins/sipx-openfire-presence-plugin.jar
 xmlrpc-common.jar=${sipxcommons.dir}/xmlrpc-common.jar
