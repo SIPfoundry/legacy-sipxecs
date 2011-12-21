@@ -22,7 +22,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * Backup provides Java interface to backup scripts
  */
-public abstract class AdminContextImpl extends HibernateDaoSupport implements AdminContext {
+public class AdminContextImpl extends HibernateDaoSupport implements AdminContext {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
             TFTP_ADDRESS, FTP_ADDRESS);
 
@@ -33,22 +33,24 @@ public abstract class AdminContextImpl extends HibernateDaoSupport implements Ad
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (ADDRESSES.contains(type)) {
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-            List<Address> addresses = new ArrayList<Address>(locations.size());
-            for (Location location : locations) {
-                Address address = new Address();
-                address.setAddress(location.getAddress());
-                if (type.equals(HTTP_ADDRESS)) {
-                    address.setPort(12000);
-                } else if (type.equals(HTTPS_ADDRESS)) {
-                    address.setPort(8443);
-                }
-            }
-            return addresses;
-
+        if (!ADDRESSES.contains(type)) {
+            return null;
         }
-        return null;
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            Address address = new Address();
+            address.setAddress(location.getAddress());
+            if (type.equals(HTTP_ADDRESS)) {
+                address.setPort(12000);
+            } else if (type.equals(HTTPS_ADDRESS)) {
+                address.setPort(8443);
+            }
+            // else ftp and tftp won't have ports defines, 0 means it's assumed to be default
+            // also, this assumed admin ui is also tftp and ftp server, which is a correct assumption
+            // for now.
+        }
+        return addresses;
     }
 
     public String[] getInitializationTasks() {

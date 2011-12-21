@@ -10,9 +10,9 @@
     <property name="dataSource" ref="acdHistoryDataSource" />
     <property name="reportScript" value="${sysdir.bin}/sipxconfig-report"/>
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.acd.stats.history.AcdHistoricalSettings"/>
           </bean>
         </property>

@@ -19,11 +19,11 @@
     </property>
   </bean>
 
-  <bean id="beanWithSettingDaoImpl" class="org.sipfoundry.sipxconfig.setting.BeanWithSettingsDaoImpl" abstract="true" parent="abstractDaoImpl">
+  <bean id="beanWithSettingsDaoImpl" class="org.sipfoundry.sipxconfig.setting.BeanWithSettingsDaoImpl" abstract="true" parent="abstractDaoImpl">
   </bean>
 
-  <bean id="beanWithSettingDao" class="org.springframework.aop.framework.ProxyFactoryBean" abstract="true">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setting.BeanWithSettingDao" />
+  <bean id="beanWithSettingsDao" class="org.springframework.aop.framework.ProxyFactoryBean" abstract="true">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao" />
   </bean>
 
   <bean id="modelBuilderImpl" class="org.sipfoundry.sipxconfig.setting.XmlModelBuilder">

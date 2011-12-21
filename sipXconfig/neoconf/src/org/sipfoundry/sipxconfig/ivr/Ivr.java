@@ -80,4 +80,8 @@ public class Ivr implements FeatureProvider, AddressProvider {
         }
         return null;
     }
+
+    public void setPilotSettingsDao(BeanWithSettingsDao<CallPilotSettings> pilotSettingsDao) {
+        m_pilotSettingsDao = pilotSettingsDao;
+    }
 }

@@ -46,34 +46,22 @@
   </bean>
 
   <!-- gateway context -->
-  <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
+  <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl" parent="abstractDaoImpl">
     <property name="dialPlanContext" ref="dialPlanContext" />
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="daoEventPublisher" ref="daoEventPublisher" />
     <property name="auditLogContext" ref="auditLogContext" />
   </bean>
 
-  <bean id="gatewayContextSbcDeviceDelete" factory-bean="gatewayContextImpl" factory-method="createSbcDeviceDeleteListener" />
-
   <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>
-    </property>
-    <property name="target">
-      <ref local="gatewayContextImpl" />
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.gateway.GatewayContext"/>
+    <property name="target" ref="gatewayContextImpl" />
   </bean>
 
   <bean id="gatewaySource" class="org.sipfoundry.sipxconfig.gateway.GatewaySource">
-    <property name="gatewayContext">
-      <ref local="gatewayContext" />
-    </property>
+    <property name="gatewayContext" ref="gatewayContext" />
   </bean>
 
   <bean id="gatewayRestartManager" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
-    <property name="deviceSource">
-      <ref local="gatewaySource" />
-    </property>
+    <property name="deviceSource" ref="gatewaySource" />
     <property name="jobContext" ref="jobContext" />
     <property name="sleepInterval" value="5000" />
     <property name="executorService" ref="restartExecutorService" />

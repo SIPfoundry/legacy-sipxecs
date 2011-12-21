@@ -28,24 +28,19 @@
     </property>
   </bean>
 
-  <bean id="conferenceBridgeContextImpl" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="conferenceBridgeContextImpl" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl" parent="abstractDaoImpl">
     <property name="aliasManager" ref="aliasManager" />
     <property name="domainManager" ref="domainManager" />
-    <property name="daoEventPublisher" ref="daoEventPublisher"/>
     <property name="conferenceFeature" ref="conferenceFeature" />
   </bean>
   
   <bean id="conferenceFeature" class="org.sipfoundry.sipxconfig.conference.ConferenceFeature">
-    <property name="conferenceBridgeContext" ref="conferenceBridgeContext"/>
+    <!-- property name="conferenceBridgeContext" ref="conferenceBridgeContext"/ -->
   </bean>
 
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces"
-      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext" />
-    <property name="target">
-      <ref local="conferenceBridgeContextImpl" />
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext" />
+    <property name="target" ref="conferenceBridgeContextImpl" />
   </bean>
 
   <bean id="freeswitchApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">

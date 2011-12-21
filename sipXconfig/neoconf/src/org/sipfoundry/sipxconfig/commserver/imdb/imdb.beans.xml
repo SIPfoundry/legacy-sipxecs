@@ -62,8 +62,7 @@
     <property name="speedDialManager" ref="speedDialManager" />
   </bean>
   
-  <bean id="replicationManagerImpl"
-    class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl" parent="abstractDaoImpl">
+  <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl" parent="abstractDaoImpl">
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
     <property name="coreContext" ref="coreContext" />
@@ -73,10 +72,14 @@
     <property name="validUsers" ref="validUsers"/>
     <property name="imdb" ref="imdb"/>
   </bean>
-  
-  <bean id="replicationTrigger"
-    class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationTrigger">
-    <property name="replicationManager" ref="replicationManagerImpl" />
+
+  <bean id="replicationManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager"/>
+    <property name="target" ref="replicationManagerImpl"/>
+  </bean>
+
+  <bean id="replicationTrigger" class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationTrigger">
+    <property name="replicationManager" ref="replicationManager" />
     <property name="openAcdContext" ref="openAcdContextImpl" />
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="locationsManager" ref="locationsManager" />

@@ -35,16 +35,21 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserChangeEvent;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext,
-    DaoEventListener, OpenAcdConfigObjectProvider {
+public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext,
+    DaoEventListener, OpenAcdConfigObjectProvider, BeanFactoryAware {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -69,6 +74,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private FeatureManager m_featureManager;
     private OpenAcdProvisioningContext m_provisioningContext;
     private BeanWithSettingsDao<OpenAcdSettings> m_settingsDao;
+    private ListableBeanFactory m_beanFactory;
 
     public OpenAcdSettings getSettings() {
         return m_settingsDao.findOne();
@@ -78,7 +84,13 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         m_settingsDao.upsert(settings);
     }
 
-    public abstract OpenAcdExtension newOpenAcdExtension();
+    public OpenAcdLine newOpenAcdLine() {
+        return m_beanFactory.getBean(OpenAcdLine.class);
+    }
+
+    public OpenAcdCommand newOpenAcdCommand() {
+        return m_beanFactory.getBean(OpenAcdCommand.class);
+    }
 
     @Override
     public OpenAcdExtension getExtensionById(Integer extensionId) {
@@ -982,5 +994,36 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
     public void setSettingsDao(BeanWithSettingsDao<OpenAcdSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public void replicateConfig() {
+    }
+
+    @Override
+    public void resync() {
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof UserChangeEvent) {
+            UserChangeEvent userEvent = (UserChangeEvent) event;
+            OpenAcdAgent agent = getAgentByUserId(userEvent.getUserId());
+            if (agent != null) {
+                agent.setOldName(userEvent.getOldUserName());
+                agent.getUser().setUserName(userEvent.getUserName());
+                agent.getUser().setFirstName(userEvent.getFirstName());
+                agent.getUser().setLastName(userEvent.getLastName());
+
+                ArrayList<OpenAcdAgent> list = new ArrayList<OpenAcdAgent>();
+                list.add(agent);
+                m_provisioningContext.updateObjects(list);
+            }
+        }
     }
 }

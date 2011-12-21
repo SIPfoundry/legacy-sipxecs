@@ -103,7 +103,7 @@ public class PersonalAttendantSettingListener implements DaoEventListener {
         m_mailboxManager = mailboxManager;
     }
 
-    public void setConfigJdbcTemplate(JdbcTemplate template) {
+    public void setJdbcTemplate(JdbcTemplate template) {
         m_jdbcTemplate = template;
     }
 }

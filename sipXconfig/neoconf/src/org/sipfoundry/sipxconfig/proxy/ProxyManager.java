@@ -32,7 +32,7 @@ public class ProxyManager implements FeatureProvider, AddressProvider {
         TCP_ADDRESS, UDP_ADDRESS, TLS_ADDRESS
     });
     private FeatureManager m_featureManager;
-    private BeanWithSettingsDao<ProxySettings> m_settingsDoa;
+    private BeanWithSettingsDao<ProxySettings> m_settingsDao;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
@@ -45,11 +45,11 @@ public class ProxyManager implements FeatureProvider, AddressProvider {
     }
 
     public ProxySettings getSettings() {
-        return m_settingsDoa.findOne();
+        return m_settingsDao.findOne();
     }
 
     public void saveSettings(ProxySettings settings) {
-        m_settingsDoa.upsert(settings);
+        m_settingsDao.upsert(settings);
     }
 
     @Override
@@ -77,5 +77,13 @@ public class ProxyManager implements FeatureProvider, AddressProvider {
         }
 
         return addresses;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<ProxySettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 }

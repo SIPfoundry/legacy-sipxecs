@@ -4,7 +4,6 @@
   
   <bean id="sbcManagerImpl" class="org.sipfoundry.sipxconfig.sbc.SbcManagerImpl" parent="abstractDaoImpl">
     <property name="domainManager" ref="domainManager" />
-    <property name="daoEventPublisher" ref="daoEventPublisher" />
   </bean>
 
   <bean id="sbcManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -15,7 +14,7 @@
   </bean>
   
   <bean id="sbcFeature" class="org.sipfoundry.sipxconfig.sbc.SbcFeature">
-    <property name="sbcDeviceManager" ref="sbcManager"/>
+    <property name="sbcDeviceManager" ref="sbcDeviceManager"/>
   </bean>
 
   <bean id="sbcOnEdit" class="org.sipfoundry.sipxconfig.sbc.SbcOnEditListener">

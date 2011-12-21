@@ -84,4 +84,8 @@ public class SaaConfiguration implements ConfigProvider {
     public void setSaaManager(SaaManager saaManager) {
         m_saaManager = saaManager;
     }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
 }

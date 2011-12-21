@@ -46,4 +46,8 @@ public class ProvisionConfiguration implements ConfigProvider {
         KeyValueConfiguration config = new KeyValueConfiguration(wtr, "=");
         config.write(settings.getSettings().getSetting("provision-config"));
     }
+
+    public void setProvision(Provision provision) {
+        m_provision = provision;
+    }
 }

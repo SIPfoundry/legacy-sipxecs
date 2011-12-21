@@ -4,7 +4,7 @@
 
   <bean id="vmAttendantOnEdit" class="org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantSettingListener">
     <property name="mailboxManager" ref="mailboxManager" />
-    <property name="jdbcTemplate" ref="jdbcTemplate" />
+    <property name="jdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 
 </beans>

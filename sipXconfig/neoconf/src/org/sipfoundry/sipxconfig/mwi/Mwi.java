@@ -73,4 +73,8 @@ public class Mwi implements AddressProvider, FeatureProvider {
         }
         return null;
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<MwiSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

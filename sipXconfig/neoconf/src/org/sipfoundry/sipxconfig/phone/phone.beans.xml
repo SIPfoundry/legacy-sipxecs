@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
   <bean id="nakedPhoneModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
     <constructor-arg>
       <value>org.sipfoundry.sipxconfig.phone.PhoneModel</value>
@@ -27,12 +28,8 @@
   </bean>
 
   <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.phone.PhoneContext</value>
-    </property>
-    <property name="target">
-      <ref local="phoneContextImpl" />
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.phone.PhoneContext"/>
+    <property name="target" ref="phoneContextImpl"/>
   </bean>
 
   <bean id="phoneSource" class="org.sipfoundry.sipxconfig.phone.PhoneSource">

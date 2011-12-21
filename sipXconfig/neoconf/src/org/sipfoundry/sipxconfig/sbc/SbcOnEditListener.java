@@ -39,4 +39,16 @@ public class SbcOnEditListener implements DaoEventListener {
             m_featureManager.enableGlobalFeature(NatTraversal.FEATURE, true);
         }
     }
+
+    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
+        m_sbcDeviceManager = sbcDeviceManager;
+    }
+
+    public void setSbcManager(SbcManager sbcManager) {
+        m_sbcManager = sbcManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
 }

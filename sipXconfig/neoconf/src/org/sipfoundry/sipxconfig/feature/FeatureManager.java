@@ -44,9 +44,4 @@ public interface FeatureManager {
     public Set<LocationFeature> getAvailableLocationFeatures(Location location);
 
     public List<Location> getLocationsForEnabledFeature(LocationFeature feature);
-
-    /**
-     * Useful only if you know there's only a single allowed location
-     */
-    public Location getLocationForEnabledFeature(LocationFeature feature);
 }

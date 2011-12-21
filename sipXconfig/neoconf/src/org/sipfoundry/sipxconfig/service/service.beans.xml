@@ -8,9 +8,9 @@
 
   <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.service.UnmanagedServiceSettings"/>
           </bean>
         </property>

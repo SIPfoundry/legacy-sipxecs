@@ -29,9 +29,9 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -39,9 +39,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
+public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         ConferenceBridgeContext, ReplicableProvider {
     private static final String BUNDLE_CONFERENCE = "conference";
     private static final String CONFERENCE = BUNDLE_CONFERENCE;
@@ -54,7 +53,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private DomainManager m_domainManager;
-    private DaoEventPublisher m_daoEventPublisher;
     private ConferenceFeature m_conferenceFeature;
 
     public List getBridges() {
@@ -123,7 +121,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         for (Iterator i = conferencesIds.iterator(); i.hasNext();) {
             Serializable id = (Serializable) i.next();
             Conference conference = loadConference(id);
-            m_daoEventPublisher.publishDelete(conference);
+            getDaoEventPublisher().publishDelete(conference);
             Bridge bridge = conference.getBridge();
             bridge.removeConference(conference);
             bridges.add(bridge);
@@ -299,11 +297,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     @Required
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
-    }
-
-    @Required
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 
 

@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -40,12 +41,11 @@ public class DeviceDefaults {
     private DialPlanContext m_dialPlanContext;
     private DomainManager m_domainManager;
     private TimeZoneManager m_timeZoneManager;
-    private String m_defaultNtpService = "pool.ntp.org";
     private String m_logDirectory;
     private LocationsManager m_locationsManager;
     private MohAddressFactory m_musicOnHold;
     private PagingContext m_pagingContext;
-    private Registrar m_registar;
+    private Registrar m_registrar;
     private AddressManager m_addressManager;
 
     /**
@@ -54,10 +54,6 @@ public class DeviceDefaults {
      * alarms and registering CDRs.
      */
     private boolean m_routeEmergencyCallsDirectly;
-
-    public void setDefaultNtpService(String defaultNtpService) {
-        m_defaultNtpService = defaultNtpService;
-    }
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
@@ -76,14 +72,14 @@ public class DeviceDefaults {
     }
 
     public String getNtpServer() {
-        return m_addressManager.getSingleAddress(AddressManager.NTP_ADDRESS).getAddress();
+        return m_addressManager.getSingleAddress(UnmanagedService.NTP).getAddress();
     }
 
     /**
      * @return null if not set
      */
     public String getAlternateNtpServer() {
-        Collection<Address> ntp = m_addressManager.getAddresses(AddressManager.NTP_ADDRESS);
+        Collection<Address> ntp = m_addressManager.getAddresses(UnmanagedService.NTP);
         if (ntp.size() > 1) {
             return ((Address) ntp.toArray()[1]).getAddress();
         }
@@ -220,10 +216,18 @@ public class DeviceDefaults {
     }
 
     public String getDirectedCallPickupCode() {
-        return m_registar.getSettings().getDirectedCallPickupCode();
+        return m_registrar.getSettings().getDirectedCallPickupCode();
     }
 
     public String getCallRetrieveCode() {
-        return m_registar.getSettings().getCallRetrieveCode();
+        return m_registrar.getSettings().getCallRetrieveCode();
+    }
+
+    public void setRegistrar(Registrar registrar) {
+        m_registrar = registrar;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

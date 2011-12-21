@@ -51,4 +51,8 @@ public class NatTraversal implements FeatureListener {
             }
         }
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<NatSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

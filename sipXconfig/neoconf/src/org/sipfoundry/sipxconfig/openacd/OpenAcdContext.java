@@ -26,8 +26,10 @@ import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
+import org.springframework.context.ApplicationListener;
 
-public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner, ReplicableProvider {
+public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner, ReplicableProvider,
+        ApplicationListener {
     public static final LocationFeature FEATURE = new LocationFeature("openacd");
 
     OpenAcdSettings getSettings();

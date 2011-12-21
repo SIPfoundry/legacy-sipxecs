@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
   <bean id="openAcdLine" class="org.sipfoundry.sipxconfig.openacd.OpenAcdLine" scope="prototype">
     <property name="addressManager" ref="addressManager"/>
   </bean>
@@ -13,15 +14,13 @@
   </bean>
 
   <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl" parent="abstractDaoImpl">
-    <lookup-method name="newOpenAcdLine" bean="openAcdLine"/>
-    <lookup-method name="newOpenAcdCommand" bean="openAcdCommand"/>
     <property name="aliasManager" ref="aliasManager" />
     <property name="provisioningContext" ref="openAcdProvisioningContext" />
     <property name="featureManager" ref="featureManager" />
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.openacd.OpenAcdSettings"/>
           </bean>
         </property>
@@ -31,9 +30,7 @@
   
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.openacd.OpenAcdContext" />
-    <property name="target">
-      <ref local="openAcdContextImpl" />
-    </property>
+    <property name="target" ref="openAcdContextImpl"/>
   </bean>
 
   <bean id="openAcdDb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
@@ -42,7 +39,6 @@
   </bean>
 
   <bean id="openAcdProvisioningContext" class="org.sipfoundry.sipxconfig.openacd.OpenAcdProvisioningContextImpl">
-	<property name="openAcdContext" ref="openAcdContext"/>
 	<property name="db" ref="openAcdDb"/>
   </bean>
 

@@ -81,4 +81,16 @@ public class AuthCodes implements ReplicableProvider, DialingRuleProvider, Featu
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return Collections.singleton(FEATURE);
     }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<AuthCodeSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

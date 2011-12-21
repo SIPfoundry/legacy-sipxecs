@@ -12,9 +12,9 @@
   <bean id="pagingContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingContextImpl" parent="abstractDaoImpl">
     <property name="featureManager" ref="featureManager" />
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.paging.PagingSettings"/>
           </bean>
         </property>

@@ -12,18 +12,18 @@
 
   <bean id="ivr" class="org.sipfoundry.sipxconfig.ivr.Ivr">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.ivr.IvrSettings"/>
           </bean>
         </property>
       </bean>
     </property>
     <property name="pilotSettingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.ivr.CallPilotSettings"/>
           </bean>
         </property>

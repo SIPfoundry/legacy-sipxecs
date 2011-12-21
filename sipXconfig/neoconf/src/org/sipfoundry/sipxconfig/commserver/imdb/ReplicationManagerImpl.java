@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
+
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 
 import java.io.UnsupportedEncodingException;
@@ -36,6 +37,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -50,7 +52,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -63,7 +64,7 @@ import com.mongodb.DBObject;
  * care of all the work load needed to replicate {@link Replicable}s in Mongo and
  * {@link ConfigurationFile}s on different locations.
  */
-public class ReplicationManagerImpl extends HibernateDaoSupport implements ReplicationManager, BeanFactoryAware {
+public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements ReplicationManager, BeanFactoryAware {
     private static final int PERMISSIONS = 0644;
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";

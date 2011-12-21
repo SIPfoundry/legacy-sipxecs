@@ -10,7 +10,7 @@
 
   <bean id="alarmConfiguration" class="org.sipfoundry.sipxconfig.alarm.AlarmConfiguration">
     <property name="velocityEngine" ref="velocityEngine" />
-    <property name="alarmServerManager" value="alarmServerManager" />
+    <property name="alarmServerManager" ref="alarmServerManager" />
   </bean>
 
   <bean id="alarmContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

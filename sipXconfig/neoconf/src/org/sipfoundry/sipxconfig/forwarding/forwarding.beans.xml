@@ -5,10 +5,8 @@
     - F O R W A R D I N G  C O N T E X T
   -->
 
-  <bean id="forwardingContextImpl" class="org.sipfoundry.sipxconfig.forwarding.ForwardingContextImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="forwardingContextImpl" class="org.sipfoundry.sipxconfig.forwarding.ForwardingContextImpl" parent="abstractDaoImpl">
     <property name="coreContext" ref="coreContextImpl" />
-    <property name="daoEventPublisher" ref="daoEventPublisher" />
     <property name="configJdbcTemplate" ref="configJdbcTemplate" />
     <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>

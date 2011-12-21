@@ -113,7 +113,7 @@ public class SipStackBean {
 
     private AddressManager m_addressManager;
 
-    private LocationsManager m_locationManager;
+    private LocationsManager m_locationsManager;
 
     private final Timer m_timer = new Timer();
 
@@ -138,7 +138,7 @@ public class SipStackBean {
             m_addressFactory = factory.createAddressFactory();
             m_headerFactory = factory.createHeaderFactory();
             m_messageFactory = factory.createMessageFactory();
-            String myAddress = m_locationManager.getPrimaryLocation().getAddress();
+            String myAddress = m_locationsManager.getPrimaryLocation().getAddress();
             m_listeningPoint = stack.createListeningPoint(myAddress, m_port, m_transport);
             m_sipProvider = stack.createSipProvider(m_listeningPoint);
 
@@ -213,7 +213,7 @@ public class SipStackBean {
     }
 
     private SipURI createOurSipUri(String userName) throws ParseException {
-        String fqdn = m_locationManager.getPrimaryLocation().getFqdn();
+        String fqdn = m_locationsManager.getPrimaryLocation().getFqdn();
         return m_addressFactory.createSipURI(userName, fqdn);
     }
 
@@ -406,5 +406,13 @@ public class SipStackBean {
     public void scheduleTerminate(Dialog dialog) {
         ReferTimerTask referTimerTask = new ReferTimerTask(dialog);
         m_timer.schedule(referTimerTask, 180000);
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

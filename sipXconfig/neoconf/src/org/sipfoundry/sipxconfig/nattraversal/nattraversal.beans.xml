@@ -4,9 +4,9 @@
 
   <bean id="natTraveral" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversal">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.nattraversal.NatSettings"/>
           </bean>
         </property>

@@ -76,4 +76,8 @@ public class Rls implements AddressProvider, FeatureProvider {
         }
         return addresses;
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<RlsSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

@@ -37,4 +37,8 @@ public class Recording implements FeatureProvider {
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return null;
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<RecordingSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

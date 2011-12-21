@@ -22,21 +22,8 @@
   <bean id="beanWithLocationDaoImpl" class="org.sipfoundry.sipxconfig.commserver.BeanWithLocationDaoImpl" abstract="true" parent="abstractDaoImpl">
   </bean>
   
-  <bean id="beanWithLocationDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+  <bean id="beanWithLocationDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao" abstract="true">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.BeanWithLocationDao"/>
-    <!-- 
-    <property name="target">
-      <ref local="beanWithLocationDaoImpl" />
-    </property>
-    -->
-  </bean>
-
-  <bean id="fileApiProvider"
-    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
-    <property name="methodNamePrefix" value="File." />
-    <property name="secure" value="true" />
-    <property name="serviceInterface"
-      value="org.sipfoundry.sipxconfig.commserver.imdb.FileApi" />
   </bean>
 
   <bean id="contactInfoChangeApiProvider"
@@ -47,36 +34,25 @@
       value="org.sipfoundry.sipxconfig.commserver.ContactInfoChangeApi" />
   </bean>
 
-  <bean id="sipxReplicationContextImpl"
-    class="org.sipfoundry.sipxconfig.commserver.SipxReplicationContextImpl">
+  <bean id="sipxReplicationContextImpl" class="org.sipfoundry.sipxconfig.commserver.SipxReplicationContextImpl">
     <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="jobContext" ref="jobContext" />
   </bean>
 
-  <bean id="sipxReplicationContextDao"
-    class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="sipxReplicationContextDao" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="interceptorNames">
       <list>
         <value>readOnlyHibernateInterceptor</value>
       </list>
     </property>
-    <property name="proxyInterfaces">
-      <value>
-        org.sipfoundry.sipxconfig.commserver.SipxReplicationContext
-      </value>
-    </property>
-    <property name="target">
-      <ref local="sipxReplicationContextImpl" />
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.SipxReplicationContext"/>
+    <property name="target" ref="sipxReplicationContextImpl"/>
   </bean>
 
-  <bean id="sipxReplicationContext"
-    class="org.sipfoundry.sipxconfig.commserver.LazySipxReplicationContextImpl"
+  <bean id="sipxReplicationContext" class="org.sipfoundry.sipxconfig.commserver.LazySipxReplicationContextImpl"
     init-method="init">
-    <property name="target">
-      <ref local="sipxReplicationContextDao"></ref>
-    </property>
+    <property name="target" ref="sipxReplicationContextDao" />
   </bean>
 
   <bean id="softwareAdminApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">

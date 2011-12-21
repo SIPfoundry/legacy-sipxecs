@@ -25,10 +25,6 @@
     <property name="emailFromAddress" value="backup" />
   </bean>
   
-  <bean id="dailyBackupSchedule" class="org.sipfoundry.sipxconfig.backup.DailyBackupSchedule">
-    <property name="backupPlan" ref="backupPlan" />  
-  </bean>
-
   <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.backup.LocalBackupPlan" parent="backupPlan"></bean>
 
   <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.backup.FtpBackupPlan" parent="backupPlan"></bean>

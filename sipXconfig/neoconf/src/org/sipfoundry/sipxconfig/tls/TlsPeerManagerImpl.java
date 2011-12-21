@@ -22,18 +22,16 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class TlsPeerManagerImpl extends HibernateDaoSupport implements TlsPeerManager, ReplicableProvider {
+public class TlsPeerManagerImpl extends SipxHibernateDaoSupport implements TlsPeerManager, ReplicableProvider {
 
     private static final String TLS_PEER_NAME = "name";
     private static final String INTERNAL_NAME = "~~tp~%s";
     private CoreContext m_coreContext;
-    private DaoEventPublisher m_daoEventPublisher;
 
     @Override
     public void deleteTlsPeer(TlsPeer tlsPeer) {
@@ -44,7 +42,7 @@ public class TlsPeerManagerImpl extends HibernateDaoSupport implements TlsPeerMa
     public void deleteTlsPeers(Collection<Integer> allSelected) {
         List<TlsPeer> peers = getTlsPeers(allSelected);
         for (TlsPeer peer : peers) {
-            m_daoEventPublisher.publishDelete(peer);
+            getDaoEventPublisher().publishDelete(peer);
         }
         getHibernateTemplate().deleteAll(peers);
     }
@@ -120,11 +118,6 @@ public class TlsPeerManagerImpl extends HibernateDaoSupport implements TlsPeerMa
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    @Required
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 
     @Override

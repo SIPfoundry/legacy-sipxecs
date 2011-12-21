@@ -44,17 +44,13 @@ public class AcdStatistics {
 
     private String m_queueUri;
 
-    private final AcdContext m_acdContext;
+    private AcdContext m_acdContext;
 
     private Predicate m_agentFilter = TruePredicate.INSTANCE;
 
     private Predicate m_callFilter = TruePredicate.INSTANCE;
 
     private Predicate m_queueFilter = TruePredicate.INSTANCE;
-
-    public AcdStatistics(AcdContext acdContext) {
-        m_acdContext = acdContext;
-    }
 
     public AcdStatsService getAcdStatsService(Serializable acdServerId) {
         try {
@@ -266,5 +262,9 @@ public class AcdStatistics {
         Set<String> names = new HashSet<String>(namedObjects.size());
         CollectionUtils.collect(namedObjects, new NamedObject.ToName(), names);
         return names;
+    }
+
+    public void setAcdContext(AcdContext acdContext) {
+        m_acdContext = acdContext;
     }
 }

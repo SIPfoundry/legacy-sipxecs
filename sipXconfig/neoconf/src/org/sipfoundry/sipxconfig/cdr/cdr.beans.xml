@@ -15,15 +15,12 @@
     <property name="dataSource" ref="cdrDataSource" />
     <property name="csvLimit" value="25000" />
     <property name="jsonLimit" value="500" />
-    <property name="cdrServiceProvider">
-      <bean class="org.sipfoundry.sipxconfig.cdr.SimpleCdrServiceProvider" />
-    </property>
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.cdr.CdrSettings"/>
           </bean>
         </property>

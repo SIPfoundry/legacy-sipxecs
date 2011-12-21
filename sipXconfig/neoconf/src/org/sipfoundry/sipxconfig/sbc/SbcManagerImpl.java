@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.DaoUtils;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -28,12 +28,10 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, BeanFactoryAware {
+public class SbcManagerImpl extends SipxHibernateDaoSupport implements SbcManager, BeanFactoryAware {
     private DomainManager m_domainManager;
     private BeanFactory m_beanFactory;
-    private DaoEventPublisher m_daoEventPublisher;
 
     public DefaultSbc loadDefaultSbc() {
         List sbcs = getHibernateTemplate().loadAll(DefaultSbc.class);
@@ -46,7 +44,7 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
             //Otherwise, the hibernate session may not be aware of the fact that a default SBC is
             //already saved, so  you may end up having two default SBCs in the database.
             getHibernateTemplate().flush();
-            m_daoEventPublisher.publishSave(sbc);
+            getDaoEventPublisher().publishSave(sbc);
         }
         return sbc;
     }
@@ -76,10 +74,8 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
     public void removeSbcs(Collection<Integer> selectedRows) {
         HibernateTemplate hibernate = getHibernateTemplate();
         Collection<AuxSbc> sbcs = DaoUtils.loadBeanByIds(hibernate, AuxSbc.class, selectedRows);
+        getDaoEventPublisher().publishDeleteCollection(sbcs);
         hibernate.deleteAll(sbcs);
-        for (AuxSbc sbc : sbcs) {
-            m_daoEventPublisher.publishDelete(sbc);
-        }
     }
 
     public void deleteSbc(Sbc sbc) {
@@ -106,12 +102,7 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
     }
 
     public void clear() {
-        HibernateTemplate hibernate = getHibernateTemplate();
-        Collection<Sbc> sbcs = hibernate.loadAll(Sbc.class);
-        hibernate.deleteAll(sbcs);
-        for (Sbc sbc : sbcs) {
-            m_daoEventPublisher.publishDelete(sbc);
-        }
+        removeAll(Sbc.class);
     }
 
     @Required
@@ -135,9 +126,5 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
         sbcRoutes.setDomains(domains);
 
         return sbcRoutes;
-    }
-
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 }

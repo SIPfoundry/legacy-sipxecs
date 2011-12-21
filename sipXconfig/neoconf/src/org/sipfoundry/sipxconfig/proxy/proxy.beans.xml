@@ -6,11 +6,11 @@
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
-  <bean id="proxy" class="org.sipfoundry.sipxconfig.proxy.ProxyManager">
+  <bean id="proxyManager" class="org.sipfoundry.sipxconfig.proxy.ProxyManager">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.proxy.ProxySettings"/>
           </bean>
         </property>
@@ -20,7 +20,6 @@
   </bean>
 
   <bean id="proxyConfiguration" class="org.sipfoundry.sipxconfig.proxy.ProxyConfiguration">
-    <property name="cdrManager" ref="cdrManager" />
     <property name="tlsPeerManager" ref="tlsPeerManager" />
     <property name="proxyManager" ref="proxyManager" />
   </bean>

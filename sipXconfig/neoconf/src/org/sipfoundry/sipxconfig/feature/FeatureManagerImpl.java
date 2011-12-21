@@ -7,13 +7,16 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -21,9 +24,8 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class FeatureManagerImpl extends HibernateDaoSupport implements BeanFactoryAware, FeatureManager {
+public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, FeatureManager {
     private ListableBeanFactory m_beanFactory;
     private Collection<FeatureProvider> m_providers;
     private Collection<FeatureListener> m_listeners;
@@ -214,12 +216,8 @@ public class FeatureManagerImpl extends HibernateDaoSupport implements BeanFacto
 
     @Override
     public List<Location> getLocationsForEnabledFeature(LocationFeature feature) {
-        throw new RuntimeException("TODO 1");
-    }
-
-    @Override
-    public Location getLocationForEnabledFeature(LocationFeature feature) {
-        throw new RuntimeException("TODO 2");
+        // TODO:
+        return Collections.emptyList();
     }
 
     @Override

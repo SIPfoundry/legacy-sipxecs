@@ -12,8 +12,6 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
 public interface AddressManager {
-    public static final AddressType NTP_ADDRESS = new AddressType("ntp");
-
     public Address getSingleAddress(AddressType type);
 
     public Address getSingleAddress(AddressType type, Object requester);

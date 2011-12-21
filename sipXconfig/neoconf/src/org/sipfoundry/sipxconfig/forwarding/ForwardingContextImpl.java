@@ -19,9 +19,9 @@ import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -31,12 +31,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * ForwardingContextImpl
  */
-public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext, ApplicationListener {
+public class ForwardingContextImpl extends SipxHibernateDaoSupport implements ForwardingContext, ApplicationListener {
 
     private static final String PARAM_SCHEDULE_ID = "scheduleId";
     private static final String PARAM_USER_ID = "userId";
@@ -45,7 +44,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private static final String SQL_CALLSEQUENCE_IDS = "select distinct u.user_id from users u";
     private CoreContext m_coreContext;
     private JdbcTemplate m_jdbcTemplate;
-    private DaoEventPublisher m_daoEventPublisher;
     private SipxReplicationContext m_sipxReplicationContext;
 
     /**
@@ -67,7 +65,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         // Load call sequences, because aliases have been changed
         // TODO: replicate only call seq with those aliases
         for (CallSequence callSequence : callSequences) {
-            m_daoEventPublisher.publishSave(callSequence);
+            getDaoEventPublisher().publishSave(callSequence);
         }
     }
 
@@ -85,7 +83,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         CallSequence callSequence = getCallSequenceForUserId(userId);
         callSequence.clear();
         getHibernateTemplate().update(callSequence);
-        m_daoEventPublisher.publishDelete(callSequence);
+        getDaoEventPublisher().publishDelete(callSequence);
         getHibernateTemplate().flush();
     }
 
@@ -120,10 +118,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 
     private Collection<CallSequence> getCallSequencesForGroup(Group group) {
@@ -223,7 +217,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         for (Integer id : scheduleIds) {
             Schedule schedule = getScheduleById(id);
             schedules.add(schedule);
-            m_daoEventPublisher.publishDelete(schedule);
+            getDaoEventPublisher().publishDelete(schedule);
         }
         getHibernateTemplate().deleteAll(schedules);
     }

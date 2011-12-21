@@ -62,4 +62,8 @@ public class Provision implements FeatureProvider, AddressProvider {
 
         return addresses;
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<ProvisionSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

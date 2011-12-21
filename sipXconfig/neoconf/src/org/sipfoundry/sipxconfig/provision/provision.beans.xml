@@ -10,9 +10,9 @@
 
   <bean id="provision" class="org.sipfoundry.sipxconfig.provision.Provision">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.provision.ProvisionSettings"/>
           </bean>
         </property>

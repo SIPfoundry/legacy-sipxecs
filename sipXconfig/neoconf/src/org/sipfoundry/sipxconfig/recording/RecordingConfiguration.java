@@ -52,4 +52,8 @@ public class RecordingConfiguration implements ConfigProvider {
         KeyValueConfiguration config = new KeyValueConfiguration(wtr, "=");
         config.write(settings.getSettings().getSetting("recording"));
     }
+
+    public void setRecording(Recording recording) {
+        m_recording = recording;
+    }
 }

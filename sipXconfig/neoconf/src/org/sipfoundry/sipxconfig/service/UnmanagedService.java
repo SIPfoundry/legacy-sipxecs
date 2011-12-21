@@ -85,4 +85,8 @@ public class UnmanagedService implements FeatureProvider, AddressProvider {
         return null;
     }
 
+    public void setSettingsDao(BeanWithSettingsDao<UnmanagedServiceSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
+
 }

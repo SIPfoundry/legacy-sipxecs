@@ -59,4 +59,8 @@ public class CdrConfiguration implements ConfigProvider {
         String cseHosts = cseHosts(proxyLocations, settings.getPostresPort());
         config.write("SIP_CALLRESOLVER_CSE_HOSTS", cseHosts);
     }
+
+    public void setCdrManager(CdrManager cdrManager) {
+        m_cdrManager = cdrManager;
+    }
 }

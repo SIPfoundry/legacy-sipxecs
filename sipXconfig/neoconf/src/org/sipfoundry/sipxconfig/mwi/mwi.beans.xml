@@ -4,9 +4,9 @@
 
   <bean id="mwi" class="org.sipfoundry.sipxconfig.mwi.Mwi">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.mwi.MwiSettings"/>
           </bean>
         </property>

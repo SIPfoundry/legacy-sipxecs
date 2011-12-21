@@ -5,7 +5,7 @@
   <bean id="tunnelManagerImpl" class="org.sipfoundry.sipxconfig.tunnel.TunnelManagerImpl">
   </bean>
   
-  <alias name="tunnelManager" alias="tunnelManagerImpl"/>
+  <alias alias="tunnelManager" name="tunnelManagerImpl"/>
 
   <bean id="tunnelConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelConfiguration">
     <property name="velocityEngine" ref="velocityEngine" />

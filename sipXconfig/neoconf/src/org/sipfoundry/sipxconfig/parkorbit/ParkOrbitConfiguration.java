@@ -155,4 +155,8 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
             m_configManager.replicationRequired(ParkOrbitContext.FEATURE);
         }
     }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
 }

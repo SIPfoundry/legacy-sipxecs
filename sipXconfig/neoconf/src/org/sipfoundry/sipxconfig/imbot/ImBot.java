@@ -63,4 +63,8 @@ public class ImBot implements AddressProvider, FeatureProvider {
         }
         return null;
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<ImBotSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

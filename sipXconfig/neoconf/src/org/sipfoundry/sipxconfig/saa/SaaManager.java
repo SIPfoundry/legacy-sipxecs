@@ -37,4 +37,8 @@ public class SaaManager implements FeatureProvider {
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return Collections.singleton(FEATURE);
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<SaaSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

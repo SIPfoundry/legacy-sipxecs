@@ -23,7 +23,7 @@
     <property name="logAppender" ref="sfLogAppender" />
     <property name="domainManager" ref="domainManager" />
     <property name="addressManager" ref="addressManager" />
-    <property name="locationManager" ref="locationManager" />
+    <property name="locationsManager" ref="locationsManager" />
     <property name="properties">
       <value>
         javax.sip.STACK_NAME=sipXconfig

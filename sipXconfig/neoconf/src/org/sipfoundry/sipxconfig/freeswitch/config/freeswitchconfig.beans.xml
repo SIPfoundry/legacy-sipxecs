@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   
   <bean id="freeswitchConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.FreeswitchConfiguration">
-    <property name="featureFeature" ref="featureFeature" />
+    <property name="freeswitch" ref="freeswitchFeature" />
   </bean>
   <bean id="freeswitchConfigFile" abstract="true" scope="prototype">
     <property name="velocityEngine" ref="velocityEngine" />

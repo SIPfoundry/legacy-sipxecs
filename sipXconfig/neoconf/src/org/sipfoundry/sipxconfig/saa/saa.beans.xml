@@ -8,9 +8,9 @@
 
   <bean id="saaManager" class="org.sipfoundry.sipxconfig.saa.SaaManager">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.saa.SaaSettings"/>
           </bean>
         </property>

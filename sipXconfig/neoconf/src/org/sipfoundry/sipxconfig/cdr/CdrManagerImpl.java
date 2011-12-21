@@ -525,13 +525,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         if (!type.equals(CDR_API)) {
             return null;
         }
-        Location location = m_featureManager.getLocationForEnabledFeature(FEATURE);
-        if (location == null) {
+        List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
+        if (locations.isEmpty()) {
             return null;
         }
 
         CdrSettings settings = getSettings();
-        return Collections.singleton(new Address(location.getAddress(), settings.getAgentPort()));
+        return Collections.singleton(new Address(locations.get(0).getAddress(), settings.getAgentPort()));
     }
 
     public void setAddressManager(AddressManager addressManager) {

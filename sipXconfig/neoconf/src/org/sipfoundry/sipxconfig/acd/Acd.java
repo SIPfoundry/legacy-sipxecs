@@ -100,4 +100,12 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
     @Override
     public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public void setAcdContext(AcdContext acdContext) {
+        m_acdContext = acdContext;
+    }
 }

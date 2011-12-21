@@ -13,9 +13,9 @@
 
   <bean id="rls" class="org.sipfoundry.sipxconfig.rls.Rls">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.rls.RlsSettings"/>
           </bean>
         </property>

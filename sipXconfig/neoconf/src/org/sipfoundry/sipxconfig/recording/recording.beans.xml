@@ -9,9 +9,9 @@
 
   <bean id="recording" class="org.sipfoundry.sipxconfig.recording.Recording">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.recording.RecordingSettings"/>
           </bean>
         </property>

@@ -9,9 +9,9 @@
 
   <bean id="registrar" class="org.sipfoundry.sipxconfig.registrar.Registrar">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.registrar.RegistrarSettings"/>
           </bean>
         </property>
@@ -27,10 +27,10 @@
     <property name="registrar" ref="registrar" />
   </bean>
 
-  <bean id="registrationContextImpl" class="org.sipfoundry.sipxconfig.commserver.RegistrationContextImpl">
+  <bean id="registrationContextImpl" class="org.sipfoundry.sipxconfig.registrar.RegistrationContextImpl">
     <property name="nodedb" ref="nodeDb"/>
   </bean>
 
-  <alias name="registrationContext" alias="registrationContextImpl"/>
+  <alias alias="registrationContext" name="registrationContextImpl"/>
 
 </beans>

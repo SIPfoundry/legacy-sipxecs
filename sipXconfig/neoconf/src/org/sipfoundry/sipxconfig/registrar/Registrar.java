@@ -103,4 +103,8 @@ public class Registrar implements FeatureProvider, AddressProvider, BeanFactoryA
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<RegistrarSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

@@ -22,8 +22,8 @@ import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
@@ -34,9 +34,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext, BeanFactoryAware,
+public class GatewayContextImpl extends SipxHibernateDaoSupport implements GatewayContext, BeanFactoryAware,
         ReplicableProvider {
     private static final String QUERY_GATEWAY_ID_BY_SERIAL_NUMBER = "gatewayIdsWithSerialNumber";
     private static final String AUDIT_LOG_CONFIG_TYPE = "Gateway";
@@ -58,7 +57,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     private DialPlanContext m_dialPlanContext;
     private BeanFactory m_beanFactory;
     private AuditLogContext m_auditLogContext;
-    private DaoEventPublisher m_daoEventPublisher;
 
     public GatewayContextImpl() {
         super();
@@ -116,7 +114,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         ProfileLocation location = gateway.getModel().getDefaultProfileLocation();
         gateway.removeProfiles(location);
         getHibernateTemplate().delete(gateway);
-        m_daoEventPublisher.publishDelete(gateway);
+        getDaoEventPublisher().publishDelete(gateway);
         m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
         return true;
     }
@@ -136,7 +134,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             if (sbc != null) {
                 sbcSet.add(sbc);
             }
-            m_daoEventPublisher.publishDelete(gw);
+            getDaoEventPublisher().publishDelete(gw);
             deleteGateway(gw.getId());
         }
 
@@ -242,9 +240,5 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             replicables.add(gw);
         }
         return replicables;
-    }
-
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 }

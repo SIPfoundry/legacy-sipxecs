@@ -8,11 +8,11 @@
 
   <bean id="mongoTunnnel" class="org.sipfoundry.sipxconfig.mongo.MongoTunnelProvider" />
   
-  <bean id="mongo" class="org.sipfoundry.sipxconfig.mongo.MongoFeature">
+  <bean id="mongoFeature" class="org.sipfoundry.sipxconfig.mongo.MongoFeature">
     <property name="settingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.mongo.MongoSettings"/>
           </bean>
         </property>
@@ -21,7 +21,7 @@
   </bean>
   
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfig">
-    <property name="mongo" ref="mongo"/>
+    <property name="mongoFeature" ref="mongoFeature"/>
   </bean>
 
   <bean id="mongoSettings" class="org.sipfoundry.sipxconfig.mongo.MongoSettings">

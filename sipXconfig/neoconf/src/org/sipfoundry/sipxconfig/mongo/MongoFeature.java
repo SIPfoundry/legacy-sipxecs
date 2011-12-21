@@ -60,4 +60,8 @@ public class MongoFeature implements AddressProvider, FeatureProvider {
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return Collections.singleton(FEATURE_ID);
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<MongoSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

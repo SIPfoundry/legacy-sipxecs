@@ -81,4 +81,12 @@ public class PresenceReplication implements Replicable, ReplicableProvider {
     public List<Replicable> getReplicables() {
         return Collections.singletonList((Replicable) this);
     }
+
+    public void setPresenceServer(PresenceServer presenceServer) {
+        m_presenceServer = presenceServer;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
 }

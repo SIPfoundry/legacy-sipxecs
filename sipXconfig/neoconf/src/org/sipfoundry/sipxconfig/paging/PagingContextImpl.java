@@ -197,4 +197,16 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<PagingSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
 }

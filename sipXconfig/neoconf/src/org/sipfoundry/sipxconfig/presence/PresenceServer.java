@@ -33,7 +33,6 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.feature.FeatureListener.FeatureEvent;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
@@ -212,5 +211,17 @@ public class PresenceServer implements FeatureProvider, AddressProvider, BeanFac
 
     @Override
     public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<PresenceSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

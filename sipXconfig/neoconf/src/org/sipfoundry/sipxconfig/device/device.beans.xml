@@ -11,8 +11,8 @@
     <property name="pagingContext" ref="pagingContext" />
     <property name="musicOnHoldManager" ref="musicOnHoldManager" />
     <property name="routeEmergencyCallsDirectly" value="false" />
-    <property name="addressManager" value="addressManager" />
-    <property name="registar" value="registar" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="registrar" ref="registrar" />
   </bean>
 
 

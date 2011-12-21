@@ -24,4 +24,8 @@ public class RegistrarFeatureListener extends SimpleFeatureListener {
             }
         }
     }
+
+    public void setRegistrar(Registrar registrar) {
+        m_registrar = registrar;
+    }
 }

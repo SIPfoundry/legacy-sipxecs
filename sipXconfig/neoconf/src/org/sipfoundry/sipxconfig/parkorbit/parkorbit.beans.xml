@@ -17,11 +17,11 @@
 
   <bean id="parkOrbitContextImpl" class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContextImpl" parent="abstractDaoImpl">
     <property name="aliasManager" ref="aliasManager" />
-    <property name="settingsDao" ref="settingDao"/>
+    <property name="settingDao" ref="settingDao"/>
     <property name="beanWithSettingsDao">
-      <bean parent="beanWithSettingDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="beanWithSettingDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.parkorbit.ParkSettings"/>
           </bean>
         </property>

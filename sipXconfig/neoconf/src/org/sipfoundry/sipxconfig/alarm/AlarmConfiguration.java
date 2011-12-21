@@ -128,4 +128,8 @@ public class AlarmConfiguration implements ConfigProvider {
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
     }
+
+    public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
+        m_alarmServerManager = alarmServerManager;
+    }
 }

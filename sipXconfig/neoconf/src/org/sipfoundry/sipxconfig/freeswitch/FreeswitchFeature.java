@@ -190,4 +190,12 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
     public void setName(String name) {
         m_name = name;
     }
+
+    public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
+        m_musicOnHoldManager = musicOnHoldManager;
+    }
+
+    public void setSettingsDao(BeanWithLocationDao<FreeswitchSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }
