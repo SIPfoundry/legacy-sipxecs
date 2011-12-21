@@ -11,15 +11,33 @@
 %% FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
 %% details.
 
--module(sipxplugin_app).
--author("eZuce").
+-module(sipxplugin).
 
--behavior(application).
--export([start/2, stop/1]).
+-export([start/0, start_link/0, stop/0]).
 
-start(_Type, _Args) ->
-	sipxplugin_sup:start_link().
+start() ->
+    ensure_deps(),
+    sipxplugin_supervisor:start().
 
+start_link() ->
+    ensure_deps(),
+    sipxplugin_supervisor:start_link().
 
-stop(_State) ->
-	ok.
+deps() ->
+    [erlmongo, 'OpenACD'].
+
+stop() ->
+    lists:foreach(fun(Dep) -> application:stop(Dep) end),
+    application:stop(sipxplogin).
+
+ensure_deps() ->
+    lists:foreach(fun(Dep) -> application:start(Dep) end).
+
+%% Internal Functions
+ensure_started(App) ->
+    case application:start(App) of
+        ok ->
+            ok;
+        {error, {already_started, _}} ->
+            ok
+    end.

@@ -1,7 +1,11 @@
 source_files = \
-	sipxplugin_poller.erl \
-	sipxplugin_supervisor.erl \
-	sipxplugin_app.erl
+	sipxplugin.erl \
+	sipxplugin_sup.erl \
+	sipxplugin_app.erl \
+	spx_autoloader.erl \
+	spx_log_loader.erl \
+	spx_agentconfig_loader.erl \
+	spx_integration.erl
 
 compiled_files = $(source_files:.erl=.beam)
 

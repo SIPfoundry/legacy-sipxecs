@@ -14,6 +14,10 @@
 -module(sipxplugin_poller).
 -author("eZuce").
 
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+-endif.
+
 -behavior(gen_server).
 
 %% API
@@ -455,7 +459,7 @@ get_agent_security(Agent) ->
     end.
 
 get_client_options(Client) ->
-	Options = proplists:get_value(<<"options">>, Client, []),
+	Options = proplists:get_value(<<"additionalObjects">>, Client, []),
 	
 	lists:foldl(
 		fun({<<"vm_priority_diff">>, N}, Acc) when is_float(N) ->
