@@ -1,0 +1,9 @@
+recording_PKGS = \
+	sipxcommons \
+	log4j \
+	commons-io \
+	commons-codec \
+	commons-httpclient \
+	commons-logging \
+	javax.servlet \
+	jetty
