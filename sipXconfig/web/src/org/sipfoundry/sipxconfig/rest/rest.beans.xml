@@ -187,6 +187,16 @@
   </bean>
   <alias name="conferenceResource" alias="/my/conferences" />
 
+  <bean id="conferenceCommandsResource" class="org.sipfoundry.sipxconfig.rest.UserConferenceCommandsResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="activeConferenceContext" ref="activeConferenceContext" />
+    <property name="available" value="true" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="conferenceCommandsResource" alias="/my/conference/{confName}/{command}" />
+
   <bean id="activecdrsResource" class="org.sipfoundry.sipxconfig.rest.UserActiveCdrsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="cdrManager" ref="cdrManager" />

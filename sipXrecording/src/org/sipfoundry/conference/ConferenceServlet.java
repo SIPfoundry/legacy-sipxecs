@@ -1,17 +1,14 @@
-/**
+/*
+ * Copyright (c) 2010 eZuce, Inc. All rights reserved.
  *
- *
- * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
- * Contributed to SIPfoundry under a Contributor Agreement
- *
- * This software is free software; you can redistribute it and/or modify it under
- * the terms of the Affero General Public License (AGPL) as published by the
- * Free Software Foundation; either version 3 of the License, or (at your option)
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
  *
- * This software is distributed in the hope that it will be useful, but WITHOUT
+ * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
 package org.sipfoundry.conference;
@@ -26,19 +23,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.commons.freeswitch.FreeSwitchConfigurationInterface;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.timeout.Result;
 import org.sipfoundry.commons.timeout.SipxExecutor;
 import org.sipfoundry.commons.timeout.Timeout;
-import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
-import org.sipfoundry.voicemail.IvrLocalizer;
+import org.sipfoundry.sipxrecording.RecordingConfiguration;
 
 public class ConferenceServlet extends HttpServlet {
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
 
-    @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter pw = response.getWriter();
         String pathInfo = request.getPathInfo();
@@ -46,17 +40,14 @@ public class ConferenceServlet extends HttpServlet {
 
         response.setContentType("text/xml");
 
-        FreeSwitchConfigurationInterface fsConfig = (FreeSwitchConfigurationInterface) request
-                .getAttribute(SipxIvrServletHandler.FS_CONFIG_ATTR);
-        executeCommand(commandStr.trim(), new IvrLocalizer(), pw, fsConfig);
+        executeCommand(commandStr.trim(), pw);
 
         pw.close();
     }
 
-    private synchronized void executeCommand(String cmd, IvrLocalizer localizer, PrintWriter pw,
-            FreeSwitchConfigurationInterface fsConfig) {
+    protected synchronized void executeCommand(String cmd, PrintWriter pw) {
 
-        FreeSwitchEventSocket fsEventSocket = new FreeSwitchEventSocket(fsConfig);
+        FreeSwitchEventSocket fsEventSocket = new FreeSwitchEventSocket(RecordingConfiguration.get());
         Socket socket = null;
         try {
             socket = new Socket("localhost", 8021);
