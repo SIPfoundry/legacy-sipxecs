@@ -44,8 +44,6 @@ case ${Action} in
    RUN)
      echo $$ > ${pidfile}
 
-     setTruststoreOpts
-
      exec $JavaCmd \
          -Djavax.net.ssl.trustStore=@SIPX_CONFDIR@/ssl/authorities.jks \
          -Djavax.net.ssl.trustStoreType=JKS \

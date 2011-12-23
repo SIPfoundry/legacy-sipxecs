@@ -5,12 +5,14 @@ rest_PKGS = \
 	commons-codec \
 	commons-collections \
 	commons-digester \
+	commons-io \
 	commons-logging \
 	dnsjava \
 	jain-sip-sdp \
 	javax.servlet \
 	jetty \
 	log4j \
+	mongo \
 	org.restlet \
 	sipxcommons \
 	ws-commons-util \
