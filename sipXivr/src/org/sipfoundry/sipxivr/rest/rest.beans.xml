@@ -49,12 +49,6 @@
     <constructor-arg><value>org.sipfoundry.conference.ConfRecordStatus</value></constructor-arg>
   </bean>
 
-  <bean id="conference" class="org.sipfoundry.sipxivr.rest.RestApiBean">
-    <constructor-arg><value>conference</value></constructor-arg>
-    <constructor-arg><value>/conference/*</value></constructor-arg>
-    <constructor-arg><value>org.sipfoundry.conference.ConferenceServlet</value></constructor-arg>
-  </bean>
-
   <bean id="manage" class="org.sipfoundry.sipxivr.rest.RestApiBean">
     <constructor-arg><value>manage</value></constructor-arg>
     <constructor-arg><value>/manage/*</value></constructor-arg>
