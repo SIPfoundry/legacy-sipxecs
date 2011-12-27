@@ -108,9 +108,11 @@ public class User extends AbstractUser implements Replicable {
                 || this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
             // NOTE: Missing explaination why exchange needs direction connection to FS
             Address address = getAddressManager().getSingleAddress(FreeswitchFeature.SIP_ADDRESS, this);
-            String sipUri = SipUri.formatDepositVm(getUserName(), address.getAddress(), address.getPort());
-            AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), sipUri, "vmprm");
-            mappings.add(mapping);
+            if (address != null) {
+                String sipUri = SipUri.formatDepositVm(getUserName(), address.getAddress(), address.getPort());
+                AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), sipUri, "vmprm");
+                mappings.add(mapping);
+            }
         }
 
         return mappings;

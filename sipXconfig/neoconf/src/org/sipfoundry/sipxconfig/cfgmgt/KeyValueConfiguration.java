@@ -7,6 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.cfgmgt;
 
+import static java.lang.String.format;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
@@ -24,6 +26,7 @@ public class KeyValueConfiguration {
     private IOException m_error;
     private Writer m_out;
     private String m_delimitor;
+    private String m_valueFormat;
 
     public KeyValueConfiguration(Writer w) {
         this(w, " : ");
@@ -58,8 +61,16 @@ public class KeyValueConfiguration {
     public void write(String key, Object value) throws IOException {
         m_out.write(key);
         m_out.write(m_delimitor);
-        m_out.append(value == null ? "" :  String.valueOf(value));
-        m_out.append('\n');
+        writeValue(value);
+        m_out.write('\n');
+    }
+
+    protected void writeValue(Object value) throws IOException {
+        if (m_valueFormat != null) {
+            m_out.write(format(m_valueFormat, value));
+        } else {
+            m_out.write(value == null ? "" :  String.valueOf(value));
+        }
     }
 
     class SettingsWriter extends AbstractSettingVisitor {
@@ -84,5 +95,25 @@ public class KeyValueConfiguration {
                 m_error = e;
             }
         }
+    }
+
+    public String getValueFormat() {
+        return m_valueFormat;
+    }
+
+    /**
+     * Uses String.format(valueFormat, value) to write value to file
+     *
+     * Example:
+     *  Calling
+     *    setValueFormat("AAA %s BBB");
+     *    write("KEY", "VALUE");
+     *  Result:
+     *    KEY : AAA VALUE BBB
+     *
+     * @param valueFormat
+     */
+    public void setValueFormat(String valueFormat) {
+        m_valueFormat = valueFormat;
     }
 }

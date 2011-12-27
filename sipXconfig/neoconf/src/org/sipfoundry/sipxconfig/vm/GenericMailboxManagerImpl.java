@@ -24,6 +24,8 @@ public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAwa
     private MailboxManager m_manager;
     private BeanFactory m_beanFactory;
 
+    // DISABLED - Need to clarify w/George if this is still nec. causes great issues trying to execute
+    // code when spring is still in the process of initializing.
     public void init() {
 
         // TODO: Why do we distinguish local and remote,  everything should be considered remote

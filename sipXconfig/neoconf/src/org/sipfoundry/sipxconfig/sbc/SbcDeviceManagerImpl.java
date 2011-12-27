@@ -142,7 +142,7 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
         return limit != -1 && sbcNumber >= limit;
     }
 
-    public void newBridgeSbc(Location location) {
+    public BridgeSbc newBridgeSbc(Location location) {
         BridgeSbc bridgeSbc = (BridgeSbc) newSbcDevice(m_sipXbridgeSbcModel);
         bridgeSbc.setName("sipXbridge-" + location.getId().toString());
         bridgeSbc.setDescription("Internal SBC on " + location.getFqdn());
@@ -153,6 +153,7 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
         bridgeSbc.setSettingTypedValue("bridge-configuration/location-id", location.getId());
         saveSbcDevice(bridgeSbc);
         getDaoEventPublisher().publishSave(bridgeSbc);
+        return bridgeSbc;
     }
 
 

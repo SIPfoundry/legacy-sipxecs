@@ -15,4 +15,5 @@
       <value>org.sipfoundry.sipxconfig.xmlrpc.TestFunctions</value>      
     </property>
   </bean>
+  
 </beans>

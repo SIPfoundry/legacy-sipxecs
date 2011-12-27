@@ -42,7 +42,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     private BeanWithSettingsDao<ParkSettings> m_beanWithSettingsDao;
 
     public ParkSettings getSettings() {
-        return m_beanWithSettingsDao.findOne();
+        return m_beanWithSettingsDao.findOrCreateOne();
     }
 
     @SupressDaoEvent

@@ -13,7 +13,7 @@ import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
 public interface BeanWithSettingsDao<T> extends DataObjectSource<BeanWithSettings> {
 
-    public T findOne();
+    public T findOrCreateOne();
 
     public List<T> findAll();
 

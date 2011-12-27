@@ -25,7 +25,6 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
@@ -35,6 +34,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 /**

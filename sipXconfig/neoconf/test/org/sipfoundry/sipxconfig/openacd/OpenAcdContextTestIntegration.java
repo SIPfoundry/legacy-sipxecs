@@ -26,28 +26,41 @@ import java.util.Map;
 import java.util.Set;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
-import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
+import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeAction.ACTION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition.CONDITION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep.FREQUENCY;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfigurationTest;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextTestIntegration extends IntegrationTestCase {
+    private static String[][] ACTIONS = {
+        {
+            "answer", ""
+        }, {
+            "set", "domain_name=$${domain}"
+        }, {
+            "set", "brand=1"
+        }, {
+            "set", "queue=Sales"
+        }, {
+            "set", "allow_voicemail=true"
+        }, {
+            "erlang_sendmsg", "freeswitch_media_manager testme@192.168.1.1 inivr ${uuid}"
+        }, {
+            "playback", "/usr/share/www/doc/stdprompts/welcome.wav"
+        }, {
+            "erlang", "freeswitch_media_manager:! testme@192.168.1.1"
+        },
+    };
     private OpenAcdContextImpl m_openAcdContextImpl;
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
@@ -57,28 +70,29 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
     protected void onSetUpInTransaction() throws Exception {
         m_migrationContext.migrateSkillGroup();
     }
+    
+    public static OpenAcdLine createOpenAcdLine(String extensionName) {
+        OpenAcdLine extension = new OpenAcdLine();
+        extension.setName(extensionName);
 
+        FreeswitchCondition condition = new FreeswitchCondition();
+        condition.setField("destination_number");
+        condition.setExpression("^300$");
+        extension.addCondition(condition);
+
+        for (int i = 0; i < ACTIONS.length; i++) {
+            FreeswitchAction action = new FreeswitchAction();
+            action.setApplication(ACTIONS[i][0]);
+            action.setData(ACTIONS[i][1]);
+            condition.addAction(action);
+        }
+        return extension;
+    }    
+
+    // test save open acd extension
     public void testOpenAcdLineCrud() throws Exception {
-        SipxFreeswitchService fs = org.easymock.classextension.EasyMock.createMock(SipxFreeswitchService.class);
-        fs.getAddress();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
-        fs.getFreeswitchSipPort();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
-        fs.getBeanId();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn(SipxFreeswitchService.BEAN_ID).anyTimes();
-
-        SipxServiceManager sm = EasyMock.createMock(SipxServiceManager.class);
-        sm.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(fs).anyTimes();
-
-        EasyMock.replay(sm);
-        org.easymock.classextension.EasyMock.replay(fs);
-
-        m_openAcdContextImpl.setSipxServiceManager(sm);
-
-        // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getLines().size());
-        OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("example");
+        OpenAcdLine extension = createOpenAcdLine("example");
         extension.setAlias("alias");
         extension.setDid("1234567890");
 
@@ -188,21 +202,9 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         // test existing 'login', 'logout', 'go available' and 'release' default commands
         assertEquals(4, m_openAcdContextImpl.getCommands().size());
 
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         loadDataSetXml("domain/DomainSeed.xml");
         Location location = m_locationsManager.getLocation(101);
-        SipxFreeswitchService fs = org.easymock.classextension.EasyMock.createMock(SipxFreeswitchService.class);
-        fs.getAddress();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
-        fs.getFreeswitchSipPort();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
-
-        SipxServiceManager sm = EasyMock.createMock(SipxServiceManager.class);
-        sm.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(fs).anyTimes();
-
-        EasyMock.replay(sm);
-        org.easymock.classextension.EasyMock.replay(fs);
 
         // test save open acd extension
         OpenAcdCommand command = new OpenAcdCommand();
@@ -282,22 +284,12 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testOpenAcdExtensionAliasProvider() throws Exception {
-        SipxFreeswitchService service = new MockSipxFreeswitchService();
-        service.setBeanId(SipxFreeswitchService.BEAN_ID);
-        service.setLocationsManager(m_locationsManager);
-
-        SipxServiceManager sm = TestHelper.getMockSipxServiceManager(true, service);
-        m_openAcdContextImpl.setSipxServiceManager(sm);
-
-        OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("sales");
-
+        OpenAcdLine extension = createOpenAcdLine("sales");
         m_openAcdContextImpl.saveExtension(extension);
-
         assertEquals(1, m_openAcdContextImpl.getBeanIdsOfObjectsWithAlias("sales").size());
         assertFalse(m_openAcdContextImpl.isAliasInUse("test"));
         assertTrue(m_openAcdContextImpl.isAliasInUse("sales"));
         assertTrue(m_openAcdContextImpl.isAliasInUse("300"));
-
     }
 
     public void testOpenAcdAgentGroupCrud() throws Exception {
@@ -390,7 +382,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
     public void testOpenAcdAgentCrud() throws Exception {
         loadDataSet("common/SampleUsersSeed.xml");
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         loadDataSetXml("domain/DomainSeed.xml");
         User charlie = m_coreContext.loadUser(1003);
 
@@ -1024,12 +1016,5 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
     public void setOpenAcdSkillGroupMigrationContext(OpenAcdSkillGroupMigrationContext migrationContext) {
         m_migrationContext = migrationContext;
-    }
-
-    private class MockSipxFreeswitchService extends SipxFreeswitchService {
-        @Override
-        public int getFreeswitchSipPort() {
-            return 50;
-        }
     }
 }

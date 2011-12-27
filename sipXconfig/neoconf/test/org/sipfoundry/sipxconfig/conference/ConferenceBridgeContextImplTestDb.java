@@ -14,110 +14,89 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.dbunit.database.IDatabaseConnection;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
-public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
-
+public class ConferenceBridgeContextImplTestDb extends IntegrationTestCase {
     private ConferenceBridgeContext m_context;
-    private CoreContext m_coreContext;
-    private LocationsManager m_locationsManager;
-    private SipxServiceManager m_sipxServiceManager;
-
+    private CoreContext m_core;
+    private LocationsManager m_locations;
+    private DomainManager m_domainManager;
+    
     @Override
-    protected void setUp() throws Exception {
-        m_context = (ConferenceBridgeContext) TestHelper.getApplicationContext().getBean(
-                ConferenceBridgeContext.CONTEXT_BEAN_NAME);
-        m_coreContext = (CoreContext) TestHelper.getApplicationContext().getBean(CoreContext.CONTEXT_BEAN_NAME);
-        m_locationsManager = (LocationsManager) TestHelper.getApplicationContext().getBean(
-                LocationsManager.CONTEXT_BEAN_NAME);
-        m_sipxServiceManager = (SipxServiceManager) TestHelper.getApplicationContext().getBean(
-                SipxServiceManager.CONTEXT_BEAN_NAME);
-
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("conference/users.db.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
     }
+    
+    public void setCoreContext(CoreContext core) {
+        m_core = core;
+    }
+    
+    public void setLocationsManager(LocationsManager lm) {
+        m_locations = lm;
+    }
+    
+    public void setConferenceBridgeContext(ConferenceBridgeContext conference) {
+        m_context = conference;
+    }
+    
+    protected void onSetUpInTransaction() throws Exception {
+        sql("conference/seed-participants.sql");
+    }    
 
     public void testGetBridges() throws Exception {
-        TestHelper.insertFlat("conference/participants.db.xml");
         assertEquals(2, m_context.getBridges().size());
     }
 
     public void testGetBridgeByServer() throws Exception {
-        TestHelper.insertFlat("conference/participants.db.xml");
         assertNull(m_context.getBridgeByServer("uknown"));
         assertEquals("host.example.com", m_context.getBridgeByServer("host.example.com").getName());
     }
-
-    public void _testStore() throws Exception {
-        IDatabaseConnection db = TestHelper.getConnection();
-
-        Location location = new Location();
-        location.setFqdn("b1");
-        location.setName("server b1");
-
-        SipxService freeswitchService = m_sipxServiceManager.getServiceByBeanId("sipxFreeswitchService");
-        LocationSpecificService service = new LocationSpecificService(freeswitchService);
-        location.addService(service);
-
-        m_locationsManager.saveLocation(location);
+    
+    public void testStore() throws Exception {
+        Location location = m_locations.getLocation(1000);
+        
+        db().execute("delete from meetme_conference");
+        db().execute("delete from meetme_bridge");
 
         Bridge bridge = new Bridge();
-        bridge.setService(service);
         Conference conference = new Conference();
         conference.setName("c1");
+        bridge.setLocation(location);
         bridge.addConference(conference);
 
         m_context.store(bridge);
+        flush();
 
-        assertEquals(1, db.getRowCount("meetme_bridge"));
-        assertEquals(1, db.getRowCount("meetme_conference"));
+        assertEquals(1, db().queryForLong("select count(*) from meetme_bridge"));
+        assertEquals(1, db().queryForLong("select count(*) from meetme_conference"));
     }
+    
 
     public void testRemoveConferences() throws Exception {
-        IDatabaseConnection db = TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
-//        ConferenceFeature mockProvisioning = EasyMock.createMock(ConferenceFeature.class);
-//        mockProvisioning.deploy(m_context.loadConference(new Integer(3002)).getBridge());
-//        EasyMock.expectLastCall().anyTimes();
-//        m_context.setConferenceFeature(mockProvisioning);
-
-        assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(5, db.getRowCount("meetme_conference"));
-
         m_context.removeConferences(Collections.singleton(new Integer(3002)));
-
-        assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(4, db.getRowCount("meetme_conference"));
+        flush();
+        assertEquals(2, db().queryForLong("select count(*) from meetme_bridge"));
+        assertEquals(4, db().queryForLong("select count(*) from meetme_conference"));
     }
 
     public void testLoadBridge() throws Exception {
-        TestHelper.insertFlat("conference/participants.db.xml");
         Bridge bridge = m_context.loadBridge(new Integer(2006));
-
         assertEquals(3, bridge.getConferences().size());
     }
-
+    
     public void testLoadConference() throws Exception {
-        TestHelper.insertFlat("conference/participants.db.xml");
         Conference conference = m_context.loadConference(new Integer(3001));
-
         assertEquals("conf_name_3001", conference.getName());
-        assertEquals("conf_desc_3001", conference.getDescription());
     }
 
     public void testGetAllConferences() throws Exception {
-        TestHelper.insertFlat("conference/participants.db.xml");
         List<Conference> conferences = m_context.getAllConferences();
 
         assertEquals(5, conferences.size());
@@ -131,41 +110,20 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testFindConferenceByName() throws Exception {
-        TestHelper.insertFlat("conference/participants.db.xml");
         Conference conference = m_context.findConferenceByName("conf_name_3001");
-
         assertEquals("conf_name_3001", conference.getName());
-        assertEquals("conf_desc_3001", conference.getDescription());
     }
 
     public void testFindConferenceByOwner() throws Exception {
-        TestHelper.insertFlat("conference/participants.db.xml");
-        User owner = m_coreContext.loadUser(1002);
+        User owner = m_core.loadUser(1002);
         List<Conference> ownerConferences = m_context.findConferencesByOwner(owner);
-
         assertEquals(3, ownerConferences.size());
         for (Conference conference : ownerConferences) {
             assertEquals(owner.getId(), conference.getOwner().getId());
         }
     }
 
-    public void testClear() throws Exception {
-        IDatabaseConnection db = TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
-        assertTrue(0 < db.getRowCount("meetme_bridge"));
-        assertTrue(0 < db.getRowCount("meetme_conference"));
-
-        m_context.clear();
-
-        assertEquals(0, db.getRowCount("meetme_bridge"));
-        assertEquals(0, db.getRowCount("meetme_conference"));
-    }
-
     public void testIsAliasInUse() throws Exception {
-        TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
         // conference names are aliases
         assertTrue(m_context.isAliasInUse("conf_name_3001"));
         assertTrue(m_context.isAliasInUse("conf_name_3002"));
@@ -184,9 +142,6 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
-        TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
         // conference names are aliases
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_name_3001").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_name_3002").size() == 1);
@@ -205,9 +160,8 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testValidate() throws Exception {
-        TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-        TestHelper.insertFlat("conference/conferences_and_lines.db.xml");
+        sql("conference/conferences_and_lines.sql");
+        m_domainManager.initializeDomain();
 
         // create a conference with a duplicate extension, should fail to validate
         Conference conf = new Conference();
@@ -215,6 +169,7 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         conf.setName("Appalachian");
         conf.setExtension("1699");
         try {
+            disableDaoEventPublishing();
             m_context.validate(conf);
             fail("conference has duplicate extension but was validated anyway");
         } catch (UserException e) {
@@ -222,7 +177,7 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         }
 
         conf.setName("SomeConference");
-        conf.setExtension("7777");
+        conf.setExtension(DummyAliasConflicter.MY_ALIAS);
         try {
             m_context.validate(conf);
             fail("extension used by an acd line");
@@ -265,27 +220,30 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSearchConferences() throws Exception {
-        TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-        TestHelper.insertFlat("conference/conferences_and_lines.db.xml");
-
-        assertEquals(1, getConferencesCount("1699"));// ext
-        assertEquals(3, getConferencesCount("test1002"));// owner username
-        assertEquals(1, getConferencesCount("test1003"));// owner username
-        assertEquals(0, getConferencesCount("100"));// owner username - no partial match
-        assertEquals(0, getConferencesCount("17"));// extension - no partial match
-        assertEquals(3, getConferencesCount("cOnF_nAmE"));// conf name - partial and case
+        assertEquals(m_message, 1, getConferencesCount("1699"));// ext
+        assertEquals(m_message, 3, getConferencesCount("test1002"));// owner username
+        assertEquals(m_message, 1, getConferencesCount("test1003"));// owner username
+        assertEquals(m_message, 0, getConferencesCount("100"));// owner username - no partial match
+        assertEquals(m_message, 0, getConferencesCount("17"));// extension - no partial match
+        assertEquals(m_message, 3, getConferencesCount("cOnF_nAmE"));// conf name - partial and case
                                                           // insensitive match
-        assertEquals(3, getConferencesCount("MaX"));// owner first name - partial and c.i. match
-        assertEquals(3, getConferencesCount("AfInO"));// owner last name - partial and c.i. match
-        assertEquals(3, getConferencesCount("Maxim Afinogenov"));// owner first+last name
-        assertEquals(3, getConferencesCount("AfInOgenov maxim"));// owner last+first name
-        assertEquals(1, getConferencesCount("Ilya"));
-        assertEquals(1, getConferencesCount("conference_no_owner"));
+        assertEquals(m_message, 3, getConferencesCount("MaX"));// owner first name - partial and c.i. match
+        assertEquals(m_message, 3, getConferencesCount("AfInO"));// owner last name - partial and c.i. match
+        assertEquals(m_message, 3, getConferencesCount("Maxim Afinogenov"));// owner first+last name
+        assertEquals(m_message, 3, getConferencesCount("AfInOgenov maxim"));// owner last+first name
+        assertEquals(m_message, 1, getConferencesCount("Ilya"));
+        assertEquals(m_message, 1, getConferencesCount("conference_no_owner"));
     }
 
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+    
+    private String m_message;
+    
     private int getConferencesCount(String searchTerm) {
         List<Conference> confList = m_context.searchConferences(searchTerm);
+        m_message = DataCollectionUtil.toString(confList);
         return confList.size();
     }
 }

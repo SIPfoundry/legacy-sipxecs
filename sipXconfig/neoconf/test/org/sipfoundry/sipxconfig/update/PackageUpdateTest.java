@@ -8,9 +8,9 @@
  *
  */
 
-package org.sipfoundry.sipxconfig.admin.update;
+package org.sipfoundry.sipxconfig.update;
 
-import org.sipfoundry.sipxconfig.admin.update.PackageUpdate;
+import org.sipfoundry.sipxconfig.update.PackageUpdate;
 
 import junit.framework.TestCase;
 

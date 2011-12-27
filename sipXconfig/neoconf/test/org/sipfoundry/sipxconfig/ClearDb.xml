@@ -13,7 +13,6 @@
   <table name="upload"/>
   <table name="location_failed_replications"/>
   <table name="location"/>
-  <table name="location_specific_service"/>
 
   <!-- settings -->  
   <table name="value_storage"/>

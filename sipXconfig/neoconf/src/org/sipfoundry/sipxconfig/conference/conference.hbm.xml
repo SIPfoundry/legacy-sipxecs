@@ -9,8 +9,7 @@
         <param name="sequence">meetme_seq</param>
       </generator>
     </id>
-    <many-to-one name="location" class="org.sipfoundry.sipxconfig.commserver.Location"
-                 column="location_specific_service_id" />
+    <many-to-one name="location" class="org.sipfoundry.sipxconfig.commserver.Location" column="location_id" />
 
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage" foreign-key="fk_meetme_bridge_value_storage" />

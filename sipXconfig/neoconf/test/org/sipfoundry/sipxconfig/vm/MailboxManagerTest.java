@@ -31,7 +31,6 @@ public class MailboxManagerTest extends TestCase {
     private LocalMailboxManagerImpl m_mgr;
     private User user = new User();
     private static final String FILE_SEPARATOR = "file.separator";
-    public static final File READONLY_MAILSTORE = new File(TestHelper.getSourceDirectory(MailboxManagerTest.class));
 
     @Override
     protected void setUp() {
@@ -60,6 +59,11 @@ public class MailboxManagerTest extends TestCase {
         replay(pManager, coreContext);
         m_mgr.setCoreContext(coreContext);
     }
+    
+    static String getMailboxDir() {
+        String file = MailboxManagerTest.class.getResource("expected-distribution.xml").getFile();
+        return new File(file).getParent();
+    }
 
     @Override
     protected void tearDown() throws Exception {
@@ -80,8 +84,9 @@ public class MailboxManagerTest extends TestCase {
     public static File createTestMailStore() throws IOException {
         File testMailstore = new File(TestHelper.getTestDirectory() + '/' + System.currentTimeMillis());
         testMailstore.mkdirs();
-        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore, "200"));
-        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore, "201"));
+        String dir = getMailboxDir();
+        FileUtils.copyDirectory(new File(dir, "200"), new File(testMailstore, "200"));
+        FileUtils.copyDirectory(new File(dir, "200"), new File(testMailstore, "201"));
         return testMailstore;
     }
 

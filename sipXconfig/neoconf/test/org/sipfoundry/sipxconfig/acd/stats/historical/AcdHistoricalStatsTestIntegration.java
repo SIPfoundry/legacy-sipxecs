@@ -19,8 +19,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.postgresql.util.PGInterval;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
-import org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalStats;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -35,7 +34,7 @@ public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
     }
 
     public void testSignoutActivityReport() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
+        loadDataSetXml("commserver/seedLocationsAndServices3.xml");
         List<AcdServer> acdServers = m_acdContext.getServers();
         assertEquals(1, acdServers.size());
         Location location = acdServers.get(0).getLocation();
@@ -48,7 +47,7 @@ public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
     }
 
     public void testSignoutActivityReportSigninTime() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
+        loadDataSetXml("commserver/seedLocationsAndServices3.xml");
         List<AcdServer> acdServers = m_acdContext.getServers();
         assertEquals(1, acdServers.size());
         Location location = acdServers.get(0).getLocation();
@@ -63,7 +62,7 @@ public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
     }
 
     public void testSignoutActivityReportColumns() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
+        loadDataSetXml("commserver/seedLocationsAndServices3.xml");
         List<String> columns = m_acdHistoricalStats.getReportFields("agentAvailablityReport");
         assertEquals(3, columns.size());
         assertEquals("agent_uri", columns.get(0));
@@ -72,7 +71,7 @@ public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
     }
 
     public void testForReportSQLErrors() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
+        loadDataSetXml("commserver/seedLocationsAndServices3.xml");
         List<String> reports = m_acdHistoricalStats.getReports();
         for (String report : reports) {
             m_acdHistoricalStats.getReportFields(report);
@@ -84,7 +83,7 @@ public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
     }
 
     public void testAgentActivityReport() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
+        loadDataSetXml("commserver/seedLocationsAndServices3.xml");
         List<AcdServer> acdServers = m_acdContext.getServers();
         assertEquals(1, acdServers.size());
         Location location = acdServers.get(0).getLocation();

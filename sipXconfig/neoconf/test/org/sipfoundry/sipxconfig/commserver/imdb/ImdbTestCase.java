@@ -1,10 +1,11 @@
-package org.sipfoundry.sipxconfig.admin.commserver.imdb;
+package org.sipfoundry.sipxconfig.commserver.imdb;
 
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.DBCollection;
 
@@ -16,6 +17,7 @@ public class ImdbTestCase extends IntegrationTestCase {
     private MongoTemplate m_imdb;    
     private PermissionManager m_permissionManager;
     private DomainManager m_domainManager;
+    private AddressManager m_addressManager;
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
@@ -59,5 +61,13 @@ public class ImdbTestCase extends IntegrationTestCase {
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    public AddressManager getAddressManager() {
+        return m_addressManager;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

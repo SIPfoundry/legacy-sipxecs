@@ -20,9 +20,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.address.AddressRequester;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.presence.PresenceServer;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.springframework.beans.factory.annotation.Required;
@@ -47,7 +46,6 @@ public class AcdServer extends AcdComponent {
     private transient AcdContext m_acdContext;
     private AddressManager m_addressManager;
     private CoreContext m_coreContext;
-    private PresenceServer m_presenseServer;
     private int m_port;
     private int m_agentPort;
     private Location m_location;
@@ -131,14 +129,14 @@ public class AcdServer extends AcdComponent {
 
     @SettingEntry(path = PRESENCE_SERVER_URI)
     public String getPresenceServerUri() {
-        Address presence = m_addressManager.getSingleAddress(PresenceServer.HTTP_ADDRESS, new AddressRequester(
-                m_location));
+        Address presence = m_addressManager.getSingleAddress(PresenceServer.SIP_TCP_ADDRESS);
         return presence.toString();
     }
 
     @SettingEntry(path = PRESENCE_SERVICE_URI)
     public String getPresenceServiceUri() {
-        return getPresenceServerUri();
+        Address presence = m_addressManager.getSingleAddress(PresenceServer.HTTP_ADDRESS);
+        return presence.toString();
     }
 
     public void deploy(XmlRpcSettings xmlRpc) {
@@ -268,5 +266,9 @@ public class AcdServer extends AcdComponent {
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

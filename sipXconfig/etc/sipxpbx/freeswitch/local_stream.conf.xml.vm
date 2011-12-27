@@ -8,10 +8,10 @@
     <param name="timer-name" value="soft"/>
   </directory>
 
-#if(${moh.audioDirectoryEmpty})
-  <directory name="moh" path="@SIPX_PROMPTSDIR@/stdprompts/music/8000">
+#if(${audioDir})
+  <directory name="moh" path="${audioDir}">
 #else
-  <directory name="moh" path="${moh.audioDirectoryPath}">
+  <directory name="moh" path="@SIPX_PROMPTSDIR@/stdprompts/music/8000">
 #end
     <param name="rate" value="8000"/>
     <param name="shuffle" value="false"/>

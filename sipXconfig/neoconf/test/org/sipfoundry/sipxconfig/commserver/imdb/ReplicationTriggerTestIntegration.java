@@ -7,17 +7,17 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.commserver.imdb;
+package org.sipfoundry.sipxconfig.commserver.imdb;
 
 import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValueNotPresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValueNotPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
 
 import java.util.Collections;
 import java.util.SortedSet;
@@ -26,16 +26,16 @@ import java.util.concurrent.ExecutorService;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger.BranchDeleteWorker;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationTrigger.BranchDeleteWorker;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.tls.TlsPeer;
+import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
 
 import com.mongodb.BasicDBObject;
 
@@ -49,7 +49,7 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
     // disabled this test due to the fact that CoreContext.getGroupMembersCount()
     // uses plain sql and for some reason the db is empty
     public void _testUpdateUserGroup() throws Exception {
-        loadDataSet("admin/commserver/imdb/UserGroupSeed2.db.xml");
+        loadDataSet("commserver/imdb/UserGroupSeed2.db.xml");
         loadDataSetXml("domain/DomainSeed.xml");
 
         Group g = m_dao.getGroup(new Integer(1000));
@@ -78,43 +78,6 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
         m_tlsPeerManager.saveTlsPeer(peer);
         assertObjectPresent(getEntityCollection(), new BasicDBObject().append("ident", "~~tp~test@example.org"));
 
-    }
-
-    /**
-     * Test that replication happens at app startup if the replicateOnStartup property is set
-     */
-    public void testReplicateOnStartup() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocations.xml");
-        SipxReplicationContext replCtx = createStrictMock(SipxReplicationContext.class);
-        replCtx.generateAll();
-        expectLastCall();
-        
-
-        replay(replCtx);
-
-        m_trigger.setSipxReplicationContext(replCtx);
-
-        m_trigger.setReplicateOnStartup(true);
-        m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
-
-        verify(replCtx);
-        m_trigger.setReplicationManager(m_replicationManager);
-    }
-
-    /**
-     * Test that replication doesn't happen at app startup if the replicateOnStartup property is
-     * off
-     */
-    public void testNoReplicateOnStartup() throws Exception {
-        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
-        replay(replicationContext);
-        m_trigger.setReplicationManager(replicationContext);
-
-        m_trigger.setReplicateOnStartup(false);
-        m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
-
-        verify(replicationContext);
-        m_trigger.setReplicationManager(m_replicationManager);
     }
 
     /*

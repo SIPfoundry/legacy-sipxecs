@@ -7,20 +7,30 @@
  */
 package org.sipfoundry.sipxconfig.freeswitch.config;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings;
 
-public class XmlRpcConfiguration extends FreeswitchConfigFile {
+public class XmlRpcConfiguration extends AbstractFreeswitchConfiguration {
 
     @Override
     protected String getFileName() {
-        return "freeswitch/switch.conf.xml";
+        return "freeswitch/xml_rpc.conf.xml";
     }
 
     @Override
-    protected void setupContext(VelocityContext context, Location location, FreeswitchSettings settings) {
+    protected String getTemplate() {
+        return getFileName() + ".vm";
+    }
+
+    @Override
+    public void write(Writer writer, Location location, FreeswitchSettings settings) throws IOException {
+        VelocityContext context = new VelocityContext();
         context.put("location", location);
         context.put("settings", settings.getSettings().getSetting("freeswitch-config"));
+        write(writer, context);
     }
 }

@@ -16,12 +16,12 @@ public interface DaoEventPublisher {
     /**
      * Call this to notify listeners that every entity in this collection is about to be deleted
      */
-    public void publishDeleteCollection(Collection entities);
+    public void publishDeleteCollection(Collection<?> entities);
 
     /**
      * Call this to notify listeners that every entity in the collection was saved or updated
      */
-    public void publishSaveCollection(Collection entities);
+    public void publishSaveCollection(Collection<?> entities);
 
     /**
      * Call this to notify listeners that entity is about to be deleted

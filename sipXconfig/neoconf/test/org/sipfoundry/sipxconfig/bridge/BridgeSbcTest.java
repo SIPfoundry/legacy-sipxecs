@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
@@ -36,6 +35,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.proxy.ProxySettings;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class BridgeSbcTest {

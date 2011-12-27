@@ -14,38 +14,38 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Test;
+
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
-public class PhoneContextTestDb extends SipxDatabaseTestCase {
-
+public class PhoneContextTestDb extends IntegrationTestCase {
     private PhoneContext m_context;
-
     private PhonebookManager m_phonebookManager;
-
     private SettingDao m_settingContext;
-
+    
     @Override
-    protected void setUp() throws Exception {
-        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(PhoneContext.CONTEXT_BEAN_NAME);
-        m_phonebookManager = (PhonebookManager) TestHelper.getApplicationContext().getBean(PhonebookManager.CONTEXT_BEAN_NAME);
-        m_settingContext = (SettingDao) TestHelper.getApplicationContext().getBean(SettingDao.CONTEXT_NAME);
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        db().execute("select truncate_all()");
+    }
+    
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
     }
 
     public void testClear() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         m_context.clear();
-
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
         m_context.clear();
     }
 
     public void testCheckForDuplicateFieldsOnNew() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
 
         Phone p = m_context.newPhone(new TestPhoneModel());
@@ -60,10 +60,9 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testCheckForDuplicateFieldsOnSave() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/DuplicateSerialNumberSeed.xml");
-
-        Phone p = m_context.loadPhone(new Integer(1000));
+        sql("phone/DuplicateSerialNumberSeed.sql");
+        flush();
+        Phone p = m_context.newPhone(new TestPhoneModel());
         p.setSerialNumber("000000000002");
         try {
             m_context.storePhone(p);
@@ -74,8 +73,6 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testCheckForInvalidSerialNumberOnSave() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-
         Phone p = m_context.newPhone(new TestPhoneModel());
         p.setSerialNumber("0000000z");
 
@@ -89,7 +86,6 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetGroupMemberCountIndexedByGroupId() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
 
         Map<Integer, Long> counts = m_settingContext.getGroupMemberCountIndexedByGroupId(Phone.class);
@@ -103,7 +99,6 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
      * this test is really for PhoneTableModel in web context
      */
     public void testGetPhonesByPageSortedByModel() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
 
         List<Phone> page1 = m_context.loadPhonesByPage(null, 0, 4, new String[] {
@@ -116,7 +111,6 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadPhones() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
 
         List<Phone> page1 = m_context.loadPhones();
@@ -128,7 +122,6 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetAllPhoneIds() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
 
         List<Integer> result = m_context.getAllPhoneIds();
@@ -139,7 +132,6 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetPhoneIdBySerialNumber() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
         assertEquals(new Integer(1002), m_context.getPhoneIdBySerialNumber("00003"));
         assertEquals(new Integer(1003), m_context.getPhoneIdBySerialNumber("aa00004"));
@@ -147,13 +139,11 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testCountPhones() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
         assertEquals(4, m_context.getPhonesCount());
     }
 
     public void testGetGroupByName() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
 
         Group g1 = m_context.getGroupByName("phone group 1", false);
@@ -168,31 +158,27 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         assertNotNull(g2);
         assertEquals("bongo", g2.getName());
 
-        assertEquals(3, getConnection().getRowCount("group_storage"));
+        assertEquals(2, getConnection().getRowCount("group_storage"));
     }
 
     public void testCountPhonesInGroup() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
         assertEquals(1, m_context.getPhonesInGroupCount(new Integer(1001)));
         assertEquals(2, m_context.getPhonesInGroupCount(new Integer(1002)));
     }
 
     public void testAddToGroup() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
 
         assertEquals(0, TestHelper.getConnection().getRowCount("phone_group",
                 "where phone_id = 1001 AND group_id = 1002"));
 
         m_context.addToGroup(1002, Collections.singleton(1001));
-
-        assertEquals(1, TestHelper.getConnection().getRowCount("phone_group",
-                "where phone_id = 1001 AND group_id = 1002"));
+        flush();
+        db().queryForInt("select 1 from phone_group where phone_id = 1001 AND group_id = 1002");
     }
 
     public void testRemoveFromGroup() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
 
         Integer[] ids = {
@@ -202,12 +188,11 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         assertEquals(2, TestHelper.getConnection().getRowCount("phone_group", "where phone_group.group_id = 1001"));
 
         m_context.removeFromGroup(1001, Arrays.asList(ids));
-
-        assertEquals(0, TestHelper.getConnection().getRowCount("phone_group", "where phone_group.group_id = 1001"));
+        flush();
+        assertEquals(0, db().queryForInt("select count(*) from phone_group where group_id = 1001"));
     }
 
     public void testLoadPhonesWithNoLinesByPage() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneWithLineSeed.xml");
 
         List<Phone> page1 = m_context.loadPhonesWithNoLinesByPage(0, 4, new String[] {
@@ -218,8 +203,6 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetPhonebookEntries() throws Exception {
-        //Test everyone enabled
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/PhoneWithPhonebookSeed.xml");
 
         Phone phone = m_context.loadPhone(1001);
@@ -238,5 +221,17 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
 
         //Reset everyone to default value(true)
         m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
+    }
+
+    public void setPhoneContext(PhoneContext context) {
+        m_context = context;
+    }
+
+    public void setPhonebookManager(PhonebookManager phonebookManager) {
+        m_phonebookManager = phonebookManager;
+    }
+
+    public void setSettingDao(SettingDao settingContext) {
+        m_settingContext = settingContext;
     }
 }

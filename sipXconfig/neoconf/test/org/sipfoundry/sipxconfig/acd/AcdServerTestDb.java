@@ -9,23 +9,24 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.createNiceControl;
+
 import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.presence.PresenceServer;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.createNiceControl;
-import static org.easymock.classextension.EasyMock.replay;
 
 public class AcdServerTestDb extends TestCase {
 
@@ -39,21 +40,17 @@ public class AcdServerTestDb extends TestCase {
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.getDomainName();
         expectLastCall().andReturn("presence.com").atLeastOnce();
+        replay(m_coreContext);
+        
         m_server.setCoreContext(m_coreContext);
 
-        SipxPresenceService presenceService = createMock(SipxPresenceService.class);
-        presenceService.getPresenceServerPort();
-        expectLastCall().andReturn(5130).atLeastOnce();
-        presenceService.getPresenceApiPort();
-        expectLastCall().andReturn(8111).atLeastOnce();
-        replay(m_coreContext, presenceService);
-
-        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(presenceService).atLeastOnce();
-        EasyMock.replay(sipxServiceManager);
-
-        m_server.setSipxServiceManager(sipxServiceManager);
+        AddressManager addressManager = createMock(AddressManager.class);
+        addressManager.getSingleAddress(PresenceServer.HTTP_ADDRESS);
+        expectLastCall().andReturn(new Address("presence-api.example.org", 100)).anyTimes();
+        addressManager.getSingleAddress(PresenceServer.SIP_TCP_ADDRESS);
+        expectLastCall().andReturn(new Address("presence-sip.example.org", 101)).anyTimes();
+        replay(addressManager);
+        m_server.setAddressManager(addressManager);    
     }
 
     public void testDeploy() {

@@ -2,6 +2,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   
+  <bean id="settingsBean" class="org.sipfoundry.sipxconfig.setting.PersistableSettings" scope="prototype" parent="beanWithSettings"
+    abstract="true">
+    <property name="modelFilesContext" ref="modelFilesContext"/>    
+  </bean>
+
   <bean id="settingDaoImpl" class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl" parent="abstractDaoImpl">
     <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>

@@ -10,6 +10,7 @@ package org.sipfoundry.sipxconfig.backup;
 import java.io.File;
 
 public interface BackupManager {
+    public static final String CONTEXT_BEAN_NAME = "backupManager";
 
     FtpBackupPlan createFtpBackupPlan();
 

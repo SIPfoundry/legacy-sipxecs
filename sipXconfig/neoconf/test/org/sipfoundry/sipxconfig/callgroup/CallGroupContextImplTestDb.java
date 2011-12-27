@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.callgroup;
+package org.sipfoundry.sipxconfig.callgroup;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +34,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsert("admin/callgroup/CallGroupSeed.xml");
+        TestHelper.cleanInsert("callgroup/CallGroupSeed.xml");
     }
 
     public void testLoadCallGroup() throws Exception {

@@ -31,7 +31,7 @@ public class Openfire extends ImManager implements FeatureProvider, AddressProvi
     private BeanWithSettingsDao<OpenfireSettings> m_settingsDao;
     
     public OpenfireSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
     
     public void updateSettings(OpenfireSettings settings) {

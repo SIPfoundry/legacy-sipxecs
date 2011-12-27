@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
+
+import static org.easymock.EasyMock.createNiceMock;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,11 +28,14 @@ import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.springframework.context.ApplicationContext;
 
 public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     private final static Integer SERVER_ID = new Integer(1001);
@@ -37,14 +43,23 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     private AcdContext m_context;
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
+    private DaoEventPublisherImpl m_daoEventPublisher;
 
     @Override
     protected void setUp() throws Exception {
-        m_context = (AcdContext) TestHelper.getApplicationContext().getBean(AcdContext.CONTEXT_BEAN_NAME);
-        m_coreContext = (CoreContext) TestHelper.getApplicationContext().getBean(CoreContext.CONTEXT_BEAN_NAME);
-        m_locationsManager = (LocationsManager) TestHelper.getApplicationContext().getBean(
-                LocationsManager.CONTEXT_BEAN_NAME);
+        ApplicationContext app = TestHelper.getApplicationContext();
+        m_context = (AcdContext) app.getBean(AcdContext.CONTEXT_BEAN_NAME);
+        m_coreContext = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
+        m_locationsManager = (LocationsManager) app.getBean(LocationsManager.CONTEXT_BEAN_NAME);
+        m_daoEventPublisher = app.getBean(DaoEventPublisherImpl.class);
+        DaoEventListener stub = createNiceMock(DaoEventListener.class);
+        m_daoEventPublisher.divertEvents(stub);
         TestHelper.cleanInsert("ClearDb.xml");
+    }
+    
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        m_daoEventPublisher.divertEvents(null);
     }
 
     public void testGetUsersWithAgents() throws Exception {
@@ -140,25 +155,6 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         location.setName("localhost");
         m_locationsManager.saveLocation(location);
         acdServer.setLocation(location);
-
-//        SipxPresenceService presenceService = org.easymock.classextension.EasyMock
-//                .createMock(SipxPresenceService.class);
-//        presenceService.getPresenceServerPort();
-//        EasyMock.expectLastCall().andReturn(5130).atLeastOnce();
-//        presenceService.getPresenceApiPort();
-//        EasyMock.expectLastCall().andReturn(8111).atLeastOnce();
-//        presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE);
-//        EasyMock.expectLastCall().andReturn("*88").atLeastOnce();
-//        presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE);
-//        EasyMock.expectLastCall().andReturn("*81").atLeastOnce();
-//        org.easymock.classextension.EasyMock.replay(presenceService);
-//
-//        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
-//        sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
-//        EasyMock.expectLastCall().andReturn(presenceService).atLeastOnce();
-//        EasyMock.replay(sipxServiceManager);
-//
-//        acdServer.setSipxServiceManager(sipxServiceManager);
 
         assertNotNull(acdServer);
         Setting settingRoot = acdServer.getSettings();
@@ -422,6 +418,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         ITable acdAgentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
         assertEquals(4, acdAgentTable.getRowCount());
 
+        m_daoEventPublisher.divertEvents(null);
         m_coreContext.deleteUsers(Collections.singleton(new Integer(1000)));
 
         acdAgentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");

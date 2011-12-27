@@ -3,7 +3,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.admin.commserver;
+package org.sipfoundry.sipxconfig.commserver;
 
 import java.io.File;
 
@@ -18,7 +18,7 @@ public class InitialConfigTestIntegration extends IntegrationTestCase {
             // tries to run a shell script. ignore test
             return;
         }
-        m_initialConfig.setBinDirectory(TestHelper.getSourceDirectory(this.getClass()));
+        m_initialConfig.setBinDirectory(getThisDir());
         // create initial-config directory
         File file = new File(m_initialConfig.getTmpDirectory() + "/initial-config");
         file.mkdirs();
@@ -33,6 +33,10 @@ public class InitialConfigTestIntegration extends IntegrationTestCase {
 
     public void setInitialConfig(InitialConfig initialConfig) {
         m_initialConfig = initialConfig;
+    }
+    
+    String getThisDir() {
+        return new File(getClass().getResource("clearLocations.xml").getFile()).getParent();
     }
 
 }

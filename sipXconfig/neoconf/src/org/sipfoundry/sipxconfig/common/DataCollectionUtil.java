@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 public final class DataCollectionUtil {
 
@@ -170,5 +171,26 @@ public final class DataCollectionUtil {
             last = all.size();
         }
         return all.subList(first, last);
+    }
+
+    public static String toString(Object o) {
+        if (o instanceof Collection<?>) {
+            StringBuilder sb = new StringBuilder();
+            Iterator<?> i = ((Collection<?>) o).iterator();
+            for (int ndx = 0; i.hasNext(); ndx++) {
+                if (sb.length() == 0) {
+                    sb.append("[");
+                } else {
+                    sb.append(",");
+                }
+                sb.append(toString(i.next()));
+                if (!i.hasNext()) {
+                    sb.append("]");
+                }
+            }
+            return sb.toString();
+        } else {
+            return ReflectionToStringBuilder.toString(o);
+        }
     }
 }

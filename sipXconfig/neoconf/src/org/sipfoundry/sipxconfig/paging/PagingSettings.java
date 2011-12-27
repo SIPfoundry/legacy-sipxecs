@@ -13,10 +13,11 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class PagingSettings extends BeanWithSettings implements DeployConfigOnEdit {
+public class PagingSettings extends PersistableSettings implements DeployConfigOnEdit {
+    private static final String PREFIX = "page-dial/prefix";
 
     @Override
     protected Setting loadSettings() {
@@ -24,11 +25,20 @@ public class PagingSettings extends BeanWithSettings implements DeployConfigOnEd
     }
 
     public String getPrefix() {
-        return getSettingValue("page-dial/prefix");
+        return getSettingValue(PREFIX);
+    }
+
+    public void setPrefix(String prefix) {
+        setSettingValue(PREFIX, prefix);
     }
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) PagingContext.FEATURE);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "pagingSettings";
     }
 }

@@ -10,7 +10,7 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
     }
 
     public void testSetConnectionParamsDefaultPort() throws Exception {
-        LdapConnectionParams params = new LdapConnectionParams();
+        LdapConnectionParams params = m_ldapManager.getConnectionParams();
         params.setHost("abc");
         params.setPrincipal("principal");
         params.setSecret("secret");

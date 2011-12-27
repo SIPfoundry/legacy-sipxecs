@@ -108,12 +108,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
             if (isFqdnOrIpChanged && isFqdnOrIpInUseExceptThis(location)) {
                 throw new UserException(DUPLICATE_FQDN_OR_IP, location.getFqdn(), location.getAddress());
             }
-            if (location.isCallTraffic() && !location.isReplicateConfig()) {
-                throw new UserException("&error.replication.config", location.getFqdn(), location.getAddress());
-            }
-            if (location.isPrimary() && !location.isReplicateConfig()) {
-                throw new UserException("&error.primary.config", location.getFqdn(), location.getAddress());
-            }
             location.fqdnOrIpHasChangedOnSave();
             getHibernateTemplate().update(location);
         }

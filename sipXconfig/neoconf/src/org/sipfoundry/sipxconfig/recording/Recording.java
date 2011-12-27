@@ -21,7 +21,7 @@ public class Recording implements FeatureProvider {
     private BeanWithSettingsDao<RecordingSettings> m_settingsDao;
 
     public RecordingSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void saveSettings(RecordingSettings settings) {

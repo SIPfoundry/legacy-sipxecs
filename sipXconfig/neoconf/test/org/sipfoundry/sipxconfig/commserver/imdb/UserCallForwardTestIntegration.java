@@ -3,17 +3,18 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.sipxconfig.admin.commserver.imdb;
+package org.sipfoundry.sipxconfig.commserver.imdb;
 
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertCollectionCount;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertCollectionCount;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 
 public class UserCallForwardTestIntegration extends ImdbTestCase {
     private final String[][] USER_DATA = {
@@ -28,6 +29,7 @@ public class UserCallForwardTestIntegration extends ImdbTestCase {
 
     private List<User> m_users;
     private UserForward m_userforwardDataSet;
+    private ProxyManager m_proxyManager;
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
@@ -36,6 +38,7 @@ public class UserCallForwardTestIntegration extends ImdbTestCase {
         for (String[] ud : USER_DATA) {
             User user = new User();
             user.setPermissionManager(getPermissionManager());
+            user.setProxyManager(m_proxyManager);
             user.setUniqueId(new Integer(ud[0]));
             user.setFirstName(ud[1]);
             user.setLastName(ud[2]);
@@ -50,6 +53,7 @@ public class UserCallForwardTestIntegration extends ImdbTestCase {
         User user = new User();
         user.setPermissionManager(getPermissionManager());
         user.setDomainManager(getDomainManager());
+        user.setProxyManager(m_proxyManager);
         user.setFirstName("first");
         user.setLastName("last");
         user.setUserName("200");
@@ -66,11 +70,15 @@ public class UserCallForwardTestIntegration extends ImdbTestCase {
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[0][4]));
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User2", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[1][4]));
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User3", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[2][4]));
-        Integer defaultInitDelay = Integer.valueOf(getPermissionManager().getDefaultInitDelay());
+        Integer defaultInitDelay = Integer.valueOf(m_proxyManager.getSettings().getDefaultInitDelay());
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User4", MongoConstants.CFWDTIME, defaultInitDelay);
     }
 
     public void setUserforwardDataSet(UserForward userforwardDataSet) {
         m_userforwardDataSet = userforwardDataSet;
+    }
+
+    public void setProxyManager(ProxyManager proxyManager) {
+        m_proxyManager = proxyManager;
     }
 }

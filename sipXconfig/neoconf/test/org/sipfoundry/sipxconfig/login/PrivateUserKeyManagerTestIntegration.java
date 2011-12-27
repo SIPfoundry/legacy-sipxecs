@@ -20,7 +20,7 @@ public class PrivateUserKeyManagerTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
 
     public void testPrivateKeyForUser() throws Exception {
-        loadDataSet("admin/dialplan/seedUser.xml");
+        loadDataSet("dialplan/seedUser.xml");
 
         User user = m_coreContext.loadUser(1001);
 

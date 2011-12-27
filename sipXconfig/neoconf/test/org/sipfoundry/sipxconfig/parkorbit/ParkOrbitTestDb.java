@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dbunit.dataset.ITable;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;
@@ -30,7 +29,7 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         m_context = (ParkOrbitContext) appContext.getBean(ParkOrbitContext.CONTEXT_BEAN_NAME);
 
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsert("admin/parkorbit/OrbitSeed.xml");
+        TestHelper.cleanInsert("parkorbit/OrbitSeed.xml");
     }
 
     public void testLoadParkOrbit() throws Exception {

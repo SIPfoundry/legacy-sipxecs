@@ -32,7 +32,7 @@ public class Mwi implements AddressProvider, FeatureProvider {
     private BeanWithSettingsDao<MwiSettings> m_settingsDao;
 
     public MwiSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     @Override

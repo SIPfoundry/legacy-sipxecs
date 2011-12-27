@@ -28,7 +28,7 @@ public class ImBot implements AddressProvider, FeatureProvider {
     private BeanWithSettingsDao<ImBotSettings> m_settingsDao;
 
     public ImBotSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     @Override

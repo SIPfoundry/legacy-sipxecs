@@ -2,7 +2,7 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
-  <type id="preffered-codecs-type">
+  <type id="preferred-codecs-type">
     <multi-enum labelKeyPrefix="codec">
       <option>
         <value>G722</value>
@@ -26,7 +26,8 @@
   </type>
   <group name="freeswitch-config">
     <setting name="FREESWITCH_CODECS">
-      <type refid="preffered-codecs-type"/>
+      <type refid="preferred-codecs-type"/>
+      <value>G722|PCMU@20i|PCMA@20i|speex|L16</value>
     </setting>
     <setting name="FREESWITCH_SIP_PORT" advanced="yes">
       <type>

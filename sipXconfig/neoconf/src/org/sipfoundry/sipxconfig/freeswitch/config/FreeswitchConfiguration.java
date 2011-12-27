@@ -1,62 +1,48 @@
 /*
- *
- *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
+ * Licensed to the User under the AGPL license.
+ *
+ * $
  */
 package org.sipfoundry.sipxconfig.freeswitch.config;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.io.Writer;
 
-import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.ListableBeanFactory;
 
-public class FreeswitchConfiguration implements ConfigProvider, BeanFactoryAware {
-    private FreeswitchFeature m_freeswitch;
-    private ListableBeanFactory m_beanFactory;
+public class FreeswitchConfiguration extends AbstractFreeswitchConfiguration {
+    private DomainManager m_domainManager;
 
     @Override
-    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(FreeswitchFeature.FEATURE)) {
-            return;
-        }
-
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                FreeswitchFeature.FEATURE);
-        if (locations.isEmpty()) {
-            return;
-        }
-        for (Location location : locations) {
-            File dir = manager.getLocationDataDirectory(location);
-            FreeswitchSettings settings = m_freeswitch.getSettings(location);
-            Map<String, FreeswitchConfigFile> configs = m_beanFactory.getBeansOfType(FreeswitchConfigFile.class);
-            for (FreeswitchConfigFile config : configs.values()) {
-                FileWriter writer = new FileWriter(new File(dir, config.getFileName()));
-                config.write(writer, location, settings);
-                IOUtils.closeQuietly(writer);
-            }
-        }
+    public void write(Writer writer, Location location, FreeswitchSettings settings) throws IOException {
+        write(writer, m_domainManager.getDomain(), settings);
     }
 
-    public void setFreeswitch(FreeswitchFeature freeswitch) {
-        m_freeswitch = freeswitch;
+    void write(Writer writer, Domain domain, FreeswitchSettings settings) throws IOException {
+        VelocityContext context = new VelocityContext();
+        context.put("dollar", "$");
+        context.put("settings", settings.getSettings().getSetting("freeswitch-config"));
+        context.put("domain", domain);
+        write(writer, context);
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = (ListableBeanFactory) beanFactory;
+    protected String getTemplate() {
+        return getFileName() + ".vm";
+    }
+
+    @Override
+    protected String getFileName() {
+        return "freeswitch/freeswitch.xml";
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

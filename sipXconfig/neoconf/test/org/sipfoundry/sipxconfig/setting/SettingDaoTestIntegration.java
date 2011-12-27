@@ -8,6 +8,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.branch.Branch;
@@ -21,10 +22,16 @@ public class SettingDaoTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
     private BranchManager m_branchManager;
     private SettingDao m_settingDao;
+    
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        db().execute("select truncate_all()");
+    }
 
     public void testInvalidBranchGroup() throws Exception {
-        loadDataSetXml("domain/DomainSeed.xml");
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        sql("domain/DomainSeed.sql");
+        sql("commserver/SeedLocations.sql");
         Branch branch1 = new Branch();
         branch1.setName("branch1");
         Branch branch2 = new Branch();
@@ -52,8 +59,8 @@ public class SettingDaoTestIntegration extends IntegrationTestCase {
         }
     }
 
-    public void testGetBranchMemberCountIndexedByBranchId() {
-        loadDataSet("setting/user-group-branch.xml");
+    public void testGetBranchMemberCountIndexedByBranchId() throws IOException {
+        sql("setting/user-group-branch.sql");
         Map<Integer, Long> branchesMap = m_settingDao.getBranchMemberCountIndexedByBranchId(User.class);
         assertEquals(3, branchesMap.size());
         assertEquals(1, branchesMap.get(1000).longValue());
@@ -61,16 +68,16 @@ public class SettingDaoTestIntegration extends IntegrationTestCase {
         assertEquals(1, branchesMap.get(1002).longValue());
     }
 
-    public void testGetGroupBranchMemberCountIndexedByBranchId() {
-        loadDataSet("setting/user-group-branch.xml");
+    public void testGetGroupBranchMemberCountIndexedByBranchId() throws IOException {
+        sql("setting/user-group-branch.sql");
         Map<Integer, Long> branchesMap = m_settingDao.getGroupBranchMemberCountIndexedByBranchId(User.class);
         assertEquals(2, branchesMap.size());
         assertEquals(1, branchesMap.get(1000).longValue());
         assertEquals(1, branchesMap.get(1001).longValue());
     }
 
-    public void testGetAllBranchMemberCountIndexedByBranchId() {
-        loadDataSet("setting/user-group-branch.xml");
+    public void testGetAllBranchMemberCountIndexedByBranchId() throws IOException {
+        sql("setting/user-group-branch.sql");
         Map<Integer, Long> branchesMap = m_settingDao.getAllBranchMemberCountIndexedByBranchId(User.class);
         assertEquals(3, branchesMap.size());
         assertEquals(2, branchesMap.get(1000).longValue());
@@ -88,5 +95,4 @@ public class SettingDaoTestIntegration extends IntegrationTestCase {
     public void setBranchManager(BranchManager branchManager) {
         m_branchManager = branchManager;
     }
-
 }

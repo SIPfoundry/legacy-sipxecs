@@ -9,17 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.util.Set;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.presence.PresenceServer;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
-
-import static org.easymock.EasyMock.expectLastCall;
 
 public class AcdServerTest extends BeanWithSettingsTestCase {
 
@@ -36,20 +39,14 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         m_server.setLocation(m_location);
         m_server.setPort(8110);
         initializeBeanWithSettings(m_server);
-
-        SipxPresenceService presenceService = org.easymock.classextension.EasyMock.createMock(SipxPresenceService.class);
-        presenceService.getPresenceServerPort();
-        expectLastCall().andReturn(5130).atLeastOnce();
-        presenceService.getPresenceApiPort();
-        expectLastCall().andReturn(8111).atLeastOnce();
-        org.easymock.classextension.EasyMock.replay(presenceService);
-
-        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(presenceService).atLeastOnce();
-        EasyMock.replay(sipxServiceManager);
-
-        m_server.setSipxServiceManager(sipxServiceManager);
+        
+        AddressManager addressManager = createMock(AddressManager.class);
+        addressManager.getSingleAddress(PresenceServer.HTTP_ADDRESS);
+        expectLastCall().andReturn(new Address("presence-api.example.org", 100)).anyTimes();
+        addressManager.getSingleAddress(PresenceServer.SIP_TCP_ADDRESS);
+        expectLastCall().andReturn(new Address("presence-sip.example.org", 101)).anyTimes();
+        replay(addressManager);
+        m_server.setAddressManager(addressManager);
     }
 
     public void testGetSettingsModel() throws Exception {
@@ -115,17 +112,6 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         assertTrue(server.getLines().isEmpty());
     }
 
-    public void testGerServiceUri() {
-        assertEquals("http://localhost:8110/RPC2", m_server.getServiceUri());
-
-        m_server.setPort(7777);
-        m_location = new Location();
-        m_location.setFqdn("bongo.sipfoudry.org");
-        m_server.setLocation(m_location);
-        assertEquals("http://bongo.sipfoudry.org:7777/RPC2", m_server.getServiceUri());
-
-    }
-
     public void testPrepareSettings() {
         IMocksControl mc = EasyMock.createControl();
         CoreContext coreContext = mc.createMock(CoreContext.class);
@@ -140,29 +126,19 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
 
         assertEquals("mydomain.org", m_server.getSettingValue("acd-server/domain"));
         assertEquals("presence.com", m_server.getSettingValue("acd-server/fqdn"));
-        assertEquals("sip:presence.com:5130", m_server
+        assertEquals("presence-sip.example.org:101", m_server
                 .getSettingValue("acd-server/presence-server-uri"));
-        assertEquals("http://presence.com:8111/RPC2", m_server
+        assertEquals("presence-api.example.org:100", m_server
                 .getSettingValue("acd-server/presence-service-uri"));
 
         mc.verify();
     }
 
     public void testGetPresenceServiceUri() {
-        assertEquals("http://localhost:8111/RPC2", m_server.getPresenceServiceUri());
-
-        m_location = new Location();
-        m_location.setFqdn("presence.com");
-        m_server.setLocation(m_location);
-        assertEquals("http://presence.com:8111/RPC2", m_server.getPresenceServiceUri());
+        assertEquals("presence-api.example.org:100", m_server.getPresenceServiceUri());
     }
 
     public void testGetPresenceServerUri() {
-        assertEquals("sip:localhost:5130", m_server.getPresenceServerUri());
-
-        m_location = new Location();
-        m_location.setFqdn("presence.com");
-        m_server.setLocation(m_location);
-        assertEquals("sip:presence.com:5130", m_server.getPresenceServerUri());
+        assertEquals("presence-sip.example.org:101", m_server.getPresenceServerUri());
     }
 }

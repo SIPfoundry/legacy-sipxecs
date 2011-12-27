@@ -9,14 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
+
 import java.util.Collections;
 import java.util.List;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
 
 public class AcdQueueTest extends BeanWithSettingsTestCase {

@@ -67,29 +67,5 @@ public class OpenAcdConfigurationTest {
         m_config.writeVmArgs(actual, m_location);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-vm-args-config"));
         assertEquals(expected, actual.toString());
-        
-//        
-//        SipxOpenAcdService openAcdService = new SipxOpenAcdService();
-//        initCommonAttributes(openAcdService);
-//        Setting settings = TestHelper.loadSettings("openacd/sipxopenacd.xml");
-//        openAcdService.setSettings(settings);
-//
-//        Setting appSettings = openAcdService.getSettings().getSetting("openacd-config");
-//        appSettings.getSetting("SIPX_OPENACD_LOG_LEVEL").setValue("CRIT");
-//
-//        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
-//        sipxServiceManager.getServiceByBeanId(SipxOpenAcdService.BEAN_ID);
-//        expectLastCall().andReturn(openAcdService).atLeastOnce();
-//        replay(sipxServiceManager);
-//
-//        OpenAcdConfiguration out = new OpenAcdConfiguration();
-//        out.setSipxServiceManager(sipxServiceManager);
-//        out.setTemplate("openacd/app.config.vm");
-//
-//        assertCorrectFileGeneration(out, "expected-app-config");
-//
-//        verify(sipxServiceManager);
-
     }
-
 }

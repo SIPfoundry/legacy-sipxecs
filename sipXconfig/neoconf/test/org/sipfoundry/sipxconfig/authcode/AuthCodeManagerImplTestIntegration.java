@@ -7,14 +7,13 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.authcode;
+package org.sipfoundry.sipxconfig.authcode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
-import org.dbunit.dataset.ITable;
+import org.sipfoundry.sipxconfig.acccode.AuthCode;
+import org.sipfoundry.sipxconfig.acccode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -27,7 +26,7 @@ public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
 
     public void testDeleteAuthCode() throws Exception {
-        loadDataSet("admin/authcode/auth_code.db.xml");
+        loadDataSet("authcode/auth_code.db.xml");
 
         assertEquals(2, m_authCodeManager.getAuthCodes().size());
 
@@ -39,7 +38,7 @@ public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testDeleteAuthCodes() throws Exception {
-        loadDataSet("admin/authcode/auth_code.db.xml");
+        loadDataSet("authcode/auth_code.db.xml");
 
         assertEquals(2, m_authCodeManager.getAuthCodes().size());
         assertNotNull(m_authCodeManager.getAuthCodeByCode("12345"));
@@ -62,7 +61,7 @@ public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void saveAuthCode() throws Exception {
-        loadDataSet("admin/tls/auth_code.db.xml");
+        loadDataSet("tls/auth_code.db.xml");
 
         assertEquals(2, m_authCodeManager.getAuthCodes().size());
 

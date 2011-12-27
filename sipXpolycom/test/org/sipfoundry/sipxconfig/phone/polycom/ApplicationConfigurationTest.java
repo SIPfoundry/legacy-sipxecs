@@ -12,10 +12,10 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import java.io.InputStream;
 
 import org.custommonkey.xmlunit.XMLUnit;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ApplicationConfigurationTest extends PolycomXmlTestCase {

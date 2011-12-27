@@ -42,7 +42,7 @@
     <property name="restTemplate" ref="restTemplate"/>
   </bean>
 
-  <bean id="genericMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.GenericMailboxManagerImpl" init-method="init">
+  <bean id="genericMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.GenericMailboxManagerImpl">
   </bean>
 
   <bean id="mailboxManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

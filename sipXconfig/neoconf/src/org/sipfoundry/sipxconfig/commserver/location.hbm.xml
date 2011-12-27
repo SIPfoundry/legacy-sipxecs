@@ -16,7 +16,6 @@
     <property name="primary" column="primary_location" />
     <property name="registered" />
     <property name="callTraffic" />
-    <property name="replicateConfig" />
     <property name="state" column="state" type="org.sipfoundry.sipxconfig.commserver.Location$LocationState" />
     <property name="lastAttempt" />
     <set name="failedReplications" table="location_failed_replications">

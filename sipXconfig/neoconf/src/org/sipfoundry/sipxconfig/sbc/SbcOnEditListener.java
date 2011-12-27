@@ -9,7 +9,9 @@ package org.sipfoundry.sipxconfig.sbc;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 
@@ -29,6 +31,11 @@ public class SbcOnEditListener implements DaoEventListener {
                 } else {
                     m_sbcManager.saveSbc(sbc);
                 }
+            }
+        } else if (entity instanceof Location) {
+            BridgeSbc sbc = m_sbcDeviceManager.getBridgeSbc((Location) entity);
+            if (sbc != null) {
+                m_sbcDeviceManager.deleteSbcDevice(sbc.getId());
             }
         }
     }

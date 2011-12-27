@@ -14,16 +14,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.branch.BranchManager;
-
 import org.dbunit.dataset.ITable;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.InternationalRule;
+import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
+import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;

@@ -117,7 +117,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     private class OnUserDelete extends UserDeleteListener {
         @Override
         protected void onUserDelete(User user) {
-            getHibernateTemplate().update(user);
+            //getHibernateTemplate().update(user);
             removeUser(user.getId());
         }
     }

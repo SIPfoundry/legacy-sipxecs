@@ -77,7 +77,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private ListableBeanFactory m_beanFactory;
 
     public OpenAcdSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void saveSettings(OpenAcdSettings settings) {

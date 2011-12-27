@@ -12,15 +12,19 @@
   <group name="history">
     <setting name="CONFIG_SERVER_REPORT" hidden="yes">
       <type refid="enabledDisabled"/>
-      <value>'ENABLED'</value>
+      <value>ENABLED</value>
     </setting>
-    <setting name="CONFIG_SERVER_AGENT_URL" hidden="yes">
+    <setting name="DB_NAME" hidden="yes">
       <type><string/></type>
-      <value>'http://localhost:8120'</value>
-    </setting>    
-    <setting name="LOCATION_FQDN" hidden="yes">
+      <value>SIPXACD_HISTORY</value>
+    </setting>
+    <setting name="DB_URI" hidden="yes">
       <type><string/></type>
-      <value>'http://localhost:8120'</value>
-    </setting>    
+      <value>dbi:Pg:#{DB_NAME}:localhost</value>
+    </setting>
+    <setting name="DB_USER" hidden="yes">
+      <type><string/></type>
+      <value>postgres</value>
+    </setting>
   </group>
 </model>

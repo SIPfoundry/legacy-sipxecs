@@ -23,9 +23,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -36,6 +33,10 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.beans.factory.BeanFactory;
@@ -59,6 +60,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     private BeanFactory m_beanFactory;
     private LocationsManager m_locationsManager;
     private CoreContext m_coreContext;
+    private FeatureManager m_featureManager;
 
     private AcdServer getAcdServer(Integer id) {
         return (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
@@ -321,6 +323,9 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     }
 
     public Collection<AliasMapping> getAliasMappings() {
+        if (!m_featureManager.isFeatureEnabled(Acd.FEATURE)) {
+            return null;
+        }
         HibernateTemplate hibernate = getHibernateTemplate();
         List<AcdLine> acdLines = hibernate.loadAll(AcdLine.class);
         Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
@@ -486,6 +491,9 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     @Override
     public boolean isAliasInUse(String alias) {
+        if (!m_featureManager.isFeatureEnabled(Acd.FEATURE)) {
+            return false;
+        }
         for (AliasMapping aliasMapping : getAliasMappings()) {
             if (aliasMapping.getIdentity().equals(alias)) {
                 return true;
@@ -510,5 +518,9 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }

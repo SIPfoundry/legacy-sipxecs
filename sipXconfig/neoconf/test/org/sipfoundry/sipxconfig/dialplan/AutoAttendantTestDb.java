@@ -14,8 +14,8 @@ import java.util.Collections;
 import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
-import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.common.DialPad;
+import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
@@ -34,7 +34,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testUpdate() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/seedAttendant.xml");
+        TestHelper.cleanInsertFlat("dialplan/seedAttendant.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
         m_context.storeAutoAttendant(aa);
         assertEquals(new Integer(1000), aa.getId());
@@ -56,7 +56,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         // attendant data
         ITable actual = TestHelper.getConnection().createDataSet().getTable("auto_attendant");
         ReplacementDataSet expectedRds = TestHelper
-                .loadReplaceableDataSetFlat("admin/dialplan/saveAttendantExpected.xml");
+                .loadReplaceableDataSetFlat("dialplan/saveAttendantExpected.xml");
         expectedRds.addReplacementObject("[auto_attendant_id]", aa.getId());
         ITable expected = expectedRds.getTable("auto_attendant");
         Assertion.assertEquals(expected, actual);
@@ -85,7 +85,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         // attendant data
         ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
         ReplacementDataSet expectedRds = TestHelper
-                .loadReplaceableDataSetFlat("admin/dialplan/saveAttendantSettingsExpected.xml");
+                .loadReplaceableDataSetFlat("dialplan/saveAttendantSettingsExpected.xml");
         ValueStorage vs = (ValueStorage) aa.getValueStorage();
         expectedRds.addReplacementObject("[value_storage_id]", vs.getId());
         ITable expected = expectedRds.getTable("setting_value");
@@ -101,7 +101,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDelete() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/seedAttendant.xml");
+        TestHelper.cleanInsertFlat("dialplan/seedAttendant.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
         m_context.deleteAutoAttendant(aa);
         ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_menu_item");
@@ -109,7 +109,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteInUseByAttendantRule() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
+        TestHelper.cleanInsertFlat("dialplan/attendant_rule.db.xml");
         try {
             m_context.deleteAutoAttendantsByIds(Collections.singletonList(1001));
             fail();
@@ -120,7 +120,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteOperatorInUse() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/seedOperator.xml");
+        TestHelper.cleanInsertFlat("dialplan/seedOperator.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
         try {
             m_context.deleteAutoAttendant(aa);
@@ -138,7 +138,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSaveNameThatIsDuplicateAlias() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/seedUser.xml");
+        TestHelper.cleanInsertFlat("dialplan/seedUser.xml");
         boolean gotNameInUseException = false;
         AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
         aa.setName("alpha");
@@ -151,13 +151,13 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetAutoAttendantSettings() throws Exception {
-        TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
+        TestHelper.cleanInsert("dialplan/seedDialPlanWithAttendant.xml");
         AutoAttendant autoAttendant = m_context.getAutoAttendant(new Integer(2000));
         assertNotNull(autoAttendant.getSettings());
     }
 
     public void testSelectSpecial() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/seedOperator.xml");
+        TestHelper.cleanInsertFlat("dialplan/seedOperator.xml");
         AutoAttendant operator = m_context.getOperator();
         m_context.selectSpecial(operator);
 
@@ -167,7 +167,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeselectSpecial() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/seedOperator.xml");
+        TestHelper.cleanInsertFlat("dialplan/seedOperator.xml");
         AutoAttendant operator = m_context.getOperator();
         m_context.deselectSpecial(operator);
         ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_special_mode");
@@ -187,7 +187,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetSelectedSpecialAttendant() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/seedSpecialSelectedAttendant.xml");
+        TestHelper.cleanInsertFlat("dialplan/seedSpecialSelectedAttendant.xml");
         AutoAttendant operator = m_context.getOperator();
         AutoAttendant specialAa = m_context.getSelectedSpecialAttendant();
         assertEquals(operator, specialAa);

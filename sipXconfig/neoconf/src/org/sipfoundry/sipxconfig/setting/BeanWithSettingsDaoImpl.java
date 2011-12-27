@@ -10,14 +10,18 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 
-public class BeanWithSettingsDaoImpl<T> extends SipxHibernateDaoSupport<BeanWithSettings> implements
-        BeanWithSettingsDao<T> {
-
-    private Class m_class;
+public class BeanWithSettingsDaoImpl<T extends BeanWithSettings> extends SipxHibernateDaoSupport<BeanWithSettings>
+        implements BeanWithSettingsDao<T>, BeanFactoryAware {
+    private Class<T> m_class;
+    private ListableBeanFactory m_beanFactory;
+    //private SettingDao m_settingsDao;
 
     public BeanWithSettingsDaoImpl(String className) throws ClassNotFoundException {
-        m_class = Class.forName(className);
+        m_class = (Class<T>) Class.forName(className);
     }
 
     public BeanWithSettingsDaoImpl(Class<T> type) {
@@ -25,18 +29,25 @@ public class BeanWithSettingsDaoImpl<T> extends SipxHibernateDaoSupport<BeanWith
     }
 
     @Override
-    public T findOne() {
+    public T findOrCreateOne() {
         List<T> all =  findAll();
-        return all.isEmpty() ? null : all.get(0);
+        return all.isEmpty() ? m_beanFactory.getBean(m_class) : all.get(0);
     }
 
     @Override
     public List<T> findAll() {
-        return (List<T>) getHibernateTemplate().loadAll(m_class);
+        List<T> beans = (List<T>) getHibernateTemplate().loadAll(m_class);
+        return beans;
     }
 
     @Override
     public void upsert(T object) {
         getHibernateTemplate().saveOrUpdate(object);
+        getHibernateTemplate().flush();
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 }

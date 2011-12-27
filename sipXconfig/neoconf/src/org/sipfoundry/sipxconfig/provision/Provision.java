@@ -29,7 +29,7 @@ public class Provision implements FeatureProvider, AddressProvider {
     private BeanWithSettingsDao<ProvisionSettings> m_settingsDao;
 
     public ProvisionSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     @Override

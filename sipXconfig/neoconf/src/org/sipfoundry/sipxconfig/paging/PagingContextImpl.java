@@ -42,7 +42,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     private FeatureManager m_featureManager;
 
     public PagingSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void saveSettings(PagingSettings settings) {

@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.commserver;
 import static org.apache.commons.lang.StringUtils.substringBefore;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,10 +39,8 @@ public class Location extends BeanWithId {
     private boolean m_primary;
     private boolean m_registered;
     private boolean m_callTraffic;
-    private boolean m_replicateConfig;
     private State m_state = State.UNCONFIGURED;
     private Timestamp m_lastAttempt;
-    private List<String> m_installedBundles;
     private Set<String> m_failedReplications;
     private Branch m_branch;
     private boolean m_setFqdnOrIpChangedOnSave;
@@ -80,12 +77,6 @@ public class Location extends BeanWithId {
         m_fqdn = fqdn;
     }
 
-    /**
-     * @return beanIDs of installed bundles
-     */
-    public List<String> getInstalledBundles() {
-        return m_installedBundles;
-    }
 
     public Set<String> getFailedReplications() {
         return m_failedReplications;
@@ -93,10 +84,6 @@ public class Location extends BeanWithId {
 
     public void setFailedReplications(Set<String> failedReplications) {
         m_failedReplications = failedReplications;
-    }
-
-    public void setInstalledBundles(List<String> installedBundles) {
-        m_installedBundles = installedBundles;
     }
 
     public void setUseStun(boolean useStun) {
@@ -254,8 +241,6 @@ public class Location extends BeanWithId {
     public State getState() {
         if (!isRegistered()) {
             return State.UNINITIALIZED;
-        } else if (!isReplicateConfig()) {
-            return State.DISABLED;
         } else {
             return m_state;
         }
@@ -340,13 +325,5 @@ public class Location extends BeanWithId {
 
     public void setCallTraffic(boolean callTraffic) {
         m_callTraffic = callTraffic;
-    }
-
-    public boolean isReplicateConfig() {
-        return m_replicateConfig;
-    }
-
-    public void setReplicateConfig(boolean replicateConfig) {
-        m_replicateConfig = replicateConfig;
     }
 }

@@ -32,7 +32,7 @@ public class RestServer implements FeatureProvider, AddressProvider {
     private BeanWithSettingsDao<RestServerSettings> m_settingsDao;
 
     public RestServerSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     @Override

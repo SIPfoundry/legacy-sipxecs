@@ -15,42 +15,37 @@ import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
-import org.sipfoundry.sipxconfig.backup.BackupPlan;
-import org.sipfoundry.sipxconfig.backup.DailyBackupSchedule;
-import org.sipfoundry.sipxconfig.backup.FtpBackupPlan;
-import org.sipfoundry.sipxconfig.backup.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class DailyBackupScheduleTestDb extends SipxDatabaseTestCase {
 
-    private AdminContext m_adminContext;
+    private BackupManager m_backupManager;
 
     @Override
     protected void setUp() throws Exception {
-        m_adminContext = (AdminContext) TestHelper.getApplicationContext().getBean(
-                AdminContext.CONTEXT_BEAN_NAME);
+        m_backupManager = (BackupManager) TestHelper.getApplicationContext().getBean(
+                BackupManager.CONTEXT_BEAN_NAME);
     }
 
     public void testStoreJob() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        BackupPlan plan = m_adminContext.getBackupPlan(LocalBackupPlan.TYPE);
-        BackupPlan ftpPlan = m_adminContext.getBackupPlan(FtpBackupPlan.TYPE);
+        BackupPlan plan = m_backupManager.getBackupPlan(LocalBackupPlan.TYPE);
+        BackupPlan ftpPlan = m_backupManager.getBackupPlan(FtpBackupPlan.TYPE);
         DailyBackupSchedule dailySchedule = new DailyBackupSchedule();
         DailyBackupSchedule ftpDailySchedule = new DailyBackupSchedule();
 
         plan.addSchedule(dailySchedule);
         ftpPlan.addSchedule(ftpDailySchedule);
 
-        m_adminContext.storeBackupPlan(plan);
-        m_adminContext.storeBackupPlan(ftpPlan);
+        m_backupManager.storeBackupPlan(plan);
+        m_backupManager.storeBackupPlan(ftpPlan);
 
 
         ITable actual = TestHelper.getConnection().createDataSet().getTable("daily_backup_schedule");
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("admin/SaveDailyBackupScheduleExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("backup/SaveDailyBackupScheduleExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[backup_plan_id]", plan.getId());
         expectedRds.addReplacementObject("[daily_backup_schedule_id]", dailySchedule.getId());

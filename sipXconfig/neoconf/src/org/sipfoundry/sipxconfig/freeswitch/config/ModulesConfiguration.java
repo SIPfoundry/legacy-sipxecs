@@ -7,11 +7,14 @@
  */
 package org.sipfoundry.sipxconfig.freeswitch.config;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings;
 
-public class ModulesConfiguration extends FreeswitchConfigFile {
+public class ModulesConfiguration extends AbstractFreeswitchConfiguration {
 
     @Override
     protected String getFileName() {
@@ -19,7 +22,18 @@ public class ModulesConfiguration extends FreeswitchConfigFile {
     }
 
     @Override
-    protected void setupContext(VelocityContext context, Location location, FreeswitchSettings settings) {
-        context.put("codecG729", settings.isCodecG729Installed());
+    protected String getTemplate() {
+        return getFileName() + ".vm";
+    }
+
+    @Override
+    public void write(Writer writer, Location location, FreeswitchSettings settings) throws IOException {
+        write(writer, settings.isCodecG729Installed());
+    }
+
+    public void write(Writer writer, boolean g729) throws IOException {
+        VelocityContext context = new VelocityContext();
+        context.put("codecG729", g729);
+        write(writer, context);
     }
 }

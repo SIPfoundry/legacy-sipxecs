@@ -7,13 +7,16 @@
  */
 package org.sipfoundry.sipxconfig.freeswitch.config;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class LocalStreamConfiguration extends FreeswitchConfigFile {
+public class LocalStreamConfiguration extends AbstractFreeswitchConfiguration {
     private MusicOnHoldManager m_musicOnHoldManager;
 
     @Required
@@ -27,8 +30,19 @@ public class LocalStreamConfiguration extends FreeswitchConfigFile {
     }
 
     @Override
-    protected void setupContext(VelocityContext context, Location location, FreeswitchSettings settings) {
+    public void write(Writer writer, Location location, FreeswitchSettings settings) throws IOException {
+        String audioDir = null;
+        if (m_musicOnHoldManager.isAudioDirectoryEmpty()) {
+            audioDir =  m_musicOnHoldManager.getAudioDirectoryPath();
+        }
+        write(writer, audioDir);
+    }
+
+    void write(Writer writer, String audioDir) throws IOException {
+        VelocityContext context = new VelocityContext();
         context.put("moh", m_musicOnHoldManager);
+        context.put("audioDir", audioDir);
+        write(writer, context);
     }
 
     @Override

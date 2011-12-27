@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 import org.hibernate.SessionFactory;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
+import org.sipfoundry.sipxconfig.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;

@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.tls;
 
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -20,7 +23,7 @@ public class TlsPeerManagerImplTestIntegration extends ImdbTestCase {
     private TlsPeerManager m_tlsPeerManager;
 
     public void testDeleteTlsPeer() throws Exception {
-        loadDataSet("admin/tls/tls_peer.db.xml");
+        loadDataSet("tls/tls_peer.db.xml");
 
         assertEquals(2, m_tlsPeerManager.getTlsPeers().size());
 
@@ -32,7 +35,7 @@ public class TlsPeerManagerImplTestIntegration extends ImdbTestCase {
     }
 
     public void testDeleteTlsPeers() throws Exception {
-        loadDataSet("admin/tls/tls_peer.db.xml");
+        loadDataSet("tls/tls_peer.db.xml");
 
         assertEquals(2, m_tlsPeerManager.getTlsPeers().size());
         assertNotNull(m_tlsPeerManager.getTlsPeerByName("tlspeer1"));
@@ -55,7 +58,7 @@ public class TlsPeerManagerImplTestIntegration extends ImdbTestCase {
     }
 
     public void saveTlsPeer() throws Exception {
-        loadDataSet("admin/tls/tls_peer.db.xml");
+        loadDataSet("tls/tls_peer.db.xml");
 
         assertEquals(2, m_tlsPeerManager.getTlsPeers().size());
 

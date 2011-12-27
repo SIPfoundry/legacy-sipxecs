@@ -9,71 +9,31 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats.historical;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
+import static org.junit.Assert.assertEquals;
+
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.velocity.app.VelocityEngine;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.acd.AcdContext;
-import org.sipfoundry.sipxconfig.acd.AcdServer;
-import org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.junit.Test;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
-public class AcdReportConfigTest extends XMLTestCase {
 
+public class AcdReportConfigTest {
+
+    @Test
     public void testReplicateReportConfig() throws Exception {
-        AcdHistoricalConfigurationFile acdHistoricalConf = new AcdHistoricalConfigurationFile();
-
-        // creates velocity engine for Report component
-        String etcDir = TestHelper.getTestProperties().getProperty("sysconfdir") + "/sipxpbx/report";
-        assertTrue("sipXacdStatistics was installed", new File(etcDir + "/sipxconfig-report-config.vm").exists());
-        VelocityEngine engine = new VelocityEngine();
-        engine.setProperty("resource.loader", "file");
-        engine.setProperty("file.resource.loader.path", etcDir);
-        engine.init();
-
-        acdHistoricalConf.setVelocityEngine(engine);
-        acdHistoricalConf.setTemplate("sipxconfig-report-config.vm");
-        acdHistoricalConf.setDbUser("postgres");
-
-        IMocksControl mc = EasyMock.createControl();
-        AcdContext acdContext = mc.createMock(AcdContext.class);
-        acdContext.getServers();
-        Location location = new Location();
-        location.setFqdn("example.org");
-        AcdServer acdServer = new AcdServer();
-        acdServer.setLocation(location);
-        List<AcdServer> acdServers = new ArrayList<AcdServer>();
-        acdServers.add(acdServer);
-        mc.andReturn(acdServers);
-        mc.replay();
-
-        acdHistoricalConf.setAcdContext(acdContext);
-        acdHistoricalConf.setAgentPort(8120);
-
-        InputStream resourceAsStream = AcdReportConfigTest.class.getResourceAsStream("report-config-expected.xml");
-        assertNotNull(resourceAsStream);
-
-        Reader referenceConfigReader = new InputStreamReader(resourceAsStream);
-        String referenceConfig = IOUtils.toString(referenceConfigReader);
-
-        StringWriter actualConfigWriter = new StringWriter();
-        acdHistoricalConf.write(actualConfigWriter, location);
-
-        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        String actualConfig = IOUtils.toString(actualConfigReader);
-
-        assertEquals(referenceConfig, actualConfig);
-
+        AcdHistoryConfig config = new AcdHistoryConfig();
+        AcdHistoricalSettings settings = new AcdHistoricalSettings();
+        settings.setModelFilesContext(TestHelper.getModelFilesContext());
+        Location location = TestHelper.createDefaultLocation();
+        StringWriter actual = new StringWriter();
+        String expected = IOUtils.toString(getClass().getResourceAsStream("report-config-expected.xml"));
+        Collection<Address> apis = Arrays.asList(new Address("one"), new Address("two"));
+        config.write(actual, settings, location, apis);
+        assertEquals(expected, actual.toString());
     }
 }

@@ -9,7 +9,7 @@ package org.sipfoundry.sipxconfig.feature;
 
 import java.util.Collections;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class FeatureManagerTestIntegration extends IntegrationTestCase {
@@ -18,18 +18,18 @@ public class FeatureManagerTestIntegration extends IntegrationTestCase {
     public void testEnableGlobalFeatures() {
         deleteFromTables(new String[] { "feature_global" });
         GlobalFeature f = new GlobalFeature("testEnableGlobalFeatures");
-        assertFalse(m_featureManager.isGlobalFeatureEnabled(f));
+        assertFalse(m_featureManager.isFeatureEnabled(f));
         m_featureManager.enableGlobalFeatures(Collections.singleton(f));
-        assertTrue(m_featureManager.isGlobalFeatureEnabled(f));
+        assertTrue(m_featureManager.isFeatureEnabled(f));
     }
 
     public void testEnableLocationFeatures() {
         deleteFromTables(new String[] { "feature_location" });
         Location l = new Location();
         LocationFeature f = new LocationFeature("testEnableLocationFeatures");
-        assertFalse(m_featureManager.isLocationFeatureEnabled(f, l));
+        assertFalse(m_featureManager.isFeatureEnabled(f, l));
         m_featureManager.enableLocationFeatures(Collections.singleton(f), l);
-        assertTrue(m_featureManager.isLocationFeatureEnabled(f, l));
+        assertTrue(m_featureManager.isFeatureEnabled(f, l));
     }
 
     public FeatureManager getFeatureManager() {

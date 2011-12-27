@@ -88,6 +88,12 @@ public class ValidUsers {
     
     private DB m_imdb;
 
+    /**
+     * Loading all users into memory is an extremely expensive call for large systems (10K-50K user system).
+     * Consider refactoring your code to not call this method.
+     * 
+     * @return
+     */
     public List<User> getValidUsers() {
         List<User> users = new ArrayList<User>();
         try {
@@ -113,6 +119,12 @@ public class ValidUsers {
         return users;
     }
 
+    /**
+     * Loading all users into memory is an extremely expensive call for large systems (10K-50K user system).
+     * Consider refactoring your code to not call this method.
+     * 
+     * @return
+     */
     public DBCursor getUsers() {
         Pattern userPattern = Pattern.compile("User.*");
         BasicDBObject query = new BasicDBObject(ID, userPattern);
@@ -120,6 +132,12 @@ public class ValidUsers {
         return cursor;
     }
 
+    /**
+     * Loading all users into memory is an extremely expensive call for large systems (10K-50K user system).
+     * Consider refactoring your code to not call this method.
+     * 
+     * @return
+     */
     public List<User> getUsersWithImEnabled() {
         List<User> users = new ArrayList<User>();
         DBCursor cursor = getEntityCollection().find(QueryBuilder.start(IM_ENABLED).is(Boolean.TRUE).get());

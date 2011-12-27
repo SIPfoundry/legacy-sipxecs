@@ -59,7 +59,10 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection objects = new ArrayList();
         for (AliasOwner owner : getAliasOwners()) {
-            objects.addAll(owner.getBeanIdsOfObjectsWithAlias(alias));
+            Collection ids = owner.getBeanIdsOfObjectsWithAlias(alias);
+            if (ids != null) {
+                objects.addAll(ids);
+            }
         }
         return objects;
     }

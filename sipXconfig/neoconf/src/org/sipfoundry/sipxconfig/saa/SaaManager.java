@@ -21,7 +21,7 @@ public class SaaManager implements FeatureProvider {
     private BeanWithSettingsDao<SaaSettings> m_settingsDao;
 
     public SaaSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void saveSettings(SaaSettings settings) {

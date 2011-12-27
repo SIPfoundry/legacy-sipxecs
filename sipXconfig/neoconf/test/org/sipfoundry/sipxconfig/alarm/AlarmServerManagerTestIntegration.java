@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.alarm;
+package org.sipfoundry.sipxconfig.alarm;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,9 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmGroup;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmServer;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -38,8 +35,8 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
-        loadDataSet("admin/alarm/alarm.db.xml");
-        loadDataSet("admin/alarm/user-alarm.db.xml");
+        loadDataSet("alarm/alarm.db.xml");
+        loadDataSet("alarm/user-alarm.db.xml");
     }
 
     public void testGetAlarmServer() throws Exception {

@@ -9,12 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.test;
 
+import static org.easymock.EasyMock.createNiceMock;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import static java.lang.String.format;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
@@ -26,22 +29,58 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.SessionFactory;
+import org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
 
 public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransactionalTests {
+    private static final String ROOT_RES_PATH = "/org/sipfoundry/sipxconfig/";
     private static final Log LOG = LogFactory.getLog(IntegrationTestCase.class);
     private static final String CANNOT_SET_PROP_MSG = "Unable to set property %s on target %s";
 
     private SessionFactory m_sessionFactory;
-
     private HibernateTemplate m_hibernateTemplate;
-
+    private JdbcTemplate m_db;
     private Map<Object, Map<String, Object>> m_modifiedContextObjectMap;
+    private DaoEventPublisherImpl m_daoEventPublisher;
+    private SpringHibernateInstantiator m_entityInterceptor;
 
     public IntegrationTestCase() {
         setAutowireMode(AUTOWIRE_BY_NAME);
+    }
+
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        // w/o this beans loaded from hibernate are not created from spring, therefore not dependency injected
+        ((HibernateTransactionManager) transactionManager).setEntityInterceptor(m_entityInterceptor);
+    }
+
+    protected void sql(String resource) throws IOException {
+        SqlFileReader sql = new SqlFileReader(getClass().getResourceAsStream(ROOT_RES_PATH + resource));
+        m_db.batchUpdate(sql.parse().toArray(new String[0]));
+    }
+
+    protected void sql(InputStream in) throws IOException {
+        SqlFileReader sql = new SqlFileReader(in);
+        m_db.batchUpdate(sql.parse().toArray(new String[0]));
+    }
+
+    protected JdbcTemplate db() {
+        return m_db;
+    }
+
+    protected void divertDaoEvents(DaoEventListener listener) {
+        m_daoEventPublisher.divertEvents(listener);
+    }
+
+    protected void disableDaoEventPublishing() {
+        DaoEventListener stub = createNiceMock(DaoEventListener.class);
+        m_daoEventPublisher.divertEvents(stub);
     }
 
     @Override
@@ -55,6 +94,10 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         if (m_modifiedContextObjectMap != null) {
             resetContext();
         }
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate db) {
+        m_db = db;
     }
 
     @Override
@@ -130,10 +173,27 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         m_hibernateTemplate.evict(o);
     }
 
+    /**
+     * Commit everything to database. useful when debugging and want to run queries from another app. Also
+     * useful in some circumstances when subsequent sql requires it.  Note, tests are allowed to leave
+     * data in database after execution.  It's up to each test to clear all existing data before execution.
+     */
+    protected void commit() {
+        transactionManager.commit(transactionStatus);
+    }
+
+    protected void clear() {
+        db().execute("select truncate_all()");
+    }
+
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
         m_hibernateTemplate = new HibernateTemplate();
         m_hibernateTemplate.setSessionFactory(m_sessionFactory);
+    }
+
+    public void setSpringInstantiator(SpringHibernateInstantiator entityInterceptor) {
+        m_entityInterceptor = entityInterceptor;
     }
 
     /**
@@ -183,5 +243,10 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         }
 
         assertTrue(m_modifiedContextObjectMap.isEmpty());
+        m_daoEventPublisher.stopDivertingEvents();
+    }
+
+    public void setDaoEventPublisher(DaoEventPublisherImpl daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
 }

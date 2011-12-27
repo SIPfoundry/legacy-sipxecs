@@ -47,7 +47,6 @@ public final class DaoEventDispatcher implements MethodInterceptor {
 
     public Object invoke(final MethodInvocation method) throws Throwable {
         boolean proceed = true;
-        Object entity = method.getArguments()[0];
         if (method.getArguments().length == 0) {
             // empty arg calls like save() or delete() won't be considered
             // because there is no entity to distinguish event
@@ -63,6 +62,7 @@ public final class DaoEventDispatcher implements MethodInterceptor {
             return method.proceed();
         }
 
+        Object entity = method.getArguments()[0];
         Object response;
         switch (m_eventType) {
         case ON_SAVE:

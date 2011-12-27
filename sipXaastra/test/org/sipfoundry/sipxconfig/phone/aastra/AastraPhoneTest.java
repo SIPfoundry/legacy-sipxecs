@@ -20,7 +20,6 @@ import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -31,6 +30,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.phone.aastra.AastraPhone.PhonebookProfile;
 

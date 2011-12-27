@@ -7,13 +7,13 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.commserver.imdb;
+package org.sipfoundry.sipxconfig.commserver.imdb;
 
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
+import org.sipfoundry.sipxconfig.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 

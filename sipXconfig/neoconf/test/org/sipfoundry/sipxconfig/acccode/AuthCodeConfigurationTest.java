@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.acccode;
 
+
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collections;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -24,8 +26,6 @@ import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class AuthCodeConfigurationTest {
     AuthCodesConfig m_config;

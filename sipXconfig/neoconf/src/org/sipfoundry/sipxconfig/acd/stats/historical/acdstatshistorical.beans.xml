@@ -13,7 +13,7 @@
       <bean parent="beanWithSettingsDao">
         <property name="target">
           <bean parent="beanWithSettingsDaoImpl">
-            <constructor-arg value="org.sipfoundry.sipxconfig.acd.stats.history.AcdHistoricalSettings"/>
+            <constructor-arg value="org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalSettings"/>
           </bean>
         </property>
       </bean>
@@ -25,7 +25,7 @@
     <property name="target" ref="acdHistoricalStatsImpl"/>
   </bean>
 
-  <bean id="acdHistoricalSettings" class="org.sipfoundry.sipxconfig.acd.stats.history.AcdHistoricalSettings" scope="prototype">
+  <bean id="acdHistoricalSettings" class="org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalSettings" scope="prototype">
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 

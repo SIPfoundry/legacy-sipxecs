@@ -13,8 +13,8 @@ import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager.DomainNotInitializedException;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -82,23 +82,6 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         ITable actual = ds.getTable("domain");
         ITable expected = getConnection().createDataSet().getTable("domain");
         Assertion.assertEquals(expected, actual);
-    }
-
-    public void testInitializeDomain() throws Exception {
-        String domainConfigFilename = DomainManagerImplTestIntegration.class.getResource(
-                "initial-domain-config").getFile();
-        m_out.setDomainConfigFilename(domainConfigFilename);
-        m_out.initializeDomain();
-
-        Domain domain = m_out.getDomain();
-        assertNotNull(domain);
-
-        assertEquals("domain.example.org", domain.getName());
-        assertEquals("realm.example.org", domain.getSipRealm());
-        assertNotNull(domain.getAliases());
-        assertEquals("alias.example.org", domain.getAliases().iterator().next());
-        assertFalse(domain.getAliases().contains("domain.example.org"));
-        assertNotNull(domain.getSharedSecret());
     }
 
     public void setDomainManager(DomainManager domainManager) {

@@ -7,9 +7,9 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.commserver.imdb;
+package org.sipfoundry.sipxconfig.commserver.imdb;
 
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
 
 import java.util.ArrayList;
 import java.util.List;

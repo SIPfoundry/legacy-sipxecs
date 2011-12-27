@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
-import org.dom4j.Document;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -20,6 +19,7 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
 public class RlsConfigurationTest {
+    
     @Test
     public void testConfig() throws Exception {
         RlsConfig config = new RlsConfig();
@@ -34,12 +34,5 @@ public class RlsConfigurationTest {
         assertEquals(expected, actual.toString());
     }
     
-    public void testXml() throws Exception {
-        ResourceLists lists = new ResourceLists();
-        Document doc = lists.getDocument();
-        String actual = TestHelper.asString(doc);
-        String expected = IOUtils.toString(getClass().getResourceAsStream(""));
-        assertEquals(expected, actual);
-        
-    }
+    // resource lists xml is covered by ResourceListsTest
 }

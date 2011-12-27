@@ -7,9 +7,9 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.commserver.imdb;
+package org.sipfoundry.sipxconfig.commserver.imdb;
 
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,10 +28,11 @@ public class AliasesTestIntegration extends ImdbTestCase {
         m_user.setUniqueId(1);
         m_user.setDomainManager(getDomainManager());
         m_user.setPermissionManager(getPermissionManager());
+        m_user.setAddressManager(getAddressManager());
     }
 
     public void testGenerate() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         m_aliasDataSet.generate(m_user, m_aliasDataSet.findOrCreate(m_user));
         assertObjectWithIdPresent(getEntityCollection(), "User1");
     }

@@ -128,7 +128,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
 
     public void testTrimUserValues() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         User user = m_coreContext.newUser();
 
         user.setFirstName("First  ");
@@ -150,7 +150,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
 
     public void testAddRemoveGroup() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         Branch b1 = new Branch();
         b1.setName("b1");
         m_branchManager.saveBranch(b1);

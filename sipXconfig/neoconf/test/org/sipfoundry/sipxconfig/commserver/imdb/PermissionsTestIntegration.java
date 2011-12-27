@@ -7,17 +7,17 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.admin.commserver.imdb;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertCollectionCount;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectListFieldCount;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+package org.sipfoundry.sipxconfig.commserver.imdb;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertCollectionCount;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectListFieldCount;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
+import org.sipfoundry.sipxconfig.acccode.AuthCode;
+import org.sipfoundry.sipxconfig.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;

@@ -9,15 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import static org.junit.Assert.assertArrayEquals;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.dbunit.Assertion;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
@@ -25,51 +27,44 @@ import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
-public class PhoneTestDb extends SipxDatabaseTestCase {
-
+public class PhoneTestDb extends IntegrationTestCase {
     private PhoneContext context;
-
     private SettingDao settingDao;
-
     private CoreContext core;
-
     private ModelSource<PhoneModel> phoneModelSource;
 
     @Override
-    protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        context = (PhoneContext) app.getBean(PhoneContext.CONTEXT_BEAN_NAME);
-        settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
-        core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
-        phoneModelSource = (ModelSource<PhoneModel>) app.getBean("nakedPhoneModelSource");
-
-        TestHelper.cleanInsert("ClearDb.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        db().execute("select truncate_all()");
     }
 
     public void testSave() throws Exception {
-        Phone phone = context.newPhone(new TestPhoneModel());
+        final Phone phone = context.newPhone(new TestPhoneModel());
         phone.setSerialNumber("999123456789");
-        phone.setDescription("unittest-sample phone1");
+        phone.setDescription("unittest-sample phone1");               
         context.storePhone(phone);
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("phone");
-
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/SaveEndpointExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[phone_id_1]", phone.getId());
-        expectedRds.addReplacementObject("[null]", null);
-        ITable expected = expectedRds.getTable("phone");
-        Assertion.assertEquals(expected, actual);
+        flush();
+        final int[] rowCount = new int[] {0};
+        db().query("select * from phone", new RowCallbackHandler() {            
+            @Override
+            public void processRow(ResultSet actual) throws SQLException {
+                rowCount[0]++;
+                assertEquals(phone.getSerialNumber(), actual.getString("serial_number"));
+                assertEquals(phone.getDescription(), actual.getString("description"));
+                assertEquals("testPhoneModel", actual.getString("model_id"));
+            }
+        });
+        assertEquals(1, rowCount[0]);
     }
-
+    
     public void testLoadAndDelete() throws Exception {
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        sql("common/TestUserSeed.sql");
+        sql("phone/EndpointLineSeed.sql");
 
         Phone p = context.loadPhone(new Integer(1000));
         assertEquals("999123456789", p.getSerialNumber());
@@ -82,14 +77,14 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         } catch (HibernateObjectRetrievalFailureException x) {
             assertTrue(true);
         }
-
-        IDataSet actual = TestHelper.getConnection().createDataSet();
-        assertEquals(0, actual.getTable("phone").getRowCount());
-        assertEquals(0, actual.getTable("line").getRowCount());
+        flush();
+        assertEquals(0, db().queryForInt("select count(*) from phone"));
+        assertEquals(0, db().queryForInt("select count(*) from line"));
     }
 
     public void testUpdateSettings() throws Exception {
-        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
+        sql("common/TestUserSeed.sql");
+        sql("phone/EndpointLineSeed.sql");
 
         Phone p = context.loadPhone(new Integer(1000));
         p.setSettingValue("server/outboundProxy", "bigbird");
@@ -97,36 +92,51 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         context.flush();
 
         Phone reloadPhone = context.loadPhone(new Integer(1000));
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/UpdateSettingsExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-
         ValueStorage s = (ValueStorage) reloadPhone.getValueStorage();
-        assertNotNull(s);
-        expectedRds.addReplacementObject("[value_storage_id]", s.getId());
-
-        IDataSet actual = TestHelper.getConnection().createDataSet();
-        Assertion.assertEquals(expectedRds.getTable("setting_value"), actual.getTable("setting_value"));
+        Map<String, Object> vs = db().queryForMap("select * from setting_value where value_storage_id = ?", s.getId());
+        assertEquals("server/outboundProxy", vs.get("path"));
+        assertEquals("bigbird", vs.get("value"));
     }
 
     public void testAddGroup() throws Exception {
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
-        TestHelper.cleanInsertFlat("phone/SeedPhoneGroup.xml");
+        sql("common/TestUserSeed.sql");
+        sql("phone/EndpointLineSeed.sql");
+        sql("phone/SeedPhoneGroup.sql");
 
         Phone p = context.loadPhone(new Integer(1000));
         List groups = context.getGroups();
         p.addGroup((Group) groups.get(0));
-        context.storePhone(p);
-
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddGroupExpected.xml");
-        IDataSet actual = TestHelper.getConnection().createDataSet();
-        Assertion.assertEquals(expectedDs.getTable("phone_group"), actual.getTable("phone_group"));
+        context.storePhone(p);      
+        flush();
+        db().queryForInt("select 1 from phone_group where group_id = ? and phone_id = ?", 1000, 1000);
     }
+    
+    static class ResultDataGrid implements RowCallbackHandler {
+        private List<Object[]> m_results = new ArrayList<Object[]>();    
+        
+        public int getRowCount() {
+            return m_results.size();
+        }
 
-    public void testRemoveGroupThenAddBackThenAddAnotherGroup() throws Exception {
-        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
-        TestHelper.cleanInsertFlat("phone/SeedPhoneGroup.xml");
+        @Override
+        public void processRow(ResultSet arg0) throws SQLException {
+            int count = arg0.getMetaData().getColumnCount();
+            Object[] cols = new Object[count];
+            for (int i = 0; i < count; i++) {
+                cols[i] = arg0.getObject(i + 1);
+            }
+            m_results.add(cols);
+        }
+        
+        public Object[][] toArray() {
+            return m_results.toArray(new Object[0][0]);
+        }
+    }    
 
+    public void testRemoveGroupThenAddBackThenAddAnotherGroup() throws Exception {        
+        sql("common/TestUserSeed.sql");
+        sql("phone/EndpointLineSeed.sql");
+        sql("phone/SeedPhoneGroup.sql");
         Phone p = context.loadPhone(new Integer(1000));
         List groups = context.getGroups();
         p.addGroup((Group) groups.get(0));
@@ -138,10 +148,16 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         reloaded.addGroup((Group) groups.get(0));
         reloaded.addGroup((Group) groups.get(1));
         context.storePhone(reloaded);
-
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddSecondGroupExpected.xml");
-        IDataSet actual = TestHelper.getConnection().createDataSet();
-        Assertion.assertEquals(expectedDs.getTable("phone_group"), actual.getTable("phone_group"));
+        flush();
+        Object[][] expected = new Object[][] {
+                new Object[] { 1000, 1000 },
+                new Object[] { 1001, 1000 }
+        };
+      
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select group_id, phone_id from phone_group", actual);
+        assertEquals(2, actual.getRowCount());
+        assertArrayEquals(expected, actual.toArray());
     }
 
     public void testPhoneSubclassSave() throws Exception {
@@ -149,44 +165,38 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         Phone subclass = context.newPhone(model);
         subclass.setSerialNumber("000000000000");
         context.storePhone(subclass);
-
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/PhoneSubclassSaveExpected.xml");
-        IDataSet actual = TestHelper.getConnection().createDataSet();
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[phone_id]", subclass.getId());
-        expectedRds.addReplacementObject("[null]", null);
-
-        Assertion.assertEquals(expectedRds.getTable("phone"), actual.getTable("phone"));
+        flush();
+        db().queryForInt("select 1 from phone where serial_number = ? and bean_id = ? and model_id = ?",
+                subclass.getSerialNumber(), model.getBeanId(), model.getModelId());        
     }
 
     public void testPhoneSubclassDelete() throws Exception {
-        TestHelper.cleanInsertFlat("phone/PhoneSubclassSeed.xml");
+        sql("phone/PhoneSubclassSeed.sql");
         Phone subclass = context.loadPhone(new Integer(1000));
         subclass.setSerialNumber("000000000000");
         context.deletePhone(subclass);
-
-        IDataSet actual = TestHelper.getConnection().createDataSet();
-        assertEquals(0, actual.getTable("phone").getRowCount());
+        flush();
+        assertEquals(0, db().queryForLong("select count(*) from phone"));
     }
 
     public void testClear() throws Exception {
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        sql("common/TestUserSeed.sql");
+        sql("phone/EndpointLineSeed.sql");
+        sql("phone/SeedPhoneGroup.sql");
+        // tests foreign keys
         context.clear();
     }
 
     public void testDeletePhoneGroups() throws Exception {
-        TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
+        sql("phone/GroupMemberCountSeed.sql");
         settingDao.deleteGroups(Collections.singletonList(new Integer(1001)));
-        // link table references removed
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("phone_group");
-        // just phone 2 and group 2
-        assertEquals(1, actual.getRowCount());
+        flush();
+        assertEquals(1, db().queryForLong("select count(*) from phone_group"));
     }
 
     public void testPhonesByUserId() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        sql("common/TestUserSeed.sql");
+        sql("phone/EndpointLineSeed.sql");
         Collection phones = context.getPhonesByUserId(new Integer(1000));
         assertEquals(1, phones.size());
         Phone p = (Phone) phones.iterator().next();
@@ -194,8 +204,8 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     }
 
     public void testPhonesByUserIdAndPhoneModel() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        sql("common/TestUserSeed.sql");
+        sql("phone/EndpointLineSeed.sql");
         Collection phones = context.getPhonesByUserIdAndPhoneModel(new Integer(1000), "testPhoneModel");
         assertEquals(1, phones.size());
         Phone p = (Phone) phones.iterator().next();
@@ -205,23 +215,21 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteUserRemoveLines() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        sql("common/TestUserSeed.sql");
+        sql("phone/EndpointLineSeed.sql");
         User testUser = core.loadUser(new Integer(1000));
         core.deleteUser(testUser);
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
-        assertEquals(0, actual.getRowCount());
+        flush();
+        assertEquals(0, db().queryForLong("select count(*) from line"));
     }
 
     public void testDeleteUserOnPhoneWithExternalLines() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsertFlat("phone/ExternalLineSeed.xml");
+        sql("common/TestUserSeed.sql");
+        sql("phone/ExternalLineSeed.sql");
         User testUser = core.loadUser(new Integer(1000));
         core.deleteUser(testUser);
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
-        assertEquals(1, actual.getRowCount());
+        flush();
+        assertEquals(1, db().queryForLong("select count(*) from line"));
 
         // no primary user after user is deleted
         Phone phone = context.loadPhone(1000);
@@ -229,19 +237,18 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeviceVersion() throws Exception {
-        TestHelper.cleanInsertFlat("phone/PhoneVersionSeed.db.xml");
+        sql("phone/PhoneVersionSeed.sql");
         Phone phone = context.loadPhone(1000);
         DeviceVersion deviceVersion = phone.getDeviceVersion();
         assertNotNull(deviceVersion);
         assertEquals("acmePhone", deviceVersion.getVendorId());
         assertEquals("1", deviceVersion.getVersionId());
-
         context.storePhone(phone);
     }
 
     public void testGetPrimaryUser() throws Exception {
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        sql("common/TestUserSeed.sql");
+        sql("phone/EndpointLineSeed.sql");
         Phone phone = context.loadPhone(1000);
         User user = phone.getPrimaryUser();
         assertNotNull(user);
@@ -249,7 +256,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetPrimaryUserNoUser() throws Exception {
-        TestHelper.cleanInsertFlat("phone/PhoneVersionSeed.db.xml");
+        sql("phone/PhoneVersionSeed.sql");
         Phone phone = context.loadPhone(1000);
         assertNull(phone.getPrimaryUser());
     }
@@ -260,5 +267,21 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
             phone.setSerialNumber(RandomStringUtils.randomNumeric(12));
             context.storePhone(phone);
         }
+    }
+
+    public void setPhoneContext(PhoneContext context) {
+        this.context = context;
+    }
+
+    public void setSettingDao(SettingDao settingDao) {
+        this.settingDao = settingDao;
+    }
+
+    public void setCoreContext(CoreContext core) {
+        this.core = core;
+    }
+
+    public void setPhoneModelSource(ModelSource<PhoneModel> phoneModelSource) {
+        this.phoneModelSource = phoneModelSource;
     }
 }

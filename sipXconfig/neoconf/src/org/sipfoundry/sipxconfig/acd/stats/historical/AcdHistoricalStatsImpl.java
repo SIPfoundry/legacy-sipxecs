@@ -51,7 +51,7 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
     }
 
     public AcdHistoricalSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void dumpReport(Writer writer, List<Map<String, Object>> reportData, Locale locale) throws IOException {
@@ -173,5 +173,9 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
      */
     public void setExportDatePattern(String exportDatePattern) {
         m_exportDatePattern = exportDatePattern;
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<AcdHistoricalSettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 }

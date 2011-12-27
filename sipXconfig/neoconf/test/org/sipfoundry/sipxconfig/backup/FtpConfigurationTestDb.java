@@ -9,31 +9,29 @@ import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
-import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
-import org.sipfoundry.sipxconfig.backup.FtpBackupPlan;
+import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
 import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class FtpConfigurationTestDb extends SipxDatabaseTestCase {
 
-    private AdminContext m_adminContext;
+    private BackupManager m_backupManager;
 
     @Override
     protected void setUp() throws Exception {
-        m_adminContext = (AdminContext) TestHelper.getApplicationContext().getBean(
-                AdminContext.CONTEXT_BEAN_NAME);
+        m_backupManager = (BackupManager) TestHelper.getApplicationContext().getBean(
+                BackupManager.CONTEXT_BEAN_NAME);
     }
 
     public void testStoreJob() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
         FtpBackupPlan ftpPlan = new FtpBackupPlan();
-        m_adminContext.storeBackupPlan(ftpPlan);
+        m_backupManager.storeBackupPlan(ftpPlan);
 
         ITable actual = TestHelper.getConnection().createDataSet().getTable("backup_plan");
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("admin/SaveBackupPlanExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("backup/SaveBackupPlanExpected.xml");
 
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
 
@@ -50,10 +48,10 @@ public class FtpConfigurationTestDb extends SipxDatabaseTestCase {
 
         ftpPlan.setFtpConfiguration(ftpConf);
 
-        m_adminContext.storeBackupPlan(ftpPlan);
+        m_backupManager.storeBackupPlan(ftpPlan);
 
         ITable actualConf = TestHelper.getConnection().createDataSet().getTable("ftp_configuration");
-        IDataSet expectedDsConf = TestHelper.loadDataSetFlat("admin/SaveFtpConfigurationExpected.xml");
+        IDataSet expectedDsConf = TestHelper.loadDataSetFlat("backup/SaveFtpConfigurationExpected.xml");
 
         ReplacementDataSet expectedRdsConf = new ReplacementDataSet(expectedDsConf);
 

@@ -51,7 +51,7 @@ public class Registrar implements FeatureProvider, AddressProvider, BeanFactoryA
     }
 
     public RegistrarSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void initialize() {

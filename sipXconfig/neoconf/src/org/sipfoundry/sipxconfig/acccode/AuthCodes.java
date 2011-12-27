@@ -53,7 +53,7 @@ public class AuthCodes implements ReplicableProvider, DialingRuleProvider, Featu
     }
 
     public AuthCodeSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public boolean isEnabled() {

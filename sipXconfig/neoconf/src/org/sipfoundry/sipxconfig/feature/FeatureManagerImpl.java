@@ -67,8 +67,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     public Set<GlobalFeature> getAvailableGlobalFeatures() {
         Set<GlobalFeature> features = new HashSet<GlobalFeature>();
         for (FeatureProvider p : getFeatureProviders()) {
-            for (GlobalFeature f : p.getAvailableGlobalFeatures()) {
-                features.add(f);
+            Collection<GlobalFeature> gfeatures = p.getAvailableGlobalFeatures();
+            if (gfeatures != null) {
+                features.addAll(gfeatures);
             }
         }
         return features;
@@ -105,8 +106,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     public Set<LocationFeature> getAvailableLocationFeatures(Location location) {
         Set<LocationFeature> features = new HashSet<LocationFeature>();
         for (FeatureProvider p : getFeatureProviders()) {
-            for (LocationFeature f : p.getAvailableLocationFeatures(location)) {
-                features.add(f);
+            Collection<LocationFeature> lfeatures = p.getAvailableLocationFeatures(location);
+            if (lfeatures != null) {
+                features.addAll(lfeatures);
             }
         }
         return features;

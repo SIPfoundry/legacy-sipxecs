@@ -46,7 +46,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
         m_permissionManager = (PermissionManager) app.getBean(PermissionManager.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
+        TestHelper.cleanInsert("commserver/seedLocations.xml");
     }
 
     public void testLoadByUserName() throws Exception {

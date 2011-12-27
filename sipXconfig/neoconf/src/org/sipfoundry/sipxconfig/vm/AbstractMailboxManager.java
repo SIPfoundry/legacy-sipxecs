@@ -69,12 +69,14 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
 
     @Override
     public void onDelete(Object entity) {
-        if (m_active) {
-            if (entity instanceof User) {
-                User user = (User) entity;
-                removePersonalAttendantForUser(user);
+        if (entity instanceof User) {
+            User user = (User) entity;
+            removePersonalAttendantForUser(user);
+            if (m_active && m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
                 deleteMailbox(user.getUserName());
-            } else if (entity instanceof Location) {
+            }
+        } else if (entity instanceof Location) {
+            if (m_active && m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
                 init();
             }
         }

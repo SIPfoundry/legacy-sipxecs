@@ -16,24 +16,4 @@
       <value>true</value>
     </row>
   </table>
-  <table name="sipx_service">
-    <column>sipx_service_id</column>
-    <column>bean_id</column>
-    <row>
-      <value>1</value>
-      <value>sipxFreeswitchService</value>
-    </row>
-  </table>
-  <table name="location_specific_service">
-    <column>location_specific_service_id</column>
-    <column>location_id</column>
-    <column>sipx_service_id</column>
-    <column>enable_on_next_upgrade</column>
-    <row>
-      <value>201</value>
-      <value>101</value>
-      <value>1</value>
-      <value>true</value>
-    </row>
-  </table>
 </dataset>

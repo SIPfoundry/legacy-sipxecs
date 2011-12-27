@@ -30,11 +30,11 @@ public class Ivr implements FeatureProvider, AddressProvider {
     private BeanWithSettingsDao<CallPilotSettings> m_pilotSettingsDao;
 
     public IvrSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public CallPilotSettings getCallPilotSettings() {
-        return m_pilotSettingsDao.findOne();
+        return m_pilotSettingsDao.findOrCreateOne();
     }
 
     @Override

@@ -45,7 +45,7 @@ public class ProxyManager implements FeatureProvider, AddressProvider {
     }
 
     public ProxySettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void saveSettings(ProxySettings settings) {

@@ -30,7 +30,7 @@ public class Rls implements AddressProvider, FeatureProvider {
     private BeanWithSettingsDao<RlsSettings> m_settingsDao;
 
     public RlsSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     @Override

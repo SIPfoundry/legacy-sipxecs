@@ -128,7 +128,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testLoadIntercoms() throws Exception {
         // verify loading the sample data
-        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
+        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
         List intercoms = m_intercomManager.loadIntercoms();
         assertEquals(2, intercoms.size());
         Intercom i1 = (Intercom) intercoms.get(0);
@@ -139,13 +139,13 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetNumIntercoms() throws Exception {
         assertEquals(0, m_intercomManager.loadIntercoms().size());
-        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
+        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
         assertEquals(2, m_intercomManager.loadIntercoms().size());
     }
 
     public void testGetIntercomForPhone() throws Exception {
         // load some sample intercoms and phones
-        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
+        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
         TestHelper.insertFlat("phone/SamplePhoneSeed.xml");
 
         // play with linking phones to intercoms
@@ -171,14 +171,14 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetRules() throws Exception {
-        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
+        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
         List< ? extends DialingRule> rules = m_intercomManager.getDialingRules();
         assertEquals(2, rules.size());
     }
 
     public void testClear() throws Exception {
         // load some sample intercoms
-        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
+        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
 
         // blow them all away
         m_intercomManager.clear();

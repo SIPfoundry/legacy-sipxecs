@@ -3,6 +3,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="vmAttendantOnEdit" class="org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantSettingListener">
+    <property name="featureManager" ref="featureManager" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="jdbcTemplate" ref="configJdbcTemplate" />
   </bean>

@@ -28,7 +28,7 @@ public class MongoFeature implements AddressProvider, FeatureProvider {
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
 
     public MongoSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void saveSettings(MongoSettings settings) {

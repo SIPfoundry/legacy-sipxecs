@@ -52,7 +52,7 @@ sipxconfig.properties : $(top_srcdir)/etc/sipxconfig.properties.in Makefile
 	@$(call SearchAndReplace,$<,$@.tmp,$(EXTRA_REPLACE))
 	@echo "$$sipxconfig_properties" | tr -d '\011' >> $@.tmp
 	mv $@.tmp $@
-	
+
 domain-config : Makefile
 	@echo "$$domain_config" | tr -d '\011' >> $@
 
@@ -98,12 +98,12 @@ reset-acd :
 	if `$(PG_SQL) -l | grep SIPXACD_HISTORY_TEST > /dev/null` ; then \
 	  $(PG_DROPDB) SIPXACD_HISTORY_TEST; \
 	fi
-	$(PG_CREATEDB) SIPXACD_HISTORY_TEST                                                                                                                       
+	$(PG_CREATEDB) SIPXACD_HISTORY_TEST
 	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/schema.sql
 	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/enable_upgrades.sql
 	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/location_fqdn.sql
 	$(PG_SQL) SIPXACD_HISTORY_TEST -f $(srcdir)/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql
-	
+
 define domain_config
 	SIP_DOMAIN_NAME : example.org
 	SIP_DOMAIN_ALIASES : 127.0.0.1 myhost.example.org

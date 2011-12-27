@@ -2,12 +2,18 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   
-  <bean id="freeswitchConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.FreeswitchConfiguration">
+  <bean id="freeswitchConfigProvider" class="org.sipfoundry.sipxconfig.freeswitch.config.FreeswitchConfigurationProvider">
     <property name="freeswitch" ref="freeswitchFeature" />
   </bean>
   <bean id="freeswitchConfigFile" abstract="true" scope="prototype">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="freeswitchFeature" ref="freeswitchFeature" />
+  </bean>
+  
+  <bean id="freeswitchConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.FreeswitchConfiguration" parent="freeswitchConfigFile">
+    <property name="conferenceContext" ref="conferenceBridgeContext" />
+    <property name="freeswitchExtensionCollector" ref="freeswitchExtensionCollector" />
+    <property name="featureManager" ref="featureManager" />
   </bean>
   <bean id="freeswitchDefaultConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.DefaultContextConfiguration" parent="freeswitchConfigFile">
     <property name="conferenceContext" ref="conferenceBridgeContext" />

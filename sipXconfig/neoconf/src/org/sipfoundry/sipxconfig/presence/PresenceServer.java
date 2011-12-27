@@ -55,7 +55,7 @@ public class PresenceServer implements FeatureProvider, AddressProvider, BeanFac
     private AddressManager m_addressManager;
 
     public PresenceSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void initialize() {

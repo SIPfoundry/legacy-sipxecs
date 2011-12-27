@@ -170,7 +170,7 @@
         <value>sbcGeneric</value>
         <value>abstractPhone</value>
         <value>upload</value>
-        <!--  value>beanWithSettings</value -->
+        <value>settingsBean</value>
         <!--  value>beanWithLocation</value -->
       </list>
     </property>

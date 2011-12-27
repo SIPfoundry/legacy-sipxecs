@@ -67,7 +67,6 @@ public class BridgeSbcConfigurationFileTest {
         sbc.setLocation(location);
         sbc.setAddress(location.getAddress());
         sbc.setModel(descriptor);
-        sbc.setProfileName("sibxbridge.xml");
         sbc.setDefaults(deviceDefaults);
         sbc.setModelFilesContext(modelFilesContext);
         sbc.setPort(5090);

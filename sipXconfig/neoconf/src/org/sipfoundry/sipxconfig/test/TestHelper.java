@@ -61,7 +61,6 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.TimeZoneManager;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -82,6 +81,7 @@ import org.springframework.dao.DataIntegrityViolationException;
  * TestHelper: used for unit tests that need Spring instantiated
  */
 public final class TestHelper {
+    private static final String ROOT_RES_PATH = "/org/sipfoundry/sipxconfig/";
 
     private static final Log LOG = LogFactory.getLog(TestHelper.class);
 
@@ -257,12 +257,12 @@ public final class TestHelper {
     }
 
     public static IDataSet loadDataSet(String fileResource) throws Exception {
-        InputStream datasetStream = TestHelper.class.getResourceAsStream(fileResource);
+        InputStream datasetStream = TestHelper.class.getResourceAsStream(ROOT_RES_PATH + fileResource);
         return new XmlDataSet(datasetStream);
     }
 
     public static IDataSet loadDataSetFlat(String resource) throws Exception {
-        InputStream datasetStream = TestHelper.class.getResourceAsStream(resource);
+        InputStream datasetStream = TestHelper.class.getResourceAsStream(ROOT_RES_PATH + resource);
         // we do not want to use metadata since DBTestUnit resolves relative DTDs incorrectly
         // we are checking XML validity in separate Ant tasks (test-dataset)
         return new FlatXmlDataSet(datasetStream, false);

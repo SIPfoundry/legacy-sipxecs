@@ -18,12 +18,12 @@ import java.util.TimeZone;
 
 import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
-import org.sipfoundry.sipxconfig.ScheduledDay;
-import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
-import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;
@@ -42,9 +42,9 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.insertFlat("common/UserGroupSeed.db.xml");
-        TestHelper.insertFlat("admin/forwarding/ScheduleSeed.xml");
-        TestHelper.insertFlat("admin/forwarding/ScheduleHoursSeed.xml");
-        TestHelper.insertFlat("admin/forwarding/RingSeed.xml");
+        TestHelper.insertFlat("forwarding/ScheduleSeed.xml");
+        TestHelper.insertFlat("forwarding/ScheduleHoursSeed.xml");
+        TestHelper.insertFlat("forwarding/RingSeed.xml");
     }
 
     public void testGetCallSequenceForUser() throws Exception {
@@ -113,7 +113,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
             throw e;
         }
 
-        ITable expected = TestHelper.loadDataSetFlat("admin/forwarding/RingModified.xml")
+        ITable expected = TestHelper.loadDataSetFlat("forwarding/RingModified.xml")
                 .getTable("ring");
         ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
 
@@ -140,7 +140,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
 
         m_context.saveCallSequence(callSequence);
 
-        ITable expected = TestHelper.loadDataSetFlat("admin/forwarding/RingMoved.xml").getTable(
+        ITable expected = TestHelper.loadDataSetFlat("forwarding/RingMoved.xml").getTable(
                 "ring");
         ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
         Assertion.assertEquals(expected, actual);

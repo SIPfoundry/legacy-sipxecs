@@ -29,7 +29,7 @@ public class AcdStats implements FeatureProvider, AddressProvider {
     private BeanWithSettingsDao<AcdStatsSettings> m_settingsDao;
 
     public AcdStatsSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     @Override

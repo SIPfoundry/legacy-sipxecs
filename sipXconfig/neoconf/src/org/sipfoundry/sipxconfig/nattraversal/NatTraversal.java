@@ -21,7 +21,7 @@ public class NatTraversal implements FeatureListener {
     private BeanWithSettingsDao<NatSettings> m_settingsDao;
 
     public NatSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void saveSettings(NatSettings settings) {

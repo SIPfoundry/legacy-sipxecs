@@ -2,6 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.setting" default-lazy="false">
+  
   <!--
     - V A L U E  S T O R A G E
     -->
@@ -36,6 +37,18 @@
         <param name="sequence">group_weight_seq</param>
       </generator>
     </id>
+  </class>
+  
+  <class name="PersistableSettings" table="bean_with_settings" discriminator-value="settingsBean">
+    <id name="id" column="bean_with_settings_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">bean_with_settings_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id"/>    
+    <property name="beanId" column="bean_id" insert="false" update="false"/>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
   </class>
 
   <query name="groupsByResourceAndName">

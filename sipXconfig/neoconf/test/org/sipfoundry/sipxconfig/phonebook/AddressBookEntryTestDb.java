@@ -11,27 +11,29 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;
 
-public class AddressBookEntryTestDb extends SipxDatabaseTestCase {
-
-    private CoreContext m_core;
+public class AddressBookEntryTestDb extends IntegrationTestCase {
+    private CoreContext m_coreContext;
 
     @Override
-    protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
-
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        db().execute("select truncate_all()");
+    }
+    
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
+        sql("commserver/SeedLocations.sql");
     }
 
     public void testGetBranchAddress() throws Exception {
-        TestHelper.insertFlat("phonebook/AddressBookEntrySeed.xml");
+        sql("phonebook/AddressBookEntrySeed.sql");
 
-        User user = m_core.loadUserByUserName("userseed1");
+        User user = m_coreContext.loadUserByUserName("userseed1");
         assertNotNull(user);
         assertEquals(1, user.getAddressBookEntry().getId().intValue());
 
@@ -40,12 +42,12 @@ public class AddressBookEntryTestDb extends SipxDatabaseTestCase {
         assertNotNull(user.getBranch().getAddress());
         user.getAddressBookEntry().setBranchAddress(user.getBranch().getAddress());
         user.getAddressBookEntry().setUseBranchAddress(true);
-        m_core.saveUser(user);
+        m_coreContext.saveUser(user);
 
         assertEquals("branchAddress", user.getAddressBookEntry().getOfficeAddress().getStreet());
 
         officeAddress.setStreet("testAddress");
-        m_core.saveUser(user);
+        m_coreContext.saveUser(user);
 
         assertEquals("branchAddress", user.getAddressBookEntry().getOfficeAddress().getStreet());
 
@@ -62,20 +64,16 @@ public class AddressBookEntryTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteUser() throws Exception {
-        TestHelper.insertFlat("phonebook/AddressBookEntrySeed.xml");
+        sql("phonebook/AddressBookEntrySeed.sql");
 
-        User user = m_core.loadUserByUserName("userseed1");
+        User user = m_coreContext.loadUserByUserName("userseed1");
         assertNotNull(user);
-        m_core.deleteUser(user);
+        m_coreContext.deleteUser(user);
+        flush();
+        assertEquals(1, db().queryForInt("select count(*) from address"));
+    }
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phonebook/DeleteUserAddressBookEntry.db.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[null]", null);
-
-        ITable expected = expectedRds.getTable("address");
-        ITable actual = TestHelper.getConnection().createQueryTable("address",
-                "select * from address");
-
-        Assertion.assertEquals(expected, actual);
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

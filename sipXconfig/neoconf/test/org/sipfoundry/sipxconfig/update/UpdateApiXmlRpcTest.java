@@ -8,22 +8,22 @@
  *
  */
 
-package org.sipfoundry.sipxconfig.admin.update;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SoftwareAdminApi;
-import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-
-import junit.framework.TestCase;
+package org.sipfoundry.sipxconfig.update;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+
+import java.util.Arrays;
+import java.util.List;
+
+import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.SoftwareAdminApi;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
 public class UpdateApiXmlRpcTest extends TestCase {
 

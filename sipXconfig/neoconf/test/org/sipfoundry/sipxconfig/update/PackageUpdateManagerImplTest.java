@@ -8,19 +8,7 @@
  * $
  */
 
-package org.sipfoundry.sipxconfig.admin.update;
-
-import java.util.Arrays;
-import java.util.concurrent.Future;
-
-import org.junit.Test;
-import org.sipfoundry.sipxconfig.admin.update.PackageUpdate;
-import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManagerImpl;
-import org.sipfoundry.sipxconfig.admin.update.UpdateApi;
-import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState;
-import org.sipfoundry.sipxconfig.alarm.AlarmContext;
-
-import junit.framework.JUnit4TestAdapter;
+package org.sipfoundry.sipxconfig.update;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -28,6 +16,15 @@ import static org.easymock.EasyMock.verify;
 import static org.easymock.classextension.EasyMock.createMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.concurrent.Future;
+
+import junit.framework.JUnit4TestAdapter;
+
+import org.junit.Test;
+import org.sipfoundry.sipxconfig.alarm.AlarmContext;
+import org.sipfoundry.sipxconfig.update.PackageUpdateManager.UpdaterState;
 
 public class PackageUpdateManagerImplTest {
     public static junit.framework.Test suite() {

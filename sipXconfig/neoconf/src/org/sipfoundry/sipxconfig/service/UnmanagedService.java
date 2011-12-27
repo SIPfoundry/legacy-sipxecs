@@ -35,7 +35,7 @@ public class UnmanagedService implements FeatureProvider, AddressProvider {
     private BeanWithSettingsDao<UnmanagedServiceSettings> m_settingsDao;
 
     public UnmanagedServiceSettings getSettings() {
-        return m_settingsDao.findOne();
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void saveSettings(UnmanagedServiceSettings settings) {

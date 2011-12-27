@@ -20,7 +20,6 @@ import java.util.concurrent.Executors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -54,17 +53,6 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
     private ExecutorService m_executorService;
-
-    /** no replication at start-up by default */
-    private boolean m_replicateOnStartup;
-
-    public boolean isReplicateOnStartup() {
-        return m_replicateOnStartup;
-    }
-
-    public void setReplicateOnStartup(boolean replicateOnStartup) {
-        m_replicateOnStartup = replicateOnStartup;
-    }
 
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
@@ -241,10 +229,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
      */
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ApplicationInitializedEvent && isReplicateOnStartup()) {
-            LOG.info("Replicating all data sets after application has initialized");
-            // CIUC_REVIEW m_lazySipxReplicationContext.generateAll();
-        } else if (event instanceof ReplicationsFinishedEvent) {
+        if (event instanceof ReplicationsFinishedEvent) {
             updateLocations();
         }
     }
