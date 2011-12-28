@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.sbc;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -20,6 +21,11 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
 
     private ModelSource<SbcDescriptor> m_modelSource;
 
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+    }
 
     public void testNewSbc() {
         Collection<SbcDescriptor> models = m_modelSource.getModels();
@@ -33,8 +39,8 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         }
     }
 
-    public void testClear() {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
+    public void testClear() throws IOException {
+        sql("sbc/sbc-device.sql");
         assertEquals(4, countRowsInTable("sbc_device"));
         m_sdm.clear();
         flush();
@@ -42,8 +48,8 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(0, countRowsInTable("sbc_device"));
     }
 
-    public void testGetAllSbcDeviceIds() {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
+    public void testGetAllSbcDeviceIds() throws IOException {
+        sql("sbc/sbc-device.sql");
         Collection<Integer> allSbcDeviceIds = m_sdm.getAllSbcDeviceIds();
         assertEquals(4, allSbcDeviceIds.size());
         assertTrue(allSbcDeviceIds.contains(1000));
@@ -100,8 +106,8 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         }
     }
 
-    public void testMaxAllowedLimitReached() {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
+    public void testMaxAllowedLimitReached() throws IOException {
+        sql("sbc/sbc-device.sql");
         SbcDescriptor bridgeModel = m_modelSource.getModel("sipXbridgeSbcModel");
         assertTrue(m_sdm.maxAllowedLimitReached(bridgeModel));
         SbcDescriptor sbcModel = m_modelSource.getModel("sbcGenericModel");

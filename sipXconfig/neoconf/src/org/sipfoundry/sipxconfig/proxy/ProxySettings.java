@@ -25,7 +25,6 @@ public class ProxySettings extends BeanWithSettings implements DeployConfigOnEdi
     public static final String SIP_PORT_SETTING = "proxy-configuration/SIPX_PROXY_TCP_PORT";
     public static final String SIP_UDP_PORT_SETTING = "proxy-configuration/SIPX_PROXY_UDP_PORT";
     public static final String SIP_SECURE_PORT_SETTING = "proxy-configuration/TLS_SIP_PORT";
-    public static final String ENABLE_BRIDGE_PROXY_RELAY = "proxy-configuration/ENABLE_BRIDGE_PROXY_RELAY";
     public static final String AUTOBAN_THRESHOLD_VIOLATORS = "call-rate-limit/SIPX_PROXY_AUTOBAN_THRESHOLD_VIOLATORS";
     public static final String ALLOWED_PACKETS_PER_SECOND = "call-rate-limit/SIPX_PROXY_PACKETS_PER_SECOND_THRESHOLD";
     public static final String THRESHOLD_VIOLATION_RATE = "call-rate-limit/SIPX_PROXY_THRESHOLD_VIOLATION_RATE";
@@ -43,10 +42,6 @@ public class ProxySettings extends BeanWithSettings implements DeployConfigOnEdi
 
     public int getSecureSipPort() {
         return (Integer) getSettingTypedValue(SIP_SECURE_PORT_SETTING);
-    }
-
-    public boolean isEnabledBridgeProxyRelay() {
-        return (Boolean) getSettingTypedValue(ENABLE_BRIDGE_PROXY_RELAY);
     }
 
     public boolean getAutobanThresholdViolators() {

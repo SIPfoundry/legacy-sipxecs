@@ -246,11 +246,6 @@ public class BridgeSbc extends SbcDevice {
         public int getSipxSupervisorXmlRpcPort() {
             return Location.PROCESS_MONITOR_PORT;
         }
-
-        @SettingEntry(path = "bridge-configuration/enable-bridge-proxy-relay")
-        public boolean getEnableBridgeProxyRelay() {
-            return m_proxyManager.getSettings().isEnabledBridgeProxyRelay();
-        }
     }
 
     public int getXmlRpcPort() {

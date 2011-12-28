@@ -25,6 +25,8 @@ public interface ConferenceBridgeContext extends AliasOwner {
 
     void store(Bridge bridge);
 
+    void deploy(Bridge bridge);
+
     void saveConference(Conference conference);
 
     /**

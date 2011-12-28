@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.dialplan;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -114,12 +116,15 @@ public class DialPlanContextImplTest extends TestCase {
         assertEquals((Integer) 9050, manager.getLikelyEmergencyInfo().getPort());
     }
 
-    static class MockDialPlanContextImpl extends DialPlanContextImpl {
+    static class MockDialPlanContextImpl extends DialPlanContextImpl implements DaoEventListener {
         private final DialPlan m_plan;
 
         MockDialPlanContextImpl(DialPlan plan) {
             m_plan = plan;
             setHibernateTemplate(createMock(HibernateTemplate.class));
+            DaoEventPublisherImpl stubPub = new DaoEventPublisherImpl();
+            stubPub.divertEvents(this);
+            setDaoEventPublisher(stubPub);
         }
 
         @Override
@@ -130,6 +135,14 @@ public class DialPlanContextImplTest extends TestCase {
         public DialPlanActivationManager getDialPlanActivationManager() { 
             DialPlanActivationManager dpam = createNiceMock(DialPlanActivationManager.class);
             return dpam;
+        }
+
+        @Override
+        public void onDelete(Object entity) {
+        }
+
+        @Override
+        public void onSave(Object entity) {
         }
     }
 }

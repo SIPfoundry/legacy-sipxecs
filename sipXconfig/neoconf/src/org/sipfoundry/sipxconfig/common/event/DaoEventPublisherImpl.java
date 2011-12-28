@@ -37,6 +37,9 @@ public class DaoEventPublisherImpl  implements DaoEventPublisher, BeanFactoryAwa
      * @return cached or newly created listener collection
      */
     private Collection<DaoEventListener> getListeners() {
+        if (m_divertEvents != null) {
+            return Collections.singleton(m_divertEvents);
+        }
         if (m_listeners == null) {
             if (m_beanFactory == null) {
                 throw new BeanInitializationException(getClass().getName() + " not initialized");
@@ -44,7 +47,7 @@ public class DaoEventPublisherImpl  implements DaoEventPublisher, BeanFactoryAwa
             Map<String, DaoEventListener> beanMap = m_beanFactory.getBeansOfType(DaoEventListener.class, true, true);
             m_listeners = beanMap.values();
         }
-        return m_divertEvents != null ? Collections.singleton(m_divertEvents) : m_listeners;
+        return m_listeners;
     }
 
     public void publishDeleteCollection(Collection<?> entities) {

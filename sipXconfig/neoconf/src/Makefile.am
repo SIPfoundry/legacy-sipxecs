@@ -55,11 +55,7 @@ SPRING_XML = \
 HIBERNATE_XML = \
 	$(shell cd $(srcdir); find -name '*.hbm.xml')
 
-validate-xml : validate-spring-xml validate-hibernate-xml;
-
-validate-hibernate-xml : $(HIBERNATE_XML)
-	xmllint --noout --dtdvalid http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd \
-	$^
+validate-xml : validate-spring-xml;
 
 validate-spring-xml : $(SPRING_XML)
 	xmllint --noout \

@@ -141,10 +141,10 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
         disabledFeatures.removeAll(features);
         for (FeatureListener listener : getFeatureListeners()) {
             for (LocationFeature feature : features) {
-                listener.enableLocationFeature(null, enable, feature, location);
+                listener.enableLocationFeature(this, enable, feature, location);
             }
             for (LocationFeature feature : disabledFeatures) {
-                listener.enableLocationFeature(null, disable, feature, location);
+                listener.enableLocationFeature(this, disable, feature, location);
             }
         }
     }
@@ -155,10 +155,10 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
         disabledFeatures.removeAll(features);
         for (FeatureListener listener : getFeatureListeners()) {
             for (GlobalFeature feature : features) {
-                listener.enableGlobalFeature(null, enable, feature);
+                listener.enableGlobalFeature(this, enable, feature);
             }
             for (GlobalFeature feature : disabledFeatures) {
-                listener.enableGlobalFeature(null, disable, feature);
+                listener.enableGlobalFeature(this, disable, feature);
             }
         }
     }

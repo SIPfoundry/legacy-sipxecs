@@ -53,7 +53,6 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private DomainManager m_domainManager;
-    private ConferenceFeature m_conferenceFeature;
 
     public List getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
@@ -65,7 +64,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
             // need to make sure that ID is set
             getHibernateTemplate().flush();
         }
-        m_conferenceFeature.deploy(bridge);
+        deploy(bridge);
     }
 
     public void saveConference(Conference conference) {
@@ -75,7 +74,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         } else {
             getHibernateTemplate().merge(conference);
         }
-        m_conferenceFeature.deploy(conference.getBridge());
+        deploy(conference.getBridge());
     }
 
     public void validate(Conference conference) {
@@ -129,8 +128,43 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         getHibernateTemplate().saveOrUpdateAll(bridges);
         getHibernateTemplate().flush();
         for (Bridge bridgeToDeploy : bridges) {
-            m_conferenceFeature.deploy(bridgeToDeploy);
+            deploy(bridgeToDeploy);
         }
+    }
+
+    public void deploy(Bridge bridge) {
+        //
+        // // bridge to deploy should always have service associated
+        // if (bridge.getService() == null) {
+        // return;
+        // }
+        // // need to replicate all conferences that are on the bridge
+        // for (Conference conf : bridge.getConferences()) {
+        // m_replicationContext.generate(conf);
+        // }
+        //
+        // // only need to replicate files that do not require restart
+        // Location location = bridge.getLocation();
+        // SipxFreeswitchService freeswitchService = bridge.getFreeswitchService();
+        // // we need to flush here. sipX_context.xml replication needs up-to-date info in sql
+        // tables
+        // getHibernateTemplate().flush();
+        // m_serviceConfigurator.replicateServiceConfig(location, freeswitchService, true, false);
+        // m_processContext.markServicesForReload(singleton(freeswitchService));
+        // if (m_serviceManager.isServiceInstalled(SipxIvrService.BEAN_ID)) {
+        // SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+        // m_serviceConfigurator.replicateServiceConfig(ivrService, true);
+        // }
+        // if (m_serviceManager.isServiceInstalled(SipxRecordingService.BEAN_ID)) {
+        // SipxService ivrService =
+        // m_serviceManager.getServiceByBeanId(SipxRecordingService.BEAN_ID);
+        // m_serviceConfigurator.replicateServiceConfig(location, ivrService, true);
+        // }
+        // if (m_serviceManager.isServiceInstalled(SipxImbotService.BEAN_ID)) {
+        // SipxService imbotService =
+        // m_serviceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
+        // m_serviceConfigurator.replicateServiceConfig(location, imbotService, true);
+        // }
     }
 
     public Bridge loadBridge(Serializable id) {
@@ -178,10 +212,6 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     // trivial get/set
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
-    }
-
-    public void setConferenceFeature(ConferenceFeature provisioning) {
-        m_conferenceFeature = provisioning;
     }
 
     public void setDomainManager(DomainManager domainManager) {

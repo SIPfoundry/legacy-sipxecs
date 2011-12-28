@@ -35,19 +35,13 @@ import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.proxy.ProxySettings;
 import org.sipfoundry.sipxconfig.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class BridgeSbcConfigurationFileTest {
 
     @Test
     public void testWrite() throws Exception {
-//        SipxProxyService proxyService = new SipxProxyService();
-//        proxyService.setModelDir("sipxproxy");
-//        proxyService.setModelName("sipxproxy.xml");
-//        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
-//        proxyService.setBeanName(SipxProxyService.BEAN_ID);
-//        m_sipxServiceManager = TestHelper.getMockSipxServiceManager(true, proxyService);
-        
         ProxySettings proxySettings = new ProxySettings();
         proxySettings.setModelFilesContext(TestHelper.getModelFilesContext());
         ProxyManager mgr = EasyMock.createMock(ProxyManager.class);
@@ -83,26 +77,10 @@ public class BridgeSbcConfigurationFileTest {
         replay(gatewayContext, locationsManager);
 
         sbc.setGatewayContext(gatewayContext);
-        sbc.setLocationsManager(locationsManager);
+        sbc.setLocationsManager(locationsManager);        
         
-        
-        final ByteArrayOutputStream actual = new ByteArrayOutputStream();
-        ProfileLocation profiles = new ProfileLocation() {
-            @Override
-            public void removeProfile(String profileName) {
-            }
-            
-            @Override
-            public OutputStream getOutput(String profileName) {
-                return actual;
-            }
-            
-            @Override
-            public void closeOutput(OutputStream stream) {
-                IOUtils.closeQuietly(stream);
-            }
-        }; 
-        sbc.generateFiles(profiles);
+        MemoryProfileLocation actual = new MemoryProfileLocation();
+        sbc.generateFiles(actual);
         InputStream expected = getClass().getResourceAsStream("sipxbridge-no-itsp.test.xml");
         assertEquals(IOUtils.toString(expected), actual.toString());
     }

@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
-import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -28,11 +27,11 @@ public class CallerAliasesTestIntegration extends ImdbTestCase {
     
     public void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
-        TestHelper.cleanInsert("ClearDb.xml");
+        clear();
     }
     
     public void testGenerate() throws Exception {
-        loadDataSetXml("domain/DomainSeed.xml");
+        sql("domain/DomainSeed.sql");
         GatewayCallerAliasInfo gcai = new GatewayCallerAliasInfo();
         gcai.setDefaultCallerAlias("gatewayCID");
         

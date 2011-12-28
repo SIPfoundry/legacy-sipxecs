@@ -342,12 +342,11 @@ JarInclude = $(foreach D,$2,-C $(1) $(D))
 #
 
 # hook
-java-%-clean :;
+clean-local : clean-generic
 
-# default and hook
 clean-generic :
 	! test -d $(JAVAROOT) || rm -rf $(JAVAROOT)
-	! test -f javac-$* || rm javac-$*
+	! test -f javac-* || rm javac-*
 
 JAR_LIBSRC = ~/libsrc
 

@@ -22,11 +22,17 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     private SbcManager m_sbcManager;
     private SbcDeviceManager m_sbcDeviceManager;
     private DomainManager m_domainManager;
+    
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+    }
 
     public void testCreateDefaultSbc() throws Exception {
         m_domainManager.setNullDomain();
-        loadDataSetXml("dialplan/sbc/domain.xml");
-        assertEquals(0, countRowsInTable("sbc"));
+        sql("domain/DomainSeed.sql");        
+        assertEquals(0, db().queryForLong("select count(*) from sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
         assertNotNull(sbc);
         assertFalse(sbc.isEnabled());
@@ -34,13 +40,13 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(3, sbc.getRoutes().getSubnets().size());
         assertEquals("*.example.org", sbc.getRoutes().getDomains().get(0));
         assertFalse(sbc.isNew());
-        flush();
-        assertEquals(1, countRowsInTable("sbc"));
+//        flush();
+        assertEquals(1, db().queryForLong("select count(*) from sbc"));
     }
 
     public void testLoadDefaultSbc() throws Exception {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
-        loadDataSet("dialplan/sbc/sbc.db.xml");
+        sql("sbc/sbc-device.sql");
+        sql("sbc/sbc.sql");
         assertEquals(3, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
         assertNotNull(sbc);
@@ -55,16 +61,16 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testLoadAuxSbcs() throws Exception {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
-        loadDataSet("dialplan/sbc/sbc.db.xml");
+        sql("sbc/sbc-device.sql");
+        sql("sbc/sbc.sql");
         assertEquals(3, countRowsInTable("sbc"));
         List<AuxSbc> sbcs = m_sbcManager.loadAuxSbcs();
         assertEquals(2, sbcs.size());
     }
 
     public void testRemoveAuxSbcs() throws Exception {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
-        loadDataSet("dialplan/sbc/sbc.db.xml");
+        sql("sbc/sbc-device.sql");
+        sql("sbc/sbc.sql");
         assertEquals(3, countRowsInTable("sbc"));
         assertEquals(2, countRowsInTable("sbc_route_subnet"));
         m_sbcManager.removeSbcs(Arrays.asList(1001));
@@ -75,8 +81,8 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testClear() throws Exception {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
-        loadDataSet("dialplan/sbc/sbc.db.xml");
+        sql("sbc/sbc-device.sql");
+        sql("sbc/sbc.sql");
         assertEquals(3, countRowsInTable("sbc"));
         assertEquals(2, countRowsInTable("sbc_route_subnet"));
         m_sbcManager.clear();
@@ -87,8 +93,8 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testLoadAuxSbc() throws Exception {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
-        loadDataSet("dialplan/sbc/sbc.db.xml");
+        sql("sbc/sbc-device.sql");
+        sql("sbc/sbc.sql");
         assertEquals(3, countRowsInTable("sbc"));
         AuxSbc sbc = m_sbcManager.loadSbc(1001);
 
@@ -100,8 +106,8 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testSaveSbc() throws Exception {
-        loadDataSetXml("dialplan/sbc/domain.xml");
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
+        sql("domain/DomainSeed.sql");
+        sql("sbc/sbc-device.sql");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
 
@@ -121,7 +127,7 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testSaveAuxSbc() throws Exception {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
+        sql("sbc/sbc-device.sql");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = new AuxSbc();
         sbc.setRoutes(new SbcRoutes());
@@ -144,8 +150,8 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testDeleteAssociateSbcDevice() throws Exception {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
-        loadDataSet("dialplan/sbc/sbc.db.xml");
+        sql("sbc/sbc-device.sql");
+        sql("sbc/sbc.sql");
         assertEquals(3, countRowsInTable("sbc"));
 
         Sbc sbc = m_sbcManager.loadDefaultSbc();
@@ -176,8 +182,8 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetRoutes() throws Exception {
-        loadDataSet("dialplan/sbc/sbc-device.db.xml");
-        loadDataSet("dialplan/sbc/sbc.db.xml");
+        sql("sbc/sbc-device.sql");
+        sql("sbc/sbc.sql");
 
         SbcRoutes routes = m_sbcManager.getRoutes();
         assertNotNull(routes);
