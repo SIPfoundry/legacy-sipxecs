@@ -69,7 +69,6 @@ ant_PKGS = \
 ant_DEPS = $(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(ant_PKGS))
 
 precommit : check
-	$(MAKE) reset check-db 
 	$(MAKE) reset check-integration
 
 reset : reset-db reset-acd reset-cdr

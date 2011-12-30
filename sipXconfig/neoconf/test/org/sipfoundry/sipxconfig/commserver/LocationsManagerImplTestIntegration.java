@@ -9,25 +9,62 @@
  */
 package org.sipfoundry.sipxconfig.commserver;
 
-import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 public class LocationsManagerImplTestIntegration extends ImdbTestCase {
-    private LocationsManager m_out;
-    private AcdContext m_acdContext;
-    private ConferenceBridgeContext m_conferenceBridgeContext;
+    private LocationsManager m_locationsManager;
+
+    @Override
+    public void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+    }
+
+    public void testDeletePrimaryLocation() throws Exception {
+        sql("commserver/SeedLocations.sql");
+        Location location = m_locationsManager.getPrimaryLocation();
+        try {
+            m_locationsManager.deleteLocation(location);
+            fail("Deletion of primary location failed");
+        } catch (UserException e) {
+        }
+    }
+
+    public void testDelete() throws Exception {
+        Location location = new Location();
+        location.setName("test location");
+        location.setAddress("10.1.1.1");
+        location.setFqdn("localhost");
+        location.setRegistered(true);
+        location.setPrimary(true);
+        m_locationsManager.saveLocation(location);
+
+        Location location2 = new Location();
+        location2.setName("test location2");
+        location2.setAddress("10.1.1.2");
+        location2.setFqdn("localhost1");
+        location2.setRegistered(false);
+        m_locationsManager.saveLocation(location2);
+
+        Location[] locationsBeforeDelete = m_locationsManager.getLocations();
+        assertEquals(2, locationsBeforeDelete.length);
+
+        Location locationToDelete = m_locationsManager.getLocationByAddress("10.1.1.2");
+        m_locationsManager.deleteLocation(locationToDelete);
+
+        Location[] locationsAfterDelete = m_locationsManager.getLocations();
+        assertEquals(1, locationsAfterDelete.length);
+        assertEquals("localhost", locationsAfterDelete[0].getFqdn());
+    }
 
     public void testGetLocations() throws Exception {
         loadDataSetXml("commserver/clearLocations.xml");
-        Location[] emptyLocations = m_out.getLocations();
+        Location[] emptyLocations = m_locationsManager.getLocations();
         assertEquals(0, emptyLocations.length);
 
         loadDataSetXml("commserver/seedLocationsAndServices.xml");
-        Location[] locations = m_out.getLocations();
+        Location[] locations = m_locationsManager.getLocations();
         assertEquals(3, locations.length);
         assertEquals("https://localhost:8092/RPC2", locations[0].getProcessMonitorUrl());
         assertEquals("https://secondary.example.org:8092/RPC2", locations[1].getProcessMonitorUrl());
@@ -37,7 +74,7 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         loadDataSetXml("commserver/clearLocations.xml");
         loadDataSetXml("commserver/seedLocationsAndServices.xml");
 
-        Location l = m_out.getLocationByFqdn("remotehost.example.org");
+        Location l = m_locationsManager.getLocationByFqdn("remotehost.example.org");
         assertEquals(new Integer(102), l.getId());
     }
 
@@ -45,25 +82,25 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         loadDataSetXml("commserver/clearLocations.xml");
         loadDataSetXml("commserver/seedLocationsAndServices.xml");
 
-        Location l = m_out.getLocationByAddress("10.1.1.1");
+        Location l = m_locationsManager.getLocationByAddress("10.1.1.1");
         assertEquals(new Integer(101), l.getId());
     }
 
     public void testFindById() throws Exception {
         loadDataSetXml("commserver/seedLocationsAndServices.xml");
-        Location[] locations = m_out.getLocations();
+        Location[] locations = m_locationsManager.getLocations();
 
         Location secondLocation = locations[1];
         int locationId = secondLocation.getId();
 
-        Location locationById = m_out.getLocation(locationId);
+        Location locationById = m_locationsManager.getLocation(locationId);
         assertNotNull(locationById);
         assertEquals(secondLocation.getName(), locationById.getName());
     }
 
     public void testGetPrimaryLocation() throws Exception {
         loadDataSetXml("commserver/seedLocations.xml");
-        Location location = m_out.getPrimaryLocation();
+        Location location = m_locationsManager.getPrimaryLocation();
         assertNotNull(location);
         assertEquals(101, (int) location.getId());
     }
@@ -85,10 +122,10 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         location2.setFqdn("localhost1");
         location2.setRegistered(false);
 
-        m_out.saveLocation(location);
-        m_out.saveLocation(location2);
+        m_locationsManager.saveLocation(location);
+        m_locationsManager.saveLocation(location2);
 
-        Location[] dbLocations = m_out.getLocations();
+        Location[] dbLocations = m_locationsManager.getLocations();
         assertEquals(2, dbLocations.length);
         assertEquals("test location", dbLocations[0].getName());
         assertEquals("192.168.1.2", dbLocations[0].getAddress());
@@ -96,10 +133,10 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         assertTrue(dbLocations[0].isCallTraffic());
 
         dbLocations[1].setCallTraffic(false);
-        m_out.saveLocation(dbLocations[1]);
+        m_locationsManager.saveLocation(dbLocations[1]);
 
         dbLocations[1].setCallTraffic(true);
-        m_out.saveLocation(dbLocations[1]);
+        m_locationsManager.saveLocation(dbLocations[1]);
     }
 
     public void testsaveLocationWithDuplicateFqdnOrIp() throws Exception {
@@ -108,9 +145,9 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         location.setName("test location");
         location.setAddress("10.1.1.1");
         location.setFqdn("localhost");
-        m_out.saveLocation(location);
+        m_locationsManager.saveLocation(location);
 
-        Location[] dbLocations = m_out.getLocations();
+        Location[] dbLocations = m_locationsManager.getLocations();
         assertEquals(1, dbLocations.length);
         assertEquals("test location", dbLocations[0].getName());
         assertEquals("10.1.1.1", dbLocations[0].getAddress());
@@ -122,7 +159,7 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         // Same FQDN
         location.setFqdn("localhost");
         try {
-            m_out.saveLocation(location);
+            m_locationsManager.saveLocation(location);
             assertTrue(false);
         } catch (UserException ex) {
             assertTrue(true);
@@ -134,7 +171,7 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         location.setAddress("10.1.1.1");
         location.setFqdn("localhost.localdomain");
         try {
-            m_out.saveLocation(location);
+            m_locationsManager.saveLocation(location);
             assertTrue(false);
         } catch (UserException ex) {
             assertTrue(true);
@@ -144,7 +181,7 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
     public void testStoreNatLocation() throws Exception {
         loadDataSetXml("commserver/seedLocations.xml");
 
-        Location nat = m_out.getPrimaryLocation();
+        Location nat = m_locationsManager.getPrimaryLocation();
         assertNotNull(nat);
 
         nat.setStunAddress("stun.com");
@@ -154,9 +191,9 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         nat.setStartRtpPort(30000);
         nat.setStopRtpPort(30100);
 
-        m_out.saveLocation(nat);
+        m_locationsManager.saveLocation(nat);
 
-        Location natDB = m_out.getLocation(nat.getId());
+        Location natDB = m_locationsManager.getLocation(nat.getId());
         assertNotNull(natDB);
         assertEquals("stun.com", natDB.getStunAddress());
         assertEquals(30, natDB.getStunInterval());
@@ -169,7 +206,7 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
     public void testGetNatLocation() throws Exception {
         loadDataSet("nattraversal/nat_location.db.xml");
 
-        Location natLocation = m_out.getLocation(111);
+        Location natLocation = m_locationsManager.getLocation(111);
         assertEquals("stun.ezuce.com", natLocation.getStunAddress());
         assertEquals(60, natLocation.getStunInterval());
         assertEquals(5060, natLocation.getPublicPort());
@@ -180,14 +217,6 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
 
 
     public void setLocationsManager(LocationsManager locationsManager) {
-        m_out = locationsManager;
-    }
-
-    public void setAcdContext(AcdContext acdContext) {
-        m_acdContext = acdContext;
-    }
-
-    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
-        m_conferenceBridgeContext = conferenceBridgeContext;
+        m_locationsManager = locationsManager;
     }
 }

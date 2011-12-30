@@ -14,6 +14,12 @@ import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class BackupManagerTestIntegration extends IntegrationTestCase {
     private BackupManager m_backupManager;
+    
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+    }
 
     public void testGetLocalBackupPlan() {
         BackupPlan backupPlan = m_backupManager.getBackupPlan(LocalBackupPlan.TYPE);

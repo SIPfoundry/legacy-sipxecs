@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
@@ -28,9 +26,7 @@ import org.easymock.EasyMock;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
-import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationTrigger.BranchDeleteWorker;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -45,12 +41,23 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
     private BranchManager m_branchManager;
     private TlsPeerManager m_tlsPeerManager;
     private ReplicationManagerImpl m_replicationManager;
+    
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+    }
+    
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
+        sql("domain/DomainSeed.sql");
+    }
 
     // disabled this test due to the fact that CoreContext.getGroupMembersCount()
     // uses plain sql and for some reason the db is empty
     public void _testUpdateUserGroup() throws Exception {
         loadDataSet("commserver/imdb/UserGroupSeed2.db.xml");
-        loadDataSetXml("domain/DomainSeed.xml");
 
         Group g = m_dao.getGroup(new Integer(1000));
         User user = getCoreContext().loadUser(1001);
@@ -71,13 +78,12 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
     }
 
     public void testReplicateOnTlsPeerCreation() throws Exception {
-        loadDataSetXml("domain/DomainSeed.xml");
         TlsPeer peer = m_tlsPeerManager.newTlsPeer();
         peer.setName("test");
 
         m_tlsPeerManager.saveTlsPeer(peer);
+        commit();
         assertObjectPresent(getEntityCollection(), new BasicDBObject().append("ident", "~~tp~test@example.org"));
-
     }
 
     /*
