@@ -57,7 +57,9 @@ public abstract class AcdServerPage extends PageWithCallback implements PageBegi
             setTab("config");
         }
         if (getAcdStatistics() == null) {
-            setAcdStatistics(new AcdStatisticsImpl(getAcdContext()));
+            AcdStatistics stats = new AcdStatistics();
+            stats.setAcdContext(getAcdContext());
+            setAcdStatistics(stats);
         }
     }
 

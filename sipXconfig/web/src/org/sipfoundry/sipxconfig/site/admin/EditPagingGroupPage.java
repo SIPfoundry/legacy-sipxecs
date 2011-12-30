@@ -37,9 +37,9 @@ public abstract class EditPagingGroupPage extends UserBasePage {
 
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
-
-    @InjectObject(value = "spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//
+//    @InjectObject(value = "spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @Persist(value = "client")
     public abstract Integer getGroupId();
@@ -91,9 +91,9 @@ public abstract class EditPagingGroupPage extends UserBasePage {
         setGroup(group);
     }
 
-    public SipxPageService getSipxPageService() {
-        return ((SipxPageService) getSipxServiceManager().getServiceByBeanId(SipxPageService.BEAN_ID));
-    }
+//    public SipxPageService getSipxPageService() {
+//        return ((SipxPageService) getSipxServiceManager().getServiceByBeanId(SipxPageService.BEAN_ID));
+//    }
 
     public IPage add(IRequestCycle cycle) {
         SelectUsers editUsers = (SelectUsers) cycle.getPage(SelectUsers.PAGE);

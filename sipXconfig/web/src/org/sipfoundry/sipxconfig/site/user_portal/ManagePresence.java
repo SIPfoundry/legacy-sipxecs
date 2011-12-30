@@ -84,10 +84,10 @@ public abstract class ManagePresence extends SipxBasePage implements PageBeginRe
         request.getPage();
     }
 
-    public IComponent getActionBlock() {
-        PresenceServerImpl server = (PresenceServerImpl) getPresenceServer();
-        return server.isEnabled() ? getActions() : null;
-    }
+//    public IComponent getActionBlock() {
+//        PresenceServerImpl server = (PresenceServerImpl) getPresenceServer();
+//        return server.isEnabled() ? getActions() : null;
+//    }
 
     @Override
     public void pageBeginRender(PageEvent event) {

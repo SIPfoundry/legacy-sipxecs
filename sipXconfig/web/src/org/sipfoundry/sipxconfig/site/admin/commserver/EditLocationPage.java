@@ -9,16 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -33,11 +30,11 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
-
-    @InjectObject(value = "spring:monitoringContext")
-    public abstract MonitoringContext getMonitoringContext();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
+//
+//    @InjectObject(value = "spring:monitoringContext")
+//    public abstract MonitoringContext getMonitoringContext();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -61,14 +58,14 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
 
     public abstract void setTab(String tab);
 
-    public Collection<String> getAvailableTabNames() {
-        Collection<String> tabNames = new ArrayList<String>();
-        tabNames.addAll(Arrays.asList(CONFIG_TAB, BUNDLE_TAB, "listServices", NAT_TAB));
-        if (getMonitoringContext().isEnabled()) {
-            tabNames.add(MONITOR_TAB);
-        }
-        return tabNames;
-    }
+//    public Collection<String> getAvailableTabNames() {
+//        Collection<String> tabNames = new ArrayList<String>();
+//        tabNames.addAll(Arrays.asList(CONFIG_TAB, BUNDLE_TAB, "listServices", NAT_TAB));
+//        if (getMonitoringContext().isEnabled()) {
+//            tabNames.add(MONITOR_TAB);
+//        }
+//        return tabNames;
+//    }
 
     public void pageBeginRender(PageEvent event) {
         Location location = getLocationBean();
@@ -85,10 +82,10 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
             if (!location.isRegistered()) {
                 setTab(CONFIG_TAB);
             }
-        } else {
-            location = new Location();
-            location.initBundles(getSipxServiceManager());
-            setTab(CONFIG_TAB);
+//        } else {
+//            location = new Location();
+//            location.initBundles(getSipxServiceManager());
+//            setTab(CONFIG_TAB);
         }
         setLocationBean(location);
     }

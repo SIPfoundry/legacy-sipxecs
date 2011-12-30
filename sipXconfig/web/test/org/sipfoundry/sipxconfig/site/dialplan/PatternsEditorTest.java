@@ -12,9 +12,9 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.dialplan.DialPattern;
 
 public class PatternsEditorTest extends TestCase {
     public void testSetCollectionSize() {

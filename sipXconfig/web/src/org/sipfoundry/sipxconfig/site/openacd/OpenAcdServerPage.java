@@ -34,19 +34,19 @@ public abstract class OpenAcdServerPage extends PageWithCallback implements Page
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
-
-    @InjectObject("spring:serviceConfigurator")
-    public abstract ServiceConfigurator getServiceConfigurator();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
+//
+//    @InjectObject("spring:serviceConfigurator")
+//    public abstract ServiceConfigurator getServiceConfigurator();
 
     public abstract Location getSipxLocation();
 
     public abstract void setSipxLocation(Location location);
 
-    public abstract SipxService getService();
-
-    public abstract void setService(SipxService service);
+//    public abstract SipxService getService();
+//
+//    public abstract void setService(SipxService service);
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -61,16 +61,16 @@ public abstract class OpenAcdServerPage extends PageWithCallback implements Page
         if (getSipxLocation() == null) {
             setSipxLocation(getLocationsManager().getPrimaryLocation());
         }
-        SipxService sipxService = getSipxServiceManager().getServiceByBeanId(SipxOpenAcdService.BEAN_ID);
-        setService(sipxService);
+//        SipxService sipxService = getSipxServiceManager().getServiceByBeanId(SipxOpenAcdService.BEAN_ID);
+//        setService(sipxService);
     }
 
     public void saveService() {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-        SipxService service = getService();
-        getSipxServiceManager().storeService(service);
+//        SipxService service = getService();
+//        getSipxServiceManager().storeService(service);
     }
 
 }

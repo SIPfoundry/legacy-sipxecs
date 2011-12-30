@@ -15,7 +15,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.FtpBackupPlan;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -25,8 +25,8 @@ import org.sipfoundry.sipxconfig.site.common.IPageWithReset;
 @ComponentClass
 public abstract class BackupRestoreConfigurationPanel extends BaseComponent implements PageBeginRenderListener {
 
-    @InjectObject(value = "spring:adminContext")
-    public abstract AdminContext getAdminContext();
+    @InjectObject(value = "spring:backupManager")
+    public abstract BackupManager getBackupManager();
 
     public abstract void setFtpConfiguration(FtpConfiguration ftpConfiguration);
 
@@ -41,14 +41,14 @@ public abstract class BackupRestoreConfigurationPanel extends BaseComponent impl
         if (getBackupPlan() != null) {
             return;
         }
-        FtpBackupPlan plan = (FtpBackupPlan) getAdminContext().getBackupPlan(FtpBackupPlan.TYPE);
+        FtpBackupPlan plan = (FtpBackupPlan) getBackupManager().getBackupPlan(FtpBackupPlan.TYPE);
         setBackupPlan(plan);
         setFtpConfiguration(plan.getFtpConfiguration());
     }
 
     public void onApply() {
         TapestryUtils.getValidator(this).clear();
-        getAdminContext().storeBackupPlan(getBackupPlan());
+        getBackupManager().storeBackupPlan(getBackupPlan());
         if (getContainerPage() != null) {
             getContainerPage().reset();
         }

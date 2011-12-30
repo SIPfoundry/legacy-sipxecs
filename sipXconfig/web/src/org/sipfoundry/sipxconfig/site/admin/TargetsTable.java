@@ -16,14 +16,13 @@ import java.util.List;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
-import org.apache.tapestry.annotations.InjectObject;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
 public abstract class TargetsTable extends BaseComponent {
     // private static final String FAILURES = "error.snmpCommunityString";
 
-    @InjectObject(value = "spring:monitoringContext")
-    public abstract MonitoringContext getMonitoringContext();
+//    @InjectObject(value = "spring:monitoringContext")
+//    public abstract MonitoringContext getMonitoringContext();
 
     public abstract List getTargets();
 
@@ -43,14 +42,14 @@ public abstract class TargetsTable extends BaseComponent {
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
 
-        List<MRTGTarget> targets = getMonitoringContext().getTargetsForHost(getHost());
-        if (targets.size() > 0) {
-            MRTGTarget target = targets.get(0);
-            String expression = target.getExpression();
-            String snmpCommunityString = expression.substring(expression
-                    .lastIndexOf(MonitoringUtil.COLON) + 1, expression.lastIndexOf("@"));
-            setSnmpCommunityString(snmpCommunityString);
-        }
+//        List<MRTGTarget> targets = getMonitoringContext().getTargetsForHost(getHost());
+//        if (targets.size() > 0) {
+//            MRTGTarget target = targets.get(0);
+//            String expression = target.getExpression();
+//            String snmpCommunityString = expression.substring(expression
+//                    .lastIndexOf(MonitoringUtil.COLON) + 1, expression.lastIndexOf("@"));
+//            setSnmpCommunityString(snmpCommunityString);
+//        }
     }
 
     public void commit() {
@@ -60,6 +59,6 @@ public abstract class TargetsTable extends BaseComponent {
             selectedTargetNames.add(selection.toString());
         }
 
-        getMonitoringContext().generateConfigFiles(getHost(), selectedTargetNames);
+//        getMonitoringContext().generateConfigFiles(getHost(), selectedTargetNames);
     }
 }

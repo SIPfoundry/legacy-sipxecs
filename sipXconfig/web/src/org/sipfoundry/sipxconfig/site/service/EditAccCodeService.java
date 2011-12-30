@@ -20,16 +20,16 @@ public abstract class EditAccCodeService extends EditSipxService {
 
     private static final Log LOG = LogFactory.getLog(EditAccCodeService.class);
 
-    @InjectObject(value = "spring:accCodeContext")
-    public abstract AccCodeContext getAccCodeContext();
+//    @InjectObject(value = "spring:accCodeContext")
+//    public abstract AccCodeContext getAccCodeContext();
 
     @InjectObject(value = "spring:dialPlanActivationManager")
     public abstract DialPlanActivationManager getDialPlanActivationManager();
 
-    @Override
-    public String getMyBeanId() {
-        return SipxAccCodeService.BEAN_ID;
-    }
+//    @Override
+//    public String getMyBeanId() {
+//        return SipxAccCodeService.BEAN_ID;
+//    }
 
     /*
      * Override apply method to manually replicate the dialplan so that the new Authentication Code

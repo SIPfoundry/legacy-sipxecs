@@ -14,10 +14,10 @@ public abstract class EditCallResolverService extends EditSipxService {
     @SuppressWarnings("hiding")
     public static final String PAGE = "service/EditCallResolverService";
 
-    @Override
-    public String getMyBeanId() {
-        return SipxCallResolverService.BEAN_ID;
-    }
+//    @Override
+//    public String getMyBeanId() {
+//        return SipxCallResolverService.BEAN_ID;
+//    }
 
     /*
      * Override apply method to manually replicate proxy service config that depends on
@@ -26,7 +26,7 @@ public abstract class EditCallResolverService extends EditSipxService {
     @Override
     public void apply() {
         super.apply();
-        SipxService proxyService = getSipxServiceManager().getServiceByBeanId(SipxProxyService.BEAN_ID);
-        getServiceConfigurator().replicateServiceConfig(proxyService);
+//        SipxService proxyService = getSipxServiceManager().getServiceByBeanId(SipxProxyService.BEAN_ID);
+//        getServiceConfigurator().replicateServiceConfig(proxyService);
     }
 }

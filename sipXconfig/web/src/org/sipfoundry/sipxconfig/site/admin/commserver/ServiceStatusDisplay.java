@@ -10,8 +10,6 @@
 
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import java.util.List;
-
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
@@ -20,9 +18,9 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.components.Block;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
-import org.sipfoundry.sipxconfig.commserver.ServiceStatusMessage;
 
 public abstract class ServiceStatusDisplay extends BaseComponent {
 
@@ -58,11 +56,11 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
     @Asset("/images/loading.gif")
     public abstract IAsset getLoadingIcon();
 
-    @InjectObject("spring:sipxProcessContext")
-    public abstract SipxProcessContext getSipxProcessContext();
-
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//    @InjectObject("spring:sipxProcessContext")
+//    public abstract SipxProcessContext getSipxProcessContext();
+//
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -139,18 +137,18 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
         return page;
     }
 
-    public void fetchDetails(Integer locationId, String serviceBeanId) {
-        SipxService service = getSipxServiceManager().getServiceByBeanId(serviceBeanId);
-        Location location = getLocationsManager().getLocation(locationId);
-        List<String> allMessages = getSipxProcessContext().getStatusMessages(location, service);
-
-        if (!allMessages.isEmpty()) {
-            ServiceStatusMessage message = new ServiceStatusMessage(allMessages.get(0));
-            setStatusMessage(String.format("%s: %s", getMessages().getMessage(message.getPrefix()), message
-                    .getMessage()));
-            setShowAllLink((allMessages.size() > 1) || shouldTruncate());
-        } else {
-            setStatusMessage(getMessages().getMessage("status.emptyStatus"));
-        }
-    }
+//    public void fetchDetails(Integer locationId, String serviceBeanId) {
+//        SipxService service = getSipxServiceManager().getServiceByBeanId(serviceBeanId);
+//        Location location = getLocationsManager().getLocation(locationId);
+//        List<String> allMessages = getSipxProcessContext().getStatusMessages(location, service);
+//
+//        if (!allMessages.isEmpty()) {
+//            ServiceStatusMessage message = new ServiceStatusMessage(allMessages.get(0));
+//            setStatusMessage(String.format("%s: %s", getMessages().getMessage(message.getPrefix()), message
+//                    .getMessage()));
+//            setShowAllLink((allMessages.size() > 1) || shouldTruncate());
+//        } else {
+//            setStatusMessage(getMessages().getMessage("status.emptyStatus"));
+//        }
+//    }
 }

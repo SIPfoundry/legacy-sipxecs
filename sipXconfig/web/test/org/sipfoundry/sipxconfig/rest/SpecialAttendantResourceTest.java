@@ -10,22 +10,21 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
-import java.io.StringWriter;
-import java.util.Arrays;
-
-import org.apache.commons.io.IOUtils;
-
-import org.restlet.data.MediaType;
-import org.restlet.resource.Representation;
-import org.restlet.resource.Variant;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
-
-import junit.framework.TestCase;
-
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+
+import java.io.StringWriter;
+import java.util.Arrays;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.io.IOUtils;
+import org.restlet.data.MediaType;
+import org.restlet.resource.Representation;
+import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendant;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
 
 public class SpecialAttendantResourceTest extends TestCase {
     private AutoAttendantManager m_autoAttendantManager;

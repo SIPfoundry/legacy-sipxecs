@@ -74,7 +74,8 @@ public abstract class AcdSupervisorConsole extends PageWithCallback implements P
 
         AcdStatistics stats = getAcdStatistics();
         if (stats == null) {
-            stats = new AcdStatisticsImpl(getAcdContext());
+            stats = new AcdStatistics();
+            stats.setAcdContext(getAcdContext());
 
             CoreContext core = getCoreContext();
             Integer userId = getUserSession().getUserId();

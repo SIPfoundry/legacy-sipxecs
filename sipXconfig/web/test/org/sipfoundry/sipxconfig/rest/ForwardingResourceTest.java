@@ -10,10 +10,18 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reportMatcher;
+import static org.easymock.EasyMock.verify;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.internal.matchers.InstanceOf;
@@ -21,23 +29,14 @@ import org.restlet.data.MediaType;
 import org.restlet.resource.InputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
-import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
-import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type;
-import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
-import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
+import org.sipfoundry.sipxconfig.callgroup.AbstractRing;
+import org.sipfoundry.sipxconfig.callgroup.AbstractRing.Type;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.forwarding.Ring;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-
-import junit.framework.TestCase;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reportMatcher;
-import static org.easymock.EasyMock.verify;
-import static org.easymock.classextension.EasyMock.createMock;
 
 public class ForwardingResourceTest extends TestCase {
     private static final String CALL_FWD_TIMER_SETTING = "callfwd/timer";
@@ -52,7 +51,7 @@ public class ForwardingResourceTest extends TestCase {
         PermissionManager pManager = createMock(PermissionManager.class);
         pManager.getPermissionModel();
         expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
-        pManager.getDefaultInitDelay();
+//        pManager.getDefaultInitDelay();
         expectLastCall().andReturn("25").anyTimes();
         replay(pManager);
         m_user.setPermissionManager(pManager);

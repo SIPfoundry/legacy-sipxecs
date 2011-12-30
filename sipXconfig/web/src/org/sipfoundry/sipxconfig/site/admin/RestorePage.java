@@ -31,16 +31,15 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.backup.BackupBean;
 import org.sipfoundry.sipxconfig.backup.BackupBean.Type;
+import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.FtpBackupPlan;
 import org.sipfoundry.sipxconfig.backup.FtpRestore;
 import org.sipfoundry.sipxconfig.backup.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.backup.Restore;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
@@ -56,8 +55,8 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
 
     private static final String FILE_TYPE = ".tar.gz";
 
-    @InjectObject(value = "spring:adminContext")
-    public abstract AdminContext getAdminContext();
+    @InjectObject(value = "spring:backupManager")
+    public abstract BackupManager getBackupManager();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -124,7 +123,7 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
     }
 
     private void backupSetting() {
-        AdminContext context = getAdminContext();
+        BackupManager context = getBackupManager();
         // get corresponding backups depending on getBackupRestoreConfigurationPage setting
         try {
             BackupPlan backupPlan = context.getBackupPlan(getBackupPlanType());
@@ -263,10 +262,10 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
     }
 
     private boolean isDistributedVoicemail() {
-        Location voicemailLocation = getLocationsManager().getLocationByBundle("voicemailBundle");
-        if (voicemailLocation != null && !voicemailLocation.isPrimary()) {
-            return true;
-        }
+//        Location voicemailLocation = getLocationsManager().getLocationByBundle("voicemailBundle");
+//        if (voicemailLocation != null && !voicemailLocation.isPrimary()) {
+//            return true;
+//        }
         return false;
     }
 
@@ -274,7 +273,7 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
         Restore restore = null;
         if (backupPlanType.equals(FtpBackupPlan.TYPE)) {
             FtpRestore ftpRestore = getFtpRestore();
-            FtpBackupPlan plan = (FtpBackupPlan) getAdminContext().getBackupPlan(backupPlanType);
+            FtpBackupPlan plan = (FtpBackupPlan) getBackupManager().getBackupPlan(backupPlanType);
             ftpRestore.setFtpConfiguration(plan.getFtpConfiguration());
             restore = ftpRestore;
         } else {

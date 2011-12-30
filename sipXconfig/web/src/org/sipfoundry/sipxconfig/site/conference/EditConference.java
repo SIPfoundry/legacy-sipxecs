@@ -9,12 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
+import static java.util.Arrays.asList;
+
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-
-import static java.util.Arrays.asList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,13 +22,11 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InitialValue;
-import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -37,9 +34,6 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
@@ -109,11 +103,11 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
     public abstract void setAutoReload(boolean autoReload);
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
-
-    @InjectObject("spring:sipxProcessContext")
-    public abstract SipxProcessContext getProcessContext();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
+//
+//    @InjectObject("spring:sipxProcessContext")
+//    public abstract SipxProcessContext getProcessContext();
 
     public void pageBeginRender(PageEvent event_) {
         if (getTransientConference() != null) {
@@ -173,11 +167,11 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
     public void apply() {
         if (TapestryUtils.isValid(this)) {
             saveValid();
-            if (getAutoReload()) {
-                SipxService sipxService = getSipxServiceManager().getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-                getProcessContext().manageServices(Collections.singletonList(sipxService),
-                        SipxProcessContext.Command.RELOAD);
-            }
+//            if (getAutoReload()) {
+//                SipxService sipxService = getSipxServiceManager().getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+//                getProcessContext().manageServices(Collections.singletonList(sipxService),
+//                        SipxProcessContext.Command.RELOAD);
+//            }
         }
     }
 

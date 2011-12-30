@@ -46,6 +46,5 @@ public class ParkOrbitServiceImpl implements ParkOrbitService {
         ParkOrbit apiOrbit = apo.getParkOrbit();
         ApiBeanUtil.toMyObject(m_parkOrbitBuilder, myOrbit, apiOrbit);
         m_parkOrbitContext.storeParkOrbit(myOrbit);
-        m_parkOrbitContext.activateParkOrbits();
     }
 }

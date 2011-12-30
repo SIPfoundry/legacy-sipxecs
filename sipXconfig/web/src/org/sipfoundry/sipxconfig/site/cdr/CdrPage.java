@@ -37,8 +37,8 @@ public abstract class CdrPage extends UserBasePage {
 
     public abstract void setTab(String tab);
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -57,8 +57,8 @@ public abstract class CdrPage extends UserBasePage {
     @Override
     public void pageBeginRender(PageEvent event) {
         Location primaryLocation = getLocationsManager().getPrimaryLocation();
-        setCallResolverInstalled(getSipxServiceManager().isServiceInstalled(primaryLocation.getId(),
-                SipxCallResolverService.BEAN_ID));
+//        setCallResolverInstalled(getSipxServiceManager().isServiceInstalled(primaryLocation.getId(),
+//                SipxCallResolverService.BEAN_ID));
         if (!isCallResolverInstalled() && getTab().equals(ACTIVE_TAB)) {
             setTab(HISTORIC_TAB);
         }

@@ -69,7 +69,6 @@ public abstract class EditParkOrbit extends PageWithCallback implements PageBegi
         ParkOrbitContext context = getParkOrbitContext();
         ParkOrbit orbit = getParkOrbit();
         context.storeParkOrbit(orbit);
-        context.activateParkOrbits();
         Integer id = getParkOrbit().getId();
         setParkOrbitId(id);
     }

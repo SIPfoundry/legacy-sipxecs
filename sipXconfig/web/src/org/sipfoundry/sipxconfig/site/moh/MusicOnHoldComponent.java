@@ -53,9 +53,9 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
     @Persist
     public abstract String getAsset();
 
-    public String getUserAudioDirectory() {
-        return getMusicOnHoldManager().getUserAudioDirectory(getUser()).toString();
-    }
+//    public String getUserAudioDirectory() {
+//        return getMusicOnHoldManager().getUserAudioDirectory(getUser()).toString();
+//    }
 
     public Setting getMohSettings() {
         return getUser().getSettings().getSetting(User.MOH_SETTING);

@@ -86,8 +86,8 @@ public abstract class UserGroupSettings extends GroupSettings {
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @Persist
     public abstract SpeedDialGroup getSpeedDialGroup();
@@ -286,18 +286,18 @@ public abstract class UserGroupSettings extends GroupSettings {
         List<String> names = new LinkedList<String>();
         names.add(VOICEMAIL);
         names.add(MOH);
-        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-            names.add("im_notification");
-        }
+//        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
+//            names.add("im_notification");
+//        }
         return StringUtils.join(names, SEPARATOR);
     }
 
     public String getSettingsToHide() {
         List<String> names = new LinkedList<String>();
 
-        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-            names.add("add-pa-to-group");
-        }
+//        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
+//            names.add("add-pa-to-group");
+//        }
         return StringUtils.join(names, SEPARATOR);
     }
 

@@ -40,8 +40,8 @@ public abstract class UserNavigation extends BeanNavigation {
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectPage(value = SpeedDialPage.PAGE)
     public abstract SpeedDialPage getSpeedDialPage();
@@ -182,9 +182,9 @@ public abstract class UserNavigation extends BeanNavigation {
         names.add(PERSONAL_ATTENDANT);
         names.add("callfwd");
         names.add("moh");
-        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-            names.add("im_notification");
-        }
+//        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
+//            names.add("im_notification");
+//        }
         return StringUtils.join(names, ",");
     }
 

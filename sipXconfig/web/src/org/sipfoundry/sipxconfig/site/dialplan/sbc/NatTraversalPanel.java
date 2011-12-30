@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
-import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -24,15 +23,15 @@ public abstract class NatTraversalPanel extends BaseComponent implements PageBeg
 
     public abstract void setNatTraversal(NatTraversal natTraversal);
 
-    @InjectObject(value = "spring:natTraversalManager")
-    public abstract NatTraversalManager getNatTraversalManager();
+//    @InjectObject(value = "spring:natTraversalManager")
+//    public abstract NatTraversalManager getNatTraversalManager();
 
     public void pageBeginRender(PageEvent event_) {
         NatTraversal natTraversal = getNatTraversal();
-        if (natTraversal == null) {
-            natTraversal = getNatTraversalManager().getNatTraversal();
-            setNatTraversal(natTraversal);
-        }
+//        if (natTraversal == null) {
+//            natTraversal = getNatTraversalManager().getNatTraversal();
+//            setNatTraversal(natTraversal);
+//        }
     }
 
     public void activateNatTraversal() {
@@ -40,7 +39,7 @@ public abstract class NatTraversalPanel extends BaseComponent implements PageBeg
             return;
         }
 
-        getNatTraversalManager().store(getNatTraversal());
-        TapestryUtils.recordSuccess(this, getMessages().getMessage("msg.actionSuccess"));
+//        getNatTraversalManager().store(getNatTraversal());
+//        TapestryUtils.recordSuccess(this, getMessages().getMessage("msg.actionSuccess"));
     }
 }

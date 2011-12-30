@@ -26,17 +26,17 @@ public abstract class EditPresenceService extends EditSipxService {
     @InjectObject(value = "spring:acdContext")
     public abstract AcdContext getAcdContext();
 
-    @Override
-    public String getMyBeanId() {
-        return SipxPresenceService.BEAN_ID;
-    }
+//    @Override
+//    public String getMyBeanId() {
+//        return SipxPresenceService.BEAN_ID;
+//    }
 
     @Override
     public void apply() {
         super.apply();
-        for (AcdServer acdServer : getAcdContext().getServers()) {
-            getSipxReplicationContext().generate(acdServer);
-        }
+//        for (AcdServer acdServer : getAcdContext().getServers()) {
+//            getSipxReplicationContext().generate(acdServer);
+//        }
     }
 
     public String getHelpText() {

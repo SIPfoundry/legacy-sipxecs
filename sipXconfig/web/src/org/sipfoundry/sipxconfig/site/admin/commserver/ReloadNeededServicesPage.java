@@ -16,14 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
@@ -38,14 +30,14 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 public abstract class ReloadNeededServicesPage extends SipxBasePage implements PageBeginRenderListener {
     public static final Object PAGE = "admin/commserver/ReloadNeededServicesPage";
 
-    @InjectObject("spring:sipxProcessContext")
-    public abstract SipxProcessContext getSipxProcessContext();
+//    @InjectObject("spring:sipxProcessContext")
+//    public abstract SipxProcessContext getSipxProcessContext();
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -59,64 +51,64 @@ public abstract class ReloadNeededServicesPage extends SipxBasePage implements P
     @Asset("/images/service_restart.png")
     public abstract IAsset getRestartIcon();
 
-    public abstract ReloadNeededService getCurrentRow();
-
-    public abstract Collection<ReloadNeededService> getReloadNeededServices();
-
-    public abstract void setReloadNeededServices(Collection<ReloadNeededService> reloadNeededServices);
+//    public abstract ReloadNeededService getCurrentRow();
+//
+//    public abstract Collection<ReloadNeededService> getReloadNeededServices();
+//
+//    public abstract void setReloadNeededServices(Collection<ReloadNeededService> reloadNeededServices);
 
     public void pageBeginRender(PageEvent event) {
-        if (getReloadNeededServices() == null) {
-            setReloadNeededServices(getSipxProcessContext().getReloadNeededServices());
-        }
+//        if (getReloadNeededServices() == null) {
+//            setReloadNeededServices(getSipxProcessContext().getReloadNeededServices());
+//        }
     }
 
-    public String getServiceLabel() {
-        String serviceBeanId = getCurrentRow().getServiceBeanId();
-        String key = "label." + serviceBeanId;
-        return getMessage(getMessages(), key, serviceBeanId);
-    }
+//    public String getServiceLabel() {
+//        String serviceBeanId = getCurrentRow().getServiceBeanId();
+//        String key = "label." + serviceBeanId;
+//        return getMessage(getMessages(), key, serviceBeanId);
+//    }
 
     public void reload() {
-        Collection<ReloadNeededService> beans = getSelections().getAllSelected();
-        if (beans == null) {
-            return;
-        }
-
-        getSipxProcessContext()
-                .manageServices(createLocationToServiceMap(beans), SipxProcessContext.Command.RELOAD);
-
-        // Forces a page refresh
-        setReloadNeededServices(null);
+//        Collection<ReloadNeededService> beans = getSelections().getAllSelected();
+//        if (beans == null) {
+//            return;
+//        }
+//
+//        getSipxProcessContext()
+//                .manageServices(createLocationToServiceMap(beans), SipxProcessContext.Command.RELOAD);
+//
+//        // Forces a page refresh
+//        setReloadNeededServices(null);
     }
 
-    public void ignore() {
-        Collection<ReloadNeededService> beans = getSelections().getAllSelected();
-        if (beans == null) {
-            return;
-        }
-
-        getSipxProcessContext().unmarkServicesToReload(beans);
-
-        // Forces a page refresh
-        setReloadNeededServices(null);
-    }
-
-    private Map<Location, List<SipxService>> createLocationToServiceMap(Collection<ReloadNeededService> beans) {
-        Map<Location, List<SipxService>> map = new HashMap<Location, List<SipxService>>();
-        for (ReloadNeededService bean : beans) {
-            Location location = getLocationsManager().getLocationByFqdn(bean.getLocation());
-            if (location == null) {
-                continue;
-            }
-            List<SipxService> services = map.get(location);
-            if (services == null) {
-                services = new ArrayList<SipxService>();
-                map.put(location, services);
-            }
-            SipxService service = getSipxServiceManager().getServiceByBeanId(bean.getServiceBeanId());
-            services.add(service);
-        }
-        return map;
-    }
+//    public void ignore() {
+//        Collection<ReloadNeededService> beans = getSelections().getAllSelected();
+//        if (beans == null) {
+//            return;
+//        }
+//
+//        getSipxProcessContext().unmarkServicesToReload(beans);
+//
+//        // Forces a page refresh
+//        setReloadNeededServices(null);
+//    }
+//
+//    private Map<Location, List<SipxService>> createLocationToServiceMap(Collection<ReloadNeededService> beans) {
+//        Map<Location, List<SipxService>> map = new HashMap<Location, List<SipxService>>();
+//        for (ReloadNeededService bean : beans) {
+//            Location location = getLocationsManager().getLocationByFqdn(bean.getLocation());
+//            if (location == null) {
+//                continue;
+//            }
+//            List<SipxService> services = map.get(location);
+//            if (services == null) {
+//                services = new ArrayList<SipxService>();
+//                map.put(location, services);
+//            }
+//            SipxService service = getSipxServiceManager().getServiceByBeanId(bean.getServiceBeanId());
+//            services.add(service);
+//        }
+//        return map;
+//    }
 }

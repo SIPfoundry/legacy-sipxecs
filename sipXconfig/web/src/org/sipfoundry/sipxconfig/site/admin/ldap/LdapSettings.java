@@ -53,7 +53,7 @@ public abstract class LdapSettings extends BaseComponent implements PageBeginRen
         ldapManager.saveSystemSettings(getSettings());
 
         // write openfire.xml file /  mark sipxopenfire service for restart
-        ldapManager.replicateOpenfireConfig();
+//        ldapManager.replicateOpenfireConfig();
     }
 
     private IPropertySelectionModel createAuthenticationModel() {

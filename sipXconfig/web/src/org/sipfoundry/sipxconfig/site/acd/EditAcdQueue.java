@@ -92,7 +92,9 @@ public abstract class EditAcdQueue extends PageWithCallback implements PageBegin
         AcdContext acdContext = getAcdContext();
 
         if (getAcdStatistics() == null) {
-            setAcdStatistics(new AcdStatisticsImpl(acdContext));
+            AcdStatistics stats = new AcdStatistics();
+            stats.setAcdContext(acdContext);
+            setAcdStatistics(stats);
         }
 
         Serializable id = getAcdQueueId();

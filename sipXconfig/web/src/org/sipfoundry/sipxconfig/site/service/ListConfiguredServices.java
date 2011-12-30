@@ -9,9 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.service;
 
+
 import java.util.Collection;
 
-import javax.jnlp.ServiceManager;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
@@ -23,14 +23,10 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
-import org.sipfoundry.sipxconfig.device.ModelSource;
-
-import com.sun.xml.internal.ws.api.wsdl.parser.ServiceDescriptor;
 
 public abstract class ListConfiguredServices extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "service/ListConfiguredServices";
@@ -38,11 +34,11 @@ public abstract class ListConfiguredServices extends SipxBasePage implements Pag
     @InjectPage(value = UnmanagedServicePage.PAGE)
     public abstract UnmanagedServicePage getUnmanagedServicePage();
 
-    @InjectObject(value = "spring:serviceManager")
-    public abstract ServiceManager getServiceManager();
+//    @InjectObject(value = "spring:serviceManager")
+//    public abstract ServiceManager getServiceManager();
 
-    @InjectObject(value = "spring:serviceDescriptorSource")
-    public abstract ModelSource<ServiceDescriptor> getServiceDescriptorSource();
+//    @InjectObject(value = "spring:serviceDescriptorSource")
+//    public abstract ModelSource<ServiceDescriptor> getServiceDescriptorSource();
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestryContext();
@@ -56,31 +52,31 @@ public abstract class ListConfiguredServices extends SipxBasePage implements Pag
     @InitialValue("createServiceSelectionModel()")
     public abstract IPropertySelectionModel getServiceSelectionModel();
 
-    public abstract ConfiguredService getCurrentRow();
+//    public abstract ConfiguredService getCurrentRow();
 
     public abstract void setConverter(IPrimaryKeyConverter converter);
 
-    public abstract ServiceDescriptor getServiceDescriptor();
+//    public abstract ServiceDescriptor getServiceDescriptor();
 
     public abstract Collection<Integer> getRowsToDelete();
 
     public void pageBeginRender(PageEvent event) {
-        if (getRequestCycle().isRewinding()) {
-            setConverter(new ObjectSourceDataSqueezer(getServiceManager(), ConfiguredService.class));
-        }
+//        if (getRequestCycle().isRewinding()) {
+//            setConverter(new ObjectSourceDataSqueezer(getServiceManager(), ConfiguredService.class));
+//        }
     }
 
     public IPage formSubmit() {
-        if (getServiceDescriptor() != null) {
-            UnmanagedServicePage page = getUnmanagedServicePage();
-            page.newService(getServiceDescriptor());
-            page.setReturnPage(PAGE);
-            return page;
-        }
-        Collection<Integer> toDelete = getRowsToDelete();
-        if (toDelete != null) {
-            getServiceManager().deleteServices(toDelete);
-        }
+//        if (getServiceDescriptor() != null) {
+//            UnmanagedServicePage page = getUnmanagedServicePage();
+//            page.newService(getServiceDescriptor());
+//            page.setReturnPage(PAGE);
+//            return page;
+//        }
+//        Collection<Integer> toDelete = getRowsToDelete();
+//        if (toDelete != null) {
+//            getServiceManager().deleteServices(toDelete);
+//        }
         return this;
     }
 
@@ -93,7 +89,7 @@ public abstract class ListConfiguredServices extends SipxBasePage implements Pag
 
     public IPropertySelectionModel createServiceSelectionModel() {
         ObjectSelectionModel model = new ObjectSelectionModel();
-        model.setCollection(getServiceDescriptorSource().getModels());
+//        model.setCollection(getServiceDescriptorSource().getModels());
         model.setLabelExpression("label");
 
         return getTapestryContext().addExtraOption(model, getMessages(), "label.addNewService");

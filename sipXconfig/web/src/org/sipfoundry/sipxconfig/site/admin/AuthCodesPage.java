@@ -43,7 +43,6 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.search.SearchManager;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 
@@ -57,12 +56,6 @@ public abstract class AuthCodesPage extends SipxBasePage implements PageBeginRen
 
     @InjectObject("spring:settingDao")
     public abstract SettingDao getSettingDao();
-
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
-
-    @InjectObject("spring:serviceConfigurator")
-    public abstract ServiceConfigurator getServiceConfigurator();
 
     @InjectObject("spring:aliasManager")
     public abstract AliasManager getAliasManager();
@@ -114,11 +107,11 @@ public abstract class AuthCodesPage extends SipxBasePage implements PageBeginRen
     public void pageBeginRender(PageEvent event) {
         LOG.info("ENTERED AuthCodesPage::pageBeginRender()");
 
-        if (getSipxService() == null) {
-            SipxService service =  getSipxServiceManager().getServiceByBeanId(SipxAccCodeService.BEAN_ID);
-            setSipxService(service);
-            LOG.info(String.format(" setted sipXService: %s ", service));
-        }
+//        if (getSipxService() == null) {
+//            SipxService service =  getSipxServiceManager().getServiceByBeanId(SipxAccCodeService.BEAN_ID);
+//            setSipxService(service);
+//            LOG.info(String.format(" setted sipXService: %s ", service));
+//        }
     }
 
     public IPage addAuthCode(IRequestCycle cycle) {
@@ -164,24 +157,24 @@ public abstract class AuthCodesPage extends SipxBasePage implements PageBeginRen
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-        SipxService service = getSipxService();
-        getSipxServiceManager().storeService(service);
-        getServiceConfigurator().replicateServiceConfig(service);
+//        SipxService service = getSipxService();
+//        getSipxServiceManager().storeService(service);
+//        getServiceConfigurator().replicateServiceConfig(service);
 
         getDialPlanActivationManager().replicateDialPlan(true);
         TapestryUtils.recordSuccess(this, getMessages().getMessage("starPrefix.updated"));
     }
 
-    public abstract SipxService getSipxService();
-
-    public abstract void setSipxService(SipxService service);
-
-    public Setting getMyConfigSettings() {
-        //from sipxacccode.xml's group name which contains the
-        //acc code service extension setting
-        // return getSipxService().getSettings().getSetting(SipxAccCodeService.AUTH_CODE_PREFIX);
-        return getSipxService().getSettings();
-    }
+//    public abstract SipxService getSipxService();
+//
+//    public abstract void setSipxService(SipxService service);
+//
+//    public Setting getMyConfigSettings() {
+//        //from sipxacccode.xml's group name which contains the
+//        //acc code service extension setting
+//        // return getSipxService().getSettings().getSetting(SipxAccCodeService.AUTH_CODE_PREFIX);
+//        return getSipxService().getSettings();
+//    }
 
     //Alias Handling Section
 

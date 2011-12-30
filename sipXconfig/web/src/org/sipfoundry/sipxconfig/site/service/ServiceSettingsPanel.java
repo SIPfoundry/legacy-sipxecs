@@ -32,10 +32,10 @@ public abstract class ServiceSettingsPanel extends BaseComponent {
     @Parameter
     public abstract ICallback getCallback();
 
-    @Parameter(required = true)
-    public abstract SipxService getService();
-
-    public abstract void setService(SipxService service);
+//    @Parameter(required = true)
+//    public abstract SipxService getService();
+//
+//    public abstract void setService(SipxService service);
 
     @Parameter(required = true)
     public abstract String getGroupToDisplay();
@@ -60,8 +60,8 @@ public abstract class ServiceSettingsPanel extends BaseComponent {
 
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
-        Setting root = getService().getSettings();
-        Setting parent = root.getSetting(getGroupToDisplay());
-        setParentSetting(parent);
+//        Setting root = getService().getSettings();
+//        Setting parent = root.getSetting(getGroupToDisplay());
+//        setParentSetting(parent);
     }
 }

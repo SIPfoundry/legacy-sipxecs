@@ -15,8 +15,8 @@ import java.util.Collections;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.BackupBean;
-import org.sipfoundry.sipxconfig.admin.BackupPlan;
+import org.sipfoundry.sipxconfig.backup.BackupBean;
+import org.sipfoundry.sipxconfig.backup.BackupPlan;
 
 public class RestorePageTest extends TestCase {
 

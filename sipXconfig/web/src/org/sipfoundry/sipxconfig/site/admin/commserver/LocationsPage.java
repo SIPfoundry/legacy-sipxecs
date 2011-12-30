@@ -45,14 +45,14 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
 
-    @InjectObject("spring:serviceConfigurator")
-    public abstract ServiceConfigurator getServiceConfigurator();
+//    @InjectObject("spring:serviceConfigurator")
+//    public abstract ServiceConfigurator getServiceConfigurator();
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
@@ -174,7 +174,7 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
                 selectedLocations.add(location);
             }
         }
-        getServiceConfigurator().sendProfiles(selectedLocations);
+//        getServiceConfigurator().sendProfiles(selectedLocations);
     }
 
     public boolean isFailedState() {
