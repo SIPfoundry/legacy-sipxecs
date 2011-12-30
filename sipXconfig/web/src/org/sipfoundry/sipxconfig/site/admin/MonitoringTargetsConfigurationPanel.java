@@ -16,9 +16,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.valid.IValidationDelegate;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.monitoring.MRTGTarget;
-import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
 public abstract class MonitoringTargetsConfigurationPanel extends BaseComponent {

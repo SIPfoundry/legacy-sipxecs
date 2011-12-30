@@ -17,9 +17,6 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
-import org.sipfoundry.sipxconfig.admin.monitoring.MRTGTarget;
-import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
-import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
 public abstract class TargetsTable extends BaseComponent {

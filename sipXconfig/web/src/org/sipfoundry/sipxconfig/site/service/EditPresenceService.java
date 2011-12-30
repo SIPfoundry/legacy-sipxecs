@@ -9,13 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.site.service;
 
+import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeString;
+
 import org.apache.tapestry.annotations.InjectObject;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-
-import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeString;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 
 public abstract class EditPresenceService extends EditSipxService {
     @SuppressWarnings("hiding")

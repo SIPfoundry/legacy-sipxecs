@@ -20,13 +20,9 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.components.Block;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatusMessage;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatusMessage;
 
 public abstract class ServiceStatusDisplay extends BaseComponent {
 

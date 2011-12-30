@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.springframework.web.context.support.WebApplicationContextUtils.getRequiredWebApplicationContext;
+
 import java.io.IOException;
 
 import javax.servlet.ServletContext;
@@ -17,12 +19,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.noelios.restlet.ext.servlet.ServletConverter;
-
 import org.restlet.Router;
 import org.springframework.context.ApplicationContext;
 
-import static org.springframework.web.context.support.WebApplicationContextUtils.getRequiredWebApplicationContext;
+import com.noelios.restlet.ext.servlet.ServletConverter;
 
 /**
  * Style II of RESTlet integration where you keep Spring as ApplicationContext and pull in

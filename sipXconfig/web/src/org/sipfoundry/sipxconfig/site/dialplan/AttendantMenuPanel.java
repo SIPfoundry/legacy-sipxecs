@@ -33,11 +33,6 @@ import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.form.validator.Validator;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
@@ -45,6 +40,11 @@ import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenuAction;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenuItem;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendant;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
 
 public abstract class AttendantMenuPanel extends BaseComponent {
 

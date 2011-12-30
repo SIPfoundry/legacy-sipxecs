@@ -17,16 +17,16 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbcRegistrationRecord;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbcStatistics;
+import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
+import org.sipfoundry.sipxconfig.bridge.BridgeSbcRegistrationRecord;
+import org.sipfoundry.sipxconfig.bridge.BridgeSbcStatistics;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 
 public abstract class BridgeSbcStatisticsPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "sbc/BridgeSbcStatisticsPage";

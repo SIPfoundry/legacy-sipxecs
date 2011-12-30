@@ -10,16 +10,13 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
+
+import static org.restlet.data.MediaType.APPLICATION_JSON;
+import static org.restlet.data.MediaType.TEXT_XML;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.SingleValueConverter;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.converters.collections.CollectionConverter;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.mapper.Mapper;
 
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -28,17 +25,21 @@ import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
-import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
-import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type;
-import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
-import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
+import org.sipfoundry.sipxconfig.callgroup.AbstractRing;
+import org.sipfoundry.sipxconfig.callgroup.AbstractRing.Type;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.forwarding.Ring;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.restlet.data.MediaType.APPLICATION_JSON;
-import static org.restlet.data.MediaType.TEXT_XML;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.SingleValueConverter;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.converters.collections.CollectionConverter;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.mapper.Mapper;
 
 public class ForwardingResource extends UserResource {
     private ForwardingContext m_forwardingContext;

@@ -15,11 +15,11 @@ import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendant;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
 
 public abstract class SpecialAttendantPanel extends BaseComponent {
     @InjectObject("spring:autoAttendantManager")

@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.restlet.data.MediaType.TEXT_PLAIN;
+import static org.restlet.data.MediaType.TEXT_XML;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.restlet.Context;
@@ -24,8 +27,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
-import static org.restlet.data.MediaType.TEXT_PLAIN;
-import static org.restlet.data.MediaType.TEXT_XML;
 
 public class ActiveGreetingResource extends Resource {
     private CoreContext m_coreContext;

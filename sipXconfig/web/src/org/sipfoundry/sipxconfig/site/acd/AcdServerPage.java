@@ -18,7 +18,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.acd.stats.AcdStatistics;
-import org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 

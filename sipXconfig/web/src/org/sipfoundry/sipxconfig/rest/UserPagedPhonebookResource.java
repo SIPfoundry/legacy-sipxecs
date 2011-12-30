@@ -14,8 +14,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.thoughtworks.xstream.XStream;
-
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.resource.Representation;
@@ -25,6 +23,8 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PagedPhonebook;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
+
+import com.thoughtworks.xstream.XStream;
 
 public class UserPagedPhonebookResource extends UserPhonebookSearchResource {
     @Override

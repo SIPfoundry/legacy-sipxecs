@@ -13,8 +13,8 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.CronSchedule;
-import org.sipfoundry.sipxconfig.admin.ScheduledDay;
+import org.sipfoundry.sipxconfig.common.CronSchedule;
+import org.sipfoundry.sipxconfig.common.ScheduledDay;
 
 public abstract class ScheduleEditor extends BaseComponent {
 

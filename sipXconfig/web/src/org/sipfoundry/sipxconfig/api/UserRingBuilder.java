@@ -29,8 +29,8 @@ public class UserRingBuilder extends AbstractRingBuilder {
 
     public void toApiObject(Object apiObject, Object myObject, Set properties) {
         super.toApiObject(apiObject, myObject, properties);
-        org.sipfoundry.sipxconfig.admin.callgroup.UserRing my =
-            (org.sipfoundry.sipxconfig.admin.callgroup.UserRing) myObject;
+        org.sipfoundry.sipxconfig.callgroup.UserRing my =
+            (org.sipfoundry.sipxconfig.callgroup.UserRing) myObject;
         UserRing api = (UserRing) apiObject;
         if (properties.contains(USER_NAME_PROP)) {
             api.setUserName(my.getUser().getUserName());
@@ -39,8 +39,8 @@ public class UserRingBuilder extends AbstractRingBuilder {
 
     public void toMyObject(Object myObject, Object apiObject, Set properties) {
         super.toMyObject(myObject, apiObject, properties);
-        org.sipfoundry.sipxconfig.admin.callgroup.UserRing my =
-            (org.sipfoundry.sipxconfig.admin.callgroup.UserRing) myObject;
+        org.sipfoundry.sipxconfig.callgroup.UserRing my =
+            (org.sipfoundry.sipxconfig.callgroup.UserRing) myObject;
         UserRing api = (UserRing) apiObject;
         if (properties.contains(USER_NAME_PROP)) {
             String userName = api.getUserName();

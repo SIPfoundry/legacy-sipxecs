@@ -16,10 +16,10 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
-import org.sipfoundry.sipxconfig.admin.BackupPlan;
-import org.sipfoundry.sipxconfig.admin.FtpBackupPlan;
-import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.backup.BackupPlan;
+import org.sipfoundry.sipxconfig.backup.FtpBackupPlan;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
 import org.sipfoundry.sipxconfig.site.common.IPageWithReset;
 
 @ComponentClass

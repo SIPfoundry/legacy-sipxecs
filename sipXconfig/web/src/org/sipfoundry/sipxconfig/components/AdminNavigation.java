@@ -9,16 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
-import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
-import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.service.SipxAcdService;
-import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.update.PackageUpdateManager;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class AdminNavigation extends BaseComponent {

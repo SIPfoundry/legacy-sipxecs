@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.components.IPrimaryKeyConverter;
-import org.sipfoundry.sipxconfig.admin.monitoring.MRTGTarget;
 
 public class TargetSqueezeAdapter implements IPrimaryKeyConverter {
 

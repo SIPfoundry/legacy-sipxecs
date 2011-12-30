@@ -18,15 +18,11 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatusMessage;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatusMessageHolder;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatusMessage;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatusMessageHolder;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public abstract class ViewStatusMessages extends PageWithCallback implements PageBeginRenderListener {
 

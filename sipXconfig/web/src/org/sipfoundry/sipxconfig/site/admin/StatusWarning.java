@@ -13,11 +13,10 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReloadNeededServicesPage;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartNeededServicesPage;
+import org.sipfoundry.sipxconfig.update.PackageUpdateManager;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class StatusWarning extends BaseComponent {

@@ -17,8 +17,8 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.time.TimeManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.time.TimeManager;
 
 public abstract class EditManualTimeSettings extends BaseComponent implements PageBeginRenderListener {
     @Parameter(required = true)

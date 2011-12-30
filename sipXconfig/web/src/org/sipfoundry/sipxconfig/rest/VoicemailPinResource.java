@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.sipfoundry.sipxconfig.permission.PermissionName.TUI_CHANGE_PIN;
+
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -17,8 +19,6 @@ import org.restlet.resource.ResourceException;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
-
-import static org.sipfoundry.sipxconfig.permission.PermissionName.TUI_CHANGE_PIN;
 
 public class VoicemailPinResource extends UserResource {
     private DomainManager m_domainManager;

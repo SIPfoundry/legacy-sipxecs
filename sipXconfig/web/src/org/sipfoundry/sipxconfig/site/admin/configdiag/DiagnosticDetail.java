@@ -19,9 +19,9 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
-import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnostic;
-import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticResult;
-import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticResult.Status;
+import org.sipfoundry.sipxconfig.configdiag.ConfigurationDiagnostic;
+import org.sipfoundry.sipxconfig.configdiag.ConfigurationDiagnosticResult;
+import org.sipfoundry.sipxconfig.configdiag.ConfigurationDiagnosticResult.Status;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class DiagnosticDetail extends BaseComponent {

@@ -9,12 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
+
 import java.rmi.RemoteException;
 
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
-import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
+import org.sipfoundry.sipxconfig.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 

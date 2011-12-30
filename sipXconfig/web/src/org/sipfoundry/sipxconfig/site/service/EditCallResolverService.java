@@ -9,9 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.service;
 
-import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxService;
 
 public abstract class EditCallResolverService extends EditSipxService {
     @SuppressWarnings("hiding")

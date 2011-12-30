@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.api;
 import java.rmi.RemoteException;
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
+import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 
 public class ParkOrbitServiceImpl implements ParkOrbitService {
 
@@ -28,10 +28,10 @@ public class ParkOrbitServiceImpl implements ParkOrbitService {
     }
 
     public GetParkOrbitsResponse getParkOrbits() throws RemoteException {
-        Collection<org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit> orbitsColl = m_parkOrbitContext
+        Collection<org.sipfoundry.sipxconfig.parkorbit.ParkOrbit> orbitsColl = m_parkOrbitContext
                 .getParkOrbits();
-        org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[] orbits = orbitsColl
-                .toArray(new org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[orbitsColl
+        org.sipfoundry.sipxconfig.parkorbit.ParkOrbit[] orbits = orbitsColl
+                .toArray(new org.sipfoundry.sipxconfig.parkorbit.ParkOrbit[orbitsColl
                         .size()]);
         ParkOrbit[] arrayOfParkOrbits = (ParkOrbit[]) ApiBeanUtil.toApiArray(m_parkOrbitBuilder,
                 orbits, ParkOrbit.class);
@@ -41,12 +41,11 @@ public class ParkOrbitServiceImpl implements ParkOrbitService {
     }
 
     public void addParkOrbit(AddParkOrbit apo) throws RemoteException {
-        org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit myOrbit = m_parkOrbitContext
+        org.sipfoundry.sipxconfig.parkorbit.ParkOrbit myOrbit = m_parkOrbitContext
                 .newParkOrbit();
         ParkOrbit apiOrbit = apo.getParkOrbit();
         ApiBeanUtil.toMyObject(m_parkOrbitBuilder, myOrbit, apiOrbit);
         m_parkOrbitContext.storeParkOrbit(myOrbit);
         m_parkOrbitContext.activateParkOrbits();
     }
-
 }

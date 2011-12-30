@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import static org.apache.commons.collections.CollectionUtils.disjunction;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -18,17 +20,10 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-
-import static org.apache.commons.collections.CollectionUtils.disjunction;
 
 public abstract class ConfigureBundlesPanel extends BaseComponent {
     @InjectObject("spring:locationsManager")

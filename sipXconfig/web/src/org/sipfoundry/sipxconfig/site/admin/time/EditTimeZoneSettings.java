@@ -13,8 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.davekoelle.AlphanumComparator;
-
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.Parameter;
@@ -22,9 +20,11 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.time.TimeManager;
-import org.sipfoundry.sipxconfig.admin.time.Timezone;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.time.TimeManager;
+import org.sipfoundry.sipxconfig.time.Timezone;
+
+import com.davekoelle.AlphanumComparator;
 
 public abstract class EditTimeZoneSettings extends BaseComponent implements PageBeginRenderListener {
     @Parameter(required = true)

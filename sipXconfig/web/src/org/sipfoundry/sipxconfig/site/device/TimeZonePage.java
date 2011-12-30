@@ -19,7 +19,7 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.TimeOfDay;
+import org.sipfoundry.sipxconfig.common.TimeOfDay;
 import org.sipfoundry.sipxconfig.components.MapSelectionModel;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;

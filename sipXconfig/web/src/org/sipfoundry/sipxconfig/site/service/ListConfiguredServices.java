@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.site.service;
 
 import java.util.Collection;
 
+import javax.jnlp.ServiceManager;
+
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
@@ -27,9 +29,8 @@ import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
-import org.sipfoundry.sipxconfig.service.ConfiguredService;
-import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
-import org.sipfoundry.sipxconfig.service.ServiceManager;
+
+import com.sun.xml.internal.ws.api.wsdl.parser.ServiceDescriptor;
 
 public abstract class ListConfiguredServices extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "service/ListConfiguredServices";

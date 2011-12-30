@@ -9,13 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import static java.util.Collections.sort;
+import static org.apache.commons.lang.StringUtils.join;
+import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Collections.sort;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,30 +33,16 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
-import org.sipfoundry.sipxconfig.admin.RestartListener;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
+import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxAcdService;
-import org.sipfoundry.sipxconfig.service.SipxBridgeService;
-import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
-import org.sipfoundry.sipxconfig.service.SipxConfigService;
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
-import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.sbc.SbcDescriptor;
+import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.site.acd.AcdServerPage;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
@@ -64,10 +52,6 @@ import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 import org.sipfoundry.sipxconfig.site.service.EditSipxImbotService;
 import org.sipfoundry.sipxconfig.site.service.EditSipxService;
-
-import static org.apache.commons.lang.StringUtils.join;
-import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
-import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
 public abstract class ServicesTable extends BaseComponent {
     public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();

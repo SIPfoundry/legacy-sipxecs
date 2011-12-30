@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.apache.commons.lang.StringUtils.join;
+import static org.restlet.data.MediaType.APPLICATION_RSS_XML;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -16,16 +19,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndContentImpl;
-import com.sun.syndication.feed.synd.SyndEnclosureImpl;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndEntryImpl;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.feed.synd.SyndFeedImpl;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedOutput;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -38,8 +31,17 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.apache.commons.lang.StringUtils.join;
-import static org.restlet.data.MediaType.APPLICATION_RSS_XML;
+import com.sun.syndication.feed.synd.SyndContent;
+import com.sun.syndication.feed.synd.SyndContentImpl;
+import com.sun.syndication.feed.synd.SyndEnclosureImpl;
+import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndEntryImpl;
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.feed.synd.SyndFeedImpl;
+import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.SyndFeedOutput;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class VoicemailResource extends UserResource {
     private static final String UTF_8 = "UTF-8";

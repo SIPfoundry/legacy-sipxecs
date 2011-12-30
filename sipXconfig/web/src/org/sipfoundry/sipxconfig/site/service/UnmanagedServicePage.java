@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.service;
 
+import javax.jnlp.ServiceManager;
+
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -16,9 +18,9 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
-import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
+
+import com.sun.xml.internal.ws.api.wsdl.parser.ServiceDescriptor;
 
 
 public abstract class UnmanagedServicePage extends PageWithCallback implements PageBeginRenderListener {

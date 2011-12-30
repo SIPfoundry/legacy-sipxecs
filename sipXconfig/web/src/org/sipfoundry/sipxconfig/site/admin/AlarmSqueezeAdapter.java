@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.components.IPrimaryKeyConverter;
-import org.sipfoundry.sipxconfig.admin.alarm.Alarm;
+import org.sipfoundry.sipxconfig.alarm.Alarm;
 
 public class AlarmSqueezeAdapter implements IPrimaryKeyConverter {
     public Object getPrimaryKey(Object value) {

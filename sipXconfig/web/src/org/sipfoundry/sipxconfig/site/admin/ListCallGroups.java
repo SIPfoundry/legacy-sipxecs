@@ -13,8 +13,8 @@ import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.callgroup.CallGroup;
+import org.sipfoundry.sipxconfig.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;

@@ -15,8 +15,8 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 
 /**
  * A table component that contains the dialing rules that use a particular gateway.

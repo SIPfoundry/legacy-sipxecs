@@ -14,9 +14,9 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.components.CompositeMessages;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.site.admin.LocalizedExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages;
 

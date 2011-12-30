@@ -12,9 +12,7 @@ package org.sipfoundry.sipxconfig.site.service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.annotations.InjectObject;
-import org.sipfoundry.sipxconfig.acccode.AccCodeContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.service.SipxAccCodeService;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
 
 public abstract class EditAccCodeService extends EditSipxService {
     @SuppressWarnings("hiding")

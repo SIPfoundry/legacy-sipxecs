@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
@@ -20,14 +22,11 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.BooleanPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public abstract class NatLocationPanel extends BaseComponent implements PageBeginRenderListener {
     @InjectObject("spring:locationsManager")

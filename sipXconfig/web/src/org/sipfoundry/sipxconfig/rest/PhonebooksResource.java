@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.restlet.data.MediaType.APPLICATION_ALL_XML;
+import static org.restlet.data.MediaType.TEXT_XML;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
@@ -21,9 +24,6 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
-
-import static org.restlet.data.MediaType.APPLICATION_ALL_XML;
-import static org.restlet.data.MediaType.TEXT_XML;
 
 public class PhonebooksResource extends Resource {
     private PhonebookManager m_phonebookManager;

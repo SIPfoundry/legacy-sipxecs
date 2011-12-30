@@ -23,8 +23,8 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.bean.EvenOdd;
-import org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
+import org.sipfoundry.sipxconfig.commserver.imdb.RegistrationItem;
+import org.sipfoundry.sipxconfig.registrar.RegistrationContext;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class RegistrationsTable extends BaseComponent {

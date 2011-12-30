@@ -17,7 +17,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.ListEditMap;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
+import org.sipfoundry.sipxconfig.dialplan.attendant.Holiday;
 
 public abstract class HolidaysEditor extends BaseComponent {
     public abstract Holiday getHoliday();

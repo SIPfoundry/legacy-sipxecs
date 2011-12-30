@@ -14,8 +14,8 @@ import java.util.List;
 
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager;
+import org.sipfoundry.sipxconfig.acccode.AuthCode;
+import org.sipfoundry.sipxconfig.acccode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.search.IdentityToBean;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 /**

@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
-import org.sipfoundry.sipxconfig.paging.PagingProvisioningContext;
 
 public abstract class PagingGroupsPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/PagingGroupsPage";

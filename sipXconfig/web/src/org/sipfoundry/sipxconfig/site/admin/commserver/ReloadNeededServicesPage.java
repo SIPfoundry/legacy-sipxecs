@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,17 +30,10 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.ReloadNeededService;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-
-import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
 public abstract class ReloadNeededServicesPage extends SipxBasePage implements PageBeginRenderListener {
     public static final Object PAGE = "admin/commserver/ReloadNeededServicesPage";

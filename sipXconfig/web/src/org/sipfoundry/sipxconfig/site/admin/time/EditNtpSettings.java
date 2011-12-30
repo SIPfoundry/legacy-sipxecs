@@ -19,10 +19,10 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.admin.time.TimeManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.time.TimeManager;
 
 public abstract class EditNtpSettings extends BaseComponent implements PageBeginRenderListener {
     @Parameter(required = true)

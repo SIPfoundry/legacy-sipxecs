@@ -23,8 +23,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
-import org.sipfoundry.sipxconfig.service.SipxPageService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
 import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 import org.sipfoundry.sipxconfig.site.user.UserTable;

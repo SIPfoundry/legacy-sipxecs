@@ -16,7 +16,6 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
-import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 
 @ComponentClass
 public abstract class NatTraversalPanel extends BaseComponent implements PageBeginRenderListener {

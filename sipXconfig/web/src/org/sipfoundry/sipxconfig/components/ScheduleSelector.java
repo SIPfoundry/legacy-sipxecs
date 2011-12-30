@@ -14,7 +14,7 @@ import java.util.List;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
+import org.sipfoundry.sipxconfig.forwarding.Schedule;
 
 public abstract class ScheduleSelector extends BaseComponent {
 

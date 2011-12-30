@@ -9,12 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.restlet.data.MediaType.APPLICATION_JSON;
+import static org.restlet.data.MediaType.TEXT_XML;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.thoughtworks.xstream.XStream;
 
 import org.apache.commons.lang.StringUtils;
 import org.restlet.Context;
@@ -33,8 +34,7 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.restlet.data.MediaType.APPLICATION_JSON;
-import static org.restlet.data.MediaType.TEXT_XML;
+import com.thoughtworks.xstream.XStream;
 
 public class UserPhonebookEntryResource extends UserResource {
 

@@ -24,7 +24,6 @@ import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.device.Device;
-import org.sipfoundry.sipxconfig.device.OutputStreamProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
