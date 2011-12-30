@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.common.event;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -45,7 +46,8 @@ public class DaoEventPublisherImpl  implements DaoEventPublisher, BeanFactoryAwa
                 throw new BeanInitializationException(getClass().getName() + " not initialized");
             }
             Map<String, DaoEventListener> beanMap = m_beanFactory.getBeansOfType(DaoEventListener.class, true, true);
-            m_listeners = beanMap.values();
+            m_listeners = new HashSet<DaoEventListener>();
+            m_listeners.addAll(beanMap.values());
         }
         return m_listeners;
     }

@@ -14,77 +14,70 @@ import java.io.Writer;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.cdr.CdrSearch.Mode;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class CdrManagerImplTestDb extends SipxDatabaseTestCase {
+public class CdrManagerImplTestDb extends IntegrationTestCase {
+    private CdrManager m_cdrManager;
+    
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+    }
 
     public void testGetCdrs() {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        List<Cdr> cdrs = cdrManager.getCdrs(null, null, new CdrSearch(), null);
+        List<Cdr> cdrs = m_cdrManager.getCdrs(null, null, new CdrSearch(), null);
         assertTrue(cdrs.size() > 0);
     }
 
     public void testGetCdrsCount() {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        int size = cdrManager.getCdrCount(null, null, new CdrSearch(), null);
+        int size = m_cdrManager.getCdrCount(null, null, new CdrSearch(), null);
         assertTrue(size > 0);
     }
 
     public void testDumpCdrs() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
         OutputStreamWriter writer = new OutputStreamWriter(System.err);
-        cdrManager.dumpCdrs(writer, null, null, new CdrSearch(), null);
+        m_cdrManager.dumpCdrs(writer, null, null, new CdrSearch(), null);
     }
 
     public void testGetCsv() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
         Writer writer = new OutputStreamWriter(System.err);
-        cdrManager.dumpCdrs(writer, null, null, new CdrSearch(), null);
+        m_cdrManager.dumpCdrs(writer, null, null, new CdrSearch(), null);
         writer.flush();
     }
 
     public void testGetJson() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
         Writer writer = new OutputStreamWriter(System.err);
-        cdrManager.dumpCdrsJson(writer);
+        m_cdrManager.dumpCdrsJson(writer);
         writer.flush();
     }
 
     public void testGetCdrsSearchFrom() {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setMode(Mode.CALLER);
         cdrSearch.setTerm("200");
-        List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
+        List<Cdr> cdrs = m_cdrManager.getCdrs(null, null, cdrSearch, null);
         assertTrue(cdrs.size() == 3);
     }
 
     public void testGetCdrsSearchTo() {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setMode(Mode.CALLEE);
         cdrSearch.setTerm("201");
-        List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
+        List<Cdr> cdrs = m_cdrManager.getCdrs(null, null, cdrSearch, null);
         assertTrue(cdrs.size() == 6);
     }
 
     public void testGetCdrsSearchAny() {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setMode(Mode.ANY);
         cdrSearch.setTerm("200");
-        List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
+        List<Cdr> cdrs = m_cdrManager.getCdrs(null, null, cdrSearch, null);
         assertTrue(cdrs.size() == 5);
+    }
+
+    public void setCdrManager(CdrManager cdrManager) {
+        m_cdrManager = cdrManager;
     }
 
 }

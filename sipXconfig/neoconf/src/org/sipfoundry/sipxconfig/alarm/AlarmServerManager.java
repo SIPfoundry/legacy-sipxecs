@@ -13,9 +13,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-
-public interface AlarmServerManager extends DaoEventListener {
+public interface AlarmServerManager {
     AlarmServer getAlarmServer();
 
     List<AlarmGroup> getAlarmGroups();

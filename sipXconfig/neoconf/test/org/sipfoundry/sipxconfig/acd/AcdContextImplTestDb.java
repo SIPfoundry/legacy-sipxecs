@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.acd;
 
 
-import static org.easymock.EasyMock.createNiceMock;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,65 +18,52 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.dbunit.Assertion;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
 
-public class AcdContextImplTestDb extends SipxDatabaseTestCase {
+public class AcdContextImplTestDb extends IntegrationTestCase {
     private final static Integer SERVER_ID = new Integer(1001);
-
-    private AcdContext m_context;
+    private AcdContext m_acdContext;
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
-    private DaoEventPublisherImpl m_daoEventPublisher;
 
     @Override
-    protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        m_context = (AcdContext) app.getBean(AcdContext.CONTEXT_BEAN_NAME);
-        m_coreContext = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
-        m_locationsManager = (LocationsManager) app.getBean(LocationsManager.CONTEXT_BEAN_NAME);
-        m_daoEventPublisher = app.getBean(DaoEventPublisherImpl.class);
-        DaoEventListener stub = createNiceMock(DaoEventListener.class);
-        m_daoEventPublisher.divertEvents(stub);
-        TestHelper.cleanInsert("ClearDb.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        //disableDaoEventPublishing();
+        clear();
+        sql("domain/DomainSeed.sql");
+        sql("acd/location.sql");
     }
     
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        m_daoEventPublisher.divertEvents(null);
-    }
-
     public void testGetUsersWithAgents() throws Exception {
         TestHelper.insertFlat("acd/same_user_on_two_servers.db.xml");
-        User[] users = (User[]) m_context.getUsersWithAgents().toArray(new User[0]);
+        User[] users = (User[]) m_acdContext.getUsersWithAgents().toArray(new User[0]);
         assertEquals(2, users.length);
         assertEquals("testuser1", users[0].getUserName());
         assertEquals("testuser2", users[1].getUserName());
     }
 
     public void testNewLine() {
-        AcdLine line = m_context.newLine();
+        AcdLine line = m_acdContext.newLine();
         line.setName("kuku");
         assertNotNull(line.getSettings());
-        AcdServer acdServer = m_context.newServer();
+        AcdServer acdServer = m_acdContext.newServer();
         Location location = new Location();
-        location.setFqdn("localhost");
+        location.setFqdn("host.example.org");
         location.setAddress("127.0.0.1");
         location.setName("localhost");
         m_locationsManager.saveLocation(location);
@@ -84,57 +71,57 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertNotNull(acdServer.getLines());
         assertEquals(0, acdServer.getLines().size());
         acdServer.insertLine(line);
-        m_context.saveComponent(acdServer);
+        m_acdContext.saveComponent(acdServer);
         assertEquals(1, acdServer.getLines().size());
         assertSame(acdServer, line.getAcdServer());
     }
 
     public void testLoadLine() throws Exception {
         Integer id = new Integer(2001);
-        TestHelper.insertFlat("acd/lines.db.xml");
-        AcdLine line = m_context.loadLine(id);
+        sql("acd/lines.sql");
+        AcdLine line = m_acdContext.loadLine(id);
         assertEquals(id, line.getId());
     }
 
     public void testLoadQueue() throws Exception {
         Integer id = new Integer(2001);
-        TestHelper.insertFlat("acd/queues.db.xml");
-        AcdQueue queue = m_context.loadQueue(id);
+        sql("acd/queues.sql");
+        AcdQueue queue = m_acdContext.loadQueue(id);
         assertEquals(id, queue.getId());
     }
 
     public void testLoadQueueWithAgents() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
-        AcdQueue queue = m_context.loadQueue(new Integer(2002));
+        sql("acd/agents.sql");
+        AcdQueue queue = m_acdContext.loadQueue(new Integer(2002));
         assertEquals(3, queue.getAgents().size());
-        queue = m_context.loadQueue(new Integer(2001));
+        queue = m_acdContext.loadQueue(new Integer(2001));
         assertEquals(1, queue.getAgents().size());
     }
 
     public void testLoadServer() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
-        AcdServer server = m_context.loadServer(SERVER_ID);
+        sql("acd/agents.sql");
+        AcdServer server = m_acdContext.loadServer(SERVER_ID);
         assertEquals(2, server.getQueues().size());
         assertEquals(0, server.getLines().size());
     }
 
     public void testRemoveServers() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
-        AcdServer server = m_context.loadServer(SERVER_ID);
-        m_context.removeServers(Collections.singletonList(server));
-        IDataSet dataSet = TestHelper.getConnection().createDataSet();
-        assertEquals(0, dataSet.getTable("acd_server").getRowCount());
-        assertEquals(0, dataSet.getTable("acd_queue").getRowCount());
-        assertEquals(0, dataSet.getTable("acd_line").getRowCount());
+        sql("acd/agents.sql");
+        AcdServer server = m_acdContext.loadServer(SERVER_ID);
+        m_acdContext.removeServers(Collections.singletonList(server));   
+        commit();
+        assertEquals(0, countRowsInTable("acd_server"));
+        assertEquals(0, countRowsInTable("acd_queue"));
+        assertEquals(0, countRowsInTable("acd_line"));
     }
 
     public void testNewQueue() {
-        AcdQueue queue = m_context.newQueue();
+        AcdQueue queue = m_acdContext.newQueue();
         queue.setName("kuku");
         assertNotNull(queue.getSettings());
-        AcdServer acdServer = m_context.newServer();
+        AcdServer acdServer = m_acdContext.newServer();
         Location location = new Location();
-        location.setFqdn("localhost");
+        location.setFqdn("host.example.org");
         location.setAddress("127.0.0.1");
         location.setName("localhost");
         m_locationsManager.saveLocation(location);
@@ -142,15 +129,15 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertNotNull(acdServer.getQueues());
         assertEquals(0, acdServer.getQueues().size());
         acdServer.insertQueue(queue);
-        m_context.saveComponent(acdServer);
+        m_acdContext.saveComponent(acdServer);
         assertEquals(1, acdServer.getQueues().size());
         assertSame(acdServer, queue.getAcdServer());
     }
 
     public void testsaveComponentServer() throws Exception {
-        AcdServer acdServer = m_context.newServer();
+        AcdServer acdServer = m_acdContext.newServer();
         Location location = new Location();
-        location.setFqdn("localhost");
+        location.setFqdn("host.example.org");
         location.setAddress("127.0.0.1");
         location.setName("localhost");
         m_locationsManager.saveLocation(location);
@@ -161,46 +148,26 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         Setting setting = settingRoot.getSetting("acd-server/log-level");
         assertNotNull(setting);
         setting.setValue("INFO");
-        m_context.saveComponent(acdServer);
-        ITable acdServerTable = TestHelper.getConnection().createDataSet().getTable("acd_server");
+        m_acdContext.saveComponent(acdServer);
+        commit();
+        assertEquals(1, countRowsInTable("acd_server"));
+        assertNotNull(db().queryForObject("select value_storage_id from acd_server", Integer.class));
 
-        assertEquals(1, acdServerTable.getRowCount());
-        assertNotNull(acdServerTable.getValue(0, "value_storage_id"));
-
-        ITable valuesTable = TestHelper.getConnection().createDataSet().getTable("setting_value");
-        assertEquals(1, valuesTable.getRowCount());
-        assertEquals("INFO", valuesTable.getValue(0, "value"));
-
-        User u = m_coreContext.newUser();
-        u.setUserName("*88");
-        u.setPin("123", "tralala");
-        try {
-            m_coreContext.saveUser(u);
-            fail();
-        } catch (UserException e) {
-
-        }
-
-        u.setUserName("*81");
-        try {
-            m_coreContext.saveUser(u);
-            fail();
-        } catch (UserException e) {
-
-        }
+        assertEquals(1, countRowsInTable("setting_value"));
+        assertEquals("INFO", db().queryForObject("select value from setting_value", String.class));
     }
 
     public void testsaveComponentLine() throws Exception {
-        TestHelper.insertFlat("acd/lines.db.xml");
-        TestHelper.insertFlat("acd/lines_and_conferences.db.xml");
+        sql("acd/lines.sql");
+        sql("acd/lines_and_conferences.sql");
 
-        AcdServer acdServer = m_context.loadServer(new Integer(1001));
+        AcdServer acdServer = m_acdContext.loadServer(new Integer(1001));
 
-        AcdLine line = m_context.newLine();
+        AcdLine line = m_acdContext.newLine();
         line.setAcdServer(acdServer);
         line.setName("l1");
         try {
-            m_context.saveComponent(line);
+            m_acdContext.saveComponent(line);
             fail("Should fail");
         } catch (UserException e) {
             // ok
@@ -209,7 +176,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         line.setName("l4");
         line.setExtension("102");
         try {
-            m_context.saveComponent(line);
+            m_acdContext.saveComponent(line);
             fail("Should fail");
         } catch (UserException e) {
             // ok
@@ -218,7 +185,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         line.setName("l5");
         line.setExtension("7777");
         try {
-            m_context.saveComponent(line);
+            m_acdContext.saveComponent(line);
             fail("Should fail. Extension used by a conference");
         } catch (UserException e) {
             // ok
@@ -226,7 +193,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
 
         line.setName("*88");
         try {
-            m_context.saveComponent(line);
+            m_acdContext.saveComponent(line);
             fail("Should fail");
         } catch (Exception e) {
             // ok
@@ -234,46 +201,44 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
 
         line.setName("*86");
         try {
-            m_context.saveComponent(line);
+            m_acdContext.saveComponent(line);
             fail("Should fail");
         } catch (Exception e) {
             // ok
         }
         line.setName("l5");
         line.setExtension("112");
-        m_context.saveComponent(line);
+        m_acdContext.saveComponent(line);
 
         // check if I can saveComponent the same line more than once
-        m_context.saveComponent(line);
+        m_acdContext.saveComponent(line);
 
     }
 
     public void testsaveComponentQueue() throws Exception {
-        TestHelper.insertFlat("acd/queues.db.xml");
-
-        AcdServer acdServer = m_context.loadServer(new Integer(1001));
-
-        AcdQueue queue = m_context.newQueue();
+        sql("acd/queues.sql");
+        AcdServer acdServer = m_acdContext.loadServer(new Integer(1001));
+        AcdQueue queue = m_acdContext.newQueue();
         queue.setAcdServer(acdServer);
         queue.setName("q1");
         try {
-            m_context.saveComponent(queue);
+            m_acdContext.saveComponent(queue);
             fail("Should fail");
         } catch (UserException e) {
             // ok
         }
 
         queue.setName("q4");
-        m_context.saveComponent(queue);
+        m_acdContext.saveComponent(queue);
     }
 
     public void testRemoveLines() throws Exception {
-        TestHelper.insertFlat("acd/lines.db.xml");
-        Set lines = m_context.loadServer(SERVER_ID).getLines();
+        sql("acd/lines.sql");
+        Set lines = m_acdContext.loadServer(SERVER_ID).getLines();
         assertEquals(2, lines.size());
 
-        m_context.removeLines(Collections.singletonList(new Integer(2002)));
-        lines = m_context.loadServer(SERVER_ID).getLines();
+        m_acdContext.removeLines(Collections.singletonList(new Integer(2002)));
+        lines = m_acdContext.loadServer(SERVER_ID).getLines();
         assertEquals(1, lines.size());
         for (Iterator i = lines.iterator(); i.hasNext();) {
             AcdLine line = (AcdLine) i.next();
@@ -282,12 +247,12 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testRemoveLinesWithQueues() throws Exception {
-        TestHelper.insertFlat("acd/assoc.db.xml");
-        Set lines = m_context.loadServer(SERVER_ID).getLines();
+        sql("acd/assoc.sql");
+        Set lines = m_acdContext.loadServer(SERVER_ID).getLines();
         assertEquals(2, lines.size());
 
-        m_context.removeLines(Collections.singletonList(new Integer(2001)));
-        lines = m_context.loadServer(SERVER_ID).getLines();
+        m_acdContext.removeLines(Collections.singletonList(new Integer(2001)));
+        lines = m_acdContext.loadServer(SERVER_ID).getLines();
         assertEquals(1, lines.size());
         for (Iterator i = lines.iterator(); i.hasNext();) {
             AcdLine line = (AcdLine) i.next();
@@ -296,19 +261,15 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testRemoveQueues() throws Exception {
-        TestHelper.insertFlat("acd/queues.db.xml");
-
-        ITable acdQueueTable = TestHelper.getConnection().createDataSet().getTable("acd_queue");
-
-        assertEquals(2, acdQueueTable.getRowCount());
-
-        Set queues = m_context.loadServer(SERVER_ID).getQueues();
-        Set lines = m_context.loadServer(SERVER_ID).getLines();
+        sql("acd/queues.sql");
+        assertEquals(2, countRowsInTable("acd_queue"));
+        Set queues = m_acdContext.loadServer(SERVER_ID).getQueues();
+        Set lines = m_acdContext.loadServer(SERVER_ID).getLines();
         assertEquals(0, lines.size());
         assertEquals(2, queues.size());
 
-        m_context.removeQueues(Collections.singletonList(new Integer(2002)));
-        queues = m_context.loadServer(SERVER_ID).getQueues();
+        m_acdContext.removeQueues(Collections.singletonList(new Integer(2002)));
+        queues = m_acdContext.loadServer(SERVER_ID).getQueues();
         assertEquals(1, queues.size());
         for (Iterator i = queues.iterator(); i.hasNext();) {
             AcdQueue line = (AcdQueue) i.next();
@@ -326,38 +287,35 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(3, acdQueueTable.getRowCount());
         assertEquals(2, dbConnection.getRowCount("acd_queue", "where overflow_queue_id = 2003"));
 
-        Set queues = m_context.loadServer(SERVER_ID).getQueues();
+        Set queues = m_acdContext.loadServer(SERVER_ID).getQueues();
         assertEquals(3, queues.size());
 
-        AcdQueue overflowQueue = m_context.loadQueue(new Integer(2003));
-        AcdQueue queue = m_context.loadQueue(new Integer(2002));
+        AcdQueue overflowQueue = m_acdContext.loadQueue(new Integer(2003));
+        AcdQueue queue = m_acdContext.loadQueue(new Integer(2002));
 
         assertEquals(queue.getOverflowQueue(), overflowQueue);
 
-        m_context.removeQueues(Collections.singletonList(overflowQueue.getId()));
+        m_acdContext.removeQueues(Collections.singletonList(overflowQueue.getId()));
+        commit();
 
-        acdQueueTable = dataSet.getTable("acd_queue");
-        assertEquals(2, acdQueueTable.getRowCount());
+        assertEquals(2, countRowsInTable("acd_queue"));
 
-        queue = m_context.loadQueue(new Integer(2002));
+        queue = m_acdContext.loadQueue(new Integer(2002));
         assertNull(queue.getOverflowQueue());
-        assertEquals(0, dbConnection.getRowCount("acd_queue", "where overflow_queue_id = 2003"));
+        assertEquals(0, db().queryForLong("select count(*) from acd_queue where overflow_queue_id = 2003"));
     }
 
     public void testRemoveQueuesWithLines() throws Exception {
-        TestHelper.insertFlat("acd/assoc.db.xml");
+        sql("acd/assoc.sql");
+        assertEquals(2, countRowsInTable("acd_queue"));
 
-        ITable acdQueueTable = TestHelper.getConnection().createDataSet().getTable("acd_queue");
-
-        assertEquals(2, acdQueueTable.getRowCount());
-
-        Set queues = m_context.loadServer(SERVER_ID).getQueues();
-        Set lines = m_context.loadServer(SERVER_ID).getLines();
+        Set queues = m_acdContext.loadServer(SERVER_ID).getQueues();
+        Set lines = m_acdContext.loadServer(SERVER_ID).getLines();
         assertEquals(2, lines.size());
         assertEquals(2, queues.size());
 
-        m_context.removeQueues(Collections.singletonList(new Integer(3001)));
-        queues = m_context.loadServer(SERVER_ID).getQueues();
+        m_acdContext.removeQueues(Collections.singletonList(new Integer(3001)));
+        queues = m_acdContext.loadServer(SERVER_ID).getQueues();
         assertEquals(1, queues.size());
         for (Iterator i = queues.iterator(); i.hasNext();) {
             AcdQueue line = (AcdQueue) i.next();
@@ -366,68 +324,53 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testRemoveQueuesWithAgents() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
+        sql("acd/agents.sql");
+        assertEquals(2, countRowsInTable("acd_queue"));
+        assertEquals(4, countRowsInTable("acd_agent"));
 
-        ITable acdQueueTable = TestHelper.getConnection().createDataSet().getTable("acd_queue");
-        assertEquals(2, acdQueueTable.getRowCount());
-        ITable acdAgentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(4, acdAgentTable.getRowCount());
-
-        Set queues = m_context.loadServer(SERVER_ID).getQueues();
+        Set queues = m_acdContext.loadServer(SERVER_ID).getQueues();
         assertEquals(2, queues.size());
 
-        m_context.removeQueues(Collections.singletonList(new Integer(2002)));
-        queues = m_context.loadServer(SERVER_ID).getQueues();
+        m_acdContext.removeQueues(Collections.singletonList(new Integer(2002)));
+        queues = m_acdContext.loadServer(SERVER_ID).getQueues();
         assertEquals(1, queues.size());
         for (Iterator i = queues.iterator(); i.hasNext();) {
             AcdQueue line = (AcdQueue) i.next();
             assertEquals(new Integer(2001), line.getId());
         }
-        acdQueueTable = TestHelper.getConnection().createDataSet().getTable("acd_queue");
-        assertEquals(1, acdQueueTable.getRowCount());
+        commit();
+
+        assertEquals(1, countRowsInTable("acd_queue"));
 
         // agents that were only on 2002 should be removed as well
-        acdAgentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(2, acdAgentTable.getRowCount());
+        assertEquals(2, countRowsInTable("acd_agent"));
     }
 
     public void testRemoveQueuesWithSharedAgents() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
-
-        ITable acdQueueTable = TestHelper.getConnection().createDataSet().getTable("acd_queue");
-
-        assertEquals(2, acdQueueTable.getRowCount());
-
-        Set queues = m_context.loadServer(SERVER_ID).getQueues();
+        sql("acd/agents.sql");
+        assertEquals(2, countRowsInTable("acd_queue"));
+        Set queues = m_acdContext.loadServer(SERVER_ID).getQueues();
         assertEquals(2, queues.size());
-
-        List queuesToBeDeleted = new ArrayList();
+        List<Integer> queuesToBeDeleted = new ArrayList<Integer>();
         queuesToBeDeleted.add(new Integer(2001));
         queuesToBeDeleted.add(new Integer(2002));
-
-        m_context.removeQueues(queuesToBeDeleted);
-        queues = m_context.loadServer(SERVER_ID).getQueues();
+        m_acdContext.removeQueues(queuesToBeDeleted);
+        queues = m_acdContext.loadServer(SERVER_ID).getQueues();
+        commit();
         assertEquals(0, queues.size());
-        acdQueueTable = TestHelper.getConnection().createDataSet().getTable("acd_queue");
-        assertEquals(0, acdQueueTable.getRowCount());
+        assertEquals(0, countRowsInTable("acd_queue"));
     }
 
     public void testOnDeleteUser() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
-
-        ITable acdAgentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(4, acdAgentTable.getRowCount());
-
-        m_daoEventPublisher.divertEvents(null);
+        sql("acd/agents.sql");
+        assertEquals(4, countRowsInTable("acd_agent"));
+        commit();
         m_coreContext.deleteUsers(Collections.singleton(new Integer(1000)));
-
-        acdAgentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(0, acdAgentTable.getRowCount());
+        assertEquals(0, countRowsInTable("acd_agent"));
     }
 
     public void testAddUsersToQueue() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("acd/queues.db.xml");
+        sql("acd/queues.sql");
         User testUser1 = m_coreContext.newUser();
         testUser1.setUserName("testUser1");
         m_coreContext.saveUser(testUser1);
@@ -448,122 +391,115 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         
         final Serializable queueId = new Integer(2001);
 
-        m_context.addUsersToQueue(queueId, Collections.unmodifiableCollection(agentList));
+        m_acdContext.addUsersToQueue(queueId, Collections.unmodifiableCollection(agentList));
+        commit();
 
-        ITable agentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(3, agentTable.getRowCount());
-        assertEquals(testUser1.getId(), agentTable.getValue(0, "user_id"));
-        assertEquals(SERVER_ID, agentTable.getValue(0, "acd_server_id"));
+        assertEquals(3, countRowsInTable("acd_agent"));
+        Map<String, Object> agentTable = db().queryForMap("select * from acd_agent limit 1");
+        assertEquals(testUser1.getId(), agentTable.get("user_id"));
+        assertEquals(SERVER_ID, agentTable.get("acd_server_id"));
 
-        ITable queues2agentsTable = TestHelper.getConnection().createDataSet().getTable("acd_queue_agent");
-        assertEquals(3, queues2agentsTable.getRowCount());
-        assertEquals(queueId, queues2agentsTable.getValue(0, "acd_queue_id"));
+        assertEquals(3, countRowsInTable("acd_queue_agent"));
+        assertEquals(queueId, db().queryForInt("select acd_queue_id from acd_queue_agent limit 1"));
 
         // caling this again should not change anything
-        m_context.addUsersToQueue(queueId, Collections.singletonList(testUser1.getId()));
+        m_acdContext.addUsersToQueue(queueId, Collections.singletonList(testUser1.getId()));
 
-        agentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(3, agentTable.getRowCount());
-        assertEquals(testUser1.getId(), agentTable.getValue(0, "user_id"));
+        assertEquals(3, countRowsInTable("acd_agent"));
+        assertEquals(testUser1.getId().intValue(), db().queryForInt("select user_id from acd_agent limit 1"));
 
-        queues2agentsTable = TestHelper.getConnection().createDataSet().getTable("acd_queue_agent");
-        assertEquals(3, queues2agentsTable.getRowCount());
-        assertEquals(queueId, queues2agentsTable.getValue(0, "acd_queue_id"));
-
+        assertEquals(3, countRowsInTable("acd_queue_agent"));
+        assertEquals(queueId, db().queryForInt("select acd_queue_id from acd_queue_agent limit 1"));
     }
 
     public void testRemoveAgent() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
-
+        sql("acd/agents.sql");
         List removeList = new ArrayList();
         removeList.add(new Integer(3001));
         removeList.add(new Integer(3003));
-
         final Serializable queueId = new Integer(2002);
-
-        m_context.removeAgents(queueId, removeList);
-        List agents = m_context.loadQueue(queueId).getAgents();
+        m_acdContext.removeAgents(queueId, removeList);
+        List agents = m_acdContext.loadQueue(queueId).getAgents();
         assertEquals(1, agents.size());
-
-        ITable agentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
+        commit();
         // one agent remove, another one still belongs to the second queue
-        assertEquals(3, agentTable.getRowCount());
+        assertEquals(3, countRowsInTable("acd_agent"));
     }
 
     public void testLoadAssociate() throws Exception {
-        TestHelper.insertFlat("acd/assoc.db.xml");
-
-        AcdLine line = m_context.loadLine(new Integer(2001));
+        sql("acd/assoc.sql");
+        AcdLine line = m_acdContext.loadLine(new Integer(2001));
         assertEquals(new Integer(3001), line.getAcdQueue().getId());
     }
 
     public void testAssociate() throws Exception {
-        TestHelper.insertFlat("acd/assoc.db.xml");
-
-        m_context.associate(new Integer(2002), new Integer(3002));
-
-        ITable assocTable = TestHelper.getConnection().createDataSet().getTable("acd_line_queue");
+        sql("acd/assoc.sql");
+        m_acdContext.associate(new Integer(2002), new Integer(3002));
         // 2 since there is one more in another queue
-        assertEquals(2, assocTable.getRowCount());
-        for (int i = 0; i < 2; i++) {
-            Integer lineId = (Integer) assocTable.getValue(i, "acd_line_id");
-            Integer queueId = (Integer) assocTable.getValue(i, "acd_queue_id");
-            assertEquals(lineId.intValue() + 1000, queueId.intValue());
-        }
+        commit();
+        assertEquals(2, countRowsInTable("acd_line_queue"));
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select acd_line_id, acd_queue_id from acd_line_queue", actual);
+        Object[][] expected = new Object[][] {
+                {2001, 3001},
+                {2002, 3002}
+        };
+        assertArrayEquals(expected, actual.toArray());
     }
 
     public void testUnAssociate() throws Exception {
-        TestHelper.insertFlat("acd/assoc.db.xml");
-
-        m_context.associate(new Integer(2001), null);
-        ITable assocTable = TestHelper.getConnection().createDataSet().getTable("acd_line_queue");
+        sql("acd/assoc.sql");
+        m_acdContext.associate(new Integer(2001), null);
+        commit();
+        
         // empty - we removed the only existing association
-        assertEquals(0, assocTable.getRowCount());
+        assertEquals(0, countRowsInTable("acd_line_queue"));
     }
 
     public void testMoveQueues() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
-
+        sql("acd/agents.sql");
         Integer agentId = new Integer(3001);
         Collection queuesIds = Collections.singletonList(new Integer(2002));
 
-        m_context.moveQueuesInAgent(agentId, queuesIds, -1);
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("acd_agent_queue");
-
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("acd/moved_queues.db.xml");
-        ITable expected = expectedDs.getTable("acd_agent_queue");
-
-        Assertion.assertEquals(expected, actual);
+        m_acdContext.moveQueuesInAgent(agentId, queuesIds, -1);
+        commit();
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select acd_agent_id, acd_queue_id, queue_position from acd_agent_queue order by acd_agent_id, acd_queue_id, queue_position", actual);
+        Object[][] expected = new Object[][] {
+                new Object[] { 3001, 2001, 1 },
+                new Object[] { 3001, 2002, 0 },
+                new Object[] { 3002, 2002, 0 },
+                new Object[] { 3003, 2002, 0 }
+        };
+        assertArrayEquals(expected, actual.toArray());
     }
 
     public void testMoveAgents() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
-
+        sql("acd/agents.sql");
         Integer queueId = new Integer(2002);
         Collection agentsIds = Collections.singletonList(new Integer(3001));
-
-        m_context.moveAgentsInQueue(queueId, agentsIds, 2);
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("acd_queue_agent");
-
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("acd/moved_agents.db.xml");
-        ITable expected = expectedDs.getTable("acd_queue_agent");
-
-        Assertion.assertEquals(expected, actual);
+        m_acdContext.moveAgentsInQueue(queueId, agentsIds, 2);
+        commit();
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select acd_agent_id, acd_queue_id, agent_position from acd_queue_agent", actual);
+        Object[][] expected = new Object[][] {
+                new Object[] { 3001, 2001, 0 },
+                new Object[] { 3002, 2002, 0 },
+                new Object[] { 3003, 2002, 0 },
+                new Object[] { 3001, 2002, 0 }
+        };
     }
 
     public void testClear() throws Exception {
-        TestHelper.insertFlat("acd/agents.db.xml");
-        m_context.clear();
-
-        IDataSet dataSet = TestHelper.getConnection().createDataSet();
-        assertEquals(0, dataSet.getTable("acd_server").getRowCount());
-        assertEquals(0, dataSet.getTable("acd_queue").getRowCount());
-        assertEquals(0, dataSet.getTable("acd_line").getRowCount());
-        assertEquals(0, dataSet.getTable("acd_agent_queue").getRowCount());
-        assertEquals(0, dataSet.getTable("acd_queue_agent").getRowCount());
-        assertEquals(0, dataSet.getTable("acd_line_queue").getRowCount());
+        sql("acd/agents.sql");
+        m_acdContext.clear();
+        commit();
+        assertEquals(0, countRowsInTable("acd_server"));
+        assertEquals(0, countRowsInTable("acd_queue"));
+        assertEquals(0, countRowsInTable("acd_line"));
+        assertEquals(0, countRowsInTable("acd_agent_queue"));
+        assertEquals(0, countRowsInTable("acd_queue_agent"));
+        assertEquals(0, countRowsInTable("acd_line_queue"));
     }
 
     public void testGetQueuesForUsers() throws Exception {
@@ -571,9 +507,9 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         List<User> agents = new ArrayList();
         agents.add(m_coreContext.loadUser(1001));
         agents.add(m_coreContext.loadUser(1003));
-        AcdServer server = m_context.loadServer(1001);
+        AcdServer server = m_acdContext.loadServer(1001);
 
-        Collection<AcdQueue> queues = m_context.getQueuesForUsers(server, agents);
+        Collection<AcdQueue> queues = m_acdContext.getQueuesForUsers(server, agents);
         assertEquals(2, queues.size());
         Iterator<AcdQueue> iqueues = queues.iterator();
         assertEquals("q1", iqueues.next().getName());
@@ -582,16 +518,27 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetQueuesForEmptyUsers() throws Exception {
         // just need 1 acd server
-        TestHelper.cleanInsertFlat("acd/queues.db.xml");
-        AcdServer server = m_context.loadServer(1001);
-        Collection empty = m_context.getQueuesForUsers(server, new ArrayList());
+        sql("acd/queues.sql");
+        AcdServer server = m_acdContext.loadServer(1001);
+        Collection empty = m_acdContext.getQueuesForUsers(server, new ArrayList());
         assertTrue(empty.isEmpty());
     }
 
     public void testAliases() throws Exception {
-        TestHelper.insertFlat("acd/lines.db.xml");
-        assertTrue(m_context.isAliasInUse("101"));
-        assertTrue(m_context.isAliasInUse("123456789"));
+        sql("acd/lines.sql");
+        assertTrue(m_acdContext.isAliasInUse("101"));
+        assertTrue(m_acdContext.isAliasInUse("123456789"));
     }
 
+    public void setAcdContext(AcdContext acdContext) {
+        m_acdContext = acdContext;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
 }

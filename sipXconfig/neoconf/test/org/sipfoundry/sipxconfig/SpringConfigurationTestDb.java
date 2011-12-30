@@ -9,15 +9,13 @@
  */
 package org.sipfoundry.sipxconfig;
 
-import org.sipfoundry.sipxconfig.test.TestHelper;
-
-import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 /**
- * Explicitly excersizes the spring configuration
+ * Explicitly exercises the spring configuration
  */
-public class SpringConfigurationTestDb extends TestCase {
+public class SpringConfigurationTestDb extends IntegrationTestCase {
     public void testConfiguration() {
-        TestHelper.getApplicationContext();
+        assertTrue(true);
     }
 }

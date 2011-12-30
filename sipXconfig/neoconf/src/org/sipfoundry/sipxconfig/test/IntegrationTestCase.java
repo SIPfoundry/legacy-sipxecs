@@ -19,6 +19,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -96,6 +98,11 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         }
     }
 
+    @Override
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = m_db;
+    }
+
     public void setConfigJdbcTemplate(JdbcTemplate db) {
         m_db = db;
     }
@@ -115,11 +122,23 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         try {
             super.runBare();
         } catch (SQLException e) {
-            SipxDatabaseTestCase.dumpSqlExceptionMessages(e);
+            dumpSqlExceptionMessages(e);
             throw e;
         } catch (DataIntegrityViolationException e) {
-            SipxDatabaseTestCase.dumpSqlExceptionMessages(e);
+            dumpSqlExceptionMessages(e);
             throw e;
+        }
+    }
+
+    void dumpSqlExceptionMessages(SQLException e) {
+        for (SQLException next = e; next != null; next = next.getNextException()) {
+            LOG.info(next.getMessage());
+        }
+    }
+
+    void dumpSqlExceptionMessages(DataIntegrityViolationException e) {
+        if (e.getCause() instanceof SQLException) {
+            dumpSqlExceptionMessages((SQLException) e.getCause());
         }
     }
 
@@ -248,5 +267,17 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
 
     public void setDaoEventPublisher(DaoEventPublisherImpl daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
+    }
+
+    public DaoEventPublisherImpl getDaoEventPublisher() {
+        return m_daoEventPublisher;
+    }
+
+    public SessionFactory getSessionFactory() {
+        return m_sessionFactory;
+    }
+
+    public HibernateTemplate getHibernateTemplate() {
+        return m_hibernateTemplate;
     }
 }

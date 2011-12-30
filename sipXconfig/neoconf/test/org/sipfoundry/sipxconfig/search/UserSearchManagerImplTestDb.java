@@ -11,31 +11,25 @@ package org.sipfoundry.sipxconfig.search;
 
 import java.util.Collection;
 
-import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;
 
-public class UserSearchManagerImplTestDb extends TestCase {
-
+public class UserSearchManagerImplTestDb extends IntegrationTestCase {
     private CoreContext m_coreContext;
     private IdentityToBean m_identityToBean;
-    private UserSearchManager m_userSearch;
+    private UserSearchManager m_userSearchManager;
+    private IndexManager m_indexManager;
 
-    protected void setUp() throws Exception {
-        ApplicationContext context = TestHelper.getApplicationContext();
-        m_userSearch = (UserSearchManager) context.getBean(UserSearchManager.CONTEXT_BEAN_NAME);
-        m_coreContext = (CoreContext) context.getBean(CoreContext.CONTEXT_BEAN_NAME);
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+        sql("commserver/SeedLocations.sql");
         m_identityToBean = new IdentityToBean(m_coreContext);
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsert("commserver/seedLocations.xml");
-        IndexManager indexManager = (IndexManager) context
-                .getBean(IndexManager.CONTEXT_BEAN_NAME);
-        indexManager.indexAll();
+        m_indexManager.indexAll();
     }
-
 
     public void testSearchEmpty() throws Exception {
         User user = m_coreContext.newUser();;
@@ -46,7 +40,7 @@ public class UserSearchManagerImplTestDb extends TestCase {
         m_coreContext.saveUser(user);
 
         User template =  m_coreContext.newUser();
-        Collection collection = m_userSearch.search(template, 0, -1, m_identityToBean);
+        Collection collection = m_userSearchManager.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));
     }
@@ -62,26 +56,26 @@ public class UserSearchManagerImplTestDb extends TestCase {
         User template = m_coreContext.newUser();;
 
         template.setFirstName("first");
-        Collection collection = m_userSearch.search(template, 0, -1, m_identityToBean);
+        Collection collection = m_userSearchManager.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));
 
         template = m_coreContext.newUser();;
         template.setUserName("bon");
-        collection = m_userSearch.search(template, 0, -1, m_identityToBean);
+        collection = m_userSearchManager.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));
 
         template = m_coreContext.newUser();;
         template.setUserName("bOn");
-        collection = m_userSearch.search(template, 0, -1, m_identityToBean);
+        collection = m_userSearchManager.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));
 
         template.setUserName("");
         template.setFirstName("bongo");
 
-        collection = m_userSearch.search(template, 0, -1, m_identityToBean);
+        collection = m_userSearchManager.search(template, 0, -1, m_identityToBean);
         assertEquals(0, collection.size());
 
     }
@@ -97,14 +91,26 @@ public class UserSearchManagerImplTestDb extends TestCase {
 
         User template = m_coreContext.newUser();;
         template.setUserName("aaa");
-        Collection collection = m_userSearch.search(template, 0, -1, m_identityToBean);
+        Collection collection = m_userSearchManager.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));
 
         template = m_coreContext.newUser();;
         template.setUserName("aaa");
         template.setLastName("kuku");
-        collection = m_userSearch.search(template, 0, -1, m_identityToBean);
+        collection = m_userSearchManager.search(template, 0, -1, m_identityToBean);
         assertEquals(0, collection.size());
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    public void setIndexManager(IndexManager indexManager) {
+        m_indexManager = indexManager;
+    }
+
+    public void setUserSearchManager(UserSearchManager userSearchManager) {
+        m_userSearchManager = userSearchManager;
     }
 }

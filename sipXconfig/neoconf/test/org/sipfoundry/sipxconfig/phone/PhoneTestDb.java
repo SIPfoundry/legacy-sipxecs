@@ -9,11 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+
 import static org.junit.Assert.assertArrayEquals;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
@@ -40,7 +41,7 @@ public class PhoneTestDb extends IntegrationTestCase {
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
-        db().execute("select truncate_all()");
+        clear();
     }
 
     public void testSave() throws Exception {
@@ -111,28 +112,6 @@ public class PhoneTestDb extends IntegrationTestCase {
         db().queryForInt("select 1 from phone_group where group_id = ? and phone_id = ?", 1000, 1000);
     }
     
-    static class ResultDataGrid implements RowCallbackHandler {
-        private List<Object[]> m_results = new ArrayList<Object[]>();    
-        
-        public int getRowCount() {
-            return m_results.size();
-        }
-
-        @Override
-        public void processRow(ResultSet arg0) throws SQLException {
-            int count = arg0.getMetaData().getColumnCount();
-            Object[] cols = new Object[count];
-            for (int i = 0; i < count; i++) {
-                cols[i] = arg0.getObject(i + 1);
-            }
-            m_results.add(cols);
-        }
-        
-        public Object[][] toArray() {
-            return m_results.toArray(new Object[0][0]);
-        }
-    }    
-
     public void testRemoveGroupThenAddBackThenAddAnotherGroup() throws Exception {        
         sql("common/TestUserSeed.sql");
         sql("phone/EndpointLineSeed.sql");

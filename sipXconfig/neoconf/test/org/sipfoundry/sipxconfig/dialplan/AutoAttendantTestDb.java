@@ -9,39 +9,38 @@
  */
 package org.sipfoundry.sipxconfig.dialplan;
 
-import java.util.Collections;
 
-import org.dbunit.Assertion;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
+import static org.junit.Assert.assertArrayEquals;
+
+import java.util.Collections;
+import java.util.Map;
+
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.setting.ValueStorage;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
 
-public class AutoAttendantTestDb extends SipxDatabaseTestCase {
-
-    private AutoAttendantManager m_context;
+public class AutoAttendantTestDb extends IntegrationTestCase {
+    private AutoAttendantManager m_autoAttendantManager;
 
     @Override
-    protected void setUp() throws Exception {
-        ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_context = (AutoAttendantManager) appContext.getBean("autoAttendantManager");
-        TestHelper.cleanInsert("ClearDb.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+        sql("dialplan/attendant/SeedAttendantSpecialMode.sql");
     }
 
     public void testUpdate() throws Exception {
-        TestHelper.cleanInsertFlat("dialplan/seedAttendant.xml");
-        AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
-        m_context.storeAutoAttendant(aa);
+        loadDataSet("dialplan/seedAttendant.xml");
+        AutoAttendant aa = m_autoAttendantManager.getAutoAttendant(new Integer(1000));
+        m_autoAttendantManager.storeAutoAttendant(aa);
         assertEquals(new Integer(1000), aa.getId());
     }
 
     public void testSave() throws Exception {
-        AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
+        AutoAttendant aa = m_autoAttendantManager.newAutoAttendantWithDefaultGroup();
         aa.setName("test-aa");
         aa.setDescription("aa description");
         aa.setPrompt("thankyou_goodbye.wav");
@@ -51,67 +50,57 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         menu.addMenuItem(DialPad.NUM_5, AttendantMenuAction.OPERATOR);
         aa.setMenu(menu);
 
-        m_context.storeAutoAttendant(aa);
-
-        // attendant data
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("auto_attendant");
-        ReplacementDataSet expectedRds = TestHelper
-                .loadReplaceableDataSetFlat("dialplan/saveAttendantExpected.xml");
-        expectedRds.addReplacementObject("[auto_attendant_id]", aa.getId());
-        ITable expected = expectedRds.getTable("auto_attendant");
-        Assertion.assertEquals(expected, actual);
-
-        // attendant menu items
-        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_menu_item");
-        ITable expectedItems = expectedRds.getTable("attendant_menu_item");
-        Assertion.assertEquals(expectedItems, actualItems);
+        m_autoAttendantManager.storeAutoAttendant(aa);
+        
+        Object[][] expected = new Object[][] {
+                {"test-aa", "1", "transfer_out", "1234"},
+                {"test-aa", "5", "operator", null}
+        };
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select name, dialpad_key, action, parameter from auto_attendant as a, " +
+                "attendant_menu_item as m where a.auto_attendant_id = m.auto_attendant_id", actual);
+        assertArrayEquals(expected, actual.toArray());
     }
 
     public void testDefaultAttendantGroup() throws Exception {
-        Group defaultGroup = m_context.getDefaultAutoAttendantGroup();
-        AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
+        Group defaultGroup = m_autoAttendantManager.getDefaultAutoAttendantGroup();
+        AutoAttendant aa = m_autoAttendantManager.newAutoAttendantWithDefaultGroup();
         Group[] groups = aa.getGroups().toArray(new Group[1]);
         assertEquals(1, groups.length);
         assertEquals(defaultGroup.getPrimaryKey(), groups[0].getPrimaryKey());
     }
 
     public void testSettings() throws Exception {
-        AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
+        AutoAttendant aa = m_autoAttendantManager.newAutoAttendantWithDefaultGroup();
         aa.setName("test-settings");
         aa.setPrompt("thankyou_goodbye.wav");
         aa.setSettingValue("dtmf/interDigitTimeout", "4");
-        m_context.storeAutoAttendant(aa);
-
-        // attendant data
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
-        ReplacementDataSet expectedRds = TestHelper
-                .loadReplaceableDataSetFlat("dialplan/saveAttendantSettingsExpected.xml");
-        ValueStorage vs = (ValueStorage) aa.getValueStorage();
-        expectedRds.addReplacementObject("[value_storage_id]", vs.getId());
-        ITable expected = expectedRds.getTable("setting_value");
-        Assertion.assertEquals(expected, actual);
+        m_autoAttendantManager.storeAutoAttendant(aa);
+        
+        Map<String, Object> actual = db().queryForMap("select * from setting_value");
+        assertEquals("dtmf/interDigitTimeout", actual.get("path"));
+        assertEquals("4", actual.get("value"));
     }
 
     public void testNewAutoAttendantWithDefaultGroup() throws Exception {
-        AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
-        Group defaultGroup = m_context.getDefaultAutoAttendantGroup();
-        m_context.storeAutoAttendant(aa);
-        ITable t = TestHelper.getConnection().createDataSet().getTable("attendant_group");
-        assertEquals(defaultGroup.getId(), t.getValue(0, "group_id"));
+        AutoAttendant aa = m_autoAttendantManager.newAutoAttendantWithDefaultGroup();
+        Group defaultGroup = m_autoAttendantManager.getDefaultAutoAttendantGroup();
+        m_autoAttendantManager.storeAutoAttendant(aa);
+        Map<String, Object> actual = db().queryForMap("select * from attendant_group");
+        assertEquals(defaultGroup.getId(), actual.get("group_id"));
     }
 
     public void testDelete() throws Exception {
-        TestHelper.cleanInsertFlat("dialplan/seedAttendant.xml");
-        AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
-        m_context.deleteAutoAttendant(aa);
-        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_menu_item");
-        assertEquals(0, actualItems.getRowCount());
+        loadDataSet("dialplan/seedAttendant.xml");
+        AutoAttendant aa = m_autoAttendantManager.getAutoAttendant(new Integer(1000));
+        m_autoAttendantManager.deleteAutoAttendant(aa);
+        assertEquals(0, countRowsInTable("attendant_menu_item"));
     }
 
     public void testDeleteInUseByAttendantRule() throws Exception {
-        TestHelper.cleanInsertFlat("dialplan/attendant_rule.db.xml");
+        loadDataSet("dialplan/attendant_rule.db.xml");
         try {
-            m_context.deleteAutoAttendantsByIds(Collections.singletonList(1001));
+            m_autoAttendantManager.deleteAutoAttendantsByIds(Collections.singletonList(1001));
             fail();
         } catch (AttendantInUseException e) {
             assertTrue(true);
@@ -120,17 +109,17 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteOperatorInUse() throws Exception {
-        TestHelper.cleanInsertFlat("dialplan/seedOperator.xml");
-        AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
+        loadDataSet("dialplan/seedOperator.xml");
+        AutoAttendant aa = m_autoAttendantManager.getAutoAttendant(new Integer(1000));
         try {
-            m_context.deleteAutoAttendant(aa);
+            m_autoAttendantManager.deleteAutoAttendant(aa);
             fail();
         } catch (AttendantInUseException e) {
             assertTrue(true);
         }
-        aa = m_context.getAutoAttendant(new Integer(1001));
+        aa = m_autoAttendantManager.getAutoAttendant(new Integer(1001));
         try {
-            m_context.deleteAutoAttendant(aa);
+            m_autoAttendantManager.deleteAutoAttendant(aa);
             fail();
         } catch (AttendantInUseException e) {
             assertTrue(true);
@@ -138,12 +127,12 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSaveNameThatIsDuplicateAlias() throws Exception {
-        TestHelper.cleanInsertFlat("dialplan/seedUser.xml");
+        loadDataSet("dialplan/seedUser.xml");
         boolean gotNameInUseException = false;
-        AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
+        AutoAttendant aa = m_autoAttendantManager.newAutoAttendantWithDefaultGroup();
         aa.setName("alpha");
         try {
-            m_context.storeAutoAttendant(aa);
+            m_autoAttendantManager.storeAutoAttendant(aa);
         } catch (NameInUseException e) {
             gotNameInUseException = true;
         }
@@ -152,44 +141,54 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
 
     public void testGetAutoAttendantSettings() throws Exception {
         TestHelper.cleanInsert("dialplan/seedDialPlanWithAttendant.xml");
-        AutoAttendant autoAttendant = m_context.getAutoAttendant(new Integer(2000));
+        AutoAttendant autoAttendant = m_autoAttendantManager.getAutoAttendant(new Integer(2000));
         assertNotNull(autoAttendant.getSettings());
     }
 
     public void testSelectSpecial() throws Exception {
-        TestHelper.cleanInsertFlat("dialplan/seedOperator.xml");
-        AutoAttendant operator = m_context.getOperator();
-        m_context.selectSpecial(operator);
-
-        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_special_mode");
-        assertEquals(1, actualItems.getRowCount());
-        assertEquals(1000, actualItems.getValue(0, "auto_attendant_id"));
+        loadDataSet("dialplan/seedOperator.xml");
+        AutoAttendant operator = m_autoAttendantManager.getOperator();
+        m_autoAttendantManager.selectSpecial(operator);
+        commit();
+        assertEquals(1, countRowsInTable("attendant_special_mode"));
+        Map<String, Object> actual = db().queryForMap("select * from attendant_special_mode");
+        assertEquals(1000, actual.get("auto_attendant_id"));
     }
 
     public void testDeselectSpecial() throws Exception {
-        TestHelper.cleanInsertFlat("dialplan/seedOperator.xml");
-        AutoAttendant operator = m_context.getOperator();
-        m_context.deselectSpecial(operator);
-        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_special_mode");
-        assertEquals(1, actualItems.getRowCount());
-        assertEquals(null, actualItems.getValue(0, "auto_attendant_id"));
+        loadDataSet("dialplan/seedOperator.xml");
+        AutoAttendant operator = m_autoAttendantManager.getOperator();
+        m_autoAttendantManager.deselectSpecial(operator);
+        commit();
+        assertEquals(1, countRowsInTable("attendant_special_mode"));
+        Map<String, Object> actual = db().queryForMap("select * from attendant_special_mode");
+        assertEquals(null, actual.get("auto_attendant_id"));
     }
 
-    public void testGetSetSpecialMode() throws Exception {
-        m_context.setSpecialMode(false);
-        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_special_mode");
-        assertEquals(1, actualItems.getRowCount());
-        assertEquals(false, actualItems.getValue(0, "enabled"));
-        m_context.setSpecialMode(true);
-        actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_special_mode");
-        assertEquals(1, actualItems.getRowCount());
-        assertEquals(true, actualItems.getValue(0, "enabled"));
+    public void testGetSetSpecialModeFalse() throws Exception {
+        m_autoAttendantManager.setSpecialMode(false);
+        commit();        
+        assertEquals(1, countRowsInTable("attendant_special_mode"));
+        Map<String, Object> actualBefore = db().queryForMap("select * from attendant_special_mode");
+        assertEquals(false, actualBefore.get("enabled"));
+    }
+    
+    public void testGetSetSpecialModeTrue() throws Exception {
+        m_autoAttendantManager.setSpecialMode(true);
+        commit();        
+        assertEquals(1, countRowsInTable("attendant_special_mode"));
+        Map<String, Object> actualAfter = db().queryForMap("select * from attendant_special_mode");
+        assertEquals(true, actualAfter.get("enabled"));
     }
 
     public void testGetSelectedSpecialAttendant() throws Exception {
-        TestHelper.cleanInsertFlat("dialplan/seedSpecialSelectedAttendant.xml");
-        AutoAttendant operator = m_context.getOperator();
-        AutoAttendant specialAa = m_context.getSelectedSpecialAttendant();
+        loadDataSet("dialplan/seedSpecialSelectedAttendant.xml");
+        AutoAttendant operator = m_autoAttendantManager.getOperator();
+        AutoAttendant specialAa = m_autoAttendantManager.getSelectedSpecialAttendant();
         assertEquals(operator, specialAa);
+    }
+
+    public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
+        m_autoAttendantManager = autoAttendantManager;
     }
 }

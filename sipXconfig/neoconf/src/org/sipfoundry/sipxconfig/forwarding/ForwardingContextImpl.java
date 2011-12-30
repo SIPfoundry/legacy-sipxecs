@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -35,7 +36,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 /**
  * ForwardingContextImpl
  */
-public class ForwardingContextImpl extends SipxHibernateDaoSupport implements ForwardingContext, ApplicationListener {
+public class ForwardingContextImpl extends SipxHibernateDaoSupport implements ForwardingContext,
+        ApplicationListener, DaoEventListener {
 
     private static final String PARAM_SCHEDULE_ID = "scheduleId";
     private static final String PARAM_USER_ID = "userId";

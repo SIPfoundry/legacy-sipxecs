@@ -39,135 +39,143 @@ public class GenericMailboxManagerImpl implements MailboxManager, BeanFactoryAwa
             m_manager = (MailboxManager) remote;
             local.setActive(false);
 //        } else {
-//            m_manager = (MailboxManager) local;
+//            getManager() = (MailboxManager) local;
 //            remote.setActive(false);
         }
         ((AbstractMailboxManager) m_manager).init();
     }
 
+    MailboxManager getManager() {
+        if (m_manager == null) {
+            init();
+        }
+        return m_manager;
+    }
+
     @Override
     public boolean isEnabled() {
-        return m_manager.isEnabled();
+        // messed up -- Douglas
+        return false;
     }
 
     @Override
     public boolean isSystemCpui() {
-        return m_manager.isSystemCpui();
+        return getManager().isSystemCpui();
     }
 
     @Override
     public List<Voicemail> getVoicemail(String userId, String folder) {
-        return m_manager.getVoicemail(userId, folder);
+        return getManager().getVoicemail(userId, folder);
     }
 
     @Override
     public Voicemail getVoicemail(String userId, String folder, String messageId) {
-        return m_manager.getVoicemail(userId, folder, messageId);
+        return getManager().getVoicemail(userId, folder, messageId);
     }
 
     @Override
     public String getStdpromptDirectory() {
-        return m_manager.getStdpromptDirectory();
+        return getManager().getStdpromptDirectory();
     }
 
     @Override
     public void deleteMailbox(String userId) {
-        m_manager.deleteMailbox(userId);
+        getManager().deleteMailbox(userId);
     }
 
     @Override
     public void renameMailbox(String oldUserId, String newUserId) {
-        m_manager.renameMailbox(oldUserId, newUserId);
+        getManager().renameMailbox(oldUserId, newUserId);
     }
 
     @Override
     public void saveDistributionLists(String userId, DistributionList[] lists) {
-        m_manager.saveDistributionLists(userId, lists);
+        getManager().saveDistributionLists(userId, lists);
     }
 
     @Override
     public DistributionList[] loadDistributionLists(String userId) {
-        return m_manager.loadDistributionLists(userId);
+        return getManager().loadDistributionLists(userId);
     }
 
     @Override
     public void markRead(String userId, String messageId) {
-        m_manager.markRead(userId, messageId);
+        getManager().markRead(userId, messageId);
     }
 
     @Override
     public void move(String userId, Voicemail voicemail, String destinationFolderId) {
-        m_manager.move(userId, voicemail, destinationFolderId);
+        getManager().move(userId, voicemail, destinationFolderId);
     }
 
     @Override
     public void delete(String userId, Voicemail voicemail) {
-        m_manager.delete(userId, voicemail);
+        getManager().delete(userId, voicemail);
     }
 
     @Override
     public void save(Voicemail voicemail) {
-        m_manager.save(voicemail);
+        getManager().save(voicemail);
     }
 
     @Override
     public String getMediaFileURL(String userId, String folder, String messageId) {
-        return m_manager.getMediaFileURL(userId, folder, messageId);
+        return getManager().getMediaFileURL(userId, folder, messageId);
     }
 
     @Override
     public PersonalAttendant loadPersonalAttendantForUser(User user) {
-        return m_manager.loadPersonalAttendantForUser(user);
+        return getManager().loadPersonalAttendantForUser(user);
     }
 
     @Override
     public void removePersonalAttendantForUser(User user) {
-        m_manager.removePersonalAttendantForUser(user);
+        getManager().removePersonalAttendantForUser(user);
     }
 
     @Override
     public void storePersonalAttendant(PersonalAttendant pa) {
-        m_manager.storePersonalAttendant(pa);
+        getManager().storePersonalAttendant(pa);
     }
 
     @Override
     public void storePersonalAttendant(PersonalAttendant pa, boolean writeFile) {
-        m_manager.storePersonalAttendant(pa, writeFile);
+        getManager().storePersonalAttendant(pa, writeFile);
     }
 
     @Override
     public void clearPersonalAttendants() {
-        m_manager.clearPersonalAttendants();
+        getManager().clearPersonalAttendants();
     }
 
     @Override
     public void updatePersonalAttendantForUser(User user, String operatorValue) {
-        m_manager.updatePersonalAttendantForUser(user, operatorValue);
+        getManager().updatePersonalAttendantForUser(user, operatorValue);
     }
 
     @Override
     public void writePreferencesFile(User user) {
-        m_manager.writePreferencesFile(user);
+        getManager().writePreferencesFile(user);
     }
 
     @Override
     public List<String> getFolderIds() {
-        return m_manager.getFolderIds();
+        return getManager().getFolderIds();
     }
 
     @Override
     public boolean performBackup(File workingDir) {
-        return m_manager.performBackup(workingDir);
+        return getManager().performBackup(workingDir);
     }
 
     @Override
     public void performRestore(BackupBean archive, boolean verify, boolean noRestart) {
-        m_manager.performRestore(archive, verify, noRestart);
+        getManager().performRestore(archive, verify, noRestart);
     }
 
     @Override
     public String getMailboxRestoreLog() {
-        return m_manager.getMailboxRestoreLog();
+        return getManager().getMailboxRestoreLog();
     }
 
     @Override

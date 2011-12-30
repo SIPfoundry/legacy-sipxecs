@@ -9,19 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class PhoneContextTestDb extends IntegrationTestCase {
     private PhoneContext m_context;
@@ -31,7 +29,7 @@ public class PhoneContextTestDb extends IntegrationTestCase {
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
-        db().execute("select truncate_all()");
+        clear();
     }
     
     @Override
@@ -41,12 +39,12 @@ public class PhoneContextTestDb extends IntegrationTestCase {
 
     public void testClear() throws Exception {
         m_context.clear();
-        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
+        loadDataSet("phone/EndpointSeed.xml");
         m_context.clear();
     }
 
     public void testCheckForDuplicateFieldsOnNew() throws Exception {
-        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
+        loadDataSet("phone/EndpointSeed.xml");
 
         Phone p = m_context.newPhone(new TestPhoneModel());
         p.setSerialNumber("999123456789");
@@ -86,7 +84,7 @@ public class PhoneContextTestDb extends IntegrationTestCase {
     }
 
     public void testGetGroupMemberCountIndexedByGroupId() throws Exception {
-        TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
+        loadDataSet("phone/GroupMemberCountSeed.xml");
 
         Map<Integer, Long> counts = m_settingContext.getGroupMemberCountIndexedByGroupId(Phone.class);
         assertEquals(2, counts.size());
@@ -99,7 +97,7 @@ public class PhoneContextTestDb extends IntegrationTestCase {
      * this test is really for PhoneTableModel in web context
      */
     public void testGetPhonesByPageSortedByModel() throws Exception {
-        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        loadDataSet("phone/SamplePhoneSeed.xml");
 
         List<Phone> page1 = m_context.loadPhonesByPage(null, 0, 4, new String[] {
             "serialNumber"
@@ -111,7 +109,7 @@ public class PhoneContextTestDb extends IntegrationTestCase {
     }
 
     public void testLoadPhones() throws Exception {
-        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        loadDataSet("phone/SamplePhoneSeed.xml");
 
         List<Phone> page1 = m_context.loadPhones();
         assertEquals(4, page1.size());
@@ -122,7 +120,7 @@ public class PhoneContextTestDb extends IntegrationTestCase {
     }
 
     public void testGetAllPhoneIds() throws Exception {
-        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        loadDataSet("phone/SamplePhoneSeed.xml");
 
         List<Integer> result = m_context.getAllPhoneIds();
         assertEquals(4, result.size());
@@ -132,19 +130,19 @@ public class PhoneContextTestDb extends IntegrationTestCase {
     }
 
     public void testGetPhoneIdBySerialNumber() throws Exception {
-        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        loadDataSet("phone/SamplePhoneSeed.xml");
         assertEquals(new Integer(1002), m_context.getPhoneIdBySerialNumber("00003"));
         assertEquals(new Integer(1003), m_context.getPhoneIdBySerialNumber("aa00004"));
         assertEquals(null, m_context.getPhoneIdBySerialNumber("won't find this guy"));
     }
 
     public void testCountPhones() throws Exception {
-        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        loadDataSet("phone/SamplePhoneSeed.xml");
         assertEquals(4, m_context.getPhonesCount());
     }
 
     public void testGetGroupByName() throws Exception {
-        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        loadDataSet("phone/SamplePhoneSeed.xml");
 
         Group g1 = m_context.getGroupByName("phone group 1", false);
         assertNotNull(g1);
@@ -152,26 +150,25 @@ public class PhoneContextTestDb extends IntegrationTestCase {
 
         Group g2 = m_context.getGroupByName("bongo", false);
         assertNull(g2);
-        assertEquals(2, getConnection().getRowCount("group_storage"));
+        assertEquals(2, countRowsInTable("group_storage"));
 
         g2 = m_context.getGroupByName("bongo", true);
         assertNotNull(g2);
         assertEquals("bongo", g2.getName());
 
-        assertEquals(2, getConnection().getRowCount("group_storage"));
+        assertEquals(2, countRowsInTable("group_storage"));
     }
 
     public void testCountPhonesInGroup() throws Exception {
-        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        loadDataSet("phone/SamplePhoneSeed.xml");
         assertEquals(1, m_context.getPhonesInGroupCount(new Integer(1001)));
         assertEquals(2, m_context.getPhonesInGroupCount(new Integer(1002)));
     }
 
     public void testAddToGroup() throws Exception {
-        TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
+        sql("phone/GroupMemberCountSeed.sql");
 
-        assertEquals(0, TestHelper.getConnection().getRowCount("phone_group",
-                "where phone_id = 1001 AND group_id = 1002"));
+        assertEquals(0, db().queryForInt("select count(*) from phone_group where phone_id = 1001 AND group_id = 1002"));
 
         m_context.addToGroup(1002, Collections.singleton(1001));
         flush();
@@ -179,21 +176,15 @@ public class PhoneContextTestDb extends IntegrationTestCase {
     }
 
     public void testRemoveFromGroup() throws Exception {
-        TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
-
-        Integer[] ids = {
-            1001, 1002
-        };
-
-        assertEquals(2, TestHelper.getConnection().getRowCount("phone_group", "where phone_group.group_id = 1001"));
-
-        m_context.removeFromGroup(1001, Arrays.asList(ids));
-        flush();
-        assertEquals(0, db().queryForInt("select count(*) from phone_group where group_id = 1001"));
+        sql("phone/GroupMemberCountSeed.sql");
+        assertEquals(3, countRowsInTable("phone_group"));
+        m_context.removeFromGroup(1001, Arrays.asList(1001, 1002));
+        commit();       
+        assertEquals(1, countRowsInTable("phone_group"));
     }
 
     public void testLoadPhonesWithNoLinesByPage() throws Exception {
-        TestHelper.cleanInsertFlat("phone/SamplePhoneWithLineSeed.xml");
+        loadDataSet("phone/SamplePhoneWithLineSeed.xml");
 
         List<Phone> page1 = m_context.loadPhonesWithNoLinesByPage(0, 4, new String[] {
             "serialNumber"}, true);
@@ -203,7 +194,7 @@ public class PhoneContextTestDb extends IntegrationTestCase {
     }
 
     public void testGetPhonebookEntries() throws Exception {
-        TestHelper.cleanInsertFlat("phone/PhoneWithPhonebookSeed.xml");
+        loadDataSet("phone/PhoneWithPhonebookSeed.xml");
 
         Phone phone = m_context.loadPhone(1001);
         assertEquals(6, m_context.getPhonebookEntries(phone).size());

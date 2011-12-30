@@ -31,7 +31,7 @@ public class SearchManagerImplTestDb extends TestCase {
     private CoreContext m_coreContext;
     private IdentityToBean m_identityToBean;
 
-    protected void setUp() throws Exception {
+    protected void onSetUpBeforeTransaction() throws Exception {
         ApplicationContext context = TestHelper.getApplicationContext();
         m_searchManager = (SearchManager) context.getBean(SearchManager.CONTEXT_BEAN_NAME);
         m_coreContext = (CoreContext) context.getBean(CoreContext.CONTEXT_BEAN_NAME);

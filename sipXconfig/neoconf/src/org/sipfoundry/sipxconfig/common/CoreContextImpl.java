@@ -575,7 +575,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
         User admin = loadUserByUserName(User.SUPERADMIN);
         if (admin == null) {
-            admin = new User();
+            admin = newUser();
             admin.setUserName(User.SUPERADMIN);
 
             // currently superadmin cannot invite to a conference without a valid sip password

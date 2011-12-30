@@ -4,7 +4,6 @@ import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SbcDeviceManagerImplTestDb extends IntegrationTestCase {
     private SbcDeviceManager m_sbcDeviceManager;
@@ -12,8 +11,9 @@ public class SbcDeviceManagerImplTestDb extends IntegrationTestCase {
     private Location m_location;
     
     @Override
-    protected void onSetUpInTransaction() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
         db().execute("insert into location (location_id, name, fqdn, ip_address) values (1, 'x', 'y', '10.1.2.5')");
         m_location = m_locationsManager.getLocation(1);
     }

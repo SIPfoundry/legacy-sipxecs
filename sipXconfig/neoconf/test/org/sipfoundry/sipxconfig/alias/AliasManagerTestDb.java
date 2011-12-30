@@ -15,20 +15,16 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.dialplan.AttendantRule;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class AliasManagerTestDb extends SipxDatabaseTestCase {
+public class AliasManagerTestDb extends IntegrationTestCase {
     private AliasManagerImpl m_aliasManager;
     private CoreContext m_coreContext;
 
-    protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        m_aliasManager = (AliasManagerImpl) app.getBean(AliasManagerImpl.CONTEXT_BEAN_NAME);
-        m_coreContext = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsert("commserver/seedLocations.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+        sql("commserver/SeedLocations.sql");
     }
 
     // There are four AliasOwners (excluding AliasManagerImpl itself): CallGroupContextImpl,
@@ -40,7 +36,7 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
 
     // See CoreContextImplTestDb.testIsAliasInUse
     public void testIsUserAliasInUse() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        sql("common/SampleUsersSeed.sql");
         assertTrue(m_aliasManager.isAliasInUse("janus")); // a user ID
         assertTrue(m_aliasManager.isAliasInUse("dweezil")); // a user alias
         assertFalse(m_aliasManager.isAliasInUse("jessica")); // a first name
@@ -48,14 +44,14 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
 
     // See DialPlanContextTestDb,DialPlanContextTestDb
     public void testIsAutoAttendantAliasInUse() throws Exception {
-        TestHelper.cleanInsert("dialplan/seedDialPlanWithAttendant.xml");
+        loadDataSetXml("dialplan/seedDialPlanWithAttendant.xml");
         assertTrue(m_aliasManager.isAliasInUse("100")); // voicemail extension
         assertFalse(m_aliasManager.isAliasInUse("200")); // a random extension that should not be
                                                          // in use
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
-        TestHelper.cleanInsertFlat("alias/AliasSeed.xml");
+        loadDataSet("alias/AliasSeed.xml");
         Collection objs = m_aliasManager.getBeanIdsOfObjectsWithAlias("morcheeba");
         assertEquals(1, objs.size());
         BeanId bid = (BeanId) objs.iterator().next();
@@ -63,7 +59,7 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
     }
 
     public void testCanObjectUseAlias() throws Exception {
-        TestHelper.cleanInsertFlat("alias/AliasSeed.xml");
+        loadDataSet("alias/AliasSeed.xml");
 
         // Test a new bean with no alias conflicts
         User user = m_coreContext.newUser();
@@ -118,5 +114,13 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
         m_coreContext.saveUser(user);
         assertFalse(m_aliasManager.canObjectUseAlias(user, pickUp));
         assertFalse(m_aliasManager.canObjectUseAlias(user, retrieve));
+    }
+
+    public void setAliasManagerImpl(AliasManagerImpl aliasManager) {
+        m_aliasManager = aliasManager;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

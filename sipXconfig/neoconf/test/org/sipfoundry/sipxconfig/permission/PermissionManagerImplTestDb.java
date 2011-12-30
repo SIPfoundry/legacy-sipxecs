@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.permission;
 
+
 import static org.sipfoundry.sipxconfig.permission.PermissionName.EXCHANGE_VOICEMAIL;
 import static org.sipfoundry.sipxconfig.permission.PermissionName.FREESWITH_VOICEMAIL;
 import static org.sipfoundry.sipxconfig.permission.PermissionName.SUPERADMIN;
@@ -24,44 +25,38 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
-
-    private PermissionManager m_manager;
-    private DialPlanContext m_context;
+public class PermissionManagerImplTestDb extends IntegrationTestCase {
+    private PermissionManager m_permissionManager;
+    private DialPlanContext m_dialPlanContext;
     private ResetDialPlanTask m_resetDialPlanTask;
 
     @Override
-    protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        m_manager = (PermissionManager) app.getBean(PermissionManager.CONTEXT_BEAN_NAME);
-        m_context = (DialPlanContext) app.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
-        m_resetDialPlanTask = (ResetDialPlanTask) app.getBean("resetDialPlanTask");
-        TestHelper.cleanInsert("ClearDb.xml");
-        m_manager.setCustomPermissions(null);
-        m_manager.setPermissions(null);
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+        m_permissionManager.setCustomPermissions(null);
+        m_permissionManager.setPermissions(null);
     }
 
     public void testGetCallPermission() throws Exception {
-        Permission permission = m_manager.getCallPermission(VOICEMAIL.getName());
+        Permission permission = m_permissionManager.getCallPermission(VOICEMAIL.getName());
         assertEquals(VOICEMAIL.getName(), permission.getName());
         assertEquals(VOICEMAIL.getName(), permission.getLabel());
         assertEquals(permission.isBuiltIn(), true);
         assertEquals("permission/call-handling/Voicemail", permission.getSettingPath());
         assertEquals("ENABLE", permission.getSetting().getDefaultValue());
 
-        TestHelper.insertFlat("permission/permission.db.xml");
+        sql("permission/permission.sql");
 
-        permission = m_manager.getCallPermission(1002);
+        permission = m_permissionManager.getCallPermission(1002);
         assertNotNull(permission);
 
         assertEquals("kukuDescription", permission.getDescription());
         assertEquals("kukuLabel", permission.getLabel());
 
-        Permission permissionNull = m_manager.getCallPermission("nonexistent");
+        Permission permissionNull = m_permissionManager.getCallPermission("nonexistent");
         assertNull(permissionNull);
     }
 
@@ -69,42 +64,42 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         Permission permission = new Permission();
         permission.setDescription("description");
         permission.setLabel("abc");
-        TestHelper.insertFlat("commserver/location.db.xml");
-        m_manager.saveCallPermission(permission);
-
-        assertEquals(1, getConnection().getRowCount("permission", "where label = 'abc'"));
+        sql("commserver/locations.sql");
+        m_permissionManager.saveCallPermission(permission);
+        commit();
+        assertEquals(1, db().queryForLong("select count(*) from permission where label = 'abc'"));
     }
 
     public void testAddCallPermissionDup() throws Exception {
-        TestHelper.insertFlat("permission/permission.db.xml");
+        sql("permission/permission.sql");
 
         Permission permission = new Permission();
         permission.setDescription("description");
         permission.setLabel("bongoLabel");
 
         try {
-            m_manager.saveCallPermission(permission);
+            m_permissionManager.saveCallPermission(permission);
             fail("");
         } catch (UserException e) {
             // ok - expected dup exception
         }
 
-        Permission permission2 = m_manager.getCallPermission(1002);
+        Permission permission2 = m_permissionManager.getCallPermission(1002);
         permission2.setDescription("new Description");
-        m_manager.saveCallPermission(permission2);
+        m_permissionManager.saveCallPermission(permission2);
         assertEquals(2, getConnection().getRowCount("permission"));
 
         permission2.setLabel("new Label");
-        m_manager.saveCallPermission(permission2);
+        m_permissionManager.saveCallPermission(permission2);
         assertEquals(2, getConnection().getRowCount("permission"));
 
-        permission2 = m_manager.getCallPermission(1002);
+        permission2 = m_permissionManager.getCallPermission(1002);
         assertEquals(permission2.getDescription(), "new Description");
         assertEquals(permission2.getLabel(), "new Label");
     }
 
     public void testGetCallPermissions() throws Exception {
-        Collection<Permission> permissions = m_manager.getPermissions(Permission.Type.CALL);
+        Collection<Permission> permissions = m_permissionManager.getPermissions(Permission.Type.CALL);
         int size = permissions.size();
 
         try {
@@ -123,10 +118,10 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
             // ok if superadmin permission is found
         }
 
-        TestHelper.insertFlat("permission/permission.db.xml");
+        sql("permission/permission.sql");
         // set null here to simulate save
-        m_manager.setCustomPermissions(null);
-        permissions = m_manager.getPermissions(Permission.Type.CALL);
+        m_permissionManager.setCustomPermissions(null);
+        permissions = m_permissionManager.getPermissions(Permission.Type.CALL);
         assertEquals(size + 2, permissions.size());
 
         try {
@@ -147,44 +142,45 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testPermisionModel() throws Exception {
-        Setting setting = m_manager.getPermissionModel();
+        Setting setting = m_permissionManager.getPermissionModel();
         Collection<Setting> settingsBefore = setting.getSetting(Permission.CALL_PERMISSION_PATH).getValues();
 
-        TestHelper.insertFlat("permission/permission.db.xml");
+        sql("permission/permission.sql");
         // set null here to simulate save
-        m_manager.setCustomPermissions(null);
-        setting = m_manager.getPermissionModel();
+        m_permissionManager.setCustomPermissions(null);
+        setting = m_permissionManager.getPermissionModel();
         Collection<Setting> settingsAfter = setting.getSetting(Permission.CALL_PERMISSION_PATH).getValues();
         assertEquals(settingsBefore.size() + 2, settingsAfter.size());
     }
 
     public void testRemoveCallPermissions() throws Exception {
+        sql("permission/permission.sql");
         Integer[] names = {
             1002, 1001
         };
-        TestHelper.insertFlat("permission/permission.db.xml");
 
-        m_manager.deleteCallPermission(m_manager.load(Permission.class, 1001));
-        m_manager.deleteCallPermission(m_manager.load(Permission.class, 1002));
-        assertEquals(0, getConnection().getRowCount("permission"));
+        m_permissionManager.deleteCallPermission(m_permissionManager.load(Permission.class, 1001));
+        m_permissionManager.deleteCallPermission(m_permissionManager.load(Permission.class, 1002));
+        commit();
+        assertEquals(0, countRowsInTable("permission"));
     }
 
     public void testRulesWithCustomPermission() throws Exception {
         m_resetDialPlanTask.reset(true);
-        TestHelper.insertFlat("commserver/location.db.xml");
+        sql("commserver/locations.sql");
         Permission permission = new Permission();
         permission.setType(Permission.Type.CALL);
         permission.setLabel("bongo3");
 
-        m_manager.saveCallPermission(permission);
+        m_permissionManager.saveCallPermission(permission);
 
         CustomDialingRule rule = new CustomDialingRule();
         rule.setName("a2");
         rule.setPermissionNames(Collections.singletonList(permission.getName()));
 
-        m_context.storeRule(rule);
-
-        CustomDialingRule loaded = (CustomDialingRule) m_context.load(DialingRule.class, rule.getId());
+        m_dialPlanContext.storeRule(rule);
+        commit();
+        CustomDialingRule loaded = (CustomDialingRule) m_dialPlanContext.load(DialingRule.class, rule.getId());
         assertEquals(1, rule.getPermissionNames().size());
         List<Permission> loadedPermissions = loaded.getPermissions();
         assertEquals(1, loadedPermissions.size());
@@ -193,7 +189,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetApplicationPermissions() throws Exception {
 
-        Collection<Permission> permissions = m_manager.getPermissions(Permission.Type.APPLICATION);
+        Collection<Permission> permissions = m_permissionManager.getPermissions(Permission.Type.APPLICATION);
         int size = permissions.size();
         assertEquals(permissions.isEmpty(), false);
 
@@ -212,16 +208,16 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         } catch (Exception exc) {
             // ok if superadmin permission is found
         }
-        TestHelper.insertFlat("permission/permission.db.xml");
+        sql("permission/permission.sql");
 
-        permissions = m_manager.getPermissions(Permission.Type.APPLICATION);
+        permissions = m_permissionManager.getPermissions(Permission.Type.APPLICATION);
         assertEquals(size, permissions.size());
 
     }
 
     public void testGetVMServerPermissions() throws Exception {
 
-        Collection<Permission> permissions = m_manager.getPermissions(Permission.Type.VOICEMAIL_SERVER);
+        Collection<Permission> permissions = m_permissionManager.getPermissions(Permission.Type.VOICEMAIL_SERVER);
         int size = permissions.size();
         assertEquals(permissions.isEmpty(), false);
 
@@ -240,16 +236,15 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         } catch (Exception exc) {
             // ok if ExchangeUMVoicemailServer permission is found
         }
-        TestHelper.insertFlat("permission/permission.db.xml");
+        sql("permission/permission.sql");
 
-        permissions = m_manager.getPermissions(Permission.Type.VOICEMAIL_SERVER);
+        permissions = m_permissionManager.getPermissions(Permission.Type.VOICEMAIL_SERVER);
         assertEquals(size, permissions.size());
 
     }
 
     public void testGetAllPermissions() throws Exception {
-
-        Collection<Permission> permissions = m_manager.getPermissions();
+        Collection<Permission> permissions = m_permissionManager.getPermissions();
         int size = permissions.size();
         assertEquals(permissions.isEmpty(), false);
 
@@ -269,11 +264,11 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
             // ok if superadmin permission is found
         }
 
-        TestHelper.insertFlat("permission/permission.db.xml");
+        sql("permission/permission.sql");
         // set null here to simulate save
-        m_manager.setCustomPermissions(null);
-        m_manager.setPermissions(null);
-        permissions = m_manager.getPermissions();
+        m_permissionManager.setCustomPermissions(null);
+        m_permissionManager.setPermissions(null);
+        permissions = m_permissionManager.getPermissions();
         assertEquals(size + 2, permissions.size());
 
         try {
@@ -310,17 +305,19 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetApplicationPermissionByName() throws Exception {
-
-        Permission p = m_manager.getPermissionByName(Permission.Type.APPLICATION, SUPERADMIN.getName());
+        Permission p = m_permissionManager.getPermissionByName(Permission.Type.APPLICATION, SUPERADMIN.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
         assertEquals(SUPERADMIN.getName(), p.getLabel());
         assertEquals("DISABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/application/superadmin", p.getSettingPath());
+    }
+    
+    
+    public void testGetApplicationPermissionByNameFromDb() throws Exception {
+        sql("permission/permission.sql");
 
-        TestHelper.insertFlat("permission/permission.db.xml");
-
-        p = m_manager.getPermissionByName(Permission.Type.APPLICATION, SUPERADMIN.getName());
+        Permission p = m_permissionManager.getPermissionByName(Permission.Type.APPLICATION, SUPERADMIN.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
         assertEquals(SUPERADMIN.getName(), p.getLabel());
@@ -329,17 +326,18 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetCallPermissionByName() throws Exception {
-
-        Permission p = m_manager.getPermissionByName(Permission.Type.CALL, VOICEMAIL.getName());
+        Permission p = m_permissionManager.getPermissionByName(Permission.Type.CALL, VOICEMAIL.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
         assertEquals(VOICEMAIL.getName(), p.getLabel());
         assertEquals("ENABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
+    }
 
-        TestHelper.insertFlat("permission/permission.db.xml");
+    public void testGetCallPermissionByNameFromDb() throws Exception {
+        sql("permission/permission.sql");
 
-        p = m_manager.getPermissionByName(Permission.Type.CALL, "perm_1001");
+        Permission p = m_permissionManager.getPermissionByName(Permission.Type.CALL, "perm_1001");
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), false);
         assertEquals(true, p.getLabel().equals("bongoLabel"));
@@ -349,18 +347,19 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetVMServerPermissionByName() throws Exception {
-
-        Permission p = m_manager
+        Permission p = m_permissionManager
                 .getPermissionByName(Permission.Type.VOICEMAIL_SERVER, FREESWITH_VOICEMAIL.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
         assertEquals(FREESWITH_VOICEMAIL.getName(), p.getLabel());
         assertEquals("ENABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/voicemail-server/FreeswitchVoicemailServer", p.getSettingPath());
+    }
+    
+    public void testGetVMServerPermissionByNameFromDb() throws Exception {
+        sql("permission/permission.sql");
 
-        TestHelper.insertFlat("permission/permission.db.xml");
-
-        p = m_manager.getPermissionByName(Permission.Type.VOICEMAIL_SERVER, FREESWITH_VOICEMAIL.getName());
+        Permission p = m_permissionManager.getPermissionByName(Permission.Type.VOICEMAIL_SERVER, FREESWITH_VOICEMAIL.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
         assertEquals(FREESWITH_VOICEMAIL.getName(), p.getLabel());
@@ -369,24 +368,24 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetAnyPermissionByName() throws Exception {
-
-        Permission p = m_manager.getPermissionByName(SUPERADMIN.getName());
+        Permission p = m_permissionManager.getPermissionByName(SUPERADMIN.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
         assertEquals(true, p.getLabel().equals(SUPERADMIN.getName()));
         assertEquals("DISABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/application/superadmin", p.getSettingPath());
 
-        p = m_manager.getPermissionByName(VOICEMAIL.getName());
+        p = m_permissionManager.getPermissionByName(VOICEMAIL.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
         assertEquals(true, p.getLabel().equals(VOICEMAIL.getName()));
         assertEquals("ENABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
-
-        TestHelper.insertFlat("permission/permission.db.xml");
-
-        p = m_manager.getPermissionByName("perm_1001");
+    }
+    
+    public void testPermissionFromDb() throws Exception {
+        sql("permission/permission.sql");
+        Permission p = m_permissionManager.getPermissionByName("perm_1001");
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), false);
         assertEquals(true, p.getLabel().equals("bongoLabel"));
@@ -395,21 +394,34 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(Permission.Type.CALL.getName(), p.getType().getName());
     }
 
-    public void testClear() throws Exception {
-
-        assertEquals(0, getConnection().getRowCount("permission"));
-
-        TestHelper.insertFlat("permission/permission.db.xml");
+    public void testSave() throws Exception {
+        sql("permission/permission.sql");
 
         Permission permission = new Permission();
         permission.setDescription("description");
         permission.setLabel("abc");
-        m_manager.saveCallPermission(permission);
+        m_permissionManager.saveCallPermission(permission);
+        commit();
 
-        assertEquals(3, getConnection().getRowCount("permission"));
+        assertEquals(3, countRowsInTable("permission"));
+    }
+    
+    public void testClear() throws Exception {
+        sql("permission/permission.sql");
+        m_permissionManager.clear();
+        commit();
+        assertEquals(0, countRowsInTable("permission"));
+    }
 
-        m_manager.clear();
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
+    }
 
-        assertEquals(0, getConnection().getRowCount("permission"));
+    public void setDialPlanContext(DialPlanContext dialPlanContext) {
+        m_dialPlanContext = dialPlanContext;
+    }
+
+    public void setResetDialPlanTask(ResetDialPlanTask resetDialPlanTask) {
+        m_resetDialPlanTask = resetDialPlanTask;
     }
 }

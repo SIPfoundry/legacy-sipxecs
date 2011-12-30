@@ -13,41 +13,39 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
+public class BulkManagerImplTestDb extends IntegrationTestCase {
     private BulkManager m_bulkManager;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        ApplicationContext context = TestHelper.getApplicationContext();
-        m_bulkManager = (BulkManager) context.getBean("bulkManagerDao");
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsert("commserver/seedLocations.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+        sql("domain/DomainSeed.sql");
+        sql("commserver/SeedLocations.sql");
     }
 
     public void testInsertFromCsvEmpty() throws Exception {
         m_bulkManager.insertFromCsv(new StringReader(""));
-        assertEquals(0, getConnection().getRowCount("users"));
-        assertEquals(0, getConnection().getRowCount("phone"));
-        assertEquals(0, getConnection().getRowCount("line"));
-        assertEquals(0, getConnection().getRowCount("user_group"));
-        assertEquals(0, getConnection().getRowCount("phone_group"));
+        assertEquals(0, countRowsInTable("users"));
+        assertEquals(0, countRowsInTable("phone"));
+        assertEquals(0, countRowsInTable("line"));
+        assertEquals(0, countRowsInTable("user_group"));
+        assertEquals(0, countRowsInTable("phone_group"));
     }
 
     public void testInsertFromCsvNameDuplication() throws Exception {
         // users with duplicated names should be overwritten
         InputStream cutsheet = getClass().getResourceAsStream("dup_names.csv");
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
-        assertEquals(2, getConnection().getRowCount("users"));
-        assertEquals(3, getConnection().getRowCount("phone"));
-        assertEquals(3, getConnection().getRowCount("line"));
-        assertEquals(2, getConnection().getRowCount("user_group"));
-        assertEquals(3, getConnection().getRowCount("phone_group"));
-        assertEquals(1, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
-        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
+        commit();
+        assertEquals(2, countRowsInTable("users"));
+        assertEquals(3, countRowsInTable("phone"));
+        assertEquals(3, countRowsInTable("line"));
+        assertEquals(2, countRowsInTable("user_group"));
+        assertEquals(3, countRowsInTable("phone_group"));
+        assertEquals(1, db().queryForLong("select count(*) from group_storage where resource = 'phone'"));
+        assertEquals(2, db().queryForLong("select count(*) from group_storage where resource = 'user'"));
     }
 
     public void testInsertFromCsvAliasDuplication() throws Exception {
@@ -55,38 +53,39 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         // be imported
         InputStream cutsheet = getClass().getResourceAsStream("errors.csv");
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
-        assertEquals(2, getConnection().getRowCount("users"));
-        assertEquals(2, getConnection().getRowCount("phone"));
-        assertEquals(2, getConnection().getRowCount("line"));
-        assertEquals(2, getConnection().getRowCount("user_group"));
-        assertEquals(2, getConnection().getRowCount("phone_group"));
-        assertEquals(1, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
-        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
+        //commit();
+        assertEquals(2, countRowsInTable("users"));
+        assertEquals(2, countRowsInTable("phone"));
+        assertEquals(2, countRowsInTable("line"));
+        assertEquals(2, countRowsInTable("user_group"));
+        assertEquals(2, countRowsInTable("phone_group"));
+        assertEquals(1, db().queryForLong("select count(*) from group_storage where resource = 'phone'"));
+        assertEquals(2, db().queryForLong("select count(*) from group_storage where resource = 'user'"));
     }
 
     public void testInsertFromCsvPhoneDuplication() throws Exception {
         // users with duplicated names should be overwritten
         InputStream cutsheet = getClass().getResourceAsStream("dup_phones.csv");
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
-        assertEquals(5, getConnection().getRowCount("users"));
-        assertEquals(4, getConnection().getRowCount("phone"));
-        assertEquals(5, getConnection().getRowCount("line"));
-        assertEquals(5, getConnection().getRowCount("user_group"));
-        assertEquals(4, getConnection().getRowCount("phone_group"));
-        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
-        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
+        assertEquals(5, countRowsInTable("users"));
+        assertEquals(4, countRowsInTable("phone"));
+        assertEquals(5, countRowsInTable("line"));
+        assertEquals(5, countRowsInTable("user_group"));
+        assertEquals(4, countRowsInTable("phone_group"));
+        assertEquals(2, db().queryForLong("select count(*) from group_storage where resource = 'phone'"));
+        assertEquals(2, db().queryForLong("select count(*) from group_storage where resource = 'user'"));
     }
 
     public void testInsertFromCsv() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("cutsheet.csv");
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
-        assertEquals(5, getConnection().getRowCount("users"));
-        assertEquals(5, getConnection().getRowCount("phone"));
-        assertEquals(5, getConnection().getRowCount("line"));
-        assertEquals(5, getConnection().getRowCount("user_group"));
-        assertEquals(5, getConnection().getRowCount("phone_group"));
-        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
-        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
+        assertEquals(5, countRowsInTable("users"));
+        assertEquals(5, countRowsInTable("phone"));
+        assertEquals(5, countRowsInTable("line"));
+        assertEquals(5, countRowsInTable("user_group"));
+        assertEquals(5, countRowsInTable("phone_group"));
+        assertEquals(2, db().queryForLong("select count(*) from group_storage where resource = 'phone'"));
+        assertEquals(2, db().queryForLong("select count(*) from group_storage where resource = 'user'"));
     }
 
     public void testInsertFromCsvDuplicate() throws Exception {
@@ -96,37 +95,41 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         // and try again
         cutsheet.reset();
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
-        assertEquals(5, getConnection().getRowCount("users"));
-        assertEquals(5, getConnection().getRowCount("phone"));
+        assertEquals(5, countRowsInTable("users"));
+        assertEquals(5, countRowsInTable("phone"));
         // lines are updated, if this value is 10, lines are erroneously being duplicated
-        assertEquals(5, getConnection().getRowCount("line"));
-        assertEquals(5, getConnection().getRowCount("user_group"));
-        assertEquals(5, getConnection().getRowCount("phone_group"));
-        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
-        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
+        assertEquals(5, countRowsInTable("line"));
+        assertEquals(5, countRowsInTable("user_group"));
+        assertEquals(5, countRowsInTable("phone_group"));
+        assertEquals(2, db().queryForLong("select count(*) from group_storage where resource = 'phone'"));
+        assertEquals(2, db().queryForLong("select count(*) from group_storage where resource = 'user'"));
     }
 
     public void testInsertFromCsvUserNameAliasConflict() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("user_alias_conflict.csv");
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
-        assertEquals(1, getConnection().getRowCount("users"));
+        assertEquals(1, countRowsInTable("users"));
     }
 
     public void testInsertFromCsvBlankPhoneGroup() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("blank_phonegroup.csv");
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
-        assertEquals(1, getConnection().getRowCount("users"));
-        assertEquals(1, getConnection().getRowCount("phone"));
-        assertEquals(0, getConnection().getRowCount("phone_group"));
-        assertEquals(1, getConnection().getRowCount("user_group"));
+        assertEquals(1, countRowsInTable("users"));
+        assertEquals(1, countRowsInTable("phone"));
+        assertEquals(0, countRowsInTable("phone_group"));
+        assertEquals(1, countRowsInTable("user_group"));
     }
 
     public void testInsertFromCsvBlankUserGroup() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("blank_usergroup.csv");
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
-        assertEquals(1, getConnection().getRowCount("users"));
-        assertEquals(1, getConnection().getRowCount("phone"));
-        assertEquals(1, getConnection().getRowCount("phone_group"));
-        assertEquals(0, getConnection().getRowCount("user_group"));
+        assertEquals(1, countRowsInTable("users"));
+        assertEquals(1, countRowsInTable("phone"));
+        assertEquals(1, countRowsInTable("phone_group"));
+        assertEquals(0, countRowsInTable("user_group"));
+    }
+
+    public void setBulkManagerImpl(BulkManager bulkManager) {
+        m_bulkManager = bulkManager;
     }
 }

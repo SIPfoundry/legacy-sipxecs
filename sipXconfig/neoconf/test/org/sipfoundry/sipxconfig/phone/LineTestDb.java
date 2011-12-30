@@ -9,188 +9,185 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+
+import static org.junit.Assert.assertArrayEquals;
+
 import java.util.Collection;
 import java.util.Collections;
 
-import org.dbunit.Assertion;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
-public class LineTestDb extends SipxDatabaseTestCase {
+public class LineTestDb extends IntegrationTestCase {
+    private PhoneContext m_phoneContext;
+    private CoreContext m_coreContext;
 
-    private PhoneContext m_context;
-
-    private CoreContext m_core;
-
-    protected void setUp() throws Exception {
-        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
-        m_core = (CoreContext) TestHelper.getApplicationContext().getBean(
-                CoreContext.CONTEXT_BEAN_NAME);
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+        sql("domain/DomainSeed.sql");
+        sql("common/TestUserSeed.sql");
+    }
+    
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
     }
 
     public void testAddingLine() throws Exception {
-        TestHelper.cleanInsertFlat("phone/AddLineSeed.xml");
+        loadDataSet("phone/AddLineSeed.xml");
 
-        Phone phone = m_context.loadPhone(new Integer(1000));
+        Phone phone = m_phoneContext.loadPhone(new Integer(1000));
         assertEquals(2, phone.getLines().size());
-        User user = m_core.loadUserByUserName("testuser");
+        User user = m_coreContext.loadUserByUserName("testuser");
 
         Line thirdLine = phone.createLine();
         thirdLine.setUser(user);
         phone.addLine(thirdLine);
-        m_context.storePhone(phone);
+        m_phoneContext.storePhone(phone);
+        commit();
 
         // reload data to get updated ids
-        m_context.flush();
-        Phone reloadedPhone = m_context.loadPhone(new Integer(1000));
+        m_phoneContext.flush();
+        
+        Phone reloadedPhone = m_phoneContext.loadPhone(new Integer(1000));
         Line reloadedThirdLine = reloadedPhone.getLine(2);
-
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddLineExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[line_id]", reloadedThirdLine.getPrimaryKey());
-        expectedRds.addReplacementObject("[null]", null);
-
-        ITable expected = expectedRds.getTable("line");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
-
-        Assertion.assertEquals(expected, actual);
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select line_id, position, user_id from line where phone_id = ? order by position", actual, 1000);
+        Object[][] expected = new Object[][] {
+                {1000, 0, 1000},
+                {1001, 1, 1000},
+                {reloadedThirdLine.getPrimaryKey(), 2, 1000}
+        };
+        assertArrayEquals(expected, actual.toArray());
     }
 
     public void testAddingLineByContext() throws Exception {
-        TestHelper.cleanInsertFlat("phone/AddLineSeed.xml");
+        loadDataSet("phone/AddLineSeed.xml");
 
         Integer phoneId = new Integer(1000);
-        Phone phone = m_context.loadPhone(phoneId);
+        Phone phone = m_phoneContext.loadPhone(phoneId);
         assertEquals(2, phone.getLines().size());
-        User user = m_core.loadUserByUserName("testuser");
+        User user = m_coreContext.loadUserByUserName("testuser");
 
-        m_context.addUsersToPhone(phoneId, Collections.singleton(user.getId()));
+        m_phoneContext.addUsersToPhone(phoneId, Collections.singleton(user.getId()));
+        commit();
 
         // reload data to get updated ids
-        m_context.flush();
-        Phone reloadedPhone = m_context.loadPhone(phoneId);
+        m_phoneContext.flush();
+        Phone reloadedPhone = m_phoneContext.loadPhone(phoneId);
         Line reloadedThirdLine = reloadedPhone.getLine(2);
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddLineExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[line_id]", reloadedThirdLine.getPrimaryKey());
-        expectedRds.addReplacementObject("[null]", null);
-
-        ITable expected = expectedRds.getTable("line");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
-
-        Assertion.assertEquals(expected, actual);
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select line_id, position, user_id from line where phone_id = ? order by position", actual, 1000);
+        Object[][] expected = new Object[][] {
+                {1000, 0, 1000},
+                {1001, 1, 1000},
+                {reloadedThirdLine.getPrimaryKey(), 2, 1000}
+        };
+        assertArrayEquals(expected, actual.toArray());
     }
 
     public void testSave() throws Exception {
-        TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
+        loadDataSet("phone/EndpointSeed.xml");
 
-        Phone phone = m_context.loadPhone(new Integer(1000));
+        Phone phone = m_phoneContext.loadPhone(new Integer(1000));
         assertEquals(0, phone.getLines().size());
-        User user = m_core.loadUserByUserName("testuser");
+        User user = m_coreContext.loadUserByUserName("testuser");
 
         Line line = phone.createLine();
         line.setUser(user);
         phone.addLine(line);
-        m_context.storePhone(phone);
+        m_phoneContext.storePhone(phone);
 
         // reload data to get updated ids
-        m_context.flush();
-        Phone reloadedPhone = m_context.loadPhone(new Integer(1000));
+        m_phoneContext.flush();
+        Phone reloadedPhone = m_phoneContext.loadPhone(new Integer(1000));
         Line reloadedLine = reloadedPhone.getLine(0);
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/SaveLineExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[null]", null);
-        expectedRds.addReplacementObject("[line_id]", reloadedLine.getPrimaryKey());
-        ITable expected = expectedRds.getTable("line");
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
-
-        Assertion.assertEquals(expected, actual);
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select line_id, position, user_id from line where phone_id = ? order by position", actual, 1000);
+        Object[][] expected = new Object[][] {
+                {reloadedLine.getPrimaryKey(), 0, 1000}
+        };
+        assertArrayEquals(expected, actual.toArray());
     }
 
     public void testLoadAndDelete() throws Exception {
-        TestHelper.cleanInsertFlat("phone/LineSeed.xml");
+        loadDataSet("phone/LineSeed.xml");
 
-        Phone phone = m_context.loadPhone(new Integer(1000));
+        Phone phone = m_phoneContext.loadPhone(new Integer(1000));
         Collection lines = phone.getLines();
         assertEquals(1, lines.size());
 
         Line line = (Line) lines.iterator().next();
         line.getSettings();
-        m_context.storePhone(phone);
+        m_phoneContext.storePhone(phone);
 
         lines.clear();
-        m_context.storePhone(phone);
+        m_phoneContext.storePhone(phone);
 
-        Phone cleared = m_context.loadPhone(new Integer(1000));
+        Phone cleared = m_phoneContext.loadPhone(new Integer(1000));
         assertEquals(0, cleared.getLines().size());
     }
 
     public void testMoveLine() throws Exception {
-        TestHelper.cleanInsertFlat("phone/MoveLineSeed.xml");
+        loadDataSet("phone/MoveLineSeed.xml");
 
-        Phone phone = m_context.loadPhone(new Integer(1000));
+        Phone phone = m_phoneContext.loadPhone(new Integer(1000));
         Line l1 = phone.getLine(0);
         Object[] ids = new Object[] {
             l1.getPrimaryKey()
         };
         DataCollectionUtil.moveByPrimaryKey(phone.getLines(), ids, 1);
-        m_context.storePhone(phone);
-        m_context.flush();
-
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/MoveLineExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[null]", null);
-
-        ITable expected = expectedRds.getTable("line");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
-
-        Assertion.assertEquals(expected, actual);
+        m_phoneContext.storePhone(phone);
+        commit();
+        m_phoneContext.flush();
+        
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select line_id, position, user_id from line where phone_id = ? order by position", actual, 1000);
+        Object[][] expected = new Object[][] {
+                {1001, 0, 1000},
+                {1000, 1, 1000},
+                {1002, 2, 1000}
+        };
+        assertArrayEquals(expected, actual.toArray());
     }
 
     /**
      * Makes sure the line's settings get deleted too
      */
     public void testDeleteLinesWithSettings() throws Exception {
-        TestHelper.cleanInsertFlat("phone/DeleteLineWithSettingsSeed.xml");
+        loadDataSet("phone/DeleteLineWithSettingsSeed.xml");
 
-        Phone phone = m_context.loadPhone(new Integer(1000));
+        Phone phone = m_phoneContext.loadPhone(new Integer(1000));
         Collection lines = phone.getLines();
         assertEquals(3, lines.size());
         DataCollectionUtil.removeByPrimaryKey(lines, new Object[] {
             new Integer(1001)
         });
-        m_context.storePhone(phone);
-
-        IDataSet expectedDs = TestHelper
-                .loadDataSetFlat("phone/DeleteLineWithSettingsExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[null]", null);
-
-        ITable expected = expectedRds.getTable("line");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
-
-        Assertion.assertEquals(expected, actual);
+        m_phoneContext.storePhone(phone);
+        commit();
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select line_id, position, value_storage_id from line where phone_id = ? order by position", actual, 1000);
+        Object[][] expected = new Object[][] {
+                {1000, 0, null},
+                {1002, 1, null}
+        };
+        assertArrayEquals(expected, actual.toArray());
     }
 
     public void testNoLinesButOtherPhonesHaveLines() throws Exception {
-        TestHelper.cleanInsertFlat("phone/LineSeed.xml");
-        Phone newPhone = m_context.newPhone(new TestPhoneModel());
+        loadDataSet("phone/LineSeed.xml");
+        Phone newPhone = m_phoneContext.newPhone(new TestPhoneModel());
         newPhone.setSerialNumber("aaaaaaaaaaaa");
-        m_context.storePhone(newPhone);
-        Phone loadedPhone = m_context.loadPhone(newPhone.getId());
+        m_phoneContext.storePhone(newPhone);
+        Phone loadedPhone = m_phoneContext.loadPhone(newPhone.getId());
         assertEquals(0, loadedPhone.getLines().size());
     }
 
@@ -210,5 +207,13 @@ public class LineTestDb extends SipxDatabaseTestCase {
         line.setUser(u);
         phone.addLine(line);
         assertEquals("turkey", line.getLineInfo().getUserId());
+    }
+
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

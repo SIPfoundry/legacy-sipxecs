@@ -9,22 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import org.dbunit.Assertion;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
+
+import java.util.Map;
+
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class GroupTestDb extends SipxDatabaseTestCase {
+public class GroupTestDb extends IntegrationTestCase {
+    private SettingDao m_settingDao;
 
-    private SettingDao m_dao;
-
-    protected void setUp() throws Exception {
-        ApplicationContext context = TestHelper.getApplicationContext();
-        m_dao = (SettingDao) context.getBean("settingDao");
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
     }
 
     static class TestBeanWithSettings extends BeanWithSettings {
@@ -38,8 +35,6 @@ public class GroupTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSave() throws Throwable {
-        TestHelper.cleanInsert("ClearDb.xml");
-
         SettingSet root = new SettingSet();
         root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
         root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea"));
@@ -54,22 +49,19 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         settings.getSetting("fruit/apple").setValue("granny smith");
         settings.getSetting("vegetable/pea").setValue(null);
 
-        m_dao.saveGroup(ms);
-
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/SaveGroupExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[group_id]", ms.getId());
-
-        ITable expected = expectedRds.getTable("setting_value");
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
-
-        Assertion.assertEquals(expected, actual);
+        m_settingDao.saveGroup(ms);
+        commit();
+        
+        Map<String, Object> actual = db().queryForMap("select * from group_storage as g, setting_value s where g.group_id = s.value_storage_id");
+        assertEquals("unittest", actual.get("resource"));
+        assertEquals("food", actual.get("name"));
+        assertTrue(((Integer) actual.get("weight")) > 0);
+        assertEquals("granny smith", actual.get("value"));
+        assertEquals("fruit/apple", actual.get("path"));
     }
 
     public void testUpdate() throws Throwable {
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
+        sql("setting/UpdateGroupSeed.sql");
 
         SettingSet root = new SettingSet();
         root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple")).setValue(
@@ -78,7 +70,7 @@ public class GroupTestDb extends SipxDatabaseTestCase {
                 "snow pea");
         root.addSetting(new SettingSet("dairy")).addSetting(new SettingImpl("milk"));
 
-        Group ms = m_dao.loadGroup(new Integer(1));
+        Group ms = m_settingDao.loadGroup(new Integer(1));
 
         TestBeanWithSettings bean = new TestBeanWithSettings(root);
         Setting settings = ms.inherhitSettingsForEditing(bean);
@@ -89,29 +81,27 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         settings.getSetting("vegetable/pea").setValue("snap pea");
 
         assertEquals(1, ms.getSize());
-        m_dao.saveGroup(ms);
+        m_settingDao.saveGroup(ms);
+        commit();
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/UpdateGroupExpected.xml");
-        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[null]", null);
-        ITable expected = expectedRds.getTable("setting_value");
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
-
-        Assertion.assertEquals(expected, actual);
+        Map<String, Object> actual = db().queryForMap("select * from group_storage as g, setting_value s where g.group_id = s.value_storage_id");
+        assertEquals("unittest", actual.get("resource"));
+        assertEquals("food", actual.get("name"));
+        assertEquals(1000, actual.get("weight"));
+        assertEquals("snap pea", actual.get("value"));
+        assertEquals("vegetable/pea", actual.get("path"));
     }
 
     public void testDuplicateName() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
+        sql("setting/UpdateGroupSeed.sql");
 
-        Group ms = m_dao.loadGroup(new Integer(1));
+        Group ms = m_settingDao.loadGroup(new Integer(1));
         Group duplicate = new Group();
         duplicate.setName(ms.getName());
         duplicate.setResource(ms.getResource());
 
         try {
-            m_dao.saveGroup(duplicate);
+            m_settingDao.saveGroup(duplicate);
             fail();
         } catch (UserException u) {
             assertTrue(true);
@@ -119,21 +109,23 @@ public class GroupTestDb extends SipxDatabaseTestCase {
     }
 
     public void testWeightSequence() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         Group newGroup = new Group();
         newGroup.setResource("unittest");
         newGroup.setName("unittest");
-        m_dao.saveGroup(newGroup);
+        m_settingDao.saveGroup(newGroup);
         assertNotNull(newGroup.getWeight());
     }
 
     public void testGetByName() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
+        sql("setting/UpdateGroupSeed.sql");
 
-        Group byName = m_dao.getGroupByName("unittest", "food");
+        Group byName = m_settingDao.getGroupByName("unittest", "food");
         assertNotNull(byName);
         assertEquals("food", byName.getName());
         assertEquals("unittest", byName.getResource());
+    }
+
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 }

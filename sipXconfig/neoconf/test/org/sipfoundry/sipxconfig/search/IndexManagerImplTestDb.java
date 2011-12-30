@@ -14,28 +14,23 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.sipfoundry.sipxconfig.test.TestHelper.TestCaseDb;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.springframework.context.ApplicationContext;
 
-public class IndexManagerImplTestDb extends TestCaseDb {
-
+public class IndexManagerImplTestDb extends IntegrationTestCase {
     private SearchManager m_searchManager;
     private IndexManager m_indexManager;
+    private CoreContext m_coreContext;
     private IdentityToBean m_identityToBean;
 
-    protected void setUp() throws Exception {
-        ApplicationContext context = TestHelper.getApplicationContext();
-        m_searchManager = (SearchManager) context.getBean(SearchManager.CONTEXT_BEAN_NAME);
-        m_indexManager = (IndexManager) context.getBean(IndexManager.CONTEXT_BEAN_NAME);
-        CoreContext coreContext = (CoreContext) context.getBean(CoreContext.CONTEXT_BEAN_NAME);
-        m_identityToBean = new IdentityToBean(coreContext);
-        TestHelper.cleanInsert("ClearDb.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        m_identityToBean = new IdentityToBean(m_coreContext);
+        clear();
     }
 
     public void testSearchByName() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        sql("common/UserSearchSeed.sql");
         m_indexManager.indexAll();
-
         List users = m_searchManager.search("u*2", m_identityToBean);
         assertEquals(1, users.size());
         User user = (User) users.get(0);
@@ -44,7 +39,7 @@ public class IndexManagerImplTestDb extends TestCaseDb {
     }
 
     public void testSearchByAlias() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        sql("common/UserSearchSeed.sql");
         m_indexManager.indexAll();
 
         List users = m_searchManager.search("two", m_identityToBean);
@@ -54,7 +49,7 @@ public class IndexManagerImplTestDb extends TestCaseDb {
     }
 
     public void testSearchReferencedUser() throws Exception {
-        TestHelper.cleanInsertFlat("search/phone_user.db.xml");
+        sql("search/phone_user.sql");
         m_indexManager.indexAll();
 
         List users = m_searchManager.search("kuku", null);
@@ -63,7 +58,7 @@ public class IndexManagerImplTestDb extends TestCaseDb {
     }
 
     public void testSearchPhoneModelLabel() throws Exception {
-        TestHelper.cleanInsertFlat("search/phone_user.db.xml");
+        sql("search/phone_user.sql");
         m_indexManager.indexAll();
 
         List phones = m_searchManager.search("Test Phone", null);
@@ -71,4 +66,15 @@ public class IndexManagerImplTestDb extends TestCaseDb {
         assertEquals(1, phones.size());
     }
 
+    public void setSearchManager(SearchManager searchManager) {
+        m_searchManager = searchManager;
+    }
+
+    public void setIndexManager(IndexManager indexManager) {
+        m_indexManager = indexManager;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
 }

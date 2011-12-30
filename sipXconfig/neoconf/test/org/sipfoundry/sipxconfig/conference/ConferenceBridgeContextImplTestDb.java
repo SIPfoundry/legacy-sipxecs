@@ -32,6 +32,8 @@ public class ConferenceBridgeContextImplTestDb extends IntegrationTestCase {
     
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
     }
     
     public void setCoreContext(CoreContext core) {
@@ -48,6 +50,7 @@ public class ConferenceBridgeContextImplTestDb extends IntegrationTestCase {
     
     protected void onSetUpInTransaction() throws Exception {
         sql("conference/seed-participants.sql");
+        sql("domain/DomainSeed.sql");
     }    
 
     public void testGetBridges() throws Exception {
@@ -74,16 +77,16 @@ public class ConferenceBridgeContextImplTestDb extends IntegrationTestCase {
         m_context.store(bridge);
         flush();
 
-        assertEquals(1, db().queryForLong("select count(*) from meetme_bridge"));
-        assertEquals(1, db().queryForLong("select count(*) from meetme_conference"));
+        assertEquals(1, countRowsInTable("meetme_bridge"));
+        assertEquals(1, countRowsInTable("meetme_conference"));
     }
     
 
     public void testRemoveConferences() throws Exception {
         m_context.removeConferences(Collections.singleton(new Integer(3002)));
         flush();
-        assertEquals(2, db().queryForLong("select count(*) from meetme_bridge"));
-        assertEquals(4, db().queryForLong("select count(*) from meetme_conference"));
+        assertEquals(2, countRowsInTable("meetme_bridge"));
+        assertEquals(4, countRowsInTable("meetme_conference"));
     }
 
     public void testLoadBridge() throws Exception {
@@ -160,16 +163,13 @@ public class ConferenceBridgeContextImplTestDb extends IntegrationTestCase {
     }
 
     public void testValidate() throws Exception {
-        sql("conference/conferences_and_lines.sql");
-        m_domainManager.initializeDomain();
-
         // create a conference with a duplicate extension, should fail to validate
         Conference conf = new Conference();
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.setName("Appalachian");
         conf.setExtension("1699");
         try {
-            disableDaoEventPublishing();
+            //disableDaoEventPublishing();
             m_context.validate(conf);
             fail("conference has duplicate extension but was validated anyway");
         } catch (UserException e) {

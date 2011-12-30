@@ -9,47 +9,50 @@
  */
 package org.sipfoundry.sipxconfig.forwarding;
 
+
+import static org.junit.Assert.assertArrayEquals;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
-import org.dbunit.Assertion;
-import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 import org.springframework.dao.DataAccessException;
 
-public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
-    private ForwardingContext m_context;
+public class ForwardingContextImplTestDb extends IntegrationTestCase {
+    private ForwardingContext m_forwardingContext;
     private CoreContext m_coreContext;
     private final Integer m_testUserId = new Integer(1000);
 
     @Override
-    protected void setUp() throws Exception {
-        ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
-        m_context = (ForwardingContext) appContext.getBean(ForwardingContext.CONTEXT_BEAN_NAME);
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
-        TestHelper.insertFlat("forwarding/ScheduleSeed.xml");
-        TestHelper.insertFlat("forwarding/ScheduleHoursSeed.xml");
-        TestHelper.insertFlat("forwarding/RingSeed.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+    }
+    
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
+        sql("common/TestUserSeed.sql");
+        sql("common/UserGroupSeed.sql");
+        loadDataSet("forwarding/ScheduleSeed.xml");
+        loadDataSet("forwarding/ScheduleHoursSeed.xml");
+        loadDataSet("forwarding/RingSeed.xml");
     }
 
     public void testGetCallSequenceForUser() throws Exception {
         User user = m_coreContext.loadUser(m_testUserId);
-        CallSequence callSequence = m_context.getCallSequenceForUser(user);
+        CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(user);
         assertEquals(user.getId(), callSequence.getUser().getId());
 
         List calls = callSequence.getRings();
@@ -68,30 +71,21 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testOnDeleteUser() throws Exception {
         User user = m_coreContext.loadUser(m_testUserId);
-        ITable rings = TestHelper.getConnection().createDataSet().getTable("ring");
-        assertEquals(5, rings.getRowCount());
-        ITable schedules = TestHelper.getConnection().createDataSet().getTable("schedule");
-        assertEquals(5, schedules.getRowCount());
-        ITable scheduleHours = TestHelper.getConnection().createDataSet().getTable(
-                "schedule_hours");
-        assertEquals(9, scheduleHours.getRowCount());
+        assertEquals(5, countRowsInTable("ring"));
+        assertEquals(5, countRowsInTable("schedule"));
+        assertEquals(9, countRowsInTable("schedule_hours"));
 
         m_coreContext.deleteUser(user);
-
-        rings = TestHelper.getConnection().createDataSet().getTable("ring");
-        // 3 rings should disappear from that
-        assertEquals(2, rings.getRowCount());
-        schedules = TestHelper.getConnection().createDataSet().getTable("schedule");
-        // 2 schedules should disappear from that
-        assertEquals(3, schedules.getRowCount());
-        scheduleHours = TestHelper.getConnection().createDataSet().getTable("schedule_hours");
-        // 7 schedule hours should disappear from that
-        assertEquals(2, scheduleHours.getRowCount());
+        commit();
+        
+        assertEquals(2, countRowsInTable("ring"));
+        assertEquals(3, countRowsInTable("schedule"));
+        assertEquals(2, countRowsInTable("schedule_hours"));
     }
 
     public void testSave() throws Exception {
         User user = m_coreContext.loadUser(m_testUserId);
-        CallSequence callSequence = m_context.getCallSequenceForUser(user);
+        CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(user);
         List calls = callSequence.getRings();
 
         Ring ring0 = (Ring) calls.get(0);
@@ -106,25 +100,29 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         callSequence.setCfwdTime(35);
 
         try {
-            m_context.saveCallSequence(callSequence);
+            m_forwardingContext.saveCallSequence(callSequence);
         } catch (DataAccessException e) {
             Throwable cause = e.getCause();
             System.err.println(((SQLException) cause).getNextException().getMessage());
             throw e;
         }
-
-        ITable expected = TestHelper.loadDataSetFlat("forwarding/RingModified.xml")
-                .getTable("ring");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
-
-        Assertion.assertEquals(expected, actual);
+        Object[][] expected = new Object[][] {
+                {1001, 1001, "231001", 401, true, "If no response", 0, 102},
+                {1002, 1000, "33",     402, true, "If no response", 1, null},
+                {1004, 1000, "231004", 404, false, "At the same time", 0, 101},
+                {1005, 1001, "231005", 405, true, "If no response", 1, null},
+        };
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select ring_id, user_id, number, expiration, enabled, ring_type, position, " + 
+                "schedule_id from ring order by ring_id", actual);
+        assertArrayEquals(expected, actual.toArray());
 
         assertEquals(35, callSequence.getCfwdTime());
     }
 
     public void testMove() throws Exception {
         User user = m_coreContext.loadUser(m_testUserId);
-        CallSequence callSequence = m_context.getCallSequenceForUser(user);
+        CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(user);
         List calls = callSequence.getRings();
 
         Ring ring0 = (Ring) calls.get(0);
@@ -138,45 +136,48 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
             assertEquals(1002 + i, ring.getId().intValue());
         }
 
-        m_context.saveCallSequence(callSequence);
+        m_forwardingContext.saveCallSequence(callSequence);
 
-        ITable expected = TestHelper.loadDataSetFlat("forwarding/RingMoved.xml").getTable(
-                "ring");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
-        Assertion.assertEquals(expected, actual);
+        Object[][] expected = new Object[][] {
+                {1001, 1001, "231001", 401, true, "If no response", 0, 102},
+                {1002, 1000, "231002", 402, true, "If no response", 0, null},
+                {1003, 1000, "231003", 403, true, "If no response", 1, 100},
+                {1004, 1000, "231004", 404, false, "If no response", 2, 101},
+                {1005, 1001, "231005", 405, true, "If no response", 1, null}
+        };
+        ResultDataGrid actual = new ResultDataGrid();
+        db().query("select ring_id, user_id, number, expiration, enabled, ring_type, position, " + 
+                "schedule_id from ring order by ring_id", actual);
+        assertArrayEquals(expected, actual.toArray());
     }
 
     public void testAddRing() throws Exception {
         User user = m_coreContext.loadUser(m_testUserId);
-        CallSequence callSequence = m_context.getCallSequenceForUser(user);
+        CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(user);
 
         Ring ring = callSequence.insertRing();
         ring.setNumber("999999");
 
-        m_context.saveCallSequence(callSequence);
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
-        assertEquals("999999", actual.getValue(0, "Number"));
-        assertEquals(new Integer(3), actual.getValue(0, "Position"));
+        m_forwardingContext.saveCallSequence(callSequence);
+        commit();
+        Map<String, Object> actual = db().queryForMap("select * from ring where ring_id = ?", ring.getId());
+        assertEquals("999999", actual.get("Number"));
+        assertEquals(new Integer(3), actual.get("Position"));
     }
 
     public void testClearCallSequence() throws Exception {
         User user = m_coreContext.loadUser(m_testUserId);
-        CallSequence callSequence = m_context.getCallSequenceForUser(user);
-
-        ITable ringTable = TestHelper.getConnection().createDataSet().getTable("ring");
+        CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(user);
         assertFalse(callSequence.getRings().isEmpty());
-
-        int remainingRingCount = ringTable.getRowCount() - callSequence.getRings().size();
+        int origRingCount = countRowsInTable("ring");
+        int remainingRingCount = origRingCount - callSequence.getRings().size();
         m_coreContext.deleteUser(user);
-
-        ringTable = TestHelper.getConnection().createDataSet().getTable("ring");
-        assertEquals(remainingRingCount, ringTable.getRowCount());
+        assertEquals(remainingRingCount, countRowsInTable("ring"));
     }
 
     public void testGetPersonalSchedulesForUserID() throws Exception {
         User user = m_coreContext.loadUser(m_testUserId);
-        List<Schedule> schedules = m_context.getPersonalSchedulesForUserId(user.getId());
+        List<Schedule> schedules = m_forwardingContext.getPersonalSchedulesForUserId(user.getId());
 
         assertEquals(2, schedules.size());
         for (Schedule schedule : schedules) {
@@ -185,11 +186,10 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetSchedulesByID() throws Exception {
-        Schedule schedule = m_context.getScheduleById(new Integer(100));
-
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("schedule");
-        assertEquals(schedule.getName(), actual.getValue(0, "name"));
-        assertEquals(schedule.getDescription(), actual.getValue(0, "description"));
+        Schedule schedule = m_forwardingContext.getScheduleById(new Integer(100));
+        Map<String, Object> actual = db().queryForMap("select * from schedule where schedule_id = ?", 100);
+        assertEquals(schedule.getName(), actual.get("name"));
+        assertEquals(schedule.getDescription(), actual.get("description"));
     }
 
     public void testSaveSchedule() throws Exception {
@@ -217,12 +217,14 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         schedule.setName("TestSchedule");
         schedule.setDescription("Test Schedule");
 
-        m_context.saveSchedule(schedule);
+        m_forwardingContext.saveSchedule(schedule);
+        commit();
 
-        ITable actualSchedules = TestHelper.getConnection().createDataSet().getTable("schedule");
-        assertEquals(user.getId(), actualSchedules.getValue(0, "user_id"));
-        assertEquals("TestSchedule", actualSchedules.getValue(0, "name"));
-        assertEquals("Test Schedule", actualSchedules.getValue(0, "description"));
+        Map<String, Object> actual = db().queryForMap("select * from schedule where schedule_id = ?",
+                schedule.getId());
+        assertEquals(user.getId(), actual.get("user_id"));
+        assertEquals("TestSchedule", actual.get("name"));
+        assertEquals("Test Schedule", actual.get("description"));
     }
 
     public void testSaveDuplicateNameUserSchedule() throws Exception {
@@ -232,7 +234,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         userScheduleWithDuplicateName.setUser(testUser);
         userScheduleWithDuplicateName.setName("WorkingHours");
         try {
-            m_context.saveSchedule(userScheduleWithDuplicateName);
+            m_forwardingContext.saveSchedule(userScheduleWithDuplicateName);
         } catch (UserException ex) {
             assertTrue(true);
         }
@@ -245,7 +247,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         userGroupScheduleWithDuplicateName.setUserGroup(user.getGroupsAsList().get(0));
         userGroupScheduleWithDuplicateName.setName("MondaySchedule");
         try {
-            m_context.saveSchedule(userGroupScheduleWithDuplicateName);
+            m_forwardingContext.saveSchedule(userGroupScheduleWithDuplicateName);
         } catch (UserException ex) {
             assertTrue(true);
         }
@@ -255,7 +257,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         Schedule generalScheduleWithDuplicateName = new GeneralSchedule();
         generalScheduleWithDuplicateName.setName("GeneralSchedule");
         try {
-            m_context.saveSchedule(generalScheduleWithDuplicateName);
+            m_forwardingContext.saveSchedule(generalScheduleWithDuplicateName);
         } catch (UserException ex) {
             assertTrue(true);
         }
@@ -267,14 +269,15 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         scheduleIds.add(new Integer(100));
         scheduleIds.add(new Integer(101));
 
-        m_context.deleteSchedulesById(scheduleIds);
+        m_forwardingContext.deleteSchedulesById(scheduleIds);
+        commit();
 
-        assertEquals(3, getConnection().getRowCount("schedule"));
+        assertEquals(3, countRowsInTable("schedule"));
     }
 
     public void testGetAllAvailableSchedulesForUser() throws Exception {
         User user = m_coreContext.loadUser(m_testUserId);
-        List<Schedule> schedules = m_context.getAllAvailableSchedulesForUser(user);
+        List<Schedule> schedules = m_forwardingContext.getAllAvailableSchedulesForUser(user);
 
         assertEquals(2, schedules.size());
         for (Schedule schedule : schedules) {
@@ -283,7 +286,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetAllUserGroupSchedules() throws Exception {
-        List<UserGroupSchedule> allGroupSchedules = m_context.getAllUserGroupSchedules();
+        List<UserGroupSchedule> allGroupSchedules = m_forwardingContext.getAllUserGroupSchedules();
         assertEquals(1, allGroupSchedules.size());
         UserGroupSchedule groupSchedule = allGroupSchedules.get(0);
         assertEquals(new Integer(103), groupSchedule.getId());
@@ -292,11 +295,19 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetAllGeneralSchedules() throws Exception {
-        List<GeneralSchedule> allGeneralSchedules = m_context.getAllGeneralSchedules();
+        List<GeneralSchedule> allGeneralSchedules = m_forwardingContext.getAllGeneralSchedules();
         assertEquals(1, allGeneralSchedules.size());
         GeneralSchedule generalSchedule = allGeneralSchedules.get(0);
         assertEquals(new Integer(104), generalSchedule.getId());
         assertEquals("GeneralSchedule", generalSchedule.getName());
         assertEquals("Schedule for dialing rule", generalSchedule.getDescription());
+    }
+
+    public void setForwardingContext(ForwardingContext forwardingContext) {
+        m_forwardingContext = forwardingContext;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

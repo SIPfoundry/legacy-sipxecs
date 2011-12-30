@@ -13,9 +13,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 
-public interface ForwardingContext extends DaoEventListener {
+public interface ForwardingContext {
     static final String CONTEXT_BEAN_NAME = "forwardingContext";
 
     Ring getRing(Integer id);

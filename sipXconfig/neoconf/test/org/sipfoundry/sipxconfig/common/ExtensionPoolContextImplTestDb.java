@@ -9,52 +9,49 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class ExtensionPoolContextImplTestDb extends SipxDatabaseTestCase {
-    private ExtensionPoolContext m_context;
+public class ExtensionPoolContextImplTestDb extends IntegrationTestCase {
+    private ExtensionPoolContext m_extensionPoolContext;
 
-    protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        m_context = (ExtensionPoolContext) app.getBean(ExtensionPoolContext.CONTEXT_BEAN_NAME);
-        TestHelper.cleanInsert("ClearDb.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
     }
 
     public void testDefaultUserExtensionPoolCreation() throws Exception {
-        ExtensionPool pool = m_context.getUserExtensionPool();
+        ExtensionPool pool = m_extensionPoolContext.getUserExtensionPool();
         assertNotNull(pool);
     }
 
     public void testGetFreeUserExtension() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserExtensionPoolSeed.xml");
-        ExtensionPool pool = m_context.getUserExtensionPool();
+        loadDataSet("common/TestUserExtensionPoolSeed.xml");
+        ExtensionPool pool = m_extensionPoolContext.getUserExtensionPool();
 
         // Find the first free extension
-        assertEquals(5, m_context.getNextFreeUserExtension().intValue());
+        assertEquals(5, m_extensionPoolContext.getNextFreeUserExtension().intValue());
 
         // Push the next extension forward and search again
         pool.setNextExtension(11);
-        m_context.saveExtensionPool(pool);
-        assertEquals(17, m_context.getNextFreeUserExtension().intValue());
+        m_extensionPoolContext.saveExtensionPool(pool);
+        assertEquals(17, m_extensionPoolContext.getNextFreeUserExtension().intValue());
 
         // When we can't find an extension starting from the desired extension, we
         // should start again from the beginning of the range
         pool.setLastExtension(16);
-        m_context.saveExtensionPool(pool);
-        assertEquals(5, m_context.getNextFreeUserExtension().intValue());
+        m_extensionPoolContext.saveExtensionPool(pool);
+        assertEquals(5, m_extensionPoolContext.getNextFreeUserExtension().intValue());
 
         // When the pool is disabled, we should not get an extension
         pool.setEnabled(false);
-        m_context.saveExtensionPool(pool);
-        assertNull(m_context.getNextFreeUserExtension());
+        m_extensionPoolContext.saveExtensionPool(pool);
+        assertNull(m_extensionPoolContext.getNextFreeUserExtension());
         pool.setEnabled(true);
 
         // When the first extension is null, we should not get an extension
         pool.setFirstExtension(null);
-        m_context.saveExtensionPool(pool);
-        assertNull(m_context.getNextFreeUserExtension());
+        m_extensionPoolContext.saveExtensionPool(pool);
+        assertNull(m_extensionPoolContext.getNextFreeUserExtension());
         pool.setFirstExtension(1);
 
         // When the last extension is null, the search should be unbounded at the top
@@ -62,15 +59,19 @@ public class ExtensionPoolContextImplTestDb extends SipxDatabaseTestCase {
         pool.setFirstExtension(BIG_FIRST_EXT);
         pool.setLastExtension(null);
         pool.setNextExtension(BIG_FIRST_EXT);
-        m_context.saveExtensionPool(pool);
-        assertEquals(BIG_FIRST_EXT, m_context.getNextFreeUserExtension().intValue());
+        m_extensionPoolContext.saveExtensionPool(pool);
+        assertEquals(BIG_FIRST_EXT, m_extensionPoolContext.getNextFreeUserExtension().intValue());
 
         // When there are no free extensions, we should not get one
         pool.setFirstExtension(11);
         pool.setLastExtension(16);
         pool.setNextExtension(11);
-        m_context.saveExtensionPool(pool);
-        assertNull(m_context.getNextFreeUserExtension());
+        m_extensionPoolContext.saveExtensionPool(pool);
+        assertNull(m_extensionPoolContext.getNextFreeUserExtension());
+    }
+
+    public void setExtensionPoolContext(ExtensionPoolContext extensionPoolContext) {
+        m_extensionPoolContext = extensionPoolContext;
     }
 
 }

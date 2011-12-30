@@ -47,7 +47,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/gdata-core-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guessencoding-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gwt-user-2.1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/hibernate-3.2.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-3.2.7.jar" sourcepath="/home/dhubler/libsrc/hibernate-3.2.7/src"/>
 	<classpathentry exported="true" kind="lib" path="lib/htmlunit-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/htmlunit-core-js-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/index"/>

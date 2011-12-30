@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.intercom;
 
+
 import java.util.Collections;
 import java.util.List;
 
@@ -17,28 +18,20 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
+public class IntercomManagerImplTestDb extends IntegrationTestCase {
     private static final String PREFIX_DEFAULT = "*76"; // keep in sync with intercom.beans.xml
     private static final int TIMEOUT_DEFAULT = 5000;
 
     private IntercomManager m_intercomManager;
     private PhoneContext m_phoneContext;
-    private SettingDao m_settingsDao;
+    private SettingDao m_settingDao;
 
-    protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        m_intercomManager = (IntercomManagerImpl) app
-                .getBean(IntercomManagerImpl.CONTEXT_BEAN_NAME);
-        m_phoneContext = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
-        m_settingsDao = (SettingDao) TestHelper.getApplicationContext().getBean(
-                SettingDao.CONTEXT_NAME);
-
-        TestHelper.cleanInsert("ClearDb.xml");
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
     }
 
     public void testNewIntercom() {
@@ -64,7 +57,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSaveIntercom() throws Exception {
-        TestHelper.insertFlat("phone/SeedPhoneGroup.xml");
+        sql("phone/SeedPhoneGroup.sql");
 
         // create the intercom
         Intercom intercom = m_intercomManager.newIntercom();
@@ -94,7 +87,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteGroup() throws Exception {
-        TestHelper.insertFlat("phone/SeedPhoneGroup.xml");
+        sql("phone/SeedPhoneGroup.sql");
 
         // create the intercom
         Intercom intercom = m_intercomManager.newIntercom();
@@ -111,8 +104,8 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
 
         // save the intercom
         m_intercomManager.saveIntercom(intercom);
-
-        m_settingsDao.deleteGroups(Collections.singleton(groups.get(0).getId()));
+        commit();
+        m_settingDao.deleteGroups(Collections.singleton(groups.get(0).getId()));
 
         // load it back up and check it
         List intercoms = m_intercomManager.loadIntercoms();
@@ -128,7 +121,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testLoadIntercoms() throws Exception {
         // verify loading the sample data
-        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
+        loadDataSet("intercom/SampleIntercoms.xml");
         List intercoms = m_intercomManager.loadIntercoms();
         assertEquals(2, intercoms.size());
         Intercom i1 = (Intercom) intercoms.get(0);
@@ -139,14 +132,14 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetNumIntercoms() throws Exception {
         assertEquals(0, m_intercomManager.loadIntercoms().size());
-        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
+        loadDataSet("intercom/SampleIntercoms.xml");
         assertEquals(2, m_intercomManager.loadIntercoms().size());
     }
 
     public void testGetIntercomForPhone() throws Exception {
         // load some sample intercoms and phones
-        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
-        TestHelper.insertFlat("phone/SamplePhoneSeed.xml");
+        loadDataSet("intercom/SampleIntercoms.xml");
+        loadDataSet("phone/SamplePhoneSeed.xml");
 
         // play with linking phones to intercoms
 
@@ -171,14 +164,14 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetRules() throws Exception {
-        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
+        loadDataSet("intercom/SampleIntercoms.xml");
         List< ? extends DialingRule> rules = m_intercomManager.getDialingRules();
         assertEquals(2, rules.size());
     }
 
     public void testClear() throws Exception {
         // load some sample intercoms
-        TestHelper.insertFlat("intercom/SampleIntercoms.xml");
+        loadDataSet("intercom/SampleIntercoms.xml");
 
         // blow them all away
         m_intercomManager.clear();
@@ -186,5 +179,17 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         // they should be gone
         List intercoms = m_intercomManager.loadIntercoms();
         assertEquals(0, intercoms.size());
+    }
+
+    public void setIntercomManager(IntercomManager intercomManager) {
+        m_intercomManager = intercomManager;
+    }
+
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
+    }
+
+    public void setSettingDao(SettingDao settingsDao) {
+        m_settingDao = settingsDao;
     }
 }

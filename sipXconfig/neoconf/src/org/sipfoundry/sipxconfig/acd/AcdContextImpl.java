@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
@@ -45,7 +46,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware {
+public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware, DaoEventListener {
     public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);
     private static final String NAME_PROPERTY = "name";
     private static final String SERVER_PARAM = "acdServer";
@@ -522,5 +523,26 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof User) {
+            onUserDelete((User) entity);
+        } else if (entity instanceof Location) {
+            onLocationDelete((Location) entity);
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
+    }
+
+    private void onLocationDelete(Location location) {
+        getHibernateTemplate().update(location);
+        AcdServer server = getAcdServerForLocationId(location.getId());
+        if (server != null) {
+            getHibernateTemplate().delete(server);
+        }
     }
 }

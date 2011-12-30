@@ -100,6 +100,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (rule.isNew()) {
             DialPlan dialPlan = getDialPlan();
             dialPlan.addRule(rule);
+            getHibernateTemplate().saveOrUpdate(rule);
             getHibernateTemplate().saveOrUpdate(dialPlan);
             getDaoEventPublisher().publishSave(dialPlan);
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, rule.getName());

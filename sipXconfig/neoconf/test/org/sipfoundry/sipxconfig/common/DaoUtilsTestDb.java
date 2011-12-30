@@ -9,29 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class DaoUtilsTestDb extends SipxDatabaseTestCase {
-    private SipxHibernateDaoSupport m_dao;
-    private HibernateTemplate m_hibernate;
-
-    protected void setUp() throws Exception {
-        m_dao = SipxHibernateDaoSupportTestDb.createDao();
-        m_hibernate = m_dao.getHibernateTemplate();
-        TestHelper.cleanInsert("ClearDb.xml");
-    }
+public class DaoUtilsTestDb extends IntegrationTestCase {
 
     public void testCheckDuplicates() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        sql("common/UserSearchSeed.sql");
 
         User user = new User();
         user.setUserName("userseed1");
-        assertTrue(DaoUtils.checkDuplicates(m_hibernate, User.class, user, "userName", null));
+        assertTrue(DaoUtils.checkDuplicates(getHibernateTemplate(), User.class, user, "userName", null));
 
         user = new User();
         user.setUserName("wont find this guy");
-        assertFalse(DaoUtils.checkDuplicates(m_hibernate, User.class, user, "userName", null));
+        assertFalse(DaoUtils.checkDuplicates(getHibernateTemplate(), User.class, user, "userName", null));
     }
 }

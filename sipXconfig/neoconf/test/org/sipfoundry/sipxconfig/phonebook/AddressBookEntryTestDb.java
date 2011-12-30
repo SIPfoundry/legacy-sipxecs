@@ -5,15 +5,9 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-import org.dbunit.Assertion;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
 
 public class AddressBookEntryTestDb extends IntegrationTestCase {
     private CoreContext m_coreContext;
@@ -21,7 +15,7 @@ public class AddressBookEntryTestDb extends IntegrationTestCase {
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
-        db().execute("select truncate_all()");
+        clear();
     }
     
     @Override

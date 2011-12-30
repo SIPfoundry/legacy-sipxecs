@@ -13,27 +13,26 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import org.dbunit.dataset.ITable;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class ParkOrbitTestDb extends SipxDatabaseTestCase {
-
-    private ParkOrbitContext m_context;
+public class ParkOrbitTestDb extends IntegrationTestCase {
+    private ParkOrbitContext m_parkOrbitContext;
 
     @Override
-    protected void setUp() throws Exception {
-        ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_context = (ParkOrbitContext) appContext.getBean(ParkOrbitContext.CONTEXT_BEAN_NAME);
-
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsert("parkorbit/OrbitSeed.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+    }
+    
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
+        loadDataSetXml("parkorbit/OrbitSeed.xml");
     }
 
     public void testLoadParkOrbit() throws Exception {
-        ParkOrbit orbit = m_context.loadParkOrbit(new Integer(1001));
+        ParkOrbit orbit = m_parkOrbitContext.loadParkOrbit(new Integer(1001));
         assertEquals("sales", orbit.getName());
         assertTrue(orbit.isEnabled());
         assertEquals("sales", orbit.getName());
@@ -42,7 +41,7 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetParkOrbits() throws Exception {
-        Collection<ParkOrbit> orbits = m_context.getParkOrbits();
+        Collection<ParkOrbit> orbits = m_parkOrbitContext.getParkOrbits();
         assertEquals(2, orbits.size());
         Iterator<ParkOrbit> i = orbits.iterator();
         ParkOrbit orbit1 = i.next();
@@ -57,50 +56,52 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         orbit.setExtension("202");
         orbit.setEnabled(true);
         orbit.setMusic("tango.wav");
-        m_context.storeParkOrbit(orbit);
+        m_parkOrbitContext.storeParkOrbit(orbit);
         // table will have 4 rows - 3 park orbits + 1 music on hold
-        ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
-        assertEquals(4, orbitTable.getRowCount());
+        commit();
+        assertEquals(4, countRowsInTable("park_orbit"));
     }
 
     public void testRemoveParkOrbit() throws Exception {
         List ids = Arrays.asList(new Integer[] {
             new Integer(1001), new Integer(1002)
         });
-        m_context.removeParkOrbits(ids);
+        m_parkOrbitContext.removeParkOrbits(ids);
         // table should be empty now - except for 1 music on hold orbit
-        ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
-        assertEquals(1, orbitTable.getRowCount());
+        assertEquals(1, countRowsInTable("park_orbit"));
     }
 
     public void testClear() throws Exception {
-        m_context.clear();
+        m_parkOrbitContext.clear();
+        commit();
         // table should be empty now - except for 1 music on hold orbit
-        ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
-        assertEquals(1, orbitTable.getRowCount());
+        assertEquals(1, countRowsInTable("park_orbit"));
     }
 
     public void testDefaultMusicOnHold() throws Exception {
         final String newMusic = "new.wav";
-        assertEquals("default.wav", m_context.getDefaultMusicOnHold());
-        m_context.setDefaultMusicOnHold(newMusic);
-        assertEquals(newMusic, m_context.getDefaultMusicOnHold());
-
-        ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
-        assertEquals(newMusic, orbitTable.getValue(2, "music"));
+        assertEquals("default.wav", m_parkOrbitContext.getDefaultMusicOnHold());
+        m_parkOrbitContext.setDefaultMusicOnHold(newMusic);
+        commit();
+        assertEquals(newMusic, m_parkOrbitContext.getDefaultMusicOnHold());
+        db().queryForInt("select 1 from park_orbit where music = ?", newMusic);
     }
 
     public void testIsAliasInUse() {
-        assertTrue(m_context.isAliasInUse("sales"));
-        assertTrue(m_context.isAliasInUse("501"));
-        assertTrue(m_context.isAliasInUse("502"));
-        assertFalse(m_context.isAliasInUse("911"));
+        assertTrue(m_parkOrbitContext.isAliasInUse("sales"));
+        assertTrue(m_parkOrbitContext.isAliasInUse("501"));
+        assertTrue(m_parkOrbitContext.isAliasInUse("502"));
+        assertFalse(m_parkOrbitContext.isAliasInUse("911"));
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() {
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("sales").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("501").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("502").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("911").size() == 0);
+        assertTrue(m_parkOrbitContext.getBeanIdsOfObjectsWithAlias("sales").size() == 1);
+        assertTrue(m_parkOrbitContext.getBeanIdsOfObjectsWithAlias("501").size() == 1);
+        assertTrue(m_parkOrbitContext.getBeanIdsOfObjectsWithAlias("502").size() == 1);
+        assertTrue(m_parkOrbitContext.getBeanIdsOfObjectsWithAlias("911").size() == 0);
+    }
+
+    public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
+        m_parkOrbitContext = parkOrbitContext;
     }
 }

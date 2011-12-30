@@ -9,12 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
@@ -23,43 +23,25 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.InternationalRule;
 import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class GatewayContextTestDb extends SipxDatabaseTestCase {
-
-    private GatewayContext m_context;
-
-    private ModelSource<GatewayModel> m_modelSource;
-
+public class GatewayContextTestDb extends IntegrationTestCase {
+    private GatewayContext m_gatewayContext;
+    private ModelSource<GatewayModel> m_nakedGatewayModelSource;
     private DialPlanContext m_dialPlanContext;
-
-    private ApplicationContext m_appContext;
-
     private GatewayModel m_genericModel;
-
     private GatewayModel m_genericSipTrunk;
-
     private SbcDeviceManager m_sbcDeviceManager;
-
     private BranchManager m_branchManager;
-
     private ResetDialPlanTask m_resetDialPlanTask;
 
     @Override
-    protected void setUp() throws Exception {
-        m_appContext = TestHelper.getApplicationContext();
-        m_context = (GatewayContext) m_appContext.getBean(GatewayContext.CONTEXT_BEAN_NAME);
-        m_dialPlanContext = (DialPlanContext) m_appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
-        m_modelSource = (ModelSource<GatewayModel>) m_appContext.getBean("nakedGatewayModelSource");
-        m_genericModel = m_modelSource.getModel("genericGatewayStandard");
-        m_genericSipTrunk = m_modelSource.getModel("sipTrunkStandard");
-        m_resetDialPlanTask = (ResetDialPlanTask) m_appContext.getBean("resetDialPlanTask");
-        TestHelper.cleanInsert("ClearDb.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        m_genericModel = m_nakedGatewayModelSource.getModel("genericGatewayStandard");
+        m_genericSipTrunk = m_nakedGatewayModelSource.getModel("sipTrunkStandard");        
+        clear();
         m_resetDialPlanTask.reset(true);
-        m_sbcDeviceManager = (SbcDeviceManager) m_appContext.getBean(SbcDeviceManager.CONTEXT_BEAN_NAME);
-        m_branchManager = (BranchManager) m_appContext.getBean("branchManager");
     }
 
     public void testAddGateway() {
@@ -67,17 +49,17 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         Gateway g2 = new Gateway(m_genericModel);
 
         // add g1
-        m_context.saveGateway(g1);
+        m_gatewayContext.saveGateway(g1);
 
-        assertEquals(1, m_context.getGateways().size());
-        assertTrue(m_context.getGateways().contains(g1));
+        assertEquals(1, m_gatewayContext.getGateways().size());
+        assertTrue(m_gatewayContext.getGateways().contains(g1));
 
         // add g2
-        m_context.saveGateway(g2);
+        m_gatewayContext.saveGateway(g2);
 
-        assertEquals(2, m_context.getGateways().size());
-        assertTrue(m_context.getGateways().contains(g1));
-        assertTrue(m_context.getGateways().contains(g2));
+        assertEquals(2, m_gatewayContext.getGateways().size());
+        assertTrue(m_gatewayContext.getGateways().contains(g1));
+        assertTrue(m_gatewayContext.getGateways().contains(g2));
     }
 
     public void testAddDuplicateGatewayDuplicate() throws Exception {
@@ -87,11 +69,11 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         g2.setName("bongo");
 
         // add g1
-        m_context.saveGateway(g1);
+        m_gatewayContext.saveGateway(g1);
 
         // add g2
         try {
-            m_context.saveGateway(g2);
+            m_gatewayContext.saveGateway(g2);
             fail("Duplicate gateway names should not be possible.");
         } catch (UserException e) {
             // ok
@@ -104,16 +86,16 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         Gateway g3 = new Gateway(m_genericModel);
 
         // add all
-        m_context.saveGateway(g1);
-        m_context.saveGateway(g2);
-        m_context.saveGateway(g3);
+        m_gatewayContext.saveGateway(g1);
+        m_gatewayContext.saveGateway(g2);
+        m_gatewayContext.saveGateway(g3);
 
         Gateway[] toBeRemoved = {
             g1, g3
         };
-        m_context.deleteGateways(Arrays.asList(toBeRemoved));
+        m_gatewayContext.deleteGateways(Arrays.asList(toBeRemoved));
 
-        List gateways = m_context.getGateways();
+        List gateways = m_gatewayContext.getGateways();
 
         assertEquals(1, gateways.size());
         assertFalse(gateways.contains(g1));
@@ -124,7 +106,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     public void testUpdateGateway() throws Exception {
         Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
-        m_context.saveGateway(g1);
+        m_gatewayContext.saveGateway(g1);
         g1.setAddress("10.1.1.2");
         g1.setAddressPort(5050);
         g1.setPrefix("33");
@@ -140,7 +122,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         info.setUrlParameters("param=value");
         g1.setCallerAliasInfo(info);
 
-        m_context.saveGateway(g1);
+        m_gatewayContext.saveGateway(g1);
         assertEquals("10.1.1.2", g1.getAddress());
         assertEquals("10.1.1.2:5050", g1.getGatewayAddress());
         assertEquals(5050, g1.getAddressPort());
@@ -158,11 +140,11 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     public void testSaveLoadUpdateGateway() throws Exception {
         Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
-        m_context.saveGateway(g1);
+        m_gatewayContext.saveGateway(g1);
 
-        Gateway g2 = m_context.getGateway(g1.getId());
+        Gateway g2 = m_gatewayContext.getGateway(g1.getId());
         g2.setAddress("10.1.1.2");
-        m_context.saveGateway(g2);
+        m_gatewayContext.saveGateway(g2);
         assertEquals("10.1.1.2", g2.getGatewayAddress());
         assertEquals("10.1.1.2", g2.getAddress());
     }
@@ -170,7 +152,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     public void testDeleteGatewayInUse() {
         Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
-        m_context.saveGateway(g1);
+        m_gatewayContext.saveGateway(g1);
         InternationalRule rule = new InternationalRule();
         rule.setName("testRule");
         rule.setInternationalPrefix("011");
@@ -178,7 +160,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
         m_dialPlanContext.storeRule(rule);
         // remove gateway
-        m_context.deleteGateways(Collections.singletonList(g1));
+        m_gatewayContext.deleteGateways(Collections.singletonList(g1));
 
         Integer ruleId = rule.getId();
 
@@ -191,47 +173,47 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         rule.setName("testRule");
         rule.setInternationalPrefix("011");
 
-        TestHelper.cleanInsertFlat("gateway/seed_gateway.db.xml");
+        sql("gateway/seed_gateway.sql");
 
         int gatewayId = 1001;
-        Gateway gateway = m_context.getGateway(gatewayId);
+        Gateway gateway = m_gatewayContext.getGateway(gatewayId);
 
         rule.addGateway(gateway);
 
         m_dialPlanContext.storeRule(rule);
+        commit();
 
         int ruleId = rule.getId();
-        m_context.removeGatewaysFromRule(ruleId, Collections.singleton(gatewayId));
+        m_gatewayContext.removeGatewaysFromRule(ruleId, Collections.singleton(gatewayId));
 
         rule = (InternationalRule) m_dialPlanContext.getRule(ruleId);
         assertTrue(rule.getGateways().isEmpty());
 
-        m_context.addGatewaysToRule(ruleId, Collections.singleton(gatewayId));
+        m_gatewayContext.addGatewaysToRule(ruleId, Collections.singleton(gatewayId));
         rule = (InternationalRule) m_dialPlanContext.getRule(ruleId);
         assertEquals(gateway, rule.getGateways().get(0));
     }
 
     public void testAllGateways() throws Exception {
-        Collection<GatewayModel> models = m_modelSource.getModels();
+        Collection<GatewayModel> models = m_nakedGatewayModelSource.getModels();
         for (GatewayModel model : models) {
-            Gateway gateway = m_context.newGateway(model);
-            String beanId = model.getBeanId();
-            assertEquals(gateway.getClass(), m_appContext.getBean(beanId).getClass());
+            Gateway gateway = m_gatewayContext.newGateway(model);
+            String beanId = model.getBeanId();            
+            assertEquals(gateway.getClass(), getApplicationContext().getBean(beanId).getClass());
             if (beanId.equals("gwGeneric")) {
                 assertNull(gateway.getSettings());
             } else {
                 assertNotNull(gateway.getSettings());
             }
-            m_context.saveGateway(gateway);
+            m_gatewayContext.saveGateway(gateway);
         }
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("gateway");
         // one gateway per row
-        assertEquals(models.size(), actual.getRowCount());
+        assertEquals(models.size(), countRowsInTable("gateway"));
     }
 
     public void testGetGatewaySettings() throws Exception {
-        TestHelper.cleanInsertFlat("gateway/seed_gateway.db.xml");
-        Device gateway = m_context.getGateway(1001);
+        sql("gateway/seed_gateway.sql");
+        Device gateway = m_gatewayContext.getGateway(1001);
         assertNotNull(gateway.getProfileGenerator());
     }
 
@@ -244,54 +226,75 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
             g1.addPort(new FxoPort());
         }
 
-        m_context.saveGateway(g1);
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("fxo_port");
-        assertEquals(3, actual.getRowCount());
+        m_gatewayContext.saveGateway(g1);
+        assertEquals(3, countRowsInTable("fxo_port"));
     }
 
     public void testRemovePortsFromGateway() throws Exception {
-        TestHelper.cleanInsertFlat("gateway/gateway_ports.db.xml");
-        ITable ports = TestHelper.getConnection().createDataSet().getTable("fxo_port");
-        assertEquals(3, ports.getRowCount());
+        sql("gateway/gateway_ports.sql");
+        assertEquals(3, countRowsInTable("fxo_port"));
 
         Integer[] ids = new Integer[] {
             1000, 1005
         };
-        m_context.removePortsFromGateway(1001, Arrays.asList(ids));
+        m_gatewayContext.removePortsFromGateway(1001, Arrays.asList(ids));
+        commit();
+        assertEquals(1, countRowsInTable("fxo_port"));
 
-        ports = TestHelper.getConnection().createDataSet().getTable("fxo_port");
-        assertEquals(1, ports.getRowCount());
-
-        Gateway gateway = m_context.getGateway(1001);
+        Gateway gateway = m_gatewayContext.getGateway(1001);
         assertEquals(1, gateway.getPorts().size());
     }
 
     public void testDeleteAssociateSbcDevice() throws Exception {
-        TestHelper.insertFlat("gateway/gateway_sbc_device.db.xml");
+        sql("gateway/gateway_sbc_device.sql");
 
-        SipTrunk sipTrunk = (SipTrunk) m_context.getGateway(1002);
+        SipTrunk sipTrunk = (SipTrunk) m_gatewayContext.getGateway(1002);
         assertNotNull(sipTrunk);
         assertNotNull(sipTrunk.getSbcDevice());
         assertEquals("10.1.2.2", sipTrunk.getSbcDevice().getAddress());
 
         m_sbcDeviceManager.deleteSbcDevice(sipTrunk.getSbcDevice().getId());
-        sipTrunk = (SipTrunk) m_context.getGateway(1002);
+        sipTrunk = (SipTrunk) m_gatewayContext.getGateway(1002);
         assertNotNull(sipTrunk);
         assertNull(sipTrunk.getSbcDevice());
     }
 
     public void testDeleteAssociateSpecificBranch() throws Exception {
-        TestHelper.insertFlat("gateway/gateway_location.xml");
+        sql("gateway/gateway_location.sql");
 
-        Gateway g = m_context.getGateway(1003);
+        Gateway g = m_gatewayContext.getGateway(1003);
         assertNotNull(g);
         assertNotNull(g.getBranch());
         assertEquals("branch1", g.getBranch().getName());
 
         m_branchManager.deleteBranches(Collections.singletonList(g.getBranch().getId()));
-
-        g = m_context.getGateway(1003);
+        commit();
+        g = m_gatewayContext.getGateway(1003);
         assertNotNull(g);
         assertNull(g.getBranch());
+    }
+
+    public void setGatewayContext(GatewayContext gatewayContext) {
+        m_gatewayContext = gatewayContext;
+    }
+
+    public void setNakedGatewayModelSource(ModelSource<GatewayModel> nakedGatewayModelSource) {
+        m_nakedGatewayModelSource = nakedGatewayModelSource;
+    }
+
+    public void setDialPlanContext(DialPlanContext dialPlanContext) {
+        m_dialPlanContext = dialPlanContext;
+    }
+
+    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
+        m_sbcDeviceManager = sbcDeviceManager;
+    }
+
+    public void setBranchManager(BranchManager branchManager) {
+        m_branchManager = branchManager;
+    }
+
+    public void setResetDialPlanTask(ResetDialPlanTask resetDialPlanTask) {
+        m_resetDialPlanTask = resetDialPlanTask;
     }
 }

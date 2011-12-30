@@ -13,26 +13,23 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 
-public class PhoneSummaryTestDb extends SipxDatabaseTestCase {
-
-    private PhoneContext m_context;
+public class PhoneSummaryTestDb extends IntegrationTestCase {
+    private PhoneContext m_phoneContext;
 
     @Override
-    protected void setUp() throws Exception {
-        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
     }
 
     public void testLoad() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        TestHelper.cleanInsertFlat("phone/PhoneSummarySeed.xml");
+        sql("common/TestUserSeed.sql");
+        loadDataSet("phone/PhoneSummarySeed.xml");
 
-        List<Phone> summaries = m_context.loadPhones();
+        List<Phone> summaries = m_phoneContext.loadPhones();
 
         Comparator<Phone> idSort = new Comparator<Phone>() {
             public int compare(Phone phone1, Phone phone2){
@@ -53,5 +50,9 @@ public class PhoneSummaryTestDb extends SipxDatabaseTestCase {
 
         assertEquals("unittest-sample phone3", summariesArray[2].getDescription());
         assertEquals(2, summariesArray[2].getLines().size());
+    }
+
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
     }
 }

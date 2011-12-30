@@ -13,37 +13,37 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class DaoEventDispatcherTestDb extends SipxDatabaseTestCase {
-
+public class DaoEventDispatcherTestDb extends IntegrationTestCase {
     private DaoEventDispatcher m_dispatcher;
     private DaoEventPublisher m_publisherOrg;
-    private CoreContext m_core;
+    private CoreContext m_coreContext;
 
-
-    protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
-        m_dispatcher = (DaoEventDispatcher)app.getBean("onSaveEventDispatcher");
-        TestHelper.cleanInsert("ClearDb.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
         m_publisherOrg = null;
+        clear();
+    }
+    
+    public void setOnSaveEventDispatcher(DaoEventDispatcher dispatcher) {
+        m_dispatcher = dispatcher;
     }
 
-    protected void tearDown() throws Exception {
-        // this is called in finally block to restore the appliation context
+    @Override
+    protected void onTearDownAfterTransaction() throws Exception {
+        super.onTearDownAfterTransaction();
+        // this is called in finally block to restore the application context
         if(m_publisherOrg != null) {
             m_dispatcher.setPublisher(m_publisherOrg);
         }
     }
         	
     public void testOnSaveAspect() throws Exception {
-        	User u = new User();
-        	u.setUserName("testme");
-        	
-        	IMocksControl publisherCtrl = EasyMock.createControl();
+    	User u = new User();
+    	u.setUserName("testme");
+    	
+    	IMocksControl publisherCtrl = EasyMock.createControl();
 		DaoEventPublisher publisher = publisherCtrl.createMock(DaoEventPublisher.class);
 		publisher.publishSave(u);
         publisherCtrl.replay();
@@ -52,12 +52,16 @@ public class DaoEventDispatcherTestDb extends SipxDatabaseTestCase {
         m_dispatcher.setPublisher(publisher);
 
         // should generate event
-    	m_core.saveUser(u);
+    	m_coreContext.saveUser(u);
 
         // no event now
-    	m_core.clear();
+    	m_coreContext.clear();
     	
     	publisherCtrl.verify();
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }
 

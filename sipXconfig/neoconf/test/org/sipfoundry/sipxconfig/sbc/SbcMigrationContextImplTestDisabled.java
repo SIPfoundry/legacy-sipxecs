@@ -9,25 +9,21 @@
  */
 package org.sipfoundry.sipxconfig.sbc;
 
-import org.sipfoundry.sipxconfig.test.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
 
-public class SbcMigrationContextImplTestDb extends SipxDatabaseTestCase {
-    private SbcMigrationContext m_context;
-
+public class SbcMigrationContextImplTestDisabled extends IntegrationTestCase {
+    private SbcMigrationContext m_sbcMigrationContext;
     private SbcManager m_sbcManager;
 
-    protected void setUp() throws Exception {
-        ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_context = (SbcMigrationContext) appContext
-                .getBean(SbcMigrationContext.CONTEXT_BEAN_NAME);
-        m_sbcManager = (SbcManager) appContext.getBean(SbcManager.CONTEXT_BEAN_NAME);
-        TestHelper.cleanInsert("ClearDb.xml");
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
     }
 
     public void testMigrateSbc() throws Exception {
-        TestHelper.cleanInsertFlat("dialplan/sbc/pre_migration_sbc_address.db.xml");
+        TestHelper.cleanInsertFlat("sbc/pre_migration_sbc_address.db.xml");
         assertEquals(0, getConnection().getRowCount("sbc_device"));
         assertEquals(3, getConnection().getRowCount("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
@@ -35,7 +31,7 @@ public class SbcMigrationContextImplTestDb extends SipxDatabaseTestCase {
         AuxSbc auxSbc = m_sbcManager.loadSbc(1001);
         assertNull(auxSbc.getSbcDevice());
 
-        m_context.migrateSbc();
+        m_sbcMigrationContext.migrateSbc();
 
         assertEquals(3, getConnection().getRowCount("sbc_device"));
         assertEquals(3, getConnection().getRowCount("sbc"));
@@ -47,5 +43,13 @@ public class SbcMigrationContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("10.1.2.4", auxSbc.getSbcDevice().getAddress());
 
         m_sbcManager.clear();
+    }
+
+    public void setSbcMigrationContext(SbcMigrationContext sbcMigrationContext) {
+        m_sbcMigrationContext = sbcMigrationContext;
+    }
+
+    public void setSbcManager(SbcManager sbcManager) {
+        m_sbcManager = sbcManager;
     }
 }

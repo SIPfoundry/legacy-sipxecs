@@ -12,67 +12,70 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 import java.util.Collection;
 import java.util.Map;
 
-import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings.AuthenticationOptions;
 import org.sipfoundry.sipxconfig.common.CronSchedule;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.sipfoundry.sipxconfig.test.TestHelper.TestCaseDb;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class LdapManagerTestDb extends TestCaseDb {
-
-    private LdapManager m_context;
+public class LdapManagerTestDb extends IntegrationTestCase {
+    private LdapManager m_ldapManager;
 
     @Override
-    protected void setUp() throws Exception {
-        ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_context = (LdapManager) appContext.getBean(LdapManager.CONTEXT_BEAN_NAME);
-        TestHelper.cleanInsert("ClearDb.xml");
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
     }
 
     public void testLdapSystemSettings() throws Exception {
-        LdapSystemSettings settings = m_context.getSystemSettings();
+        LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         assertNotNull(settings);
-        ITable before = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
-        assertEquals(0, before.getRowCount());
+        assertEquals(0, countRowsInTable("ldap_settings"));
         settings.setAuthenticationOptions(AuthenticationOptions.LDAP);
         settings.setEnableOpenfireConfiguration(true);
-        m_context.saveSystemSettings(settings);
-        ITable after = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
-        assertEquals(1, after.getRowCount());
-        assertEquals("LDAP", after.getValue(0, "authentication_options"));
-        assertTrue((Boolean)after.getValue(0, "enable_openfire_configuration"));
+        m_ldapManager.saveSystemSettings(settings);
+        commit();
+        assertEquals(1, countRowsInTable("ldap_settings"));        
+        Map<String, Object> after = db().queryForMap("select * from ldap_settings");
+        assertEquals("LDAP", after.get("authentication_options"));
+        assertTrue((Boolean)after.get("enable_openfire_configuration"));
         //by default LDAP configuration is not activated
-        assertFalse((Boolean)after.getValue(0, "configured"));
+        assertFalse((Boolean)after.get("configured"));
+    }
+        
+    public void testNoLdapSystemSettings() throws Exception {
+        LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         //test noLDAP / unconfigured
         settings.setAuthenticationOptions(AuthenticationOptions.NO_LDAP);
         settings.setEnableOpenfireConfiguration(true);
         settings.setConfigured(false);
-        m_context.saveSystemSettings(settings);
-        after = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
-        assertEquals(1, after.getRowCount());
-        assertEquals("noLDAP", after.getValue(0, "authentication_options"));
-        assertFalse((Boolean)after.getValue(0, "configured"));
+        m_ldapManager.saveSystemSettings(settings);
+        commit();
+        assertEquals(1, countRowsInTable("ldap_settings"));
+        Map<String, Object> after = db().queryForMap("select * from ldap_settings");
+        assertEquals("noLDAP", after.get("authentication_options"));
+        assertFalse((Boolean)after.get("configured"));
+    }
+    
+    public void testPinLdapSystemSettings() throws Exception {
+        LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         //test pinLDAP
         settings.setAuthenticationOptions(AuthenticationOptions.PIN_LDAP);
         settings.setEnableOpenfireConfiguration(true);
-        m_context.saveSystemSettings(settings);
-        after = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
-        assertEquals(1, after.getRowCount());
-        assertEquals("pinLDAP", after.getValue(0, "authentication_options"));
+        m_ldapManager.saveSystemSettings(settings);
+        commit();
+        assertEquals(1, countRowsInTable("ldap_settings"));
+        Map<String, Object> after = db().queryForMap("select * from ldap_settings");
+        assertEquals("pinLDAP", after.get("authentication_options"));
     }
 
     public void testGetConnectionParams() throws Exception {
-        LdapConnectionParams connectionParams = m_context.getConnectionParams();
+        LdapConnectionParams connectionParams = m_ldapManager.getConnectionParams();
         assertNotNull(connectionParams);
         assertNotNull(connectionParams.getSchedule());
+        commit();
+        assertEquals(1, countRowsInTable("ldap_connection"));
 
-        ITable ldapConnectionTable = TestHelper.getConnection().createDataSet().getTable("ldap_connection");
-        assertEquals(1, ldapConnectionTable.getRowCount());
-
-        ITable cronScheduleTable = TestHelper.getConnection().createDataSet().getTable("cron_schedule");
         // this will change once we start keeping something else in the table
-        assertEquals(1, cronScheduleTable.getRowCount());
+        assertEquals(1, countRowsInTable("cron_schedule"));
     }
 
     public void testSetConnectionParams() throws Exception {
@@ -82,29 +85,29 @@ public class LdapManagerTestDb extends TestCaseDb {
         params.setPrincipal("principal");
         params.setSecret("secret");
 
-        m_context.setConnectionParams(params);
-        ITable ldapConnectionTable = TestHelper.getConnection().createDataSet().getTable("ldap_connection");
-        assertEquals(1, ldapConnectionTable.getRowCount());
+        m_ldapManager.setConnectionParams(params);
+        commit();
+        assertEquals(1,  countRowsInTable("ldap_connection"));
+        Map<String, Object> after = db().queryForMap("select * from ldap_connection");
 
-        assertEquals("secret", ldapConnectionTable.getValue(0, "secret"));
-        assertEquals(1234, ldapConnectionTable.getValue(0, "port"));
-        assertEquals("principal", ldapConnectionTable.getValue(0, "principal"));
-        assertEquals("abc", ldapConnectionTable.getValue(0, "host"));
+        assertEquals("secret", after.get("secret"));
+        assertEquals(1234, after.get("port"));
+        assertEquals("principal", after.get("principal"));
+        assertEquals("abc", after.get("host"));
     }
 
-    public void testGetAttrMap() throws Exception {
-        AttrMap attrMap = m_context.getAttrMap();
+    public void testGetAttrMapInit() throws Exception {
+        AttrMap attrMap = m_ldapManager.getAttrMap();
         assertNotNull(attrMap);
-
-        ITable attrMapTable = TestHelper.getConnection().createDataSet().getTable("ldap_attr_map");
-        assertEquals(1, attrMapTable.getRowCount());
-
-        ITable userToLdapTable = TestHelper.getConnection().createDataSet().getTable(
-                "ldap_user_property_to_ldap_attr");
-        assertTrue(1 < userToLdapTable.getRowCount());
-
-        TestHelper.cleanInsertFlat("bulk/ldap/ldap_attr_map.db.xml");
-        attrMap = m_context.getAttrMap();
+        commit();
+        assertEquals(1, countRowsInTable("ldap_attr_map"));
+        assertTrue(1 < countRowsInTable("ldap_user_property_to_ldap_attr"));
+    }
+       
+    public void testGetAttrMap() throws Exception {
+        sql("bulk/ldap/ldap_attr_map.sql");
+        commit();
+        AttrMap attrMap = m_ldapManager.getAttrMap();
         Map<String, String> userToLdap = attrMap.getUserToLdap();
         assertEquals(2, userToLdap.size());
 
@@ -120,22 +123,19 @@ public class LdapManagerTestDb extends TestCaseDb {
     }
 
     public void testSetAttrMap() throws Exception {
-        AttrMap attrMap = m_context.getAttrMap();
+        AttrMap attrMap = m_ldapManager.getAttrMap();
         attrMap.setFilter("ou=marketing");
         assertNotNull(attrMap);
 
         attrMap.setAttribute("a", "1");
         attrMap.setAttribute("b", "2");
 
-        m_context.setAttrMap(attrMap);
+        m_ldapManager.setAttrMap(attrMap);
 
-        ITable attrMapTable = TestHelper.getConnection().createDataSet().getTable("ldap_attr_map");
-        assertEquals(1, attrMapTable.getRowCount());
-        assertEquals("ou=marketing", attrMapTable.getValue(0, "filter"));
-
-        ITable userToLdapTable = TestHelper.getConnection().createDataSet().getTable(
-                "ldap_user_property_to_ldap_attr");
-        assertTrue(1 < userToLdapTable.getRowCount());
+        commit();
+        assertEquals(1, countRowsInTable("ldap_attr_map"));
+        assertEquals("ou=marketing", db().queryForObject("select filter from ldap_attr_map", String.class));
+        assertTrue(1 < countRowsInTable("ldap_user_property_to_ldap_attr"));
     }
 
     public void testSetSchedule() throws Exception {
@@ -143,10 +143,10 @@ public class LdapManagerTestDb extends TestCaseDb {
         schedule.setType(CronSchedule.Type.HOURLY);
         schedule.setMin(15);
 
-        m_context.setSchedule(schedule);
+        m_ldapManager.setSchedule(schedule);
 
-        assertEquals(1, TestHelper.getConnection().getRowCount("cron_schedule",
-                "where cron_string = '0 15 * ? * *'"));
+        commit();
+        assertEquals(1, db().queryForLong("select count(*) from cron_schedule where cron_string = '0 15 * ? * *'"));
     }
 
     public void testSetScheduleEnabled() throws Exception {
@@ -156,14 +156,19 @@ public class LdapManagerTestDb extends TestCaseDb {
         schedule.setMin(15);
         schedule.setEnabled(true);
 
-        m_context.setSchedule(schedule);
+        m_ldapManager.setSchedule(schedule);
 
-        assertEquals(1, TestHelper.getConnection().getRowCount("cron_schedule",
-                "where cron_string = '0 15 0 ? * 4' and enabled = 'true'"));
+        commit();
+        assertEquals(1, db().queryForLong("select count(*) from cron_schedule where " 
+                + " cron_string = '0 15 0 ? * 4' and enabled = 'true'")); 
     }
 
     public void testGetSetSchedule() throws Exception {
-        CronSchedule schedule = m_context.getSchedule();
-        m_context.setSchedule(schedule);
+        CronSchedule schedule = m_ldapManager.getSchedule();
+        m_ldapManager.setSchedule(schedule);
+    }
+
+    public void setLdapManagerImpl(LdapManager ldapManager) {
+        m_ldapManager = ldapManager;
     }
 }
