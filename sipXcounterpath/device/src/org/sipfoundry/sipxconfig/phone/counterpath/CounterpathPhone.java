@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
+import static java.lang.String.format;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,13 +23,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.String.format;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.Profile;
@@ -64,6 +65,7 @@ public class CounterpathPhone extends Phone {
     private static final String DIRECTORY_FILE_FORMAT = "%s-directory.xml";
     private static final String NEW_LINE = "\n";
     private String m_syswwwdir;
+    private AddressManager m_addressManager;
     private LocationsManager m_locationsManager;
 
     // private static final String WEBDAV_URL = "resources/resource_lists_path";
@@ -76,14 +78,6 @@ public class CounterpathPhone extends Phone {
 
     public void setSyswwwdir(String syswwwdir) {
         m_syswwwdir = syswwwdir;
-    }
-
-    public LocationsManager getLocationsManager() {
-        return m_locationsManager;
-    }
-
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
     }
 
     @Override
@@ -363,4 +357,19 @@ public class CounterpathPhone extends Phone {
         }
     }
 
+    public AddressManager getAddressManager() {
+        return m_addressManager;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public LocationsManager getLocationsManager() {
+        return m_locationsManager;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
 }

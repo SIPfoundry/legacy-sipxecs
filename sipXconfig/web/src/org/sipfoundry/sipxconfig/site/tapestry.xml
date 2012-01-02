@@ -200,7 +200,7 @@
   <bean name="validTime" class="org.sipfoundry.sipxconfig.components.DateWithTimezoneTranslator">
     <!-- timezone has to match w/DailyBackupSchedule, at least for Backup page -->
     <property name="timeZone">
-      <bean id="org.sipfoundry.sipxconfig.admin.DailyBackupSchedule.GMT"
+      <bean id="org.sipfoundry.sipxconfig.backup.DailyBackupSchedule.GMT"
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
     </property>
     <!-- pattern doesn't have to match w/DailyBackupSchedule internal patterns -->
@@ -223,10 +223,6 @@
     <property name="userSessionTimeout" value="30" />
   </bean>
   
-  <bean id="testPageSetup" class="org.sipfoundry.sipxconfig.site.TestPageSetupContext">
-  	<property name="mailstoreSample" value="${sysdir.webtest.srcdir}/org/sipfoundry/sipxconfig/site/vm/mailstore"/>
-  </bean>
-
   <bean id="editPageProvider" class="org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider" />
   <bean id="skin" class="org.sipfoundry.sipxconfig.site.skin.SkinControl">
     <property name="tapestryContext" ref="tapestry" />

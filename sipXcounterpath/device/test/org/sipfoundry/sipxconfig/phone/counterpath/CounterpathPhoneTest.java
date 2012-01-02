@@ -18,12 +18,13 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -33,6 +34,8 @@ import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathL
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathPhoneDefaults;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class CounterpathPhoneTest extends TestCase {
     private Line m_line;
@@ -78,14 +81,20 @@ public class CounterpathPhoneTest extends TestCase {
         secondUser.setImDisplayName("Shared User Id");
         m_phone.getLines().get(1).getSettings().getSetting("presence/workgroup/allow_dialog_subscriptions").setValue("0");
 
-        Location locationMock = new LocationMock();
-        LocationsManager locationsManagerMock = EasyMock.createMock(LocationsManager.class);
-        locationsManagerMock.getLocationByBundle("imBundle");
-        EasyMock.expectLastCall().andReturn(locationMock);
-        locationsManagerMock.getPrimaryLocation();
-        expectLastCall().andReturn(locationMock).anyTimes();
-        EasyMock.replay(locationsManagerMock);
-        m_phone.setLocationsManager(locationsManagerMock);
+        AddressManager addressManager = EasyMock.createMock(AddressManager.class);
+        addressManager.getSingleAddress(ImManager.XMPP_ADDRESS);
+        EasyMock.expectLastCall().andReturn(new Address("fqdn.im.test.box")).anyTimes();
+        EasyMock.replay(addressManager);
+        m_phone.setAddressManager(addressManager);
+
+//        Location locationMock = new LocationMock();
+//        LocationsManager locationsManagerMock = EasyMock.createMock(LocationsManager.class);
+//        locationsManagerMock.getLocationByBundle("imBundle");
+//        EasyMock.expectLastCall().andReturn(locationMock);
+//        locationsManagerMock.getPrimaryLocation();
+//        expectLastCall().andReturn(locationMock).anyTimes();
+//        EasyMock.replay(locationsManagerMock);
+//        m_phone.setLocationsManager(locationsManagerMock);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone, TestHelper.getEtcDir());
         m_phone.generateProfiles(location);
@@ -221,14 +230,20 @@ public class CounterpathPhoneTest extends TestCase {
         firstUser.setImDisplayName("John Smith Id");
         firstUser.getSettings().getSetting("im/im-account").setValue("1");
 
-        Location locationMock = new LocationMock();
-        LocationsManager locationsManagerMock = EasyMock.createMock(LocationsManager.class);
-        locationsManagerMock.getLocationByBundle("imBundle");
-        EasyMock.expectLastCall().andReturn(locationMock);
-        locationsManagerMock.getPrimaryLocation();
-        expectLastCall().andReturn(locationMock).anyTimes();
-        EasyMock.replay(locationsManagerMock);
-        m_phone.setLocationsManager(locationsManagerMock);
+//        Location locationMock = new LocationMock();
+//        LocationsManager locationsManagerMock = EasyMock.createMock(LocationsManager.class);
+//        locationsManagerMock.getLocationByBundle("imBundle");
+//        EasyMock.expectLastCall().andReturn(locationMock);
+//        locationsManagerMock.getPrimaryLocation();
+//        expectLastCall().andReturn(locationMock).anyTimes();
+//        EasyMock.replay(locationsManagerMock);
+//        m_phone.setLocationsManager(locationsManagerMock);
+
+        AddressManager addressManager = EasyMock.createMock(AddressManager.class);
+        addressManager.getSingleAddress(ImManager.XMPP_ADDRESS);
+        EasyMock.expectLastCall().andReturn(new Address("fqdn.im.test.box")).anyTimes();
+        EasyMock.replay(addressManager);
+        m_phone.setAddressManager(addressManager);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone, TestHelper.getEtcDir());
         m_phone.generateProfiles(location);

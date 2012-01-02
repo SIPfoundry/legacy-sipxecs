@@ -64,9 +64,10 @@ public class AboutBean {
     }
 
     public String getDetails() {
-        m_details = (m_details == null) ? m_aboutPage.getMessages().
-                format("product.details", m_versionInfo.getVersionDetails()) : m_details;
-        return m_details;
+        return "cannot get details";
+//        m_details = (m_details == null) ? m_aboutPage.getMessages().
+//                format("product.details", m_versionInfo.getVersionDetails()) : m_details;
+//        return m_details;
     }
 
     public String getCopyright() {

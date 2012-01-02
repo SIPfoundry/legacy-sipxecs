@@ -168,7 +168,7 @@ onWebUi() {
     clearIndexLocks
 
     X509Algorithm=`$JavaCmd \
-       org.sipfoundry.sipxconfig.common.X509Selector`
+       org.sipfoundry.commons.x509selector.X509Selector`
 
     # Used in sipxconfig-jetty.xml only
     SystemProps="\

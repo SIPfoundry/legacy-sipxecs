@@ -9,13 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+
 import java.io.InputStream;
 
-import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
+import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.site.common.AssetSelector;
-
-import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.site.dialplan.PatternsEditorTest;
 
 public class AssetSelectorTest extends TestCase {
 
@@ -31,7 +31,7 @@ public class AssetSelectorTest extends TestCase {
     }
 
     public void testAudioFormat() throws Exception {
-        InputStream wav = EditAutoAttendantTestUi.class.getResourceAsStream("thankyou_goodbye.wav");
+        InputStream wav = PatternsEditorTest.class.getResourceAsStream("thankyou_goodbye.wav");
         assertTrue(AssetSelector.isAcceptedAudioFormat(wav));
 
         InputStream notWav = getClass().getResourceAsStream("unused.png");

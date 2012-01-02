@@ -146,7 +146,7 @@ context_SRC = $(shell cd $(srcdir)/context; find . -type f \( \
 wardir = @SIPX_JAVADIR@/sipXconfig
 war_DATA = sipxconfig.war sipxconfig-web.jar
 
-sipxconfig-web.jar : javac-web javac-wsdl
+sipxconfig-web.jar : javac-web javac-wsdl $(addprefix src/,$(web_RESOURCES))
 	jar cf $@ \
 		$(call JarInclude,$(web_JAVAROOT),.) \
 		$(call JarInclude,$(srcdir)/src,$(web_RESOURCES))
