@@ -31,8 +31,6 @@ public class PagingSettings extends PersistableSettings implements DeployConfigO
     public void setPrefix(String prefix) {
         setSettingValue(PREFIX, prefix);
     }
-    
-    
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {

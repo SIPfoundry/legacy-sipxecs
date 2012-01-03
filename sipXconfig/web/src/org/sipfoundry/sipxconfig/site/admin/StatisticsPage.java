@@ -89,7 +89,7 @@ public abstract class StatisticsPage extends SipxBasePage implements PageBeginRe
     public IPage configureTargets() {
         EditLocationPage page = getEditLocationPage();
         page.setLocationId(getLocationsManager().getLocationByFqdn(getHost()).getId());
-        page.setTab(EditLocationPage.MONITOR_TAB);
+//        page.setTab(EditLocationPage.MONITOR_TAB);
         page.setReturnPage(this);
         return page;
     }
