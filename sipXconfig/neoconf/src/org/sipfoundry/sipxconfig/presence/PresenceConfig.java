@@ -51,7 +51,7 @@ public class PresenceConfig implements ConfigProvider {
     }
 
     void write(Writer wtr, PresenceSettings settings, String ipAddress, Domain domain) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.write(settings.getSettings());
         config.write("SIP_PRESENCE_BIND_IP", ipAddress);
         config.write("SIP_PRESENCE_DOMAIN_NAME", domain.getName());

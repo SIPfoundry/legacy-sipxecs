@@ -56,7 +56,7 @@ public class RlsConfig implements ConfigProvider {
     }
 
     void write(Writer wtr, RlsSettings settings, Location location, Domain domain) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.write(settings.getSettings().getSetting("rls-config"));
         config.write("SIP_RLS_BIND_IP", location.getAddress());
         config.write("SIP_RLS_DOMAIN_NAME", domain.getName());

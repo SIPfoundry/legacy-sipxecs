@@ -58,7 +58,7 @@ public class CdrConfiguration implements ConfigProvider {
     }
 
     void write(Writer wtr, List<Location> proxyLocations, CdrSettings settings) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.write(settings.getSettings());
         // legacy, not sure if it should be just ip or home interface
         config.write("SIP_CALLRESOLVER_AGENT_ADDR", "0.0.0.0");

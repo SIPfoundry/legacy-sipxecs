@@ -71,7 +71,7 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
     }
 
     void write(Writer writer, Location location, ParkSettings settings) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(writer);
+        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(writer);
         config.write(settings.getSettings().getSetting("park-config"));
         config.write("SIP_PARK_BIND_IP", location.getAddress());
     }

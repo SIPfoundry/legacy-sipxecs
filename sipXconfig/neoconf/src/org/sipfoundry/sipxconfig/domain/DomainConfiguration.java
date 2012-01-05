@@ -51,7 +51,7 @@ public class DomainConfiguration implements ConfigProvider {
     }
 
     void write(Writer wtr, Domain domain, String fqdn, String lang) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.write("SIP_DOMAIN_NAME", domain.getName());
         config.write("SIP_DOMAIN_ALIASES", getDomainAliases(domain));
         config.write("SIP_REALM", domain.getSipRealm());

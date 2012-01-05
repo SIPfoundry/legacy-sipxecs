@@ -10,14 +10,16 @@ package org.sipfoundry.sipxconfig.mongo;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
 public class MongoConfig implements ConfigProvider {
     private MongoFeature m_mongoFeature;
@@ -27,34 +29,34 @@ public class MongoConfig implements ConfigProvider {
         if (!request.applies(MongoFeature.FEATURE_ID)) {
             return;
         }
+        FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
         MongoSettings settings = m_mongoFeature.getSettings();
         int port = settings.getPort();
         String conStr = getConnectionString(all, port);
         String conUrl = getConnectionUrl(all, port);
-        String equals = "=";
+        String mongod = "mongod";
         for (Location location : all) {
             // every location gets a mongo client config
             File dir = manager.getLocationDataDirectory(location);
             File file = new File(dir, "mongo-client.ini.cfdat");
             FileWriter wtr = new FileWriter(file);
-            KeyValueConfiguration config = new KeyValueConfiguration(wtr, equals);
+            KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
             config.write("connectionUrl", conUrl);
             config.write("connectionString", conStr);
             IOUtils.closeQuietly(wtr);
-        }
-
-        // only mongod servers get mondo config
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(MongoFeature.FEATURE_ID);
-        for (Location location : locations) {
-            File dir = manager.getLocationDataDirectory(location);
-            File filed = new File(dir, "mongod.conf.cfdat");
-            FileWriter wtrd = new FileWriter(filed);
-            KeyValueConfiguration configd = new KeyValueConfiguration(wtrd, equals);
-            configd.write(settings.getSettings().getSetting("mongod"));
-            // TODO this should be 127.0.0.1 only
-            configd.write("bind_ip", "0.0.0.0");
-            IOUtils.closeQuietly(wtrd);
+            boolean server = fm.isFeatureEnabled(MongoFeature.FEATURE_ID, location);
+            ConfigUtils.enableCfengineClass(dir, "mongod.cfdat", mongod, server);
+            // only mongod servers get mongod config
+            if (server) {
+                File filed = new File(dir, "mongod.conf.cfdat");
+                FileWriter wtrd = new FileWriter(filed);
+                CfengineModuleConfiguration configd = new CfengineModuleConfiguration(wtrd);
+                configd.write(settings.getSettings().getSetting(mongod));
+                // TODO this should be 127.0.0.1 only
+                configd.write("bind_ip", "0.0.0.0");
+                IOUtils.closeQuietly(wtrd);
+            }
         }
     }
 

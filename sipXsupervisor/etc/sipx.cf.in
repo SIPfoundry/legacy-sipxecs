@@ -1,4 +1,12 @@
-# cfengine cheatsheet
+# Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# Main library and core entry point of cfengine agent scripts.
+#
+
+# helpful cfengine cheatsheet
 #
 # Natural order of promises inside a bundle
 #  vars
@@ -16,6 +24,9 @@
 #  databases
 #  reports
 
+#
+# common variables in $(sipx.*) space that isn't in a *.cfdat file
+#
 bundle common sipx {
   vars:
     SuSE::
@@ -33,6 +44,9 @@ bundle common sipx {
       "src" expression => strcmp("@SIPX_SERVICEDIR@", "/etc/init.d");
 }
 
+#
+# imports all the variables into $(sipx.*) from *.cfdat files
+# 
 bundle agent sipx_module {
   commands:
     any::
@@ -41,6 +55,20 @@ bundle agent sipx_module {
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
 }
 
+# Copy a local file from cfdata area to final destination if it's changed
+# Often you want to include the location id 
+# Example:
+#  copy_from => copy_from_cfdata("$(sipx.location_id)/myfile"),
+#
+# 
+body copy_from copy_from_cfdata(filename) {
+  source => "$(sipx.SIPX_CFDATA)/$(filename)";
+  compare => "digest";
+}
+
+#
+# Registers or deregisters a service into start with system on startup
+#
 bundle agent rh_chkconfig_status(s){
   classes:
     "${s}_enabled" expression => returnszero("/sbin/chkconfig ${s}", "noshell");
@@ -54,6 +82,12 @@ bundle agent rh_chkconfig_status(s){
         ifvarclass => "!${s}_enabled";
 }
 
+#
+# Replace the entire contents of a file with a given set of contents
+#
+# Example:
+#  edit_line => replace_contents("file contents here").
+#
 bundle edit_line replace_contents(contents) {
    insert_lines:
      "$(contents)";
@@ -62,19 +96,36 @@ bundle edit_line replace_contents(contents) {
       ".*";
 }
 
-bundle edit_line colon_values(v) {
+# 
+# Edit select properties of a configuration file that is colon delimited
+# Example:
+#  var:
+#    "x[foo]" string => "bar";
+#    "x[goo]" string => "gar";
+# ...
+#  file:
+#   "myfile"
+#     edit_line => set_variable_colon_values("x");
+#
+# Results of myfile contents:
+#  a=b
+#  foo=bar
+#  goo=gar
+#  c=d
+#
+bundle edit_line set_variable_colon_values(v) {
 vars:
   "index" slist => getindices("$(v)");
   "cindex[$(index)]" string => canonify("$(index)");
 
 field_edits:
   "\s*$(index)\s*:.*"
-     edit_field => col(":", "2", "$($(v)[$(index)][1])", "set"),
+     edit_field => col(":", "2", "$($(v)[$(index)])", "set"),
         classes => if_ok("$(cindex[$(index)])_in_file"),
         comment => "Match a line starting like key = something";
 
 insert_lines:
-  "$(index) : $($(v)[$(index)][1])",
+  "$(index) : $($(v)[$(index)])",
          comment => "Insert a variable definition",
       ifvarclass => "!$(cindex[$(index)])_in_file";
 }

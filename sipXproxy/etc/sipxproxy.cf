@@ -5,11 +5,6 @@ bundle agent sipxproxy {
       "any" usebundle => "sipxproxy_running";
 }
 
-body copy_from copy_from_cfdata(filename) {
-  source => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/$(filename)";
-  compare => "digest";
-}
-
 bundle agent sipxproxy_config {
   files:
     any::
@@ -23,7 +18,7 @@ bundle agent sipxproxy_config {
       "$(sipx.SIPX_CONFDIR)/peeridentities.xml"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("peeridentities.xml"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/peeridentities.xml"),
         classes => if_repaired("restart_sipxproxyd");
 
   commands:
@@ -48,6 +43,10 @@ SIPX_PROXY_BIND_IP=$(sys.ipv4)";
 }
 
 bundle agent sipxproxy_running {
+  methods:
+    !src::
+      "any" usebundle => rh_chkconfig_status("sipxproxy");
+
   processes:
     sipxproxyd::
       "sipXproxy"

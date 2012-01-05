@@ -11,60 +11,47 @@ import static java.lang.String.format;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
-import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Convert settings into key-value files that are common in configuration files and in files used
  * in cfengine scripts to feed into final configurations files.
  */
-public class KeyValueConfiguration {
-    private IOException m_error;
-    private Writer m_out;
-    private String m_delimitor;
+public class KeyValueConfiguration extends AbstractConfigurationFile {
+    private static final String COLON = " : ";
+    private static final String EQUALS = "=";
     private String m_valueFormat;
-    private String m_globalPrefix;
-
-    public KeyValueConfiguration(Writer w) {
-        this(w, " : ");
-    }
-
-    public KeyValueConfiguration(Writer w, String delimitor) {
-        this(w, delimitor, null);
-    }
+    private String m_delimator;
+    private Writer m_out;
 
     public KeyValueConfiguration(Writer w, String delimitor, String prefix) {
+        super(prefix);
         m_out = w;
-        m_delimitor = delimitor;
-        m_globalPrefix = prefix;
+        m_delimator = delimitor;
     }
 
-    public void write(String prefix, Collection<Setting> settings) throws IOException {
-        Iterator<Setting> i = settings.iterator();
-        while (i.hasNext()) {
-            write(prefix, i.next());
-        }
+    public static KeyValueConfiguration colonSeparated(Writer w) {
+        return new KeyValueConfiguration(w, COLON, null);
     }
 
-    public void write(Collection<Setting> settings) throws IOException {
-        write(m_globalPrefix, settings);
+    public static KeyValueConfiguration colonSeparated(Writer w, String globalPrefix) {
+        return new KeyValueConfiguration(w, COLON, globalPrefix);
     }
 
-    public void write(Setting settings) throws IOException {
-        settings.acceptVisitor(new SettingsWriter(m_globalPrefix));
-        if (m_error != null) {
-            throw m_error;
-        }
+    public static KeyValueConfiguration equalsSeparated(Writer w) {
+        return new KeyValueConfiguration(w, EQUALS, null);
     }
 
-    public void write(String prefix, Setting settings) throws IOException {
-        settings.acceptVisitor(new SettingsWriter(prefix));
-        if (m_error != null) {
-            throw m_error;
+    public static KeyValueConfiguration equalsSeparated(Writer w, String globalPrefix) {
+        return new KeyValueConfiguration(w, EQUALS, globalPrefix);
+    }
+
+    protected void writeValue(Object value) throws IOException {
+        if (m_valueFormat != null) {
+            m_out.write(format(m_valueFormat, value));
+        } else {
+            m_out.write(value == null ? "" :  String.valueOf(value));
         }
     }
 
@@ -76,41 +63,9 @@ public class KeyValueConfiguration {
             fullKey = key;
         }
         m_out.write(fullKey);
-        m_out.write(m_delimitor);
+        m_out.write(m_delimator);
         writeValue(value);
         m_out.write('\n');
-    }
-
-    public void write(String key, Object value) throws IOException {
-        write(m_globalPrefix, key, value);
-    }
-
-    protected void writeValue(Object value) throws IOException {
-        if (m_valueFormat != null) {
-            m_out.write(format(m_valueFormat, value));
-        } else {
-            m_out.write(value == null ? "" :  String.valueOf(value));
-        }
-    }
-
-    class SettingsWriter extends AbstractSettingVisitor {
-        private String m_prefix;
-
-        SettingsWriter() {
-        }
-
-        SettingsWriter(String prefix) {
-            m_prefix = prefix;
-        }
-
-        @Override
-        public void visitSetting(Setting setting) {
-            try {
-                write(m_prefix, setting.getName(), setting.getValue());
-            } catch (IOException e) {
-                m_error = e;
-            }
-        }
     }
 
     public String getValueFormat() {

@@ -66,7 +66,7 @@ public class ImBotConfiguration implements ConfigProvider {
 
     void write(Writer wtr, ImBotSettings settings, Domain domain, Address ivr, Address admin, Address rest,
             Address imApi) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr, "=");
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write(SettingUtil.filter(SKIP_UNDERSCORE, settings.getSettings().getSetting("imbot")));
         config.write("imbot.paUserName", settings.getPersonalAssistantImId() + '@' + domain.getName());
         config.write("imbot.sipxchangeDomainName", domain.getName());

@@ -63,7 +63,7 @@ public class IvrConfig implements ConfigProvider {
 
     void write(Writer wtr, IvrSettings settings, Domain domain, Location location, Address mwiApi, Address restApi,
             Address adminApi, Address imApi, Address imbotApi, Address fsEvent) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr, "=");
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write(settings.getSettings());
         config.write("freeswitch.eventSocketPort", fsEvent.getPort());
 

@@ -49,7 +49,7 @@ public class RecordingConfiguration implements ConfigProvider {
     }
 
     void write(Writer wtr, RecordingSettings settings) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr, "=");
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write(settings.getSettings().getSetting("recording"));
     }
 

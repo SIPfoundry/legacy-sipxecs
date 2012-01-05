@@ -55,7 +55,7 @@ public class AcdHistoryConfig implements ConfigProvider {
 
     void write(Writer wtr, AcdHistoricalSettings settings, Location location, Collection<Address> statsApis)
         throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr, " = ");
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.setValueFormat("\"%s\"");
         config.write(settings.getSettings());
         config.write("LOCATION_FQDN", location.getFqdn());

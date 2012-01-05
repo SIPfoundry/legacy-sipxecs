@@ -18,7 +18,6 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -26,6 +25,7 @@ import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
@@ -56,7 +56,7 @@ public class ProxyConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = fm.isFeatureEnabled(ProxyManager.FEATURE, location);
-            FileUtils.writeStringToFile(new File(dir, "sipxproxy.cfdat"), enabled ? "+sipxproxyd" : "-sipxproxyd");
+            ConfigUtils.enableCfengineClass(dir, "sipxproxy.cfdat", "sipxproxyd", enabled);
             if (enabled) {
                 Writer proxy = new FileWriter(new File(dir, "sipXproxy-config.part1"));
                 try {
@@ -77,7 +77,7 @@ public class ProxyConfiguration implements ConfigProvider {
 
     void write(Writer wtr, ProxySettings settings, Location location, Domain domain, boolean isCdrOn)
         throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         Setting root = settings.getSettings();
         config.write(root.getSetting("proxy-configuration"));
         config.write("SIPX_PROXY.205_subscriptionauth.", root.getSetting("subscriptionauth"));

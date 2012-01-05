@@ -71,7 +71,7 @@ public class AuthCodesConfig implements ConfigProvider {
     }
 
     void writeConfig(Writer wtr, AuthCodeSettings settings, Domain domain, int freeswithPort) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr, "=");
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write(settings.getSettings().getSetting("acccode-config"));
         config.write("acccode.sipxchangeDomainName", domain.getName());
         config.write("acccode.realm", domain.getSipRealm());

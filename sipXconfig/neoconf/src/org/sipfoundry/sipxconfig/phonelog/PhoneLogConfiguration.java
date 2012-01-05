@@ -42,7 +42,7 @@ public class PhoneLogConfiguration implements ConfigProvider {
     }
 
     void write(Writer wtr) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.write("PHONELOG_ENABLED", "TRUE");
     }
 }

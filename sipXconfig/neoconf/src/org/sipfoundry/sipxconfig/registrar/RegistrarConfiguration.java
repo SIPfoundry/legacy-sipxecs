@@ -68,7 +68,7 @@ public class RegistrarConfiguration implements ConfigProvider {
 
     void write(Writer wtr, RegistrarSettings settings, Domain domain, Location location, Address proxy,
             Address imApi, Address presenceApi, Address park) throws IOException {
-        KeyValueConfiguration file = new KeyValueConfiguration(wtr);
+        KeyValueConfiguration file = KeyValueConfiguration.colonSeparated(wtr);
         Setting root = settings.getSettings();
         file.write(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("registrar-config")));
         file.write("SIP_REGISTRAR_AUTHENTICATE_REALM", domain.getSipRealm());

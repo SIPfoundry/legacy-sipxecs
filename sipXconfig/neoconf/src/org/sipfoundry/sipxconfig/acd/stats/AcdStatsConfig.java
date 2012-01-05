@@ -34,7 +34,7 @@ public class AcdStatsConfig implements ConfigProvider {
             AcdStatsSettings settings = m_acdStats.getSettings();
             File file = new File(manager.getLocationDataDirectory(location), "sipxacd-stats.cfdat");
             FileWriter wtr = new FileWriter(file);
-            KeyValueConfiguration config = new KeyValueConfiguration(wtr, "=");
+            KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
             config.write(settings.getSettings());
         }
     }

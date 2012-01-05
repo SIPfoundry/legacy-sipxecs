@@ -50,7 +50,7 @@ public class PagingConfiguration implements ConfigProvider {
 
     void write(Writer writer, Location location, List<PagingGroup> groups, PagingSettings settings, String domainName)
         throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(writer);
+        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(writer);
         config.write(settings.getSettings().getSetting("page-config"));
         config.write("sip.address", location.getAddress());
         for (int i = 0; i < groups.size(); i++) {

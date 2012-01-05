@@ -67,7 +67,7 @@ public class MwiConfig implements ConfigProvider {
 
     void write(Writer wtr, MwiSettings settings, Location location, List<Location> allLocations, Domain domain)
         throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr);
+        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.write(settings.getSettings().getSetting("status-config"));
         config.write("SIP_STATUS_BIND_IP", location.getAddress());
         config.write("SIP_STATUS_AUTHENTICATE_REALM", domain.getSipRealm());

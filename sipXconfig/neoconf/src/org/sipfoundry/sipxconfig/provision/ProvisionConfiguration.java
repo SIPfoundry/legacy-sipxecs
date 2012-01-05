@@ -43,7 +43,7 @@ public class ProvisionConfiguration implements ConfigProvider {
     }
 
     void write(Writer wtr, ProvisionSettings settings) throws IOException {
-        KeyValueConfiguration config = new KeyValueConfiguration(wtr, "=");
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write(settings.getSettings().getSetting("provision-config"));
     }
 
