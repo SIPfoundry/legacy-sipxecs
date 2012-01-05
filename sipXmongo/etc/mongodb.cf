@@ -1,9 +1,10 @@
 bundle agent mongodb {
   methods:
-    "mongod" usebundle => "mongodb_install";
-    "mongod" usebundle => "mongodb_config";
-    "mongod" usebundle => "mongodb_running";
-    "any" usebundle => "mongo_client";
+    any::
+      #"mongod" usebundle => "mongodb_install";
+      "mongod" usebundle => "mongodb_config";
+      "mongod" usebundle => "mongodb_running";
+      "any" usebundle => "mongo_client";
 }
 
 bundle agent mongodb_config {

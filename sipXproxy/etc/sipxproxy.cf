@@ -1,0 +1,63 @@
+bundle agent sipxproxy {
+  methods:
+    any::
+      "sipxproxyd" usebundle => "sipxproxy_config";
+      "any" usebundle => "sipxproxy_running";
+}
+
+body copy_from copy_from_cfdata(filename) {
+  source => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/$(filename)";
+  compare => "digest";
+}
+
+bundle agent sipxproxy_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipXproxy-config"
+        create => "true",
+        perms => m("644"),
+        edit_line => sipXproxy_config_contents(),
+        classes => if_repaired("restart_sipxproxyd");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/peeridentities.xml"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("peeridentities.xml"),
+        classes => if_repaired("restart_sipxproxyd");
+
+  commands:
+    restart_mongod::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        args => "restart";
+}
+
+bundle edit_line sipXproxy_config_contents() {
+  vars:
+    any::
+      "part1" string => readfile("$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipXproxy-config.part1", 10000);
+      "part2" string => readfile("$(sipx.SIPX_CFDATA)/defaults/sipXproxy-config.part2", 10000);
+
+  insert_lines:
+"$(part1)
+$(part2)
+SIPX_PROXY_BIND_IP=$(sys.ipv4)";
+
+  delete_lines:
+    ".*";
+}
+
+bundle agent sipxproxy_running {
+  processes:
+    sipxproxyd::
+      "sipXproxy"
+        restart_class => "start_sipxproxyd";
+
+    !sipxproxyd::
+      "sipXproxy"
+        signals => { "term", "kill" };
+
+  commands:
+    start_sipxproxyd::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy start";
+}

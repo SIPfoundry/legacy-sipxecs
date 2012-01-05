@@ -1,12 +1,13 @@
 include $(top_srcdir)/config/utility.am
 
-bin_SCRIPTS = \
-    sipXproxy.sh
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+    sipxproxy
 
 EXTRA_DIST = \
-	$(bin_SCRIPTS:=.in)
+	$(initd_SCRIPTS:=.in)
 
-$(bin_SCRIPTS) : % : %.in Makefile
+$(initd_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(bin_SCRIPTS)
+CLEANFILES = $(initd_SCRIPTS)

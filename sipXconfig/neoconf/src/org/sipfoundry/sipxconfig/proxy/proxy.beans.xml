@@ -2,11 +2,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="proxySettings" class="org.sipfoundry.sipxconfig.proxy.ProxySettings" scope="prototype">
+  <bean id="proxySettings" class="org.sipfoundry.sipxconfig.proxy.ProxySettings" parent="settingsBean">
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
-  <bean id="proxyManager" class="org.sipfoundry.sipxconfig.proxy.ProxyManager">
+  <bean id="proxyManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="proxyManagerImpl"/>
+  </bean>
+
+  <bean id="proxyManagerImpl" class="org.sipfoundry.sipxconfig.proxy.ProxyManagerImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">

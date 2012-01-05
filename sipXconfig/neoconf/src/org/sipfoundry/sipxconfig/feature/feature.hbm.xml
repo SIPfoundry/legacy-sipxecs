@@ -3,20 +3,15 @@
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.feature" default-lazy="false">
 
-  <sql-query name="enabledLocationFeatures">
-    <return-scalar column="enabled_features" type="string"/> 
-    <![CDATA[select feature_id as enabled_features from feature_location where location_id = :location_id]]>
+  <sql-query name="locationsForEnabledFeature">
+    <return class="org.sipfoundry.sipxconfig.commserver.Location"/>
+    <![CDATA[
+      select location.* 
+        from location inner join feature_local on 
+          location.location_id = feature_local.location_id 
+       where 
+          feature_local.feature_id = :featureId
+      ]]>
   </sql-query>
-
-  <sql-query name="enabledGlobalFeatures">
-    <return-scalar column="enabled_features" type="string"/> 
-    <![CDATA[select feature_id as enabled_features from feature_global]]>
-  </sql-query>
-  
-  <sql-query name="enableGlobalFeature">
-    <return-scalar column="enabled_features" type="string"/> 
-    <![CDATA[select feature_id as enabled_features from feature_global]]>
-  </sql-query>
-  
 
 </hibernate-mapping>

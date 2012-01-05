@@ -7,12 +7,14 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -38,7 +40,11 @@ public class CdrConfiguration implements ConfigProvider {
         for (Location location : proxyLocations) {
             File dir = manager.getLocationDataDirectory(location);
             FileWriter wtr = new FileWriter(new File(dir, "callresolver-config"));
-            write(wtr, proxyLocations, settings);
+            try {
+                write(wtr, proxyLocations, settings);
+            } finally {
+                IOUtils.closeQuietly(wtr);
+            }
         }
     }
 

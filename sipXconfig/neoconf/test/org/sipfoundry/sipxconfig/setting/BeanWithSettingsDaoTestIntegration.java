@@ -10,18 +10,14 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionStatus;
 
 public class BeanWithSettingsDaoTestIntegration extends IntegrationTestCase {
     private static final String PASSENGER_PIGEON = "pigeon/passenger";
     private BeanWithSettingsDao<BirdSettings> m_dao;
     
-    public void onSetUpInTransaction() {
-        db().execute("delete from bean_with_settings");
-        db().execute("delete from setting_value");
-        db().execute("delete from value_storage");
+    public void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
     }
     
     public void testCreateOne() {
@@ -34,15 +30,13 @@ public class BeanWithSettingsDaoTestIntegration extends IntegrationTestCase {
         assertNotNull(m_dao);
         BirdSettings settings = m_dao.findOrCreateOne();
         assertEquals(1, (int) settings.getId());
+        assertNotNull(settings.getModelFilesContext());
     }
     
     public void testFindAll() {
         db().execute("insert into bean_with_settings values (1, 'birdSettings'), (2, 'birdSettings')");        
         assertNotNull(m_dao);
-        
-        // HACK: very unclear why i need to commit here, but w/o it, only one birdSetting object is found.
-        transactionManager.commit(transactionStatus);
-        
+        commit();
         List<BirdSettings> settings = m_dao.findAll();
         assertEquals(2, settings.size());
     }

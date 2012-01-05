@@ -7,10 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +23,10 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+/**
+ * NOTE: This implementation pays no attention to efficiency.  Should work in caching or optimize queries
+ * accordingly if found to be inefficient during testing.
+ */
 public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, FeatureManager {
     private ListableBeanFactory m_beanFactory;
     private Collection<FeatureProvider> m_providers;
@@ -82,7 +84,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     @Override
     public boolean isFeatureEnabled(LocationFeature feature, Location location) {
         SqlRowSet queryForRowSet = m_jdbcTemplate.queryForRowSet(
-                "select 1 from feature_location where feature_id = ? and location_id = ?", feature.getId(),
+                "select 1 from feature_local where feature_id = ? and location_id = ?", feature.getId(),
                 location.getId());
         return queryForRowSet.first();
     }
@@ -98,7 +100,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     @Override
     public boolean isFeatureEnabled(LocationFeature feature) {
         SqlRowSet queryForRowSet = m_jdbcTemplate.queryForRowSet(
-                "select 1 from feature_location where feature_id = ?", feature.getId());
+                "select 1 from feature_local where feature_id = ?", feature.getId());
         return queryForRowSet.first();
     }
 
@@ -116,6 +118,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public void enableGlobalFeatures(Set<GlobalFeature> features) {
+        // NOTE: This may need to change to only send enable/disable events for changes to the list
+        // In addition, list could change as through-out enabling as other features decided they should
+        // automatically enable/disable too. --Douglas
         sendGlobalFeatureEvent(FeatureListener.FeatureEvent.PRE_ENABLE, FeatureListener.FeatureEvent.PRE_DISABLE,
                 features);
         String remove = "delete from feature_global";
@@ -186,13 +191,16 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public void enableLocationFeatures(Set<LocationFeature> features, Location location) {
+        // NOTE: This may need to change to only send enable/disable events for changes to the list
+        // In addition, list could change as through-out enabling as other features decided they should
+        // automatically enable/disable too. --Douglas
         sendLocationFeatureEvent(FeatureListener.FeatureEvent.PRE_ENABLE, FeatureListener.FeatureEvent.PRE_DISABLE,
                 features, location);
-        String remove = "delete from feature_location where location_id = " + location.getId();
+        String remove = "delete from feature_local where location_id = " + location.getId();
         StringBuilder update = new StringBuilder();
         for (LocationFeature f : features) {
             if (update.length() == 0) {
-                update.append("insert into feature_location values");
+                update.append("insert into feature_local values");
             } else {
                 update.append(',');
             }
@@ -218,8 +226,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public List<Location> getLocationsForEnabledFeature(LocationFeature feature) {
-        // TODO:
-        return Collections.emptyList();
+        List<Location> locations = (List<Location>) getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "locationsForEnabledFeature", "featureId", feature.getId());
+        return locations;
     }
 
     @Override

@@ -18,6 +18,7 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -29,6 +30,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
@@ -45,26 +47,30 @@ public class ProxyConfiguration implements ConfigProvider {
             return;
         }
 
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(ProxyManager.FEATURE);
+        FeatureManager fm = manager.getFeatureManager();
+        List<Location> locations = manager.getLocationManager().getLocationsList();
         boolean isCdrOn = manager.getFeatureManager().isFeatureEnabled(CdrManager.FEATURE);
         ProxySettings settings = m_proxyManager.getSettings();
         Domain domain = manager.getDomainManager().getDomain();
         Collection<TlsPeer> peers = m_tlsPeerManager.getTlsPeers();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            Writer proxy = new FileWriter(new File(dir, "sipXproxy-config.cfdat"));
-            try {
-                write(proxy, settings, location, domain, isCdrOn);
-            } finally {
-                IOUtils.closeQuietly(proxy);
-            }
-
-            Writer peersConfig = new FileWriter(new File(dir, "peeridentities.xml"));
-            try {
-                XmlFile config = new XmlFile(peersConfig);
-                config.write(getDocument(peers));
-            } finally {
-                IOUtils.closeQuietly(peersConfig);
+            boolean enabled = fm.isFeatureEnabled(ProxyManager.FEATURE, location);
+            FileUtils.writeStringToFile(new File(dir, "sipxproxy.cfdat"), enabled ? "+sipxproxyd" : "-sipxproxyd");
+            if (enabled) {
+                Writer proxy = new FileWriter(new File(dir, "sipXproxy-config.part1"));
+                try {
+                    write(proxy, settings, location, domain, isCdrOn);
+                } finally {
+                    IOUtils.closeQuietly(proxy);
+                }
+                Writer peersConfig = new FileWriter(new File(dir, "peeridentities.xml"));
+                try {
+                    XmlFile config = new XmlFile(peersConfig);
+                    config.write(getDocument(peers));
+                } finally {
+                    IOUtils.closeQuietly(peersConfig);
+                }
             }
         }
     }
@@ -79,7 +85,7 @@ public class ProxyConfiguration implements ConfigProvider {
         config.write("SIPX_PROXY.400_authrules.", root.getSetting("authrules"));
         config.write("SIPX_PROXY.210_msftxchghack.", root.getSetting("msftxchghack"));
         config.write(root.getSetting("call-rate-limit"));
-        config.write("SIPX_PROXY_BIND_IP", location.getAddress());
+        //config.write("SIPX_PROXY_BIND_IP", location.getAddress());
         config.write("SIPX_PROXY_HOST_NAME", location.getFqdn());
         int port = settings.getSipTcpPort();
         String aliases = format("%s:%d %s:%d", location.getAddress(), port, location.getFqdn(), port);

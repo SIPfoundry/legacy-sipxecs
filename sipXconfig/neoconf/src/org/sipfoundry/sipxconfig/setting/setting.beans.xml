@@ -27,7 +27,7 @@
   <bean id="beanWithSettingsDaoImpl" class="org.sipfoundry.sipxconfig.setting.BeanWithSettingsDaoImpl" abstract="true" parent="abstractDaoImpl">
   </bean>
 
-  <bean id="beanWithSettingsDao" class="org.springframework.aop.framework.ProxyFactoryBean" abstract="true">
+  <bean id="beanWithSettingsDao" class="org.springframework.aop.framework.ProxyFactoryBean" abstract="true" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao" />
   </bean>
 

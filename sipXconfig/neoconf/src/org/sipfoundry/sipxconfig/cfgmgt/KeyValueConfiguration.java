@@ -27,25 +27,35 @@ public class KeyValueConfiguration {
     private Writer m_out;
     private String m_delimitor;
     private String m_valueFormat;
+    private String m_globalPrefix;
 
     public KeyValueConfiguration(Writer w) {
         this(w, " : ");
     }
 
     public KeyValueConfiguration(Writer w, String delimitor) {
-        m_out = w;
-        m_delimitor = delimitor;
+        this(w, delimitor, null);
     }
 
-    public void write(Collection<Setting> settings) throws IOException {
+    public KeyValueConfiguration(Writer w, String delimitor, String prefix) {
+        m_out = w;
+        m_delimitor = delimitor;
+        m_globalPrefix = prefix;
+    }
+
+    public void write(String prefix, Collection<Setting> settings) throws IOException {
         Iterator<Setting> i = settings.iterator();
         while (i.hasNext()) {
-            write(i.next());
+            write(prefix, i.next());
         }
     }
 
+    public void write(Collection<Setting> settings) throws IOException {
+        write(m_globalPrefix, settings);
+    }
+
     public void write(Setting settings) throws IOException {
-        settings.acceptVisitor(new SettingsWriter());
+        settings.acceptVisitor(new SettingsWriter(m_globalPrefix));
         if (m_error != null) {
             throw m_error;
         }
@@ -58,11 +68,21 @@ public class KeyValueConfiguration {
         }
     }
 
-    public void write(String key, Object value) throws IOException {
-        m_out.write(key);
+    public void write(String prefix, String key, Object value) throws IOException {
+        String fullKey;
+        if (StringUtils.isNotBlank(prefix)) {
+            fullKey = prefix + key;
+        } else {
+            fullKey = key;
+        }
+        m_out.write(fullKey);
         m_out.write(m_delimitor);
         writeValue(value);
         m_out.write('\n');
+    }
+
+    public void write(String key, Object value) throws IOException {
+        write(m_globalPrefix, key, value);
     }
 
     protected void writeValue(Object value) throws IOException {
@@ -86,11 +106,7 @@ public class KeyValueConfiguration {
         @Override
         public void visitSetting(Setting setting) {
             try {
-                String key = setting.getName();
-                if (StringUtils.isNotBlank(m_prefix)) {
-                    key = m_prefix + key;
-                }
-                write(key, setting.getValue());
+                write(m_prefix, setting.getName(), setting.getValue());
             } catch (IOException e) {
                 m_error = e;
             }

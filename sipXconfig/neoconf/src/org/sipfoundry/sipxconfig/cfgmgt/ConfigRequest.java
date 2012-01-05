@@ -22,7 +22,11 @@ import org.springframework.util.CollectionUtils;
  */
 public final class ConfigRequest {
     private Set<Feature> m_affectedFeatures;
+
+    // NOTE: not sure this is nec. Idea was to allow singleton providers a place to store state
+    // per request. Consider removing --Douglas
     private Set<Object> m_tokens = new HashSet<Object>();
+
     private boolean m_always;
 
     private ConfigRequest() {

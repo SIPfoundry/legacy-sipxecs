@@ -162,6 +162,7 @@
         <value>org/sipfoundry/sipxconfig/tls/tls.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/freeswitch/freeswitch.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/openacd/openacd.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/feature/feature.hbm.xml</value>
       </list>
     </property>
     <property name="baseClassBeanIds">

@@ -18,7 +18,7 @@ public class BeanWithSettingsDaoImpl<T extends BeanWithSettings> extends SipxHib
         implements BeanWithSettingsDao<T>, BeanFactoryAware {
     private Class<T> m_class;
     private ListableBeanFactory m_beanFactory;
-    //private SettingDao m_settingsDao;
+//    private SettingDao m_settingsDao;
 
     public BeanWithSettingsDaoImpl(String className) throws ClassNotFoundException {
         m_class = (Class<T>) Class.forName(className);

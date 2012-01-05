@@ -4,7 +4,7 @@
   xsi:schemaLocation=
   "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
   
-  <bean id="configManagerImpl" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigManagerImpl">
+  <bean id="configManagerImpl" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigManagerImpl" init-method="init">
     <property name="locationManager" ref="locationsManager" />
     <property name="domainManager" ref="domainManager" />
     <property name="addressManager" ref="addressManager" />
@@ -12,5 +12,9 @@
   </bean>
   
   <alias alias="configManager" name="configManagerImpl"/>
+  
+  <bean id="configTrigger" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigTrigger">
+    <property name="configManager" ref="configManager"/>
+  </bean>
     
 </beans>

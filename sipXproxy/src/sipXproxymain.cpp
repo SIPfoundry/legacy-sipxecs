@@ -180,33 +180,8 @@ void catch_global()
 }
 
 
-int
-proxy( int argc, char* argv[] )
+int proxy()
 {
-   UtlBoolean interactiveSet = false;
-   UtlString argString;
-   for(int argIndex = 1; argIndex < argc; argIndex++)
-   {
-       osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
-       argString = argv[argIndex];
-       NameValueTokenizer::frontBackTrim(&argString, "\t ");
-       if(argString.compareTo("-v") == 0)
-       {
-           osPrintf("Version: %s %s\n", VERSION, PACKAGE_REVISION);
-           return(1);
-       } else if( argString.compareTo("-i") == 0)
-       {
-          interactiveSet = true;
-          osPrintf("Entering Interactive Mode\n");
-       } else
-       {
-            osPrintf("usage: %s [-v] [-i]\nwhere:\n -v provides the software version\n"
-               " -i starts the server in an interactive mode\n",
-               argv[0]);
-           return(1);
-       }
-   }
-
     int proxyTcpPort;
     int proxyUdpPort;
     int proxyTlsPort;
@@ -677,42 +652,8 @@ proxy( int argc, char* argv[] )
     pRouter->start();
 
     // Do not exit, let the proxy do its stuff
-    while( !Os::UnixSignals::instance().isTerminateSignalReceived() && !gShutdownFlag )
-    {
-        if( interactiveSet)
-        {
-            int charCode = getchar();
-
-            if(charCode != '\n' && charCode != '\r')
-            {
-                if( charCode == 'e')
-                {
-                    Os::Logger::instance().enableConsoleOutput(true);
-                }
-#ifdef BOUNDS_CHECKER
-                else if( charCode == 'b')
-                {
-                  NMMemPopup( );
-                }
-#endif                
-                else if( charCode == 'd')
-                {
-                    Os::Logger::instance().enableConsoleOutput(false);
-                }
-                else
-                {
-#if 0
-                    pSipUserAgent->printStatus();
-#endif
-                    pSipUserAgent->getMessageLog(buffer);
-                    printf("=================>\n%s\n", buffer.data());
-                }
-            }
-        }
-        else
-        {
-            OsTask::delay(2000);
-        }
+    while( !gShutdownFlag ) {
+        OsTask::delay(1000);
     }
  
     // This is a server task so gracefully shutdown the
@@ -744,14 +685,86 @@ proxy( int argc, char* argv[] )
     return 0 ;
 }
 
-int
-main(int argc, char* argv[] )
-{
-   proxy(argc, argv) ;
+void signal_handler(int sig) {
+    switch(sig) {
+    case SIGHUP:
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
+	break;
 
-   // Flush the log file
-   Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
-   Os::Logger::instance().flush();
+    case SIGTERM:
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
+        gShutdownFlag = TRUE;
+	break;
+    }
+}
 
-   return 0;
+void daemonize(const char* pidfile) {
+    if (getppid() == 1) {
+        return; // already a daemon
+    }
+    pid_t i = fork();
+    if (i < 0) {
+        exit(1);  // child cannot fork!
+    }
+    if (i > 0) {
+        exit(0); // parent exits
+    }
+    // child (daemon) continues
+    setsid(); // obtain a new process group
+    for (int i = getdtablesize(); i >= 0; --i) {
+        // fork need to squeltch all STDIO or parent is left w/open resources
+        close(i);
+    }
+
+    // reopen stdout, err and in incase spawned process need stub fds
+    i = open("/dev/null", O_RDWR);
+    dup(i); 
+    dup(i);
+
+    umask(027); // set newly created file permissions
+
+    // safe when runner was root
+    //chdir(RUNNING_DIR);
+
+    int lockfp = open(pidfile, O_RDWR|O_CREAT, 0640);
+    if (lockfp < 0) {
+        // cannot even reach lock file
+        exit(1);
+    }
+
+    if (lockf(lockfp, F_TLOCK, 0) < 0) {
+        // trying to run a second instance, no need, abort
+        exit(0);
+    }
+
+    /* first instance continues */
+    char str[10];
+    sprintf(str, "%d\n", getpid());
+    write(lockfp, str, strlen(str)); /* record pid to lockfile */
+
+    signal(SIGCHLD, SIG_IGN); // ignore child - May be a problem on BSD
+    signal(SIGTSTP, SIG_IGN); // ignore tty signals 
+    signal(SIGTTOU, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+}
+
+// USAGE:  sipXproxy [-v] [pidfile]
+int main(int argc, char* argv[]) {
+    char* pidFile = NULL;
+    for(int i = 1; i < argc; i++) {
+        if(strncmp("-v", argv[i], 2) == 0) {
+  	    std::cout << "Version: " << VERSION << PACKAGE_REVISION << std::endl;
+	    exit(0);
+	} else {
+            pidFile = argv[i];
+	}
+    }
+    if (pidFile) {
+      daemonize(pidFile);
+    }
+    signal(SIGHUP, signal_handler); // catch hangup signal
+    signal(SIGTERM, signal_handler); // catch kill signal
+    proxy();
+    Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
+    Os::Logger::instance().flush();
 }

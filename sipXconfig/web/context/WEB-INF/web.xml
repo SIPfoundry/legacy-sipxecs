@@ -12,7 +12,6 @@
     <param-value>
        classpath:/org/sipfoundry/sipxconfig/system.beans.xml
        classpath*:/org/sipfoundry/sipxconfig/*/**/*.beans.xml
-       classpath:/org/sipfoundry/sipxconfig/site/tapestry.xml       
        classpath*:/sipxplugin.beans.xml
     </param-value>
   </context-param>

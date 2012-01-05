@@ -12,7 +12,7 @@ bin_SCRIPTS = \
 cfmoddir = @SIPX_CFMODULES@
 cfmod_SCRIPTS = sipx
 
-initddir = @SERVICEDIR@
+initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
 	sipxsupervisord
 

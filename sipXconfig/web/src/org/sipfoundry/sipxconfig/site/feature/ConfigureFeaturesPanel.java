@@ -8,6 +8,9 @@
 package org.sipfoundry.sipxconfig.site.feature;
 
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.tapestry.BaseComponent;
@@ -35,9 +38,9 @@ public abstract class ConfigureFeaturesPanel extends BaseComponent implements Pa
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    public abstract Set<LocationFeature> getFeatures();
+    public abstract List<LocationFeature> getFeatures();
 
-    public abstract void setFeatures(Set<LocationFeature> features);
+    public abstract void setFeatures(List<LocationFeature> features);
 
     @Parameter
     public abstract ICallback getCallback();
@@ -54,7 +57,7 @@ public abstract class ConfigureFeaturesPanel extends BaseComponent implements Pa
 
         LocalizedOptionModelDecorator model = new LocalizedOptionModelDecorator();
         model.setMessages(getMessages());
-        model.setResourcePrefix("bundle.");
+        model.setResourcePrefix("feature.");
         model.setModel(nakedModel);
 
         return model;
@@ -63,7 +66,8 @@ public abstract class ConfigureFeaturesPanel extends BaseComponent implements Pa
     @Override
     public void pageBeginRender(PageEvent event) {
         if (getFeatures() == null) {
-            setFeatures(getFeatureManager().getEnabledLocationFeatures(getLocationBean()));
+            Set<LocationFeature> enabled = getFeatureManager().getEnabledLocationFeatures(getLocationBean());
+            setFeatures(new ArrayList<LocationFeature>(enabled));
         }
     }
 
@@ -71,7 +75,7 @@ public abstract class ConfigureFeaturesPanel extends BaseComponent implements Pa
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-
-        getFeatureManager().enableLocationFeatures(getFeatures(), getLocationBean());
+        HashSet<LocationFeature> enabled = new HashSet<LocationFeature>(getFeatures());
+        getFeatureManager().enableLocationFeatures(enabled, getLocationBean());
     }
 }

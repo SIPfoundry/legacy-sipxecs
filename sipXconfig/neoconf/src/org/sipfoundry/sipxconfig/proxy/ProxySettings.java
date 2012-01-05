@@ -16,11 +16,11 @@ import org.sipfoundry.commons.util.IPAddressUtil;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingsValidator;
 
-public class ProxySettings extends BeanWithSettings implements DeployConfigOnEdit, SettingsValidator {
+public class ProxySettings extends PersistableSettings implements DeployConfigOnEdit, SettingsValidator {
     public static final String LOG_SETTING = "proxy-configuration/SIPX_PROXY_LOG_LEVEL";
     public static final String SIP_PORT_SETTING = "proxy-configuration/SIPX_PROXY_TCP_PORT";
     public static final String SIP_UDP_PORT_SETTING = "proxy-configuration/SIPX_PROXY_UDP_PORT";
@@ -99,5 +99,10 @@ public class ProxySettings extends BeanWithSettings implements DeployConfigOnEdi
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) ProxyManager.FEATURE);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "proxySettings";
     }
 }
