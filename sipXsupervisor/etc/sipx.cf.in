@@ -29,11 +29,15 @@
 #
 bundle common sipx {
   vars:
+    any::
+      "location_id" string => readfile("@SIPX_CONFDIR@/location_id", "100");
+
     SuSE::
       "crontab" string => "/var/spool/cron/tabs/root";
 
     !SuSE::
       "crontab" string => "/var/spool/cron/root";
+      
 
   classes:
     any::
@@ -51,6 +55,7 @@ bundle agent sipx_module {
   commands:
     any::
       "@SIPX_CFMODULES@/sipx"
+        args => "$(sipx.location_id)",
         module => "true",
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
 }

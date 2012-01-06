@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -32,6 +34,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     private Collection<FeatureProvider> m_providers;
     private Collection<FeatureListener> m_listeners;
     private JdbcTemplate m_jdbcTemplate;
+    private DaoEventPublisher m_daoEventPublisher;
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -118,11 +121,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public void enableGlobalFeatures(Set<GlobalFeature> features) {
-        // NOTE: This may need to change to only send enable/disable events for changes to the list
-        // In addition, list could change as through-out enabling as other features decided they should
-        // automatically enable/disable too. --Douglas
+        DeltaSet<GlobalFeature> delta = new DeltaSet<GlobalFeature>(features, getEnabledGlobalFeatures());
         sendGlobalFeatureEvent(FeatureListener.FeatureEvent.PRE_ENABLE, FeatureListener.FeatureEvent.PRE_DISABLE,
-                features);
+                delta.m_newlyAdded, delta.m_newlyRemoved);
         String remove = "delete from feature_global";
         StringBuilder update = new StringBuilder();
         for (GlobalFeature f : features) {
@@ -137,32 +138,51 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
             remove, update.toString()
         });
         sendGlobalFeatureEvent(FeatureListener.FeatureEvent.POST_ENABLE, FeatureListener.FeatureEvent.POST_DISABLE,
-                features);
+                delta.m_newlyAdded, delta.m_newlyRemoved);
+        m_daoEventPublisher.publishSave(delta);
+    }
+
+    static class DeltaSet<T extends Feature> implements DeployConfigOnEdit {
+        private Set<T> m_newlyAdded;
+        private Set<T> m_newlyRemoved;
+        private Set<Feature> m_allChanges;
+
+        DeltaSet(Set<T> newSet, Set<T> oldSet) {
+            m_newlyAdded = new HashSet<T>(newSet);
+            m_newlyAdded.removeAll(oldSet);
+
+            m_newlyRemoved = new HashSet<T>(oldSet);
+            m_newlyRemoved.removeAll(newSet);
+
+            m_allChanges = new HashSet<Feature>(m_newlyAdded);
+            m_allChanges.addAll(m_newlyRemoved);
+        }
+
+        @Override
+        public Collection<Feature> getAffectedFeaturesOnChange() {
+            return m_allChanges;
+        }
     }
 
     void sendLocationFeatureEvent(FeatureListener.FeatureEvent enable, FeatureListener.FeatureEvent disable,
-            Set<LocationFeature> features, Location location) {
-        Set<LocationFeature> disabledFeatures = getAvailableLocationFeatures(location);
-        disabledFeatures.removeAll(features);
+            Set<LocationFeature> enabled, Set<LocationFeature> disabled, Location location) {
         for (FeatureListener listener : getFeatureListeners()) {
-            for (LocationFeature feature : features) {
+            for (LocationFeature feature : enabled) {
                 listener.enableLocationFeature(this, enable, feature, location);
             }
-            for (LocationFeature feature : disabledFeatures) {
+            for (LocationFeature feature : disabled) {
                 listener.enableLocationFeature(this, disable, feature, location);
             }
         }
     }
 
     void sendGlobalFeatureEvent(FeatureListener.FeatureEvent enable, FeatureListener.FeatureEvent disable,
-            Set<GlobalFeature> features) {
-        Set<GlobalFeature> disabledFeatures = getAvailableGlobalFeatures();
-        disabledFeatures.removeAll(features);
+            Set<GlobalFeature> enabled, Set<GlobalFeature> disabled) {
         for (FeatureListener listener : getFeatureListeners()) {
-            for (GlobalFeature feature : features) {
+            for (GlobalFeature feature : enabled) {
                 listener.enableGlobalFeature(this, enable, feature);
             }
-            for (GlobalFeature feature : disabledFeatures) {
+            for (GlobalFeature feature : disabled) {
                 listener.enableGlobalFeature(this, disable, feature);
             }
         }
@@ -191,11 +211,12 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public void enableLocationFeatures(Set<LocationFeature> features, Location location) {
-        // NOTE: This may need to change to only send enable/disable events for changes to the list
-        // In addition, list could change as through-out enabling as other features decided they should
-        // automatically enable/disable too. --Douglas
+
+        // Only send sends for changes. newly enabled and newly disabled.
+        DeltaSet<LocationFeature> delta = new DeltaSet<LocationFeature>(features, getEnabledLocationFeatures(location));
+
         sendLocationFeatureEvent(FeatureListener.FeatureEvent.PRE_ENABLE, FeatureListener.FeatureEvent.PRE_DISABLE,
-                features, location);
+                delta.m_newlyAdded, delta.m_newlyRemoved, location);
         String remove = "delete from feature_local where location_id = " + location.getId();
         StringBuilder update = new StringBuilder();
         for (LocationFeature f : features) {
@@ -213,8 +234,11 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
         m_jdbcTemplate.batchUpdate(new String[] {
             remove, update.toString()
         });
+
         sendLocationFeatureEvent(FeatureListener.FeatureEvent.PRE_ENABLE, FeatureListener.FeatureEvent.PRE_DISABLE,
-                features, location);
+                delta.m_newlyAdded, delta.m_newlyRemoved, location);
+
+        m_daoEventPublisher.publishSave(delta);
     }
 
     public void enableLocationFeature(LocationFeature feature, Location location, boolean enable) {
@@ -258,5 +282,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
+    }
+
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
 }

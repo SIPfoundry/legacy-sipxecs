@@ -46,6 +46,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private ConfigWorker m_worker;
     private Set<Feature> m_affectedFeatures = new HashSet<Feature>();
     private boolean m_allFeaturesAffected;
+    private ConfigAgent m_configAgent;
 
     public void init() {
         m_worker = new ConfigWorker();
@@ -98,10 +99,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
                 e.printStackTrace();
             }
         }
-        runAgent();
-    }
-
-    void runAgent() {
+        m_configAgent.run();
     }
 
     @Override
@@ -228,5 +226,9 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             doWork(work);
             return true;
         }
+    }
+
+    public void setConfigAgent(ConfigAgent configAgent) {
+        m_configAgent = configAgent;
     }
 }

@@ -29,7 +29,7 @@ body server control {
   maxconnections => "5";
   trustkeysfrom => { @(sipx.allowed_addrs) };
   logallconnections => "true";
-  cfruncommand => "/usr/sbin/cf-agent -vf @SIPX_CFINPUTS@/sipxagent.cf";
+  cfruncommand => "/usr/sbin/cf-agent -vf @SIPX_CFINPUTS@/promises.cf";
   allowusers => { @(sipx.allowed_users) };
 }
 
