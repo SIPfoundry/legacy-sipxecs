@@ -7,10 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.parkorbit;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class ParkSettings extends BeanWithSettings {
+public class ParkSettings extends PersistableSettings {
 
     @Override
     protected Setting loadSettings() {
@@ -27,5 +27,10 @@ public class ParkSettings extends BeanWithSettings {
 
     public int getRtpPort() {
         return (Integer) getSettingTypedValue("park-config/SIP_PARK_RTP_PORT");
+    }
+
+    @Override
+    public String getBeanId() {
+        return "parkSettings";
     }
 }

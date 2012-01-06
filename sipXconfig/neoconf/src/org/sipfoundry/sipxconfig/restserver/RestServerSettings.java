@@ -12,11 +12,11 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 
-public class RestServerSettings extends BeanWithSettings implements DeployConfigOnEdit {
+public class RestServerSettings extends PersistableSettings implements DeployConfigOnEdit {
 
     @Override
     protected Setting loadSettings() {
@@ -38,5 +38,10 @@ public class RestServerSettings extends BeanWithSettings implements DeployConfig
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) RestServer.FEATURE);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "restServerSettings";
     }
 }

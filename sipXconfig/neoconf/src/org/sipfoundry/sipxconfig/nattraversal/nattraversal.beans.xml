@@ -2,7 +2,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="natTraveral" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversal">
+  <bean id="natTraveral" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="natTraveralImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.nattraversal.NatTraversal"/>
+  </bean>
+
+  <bean id="natTraveralImpl" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">
@@ -14,8 +19,7 @@
     </property>
   </bean>
 
-  <bean id="natSettings" class="org.sipfoundry.sipxconfig.nattraversal.NatSettings" scope="prototype">
-    <property name="modelFilesContext" ref="modelFilesContext"/>
+  <bean id="natSettings" class="org.sipfoundry.sipxconfig.nattraversal.NatSettings" parent="settingsBean">
   </bean>
 
   <bean id="natConfig" class="org.sipfoundry.sipxconfig.nattraversal.NatConfiguration">

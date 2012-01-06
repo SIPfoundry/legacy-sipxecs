@@ -14,7 +14,7 @@ import java.util.Collections;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Required;
  * Even though presence server can be on a specific location, there can only be one of them so
  * settings are not location specific.  Therefore we extend BeanWithSettings and not BeanWithLocation
  */
-public class PresenceSettings extends BeanWithSettings implements AliasOwner {
+public class PresenceSettings extends PersistableSettings implements AliasOwner {
     public static final String PRESENCE_SIGN_IN_CODE = "presence-config/SIP_PRESENCE_SIGN_IN_CODE";
     public static final String PRESENCE_SIGN_OUT_CODE = "presence-config/SIP_PRESENCE_SIGN_OUT_CODE";
     private AliasManager m_aliasManager;
@@ -72,5 +72,10 @@ public class PresenceSettings extends BeanWithSettings implements AliasOwner {
     @Required
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
+    }
+
+    @Override
+    public String getBeanId() {
+        return "presenceSettings";
     }
 }

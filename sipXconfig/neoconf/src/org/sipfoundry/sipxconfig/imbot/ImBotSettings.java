@@ -11,10 +11,10 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang.StringUtils.replace;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class ImBotSettings extends BeanWithSettings {
+public class ImBotSettings extends PersistableSettings {
     private static final String PA_USER_NAME_SETTING = "imbot/_imbot.paUserName";
     private static final String PA_PASSWORD_SETTING = "imbot/imbot.paPassword";
     private static final String HTTP_PORT = "imbot/imbot.httpPort";
@@ -49,5 +49,10 @@ public class ImBotSettings extends BeanWithSettings {
 
     public void setLocale(String localeString) {
         getSettings().getSetting(LOCALE_SETTING).setValue(localeString);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "imBotSettings";
     }
 }

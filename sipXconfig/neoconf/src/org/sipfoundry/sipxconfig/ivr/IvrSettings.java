@@ -12,10 +12,10 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class IvrSettings extends BeanWithSettings implements DeployConfigOnEdit {
+public class IvrSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String HTTPS_PORT = "ivr/ivr.httpsPort";
 
     @Override
@@ -30,5 +30,10 @@ public class IvrSettings extends BeanWithSettings implements DeployConfigOnEdit 
 
     public int getHttpsPort() {
         return (Integer) getSettingTypedValue(HTTPS_PORT);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "ivrSettings";
     }
 }

@@ -12,10 +12,10 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class RlsSettings extends BeanWithSettings implements DeployConfigOnEdit {
+public class RlsSettings extends PersistableSettings implements DeployConfigOnEdit {
 
     @Override
     protected Setting loadSettings() {
@@ -33,5 +33,10 @@ public class RlsSettings extends BeanWithSettings implements DeployConfigOnEdit 
 
     public int getUdpPort() {
         return (Integer) getSettingTypedValue("rls-config/SIP_RLS_UDP_PORT");
+    }
+
+    @Override
+    public String getBeanId() {
+        return "rlsSettings";
     }
 }

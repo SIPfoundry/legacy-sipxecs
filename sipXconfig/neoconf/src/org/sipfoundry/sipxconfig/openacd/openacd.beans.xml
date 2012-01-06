@@ -73,8 +73,7 @@
     <property name="provisioningContext" ref="openAcdProvisioningContext" />
   </bean>
   
-  <bean id="openAcdSettings" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSettings" scope="prototype">
-    <property name="domainManager" ref="domainManager"/>
+  <bean id="openAcdSettings" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSettings" parent="settingsBean">
   </bean>
   
 </beans>

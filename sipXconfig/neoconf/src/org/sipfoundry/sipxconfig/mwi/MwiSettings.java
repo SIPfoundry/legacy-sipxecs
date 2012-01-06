@@ -7,10 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.mwi;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class MwiSettings extends BeanWithSettings {
+public class MwiSettings extends PersistableSettings {
 
     @Override
     protected Setting loadSettings() {
@@ -31,5 +31,10 @@ public class MwiSettings extends BeanWithSettings {
 
     public int getHttpsApiPort() {
         return ((Integer) getSettingTypedValue("status-config/SIP_STATUS_HTTPS_PORT")).intValue();
+    }
+
+    @Override
+    public String getBeanId() {
+        return "mwiSettings";
     }
 }

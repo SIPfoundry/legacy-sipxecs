@@ -33,4 +33,6 @@ public interface AcdHistoricalStats {
     public void dumpReport(Writer writer, List<Map<String, Object>> reportData, Locale locale) throws IOException;
 
     public AcdHistoricalSettings getSettings();
+
+    public void saveSettings(AcdHistoricalSettings settings);
 }

@@ -35,7 +35,15 @@
     <property name="csvParser" ref="phonebookCsvParser" />
     <property name="vcardParser" ref="vcardParser" />
     <property name="vcardEncoding" value="UTF-8" />
-	<property name="generalPhonebookSettings" ref="generalPhonebookSettings" />
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
   <bean id="filePhonebookEntryUpgradeTask" class="org.sipfoundry.sipxconfig.phonebook.FilePhonebookEntryUpgradeTask">
@@ -47,9 +55,7 @@
     </property>
   </bean>
 
-  <bean id="generalPhonebookSettings"
-	class="org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings">
-	<property name="modelFilesContext" ref="modelFilesContext"/>
+  <bean id="generalPhonebookSettings" class="org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings" parent="settingsBean">
   </bean>
 
 </beans>

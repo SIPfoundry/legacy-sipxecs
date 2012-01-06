@@ -14,11 +14,11 @@ import java.util.Collections;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class RecordingSettings extends BeanWithSettings implements DeployConfigOnEdit {
+public class RecordingSettings extends PersistableSettings implements DeployConfigOnEdit {
     private DomainManager m_domainManager;
 
     public RecordingSettings() {
@@ -48,5 +48,10 @@ public class RecordingSettings extends BeanWithSettings implements DeployConfigO
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    @Override
+    public String getBeanId() {
+        return "recordingSettings";
     }
 }

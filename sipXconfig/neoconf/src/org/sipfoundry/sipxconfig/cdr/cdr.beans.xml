@@ -28,10 +28,12 @@
     </property>
   </bean>
 
-  <alias alias="cdrManager" name="cdrManagerImpl" />
+  <bean id="cdrManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="cdrManagerImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.cdr.CdrManager"/>
+  </bean>
   
-  <bean id="cdrSettings" class="org.sipfoundry.sipxconfig.cdr.CdrSettings" scope="prototype">
-    <property name="modelFilesContext" ref="modelFilesContext"/>
+  <bean id="cdrSettings" class="org.sipfoundry.sipxconfig.cdr.CdrSettings" parent="settingsBean">
   </bean>
   
 </beans>

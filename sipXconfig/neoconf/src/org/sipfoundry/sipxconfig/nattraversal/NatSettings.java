@@ -7,10 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class NatSettings extends BeanWithSettings {
+public class NatSettings extends PersistableSettings {
     private static final String BEHIND_NAT = "nat/behind-nat";
 
     @Override
@@ -28,5 +28,10 @@ public class NatSettings extends BeanWithSettings {
 
     public void setBehindNat(boolean behind) {
         setSettingTypedValue(BEHIND_NAT, behind);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "natSettings";
     }
 }

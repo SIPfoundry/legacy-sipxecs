@@ -6,7 +6,12 @@
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-  <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService">
+  <bean id="unmanagedService" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="unmanagedServiceImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.service.UnmanagedService"/>
+  </bean>
+
+  <bean id="unmanagedServiceImpl" class="org.sipfoundry.sipxconfig.service.UnmanagedServiceImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">
@@ -18,8 +23,7 @@
     </property>
   </bean>
 
-  <bean id="unmanagedServiceSettings" class="org.sipfoundry.sipxconfig.service.UnmanagedServiceSettings">
-    <property name="modelFilesContext" ref="modelFilesContext" />        
+  <bean id="unmanagedServiceSettings" class="org.sipfoundry.sipxconfig.service.UnmanagedServiceSettings" parent="settingsBean">
   </bean>
 
 </beans>

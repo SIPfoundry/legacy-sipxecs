@@ -14,11 +14,11 @@ import org.sipfoundry.sipxconfig.acd.stats.AcdStats;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class AcdHistoricalSettings extends BeanWithSettings {
+public class AcdHistoricalSettings extends PersistableSettings {
     private AddressManager m_addressManager;
     private FeatureManager m_featureManager;
 
@@ -47,5 +47,10 @@ public class AcdHistoricalSettings extends BeanWithSettings {
 
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    @Override
+    public String getBeanId() {
+        return "acdHistoricalSettings";
     }
 }

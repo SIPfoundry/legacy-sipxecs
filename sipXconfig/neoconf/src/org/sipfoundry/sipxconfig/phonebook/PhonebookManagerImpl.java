@@ -13,7 +13,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.addAll;
 import static org.apache.commons.collections.CollectionUtils.filter;
 import static org.apache.commons.collections.CollectionUtils.find;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.collections.CollectionUtils.select;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.checkDuplicates;
@@ -79,6 +78,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -101,7 +101,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private BulkParser m_csvParser;
     private BulkParser m_vcardParser;
     private String m_vcardEncoding;
-    private GeneralPhonebookSettings m_generalPhonebookSettings;
+    private BeanWithSettingsDao<GeneralPhonebookSettings> m_settingsDao;
 
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
@@ -993,17 +993,11 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void saveGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings) {
-        saveOrUpdateBeanWithSettings(generalPhonebookSettings);
+        m_settingsDao.upsert(generalPhonebookSettings);
     }
 
     public GeneralPhonebookSettings getGeneralPhonebookSettings() {
-        List list = getHibernateTemplate().loadAll(GeneralPhonebookSettings.class);
-        return isEmpty(list) ? m_generalPhonebookSettings : (GeneralPhonebookSettings) singleResult(list);
-    }
-
-    @Required
-    public void setGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings) {
-        m_generalPhonebookSettings = generalPhonebookSettings;
+        return m_settingsDao.findOrCreateOne();
     }
 
     public void removePrivatePhonebook(User user) {
@@ -1011,5 +1005,9 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         if (privatePhonebook != null) {
             deletePhonebook(privatePhonebook);
         }
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<GeneralPhonebookSettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 }

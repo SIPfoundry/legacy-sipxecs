@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class OpenAcdSettings extends BeanWithSettings implements OpenAcdConfigObjectProvider {
+public class OpenAcdSettings extends PersistableSettings implements OpenAcdConfigObjectProvider {
     private static final String FS_ENABLED = "freeswitch_media_manager/FREESWITCH_ENABLED";
     private static final String C_NODE = "freeswitch_media_manager/C_NODE";
     private static final String DIAL_STRING = "freeswitch_media_manager/DIAL_STRING";
@@ -102,5 +102,10 @@ public class OpenAcdSettings extends BeanWithSettings implements OpenAcdConfigOb
 
     public String getAudioDirectory() {
         return m_audioDirectory;
+    }
+
+    @Override
+    public String getBeanId() {
+        return "openAcdSettings";
     }
 }

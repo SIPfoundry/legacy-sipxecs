@@ -13,11 +13,11 @@ import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class ProvisionSettings extends BeanWithSettings {
+public class ProvisionSettings extends PersistableSettings {
     private static final String ADMIN_URL = "provision-config/provision.configUrl";
     private CoreContext m_coreContext;
     private AddressManager m_addressManager;
@@ -76,5 +76,10 @@ public class ProvisionSettings extends BeanWithSettings {
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    @Override
+    public String getBeanId() {
+        return "provisionSettings";
     }
 }

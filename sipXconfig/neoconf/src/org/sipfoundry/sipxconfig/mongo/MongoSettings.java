@@ -7,10 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class MongoSettings extends BeanWithSettings {
+public class MongoSettings extends PersistableSettings {
 
     @Override
     protected Setting loadSettings() {
@@ -19,5 +19,10 @@ public class MongoSettings extends BeanWithSettings {
 
     public int getPort() {
         return (Integer) getSettingTypedValue("mongod/port");
+    }
+
+    @Override
+    public String getBeanId() {
+        return "mongoSettings";
     }
 }

@@ -39,7 +39,7 @@ public class PresenceServerTest extends TestCase {
         signin.put("user-action", "sip:joe@example.com");
 
         IMocksControl apiCtrl = EasyMock.createControl();
-        PresenceServer.SignIn api = apiCtrl.createMock(PresenceServer.SignIn.class);
+        PresenceServerImpl.SignIn api = apiCtrl.createMock(PresenceServerImpl.SignIn.class);
         api.action(signin);
         apiCtrl.andReturn(SUCCESS_RESPONSE);
         apiCtrl.replay();
@@ -47,7 +47,7 @@ public class PresenceServerTest extends TestCase {
         User joe = new User();
         joe.setUserName("joe");
 
-        PresenceServer impl = new PresenceServer();
+        PresenceServerImpl impl = new PresenceServerImpl();
         impl.setCoreContext(coreContext);
         impl.userAction(api, "user-action", joe);
 
@@ -60,12 +60,12 @@ public class PresenceServerTest extends TestCase {
         response.put("result-code", new Integer(0));
         response.put("result-text", "testing error handling");
         try {
-            PresenceServer.checkErrorCode(response);
+            PresenceServerImpl.checkErrorCode(response);
             fail("Expected exception");
         } catch (UserException e) {
             assertTrue(true);
         }
 
-        PresenceServer.checkErrorCode(SUCCESS_RESPONSE);
+        PresenceServerImpl.checkErrorCode(SUCCESS_RESPONSE);
     }
 }

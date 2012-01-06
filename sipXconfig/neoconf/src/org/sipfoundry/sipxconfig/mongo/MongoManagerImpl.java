@@ -21,10 +21,7 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
-public class MongoFeature implements AddressProvider, FeatureProvider {
-    public static final String BEAN_ID = "mongo";
-    public static final AddressType ADDRESS_ID = new AddressType(BEAN_ID);
-    public static final LocationFeature FEATURE_ID = new LocationFeature(BEAN_ID);
+public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager {
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
 
     public MongoSettings getSettings() {

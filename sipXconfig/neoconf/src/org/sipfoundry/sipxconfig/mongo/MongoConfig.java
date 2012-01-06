@@ -22,16 +22,16 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
 public class MongoConfig implements ConfigProvider {
-    private MongoFeature m_mongoFeature;
+    private MongoManager m_mongoManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(MongoFeature.FEATURE_ID)) {
+        if (!request.applies(MongoManager.FEATURE_ID)) {
             return;
         }
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
-        MongoSettings settings = m_mongoFeature.getSettings();
+        MongoSettings settings = m_mongoManager.getSettings();
         int port = settings.getPort();
         String conStr = getConnectionString(all, port);
         String conUrl = getConnectionUrl(all, port);
@@ -45,7 +45,7 @@ public class MongoConfig implements ConfigProvider {
             config.write("connectionUrl", conUrl);
             config.write("connectionString", conStr);
             IOUtils.closeQuietly(wtr);
-            boolean server = fm.isFeatureEnabled(MongoFeature.FEATURE_ID, location);
+            boolean server = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location);
             ConfigUtils.enableCfengineClass(dir, "mongod.cfdat", mongod, server);
             // only mongod servers get mongod config
             if (server) {
@@ -84,7 +84,7 @@ public class MongoConfig implements ConfigProvider {
         return r.toString();
     }
 
-    public void setMongoFeature(MongoFeature mongoFeature) {
-        m_mongoFeature = mongoFeature;
+    public void setMongoManager(MongoManager mongoManager) {
+        m_mongoManager = mongoManager;
     }
 }

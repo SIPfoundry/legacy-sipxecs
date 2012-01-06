@@ -54,6 +54,10 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
         return m_settingsDao.findOrCreateOne();
     }
 
+    public void saveSettings(AcdHistoricalSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
+
     public void dumpReport(Writer writer, List<Map<String, Object>> reportData, Locale locale) throws IOException {
 
         // nothing ACD specific here, could be reused

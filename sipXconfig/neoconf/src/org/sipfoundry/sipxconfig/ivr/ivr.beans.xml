@@ -2,15 +2,20 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="callPilotSettings" class="org.sipfoundry.sipxconfig.ivr.CallPilotSettings" scope="prototype">
+  <bean id="callPilotSettings" class="org.sipfoundry.sipxconfig.ivr.CallPilotSettings" parent="settingsBean">
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
-  <bean id="ivrSettings" class="org.sipfoundry.sipxconfig.ivr.IvrSettings" scope="prototype">
+  <bean id="ivrSettings" class="org.sipfoundry.sipxconfig.ivr.IvrSettings" parent="settingsBean">
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
-  <bean id="ivr" class="org.sipfoundry.sipxconfig.ivr.Ivr">
+  <bean id="ivr" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="ivrImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.ivr.Ivr"/>
+  </bean>
+
+  <bean id="ivrImpl" class="org.sipfoundry.sipxconfig.ivr.IvrImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">

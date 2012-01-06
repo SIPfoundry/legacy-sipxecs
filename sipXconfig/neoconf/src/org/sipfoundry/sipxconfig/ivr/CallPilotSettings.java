@@ -7,10 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.ivr;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class CallPilotSettings extends BeanWithSettings {
+public class CallPilotSettings extends PersistableSettings {
     private static final String NAME_DIAL_PFX = "config/nameDialPrefix";
     private static final String DEFAULT_TUI = "config/defaultTui";
 
@@ -25,5 +25,10 @@ public class CallPilotSettings extends BeanWithSettings {
 
     public String getDefaultTui() {
         return getSettingValue(DEFAULT_TUI);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "callPilotSettings";
     }
 }

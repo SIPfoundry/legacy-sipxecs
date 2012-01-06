@@ -2,7 +2,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   
-  <bean id="presenceServer" class="org.sipfoundry.sipxconfig.presence.PresenceServer">
+  <bean id="presenceServer" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="presenceServerImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.presence.PresenceServer"/>
+  </bean>
+
+  <bean id="presenceServerImpl" class="org.sipfoundry.sipxconfig.presence.PresenceServerImpl">
     <property name="coreContext" ref="coreContext"/>
     <property name="featureManager" ref="featureManager" />
     <property name="settingsDao">
@@ -17,8 +22,7 @@
     <property name="addressManager" ref="addressManager" />
   </bean>
 
-  <bean id="presenceSettings" class="org.sipfoundry.sipxconfig.presence.PresenceSettings" scope="prototype">
-    <property name="modelFilesContext" ref="modelFilesContext"/>
+  <bean id="presenceSettings" class="org.sipfoundry.sipxconfig.presence.PresenceSettings" parent="settingsBean">
     <property name="aliasManager" ref="aliasManager"/>    
   </bean>
   

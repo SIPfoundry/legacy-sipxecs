@@ -17,11 +17,11 @@ import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
-public class RegistrarSettings extends BeanWithSettings implements DeployConfigOnEdit, AliasOwner {
+public class RegistrarSettings extends PersistableSettings implements DeployConfigOnEdit, AliasOwner {
     private static final String PICKUP_CODE = "call-pick-up/SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE";
     private static final String RETRIEVE_CODE = "call-pick-up/SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE";
     private AliasManager m_aliasManager;
@@ -84,5 +84,10 @@ public class RegistrarSettings extends BeanWithSettings implements DeployConfigO
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) Registrar.FEATURE);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "registrarSettings";
     }
 }

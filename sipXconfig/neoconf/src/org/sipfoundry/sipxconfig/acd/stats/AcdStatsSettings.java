@@ -7,10 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class AcdStatsSettings extends BeanWithSettings {
+public class AcdStatsSettings extends PersistableSettings {
 
     @Override
     protected Setting loadSettings() {
@@ -19,5 +19,10 @@ public class AcdStatsSettings extends BeanWithSettings {
 
     public int getAcdStatsPort() {
         return (Integer) getSettingTypedValue("configagent-config/CONFIG_SERVER_AGENT_PORT");
+    }
+
+    @Override
+    public String getBeanId() {
+        return "acdStatsSettings";
     }
 }

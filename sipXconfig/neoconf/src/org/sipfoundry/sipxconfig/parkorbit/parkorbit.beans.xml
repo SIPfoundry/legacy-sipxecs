@@ -12,7 +12,7 @@
     class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbit" scope="prototype" parent="beanWithSettings">
   </bean>
   
-  <bean id="parkSettings" class="org.sipfoundry.sipxconfig.parkorbit.ParkSettings">
+  <bean id="parkSettings" class="org.sipfoundry.sipxconfig.parkorbit.ParkSettings" parent="settingsBean">
   </bean>
 
   <bean id="parkOrbitContextImpl" class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContextImpl" parent="abstractDaoImpl">
@@ -31,8 +31,6 @@
 
   <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext" />
-    <property name="target">
-      <ref local="parkOrbitContextImpl" />
-    </property>
+    <property name="target" ref="parkOrbitContextImpl"/>
   </bean>
 </beans>

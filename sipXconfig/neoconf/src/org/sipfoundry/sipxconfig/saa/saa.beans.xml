@@ -2,11 +2,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="saaSettings" class="org.sipfoundry.sipxconfig.saa.SaaSettings" scope="prototype">
-    <property name="modelFilesContext" ref="modelFilesContext"/>
+  <bean id="saaSettings" class="org.sipfoundry.sipxconfig.saa.SaaSettings" parent="settingsBean">
   </bean>
 
-  <bean id="saaManager" class="org.sipfoundry.sipxconfig.saa.SaaManager">
+  <bean id="saaManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="saaManagerImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.saa.SaaManager"/>
+  </bean>
+
+  <bean id="saaManagerImpl" class="org.sipfoundry.sipxconfig.saa.SaaManagerImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">

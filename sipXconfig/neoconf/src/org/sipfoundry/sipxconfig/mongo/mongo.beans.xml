@@ -8,7 +8,12 @@
 
   <bean id="mongoTunnnel" class="org.sipfoundry.sipxconfig.mongo.MongoTunnelProvider" />
   
-  <bean id="mongoFeature" class="org.sipfoundry.sipxconfig.mongo.MongoFeature">
+  <bean id="mongoManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="mongoManagerImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.mongo.MongoManager"/>
+  </bean>
+
+  <bean id="mongoManagerImpl" class="org.sipfoundry.sipxconfig.mongo.MongoManagerImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">
@@ -21,10 +26,10 @@
   </bean>
   
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfig">
-    <property name="mongoFeature" ref="mongoFeature"/>
+    <property name="mongoManager" ref="mongoManager"/>
   </bean>
 
-  <bean id="mongoSettings" class="org.sipfoundry.sipxconfig.mongo.MongoSettings">
+  <bean id="mongoSettings" class="org.sipfoundry.sipxconfig.mongo.MongoSettings" parent="settingsBean">
   </bean>
   
 </beans>

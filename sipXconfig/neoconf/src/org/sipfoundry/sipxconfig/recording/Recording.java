@@ -7,38 +7,12 @@
  */
 package org.sipfoundry.sipxconfig.recording;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
-public class Recording implements FeatureProvider {
+public interface Recording {
     public static final GlobalFeature FEATURE = new GlobalFeature("bridgeRecording");
-    private BeanWithSettingsDao<RecordingSettings> m_settingsDao;
 
-    public RecordingSettings getSettings() {
-        return m_settingsDao.findOrCreateOne();
-    }
+    public RecordingSettings getSettings();
 
-    public void saveSettings(RecordingSettings settings) {
-        m_settingsDao.upsert(settings);
-    }
-
-    @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
-        return Collections.singleton(FEATURE);
-    }
-
-    @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
-        return null;
-    }
-
-    public void setSettingsDao(BeanWithSettingsDao<RecordingSettings> settingsDao) {
-        m_settingsDao = settingsDao;
-    }
+    public void saveSettings(RecordingSettings settings);
 }

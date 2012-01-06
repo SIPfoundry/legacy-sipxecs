@@ -7,10 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class CdrSettings extends BeanWithSettings {
+public class CdrSettings extends PersistableSettings {
 
     public int getAgentPort() {
         return (Integer) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_AGENT_PORT");
@@ -23,5 +23,10 @@ public class CdrSettings extends BeanWithSettings {
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxcallresolver/sipxcallresolver.xml");
+    }
+
+    @Override
+    public String getBeanId() {
+        return "cdrSettings";
     }
 }

@@ -7,13 +7,18 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class UnmanagedServiceSettings extends BeanWithSettings {
+public class UnmanagedServiceSettings extends PersistableSettings {
 
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("unmanaged/services.xml");
+    }
+
+    @Override
+    public String getBeanId() {
+        return "unmanagedServiceSettings";
     }
 }

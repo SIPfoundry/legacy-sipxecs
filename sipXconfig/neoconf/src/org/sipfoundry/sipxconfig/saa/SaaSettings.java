@@ -12,10 +12,10 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class SaaSettings extends BeanWithSettings implements DeployConfigOnEdit {
+public class SaaSettings extends PersistableSettings implements DeployConfigOnEdit {
 
     @Override
     protected Setting loadSettings() {
@@ -25,5 +25,10 @@ public class SaaSettings extends BeanWithSettings implements DeployConfigOnEdit 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) SaaManager.FEATURE);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "saaSettings";
     }
 }
