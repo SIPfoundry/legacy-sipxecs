@@ -20,7 +20,6 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.permission.Permission;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -145,15 +144,6 @@ public class ResourceLists extends XmlFile {
                 }
                 createResource(m_imList, SipUri.format(userName, m_domainName, false), userName);
             }
-            String subscribe = StringUtils.defaultIfEmpty(rs.getString("subscribe"), Permission.ENABLE);
-            // check if the user has the "Subscribe to Presence" permission since the blf flag
-            // might not be set to FALSE even when the user doesn't have this permission(this
-            // could happen
-            // when the user use the group's speed dial)
-            if (!StringUtils.equals(subscribe, Permission.ENABLE)) {
-                return;
-            }
-
             // check BLF buttons for this user
             final List<Button> buttons = new LinkedList<Button>();
             String userId = rs.getString("user_id");

@@ -41,11 +41,19 @@ public class ResourceListsTestIntegration extends IntegrationTestCase {
         assertEquals(IOUtils.toString(referenceXml), fileContent);
     }
 
+
+    /**
+     * No matter if the user does not have blf permission, we should keep generating what
+     * speeddials we have
+     * The BLF permission turning off, only restricts the user to change his blf permission from
+     * user-portal
+     * @throws Exception
+     */
     public void testGenerateConsideringSubscribePermission() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
         loadDataSet("speeddial/ResourceListsPermissionSeed.xml");
         String fileContent = getFileContent(m_resourceList, null);
-        InputStream referenceXml = getClass().getResourceAsStream("resource-lists-considering-permission.test.xml");
+        InputStream referenceXml = getClass().getResourceAsStream("resource-lists.test.xml");
         assertEquals(IOUtils.toString(referenceXml), fileContent);
     }
 

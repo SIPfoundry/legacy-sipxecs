@@ -11,11 +11,17 @@
       displayName="ognl:container.messages.getMessage('label.number')" />
   </td>
   <td>
-	<span jwcid="@If" condition="ognl:subscribeToPresenceDisabled" renderTag="ognl:false">
-		<span jwcid="disabledBlf@Checkbox" value="ognl:false" disabled="ognl:true" />
+	<span jwcid="@If" condition="ognl:subscribeToPresenceDisabled" renderTag="ognl:false">		
+      <input jwcid="disabledBlf@Hidden" value="ognl:button.blf" />      
+      <span jwcid="@If" condition="ognl:button.blf" renderTag="ognl:false">      
+        <label jwcid="@Insert" value="message:blf.yes"/>     
+      </span>      
+      <span jwcid="@Else" condition="ognl:button.blf" renderTag="ognl:false">
+        <label jwcid="@Insert" value="message:blf.no"/>     
+      </span>
 	</span>
 	<span jwcid="@Else" renderTag="ognl:false">
-		<span jwcid="blf@Checkbox" value="ognl:button.blf" />
+		<input jwcid="blf@Checkbox" value="ognl:button.blf" />
 	</span>
   </td>
   <td>
