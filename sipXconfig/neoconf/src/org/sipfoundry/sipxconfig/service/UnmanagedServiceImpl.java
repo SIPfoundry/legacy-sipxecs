@@ -17,15 +17,11 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureProvider;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
-public class UnmanagedServiceImpl  implements FeatureProvider, AddressProvider, UnmanagedService {
+public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService {
     private static final List<AddressType> ADDRESSES = Arrays.asList(NTP, SYSLOG);
     private BeanWithSettingsDao<UnmanagedServiceSettings> m_settingsDao;
 
@@ -46,7 +42,7 @@ public class UnmanagedServiceImpl  implements FeatureProvider, AddressProvider, 
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (!ADDRESSES.contains(type) || !manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+        if (!ADDRESSES.contains(type)) {
             return null;
         }
 
@@ -72,18 +68,7 @@ public class UnmanagedServiceImpl  implements FeatureProvider, AddressProvider, 
         return null;
     }
 
-    @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
-        return Collections.singleton(FEATURE);
-    }
-
-    @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
-        return null;
-    }
-
     public void setSettingsDao(BeanWithSettingsDao<UnmanagedServiceSettings> settingsDao) {
         m_settingsDao = settingsDao;
     }
-
 }

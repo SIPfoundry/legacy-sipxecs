@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
@@ -34,23 +34,22 @@ public class NatConfiguration implements ConfigProvider {
         if (!request.applies(NatTraversal.FEATURE)) {
             return;
         }
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                ProxyManager.FEATURE);
-        if (locations == null || locations.isEmpty()) {
-            return;
-        }
 
+        Set<Location> locations = request.locations(manager);
         NatSettings settings = m_nat.getSettings();
         int proxyTcpPort = manager.getAddressManager().getSingleAddress(ProxyManager.TCP_ADDRESS).getPort();
         int proxyTlsPort = manager.getAddressManager().getSingleAddress(ProxyManager.TLS_ADDRESS).getPort();
         SbcRoutes routes = m_sbcManager.getRoutes();
         for (Location location : locations) {
-            File dir = manager.getLocationDataDirectory(location);
-            Writer writer = new FileWriter(new File(dir, "nattraversalrules.xml"));
-            try {
-                write(writer, settings, location, routes, proxyTcpPort, proxyTlsPort);
-            } finally {
-                IOUtils.closeQuietly(writer);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
+            if (enabled) {
+                File dir = manager.getLocationDataDirectory(location);
+                Writer writer = new FileWriter(new File(dir, "nattraversalrules.xml"));
+                try {
+                    write(writer, settings, location, routes, proxyTcpPort, proxyTlsPort);
+                } finally {
+                    IOUtils.closeQuietly(writer);
+                }
             }
         }
     }
@@ -77,5 +76,9 @@ public class NatConfiguration implements ConfigProvider {
 
     public void setNat(NatTraversal nat) {
         m_nat = nat;
+    }
+
+    public void setSbcManager(SbcManager sbcManager) {
+        m_sbcManager = sbcManager;
     }
 }

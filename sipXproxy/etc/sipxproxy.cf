@@ -1,11 +1,28 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipXproxy configuration and process management
+#
 bundle agent sipxproxy {
   methods:
     any::
       "sipxproxyd" usebundle => "sipxproxy_config";
+      "any" usebundle => "sipxproxy_setup";
       "any" usebundle => "sipxproxy_running";
 }
 
 bundle agent sipxproxy_config {
+  vars:
+    any::
+      "xml_file" slist => {
+        "peeridentities.xml",
+        "authrules.xml",
+        "fallbackrules.xml",
+        "forwadingrules.xml",
+        "nattraversal.xml"
+      };
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipXproxy-config"
@@ -15,48 +32,53 @@ bundle agent sipxproxy_config {
         classes => if_repaired("restart_sipxproxyd");
 
     any::
-      "$(sipx.SIPX_CONFDIR)/peeridentities.xml"
+      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/peeridentities.xml"),
+	copy_from => copy_from_cfdata("$(xml_file)"),
         classes => if_repaired("restart_sipxproxyd");
+}
+
+bundle edit_line sipXproxy_config_contents() {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipXproxy-config.part1"
+        insert_type => "file";
+      "$(sipx.SIPX_CFDATA)/defaults/sipXproxy-config.part2"
+        insert_type => "file";
+      "SIPX_PROXY_BIND_IP=$(sys.ipv4)";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxproxy_setup {
+  methods:
+    !src::
+      "any" usebundle => rh_chkconfig_status("sipxproxy");
+}
+
+bundle agent sipxproxy_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipXproxy";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxproxyd_running");
 
   commands:
-    restart_mongod::
+    sipxproxyd_running.!sipxproxyd::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        args => "stop";
+
+    !sipxproxyd_running.sipxproxyd::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        args => "start";
+
+    restart_sipxproxyd::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
         args => "restart";
 }
 
-bundle edit_line sipXproxy_config_contents() {
-  vars:
-    any::
-      "part1" string => readfile("$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipXproxy-config.part1", 10000);
-      "part2" string => readfile("$(sipx.SIPX_CFDATA)/defaults/sipXproxy-config.part2", 10000);
-
-  insert_lines:
-"$(part1)
-$(part2)
-SIPX_PROXY_BIND_IP=$(sys.ipv4)";
-
-  delete_lines:
-    ".*";
-}
-
-bundle agent sipxproxy_running {
-  methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxproxy");
-
-  processes:
-    sipxproxyd::
-      "sipXproxy"
-        restart_class => "start_sipxproxyd";
-
-    !sipxproxyd::
-      "sipXproxy"
-        signals => { "term", "kill" };
-
-  commands:
-    start_sipxproxyd::
-      "$(sipx.SIPX_SERVICEDIR)/sipxproxy start";
-}

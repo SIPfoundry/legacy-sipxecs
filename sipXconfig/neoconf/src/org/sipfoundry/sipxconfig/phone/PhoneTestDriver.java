@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceControl;
 import static org.easymock.EasyMock.createStrictControl;
@@ -22,6 +23,9 @@ import java.util.TimeZone;
 
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -227,6 +231,12 @@ public final class PhoneTestDriver {
         defaults.setMohAddressFactory(mohAddresses);
         EasyMock.replay(mohAddresses);
         defaults.setLogDirectory("/var/log/sipxpbx");
+
+        AddressManager addressManager = EasyMock.createMock(AddressManager.class);
+        addressManager.getSingleAddress((AddressType) anyObject());
+        expectLastCall().andReturn(new Address("testdriver.example.org", 1234)).anyTimes();
+        replay(addressManager);
+        defaults.setAddressManager(addressManager);
 
 //        SipxService registrarService = new SipxRegistrarService();
 //        registrarService.setModelFilesContext(TestHelper.getModelFilesContext());

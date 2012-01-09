@@ -249,5 +249,6 @@
     </property>
   </bean>
 
+  <bean id="internalMenuPluginHook" class="org.sipfoundry.sipxconfig.site.InternalPluginsHook"/>
 
 </beans>

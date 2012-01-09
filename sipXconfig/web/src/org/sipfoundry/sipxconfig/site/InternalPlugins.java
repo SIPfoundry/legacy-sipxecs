@@ -5,9 +5,9 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.site.proxy;
+package org.sipfoundry.sipxconfig.site;
 
 import org.apache.tapestry.html.BasePage;
 
-public abstract class EditProxyMenu extends BasePage {
+public abstract class InternalPlugins extends BasePage {
 }

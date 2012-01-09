@@ -134,3 +134,63 @@ insert_lines:
          comment => "Insert a variable definition",
       ifvarclass => "!$(cindex[$(index)])_in_file";
 }
+
+
+# 
+# Used to find a running service by looking in process table for command name.
+# NOTE: When looking for processes started by an init.d script, you'll need
+# to specify the path to the binary because that usually what is listed in the
+# process table, not the init.d wrapper script.
+# 
+# Example:
+#
+#  methods:
+#    any::
+#      "any" usebundle => find_sipxservice_by_command("/full/path/myservice","myservice_running");
+#
+#  commands:
+#    myservice_running.!supposed_to_be_running::
+#      "/full/path/myservice_stop";
+#
+#    !myservice_running.supposed_to_be_running::
+#      "/full/path/myservice_start";
+#
+bundle agent find_sipxservice_by_command(command,on_find_define) {
+  processes:
+    "$(command)"
+      process_count => on_process_count("$(on_find_define)"),
+      process_select => sipxprocess_select("$(command)");
+}
+
+body process_select sipxprocess_select(command) {
+  command => "$(command).*";
+  process_owner => { "$(sipx.SIPXPBXUSER)" };
+  process_result => "command.process_owner";
+}
+
+body process_count on_process_count(on_find_define) {
+  match_range => "0,0";
+  out_of_range_define => { "$(on_find_define)" };
+}
+
+#
+# Normal process select is by regex in process list, so here's help selecting a 
+# process by pid file.
+#
+# TODO: find a way to call more convieniently
+#   - not require pidfile to exists
+#   - not to have to call readfile to translate pidfile to pid in caller
+#
+# Example:
+#
+#  processes:
+#     my_process_should_be_running:
+#       "anyname_you_want"
+#          process_select => by_pid(readfile("$(my_pidfile)", "100")),
+#          restart_class => "start_my_process";
+#
+body process_select by_pid(pid) {
+  pid => irange("$(pid)", "$(pid)");
+  process_result => "pid";
+}
+

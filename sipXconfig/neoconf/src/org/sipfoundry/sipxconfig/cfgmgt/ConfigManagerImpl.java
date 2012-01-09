@@ -8,8 +8,6 @@
 package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,6 +42,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private ListableBeanFactory m_beanFactory;
     private int m_sleepInterval = 7000;
     private ConfigWorker m_worker;
+    private final ConfigRequest[] m_outstandingRequest = new ConfigRequest[1];
     private Set<Feature> m_affectedFeatures = new HashSet<Feature>();
     private boolean m_allFeaturesAffected;
     private ConfigAgent m_configAgent;
@@ -54,19 +53,27 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     @Override
-    public synchronized void replicationRequired(Feature feature) {
+    public synchronized void configureEverywhere(Feature ... features) {
         // (re)start timer
-        m_affectedFeatures.add(feature);
         synchronized (m_worker) {
+            m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.only(features), m_outstandingRequest[0]);
             m_worker.notify();
         }
     }
 
     @Override
-    public synchronized void replicationRequired(Feature ... features) {
-        // (re)start timer
-        m_affectedFeatures.addAll(Arrays.asList(features));
+    public synchronized void configureAllFeaturesEverywhere() {
+        m_allFeaturesAffected = true;
         synchronized (m_worker) {
+            m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.always(), m_outstandingRequest[0]);
+            m_worker.notify();
+        }
+    }
+
+    @Override
+    public synchronized void configureAllFeatures(Collection<Location> locations) {
+        synchronized (m_worker) {
+            m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.only(locations), m_outstandingRequest[0]);
             m_worker.notify();
         }
     }
@@ -76,38 +83,22 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     public synchronized ConfigRequest getWork() {
-        ConfigRequest request;
-        if (m_allFeaturesAffected) {
-            request = ConfigRequest.always();
-        } else {
-            HashSet<Feature> affected = new HashSet<Feature>(m_affectedFeatures);
-            request = ConfigRequest.only(affected);
-        }
-        m_allFeaturesAffected = false;
-        m_affectedFeatures.clear();
-        return request;
+        ConfigRequest work = m_outstandingRequest[0];
+        m_outstandingRequest[0] = null;
+        return work;
     }
 
     // not synchronized so new incoming work can accumulate.
     public void doWork(ConfigRequest request) {
-        LOG.info("Configuration work to do. Notifying providers. ");
+        LOG.info("Configuration work to do. Notifying providers.");
         for (ConfigProvider provider : getProviders()) {
             try {
                 provider.replicate(this, request);
-            } catch (IOException e) {
-                // TODO Log failure somewhere important but do not abort loop
-                e.printStackTrace();
+            } catch (Exception e) {
+                LOG.error("Non fatal failure to configure." + provider.getClass(), e);
             }
         }
         m_configAgent.run();
-    }
-
-    @Override
-    public synchronized void allFeaturesAffected() {
-        m_allFeaturesAffected = true;
-        synchronized (m_worker) {
-            m_worker.notify();
-        }
     }
 
     public String getCfDataDir() {

@@ -9,9 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
+import org.sipfoundry.sipxconfig.intercom.Intercom;
 import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 
 public class PolycomIntercomDefaultsTest extends TestCase {

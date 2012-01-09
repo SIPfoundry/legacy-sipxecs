@@ -1,7 +1,12 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+# Mongo configuration for sipXecs
+
 bundle agent mongodb {
   methods:
     any::
-      #"mongod" usebundle => "mongodb_install";
       "mongod" usebundle => "mongodb_config";
       "mongod" usebundle => "mongodb_running";
       "any" usebundle => "mongo_client";
@@ -31,17 +36,6 @@ bundle agent mongodb_config {
     restart_mongod::
       "/etc/init.d/mongod"
         args => "restart";
-}
-
-# install mongodb-server if this system is supposed to have it running
-# according to mongodb-server spec, rpm will add to chkconfig and
-# automatically start it.
-bundle agent mongodb_install {
-  packages:
-   redhat.mongod::
-     "sipxmongo"
-        package_method => yum_rpm,
-        package_policy => "add";
 }
 
 # not meant to replace monitoring service that will restart crashed mongo

@@ -118,7 +118,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     public void deletePagingGroupsById(Collection<Integer> groupsIds) {
         if (groupsIds != null && groupsIds.size() > 0) {
             removeAll(PagingGroup.class, groupsIds);
-            m_configManager.replicationRequired(FEATURE);
+            m_configManager.configureEverywhere(FEATURE);
         }
     }
 
@@ -156,7 +156,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
                 }
             }
             if (affectPaging) {
-                m_configManager.replicationRequired(FEATURE);
+                m_configManager.configureEverywhere(FEATURE);
             }
         }
     }

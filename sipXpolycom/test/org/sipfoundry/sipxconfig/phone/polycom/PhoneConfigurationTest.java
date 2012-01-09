@@ -9,7 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.replay;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,13 +22,12 @@ import org.dom4j.Document;
 import org.dom4j.dom.DOMDocumentFactory;
 import org.dom4j.dom.DOMElement;
 import org.dom4j.io.SAXReader;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
-import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -108,18 +108,17 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         m_testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
 
         String expectedMohUri = "~~mh@example.org";
-        IMocksControl mohManagerControl = EasyMock.createNiceControl();
-        MusicOnHoldManager mohManager = mohManagerControl.createMock(MusicOnHoldManager.class);
-        mohManager.getDefaultMohUri();
+        MohAddressFactory moh = EasyMock.createNiceMock(MohAddressFactory.class);
+        moh.getDefaultMohUri();
         expectLastCall().andReturn("sip:" + expectedMohUri).anyTimes();
-        mohManagerControl.replay();
+        replay(moh);
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext(TestHelper.getSystemEtcDir()));
 
         User special_user = new User();
         special_user.setPermissionManager(pm);
-        special_user.setMusicOnHoldManager(mohManager);
+        special_user.setMohAddresses(moh);
         special_user.setSipPassword("the ~~id~sipXprovision password");
         special_user.setUserName(SpecialUserType.PHONE_PROVISION.getUserName());
         String expected_label = "ID: YBU";

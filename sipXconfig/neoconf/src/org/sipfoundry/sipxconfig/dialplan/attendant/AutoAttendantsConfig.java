@@ -38,7 +38,7 @@ public class AutoAttendantsConfig extends EntitySaveListener<Group> implements C
     @Override
     protected void onEntitySave(Group group) {
         if (ATTENDANT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
-            m_configManager.replicationRequired(AutoAttendants.FEATURE, Ivr.FEATURE);
+            m_configManager.configureEverywhere(AutoAttendants.FEATURE, Ivr.FEATURE);
         }
     }
 

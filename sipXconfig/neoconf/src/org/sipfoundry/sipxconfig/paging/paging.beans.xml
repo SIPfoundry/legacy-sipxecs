@@ -11,6 +11,8 @@
 
   <bean id="pagingContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingContextImpl" parent="abstractDaoImpl">
     <property name="featureManager" ref="featureManager" />
+    <property name="configManager" ref="configManager" />    
+    <property name="aliasManager" ref="aliasManager" />
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">
@@ -20,8 +22,6 @@
         </property>
       </bean>
     </property>
-    <property name="configManager" ref="configManager" />    
-    <property name="aliasManager" ref="aliasManager" />
   </bean>
 
   <bean id="pagingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

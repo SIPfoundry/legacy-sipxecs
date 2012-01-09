@@ -29,8 +29,11 @@ public class DialingRuleCollector implements DialingRuleProvider, BeanFactoryAwa
         List<DialingRule> dialingRules = new ArrayList<DialingRule>();
         Collection<DialingRuleProvider> dialingRuleProviders = getDialingRuleProviders();
         for (DialingRuleProvider provider : dialingRuleProviders) {
-            for (DialingRule rule : provider.getDialingRules()) {
-                rule.appendToGenerationRules(dialingRules);
+            List< ? extends DialingRule> rules = provider.getDialingRules();
+            if (rules != null) {
+                for (DialingRule rule : provider.getDialingRules()) {
+                    rule.appendToGenerationRules(dialingRules);
+                }
             }
         }
         return dialingRules;

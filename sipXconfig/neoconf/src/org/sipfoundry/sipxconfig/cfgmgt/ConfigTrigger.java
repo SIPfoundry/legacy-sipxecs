@@ -33,7 +33,7 @@ public class ConfigTrigger implements DaoEventListener {
         Collection<Feature> affected = entity.getAffectedFeaturesOnChange();
         if (affected != null && !affected.isEmpty()) {
             for (Feature f : affected) {
-                m_configManager.replicationRequired(f);
+                m_configManager.configureEverywhere(f);
             }
         }
     }

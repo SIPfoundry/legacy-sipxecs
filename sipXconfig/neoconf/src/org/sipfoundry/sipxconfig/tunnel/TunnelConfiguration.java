@@ -12,17 +12,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.springframework.beans.factory.annotation.Required;
 
 public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
@@ -35,27 +36,27 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
         if (!request.applies(TunnelManager.FEATURE)) {
             return;
         }
-        List<Location> locations = Arrays.asList(manager.getLocationManager().getLocations());
-        if (locations.isEmpty()) {
-            return;
-        }
+        Set<Location> locations = request.locations(manager);
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(TunnelManager.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            ConfigUtils.enableCfengineClass(dir, "sipxtunnel.cfdat", "sipxtunneld", enabled);
+            if (enabled) {
+                List<AllowedIncomingTunnel> in = getIncomingTunnels(location, locations);
+                Writer inConfig = new FileWriter(new File(dir, "tunnel-client.conf.cfdat"));
+                try {
+                    writeIncomingTunnels(inConfig, in);
+                } finally {
+                    IOUtils.closeQuietly(inConfig);
+                }
 
-            List<AllowedIncomingTunnel> in = getIncomingTunnels(location, locations);
-            Writer inConfig = new FileWriter(new File(dir, "tunnel/tunnel-client.conf.cfdat"));
-            try {
-                writeIncomingTunnels(inConfig, in);
-            } finally {
-                IOUtils.closeQuietly(inConfig);
-            }
-
-            List<RemoteOutgoingTunnel> out = getOutgoingTunnels(location, locations);
-            Writer outConfig = new FileWriter(new File(dir, "tunnel/tunnel-server.conf.cfdat"));
-            try {
-                writeOutgoingTunnels(outConfig, out);
-            } finally {
-                IOUtils.closeQuietly(inConfig);
+                List<RemoteOutgoingTunnel> out = getOutgoingTunnels(location, locations);
+                Writer outConfig = new FileWriter(new File(dir, "tunnel-server.conf.cfdat"));
+                try {
+                    writeOutgoingTunnels(outConfig, out);
+                } finally {
+                    IOUtils.closeQuietly(inConfig);
+                }
             }
         }
     }
@@ -68,7 +69,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
         writeTunnels(wtr, "tunnel/tunnel-client.conf.vm", tunnels);
     }
 
-    List<RemoteOutgoingTunnel> getOutgoingTunnels(Location location, List<Location> locations) {
+    List<RemoteOutgoingTunnel> getOutgoingTunnels(Location location, Set<Location> locations) {
         List<RemoteOutgoingTunnel> tunnels = new ArrayList<RemoteOutgoingTunnel>();
         List<Location> otherLocations = getOtherLocations(location, locations);
         for (TunnelProvider p : m_tunnelManager.getTunnelProviders()) {
@@ -91,7 +92,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
     /**
      * Collect all the server-side tunnel configs from all the providers
      */
-    List<AllowedIncomingTunnel> getIncomingTunnels(Location location, List<Location> locations) {
+    List<AllowedIncomingTunnel> getIncomingTunnels(Location location, Set<Location> locations) {
         List<AllowedIncomingTunnel> tunnels = new ArrayList<AllowedIncomingTunnel>();
         List<Location> otherLocations = getOtherLocations(location, locations);
         for (TunnelProvider p : m_tunnelManager.getTunnelProviders()) {
@@ -100,7 +101,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
         return tunnels;
     }
 
-    List<Location> getOtherLocations(Location location, List<Location> locations) {
+    List<Location> getOtherLocations(Location location, Set<Location> locations) {
         // Although it should be only locations that have stunnel service running, if the
         // system is unregistered, service will not be running, but we'll want to generate
         // the configuration for it. Also, providers and ultimately control what the actual
@@ -123,7 +124,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
     @Override
     public void onDelete(Object entity) {
         if (entity instanceof Location) {
-            m_configManager.replicationRequired(TunnelManager.FEATURE);
+            m_configManager.configureEverywhere(TunnelManager.FEATURE);
         }
     }
 
@@ -132,7 +133,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
         if (entity instanceof Location) {
             Location l = (Location) entity;
             if (l.hasFqdnOrIpChangedOnSave()) {
-                m_configManager.replicationRequired(TunnelManager.FEATURE);
+                m_configManager.configureEverywhere(TunnelManager.FEATURE);
             }
         }
     }

@@ -25,5 +25,6 @@
   <bean id="natConfig" class="org.sipfoundry.sipxconfig.nattraversal.NatConfiguration">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="nat" ref="natTraveral" />
+    <property name="sbcManager" ref="sbcManager"/>
   </bean>
 </beans>

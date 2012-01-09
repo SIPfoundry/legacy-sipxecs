@@ -42,7 +42,7 @@ public class AcdProvisioningContextImpl implements AcdProvisioningContext {
             XmlRpcSettings xmlRpc = new XmlRpcSettings(provisioning);
             server.deploy(xmlRpc);
             success = true;
-            m_configManager.replicationRequired(Acd.FEATURE);
+            m_configManager.configureEverywhere(Acd.FEATURE);
         } finally {
             // XML-RPC deploy operation doesn't automatically restart the acd service
             // Make sure that the acd service is marked for restart

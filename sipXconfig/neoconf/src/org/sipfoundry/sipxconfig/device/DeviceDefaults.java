@@ -230,4 +230,28 @@ public class DeviceDefaults {
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
     }
+
+    public DialPlanContext getDialPlanContext() {
+        return m_dialPlanContext;
+    }
+
+    public DomainManager getDomainManager() {
+        return m_domainManager;
+    }
+
+    public TimeZoneManager getTimeZoneManager() {
+        return m_timeZoneManager;
+    }
+
+    public LocationsManager getLocationsManager() {
+        return m_locationsManager;
+    }
+
+    public PagingContext getPagingContext() {
+        return m_pagingContext;
+    }
+
+    public AddressManager getAddressManager() {
+        return m_addressManager;
+    }
 }

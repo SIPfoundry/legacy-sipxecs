@@ -10,7 +10,9 @@ bin_SCRIPTS = \
 	sipxagent
 
 cfmoddir = @SIPX_CFMODULES@
-cfmod_SCRIPTS = sipx
+cfmod_SCRIPTS = \
+	sipx \
+	readfile-if-exists
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \

@@ -5,14 +5,13 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.site.proxy;
+package org.sipfoundry.sipxconfig.site;
 
-import org.sipfoundry.sipxconfig.site.PluginHook;
 
-public class EditProxyHook implements PluginHook {
+public class InternalPluginsHook implements PluginHook {
 
     @Override
     public String getHookId() {
-        return "EditProxyMenu";
+        return "InternalPlugins";
     }
 }

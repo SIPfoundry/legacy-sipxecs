@@ -21,6 +21,7 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
@@ -37,6 +38,9 @@ public abstract class ConfigureFeaturesPanel extends BaseComponent implements Pa
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
+
+    @InjectObject("spring:configManager")
+    public abstract ConfigManager getConfigManager();
 
     public abstract List<LocationFeature> getFeatures();
 

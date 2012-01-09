@@ -53,7 +53,8 @@
     <property name="permissionManager" ref="permissionManager"/>
     <property name="domainManager" ref="domainManager"/>
     <property name="addressManager" ref="addressManager"/>    
-    <property name="proxyManager" ref="proxyManager"/>    
+    <property name="proxyManager" ref="proxyManager"/>
+    <property name="mohAddresses" ref="mohAddressFactory"/>    
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.common.InternalUser" class="org.sipfoundry.sipxconfig.common.InternalUser"

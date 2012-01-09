@@ -37,6 +37,7 @@ public class DeviceConfigurationTest extends TestCase {
         phone = new PolycomPhone();
         phone.setModel(model);
         PhoneTestDriver.supplyTestData(phone);
+        phone.setDefaults(PhoneTestDriver.getDeviceDefaults());
 
         m_location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         m_pg = phone.getProfileGenerator();

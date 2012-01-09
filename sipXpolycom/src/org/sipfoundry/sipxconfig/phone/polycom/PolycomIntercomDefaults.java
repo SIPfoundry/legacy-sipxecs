@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
+import org.sipfoundry.sipxconfig.intercom.Intercom;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.BeanValueStorage;

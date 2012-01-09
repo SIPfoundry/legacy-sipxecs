@@ -152,7 +152,7 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
 
     public void onChange(Group group) {
         if (ParkOrbitContext.PARK_ORBIT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
-            m_configManager.replicationRequired(ParkOrbitContext.FEATURE);
+            m_configManager.configureEverywhere(ParkOrbitContext.FEATURE);
         }
     }
 

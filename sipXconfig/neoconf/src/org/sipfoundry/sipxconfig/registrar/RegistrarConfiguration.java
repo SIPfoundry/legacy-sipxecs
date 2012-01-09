@@ -7,23 +7,24 @@
  */
 package org.sipfoundry.sipxconfig.registrar;
 
-
 import static java.lang.String.format;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
@@ -39,16 +40,12 @@ public class RegistrarConfiguration implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Registrar.FEATURE) || !manager.getFeatureManager().isFeatureEnabled(Registrar.FEATURE)) {
+        if (!request.applies(Registrar.FEATURE)) {
             return;
         }
 
-        Collection<Location> locations = manager.getFeatureManager()
-                .getLocationsForEnabledFeature(Registrar.FEATURE);
-        if (locations.isEmpty()) {
-            return;
-        }
-
+        FeatureManager fm = manager.getFeatureManager();
+        Set<Location> locations = request.locations(manager);
         RegistrarSettings settings = m_registrar.getSettings();
         Domain domain = manager.getDomainManager().getDomain();
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
@@ -57,11 +54,15 @@ public class RegistrarConfiguration implements ConfigProvider {
         Address park = manager.getAddressManager().getSingleAddress(ParkOrbitContext.SIP_TCP_PORT);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            Writer w = new FileWriter(new File(dir, "registrar-config.cfdat"));
-            try {
-                write(w, settings, domain, location, proxy, imApi, presenceApi, park);
-            } finally {
-                IOUtils.closeQuietly(w);
+            boolean enabled = fm.isFeatureEnabled(Registrar.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxregistrar.cfdat", "sipxregistrard", enabled);
+            if (enabled) {
+                Writer w = new FileWriter(new File(dir, "registrar-config.part1"));
+                try {
+                    write(w, settings, domain, location, proxy, imApi, presenceApi, park);
+                } finally {
+                    IOUtils.closeQuietly(w);
+                }
             }
         }
     }

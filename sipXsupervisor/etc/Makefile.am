@@ -12,7 +12,9 @@ cfdefaults_DATA = \
 
 dirvars = \
 	$(filter SIPX%DIR,$(.VARIABLES)) \
-	$(filter SIPX_CF%,$(.VARIABLES))
+	$(filter SIPX_CF%,$(.VARIABLES)) \
+	SIPXPBXUSER \
+	SIPXPBXGROUP
 
 dirs.cfdat : Makefile
 	! test -f $@ || rm $@

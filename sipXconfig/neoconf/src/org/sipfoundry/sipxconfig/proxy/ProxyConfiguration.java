@@ -16,7 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
@@ -48,7 +48,7 @@ public class ProxyConfiguration implements ConfigProvider {
         }
 
         FeatureManager fm = manager.getFeatureManager();
-        List<Location> locations = manager.getLocationManager().getLocationsList();
+        Set<Location> locations = request.locations(manager);
         boolean isCdrOn = manager.getFeatureManager().isFeatureEnabled(CdrManager.FEATURE);
         ProxySettings settings = m_proxyManager.getSettings();
         Domain domain = manager.getDomainManager().getDomain();

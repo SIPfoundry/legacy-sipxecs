@@ -399,7 +399,7 @@ public class CertificateManagerImpl implements CertificateManager {
     }
 
     public void copyCRTAuthority() {
-        m_configManager.replicationRequired(CertificateManager.FEATURE);
+        m_configManager.configureEverywhere(CertificateManager.FEATURE);
     }
 
     public Set<CertificateDecorator> listCertificates() {

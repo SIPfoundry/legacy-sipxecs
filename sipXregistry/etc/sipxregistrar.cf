@@ -1,55 +1,61 @@
+# Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
 
-bundle agent sipxregistar {
-  vars:
-    "config_src" => "$(sipx.SIPX_CFMODULESDIR)/registrar-config.cfin";
-    "config_dst" => "$(sipx.SIPX_CONFDIR)/registrar-config)";
+#
+# sipXregstrar configuration and process management
+#
 
-  classes:
-    sipxregistrar::
-      "config" expression => fileexists("$(config_src)");
-
+bundle agent sipxregistrar {
   methods:
-    config::
-      "any" usebundle => "sipxregistrar_config";
-
-    sipxregistar::
-      "any" usebundle => "sipxregistrar_install";
+    any::
+      "sipxregistrard" usebundle => "sipxregistrar_config";
       "any" usebundle => "sipxregistrar_running";
 }
 
 bundle agent sipxregistrar_config {
-  vars:
-    any::
-      "dim_conf" int => readstringarray("conf", "$(sipxregistrar.config_src)", "#.*", ":", "200", "10000");
-
   files:
-    sipxregistrar::
-      "$(sipxregistrar.config_dst)"
+    any::
+      "$(sipx.SIPX_CONFDIR)/registrar-config"
         create => "true",
         perms => m("644"),
-        edit_line => colon_values("sipxregistrar_config.conf"),
-        classes => if_repaired("sipxregistrar_restart");
+        edit_line => registrar_config_contents(),
+        classes => if_repaired("restart_sipxregistrard");
 }
 
-bundle agent sipxregistrar_install {
-  methods:
-    sipxregistrar.(redhat|SuSE).!src:
-      "any" usebundle => rh_chkconfig_status({"sipxregistar"});
+bundle edit_line registrar_config_contents() {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/registrar-config.part1"
+        insert_type => "file";
+      "$(sipx.SIPX_CFDATA)/defaults/registrar-config.part2"
+        insert_type => "file";
+      "SIP_REGISTRAR_BIND_IP=$(sys.ipv4)";
 
+  delete_lines:
+    any::
+      ".*";
 }
 
 bundle agent sipxregistrar_running {
-  processes:
-    sipxregistrar::
-      "sipxregistrar"
-        restart_class => "sipxregistrar_start";
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipregistrar";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxregistrard_running");
 
   commands:
-    sipxregistrar_restart::
+    sipxregistrard_running.!sipxregistrard::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
+        args => "stop";
+
+    !sipxregistrard_running.sipxregistrard::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
+        args => "start";
+
+    restart_sipxregistrard::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
         args => "restart";
-
-    sipxregistrar_start::
-      "$(sipx.SIPX_SERVICEDIR)/sipxregistar"
-        args => "start";
 }

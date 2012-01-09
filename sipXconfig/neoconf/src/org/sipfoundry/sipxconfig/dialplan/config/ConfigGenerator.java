@@ -14,8 +14,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -43,39 +43,46 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(DialPlanContext.FEATURE, LocalizationContext.FEATURE)) {
+        if (!request.applies(ProxyManager.FEATURE, DialPlanContext.FEATURE, LocalizationContext.FEATURE)) {
             return;
         }
 
-        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                ProxyManager.FEATURE);
+        Set<Location> locations = request.locations(manager);
         String domainName = manager.getDomainManager().getDomainName();
         for (Location location : locations) {
+            if (!manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location)) {
+                continue;
+            }
             File dir = manager.getLocationDataDirectory(location);
             Writer[] writers = new Writer[] {
-                new FileWriter(new File(dir, "mappingrules.xml")),
-                new FileWriter(new File(dir, "authrules.xml")),
+                new FileWriter(new File(dir, "mappingrules.xml")), new FileWriter(new File(dir, "authrules.xml")),
                 new FileWriter(new File(dir, "fallbackrules.xml")),
                 new FileWriter(new File(dir, "forwardingrules.xml"))
             };
 
-            RulesFile[] files = new RulesFile[] {
-                    m_beanFactory.getBean(MappingRules.class),
-                    m_beanFactory.getBean(AuthRules.class),
-                    m_beanFactory.getBean(FallbackRules.class),
-                    m_beanFactory.getBean(ForwardingRules.class),
-            };
+            try {
+                RulesFile[] files = new RulesFile[] {
+                    (RulesFile) m_beanFactory.getBean("mappingRules"),
+                    (RulesFile) m_beanFactory.getBean("authRules"),
+                    (RulesFile) m_beanFactory.getBean("fallbackRules"),
+                    (RulesFile) m_beanFactory.getBean("forwardingRules")
+                };
 
-            for (RulesFile file : files) {
-                file.setLocation(location);
-                file.setDomainName(domainName);
-            }
+                for (RulesFile file : files) {
+                    file.setLocation(location);
+                    file.setDomainName(domainName);
+                }
 
-            generateXml(files);
+                generateXml(files);
 
-            for (int i = 0; i < files.length; i++) {
-                files[i].write(writers[i]);
-                IOUtils.closeQuietly(writers[i]);
+                for (int i = 0; i < files.length; i++) {
+                    files[i].write(writers[i]);
+                }
+
+            } finally {
+                for (int i = 0; i < writers.length; i++) {
+                    IOUtils.closeQuietly(writers[i]);
+                }
             }
         }
     }
@@ -115,6 +122,6 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = (ListableBeanFactory) m_beanFactory;
+        m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 }

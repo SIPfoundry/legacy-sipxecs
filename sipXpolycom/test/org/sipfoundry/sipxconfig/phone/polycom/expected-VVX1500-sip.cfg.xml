@@ -342,7 +342,7 @@
   <TCP_IP>
     <SNTP
       tcpIpApp.sntp.resyncPeriod="86400"
-      tcpIpApp.sntp.address="ntp.example.org"
+      tcpIpApp.sntp.address="testdriver.example.org"
       tcpIpApp.sntp.address.overrideDHCP="0"
       tcpIpApp.sntp.gmtOffset="-18000"
       tcpIpApp.sntp.gmtOffset.overrideDHCP="0"

@@ -24,6 +24,7 @@
   </bean>
 
   <bean id="unmanagedServiceSettings" class="org.sipfoundry.sipxconfig.service.UnmanagedServiceSettings" parent="settingsBean">
+    <property name="locationsManager" ref="locationsManager"/>
   </bean>
 
 </beans>

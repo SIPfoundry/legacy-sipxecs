@@ -25,6 +25,7 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -59,6 +60,9 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
 
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject("spring:configManager")
+    public abstract ConfigManager getConfigManager();
 
     @InjectObject("spring:auditLogContext")
     public abstract AuditLogContext getAuditLogContext();
@@ -174,7 +178,7 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
                 selectedLocations.add(location);
             }
         }
-//        getServiceConfigurator().sendProfiles(selectedLocations);
+        getConfigManager().configureAllFeatures(selectedLocations);
     }
 
     public boolean isFailedState() {

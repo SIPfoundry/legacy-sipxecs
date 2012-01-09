@@ -88,7 +88,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     
     private void checkReplicate(Object entity) {
         if (entity instanceof User || entity instanceof Conference) {
-            m_configManager.replicationRequired(Openfire.FEATURE);            
+            m_configManager.configureEverywhere(Openfire.FEATURE);            
         }
     }
 

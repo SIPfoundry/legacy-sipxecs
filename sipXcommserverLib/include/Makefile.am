@@ -9,6 +9,7 @@ nobase_include_HEADERS =  \
     sipXecsService/SipXecsService.h \
     sipXecsService/SharedSecret.h \
     sipXecsService/SipNonceDb.h \
+    sipXecsService/daemon.h \
     configrpc/ConfigRPC.h \
     sipdb/MongoDB.h \
     sipdb/EntityDB.h \

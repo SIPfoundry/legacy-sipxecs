@@ -9,6 +9,7 @@ package org.sipfoundry.sipxconfig.cfgmgt;
 
 
 import java.io.File;
+import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
@@ -31,14 +32,15 @@ public interface ConfigManager {
      *
      * @param feature affected area
      */
-    public void replicationRequired(Feature feature);
-
-    public void replicationRequired(Feature ... features);
+    public void configureEverywhere(Feature ... features);
 
     /**
      * Full resync everywhere. Not to be called frivolously.
      */
-    public void allFeaturesAffected();
+    public void configureAllFeaturesEverywhere();
+
+    public void configureAllFeatures(Collection<Location> locations);
+
 
     public File getLocationDataDirectory(Location location);
 
