@@ -25,11 +25,6 @@ public class LocalStreamConfiguration extends AbstractFreeswitchConfiguration {
     }
 
     @Override
-    protected String getTemplate() {
-        return getFileName() + ".vm";
-    }
-
-    @Override
     public void write(Writer writer, Location location, FreeswitchSettings settings) throws IOException {
         String audioDir = null;
         if (m_musicOnHoldManager.isAudioDirectoryEmpty()) {
@@ -46,7 +41,12 @@ public class LocalStreamConfiguration extends AbstractFreeswitchConfiguration {
     }
 
     @Override
+    protected String getTemplate() {
+        return "freeswitch/local_stream.conf.xml.vm";
+    }
+
+    @Override
     protected String getFileName() {
-        return "freeswitch/local_stream.conf.xml";
+        return "autoload_configs/local_stream.conf.xml";
     }
 }

@@ -10,13 +10,14 @@ package org.sipfoundry.sipxconfig.freeswitch.config;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings;
@@ -34,18 +35,21 @@ public class FreeswitchConfigurationProvider implements ConfigProvider, BeanFact
             return;
         }
 
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                FreeswitchFeature.FEATURE);
-        if (locations.isEmpty()) {
-            return;
-        }
+        Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(FreeswitchFeature.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxfreeswitch.cfdat", "sipxfreeswitch", enabled);
+            if (!enabled) {
+                continue;
+            }
             FreeswitchSettings settings = m_freeswitch.getSettings(location);
             Map<String, AbstractFreeswitchConfiguration> configs = m_beanFactory
                     .getBeansOfType(AbstractFreeswitchConfiguration.class);
             for (AbstractFreeswitchConfiguration config : configs.values()) {
-                FileWriter writer = new FileWriter(new File(dir, config.getFileName()));
+                File f = new File(dir, config.getFileName());
+                f.getParentFile().mkdirs();
+                FileWriter writer = new FileWriter(f);
                 config.write(writer, location, settings);
                 IOUtils.closeQuietly(writer);
             }

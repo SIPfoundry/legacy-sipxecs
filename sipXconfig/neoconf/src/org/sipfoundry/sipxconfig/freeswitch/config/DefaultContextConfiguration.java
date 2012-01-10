@@ -75,7 +75,7 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
 
     @Override
     protected String getFileName() {
-        return "freeswitch/default_context.conf.xml";
+        return "dialplan/sipX_context.xml";
     }
 
     @Override

@@ -399,6 +399,7 @@
     <antcall target="bean_with_settings" />
     <antcall target="meetme_location" />
     <antcall target="migrate_services" />
+    <antcall target="settings_with_location" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1210,6 +1211,9 @@
   </target>
   <target name="bean_with_settings" unless="bean_with_settings">
     <db-patch patch="bean_with_settings" />
+  </target>
+  <target name="settings_with_location" unless="settings_with_location">
+    <db-patch patch="settings_with_location" />
   </target>
   <target name="meetme_location" unless="meetme_location">
     <plsql-patch patch="meetme_location" />

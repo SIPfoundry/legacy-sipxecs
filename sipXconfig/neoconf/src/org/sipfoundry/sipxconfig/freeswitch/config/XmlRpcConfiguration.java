@@ -18,12 +18,12 @@ public class XmlRpcConfiguration extends AbstractFreeswitchConfiguration {
 
     @Override
     protected String getFileName() {
-        return "freeswitch/xml_rpc.conf.xml";
+        return "autoload_configs/xml_rpc.conf.xml";
     }
 
     @Override
     protected String getTemplate() {
-        return getFileName() + ".vm";
+        return "freeswitch/xml_rpc.conf.xml.vm";
     }
 
     @Override

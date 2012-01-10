@@ -7,5 +7,7 @@ create table bean_with_settings (
   value_storage_id integer
 );
 
-
+alter table bean_with_settings 
+  add constraint bean_with_settings_value_storage_id
+    foreign key (value_storage_id) references value_storage;
 

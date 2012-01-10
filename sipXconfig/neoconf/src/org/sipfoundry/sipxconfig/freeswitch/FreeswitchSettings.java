@@ -15,14 +15,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.commserver.BeanWithLocation;
+import org.sipfoundry.sipxconfig.commserver.SettingsWithLocation;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 
-public class FreeswitchSettings extends BeanWithLocation {
+public class FreeswitchSettings extends SettingsWithLocation {
     private static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     private static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
     private static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
@@ -115,5 +115,10 @@ public class FreeswitchSettings extends BeanWithLocation {
 
     public void setFreeswitchApiProvider(ApiProvider<FreeswitchApi> freeswitchApiProvider) {
         m_freeswitchApiProvider = freeswitchApiProvider;
+    }
+
+    @Override
+    public String getBeanId() {
+        return "freeswithSettings";
     }
 }

@@ -14,9 +14,9 @@
     <property name="featureManager" ref="featureManager" />
     <property name="musicOnHoldManager" ref="musicOnHoldManager" />
     <property name="settingsDao">
-      <bean parent="beanWithLocationDao">
+      <bean parent="settingsWithLocationDao">
         <property name="target">
-          <bean parent="beanWithLocationDaoImpl">
+          <bean parent="settingsWithLocationDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings"/>
           </bean>
         </property>
@@ -24,7 +24,7 @@
     </property>
   </bean>
   
-  <bean id="freeswitchSettings" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings">
+  <bean id="freeswitchSettings" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings" parent="settingsWithLocation">
     <property name="addressManager" ref="addressManager" />  
     <property name="freeswitchApiProvider" ref="freeswitchApiProvider"/>
   </bean>

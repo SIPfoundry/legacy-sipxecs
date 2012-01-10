@@ -9,8 +9,17 @@ package org.sipfoundry.sipxconfig.commserver;
 
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 
-public abstract class BeanWithLocation extends BeanWithGroups {
+public abstract class SettingsWithLocation extends BeanWithGroups {
     private Location m_location;
+
+    public abstract String getBeanId();
+
+    /**
+     * Should not be called. Only used to comply w/hibernate requirement of setter.
+     * @param ignore
+     */
+    public void setBeanId(String ignore) {
+    }
 
     public Location getLocation() {
         return m_location;

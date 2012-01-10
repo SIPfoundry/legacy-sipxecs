@@ -18,12 +18,12 @@ public class SwitchConfiguration extends AbstractFreeswitchConfiguration {
 
     @Override
     protected String getFileName() {
-        return "freeswitch/switch.conf.xml";
+        return "autoload_configs/switch.conf.xml";
     }
 
     @Override
     protected String getTemplate() {
-        return getFileName() + ".vm";
+        return "freeswitch/switch.conf.xml.vm";
     }
 
     @Override

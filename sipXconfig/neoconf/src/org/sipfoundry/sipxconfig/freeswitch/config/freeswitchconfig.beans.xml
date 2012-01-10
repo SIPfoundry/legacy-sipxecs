@@ -11,9 +11,7 @@
   </bean>
   
   <bean id="freeswitchConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.FreeswitchConfiguration" parent="freeswitchConfigFile">
-    <property name="conferenceContext" ref="conferenceBridgeContext" />
-    <property name="freeswitchExtensionCollector" ref="freeswitchExtensionCollector" />
-    <property name="featureManager" ref="featureManager" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
   <bean id="freeswitchDefaultConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.DefaultContextConfiguration" parent="freeswitchConfigFile">
     <property name="conferenceContext" ref="conferenceBridgeContext" />

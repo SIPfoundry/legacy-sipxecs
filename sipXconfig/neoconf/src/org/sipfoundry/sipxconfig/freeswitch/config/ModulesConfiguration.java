@@ -18,12 +18,12 @@ public class ModulesConfiguration extends AbstractFreeswitchConfiguration {
 
     @Override
     protected String getFileName() {
-        return "freeswitch/modules.conf.xml";
+        return "autoload_configs/modules.conf.xml";
     }
 
     @Override
     protected String getTemplate() {
-        return getFileName() + ".vm";
+        return "freeswitch/modules.conf.xml.vm";
     }
 
     @Override

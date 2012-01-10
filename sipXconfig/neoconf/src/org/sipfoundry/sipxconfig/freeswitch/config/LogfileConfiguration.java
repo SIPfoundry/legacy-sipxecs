@@ -19,7 +19,7 @@ public class LogfileConfiguration extends AbstractFreeswitchConfiguration {
 
     @Override
     protected String getTemplate() {
-        return getFileName() + ".vm";
+        return "freeswitch/logfile.conf.xml.vm";
     }
 
     @Override
@@ -31,6 +31,6 @@ public class LogfileConfiguration extends AbstractFreeswitchConfiguration {
 
     @Override
     protected String getFileName() {
-        return "freeswitch/logfile.conf.xml";
+        return "autoload_configs/logfile.conf.xml";
     }
 }

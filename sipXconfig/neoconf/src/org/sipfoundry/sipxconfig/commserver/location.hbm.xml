@@ -33,6 +33,29 @@
     <many-to-one name="branch" column="branch_id" not-found="ignore" />
   </class>
 
+  <class name="SettingsWithLocation" table="settings_with_location" discriminator-value="settingsWithLocation">
+    <id name="id" column="settings_with_location_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">settings_with_location_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id"/>    
+    <property name="beanId" column="bean_id" insert="false" update="false"/>
+    <many-to-one name="location" column="location_id" unique="true"
+      class="org.sipfoundry.sipxconfig.commserver.Location" />
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+    <set name="groups" table="settings_location_group" sort="natural" cascade="save-update">
+      <key column="settings_with_location_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
+    </set>
+    
+  </class>
+  
+  <query name="settingByLocation">
+    <![CDATA[from SettingsWithLocation swl where swl.location.id = ?]]>
+  </query>    
+
   <query name="locationsForBranch">
     <![CDATA[from Location l where l.branch = :branch]]>
   </query>

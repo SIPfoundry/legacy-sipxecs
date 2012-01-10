@@ -32,7 +32,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
-        db().execute("select truncate_all()");
+        clear();
     }
 
     public void testGetPhonebook() throws Exception {
@@ -77,8 +77,10 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals("song", entries.next().getNumber());
         assertEquals("yellowthroat", entries.next().getNumber());
         assertFalse(entries.hasNext());
+                
         //test everyone disabled
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
+        setEveryoneEnabled(false);
+        commit();
         yellowthroat = m_coreContext.loadUser(1001);
         books = m_phonebookManager.getPublicPhonebooksByUser(yellowthroat);
         entries = m_phonebookManager.getEntries(books, yellowthroat).iterator();
@@ -87,8 +89,12 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals("pintail", entries.next().getNumber());
         assertEquals("yellowthroat", entries.next().getNumber());
         assertFalse(entries.hasNext());
-        //reset everyone default
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
+    }
+    
+    private void setEveryoneEnabled(boolean enabled) {
+        GeneralPhonebookSettings settings = m_phonebookManager.getGeneralPhonebookSettings();
+        settings.setEveryoneEnabled(enabled);
+        m_phonebookManager.saveGeneralPhonebookSettings(settings);        
     }
 
     public void testAllPhoneBooksByUser() throws Exception {
@@ -201,7 +207,6 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetPrivatePhonebook() throws Exception {
-        //sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
         sql("phonebook/PhonebookSeed.sql");
         User portaluser = m_coreContext.loadUser(1002);
 
@@ -212,11 +217,14 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals(4, m_phonebookManager.getEntries(Collections.singletonList(privatePhonebook), portaluser)
                 .size());
         //test everyone disabled
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
+        setEveryoneEnabled(false);
+        commit();
         assertEquals(1, m_phonebookManager.getEntries(Collections.singletonList(privatePhonebook), portaluser)
                 .size());
-        //reset everyone default
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
+    }
+    
+    public void testGetPrivatePhonebookMore() throws Exception {
+        sql("phonebook/PhonebookSeed.sql");
 
         //test everyone enabled
         User anotheruser = m_coreContext.loadUser(1003);
@@ -225,12 +233,10 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
                 .size());
 
         //test everyone disabled
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
+        setEveryoneEnabled(false);
+        commit();
         assertEquals(2, m_phonebookManager.getPagedPhonebook(phonebooks, anotheruser, "0", "10", null).getEntries()
                 .size());
-
-        //reset everyone default
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
     }
 
     public void testDeletePrivatePhonebook() throws Exception {
@@ -304,8 +310,8 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetPagedPhonebookNotEveryone() throws Exception {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
-        //everyone disabled
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
+        setEveryoneEnabled(false);
+        commit();
 
         User user1002 = m_coreContext.loadUser(1002);
         user1002.setPermissionManager(m_permissionManager);
@@ -355,9 +361,6 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         PagedPhonebook canadianPagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "1", null);
         assertFalse(canadianPagedPhonebook.getShowOnPhone());
         assertEquals("mydomain.com", canadianPagedPhonebook.getDefaultGoogleDomain());
-
-        //reset everyone default
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
     }
 
     public void testGetPrivatePagedPhonebook() throws Exception {
@@ -389,7 +392,8 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals("yellowthroat", entries.next().getNumber());
 
         // test everyone disabled
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
+        setEveryoneEnabled(false);
+        commit();
 
         books = m_phonebookManager.getPublicPhonebooksByUser(canadian);
         pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "100", null);
@@ -406,9 +410,6 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals(new Integer(-1), contact2.getId());
         assertEquals("pintail", entries.next().getNumber());
         assertEquals("yellowthroat", entries.next().getNumber());
-
-        //reset everyone default
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
     }
 
     public void testMultipleFileUploadPhonebookEntries() throws Exception {
@@ -475,10 +476,9 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetAllEntries() throws Exception {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
-
+        setEveryoneEnabled(false);
         assertTrue(m_phonebookManager.getAllEntries(1002).isEmpty());
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
+        setEveryoneEnabled(true);
         assertFalse(m_phonebookManager.getAllEntries(1002).isEmpty());
     }
     

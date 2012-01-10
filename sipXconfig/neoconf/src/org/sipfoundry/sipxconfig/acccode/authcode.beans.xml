@@ -7,8 +7,7 @@
   </bean>
 
   <bean id="authCodeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" 
-              value="org.sipfoundry.sipxconfig.acccode.AuthCodeManager" />
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acccode.AuthCodeManager" />
     <property name="target" ref="authCodeManagerImpl" />
   </bean>
   
@@ -17,9 +16,9 @@
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
     <property name="settingsDao">
-      <bean parent="beanWithSettingsDao">
+      <bean parent="settingsWithLocationDao">
         <property name="target">
-          <bean parent="beanWithSettingsDaoImpl">
+          <bean parent="settingsWithLocationDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings"/>
           </bean>
         </property>
@@ -31,7 +30,12 @@
     <property name="authCodeManager" ref="authCodeManager" />
   </bean>
   
-  <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" scope="prototype">
+  <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" parent="settingsWithLocation">
+  </bean>
+  
+  <bean id="authCodeAliases" class="org.sipfoundry.sipxconfig.acccode.AuthCodeAliases">
+    <property name="featureManager" ref="featureManager"/>
+    <property name="authCodes" ref="authCodes"/>
   </bean>
   
 </beans>

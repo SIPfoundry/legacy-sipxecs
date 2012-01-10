@@ -77,7 +77,7 @@ public class ProxyConfiguration implements ConfigProvider {
 
     void write(Writer wtr, ProxySettings settings, Location location, Domain domain, boolean isCdrOn)
         throws IOException {
-        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
+        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         Setting root = settings.getSettings();
         config.write(root.getSetting("proxy-configuration"));
         config.write("SIPX_PROXY.205_subscriptionauth.", root.getSetting("subscriptionauth"));

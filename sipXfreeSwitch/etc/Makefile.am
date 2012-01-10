@@ -1,23 +1,21 @@
-.DELETE_ON_ERROR:
+include $(top_srcdir)/config/utility.am
 
-EXTRA_DIST = \
-	$(proc_DATA:.xml=.xml.in)
+FS_VARS = \
+	$(filter FREESWITCH%,$(.VARIABLES))
 
-procdir = $(SIPX_DATADIR)/process.d
-proc_DATA = \
-	freeswitch-process.xml
+cfdefaultsdir = $(SIPX_CFDATA)/defaults
+cfdefaults_DATA = \
+	sipxfreeswitch.cfdat
 
-LOCALIZE_VARS = \
-	$(filter SIPX%,$(.VARIABLES)) \
-	$(filter PACKAGE%,$(.VARIABLES))
+sipxfreeswitch.cfdat : Makefile
+	! test -f $@ || rm $@
+	$(foreach V,$(FS_VARS), echo '=$(V)=$($(V))' >> $@;)
 
-LOCALIZE = \
-	$(foreach V,$(LOCALIZE_VARS), -e 's|@$(V)\@|$($(V))|g')
+cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
+dist_cfinputs_DATA = \
+	sipxfreeswitch.cf
 
-$(proc_DATA) : % : %.in Makefile
-	@sed $(LOCALIZE) $< > $@
-
-DISTCLEANFILES = $(proc_DATA)
+DISTCLEANFILES = $(cfdefaults_DATA)
 
 fscfgdir = @SIPX_CONFDIR@/freeswitch/conf
 dist_fscfg_DATA = \

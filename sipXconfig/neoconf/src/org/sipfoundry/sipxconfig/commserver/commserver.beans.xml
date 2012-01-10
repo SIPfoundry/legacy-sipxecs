@@ -19,11 +19,14 @@
     </property>
   </bean>
   
-  <bean id="beanWithLocationDaoImpl" class="org.sipfoundry.sipxconfig.commserver.BeanWithLocationDaoImpl" abstract="true" parent="abstractDaoImpl">
+  <bean id="settingsWithLocationDaoImpl" class="org.sipfoundry.sipxconfig.commserver.SettingsWithLocationDaoImpl" abstract="true" parent="abstractDaoImpl">
   </bean>
   
-  <bean id="beanWithLocationDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao" abstract="true">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.BeanWithLocationDao"/>
+  <bean id="settingsWithLocationDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao" abstract="true">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.SettingsWithLocationDao"/>
+  </bean>
+  
+  <bean id="settingsWithLocation" class="org.sipfoundry.sipxconfig.commserver.SettingsWithLocation" parent="settingsBean">
   </bean>
 
   <bean id="contactInfoChangeApiProvider"

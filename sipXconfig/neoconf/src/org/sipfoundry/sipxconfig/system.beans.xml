@@ -172,7 +172,7 @@
         <value>abstractPhone</value>
         <value>upload</value>
         <value>settingsBean</value>
-        <!--  value>beanWithLocation</value -->
+        <value>settingsWithLocation</value>
       </list>
     </property>
   </bean>

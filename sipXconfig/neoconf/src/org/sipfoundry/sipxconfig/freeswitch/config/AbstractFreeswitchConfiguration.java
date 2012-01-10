@@ -49,5 +49,4 @@ public abstract class AbstractFreeswitchConfiguration {
     public void setFreeswitchFeature(FreeswitchFeature freeswitchFeature) {
         m_freeswitchFeature = freeswitchFeature;
     }
-
 }

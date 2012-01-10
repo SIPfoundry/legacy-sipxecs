@@ -26,8 +26,13 @@ public class SofiaConfiguration extends AbstractFreeswitchConfiguration {
     private CoreContext m_coreContext;
 
     @Override
+    protected String getTemplate() {
+        return "freeswitch/sofia.conf.xml.vm";
+    }
+
+    @Override
     protected String getFileName() {
-        return "freeswitch/sofia.conf.xml";
+        return "sip_profiles/sipX_profile.xml";
     }
 
     @Override
@@ -53,10 +58,5 @@ public class SofiaConfiguration extends AbstractFreeswitchConfiguration {
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
-    }
-
-    @Override
-    protected String getTemplate() {
-        return getFileName() + ".vm";
     }
 }

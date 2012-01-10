@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
-import org.sipfoundry.sipxconfig.commserver.BeanWithLocationDao;
+import org.sipfoundry.sipxconfig.commserver.SettingsWithLocationDao;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
@@ -47,11 +47,11 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
 
     private FeatureManager m_featureManager;
     private MusicOnHoldManager m_musicOnHoldManager;
-    private BeanWithLocationDao<FreeswitchSettings> m_settingsDao;
+    private SettingsWithLocationDao<FreeswitchSettings> m_settingsDao;
     private String m_name = "freeswitch";
 
     public FreeswitchSettings getSettings(Location location) {
-        return m_settingsDao.findOne(location);
+        return m_settingsDao.findOrCreate(location);
     }
 
     public void setFeatureManager(FeatureManager featureManager) {
@@ -117,7 +117,7 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
         List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(locations.size() * 4);
         MohAddressFactory moh = m_musicOnHoldManager.getAddressFactory();
         for (Location location : locations) {
-            FreeswitchSettings setttings = m_settingsDao.findOne(location);
+            FreeswitchSettings setttings = m_settingsDao.findOrCreate(location);
             String mohSetting = setttings.getMusicOnHoldSource();
             String contact = null;
             switch (SystemMohSetting.parseSetting(mohSetting)) {
@@ -195,7 +195,7 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
         m_musicOnHoldManager = musicOnHoldManager;
     }
 
-    public void setSettingsDao(BeanWithLocationDao<FreeswitchSettings> settingsDao) {
+    public void setSettingsDao(SettingsWithLocationDao<FreeswitchSettings> settingsDao) {
         m_settingsDao = settingsDao;
     }
 }
