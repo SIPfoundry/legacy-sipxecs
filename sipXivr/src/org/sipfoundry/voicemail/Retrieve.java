@@ -130,8 +130,8 @@ public class Retrieve {
             if (errorCount > m_vm.getConfig().getInvalidResponseCount()) {
               try {
                  IvrConfiguration.getAlarmClient().raiseAlarm(FAILED_LOGIN_ALARM_ID,user.getUserName());
-              } catch ( XmlRpcException ex) {
-                LOG.error("Problem sending alarm to" + m_vm.getIvrConfig().getSipxSupervisorHost() + "and port" + m_vm.getIvrConfig().getSipxSupervisorXmlRpcPort() ,ex);
+              } catch ( Exception ex) {
+                LOG.error("Problem sending alarm to alarm server", ex);
               }
             		
                 m_vm.failure();

@@ -10,7 +10,7 @@ ivr_PKGS = \
 	log4j \
 	mongo \
 	sipxcommons \
-	xmlrpc-common \ 
+	xmlrpc-common \
 	ws-commons-util \
 	commons-fileupload \
 	xmlrpc-client \

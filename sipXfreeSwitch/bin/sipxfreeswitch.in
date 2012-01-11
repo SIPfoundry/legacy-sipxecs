@@ -1,0 +1,124 @@
+#! /bin/sh
+#
+# freeswitch:       Starts the freeswitch Daemon
+#
+# chkconfig: 345 96 02
+# processname: freeswitch
+# description: Freeswitch fedora init script \
+# config:
+# Author: gled
+
+# Source function library.
+. /etc/init.d/functions
+. /etc/sysconfig/network
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin:@FREESWITCH_PREFIX@/bin
+DESC="FreeSwitch Voice Switching System"
+NAME=freeswitch
+DAEMON=@FREESWITCH_PREFIX@/bin/$NAME
+DAEMON_ARGS="\
+  -conf @SIPX_CONFDIR@/freeswitch/conf \
+  -db @SIPX_VARDIR@/tmp/freeswitch \
+  -log @SIPX_LOGDIR@ \
+  -htdocs @SIPX_CONFDIR@/freeswitch/conf/htdoc"
+DAEMON_START_ARGS="-nc -nonat \
+  -u @SIPXPBXUSER@ \
+  -g @SIPXPBXGROUP@ \
+   $DAEMON_ARGS"
+DAEMON_STOP_ARGS="-stop \
+   $DAEMON_ARGS"
+PIDFILE=@SIPX_RUNDIR@/freeswitch.pid
+
+do_setlimits() {
+        ulimit -c unlimited
+        ulimit -d unlimited
+        ulimit -f unlimited
+        ulimit -i unlimited
+        ulimit -n 999999
+        ulimit -q unlimited
+        ulimit -u unlimited
+        ulimit -v unlimited
+        ulimit -x unlimited
+        ulimit -s 240
+        ulimit -l unlimited
+        return 0
+}
+
+do_permission_check() {
+  # Ensure that important FreeSWITCH files are writeable by @SIPXPBXUSER@
+  FS_DBDIR=@SIPX_VARDIR@/tmp/freeswitch
+  if test ! -e $FS_DBDIR
+  then
+    mkdir $FS_DBDIR
+    chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ $FS_DBDIR
+    chmod -R u+rwX,ga+rX $FS_DBDIR
+  fi
+}
+
+do_audio_setup() {
+  # Ensure that the audio devices are owned by @SIPXPBXUSER@
+  # This is required for proper FreeSWITCH operation.
+  for dev in /dev/adsp /dev/audio /dev/dsp /dev/mixer /dev/sequencer /dev/sequencer2 ; do
+    if test -e $dev
+    then
+        chown @SIPXPBXUSER@ $dev
+    fi
+  done
+
+  # If alsa present configure the sound input source used for MOH to be 'Line'
+  if test -d /dev/snd
+  then
+    chown @SIPXPBXUSER@ /dev/snd/*
+    amixer cset iface=MIXER,name="Input Source",index=0 "Line" >& /dev/null
+    amixer cset iface=MIXER,name="Capture Switch",index=0 on >& /dev/null
+    amixer cset iface=MIXER,name="Capture Volume",index=0 60% >& /dev/null
+  fi
+}
+
+base=${0##*/}
+
+do_start() {
+        do_setlimits
+        do_permission_check
+	do_audio_setup
+        $DAEMON $DAEMON_START_ARGS
+        RETVAL=$?
+        if [ $RETVAL = 0 ]; then
+                success $"$base startup"
+        else
+                failure $"$base startup"
+        fi
+        echo
+        return $RETVAL
+}
+
+do_stop() {
+        $DAEMON $DAEMON_STOP_ARGS
+        RETVAL=$?
+        [ $RETVAL = 0 ] && success $"$base shutdown" || failure $"$base shutdown"
+        rm -f $LOCKFILE
+        echo
+        return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+  start)
+        do_start
+        ;;
+  stop)
+        do_stop
+        ;;
+  restart)
+        do_stop
+        echo "Waiting for daemon to exit..."
+        sleep 5
+        do_start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop}"
+        exit 2
+        ;;
+esac
+
+exit $RETVAL

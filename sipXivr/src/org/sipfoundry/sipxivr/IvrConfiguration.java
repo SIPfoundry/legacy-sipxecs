@@ -44,8 +44,6 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     private String m_sendIMUrl;
     private String m_openfireHost; // The host name where the Openfire service runs
     private int m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
-    private String m_sipxSupervisorHost;//The host name where SipX Supervisor runs.
-    private int  m_sipxSupervisorXmlRpcPort;// The port number to use for XML-RPC SipX Supervisor alarm requests
     private String m_configAddress;//The IP where sipXconfig runs.
     private String m_binDirectory;
     private String m_logDirectory;
@@ -89,18 +87,22 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     
     public static SipXAlarmClient getAlarmClient() {
         if (s_current!=null && alarmClient == null) {
-            alarmClient = new SipXAlarmClient(s_current.m_sipxSupervisorHost,
-                    s_current.m_sipxSupervisorXmlRpcPort);
+            alarmClient = new SipXAlarmClient();
         }
         return alarmClient;
     }
     
-    void properties() {
+    public static String getConfigDirectory() {
         String path = System.getProperty("conf.dir");
         if (path == null) {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);
-        }
+        }        
+        return path;
+    }
+    
+    void properties() {
+        String path = getConfigDirectory();
         
         // Setup SSL properties so we can talk to HTTPS servers
         String keyStore = System.getProperty("javax.net.ssl.keyStore");
@@ -158,8 +160,6 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
             m_httpsPort = Integer.parseInt(props.getProperty(prop = "ivr.httpsPort"));
             m_configUrl = props.getProperty(prop = "ivr.configUrl");
             m_sendIMUrl = props.getProperty("ivr.sendIMUrl");
-            m_sipxSupervisorHost=props.getProperty("ivr.sipxSupervisorHost");
-            m_sipxSupervisorXmlRpcPort=Integer.valueOf(props.getProperty("ivr.sipxSupervisorXmlRpcPort"));
             m_configAddress = props.getProperty("ivr.configAddress");
             m_binDirectory = props.getProperty("ivr.binDirectory");
             m_logDirectory = props.getProperty("ivr.logDirectory");
@@ -307,10 +307,6 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
         return m_nameDialPrefix;
     }
     
-    public String getSipxSupervisorHost() {
-        return m_sipxSupervisorHost;
-    }
-
     public String getConfigAddress() {
         return m_configAddress;
     }
@@ -327,11 +323,6 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
         return m_backupPath;
     }
     
-    public int getSipxSupervisorXmlRpcPort() {
-        return m_sipxSupervisorXmlRpcPort;
-    }
-
-    	
 	@Override
 	public Logger getLogger() {
 		return LOG;

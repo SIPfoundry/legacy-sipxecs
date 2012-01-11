@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
@@ -36,15 +37,12 @@ public class IvrConfig implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(DialPlanContext.FEATURE, Ivr.FEATURE)) {
+        if (!request.applies(DialPlanContext.FEATURE, Ivr.FEATURE, Mwi.FEATURE, RestServer.FEATURE, ImBot.FEATURE,
+                FreeswitchFeature.FEATURE, AdminContext.FEATURE, ImManager.FEATURE)) {
             return;
         }
-
+        Set<Location> locations = request.locations(manager);
         FeatureManager featureManager = manager.getFeatureManager();
-        Collection<Location> locations = featureManager.getLocationsForEnabledFeature(Ivr.FEATURE);
-        if (locations.isEmpty()) {
-            return;
-        }
         Address mwiApi = manager.getAddressManager().getSingleAddress(Mwi.HTTP_API);
         Address adminApi = manager.getAddressManager().getSingleAddress(AdminContext.HTTPS_ADDRESS);
         Address restApi = manager.getAddressManager().getSingleAddress(RestServer.HTTPS_API);
@@ -54,10 +52,19 @@ public class IvrConfig implements ConfigProvider {
         IvrSettings settings = m_ivr.getSettings();
         Domain domain = manager.getDomainManager().getDomain();
         for (Location location : locations) {
-            File f = new File(manager.getLocationDataDirectory(location), "sipxivr.properties.cfdat");
+            File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = featureManager.isFeatureEnabled(Ivr.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxivr.cfdat", "sipxivr", enabled);
+            if (!enabled) {
+                continue;
+            }
+            File f = new File(dir, "sipxivr.properties.part1");
             Writer wtr = new FileWriter(f);
-            write(wtr, settings, domain, location, mwiApi, restApi, adminApi, imApi, imbotApi, fsEvent);
-            IOUtils.closeQuietly(wtr);
+            try {
+                write(wtr, settings, domain, location, mwiApi, restApi, adminApi, imApi, imbotApi, fsEvent);
+            } finally {
+                IOUtils.closeQuietly(wtr);
+            }
         }
     }
 
@@ -74,16 +81,26 @@ public class IvrConfig implements ConfigProvider {
         config.write("ivr.sipxchangeDomainName", domain.getName());
         config.write("ivr.realm", domain.getSipRealm());
         config.write("ivr.httpsPort", settings.getHttpsPort());
-        config.write("ivr.mwiUrl", mwiApi.toString());
-        config.write("ivr.configUrl", adminApi.toString());
-        config.write("ivr.3pccSecureUrl", restApi.toString());
-        config.write("ivr.callHistoryUrl", restApi.toString() + "/cdr/");
 
+        // required services
+        if (mwiApi == null) {
+            throw new IllegalStateException("MWI feature needs to be enabled. No addresses found.");
+        }
+        config.write("ivr.mwiUrl", mwiApi.toString());
+        if (adminApi == null) {
+            throw new IllegalStateException("Admin feature needs to be enabled. No addresses found.");
+        }
+        config.write("ivr.configUrl", adminApi.toString());
+
+        // optional services
+        if (restApi != null) {
+            config.write("ivr.3pccSecureUrl", restApi.toString());
+            config.write("ivr.callHistoryUrl", restApi.toString() + "/cdr/");
+        }
         if (imApi != null) {
             config.write("ivr.openfireHost", imApi.getAddress());
             config.write("ivr.openfireXmlRpcPort", imApi.getPort());
         }
-
         if (imbotApi != null) {
             config.write("ivr.sendIMUrl", imbotApi.toString());
         }

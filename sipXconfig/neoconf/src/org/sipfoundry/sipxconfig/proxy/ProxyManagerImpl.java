@@ -60,20 +60,22 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Object requester) {
+        if (!ADDRESS_TYPES.contains(type)) {
+            return null;
+        }
         Collection<Address> addresses = null;
-        if (ADDRESS_TYPES.contains(type)) {
-            Collection<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
-            addresses = new ArrayList<Address>(locations.size());
-            for (Location location : locations) {
-                Address address = new Address();
-                address.setAddress(location.getAddress());
-                if (type.equals(TCP_ADDRESS) || type.equals(UDP_ADDRESS)) {
-                    address.setPort(5060);
-                } else if (type.equals(TLS_ADDRESS)) {
-                    address.setPort(5061);
-                }
-                address.setAddress("sip:%s:%d");
+        Collection<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
+        addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            Address address = new Address();
+            address.setAddress(location.getAddress());
+            if (type.equals(TCP_ADDRESS) || type.equals(UDP_ADDRESS)) {
+                address.setPort(5060);
+            } else if (type.equals(TLS_ADDRESS)) {
+                address.setPort(5061);
             }
+            address.setAddress("sip:%s:%d");
+            addresses.add(address);
         }
 
         return addresses;

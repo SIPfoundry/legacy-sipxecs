@@ -8,17 +8,19 @@
  */
 package org.sipfoundry.sipxivr;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
 import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.attendant.Attendant;
+import org.sipfoundry.bridge.Bridge;
 import org.sipfoundry.commons.freeswitch.Answer;
-import org.sipfoundry.commons.freeswitch.ConfBasicThread;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
@@ -26,9 +28,12 @@ import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.freeswitch.Set;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.Daemon;
+import org.sipfoundry.commons.util.DaemonRunner;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.conference.ConfRecordStatus;
-import org.sipfoundry.moh.Moh;
 import org.sipfoundry.faxrx.FaxRx;
+import org.sipfoundry.moh.Moh;
 import org.sipfoundry.voicemail.ConferenceServlet;
 import org.sipfoundry.voicemail.Emailer;
 import org.sipfoundry.voicemail.ExtMailStore;
@@ -37,15 +42,15 @@ import org.sipfoundry.voicemail.ManagementServlet;
 import org.sipfoundry.voicemail.MediaServlet;
 import org.sipfoundry.voicemail.Mwistatus;
 import org.sipfoundry.voicemail.VoiceMail;
-import org.sipfoundry.bridge.Bridge;
 
 public class SipXivr implements Runnable {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private static IvrConfiguration s_config;
+    private static ServerSocket s_serverSocket; 
 
     private Socket m_clientSocket;
     private FreeSwitchEventSocketInterface m_fses;
-
+    
     public SipXivr(Socket client) {
         m_clientSocket = client;
     }
@@ -208,11 +213,14 @@ public class SipXivr implements Runnable {
      *
      * @throws Throwable
      */
-    static void init() throws Throwable {
+    static void init() throws Exception {
         int eventSocketPort;
 
         // Load the configuration
         s_config = IvrConfiguration.get();
+        String configDir = IvrConfiguration.getConfigDirectory();
+        UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
+        
         // init mailstore
         File mailstore = new File(s_config.getMailstoreDirectory());
         if (!mailstore.exists()) {
@@ -250,30 +258,44 @@ public class SipXivr implements Runnable {
 
         eventSocketPort = s_config.getEventSocketPort();
         LOG.info("Starting SipXivr listening on port " + eventSocketPort);
-        ServerSocket serverSocket = new ServerSocket(eventSocketPort);
+        s_serverSocket = new ServerSocket(eventSocketPort);
         for (;;) {
-            Socket client = serverSocket.accept();
+            Socket client = s_serverSocket.accept();
             SipXivr ivr = new SipXivr(client);
             Thread thread = new Thread(ivr);
             thread.start();
         }
     }
-
+    
     /**
      * Main entry point for sipXivr
      * @param args
      */
     public static void main(String[] args) {
-        try {
-            init();
-        } catch (Exception e) {
-            LOG.fatal(e,e);
-            e.printStackTrace();
-            System.exit(1);
-        } catch (Throwable t) {
-            LOG.fatal(t,t);
-            t.printStackTrace();
-            System.exit(1);
-        }
+        Daemon d = new Daemon() {
+            @Override
+            public void start() {
+                try {
+                    SipXivr.init();
+                } catch (Exception e) {
+                    LOG.fatal(e,e);
+                    e.printStackTrace();
+                    System.exit(1);
+                } catch (Throwable t) {
+                    LOG.fatal(t,t);
+                    t.printStackTrace();
+                    System.exit(1);
+                }            
+            }
+            @Override
+            public void stop() {
+                try {
+                    SipXivr.s_serverSocket.close();
+                } catch (IOException e) {
+                    LOG.error("Could not stop socket listener", e);
+                }                
+            }
+        };
+        new DaemonRunner(d).run();
     }
 }

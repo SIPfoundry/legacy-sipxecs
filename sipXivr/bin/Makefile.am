@@ -1,13 +1,13 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/common.am
 
-EXTRA_DIST = \
-    $(bin_SCRIPTS:=.in)
+EXTRA_DIST = $(initd_SCRIPTS:=.in)
 
-bin_SCRIPTS = \
-    sipxivr.sh
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+	sipxivr
 
-$(bin_SCRIPTS) : % : %.in Makefile
+$(initd_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,ivr_PKGS)
 
-CLEANFILES = $(bin_SCRIPTS)
+DISTCLEANFILES = $(initd_SCRIPTS)

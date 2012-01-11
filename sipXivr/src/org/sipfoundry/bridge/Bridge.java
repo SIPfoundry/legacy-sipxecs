@@ -17,18 +17,11 @@
 
 package org.sipfoundry.bridge;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
 import org.apache.log4j.Logger;
-import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.BridgeCommand;
-import org.sipfoundry.commons.freeswitch.Set;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
+import org.sipfoundry.commons.freeswitch.Set;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 
 
@@ -92,5 +85,4 @@ public class Bridge {
         BridgeCommand bridge = new BridgeCommand(m_fses, m_fses.getVariable("Unique-ID"), sipReqUri, domain);
         bridge.start();
     }
-
 }

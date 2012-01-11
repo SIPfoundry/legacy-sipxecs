@@ -1,0 +1,88 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipxivr configuration and process management
+#
+bundle agent sipxivr {
+  methods:
+    any::
+      "sipxivr" usebundle => "sipxivr_config";
+      "any" usebundle => "sipxivr_setup";
+      "any" usebundle => "sipxivr_running";
+}
+
+bundle agent sipxivr_config {
+  vars:    
+    any::
+      "conference_file" string => "autoload_configs/conference.conf.xml";
+      "conference_file_src" string => "$(sipx.SIPX_CFDATA)/$(location_id)/$(conference_file)";
+
+      "xml_file" slist => { 
+        "autoattendants.xml",
+      };
+
+  classes:
+    any::
+      "conference_file_exists" expression => fileexists("$(conference_file_src)");
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxivr.properties"
+        create => "true",
+        perms => m("644"),
+	edit_line => sipxivr_properties_contents(),
+        classes => if_repaired("restart_sipxivr");
+}
+
+bundle edit_line sipxivr_properties_contents() {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxivr.properties.part1"
+        insert_type => "file";
+      "log.file=$(sipx.SIPX_LOGDIR)/sipxivr.log";
+      "ivr.dataDirectory=$(sipx.SIPX_IVRDATADIR)";
+      "ivr.mailstoreDirectory=$(sipx.SIPX_IVRDATADIR)/mailstore";
+      "ivr.promptsDirectory=$(sipx.SIPX_IVRDATADIR)/prompts";
+      "ivr.scriptsDirectory=$(sipx.wwwdir)/doc/aa_vxml";
+      "ivr.docDirectory=$(sipx.wwwdir)/doc";
+      "ivr.organizationPrefs=$(sipx.SIPX_IVRDATADIR)/organizationprefs.xml";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+
+bundle agent sipxivr_setup {
+  methods:
+    !src.sipxivr::
+      "any" usebundle => rh_chkconfig_status("sipxivr");
+}
+
+bundle agent sipxivr_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipxivr\s.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxivr_running");
+
+  commands:
+    sipxivr_running.!sipxivr::
+      "$(sipx.SIPX_SERVICEDIR)/sipxivr"
+        args => "stop";
+
+    !sipxivr_running.sipxivr::
+      "$(sipx.SIPX_SERVICEDIR)/sipxivr"
+        args => "start";
+
+    restart_sipxivr::
+      "$(sipx.SIPX_SERVICEDIR)/sipxivr"
+        args => "restart";
+}
+
+
+

@@ -26,7 +26,10 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.paging.PagingContext;
+import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -43,7 +46,13 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(ProxyManager.FEATURE, DialPlanContext.FEATURE, LocalizationContext.FEATURE)) {
+        // Need to include all areas that provide addresses to dialing rules.
+        //
+        // NOTE: Before adding another item, in some cases it's more appropriate for
+        // other contexts could announce changes in their system affect DialPlanContext.FEATURE
+        //
+        if (!request.applies(ProxyManager.FEATURE, DialPlanContext.FEATURE, LocalizationContext.FEATURE,
+                PagingContext.FEATURE, Rls.FEATURE, ParkOrbitContext.FEATURE)) {
             return;
         }
 

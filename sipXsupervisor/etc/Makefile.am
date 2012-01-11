@@ -13,6 +13,7 @@ cfdefaults_DATA = \
 dirvars = \
 	$(filter SIPX%DIR,$(.VARIABLES)) \
 	$(filter SIPX_CF%,$(.VARIABLES)) \
+	wwwdir \
 	SIPXPBXUSER \
 	SIPXPBXGROUP
 
