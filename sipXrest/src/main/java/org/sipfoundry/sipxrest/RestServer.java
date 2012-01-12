@@ -31,35 +31,37 @@ import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
 public class RestServer {
-    
+
     private static Logger logger = Logger.getLogger(RestServer.class);
-    
+
     static final String PACKAGE = "org.sipfoundry.sipxrest";
-    
+
     private static String configFileName = "/etc/sipxpbx/sipxrest-config.xml";
 
     private static Appender appender;
-    
+
     private static RestServerConfig restServerConfig;
 
     private static HttpServer webServer;
-    
+
     public static boolean isSecure = true;
-    
+
     public static final Timer timer = new Timer();
-    
+
     private static RestServiceFinder restServiceFinder;
-    
+
     private static AccountManagerImpl accountManager;
 
     private static SipStackBean sipStackBean;
-    
-  
+
+    public static final String TRUSTED_SOURCE = "127.0.0.1";
+
+
     public static RestServerConfig getRestServerConfig() {
         return restServerConfig;
     }
-   
-   
+
+
     /**
      * @param appender the appender to set
      */
@@ -74,21 +76,22 @@ public class RestServer {
         return appender;
     }
 
- 
+
     private static void initWebServer() throws Exception {
-        
-       
+
+
         webServer = new HttpServer();
         InetAddrPort inetAddrPort = new InetAddrPort(restServerConfig.getIpAddress(),
                 restServerConfig.getHttpPort());
         InetAddrPort externalInetAddrPort = new InetAddrPort(restServerConfig.getIpAddress(),
                 restServerConfig.getPublicHttpPort());
         Logger.getLogger("org.mortbay").setLevel(Level.OFF);
-        
-     
-        
+
+
+
         if (isSecure) {
-                SslListener sslListener = new SslListener(inetAddrPort);     
+                SslListener sslListener = new SslListener();
+                sslListener.setPort(restServerConfig.getHttpPort());
                 String keystore = System.getProperties().getProperty(
                         "javax.net.ssl.keyStore");
                 logger.debug("keystore = " + keystore);
@@ -106,33 +109,34 @@ public class RestServer {
                 sslListener.setMaxThreads(32);
                 sslListener.setMinThreads(4);
                 sslListener.setLingerTimeSecs(30000);
-                
-                
+
+
                 ((ThreadedServer) sslListener).open();
 
                 String[] cypherSuites = ((SSLServerSocket) sslListener
                         .getServerSocket()).getSupportedCipherSuites();
 
-              
+
                 ((SSLServerSocket) sslListener.getServerSocket())
                         .setEnabledCipherSuites(cypherSuites);
 
                 String[] protocols = ((SSLServerSocket) sslListener
                         .getServerSocket()).getSupportedProtocols();
 
-              
+
                 ((SSLServerSocket) sslListener.getServerSocket())
                         .setEnabledProtocols(protocols);
                 sslListener.setMaxIdleTimeMs(60000);
-             
+
                 webServer.addListener(sslListener);
-                sslListener.start(); 
-        } 
+                sslListener.start();
+        }
 
 
         // create a listener for the unsecure port.
         logger.debug("External Inet Port = " + externalInetAddrPort.toString());
-        SocketListener socketListener = new SocketListener(externalInetAddrPort);
+        SocketListener socketListener = new SocketListener();
+        socketListener.setPort(restServerConfig.getPublicHttpPort());
         socketListener.setMaxThreads(32);
         socketListener.setMinThreads(4);
         socketListener.setLingerTimeSecs(30000);
@@ -141,21 +145,20 @@ public class RestServer {
         socketListener.start();
 
         HttpContext httpContext = new HttpContext();
-
         httpContext.setContextPath("/");
-        httpContext.setInitParameter("org.restlet.application", 
+        httpContext.setInitParameter("org.restlet.application",
                 RestServerApplication.class.getName());
         ServletHandler servletHandler = new ServletHandler();
         Class<?> servletClass = com.noelios.restlet.ext.servlet.ServerServlet.class;
         servletHandler.addServlet("rest", "/*",
                 servletClass.getName());
-        
-             
+
+
         httpContext.addHandler(servletHandler);
-        
-       
+
+
         webServer.addContext(httpContext);
-        
+
         webServer.start();
 
     }
@@ -167,7 +170,7 @@ public class RestServer {
         return sipStackBean.getMessageFactory();
     }
 
-   
+
     /**
      * @return the addressFactory
      */
@@ -175,20 +178,20 @@ public class RestServer {
         return sipStackBean.getAddressFactory();
     }
 
-   
+
     /**
      * @return the headerFactory
      */
     public static HeaderFactory getHeaderFactory() {
         return sipStackBean.getHeaderFactory();
     }
-    
-  
-    
+
+
+
     public static RestServiceFinder getServiceFinder() {
         return restServiceFinder;
     }
-    
+
     public static AccountManagerImpl getAccountManager() {
         return accountManager;
      }
@@ -197,8 +200,8 @@ public class RestServer {
      */
     public static void main(String[] args) throws Exception {
 
-        String configDir = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx"); 
-        configFileName = configDir + "/sipxrest-config.xml";              
+        String configDir = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx");
+        configFileName = configDir + "/sipxrest-config.xml";
 
         if (!new File(configFileName).exists()) {
             System.err.println("Cannot find the config file");
@@ -213,22 +216,22 @@ public class RestServer {
                 RestServer.getRestServerConfig().getLogDirectory()
                 +"/sipxrest.log"));
         Logger.getLogger(PACKAGE).addAppender(getAppender());
-        
+
         accountManager = new AccountManagerImpl();
         sipStackBean = new SipStackBean();
-        
+
         restServiceFinder = new RestServiceFinder();
-        
+
         restServiceFinder.search(System.getProperty("plugin.dir"));
-        
+
         try {
             UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
         } catch (Exception e) {
             logger.error(e);
-        }        
-         
+        }
+
         initWebServer();
-       
+
         logger.debug("Web server started.");
     }
 
@@ -239,7 +242,7 @@ public class RestServer {
     public static SipStackBean getSipStack() {
         return sipStackBean;
     }
-    
+
     public static String getRealm() {
     	DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
     	return config.getSipRealm();

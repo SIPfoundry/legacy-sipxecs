@@ -28,11 +28,15 @@ import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.common.User;
+import org.springframework.beans.factory.annotation.Required;
 
 import com.thoughtworks.xstream.XStream;
 
 public class LoginDetailsResource extends UserResource {
+
+    private LdapManager m_ldapManager;
 
     @Override
     public void init(Context context, Request request, Response response) {
@@ -44,8 +48,14 @@ public class LoginDetailsResource extends UserResource {
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         User user = getUser();
+        boolean ldapAuth = m_ldapManager.getSystemSettings().isEnableOpenfireConfiguration();
         return new LoginDetails(variant.getMediaType(), new Representable(user.getUserName(),
-                user.getImId(), user.getImPassword()));
+                user.getImId(), user.getImPassword(), ldapAuth));
+    }
+
+    @Required
+    public void setLdapManager(LdapManager ldapManager) {
+        m_ldapManager = ldapManager;
     }
 
     @SuppressWarnings("serial")
@@ -56,11 +66,14 @@ public class LoginDetailsResource extends UserResource {
         private String m_imId;
         @SuppressWarnings("unused")
         private String m_imPassword;
+        @SuppressWarnings("unused")
+        private boolean m_ldapImAuth;
 
-        public Representable(String userName, String imId, String imPassword) {
+        public Representable(String userName, String imId, String imPassword, boolean ldapAuth) {
             m_userName = userName;
             m_imId = imId;
             m_imPassword = imPassword;
+            m_ldapImAuth = ldapAuth;
         }
     }
 
