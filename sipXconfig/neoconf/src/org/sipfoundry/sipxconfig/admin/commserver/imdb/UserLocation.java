@@ -41,14 +41,15 @@ import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STREET;
 import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_ZIP;
 import static org.sipfoundry.commons.mongo.MongoConstants.USER_LOCATION;
 
-public class UserLocation extends DataSetGenerator {
+public class UserLocation extends AbstractDataSetGenerator {
 
     @Override
     protected DataSet getType() {
         return DataSet.USER_LOCATION;
     }
 
-    public void generate(Replicable entity, DBObject top) {
+    @Override
+    public boolean generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
             Branch site = user.getSite();
@@ -95,8 +96,9 @@ public class UserLocation extends DataSetGenerator {
                     top.put(OFFICE_DESIGNATION, officeAddress.getOfficeDesignation());
                 }
             }
-            getDbCollection().save(top);
+            return true;
         }
+        return false;
     }
 
 }

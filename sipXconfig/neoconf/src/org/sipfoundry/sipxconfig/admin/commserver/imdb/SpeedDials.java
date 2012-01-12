@@ -30,16 +30,18 @@ import static org.sipfoundry.commons.mongo.MongoConstants.URI;
 import static org.sipfoundry.commons.mongo.MongoConstants.USER;
 import static org.sipfoundry.commons.mongo.MongoConstants.USER_CONS;
 
-public class SpeedDials extends DataSetGenerator {
+public class SpeedDials extends AbstractDataSetGenerator {
     private SpeedDialManager m_speedDialManager;
 
+    @Override
     protected DataSet getType() {
         return DataSet.SPEED_DIAL;
     }
 
-    public void generate(Replicable entity, DBObject top) {
+    @Override
+    public boolean generate(Replicable entity, DBObject top) {
         if (!(entity instanceof User)) {
-            return;
+            return false;
         }
         User user = (User) entity;
         DBObject speedDialDBO = new BasicDBObject();
@@ -64,7 +66,7 @@ public class SpeedDials extends DataSetGenerator {
             }
         }
         top.put(SPEEDDIAL, speedDialDBO);
-        getDbCollection().save(top);
+        return true;
     }
 
     public void setSpeedDialManager(SpeedDialManager speedDialManager) {

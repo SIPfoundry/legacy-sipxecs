@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.common.User;
 
 import com.mongodb.DBObject;
 
-public class Credentials extends DataSetGenerator {
+public class Credentials extends AbstractDataSetGenerator {
     public static final String DIGEST = "DIGEST";
 
     @Override
@@ -34,21 +34,26 @@ public class Credentials extends DataSetGenerator {
     }
 
     @Override
-    public void generate(Replicable entity, DBObject top) {
+    public boolean generate(Replicable entity, DBObject top) {
         String realm = getCoreContext().getAuthorizationRealm();
         if (entity instanceof User) {
             User user = (User) entity;
             insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
+            return true;
         } else if (entity instanceof CallGroup) {
             CallGroup callGroup = (CallGroup) entity;
             insertCredential(top, realm, callGroup.getSipPassword(), callGroup.getSipPasswordHash(realm), DIGEST);
+            return true;
         } else if (entity instanceof SpecialUser) {
             SpecialUser user = (SpecialUser) entity;
             insertCredential(top, realm, defaultString(user.getSipPassword()), null, DIGEST);
+            return true;
         } else if (entity instanceof BeanWithUserPermissions) {
             InternalUser user = ((BeanWithUserPermissions) entity).getInternalUser();
             insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
+            return true;
         }
+        return false;
     }
 
     private void insertCredential(DBObject top, String realm, String passtoken, String pintoken, String authtype) {
@@ -58,7 +63,6 @@ public class Credentials extends DataSetGenerator {
             top.put(PINTOKEN, pintoken);
         }
         top.put(AUTHTYPE, authtype);
-        getDbCollection().save(top);
     }
 
 }

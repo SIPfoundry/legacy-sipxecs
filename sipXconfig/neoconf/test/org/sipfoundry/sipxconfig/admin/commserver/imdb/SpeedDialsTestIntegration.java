@@ -20,6 +20,7 @@ import com.mongodb.DBObject;
 public class SpeedDialsTestIntegration extends ImdbTestCase {
     private SpeedDials m_speeddialDataSet;
     private ResourceLists m_resourceLists;
+    private ReplicationManagerImpl m_replManager;
 
     public void testGenerateResourceLists() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
@@ -45,9 +46,13 @@ public class SpeedDialsTestIntegration extends ImdbTestCase {
         user4.put(PERMISSIONS, prmlistNoSubscribe);
 
         m_speeddialDataSet.generate(userA, user1);
+        m_replManager.getDbCollection().save(user1);
         m_speeddialDataSet.generate(userC, user2);
+        m_replManager.getDbCollection().save(user2);
         m_speeddialDataSet.generate(userB, user3);
+        m_replManager.getDbCollection().save(user3);
         m_speeddialDataSet.generate(userD, user4);
+        m_replManager.getDbCollection().save(user4);
 
         String generated = AbstractConfigurationFile.getFileContent(m_resourceLists, null);
         InputStream referenceXmlStream = getClass().getResourceAsStream("resource-lists.test.xml");
@@ -60,5 +65,9 @@ public class SpeedDialsTestIntegration extends ImdbTestCase {
 
     public void setResourceListGenerator(ResourceLists resourceLists) {
         m_resourceLists = resourceLists;
+    }
+
+    public void setReplicationManagerImpl(ReplicationManagerImpl replManager) {
+        m_replManager = replManager;
     }
 }

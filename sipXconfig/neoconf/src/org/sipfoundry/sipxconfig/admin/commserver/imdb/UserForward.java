@@ -18,27 +18,30 @@ import org.sipfoundry.sipxconfig.common.User;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.CFWDTIME;
 
-public class UserForward extends DataSetGenerator {
+public class UserForward extends AbstractDataSetGenerator {
 
     @Override
     protected DataSet getType() {
         return DataSet.USER_FORWARD;
     }
 
-    public void generate(Replicable entity, DBObject top) {
+    @Override
+    public boolean generate(Replicable entity, DBObject top) {
         if (entity instanceof CallSequence) {
             CallSequence cs = (CallSequence) entity;
             User user = cs.getUser();
             generateUser(user, top);
+            return true;
         }
         if (entity instanceof User) {
             generateUser((User) entity, top);
+            return true;
         }
+        return false;
     }
 
     private void generateUser(User user, DBObject top) {
         top.put(CFWDTIME, user.getSettingTypedValue(CallSequence.CALL_FWD_TIMER_SETTING));
-        getDbCollection().save(top);
     }
 
 }

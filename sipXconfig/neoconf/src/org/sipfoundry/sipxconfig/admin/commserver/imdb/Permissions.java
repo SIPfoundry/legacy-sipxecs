@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
 
-public class Permissions extends DataSetGenerator {
+public class Permissions extends AbstractDataSetGenerator {
 
     private PermissionManager m_permissionManager;
 
@@ -61,40 +61,44 @@ public class Permissions extends DataSetGenerator {
     }
 
     @Override
-    public void generate(Replicable entity, DBObject top) {
+    public boolean generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
             insertDbObject(user, top);
+            return true;
         } else if (entity instanceof CallGroup) {
             CallGroup callGroup = (CallGroup) entity;
             if (!callGroup.isEnabled()) {
-                return;
+                return false;
             }
             // HACK: set the user name as what we'd like to have in the id field of mongo object
             User user = addSpecialUser(CallGroup.class.getSimpleName() + callGroup.getId());
             user.setIdentity(callGroup.getIdentity(getSipDomain()));
             insertDbObject(user, top);
+            return true;
         } else if (entity instanceof SpecialUser) {
             SpecialUser specialUser = (SpecialUser) entity;
             if (specialUser.getType().equals(SpecialUserType.PHONE_PROVISION.toString())) {
-                return;
+                return false;
             }
             User u = addSpecialUser(specialUser.getUserName());
             u.setIdentity(null);
             u.setValidUser(false);
             insertDbObject(u, top);
+            return true;
         } else if (entity instanceof BeanWithUserPermissions) {
             InternalUser user = ((BeanWithUserPermissions) entity).getInternalUser();
             User u = addSpecialUser(user);
             u.setUserName(entity.getClass().getSimpleName() + ((BeanWithUserPermissions) entity).getId());
             u.setValidUser(false);
             insertDbObject(u, top);
+            return true;
         }
+        return false;
     }
 
     private void insertDbObject(User user, DBObject top) {
         top.put(PERMISSIONS, user.getPermissions());
-        getDbCollection().save(top);
     }
 
     public void setPermissionManager(PermissionManager permissionManager) {

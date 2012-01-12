@@ -66,7 +66,6 @@
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />
     <property name="externalAliases" ref="externalAliases" />
-    <property name="dataSetGenerator" ref="dataSetGenerator" />
     <property name="tunnelManager" ref="tunnelManager"/>
     <property name="validUsers" ref="validUsers"/>
     <property name="imdb" ref="imdb"/>
@@ -153,7 +152,6 @@
   <bean id="abstractDataSetGenerator" abstract="true"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
     <property name="coreContext" ref="coreContext" />
-    <property name="imdb" ref="imdb"/>
   </bean>
 
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
@@ -161,37 +159,34 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases">
   </bean>
 
-  <bean id="dataSetGenerator" parent="abstractDataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
-    <lookup-method name="getSipxFreeswitchService" bean="sipxFreeswitchService"/>
-  </bean>
-  <bean id="aliasDataSet" parent="dataSetGenerator"
+  <bean id="aliasDataSet" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases">
+    <lookup-method name="getSipxFreeswitchService" bean="sipxFreeswitchService" />
   </bean>
-  <bean id="credentialDataSet" parent="dataSetGenerator"
+  <bean id="credentialDataSet" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials">
   </bean>
-  <bean id="permissionDataSet" parent="dataSetGenerator"
+  <bean id="permissionDataSet" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions">
     <property name="permissionManager" ref="permissionManager" />
   </bean>
-  <bean id="calleraliasDataSet" parent="dataSetGenerator"
+  <bean id="calleraliasDataSet" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
   </bean>
-  <bean id="userlocationDataSet" parent="dataSetGenerator"
+  <bean id="userlocationDataSet" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserLocation">
   </bean>
-  <bean id="userforwardDataSet" parent="dataSetGenerator"
+  <bean id="userforwardDataSet" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserForward">
   </bean>
-  <bean id="userstaticDataSet" parent="dataSetGenerator"
+  <bean id="userstaticDataSet" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserStatic">
   </bean>
-  <bean id="speeddialDataSet" parent="dataSetGenerator"
+  <bean id="speeddialDataSet" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.SpeedDials">
     <property name="speedDialManager" ref="speedDialManager" />
   </bean>
-  <bean id="mailstoreDataSet" parent="dataSetGenerator"
+  <bean id="mailstoreDataSet" parent="abstractDataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Mailstore">
     <property name="mailboxManager" ref="mailboxManager" />
   </bean>
