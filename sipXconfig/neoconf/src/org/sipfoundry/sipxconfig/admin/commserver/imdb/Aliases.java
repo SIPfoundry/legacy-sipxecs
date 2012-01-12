@@ -14,26 +14,28 @@ import com.mongodb.DBObject;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ALIASES;
 
-public class Aliases extends DataSetGenerator {
+public abstract class Aliases extends AbstractDataSetGenerator {
     public static final String FAX_EXTENSION_PREFIX = "~~ff~";
 
-    public Aliases() {
-    }
+    public abstract SipxFreeswitchService getSipxFreeswitchService();
 
+    @Override
     protected DataSet getType() {
         return DataSet.ALIAS;
     }
 
-    public void generate(Replicable entity, DBObject top) {
+    @Override
+    public boolean generate(Replicable entity, DBObject top) {
         if (entity instanceof User || entity instanceof OpenAcdExtension) {
             top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName(), getSipxFreeswitchService()));
         } else {
             top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
         }
-        getDbCollection().save(top);
+        return true;
     }
 
 }

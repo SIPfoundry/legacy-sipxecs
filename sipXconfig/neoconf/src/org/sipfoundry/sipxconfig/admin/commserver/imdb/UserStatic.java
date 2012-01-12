@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.common.User;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.STATIC;
 
-public class UserStatic extends DataSetGenerator {
+public class UserStatic extends AbstractDataSetGenerator {
     public static final String EXTERNAL_MWI = "voicemail/mailbox/external-mwi";
 
     @Override
@@ -24,7 +24,8 @@ public class UserStatic extends DataSetGenerator {
         return DataSet.USER_STATIC;
     }
 
-    public void generate(Replicable entity, DBObject top) {
+    @Override
+    public boolean generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
             String domainName = getSipDomain();
@@ -34,8 +35,9 @@ public class UserStatic extends DataSetGenerator {
             } else {
                 top.removeField(STATIC);
             }
-            getDbCollection().save(top);
+            return true;
         }
+        return false;
     }
 
 }

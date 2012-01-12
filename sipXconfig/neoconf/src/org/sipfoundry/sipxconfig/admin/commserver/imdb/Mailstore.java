@@ -74,13 +74,13 @@ import com.mongodb.DBObject;
 
 //TODO: this one is included in group dataset (ReplicationManagerImpl.GROUP_DATASETS)
 //Make sure all are needed, and break this apart if necessary
-public class Mailstore extends DataSetGenerator {
+public class Mailstore extends AbstractDataSetGenerator {
     private MailboxManager m_mailboxManager;
 
     @Override
-    public void generate(Replicable entity, DBObject top) {
+    public boolean generate(Replicable entity, DBObject top) {
         if (!(entity instanceof User)) {
-            return;
+            return false;
         }
         User user = (User) entity;
         // The following settings used to be in validusers.xml
@@ -174,7 +174,7 @@ public class Mailstore extends DataSetGenerator {
         if (!dLists.isEmpty()) {
             top.put(DISTRIB_LISTS, dLists);
         }
-        getDbCollection().save(top);
+        return true;
     }
 
     @Override

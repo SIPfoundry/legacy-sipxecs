@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +16,8 @@ import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
+
+import com.mongodb.DBObject;
 
 public class UserLocationTestIntegration extends ImdbTestCase {
 
@@ -33,6 +33,7 @@ public class UserLocationTestIntegration extends ImdbTestCase {
 
     private List<User> m_users;
     private UserLocation m_userlocationDataSet;
+    private ReplicationManagerImpl m_replManager;
 
     public void testGenerate() throws Exception {
         m_users = new ArrayList<User>();
@@ -59,16 +60,27 @@ public class UserLocationTestIntegration extends ImdbTestCase {
             }
             m_users.add(user);
         }
-        m_userlocationDataSet.generate(m_users.get(0), m_userlocationDataSet.findOrCreate(m_users.get(0)));
-        m_userlocationDataSet.generate(m_users.get(1), m_userlocationDataSet.findOrCreate(m_users.get(1)));
-        m_userlocationDataSet.generate(m_users.get(2), m_userlocationDataSet.findOrCreate(m_users.get(2)));
+        DBObject user1Obj = m_replManager.findOrCreate(m_users.get(0));
+        m_userlocationDataSet.generate(m_users.get(0), user1Obj);
+        assertEquals("User0", user1Obj.get(ID));
+        assertEquals(USER_DATA[0][4], user1Obj.get(MongoConstants.USER_LOCATION));
 
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User0", MongoConstants.USER_LOCATION, USER_DATA[0][4]);
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.USER_LOCATION, USER_DATA[1][4]);
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User2", MongoConstants.USER_LOCATION, USER_DATA[2][4]);
+        DBObject user2Obj = m_replManager.findOrCreate(m_users.get(1));
+        m_userlocationDataSet.generate(m_users.get(1), user2Obj);
+        assertEquals("User1", user2Obj.get(ID));
+        assertEquals(USER_DATA[1][4], user2Obj.get(MongoConstants.USER_LOCATION));
+
+        DBObject user3Obj = m_replManager.findOrCreate(m_users.get(2));
+        m_userlocationDataSet.generate(m_users.get(2), user3Obj);
+        assertEquals("User2", user3Obj.get(ID));
+        assertEquals(USER_DATA[2][4], user3Obj.get(MongoConstants.USER_LOCATION));
     }
 
     public void setUserlocationDataSet(UserLocation userlocationDataSet) {
         m_userlocationDataSet = userlocationDataSet;
+    }
+
+    public void setReplicationManagerImpl(ReplicationManagerImpl replManager) {
+        m_replManager = replManager;
     }
 }

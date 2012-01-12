@@ -8,12 +8,9 @@
  *
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertCollectionCount;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectListFieldCount;
 import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdNotPresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
+
+import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
@@ -25,14 +22,14 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 
-import com.mongodb.QueryBuilder;
+import com.mongodb.DBObject;
 
 public class PermissionsTestIntegration extends ImdbTestCase {
     
     // needs to be adjusted every time a new permission is added
     private static int PERM_COUNT = 5;
-    private static int SPEC_COUNT = SpecialUserType.values().length;
     private Permissions m_permissionDataSet;
+    private ReplicationManagerImpl m_replManager;
     User m_testUser;
 
     @Override
@@ -46,18 +43,12 @@ public class PermissionsTestIntegration extends ImdbTestCase {
     public void testGenerateEmpty() throws Exception {
         for (SpecialUserType u : SpecialUserType.values()) {
             SpecialUser su = new SpecialUser(u);
-            m_permissionDataSet.generate(su, m_permissionDataSet.findOrCreate(su));
-        }
-
-        // As PHONE_PROVISION does NOT require any permissions, don't count it.
-        assertCollectionCount(getEntityCollection(), SPEC_COUNT - 1);
-        // 5 permissions per special user
-
-        for (SpecialUserType su : SpecialUserType.values()) {
-            // As PHONE_PROVISION does NOT require any permissions, skip it.
-            if (!su.equals(SpecialUserType.PHONE_PROVISION)) {
-                assertObjectWithIdPresent(getEntityCollection(), su.getUserName());
-                assertObjectListFieldCount(getEntityCollection(), su.getUserName(), MongoConstants.PERMISSIONS, PERM_COUNT);
+            DBObject suObj = m_replManager.findOrCreate(su);
+            m_permissionDataSet.generate(su, suObj);
+            if (u.equals(SpecialUserType.PHONE_PROVISION)) {
+                assertNull(suObj.get(MongoConstants.PERMISSIONS));
+            } else {
+                assertEquals(PERM_COUNT, ((List) suObj.get(MongoConstants.PERMISSIONS)).size());
             }
         }
     }
@@ -75,14 +66,16 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         callGroup3.setName("disabled");
         callGroup3.setUniqueId(3);
 
-        m_permissionDataSet.generate(callGroup1, m_permissionDataSet.findOrCreate(callGroup1));
-        m_permissionDataSet.generate(callGroup2, m_permissionDataSet.findOrCreate(callGroup2));
-        m_permissionDataSet.generate(callGroup3, m_permissionDataSet.findOrCreate(callGroup3));
-
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "CallGroup2", MongoConstants.IDENTITY, "marketing@" + DOMAIN);
-        assertObjectWithIdNotPresent(getEntityCollection(), "CallGroup3");
-
+        DBObject cg1Obj = m_replManager.findOrCreate(callGroup1);
+        m_permissionDataSet.generate(callGroup1, cg1Obj);
+        assertEquals("CallGroup1", cg1Obj.get(ID));
+        assertEquals("sales@" + DOMAIN, cg1Obj.get(MongoConstants.IDENTITY));
+        DBObject cg2Obj = m_replManager.findOrCreate(callGroup2);
+        m_permissionDataSet.generate(callGroup2, cg2Obj);
+        assertEquals("CallGroup2", cg2Obj.get(ID));
+        assertEquals("marketing@" + DOMAIN, cg2Obj.get(MongoConstants.IDENTITY));
+        DBObject cg3Obj = m_replManager.findOrCreate(callGroup3);
+        assertEquals(false, m_permissionDataSet.generate(callGroup3, cg3Obj));
     }
 
     public void testAddUser() throws Exception {
@@ -97,15 +90,19 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         m_testUser.addGroup(g);
         m_testUser.setUserName("goober");
         m_testUser.setUniqueId(1);
-        m_permissionDataSet.generate(m_testUser, m_permissionDataSet.findOrCreate(m_testUser));
-
-        assertObjectWithIdPresent(getEntityCollection(), "User1");
-        assertObjectListFieldCount(getEntityCollection(), "User1", MongoConstants.PERMISSIONS, 8);
-        QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
-        qb.is("User1").and(MongoConstants.PERMISSIONS).size(4).and(MongoConstants.PERMISSIONS)
-                .is(PermissionName.LOCAL_DIALING.getName()).is(PermissionName.VOICEMAIL.getName())
-                .is(PermissionName.EXCHANGE_VOICEMAIL.getName()).is(PermissionName.MOBILE.getName());
-        assertObjectPresent(getEntityCollection(), qb.get());
+        DBObject userobj = m_replManager.findOrCreate(m_testUser);
+        m_permissionDataSet.generate(m_testUser, userobj);
+        assertEquals("User1", userobj.get(ID));
+        List permissions = (List) userobj.get(MongoConstants.PERMISSIONS);
+        assertEquals(8, permissions.size());
+        assertTrue(permissions.contains("ExchangeUMVoicemailServer"));
+        assertTrue(permissions.contains("LocalDialing"));
+        assertTrue(permissions.contains("Mobile"));
+        assertTrue(permissions.contains("Voicemail"));
+        assertTrue(permissions.contains("music-on-hold"));
+        assertTrue(permissions.contains("personal-auto-attendant"));
+        assertTrue(permissions.contains("subscribe-to-presence"));
+        assertTrue(permissions.contains("tui-change-pin"));
     }
 
     public void testAuthCodePermissions() {
@@ -122,24 +119,28 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         
         AuthCode code = new AuthCode();
         code.setInternalUser(user);
-        m_permissionDataSet.generate(code, m_permissionDataSet.findOrCreate(code));
-        assertObjectWithIdPresent(getEntityCollection(), "AuthCode-1");
-        QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
-        qb.is("AuthCode-1").and(MongoConstants.PERMISSIONS).size(1).and(MongoConstants.PERMISSIONS)
-                .is(PermissionName.NINEHUNDERED_DIALING.getName());
-        assertObjectPresent(getEntityCollection(), qb.get());
+        DBObject codeObj = m_replManager.findOrCreate(code);
+        m_permissionDataSet.generate(code, codeObj);
+        assertEquals("AuthCode-1", codeObj.get(ID));
+        List permissions = (List) codeObj.get(MongoConstants.PERMISSIONS);
+        assertEquals(1, permissions.size());
+        assertTrue(permissions.contains("900Dialing"));
         
         user.setPermission(PermissionName.NINEHUNDERED_DIALING, false);
         user.setPermission(PermissionName.INTERNATIONAL_DIALING, true);
         code.setInternalUser(user);
-        m_permissionDataSet.generate(code, m_permissionDataSet.findOrCreate(code));
-        qb.is("AuthCode-1").and(MongoConstants.PERMISSIONS).size(1).and(MongoConstants.PERMISSIONS)
-        .is(PermissionName.INTERNATIONAL_DIALING.getName());
-        assertObjectPresent(getEntityCollection(), qb.get());
+        m_permissionDataSet.generate(code, codeObj);
+        permissions = (List) codeObj.get(MongoConstants.PERMISSIONS);
+        assertEquals(1, permissions.size());
+        assertTrue(permissions.contains("InternationalDialing"));
     }
     
     public void setPermissionDataSet(Permissions permissionDataSet) {
         m_permissionDataSet = permissionDataSet;
+    }
+
+    public void setReplicationManagerImpl(ReplicationManagerImpl replManager) {
+        m_replManager = replManager;
     }
 
 }

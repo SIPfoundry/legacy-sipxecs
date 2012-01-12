@@ -9,10 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
-
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
@@ -20,11 +16,11 @@ import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class CallerAliasesTestIntegration extends ImdbTestCase {
     private CallerAliases m_calleraliasDataSet;
+    private ReplicationManagerImpl m_replManager;
     
     public void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
@@ -47,39 +43,41 @@ public class CallerAliasesTestIntegration extends ImdbTestCase {
         gcai.setDisplayName("display name");
         gcai.setUrlParameters("key=value");
         gw.setCallerAliasInfo(gcai);
-        
-        m_calleraliasDataSet.generate(gw, m_calleraliasDataSet.findOrCreate(gw));
-        
-        assertObjectWithIdPresent(getEntityCollection(), "Gateway1");
-        DBObject ref = new BasicDBObject();
-        ref.put(ID, "Gateway1");
-        ref.put("ident", "gateway.example.org;sipxecs-lineid=1");
-        ref.put("uid", "~~gw");
-        ref.put(MongoConstants.CALLERALIAS, "\"display name\"<sip:gatewayCID@example.org;key=value>");
-        ref.put(MongoConstants.IGNORE_USER_CID, gcai.isIgnoreUserInfo());
-        ref.put(MongoConstants.CID_PREFIX, gcai.getAddPrefix());
-        ref.put(MongoConstants.KEEP_DIGITS, gcai.getKeepDigits());
-        ref.put(MongoConstants.TRANSFORM_EXT, gcai.isTransformUserExtension());
-        ref.put(MongoConstants.ANONYMOUS, gcai.isAnonymous());
-        assertObjectPresent(getEntityCollection(), ref);
+
+        DBObject gwObj = m_replManager.findOrCreate(gw);
+        m_calleraliasDataSet.generate(gw, gwObj);
+        assertEquals("gateway.example.org;sipxecs-lineid=1", gwObj.get("ident"));
+        assertEquals("~~gw", gwObj.get("uid"));
+        assertEquals("\"display name\"<sip:gatewayCID@example.org;key=value>", gwObj.get(MongoConstants.CALLERALIAS));
+        assertEquals(false, gwObj.get(MongoConstants.IGNORE_USER_CID));
+        assertEquals("111", gwObj.get(MongoConstants.CID_PREFIX));
+        assertEquals(0, gwObj.get(MongoConstants.KEEP_DIGITS));
+        assertEquals(false, gwObj.get(MongoConstants.TRANSFORM_EXT));
+        assertEquals(true, gwObj.get(MongoConstants.ANONYMOUS));
         
         User user = new User();
         user.setUniqueId(1);
         user.setPermissionManager(getPermissionManager());
         user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, "userCID");
-        
-        m_calleraliasDataSet.generate(user, m_calleraliasDataSet.findOrCreate(user));
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CALLERALIAS, "sip:userCID@example.org");
+
+        DBObject userObj = m_replManager.findOrCreate(user);
+        m_calleraliasDataSet.generate(user, userObj);
+        assertEquals("sip:userCID@example.org", userObj.get(MongoConstants.CALLERALIAS));
 
         User userWithoutClrid = new User();
         userWithoutClrid.setUniqueId(1);
         userWithoutClrid.setPermissionManager(getPermissionManager());
-        
-        m_calleraliasDataSet.generate(userWithoutClrid, m_calleraliasDataSet.findOrCreate(userWithoutClrid));
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CALLERALIAS, "");       
+
+        DBObject userWithoutClridObj = m_replManager.findOrCreate(user);
+        m_calleraliasDataSet.generate(userWithoutClrid, userWithoutClridObj);
+        assertEquals("", userWithoutClridObj.get(MongoConstants.CALLERALIAS));
     }
 
     public void setCalleraliasDataSet(CallerAliases calleraliasDataSet) {
         m_calleraliasDataSet = calleraliasDataSet;
+    }
+
+    public void setReplicationManagerImpl(ReplicationManagerImpl replManager) {
+        m_replManager = replManager;
     }
 }

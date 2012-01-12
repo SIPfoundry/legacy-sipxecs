@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 
 import com.mongodb.DBObject;
 
-public class CallerAliases extends DataSetGenerator {
+public class CallerAliases extends AbstractDataSetGenerator {
 
     @Override
     protected DataSet getType() {
@@ -35,7 +35,7 @@ public class CallerAliases extends DataSetGenerator {
     }
 
     @Override
-    public void generate(Replicable entity, DBObject top) {
+    public boolean generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
             if (StringUtils.isNotBlank(user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER))) {
@@ -44,7 +44,7 @@ public class CallerAliases extends DataSetGenerator {
             } else {
                 top.put(CALLERALIAS, StringUtils.EMPTY);
             }
-            getDbCollection().save(top);
+            return true;
         } else if (entity instanceof Gateway) {
             Gateway gateway = (Gateway) entity;
             final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
@@ -60,7 +60,8 @@ public class CallerAliases extends DataSetGenerator {
             top.put(KEEP_DIGITS, gatewayInfo.getKeepDigits());
             top.put(TRANSFORM_EXT, gatewayInfo.isTransformUserExtension());
             top.put(ANONYMOUS, gatewayInfo.isAnonymous());
-            getDbCollection().save(top);
+            return true;
         }
+        return false;
     }
 }
