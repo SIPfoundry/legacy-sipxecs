@@ -10,6 +10,7 @@ package org.sipfoundry.voicemail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.Principal;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -21,6 +22,7 @@ import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxivr.Mailbox;
+import org.sipfoundry.sipxivr.WebServer;
 
 /**
  * A RESTful interface to the mailbox messages
@@ -98,12 +100,10 @@ public class MailboxServlet extends HttpServlet {
         User user = validUsers.getUser(mailboxString);
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
-        String authenticatedUserName = request.getUserPrincipal().getName();
-        if (!authenticatedUserName.equals(user.getUserName())) {
-            if (!authenticatedUserName.equals("superadmin")) {
-                response.sendError(403); // Send 403 Forbidden
-                return;
-            }
+
+        if (isForbidden(request, user.getUserName())) {
+            response.sendError(403); // Send 403 Forbidden
+            return;
         }
         if (user != null) {
             PrintWriter pw = response.getWriter();
@@ -191,6 +191,16 @@ public class MailboxServlet extends HttpServlet {
             LOG.info(String.format("MailboxServlet::doIt %s not found", mailboxString));
         }
 
+    }
+
+    private boolean isForbidden(HttpServletRequest request, String userName) {
+        Principal principal = request.getUserPrincipal();
+        String authenticatedUserName = (principal == null) ? null : principal.getName();
+        String requestHost = request.getRemoteHost();
+        boolean trustedHost = requestHost != null && requestHost.equals(WebServer.TRUSTED_SOURCE);
+        String trustedUserName = request.getHeader("sipx-user");
+        String allowedUser = authenticatedUserName != null ? authenticatedUserName : (trustedHost ? trustedUserName : null);
+        return allowedUser == null || (!allowedUser.equals(userName) && !allowedUser.equals("superadmin"));
     }
 
     private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {

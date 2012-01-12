@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipxivr;
 
@@ -12,9 +12,6 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
-import org.mortbay.http.BasicAuthenticator;
-import org.mortbay.http.DigestAuthenticator;
-import org.mortbay.http.HashUserRealm;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.HttpRequest;
@@ -25,26 +22,25 @@ import org.mortbay.http.SslListener;
 import org.mortbay.http.UserRealm;
 import org.mortbay.http.handler.SecurityHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
-import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.commons.util.DomainConfiguration;
 
 /**
  * Run a Jetty based web server to handle http/https requests for sipXivr
- * 
+ *
  */
 public class WebServer  {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    public static final String TRUSTED_SOURCE = "127.0.0.1";
     ServletHandler m_servletHandler;
     IvrConfiguration m_ivrConfig;
-    
+
     public WebServer(IvrConfiguration ivrConfig) {
         m_ivrConfig = ivrConfig ;
         m_servletHandler = new ServletHandler();
     }
-    
+
     /**
-     * add a servlet for the Web server to use 
+     * add a servlet for the Web server to use
      * @param name
      * @param pathSpec
      * @param servletClass must be of type javax.servlet.Servlet
@@ -53,7 +49,7 @@ public class WebServer  {
         m_servletHandler.addServlet(name, pathSpec, servletClass);
         LOG.info(String.format("Adding Servlet %s on %s", name, pathSpec));
     }
-    
+
     /**
      * Start the Web Server that handles sipXivr Web requests
      */
@@ -77,19 +73,19 @@ public class WebServer  {
             httpContext.setRealm(createRealm());
 
             CustomSecurityHandler sh = new CustomSecurityHandler();
-            sh.addTrustedSource("127.0.0.1");
+            sh.addTrustedSource(TRUSTED_SOURCE);
             httpContext.addHandler(0, sh);
 
             httpContext.addHandler(1, m_servletHandler);
 
             server.addContext(httpContext);
             server.addListener(sslListener);
-            
+
             // Start it up.
             LOG.info(String.format("Starting Jetty server on *:%d", m_ivrConfig.getHttpsPort()));
             server.start();
         } catch (Exception e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
         }
     }
 
@@ -136,7 +132,7 @@ public class WebServer  {
 	{
 	    _hosts.add(ipSource);
 	}
-	
+
 	public void handle( String pathInContext, String  pathParams, HttpRequest request, HttpResponse response)
 	    throws HttpException, IOException
 	{

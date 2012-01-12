@@ -32,6 +32,8 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
@@ -40,6 +42,7 @@ public class LoginDetailsResourceTest extends TestCase {
 
     private User m_user;
     private CoreContext m_coreContext;
+    private LdapManager m_ldapManager;
 
     @Override
     protected void setUp() throws Exception {
@@ -57,7 +60,12 @@ public class LoginDetailsResourceTest extends TestCase {
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.loadUser(m_user.getId());
         expectLastCall().andReturn(m_user);
-        replay(m_coreContext);
+        m_ldapManager = createMock(LdapManager.class);
+        LdapSystemSettings settings = new LdapSystemSettings();
+        settings.setEnableOpenfireConfiguration(false);
+        m_ldapManager.getSystemSettings();
+        expectLastCall().andReturn(settings).once();
+        replay(m_coreContext, m_ldapManager);
     }
 
     @Override
@@ -68,6 +76,7 @@ public class LoginDetailsResourceTest extends TestCase {
     public void testRepresentXml() throws Exception {
         LoginDetailsResource resource = new LoginDetailsResource();
         resource.setCoreContext(m_coreContext);
+        resource.setLdapManager(m_ldapManager);
 
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
         Request request = new Request();
@@ -85,6 +94,7 @@ public class LoginDetailsResourceTest extends TestCase {
     public void testRepresentJson() throws Exception {
         LoginDetailsResource resource = new LoginDetailsResource();
         resource.setCoreContext(m_coreContext);
+        resource.setLdapManager(m_ldapManager);
 
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
         Request request = new Request();
