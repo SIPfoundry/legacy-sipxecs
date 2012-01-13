@@ -7,10 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
@@ -18,11 +16,9 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService {
-    private static final List<AddressType> ADDRESSES = Arrays.asList(NTP, SYSLOG);
+    private static final List<AddressType> ADDRESSES = Arrays.asList(NTP, SYSLOG, DNS);
     private BeanWithSettingsDao<UnmanagedServiceSettings> m_settingsDao;
 
     @Override
@@ -48,23 +44,13 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService 
 
         UnmanagedServiceSettings settings = getSettings();
         if (type.equals(NTP)) {
-            SettingSet ntp = (SettingSet) settings.getSettings().getSetting("services/ntp");
-            Collection<Setting> ntpServers = ntp.getValues();
-            Collection<Address> addresses = new ArrayList<Address>();
-            for (Setting server : ntpServers) {
-                String value = server.getValue();
-                if (value != null) {
-                    addresses.add(new Address(value));
-                }
-            }
-            return addresses;
+            return settings.getAddresses("services/ntp");
         } else if (type.equals(SYSLOG)) {
-            String value = settings.getSettingValue("servers/syslog");
-            if (value != null) {
-                return Collections.singleton(new Address(value));
-            }
+            return settings.getAddresses("servers/syslog");
+        } else if (type.equals(DNS)) {
+            return settings.getAddresses("services/dns");
         }
-        // TODO Auto-generated method stub
+
         return null;
     }
 

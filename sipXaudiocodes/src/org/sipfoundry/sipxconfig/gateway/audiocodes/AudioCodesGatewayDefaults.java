@@ -11,7 +11,9 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
@@ -78,8 +80,8 @@ public class AudioCodesGatewayDefaults {
     }
 
     @SettingEntry(path = "SIP_Proxy_Registration/SIPDestinationPort")
-    public String getDestinationPort() {
-        return m_defaults.getProxyServerSipPort();
+    public int getDestinationPort() {
+        return m_defaults.getProxyAddress().getPort();
     }
 
     @SettingEntry(paths = { "SIP_Proxy_Registration/ProxyIP",
@@ -116,22 +118,26 @@ public class AudioCodesGatewayDefaults {
 
     @SettingEntry(path = "Network/DNSPriServerIP")
     public String getDNSPriServerIP() {
-        return m_defaults.getServer(0, UnmanagedService.DNS);
+        List<Address> addresses = m_defaults.getAddressManager().getAddresses(UnmanagedService.DNS);
+        return addresses != null && addresses.size() >= 2 ? addresses.get(1).getAddress() : null;
     }
 
     @SettingEntry(path = "Network/DNSSecServerIP")
     public String getDNSSecServerIP() {
-        return m_defaults.getServer(1, UnmanagedService.DNS);
+        List<Address> addresses = m_defaults.getAddressManager().getAddresses(UnmanagedService.DNS);
+        return addresses != null && addresses.size() >= 1 ? addresses.get(0).getAddress() : null;
     }
 
     @SettingEntry(path = "Network/EnableSyslog")
     public boolean getEnableSyslog() {
-        return null != m_defaults.getServer(0, UnmanagedService.SYSLOG);
+        Address syslog = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+        return null != syslog;
     }
 
     @SettingEntry(paths = { "Network/SyslogServerIP", "advanced_general/CDR/CDRSyslogServerIP" })
     public String getSyslogServerIP() {
-        return m_defaults.getServer(0, UnmanagedService.SYSLOG);
+        Address syslog = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+        return syslog != null ? syslog.getAddress() : null;
     }
 
     @SettingEntry(path = "advanced_general/MaxActiveCalls")
@@ -155,10 +161,12 @@ public class AudioCodesGatewayDefaults {
 
     /**
      * Only allow calls from SIP proxy by default.
+     *
+     * FIXME: Doesn't support HA!
      */
     @SettingEntry(path = "advanced_general/AllowedIPs")
     public String getAllowedIPs() {
-        return m_defaults.getProxyServerAddr();
+        return m_defaults.getProxyAddress().getAddress();
     }
 
     @SettingEntry(path = "advanced_general/SAS/SASDefaultGatewayIP")

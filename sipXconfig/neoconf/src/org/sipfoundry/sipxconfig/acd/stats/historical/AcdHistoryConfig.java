@@ -12,7 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,15 +35,15 @@ public class AcdHistoryConfig implements ConfigProvider {
         if (!request.applies(AcdHistoricalStats.FEATURE, Acd.FEATURE)) {
             return;
         }
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                AcdHistoricalStats.FEATURE);
-        if (locations.isEmpty()) {
-            return;
-        }
+
+        Set<Location> locations = request.locations(manager);
         AcdHistoricalSettings settings = m_historicalStats.getSettings();
         Collection<Address> statsApis = m_addressManager.getAddresses(AcdStats.API_ADDRESS);
         for (Location location : locations) {
-            File file = new File(manager.getLocationDataDirectory(location), "sipxacd-report.cfdat");
+            if (!manager.getFeatureManager().isFeatureEnabled(AcdHistoricalStats.FEATURE, location)) {
+                continue;
+            }
+            File file = new File(manager.getLocationDataDirectory(location), "sipxconfig-report-config.part");
             Writer wtr = new FileWriter(file);
             try {
                 write(wtr, settings, location, statsApis);

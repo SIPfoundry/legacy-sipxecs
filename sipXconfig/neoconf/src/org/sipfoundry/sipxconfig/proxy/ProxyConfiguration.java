@@ -56,21 +56,22 @@ public class ProxyConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = fm.isFeatureEnabled(ProxyManager.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxproxy.cfdat", "sipxproxyd", enabled);
-            if (enabled) {
-                Writer proxy = new FileWriter(new File(dir, "sipXproxy-config.part1"));
-                try {
-                    write(proxy, settings, location, domain, isCdrOn);
-                } finally {
-                    IOUtils.closeQuietly(proxy);
-                }
-                Writer peersConfig = new FileWriter(new File(dir, "peeridentities.xml"));
-                try {
-                    XmlFile config = new XmlFile(peersConfig);
-                    config.write(getDocument(peers));
-                } finally {
-                    IOUtils.closeQuietly(peersConfig);
-                }
+            ConfigUtils.enableCfengineClass(dir, "sipxproxy.cfdat", "sipxproxy", enabled);
+            if (!enabled) {
+                continue;
+            }
+            Writer proxy = new FileWriter(new File(dir, "sipXproxy-config.part"));
+            try {
+                write(proxy, settings, location, domain, isCdrOn);
+            } finally {
+                IOUtils.closeQuietly(proxy);
+            }
+            Writer peersConfig = new FileWriter(new File(dir, "peeridentities.xml"));
+            try {
+                XmlFile config = new XmlFile(peersConfig);
+                config.write(getDocument(peers));
+            } finally {
+                IOUtils.closeQuietly(peersConfig);
             }
         }
     }

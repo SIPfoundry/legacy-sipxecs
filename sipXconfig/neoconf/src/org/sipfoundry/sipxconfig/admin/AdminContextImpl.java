@@ -8,15 +8,16 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -25,6 +26,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
             TFTP_ADDRESS, FTP_ADDRESS);
+    private LocationsManager m_locationsManager;
 
     @Override
     public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
@@ -36,21 +38,20 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         if (!ADDRESSES.contains(type)) {
             return null;
         }
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-        List<Address> addresses = new ArrayList<Address>(locations.size());
-        for (Location location : locations) {
-            Address address = new Address();
-            address.setAddress(location.getAddress());
-            if (type.equals(HTTP_ADDRESS)) {
-                address.setPort(12000);
-            } else if (type.equals(HTTPS_ADDRESS)) {
-                address.setPort(8443);
-            }
-            // else ftp and tftp won't have ports defines, 0 means it's assumed to be default
-            // also, this assumed admin ui is also tftp and ftp server, which is a correct assumption
-            // for now.
+
+        Location location = m_locationsManager.getPrimaryLocation();
+        Address address = new Address();
+        address.setAddress(location.getAddress());
+        if (type.equals(HTTP_ADDRESS)) {
+            address.setPort(12000);
+        } else if (type.equals(HTTPS_ADDRESS)) {
+            address.setPort(8443);
         }
-        return addresses;
+        // else ftp and tftp won't have ports defines, 0 means it's assumed to be default
+        // also, this assumed admin ui is also tftp and ftp server, which is a correct assumption
+        // for now.
+
+        return Collections.singleton(address);
     }
 
     public String[] getInitializationTasks() {
@@ -70,5 +71,9 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         }
 
         return Boolean.parseBoolean(initializationPhase);
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

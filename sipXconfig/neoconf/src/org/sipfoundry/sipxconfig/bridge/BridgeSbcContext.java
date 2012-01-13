@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 
 public class BridgeSbcContext implements FeatureProvider, AddressProvider {
-    public static final LocationFeature FEATURE = new LocationFeature("sbcBrdige");
+    public static final LocationFeature FEATURE = new LocationFeature("sbcBridge");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc");
     private SbcDeviceManager m_sbcDeviceManager;
 

@@ -1,0 +1,315 @@
+#!@BASH@
+# sipxconfig - Startup script for sipxconfig
+
+# chkconfig: 35 85 15
+# description: sipxconfig is an administration server
+# processname: sipxivr
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+usage() {
+cat <<USAGE
+Usage: sipxconfig [start|stop|configtest|status|db commands ...]
+
+Start Web UI administration for sipXpbx and for remotely provisioned
+SIP-based phones.
+
+Options include:
+
+  none                 Runs web admin ui
+
+  stop                 Stop web admin ui
+
+  status               Checks if process is running
+
+  db commands ...      Runs an operation on the database. Database commands
+                       are detailed below
+
+  configtest           Run diagnostics
+
+
+Common Database commands include:
+
+   drop                Drops ${Database} database
+
+   create              Create new ${Database} database
+
+   upgrade             Upgrade database from a previous version by applying
+                       patches to the database schema.  This will only
+                       upgrade if nec.
+
+   reset-superadmin    Clear the password of the superadmin user.
+                       This lets you log in if you've forgotten the superadmin
+                       password.  But for security, you should immediately log
+                       in and set superadmin's password.
+
+USAGE
+}
+
+Daemon=true
+Status=0
+JavaCmd=`@bindir@/sipx-config --java`
+PidFile=@SIPX_RUNDIR@/sipxconfig.pid
+LibDir=@SIPX_JAVADIR@/sipXconfig
+PluginDir=@SIPX_JAVADIR@/sipXconfig/plugins
+CommonsLibDir=@SIPX_JAVADIR@/sipXcommons
+LogDir=@SIPX_LOGDIR@
+TmpDir=@SIPX_TMPDIR@
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+[ -e @SIPX_CONFDIR@/sipxconfigrc ] && . @SIPX_CONFDIR@/sipxconfigrc
+
+Database=SIPXCONFIG
+RequiredDatabaseVersion=12
+IndexDir=${TmpDir}/index
+Dependencies=`@SIPX_BINDIR@/java-dep -d ${CommonsLibDir} -d ${LibDir} sipxconfig sipxconfig-web @web_PKGS@ agent-bindings cdr-binding`
+export CLASSPATH=`echo @SIPX_CONFDIR@ ${Dependencies} ${PluginDir}/*.jar | sed -e 's/ /:/g'`
+
+# set primary system hostname (assume sipxconfig is only run on primary system)
+PRIMARY_HOSTNAME=`hostname -f`
+
+initAsPrimary() {
+  if [ ! -f @SIPX_CONFDIR@/domain-config ]; then
+      @SIPX_BINDIR@/sipxecs-setup
+  fi
+
+  if [ ! -f @SIPX_CFDATA@/defaults/location_id ]; then
+      echo "1" > @SIPX_CFDATA@/defaults/location_id
+  fi
+}
+
+# Incase system failed suddenly, clear previous locks
+clearIndexLocks() {
+  rm ${IndexDir}/*.lock 2>/dev/null
+}
+
+# Turn control over to ant to run database command
+databaseCommand() {
+    databaseCheck
+    clearIndexLocks
+    JavaOpts=""
+
+    string=1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+    pass=""
+    primary_not_exists=true
+    declare -i location_count
+    #get the IP via hostname command
+    ip_addr=`hostname -i`
+
+    for i in {1..8};do
+      pos=$((RANDOM%${#string}))
+      pass+="${string:$pos:1}"
+    done
+    location_count=`psql -U postgres -c 'select count(location_id) from location where primary_location=TRUE' SIPXCONFIG -t 2> /dev/null`
+
+    if [ "$location_count" -gt 0 ]; then
+      primary_not_exists=false
+    fi
+
+    # XCF-1275 - Do not want to suppress output if there is an error
+    # however want to be quiet if everything is ok for clean rpm install
+    # output
+    # ant.library.dir needs to be set - but should not point to any jars
+    Command="$JavaCmd \
+        -Dant.library.dir=${TmpDir} \
+        -Djava.net.preferIPv4Stack=true \
+        org.apache.tools.ant.launch.Launcher \
+        -emacs \
+        -quiet \
+        -Dlib.dir=${LibDir} \
+        -Dlog.dir=${LogDir} \
+        -Dtmp.dir=${TmpDir} \
+        -Dsipxconfig.db.user=@POSTGRESQL_USER@ \
+        -Dsipxconfig.hostname=$PRIMARY_HOSTNAME \
+        -Dprimary.ip.addr=$ip_addr \
+        -Dprimary.password=$pass \
+        -Dprimary.not.exists=$primary_not_exists \
+        ${SIPXCONFIG_OPTS} \
+        -f @SIPX_CONFDIR@/database/database.xml \
+        $@"
+
+    CmdOut=`runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}"`
+
+    if [ $? != "0" ]; then
+       echo "$CmdOut" | grep -v '^Unable to locate tools.jar' >&2
+    fi
+
+    if [ -d "@SIPX_VXMLDATADIR@/mailstore" ]; then
+      chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_VXMLDATADIR@/mailstore
+    fi
+}
+
+# Run Web interface
+start() {
+    initAsPrimary
+    databaseCommand upgrade
+    databaseVersionCheck    
+    clearIndexLocks
+    # Used in sipxconfig-jetty.xml only
+    SystemProps="\
+        -Djava.io.tmpdir=${TmpDir} \
+        -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig \
+        -Djetty.conf.dir=@SIPX_CONFDIR@ \
+        -Djetty.log.dir=${LogDir} \
+        -Dorg.apache.lucene.lockdir=${IndexDir} \
+        -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+        -Djava.awt.headless=true"
+
+    setJavaSslOpts
+
+    # -Dprocname needs to be early in the command so cfengine can detect it
+    Command="$JavaCmd \
+       -Dprocname=sipxconfig \
+       -XX:MaxPermSize=128M \
+       -Xmx1024m \
+       ${SIPXCONFIG_OPTS} \
+       $SystemProps \
+       $JavaSslOpts \
+       org.mortbay.jetty.Server \
+       @SIPX_CONFDIR@/sipxconfig-jetty.xml"
+
+    if [ "${Daemon}" == "true" ]; then
+      runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+      echo $! > ${PidFile}
+      echo_success
+    else
+      runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+    fi
+}
+
+# Return false if postgres is
+#  1. not running
+#  2. running but not setup to communicate w/java or psql command
+#  3. Database is not created
+databaseCheck() {
+    psql --list --field-separator , --no-align --username @POSTGRESQL_USER@ \
+    | cut -d , -f 1 \
+    | grep "${Database}"$ > /dev/null 2>&1
+}
+
+# Check the database version.  If it is wrong, then exit, because it's dangerous to
+# run sipXconfig on top of the wrong database version.
+databaseVersionCheck() {
+    dbver=`psql --tuples-only --no-align \
+           --command "select max(vh.version) from version_history vh;" \
+           ${Database} @POSTGRESQL_USER@`
+    if [ $? -ne 0 -o "$dbver" = "" ]
+    then
+        echo "Error: could not get the database version.  Exiting now."
+        exit 1
+    fi
+    if [ "$dbver" -ne $RequiredDatabaseVersion ]
+    then
+        if [ $dbver -eq 0 ]
+        then
+            cat <<EOF
+    Error: bad ${Database} database version.
+    This database was created by a prerelease version of sipXconfig.
+    You should drop and recreate the database by running:
+
+        @bindir@/sipxconfig.sh --database drop create
+
+    Exiting now.
+EOF
+        else
+            cat <<EOF
+    Error: bad ${Database} database version.
+    Expected version $RequiredDatabaseVersion, got version $dbver.
+    This database was created or modified by a newer version of sipXconfig.
+    Exiting now.
+EOF
+        fi
+        exit 1
+    fi
+}
+
+# Called as root in sipxpbx startup script to do initial setup,
+# but can be called manually and is harmless if called multiple times.
+onSetup() {
+   # pgpatch is part of sipXcommserverlib and also used by sipxcallresolver.sh
+   # pgpatch initializes the Postgresql database, patches the postgres configuration,
+   # and configures appropriate runlevels (it runs postgresSetup and setPostgresRunlevels)
+   # patching of postgres config is necessary because default authentication needs
+   # to be changed from "ident sameuser" to "trust". sipXecs configures the database
+   # under the user postgres and not the user sipXecs runs under
+
+   @bindir@/pgpatch.sh
+   if ! databaseCheck
+   then
+       echo "Initializing configuration database..."
+       databaseCommand create
+       # echo "Configuration database created"
+   fi
+}
+
+# simple diagnostics
+configtest() {
+    if ! databaseCheck
+    then
+      cat <<EOF
+    Postgres configuration database not detected.
+    Run (as root:)
+
+       @bindir@/sipxconfig.sh --setup
+EOF
+      Status=1
+    fi
+    Status=$(($Status+$?))
+}
+
+stop() {
+  echo -n $"Stopping sipxconfig: "
+  killproc -p "${PidFile}" -t30 -TERM "sipxconfig"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${PidFile}"  
+}
+
+restart() {
+  stop
+  # sleep for no good reason. Can be disconcerting if stop/start 
+  # switch is too fast IMHO
+  sleep 1 
+  start
+}
+
+case "$1" in
+  nodaemon)
+    Daemon=false
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${PidFile} ] && restart || :
+    ;;
+  status)
+    status -p ${PidFile} java
+    ;;
+  configtest)
+    configtest
+    ;;
+  db)
+    shift
+    databaseCommand ${@}
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    Status=1
+esac
+
+exit $Status
+

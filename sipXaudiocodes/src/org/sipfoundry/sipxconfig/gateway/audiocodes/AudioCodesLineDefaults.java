@@ -49,7 +49,7 @@ public class AudioCodesLineDefaults {
         li.setUserId(line.getSettingValue(SIP_USER_NAME));
         li.setPassword(line.getSettingValue(SIP_PASSWORD));
         li.setRegistrationServer(defaults.getDomainName());
-        li.setRegistrationServerPort(defaults.getProxyServerSipPort());
+        li.setRegistrationServerPort(Integer.toString(defaults.getProxyAddress().getPort()));
         return li;
     }
 

@@ -3,16 +3,13 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="adminContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.AdminContext</value>
-    </property>
-    <property name="target">
-      <ref local="adminContextImpl" />
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.AdminContext"/>
+    <property name="target" ref="adminContextImpl" />
   </bean>
 
   <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl" autowire="byType">
     <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="locationsManager" ref="locationsManager"/>
   </bean>
 
   <bean id="firstRun" class="org.sipfoundry.sipxconfig.admin.FirstRunTask">

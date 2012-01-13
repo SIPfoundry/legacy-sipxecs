@@ -92,4 +92,8 @@ public class OpenfireSettings extends BeanWithSettings {
             return m_localizationContext.getLocalization().getLanguage();
         }
     }
+
+    public void setLocalizationContext(LocalizationContext localizationContext) {
+        m_localizationContext = localizationContext;
+    }
 }

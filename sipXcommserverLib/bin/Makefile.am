@@ -10,6 +10,7 @@ util_SCRIPTS = \
 
 bin_SCRIPTS = \
 	sipx-validate-xml \
+	sipxecs-setup \
 	pgpatch.sh \
 	sipx-dns
 

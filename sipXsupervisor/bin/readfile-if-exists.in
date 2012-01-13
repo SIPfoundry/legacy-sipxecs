@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# CFEngine helper script
+# Reads a file if it exists. Otherwise no results
+#
+# Example
+#    vars:
+#      "pid" string => execresult("/var/run/foo.pid", "noshell");
+#
+test -f $1 && cat $1

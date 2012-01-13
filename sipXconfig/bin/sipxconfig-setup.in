@@ -1,3 +1,0 @@
-#@BASH@
-
-@bindir@/sipxconfig.sh --setup

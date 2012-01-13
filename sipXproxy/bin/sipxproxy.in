@@ -1,5 +1,5 @@
 #!@BASH@
-# sipxproxyd - Startup script for sipxproxyd
+# sipxproxy - Startup script for sipxproxy
 
 # chkconfig: 35 85 15
 # description: sipxproxy is a SIP proxy for telecommunications
@@ -93,7 +93,7 @@ case "$1" in
     [ -f ${pidfile} ] && restart || :
     ;;
   status)
-    status "${binfile}"
+    status -p "${pidfile}" "${prog}"
     Status=$?
     ;;
   configtest)

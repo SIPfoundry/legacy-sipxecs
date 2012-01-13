@@ -98,7 +98,7 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit {
     }
 
     /**
-     * Initializa domain secret if it's not initialized yet
+     * Initialize domain secret if it's not initialized yet
      *
      * @return true if new secret has been initialized, false if secret was already there
      */

@@ -11,8 +11,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -33,23 +34,24 @@ public class MwiConfig implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Mwi.FEATURE)) {
+        if (!request.applies(Mwi.FEATURE, Ivr.FEATURE)) {
             return;
         }
 
-        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(Mwi.FEATURE);
-        if (locations.isEmpty()) {
-            return;
-        }
-
+        Set<Location> locations = request.locations(manager);
         Address ivrApi = manager.getAddressManager().getSingleAddress(Ivr.REST_API);
         Domain domain = manager.getDomainManager().getDomain();
         List<Location> allLocations = manager.getLocationManager().getLocationsList();
+        MwiSettings settings = m_mwi.getSettings();
         for (Location location : locations) {
-            MwiSettings settings = m_mwi.getSettings();
             File dir = manager.getLocationDataDirectory(location);
-            File file = new File(dir, "status-config.cfdat");
-            Writer wtr = new FileWriter(file);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(Mwi.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxpublisher.cfdat", "sipxpublisher", enabled);
+            if (!enabled) {
+                continue;
+            }
+
+            Writer wtr = new FileWriter(new File(dir, "status-config.part"));
             try {
                 write(wtr, settings, location, allLocations, domain);
             } finally {
@@ -69,7 +71,6 @@ public class MwiConfig implements ConfigProvider {
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.write(settings.getSettings().getSetting("status-config"));
-        config.write("SIP_STATUS_BIND_IP", location.getAddress());
         config.write("SIP_STATUS_AUTHENTICATE_REALM", domain.getSipRealm());
         config.write("SIP_STATUS_DOMAIN_NAME", domain.getName());
 

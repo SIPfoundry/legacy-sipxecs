@@ -83,4 +83,8 @@ public class Openfire extends ImManager implements FeatureProvider, AddressProvi
         
         return addresses;            
     }
+
+    public void setSettingsDao(BeanWithSettingsDao<OpenfireSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
 }

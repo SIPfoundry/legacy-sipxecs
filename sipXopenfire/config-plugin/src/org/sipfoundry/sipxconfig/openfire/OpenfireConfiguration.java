@@ -105,4 +105,8 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     public void setAccountConfig(XmppAccountInfo accountConfig) {
         m_accountConfig = accountConfig;
     }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
 }

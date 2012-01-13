@@ -58,7 +58,7 @@ public class IvrConfig implements ConfigProvider {
             if (!enabled) {
                 continue;
             }
-            File f = new File(dir, "sipxivr.properties.part1");
+            File f = new File(dir, "sipxivr.properties.part");
             Writer wtr = new FileWriter(f);
             try {
                 write(wtr, settings, domain, location, mwiApi, restApi, adminApi, imApi, imbotApi, fsEvent);

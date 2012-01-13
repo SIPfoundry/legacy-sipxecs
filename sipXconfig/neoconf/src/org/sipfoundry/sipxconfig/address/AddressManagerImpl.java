@@ -42,11 +42,11 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
         return null;
     }
 
-    public Collection<Address> getAddresses(AddressType type) {
+    public List<Address> getAddresses(AddressType type) {
         return getAddresses(type, null);
     }
 
-    public Collection<Address> getAddresses(AddressType type, Object requester) {
+    public List<Address> getAddresses(AddressType type, Object requester) {
         // TODO: Consult DNS provider to return SRV addresses when appropriate to return
         // a single address that is really a combination of addresses
         List<Address> addresses = new ArrayList<Address>();

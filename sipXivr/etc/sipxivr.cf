@@ -39,7 +39,7 @@ bundle agent sipxivr_config {
 bundle edit_line sipxivr_properties_contents() {
   insert_lines:
     any::
-      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxivr.properties.part1"
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxivr.properties.part"
         insert_type => "file";
       "log.file=$(sipx.SIPX_LOGDIR)/sipxivr.log";
       "ivr.dataDirectory=$(sipx.SIPX_IVRDATADIR)";

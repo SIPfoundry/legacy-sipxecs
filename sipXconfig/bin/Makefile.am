@@ -3,21 +3,21 @@ include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(bin_SCRIPTS:=.in) \
-	$(setup_SCRIPTS:=.in)
+	$(setup_SCRIPTS:=.in) \
+	$(initd_SCRIPTS:=.in)
+
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+	sipxconfig
 
 bin_SCRIPTS = \
-	sipxconfig.sh \
 	sipx-mrtg-init \
 	sipx-snmp-init \
 	sipXmrtg.sh \
 	sipx-time-manager \
 	sipx-tunnel
 
-setupdir = @SIPX_LIBEXECDIR@/setup.d
-setup_SCRIPTS = \
-	sipxconfig-setup
-
-$(setup_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
+$(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,$(EXTRA_REPLACE))
 
-CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS)
+CLEANFILES = $(bin_SCRIPTS) $(initd_SCRIPTS)

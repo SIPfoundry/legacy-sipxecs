@@ -6,8 +6,16 @@
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-  <bean id="openfire" class="org.sipfoundry.sipxconfig.openfire.OpenfireService">
-    <property name="settingsDao" ref="beanWithSettingsDao"/>
+  <bean id="openfire" class="org.sipfoundry.sipxconfig.openfire.Openfire">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.openfire.OpenfireSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
   <bean id="openfireSettings" class="org.sipfoundry.sipxconfig.openfire.OpenfireSettings">
@@ -32,9 +40,6 @@
 
   <bean id="openfireXml" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
-    <property name="template" value="openfire/openfire.vm" />
-    <property name="name" value="openfire.xml" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="ldapManager" ref="ldapManager" />
     <property name="coreContext" ref="coreContext" />
   </bean>
@@ -47,7 +52,7 @@
 
   <bean id="openfireAccountXml" class="org.sipfoundry.sipxconfig.openfire.XmppAccountInfo">
     <property name="coreContext" ref="coreContext" />
-    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="conferenceContext" ref="conferenceBridgeContext" />
     <property name="validUsers" ref="validUsers" />
     <property name="imbot" ref="imBot" />
   </bean>

@@ -112,4 +112,8 @@ public class OpenfireConfigurationFile {
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
+
+    public void setVelocityEngine(VelocityEngine velocityEngine) {
+        m_velocityEngine = velocityEngine;
+    }
 }

@@ -14,32 +14,9 @@
 
 prog=sipxivr
 pidfile="@SIPX_RUNDIR@/sipxivr.pid"
-
-SslDir=@SIPX_CONFDIR@/ssl
-AuthoritiesDir=$SslDir/authorities
-KeyStorePassword=changeit
-TrustStorePassword=changeit
-KeyStoreOpts="\
-      -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
-      -Djavax.net.ssl.keyStorePassword=$KeyStorePassword"
+Daemon=true
 
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
-
-setTruststoreOpts() {
-    # List of authorities accepted system-wide
-    if [ -d $AuthoritiesDir ]
-    then
-      TrustStore=$SslDir/authorities.jks
-      TrustStoreOpts="\
-	-Djavax.net.ssl.trustStore=$TrustStore \
-	-Djavax.net.ssl.trustStoreType=JKS \
-        -Djavax.net.ssl.trustStorePassword=$TrustStorePassword"
-    else
-      # make empty as extra measure to ensure doesn't come from env. var
-      # this is when Java's CA database has required certs
-      TrustStoreOpts=""
-    fi
-}
 
 checkRunningInstance() {
   if [ -f "${pidfile}" ]; then
@@ -59,22 +36,24 @@ start() {
     JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
     Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @ivr_PKGS@`
     export CLASSPATH=`echo @SIPX_CONFDIR@/sipxivr @SIPX_JAVADIR@/{sipXivr,sipXopenfire/plugins}/*.jar ${Dependencies} | sed -e 's/ /:/g'`
-    X509Algorithm=`$JavaCmd org.sipfoundry.commons.x509selector.X509Selector`
+
+    setJavaSslOpts
+
     # procname is there so cfengine can find it
     Command="$JavaCmd \
       -Dprocname=sipxivr \
       -Dconf.dir=@SIPX_CONFDIR@ \
       -Dvar.dir=@SIPX_VARDIR@ \
-      $TrustStoreOpts \
-      $KeyStoreOpts \
-      -Djetty.x509.algorithm=$X509Algorithm \
-      -Djetty.ssl.password=$TrustStorePassword	\
-      -Djetty.ssl.keypassword=$KeyStorePassword	\
+      $JavaSslOpts \
       org.sipfoundry.sipxivr.SipXivr \
       $Args"
-    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
-    echo $! > ${pidfile}
-    echo
+    if "$Daemon" == "true"; then
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+      echo $! > ${pidfile}
+      echo_success
+    else
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
+    fi
 }
 
 stop() {
@@ -108,6 +87,10 @@ configtest() {
 }
 
 case "$1" in
+  nodaemon)
+    Daemon=false
+    start
+    ;;
   start)
     start
     ;;

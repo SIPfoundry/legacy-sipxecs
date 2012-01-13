@@ -40,7 +40,7 @@ public class RegistrarConfiguration implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Registrar.FEATURE)) {
+        if (!request.applies(Registrar.FEATURE, ParkOrbitContext.FEATURE, ProxyManager.FEATURE, ImManager.FEATURE)) {
             return;
         }
 
@@ -55,9 +55,9 @@ public class RegistrarConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = fm.isFeatureEnabled(Registrar.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxregistrar.cfdat", "sipxregistrard", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxregistrar.cfdat", "sipxregistrar", enabled);
             if (enabled) {
-                Writer w = new FileWriter(new File(dir, "registrar-config.part1"));
+                Writer w = new FileWriter(new File(dir, "registrar-config.part"));
                 try {
                     write(w, settings, domain, location, proxy, imApi, presenceApi, park);
                 } finally {
@@ -77,13 +77,14 @@ public class RegistrarConfiguration implements ConfigProvider {
         file.write("SIP_REGISTRAR_PROXY_PORT", proxy.getPort());
         file.write("SIP_REGISTRAR_NAME", location.getFqdn());
         file.write("SIP_REGISTRAR_SYNC_WITH", "obsolete");
-        file.write("SIP_REGISTRAR_BIND_IP", location.getAddress());
         file.write(root.getSetting("userparam"));
         file.write(root.getSetting("call-pick-up"));
 
-        String parkUri = format("%s;transport=tcp?Route=sip:%s:%d", domain.getName(), park.getAddress(),
-                park.getPort());
-        file.write("SIP_REDIRECT.100-PICKUP.PARK_SERVER", parkUri);
+        if (park != null) {
+            String parkUri = format("%s;transport=tcp?Route=sip:%s:%d", domain.getName(), park.getAddress(),
+                    park.getPort());
+            file.write("SIP_REDIRECT.100-PICKUP.PARK_SERVER", parkUri);
+        }
 
         file.write("SIP_REDIRECT.130-MAPPING.", root.getSetting("mapping"));
         file.write(root.getSetting("isn"));

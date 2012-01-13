@@ -15,6 +15,7 @@ public interface UnmanagedService {
     //public static final GlobalFeature FEATURE = new GlobalFeature("unmanagedServices");
     public static final AddressType NTP = new AddressType("ntp");
     public static final AddressType SYSLOG = new AddressType("syslog");
+    public static final AddressType DNS = new AddressType("dns");
 
     public UnmanagedServiceSettings getSettings();
 

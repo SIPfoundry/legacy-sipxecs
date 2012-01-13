@@ -14,7 +14,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -38,7 +37,7 @@ public class DomainConfiguration implements ConfigProvider {
         Domain domain = domainManager.getDomain();
         String fqdn = m_locationsManager.getPrimaryLocation().getFqdn();
         String lang = manager.getDomainManager().getExistingLocalization().getLanguage();
-        List<Location> locations = manager.getLocationManager().getLocationsList();
+        Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             Writer wtr = new FileWriter(new File(dir, "domain-config"));
