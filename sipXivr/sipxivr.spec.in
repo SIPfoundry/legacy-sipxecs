@@ -16,6 +16,7 @@ BuildRequires: automake
 BuildRequires: java-devel >= 1.6
 BuildRequires: zip
 BuildRequires: sipxcommons >= %version
+BuildRequires: sipxconfig >= %version
 BuildRequires: sipxopenfire
 
 Source: %name-%version.tar.gz
