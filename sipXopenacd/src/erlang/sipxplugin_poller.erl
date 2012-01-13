@@ -394,7 +394,7 @@ extract_condition(MongoCondition) ->
 		ticks ->
 			{ticks, get_str_to_int(<<"value">>, MongoCondition)};
 		_ -> %% TODO would probably best to enumerate
-			{Condition, get_str_to_int(<<"value">>, MongoCondition)}
+			{Condition, Relation, get_str_to_int(<<"value">>, MongoCondition)}
 	end.
 
 process_vm_priority_diff(Object, _Command) ->
