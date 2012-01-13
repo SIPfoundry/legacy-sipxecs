@@ -130,7 +130,7 @@ databaseCommand() {
         -Dprimary.ip.addr=$ip_addr \
         -Dprimary.password=$pass \
         -Dprimary.not.exists=$primary_not_exists \
-        ${SIPXCONFIG_OPTS} \
+        ${SIPXCONFIG_ANT_OPTS} \
         -f @SIPX_CONFDIR@/database/database.xml \
         $@"
 

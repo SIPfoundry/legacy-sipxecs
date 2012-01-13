@@ -6,7 +6,6 @@ EXTRA_DIST = \
 	$(cfmod_SCRIPTS:=.in)
 
 bin_SCRIPTS = \
-	sipxsupervisor.sh \
 	sipxagent
 
 cfmoddir = @SIPX_CFMODULES@
@@ -16,7 +15,7 @@ cfmod_SCRIPTS = \
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
-	sipxsupervisord
+	sipxsupervisor
 
 $(cfmod_SCRIPTS) $(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)

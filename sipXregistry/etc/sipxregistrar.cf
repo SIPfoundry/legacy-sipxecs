@@ -20,7 +20,8 @@ bundle agent sipxregistrar_config {
         create => "true",
         perms => m("644"),
         edit_line => registrar_config_contents(),
-        classes => if_repaired("restart_sipxregistrar");
+        classes => if_repaired("restart_sipxregistrar"),
+	action => track("registrar-config");
 }
 
 bundle edit_line registrar_config_contents() {
@@ -64,13 +65,16 @@ bundle agent sipxregistrar_running {
   commands:
     sipxregistrar_running.!sipxregistrar::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        args => "stop";
+        args => "stop",
+	action => track("sipxegistrar stop");
 
     !sipxregistrar_running.sipxregistrar::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        args => "start";
+        args => "start",
+	action => track("sipxegistrar start");
 
     restart_sipxregistrar::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        args => "restart";
+        args => "restart",
+	action => track("sipxegistrar restart");
 }

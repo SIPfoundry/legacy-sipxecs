@@ -25,18 +25,21 @@ bundle agent sipxproxy_config {
       };
   files:
     any::
+    any::
       "$(sipx.SIPX_CONFDIR)/sipXproxy-config"
         create => "true",
         perms => m("644"),
         edit_line => sipXproxy_config_contents(),
-        classes => if_repaired("restart_sipxproxy");
+        classes => if_repaired("restart_sipxproxy"),
+	action => track("sipXproxy-config");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"
         create => "true",
         perms => m("644"),
 	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxproxy");
+        classes => if_repaired("restart_sipxproxy"),
+	action => track("$(xml_file)");
 }
 
 bundle edit_line sipXproxy_config_contents() {
@@ -81,14 +84,17 @@ bundle agent sipxproxy_running {
   commands:
     sipxproxy_running.!sipxproxy::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        args => "stop";
+        args => "stop",
+	action => track("sipxproxy_stop");
 
     !sipxproxy_running.sipxproxy::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        args => "start";
+        args => "start",
+	action => track("sipxproxy_start");
 
     restart_sipxproxy::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        args => "restart";
+        args => "restart",
+	action => track("sipxproxy_restart");
 }
 

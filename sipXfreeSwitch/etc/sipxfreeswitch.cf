@@ -3,7 +3,7 @@
 # Licensed to the User under the AGPL license.
 
 #
-# sipXfreeswitch configuration and process management
+# FreeSWITCH configuration and process management
 #
 bundle agent sipxfreeswitch {
   methods:
@@ -36,18 +36,20 @@ bundle agent sipxfreeswitch_config {
 
   files:
     conference_file_exists::
-      "$(sipx.SIPX_CONFDIR)/freeswitch/conf"
-        create => "true",
+      "$(sipx.SIPX_CONFDIR)/freeswitch/conf/$(conference_file)"
+        create => "false",
         perms => m("644"),
 	copy_from => local_cp("$(conference_file_src)"),
-        classes => if_repaired("restart_sipxfreeswitch");
+        classes => if_repaired("restart_sipxfreeswitch"),
+	action => track("$(conference_file)");
 
     any::
       "$(sipx.SIPX_CONFDIR)/freeswitch/conf/$(xml_file)"
-        create => "true",
+        create => "false",
         perms => m("644"),
 	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxfreeswitch");
+        classes => if_repaired("restart_sipxfreeswitch"),
+	action => track("$(xml_file)");
 }
 
 bundle agent sipxfreeswitch_setup {
@@ -68,15 +70,18 @@ bundle agent sipxfreeswitch_running {
   commands:
     sipxfreeswitch_running.!sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
-        args => "stop";
+        args => "stop",
+	action => track("sipxfreeswitch stop");
 
     !sipxfreeswitch_running.sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
-        args => "start";
+        args => "start",
+	action => track("sipxfreeswitch start");
 
     restart_sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
-        args => "restart";
+        args => "restart",
+	action => track("sipxfreeswitch restart");
 }
 
 

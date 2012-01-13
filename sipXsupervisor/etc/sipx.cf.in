@@ -53,12 +53,30 @@ bundle common sipx {
 # imports all the variables into $(sipx.*) from *.cfdat files
 # 
 bundle agent sipx_module {
+  vars:
+    "failed_log" string => "@SIPX_LOGDIR@/sipxagent-failed.log";
+    "repaired_log" string => "@SIPX_LOGDIR@/sipxagent-repaired.log";
+    "logs" slist => { "$(failed_log)", "$(repaired_log)" };
+
+  files:
+    any::
+      "$(logs)"
+        create => "true",
+        perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@"),
+	edit_line => clear_all;
+
   commands:
     any::
       "@SIPX_CFMODULES@/sipx"
         args => "$(sipx.location_id)",
         module => "true",
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
+}
+
+bundle edit_line clear_all {
+  delete_lines:
+    any::
+      ".*";
 }
 
 # Copy a local file from cfdata area to final destination if it's changed
@@ -70,6 +88,13 @@ bundle agent sipx_module {
 body copy_from copy_from_cfdata(filename) {
   source => "$(sipx.SIPX_CFDATA)/$(filename)";
   compare => "digest";
+}
+
+# identify essentially all promises with this to surface issues in sipxconfig ui
+body action track(id) {
+  log_failed => "$(sipx_module.failed_log)";
+  log_repaired => "$(sipx_module.repaired_log)";
+  log_string => "$(id)";
 }
 
 #

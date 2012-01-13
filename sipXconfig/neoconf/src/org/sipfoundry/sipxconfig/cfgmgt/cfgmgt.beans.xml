@@ -20,6 +20,7 @@
     
   <bean id="configAgent" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigAgent">
     <property name="locationsManager" ref="locationsManager"/>
+    <property name="jobContext" ref="jobContext"/>
   </bean>
 
 </beans>

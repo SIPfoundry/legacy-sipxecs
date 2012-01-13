@@ -25,20 +25,22 @@ bundle agent sipxpublisher_config {
         create => "true",
         perms => m("644"),
         edit_line => sipstatus_config_contents(),
-        classes => if_repaired("restart_sipxpublisher");
+        classes => if_repaired("restart_sipxpublisher"),
+	action => track("status-config");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"
         create => "true",
         perms => m("644"),
 	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxpublisher");
+        classes => if_repaired("restart_sipxpublisher"),
+	action => track("$(xml_file)");
 }
 
 bundle edit_line sipstatus_config_contents() {
   insert_lines:
     any::
-      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/status-config.part1"
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/status-config.part"
         insert_type => "file";
       "SIP_STATUS_BIND_IP : $(sys.ipv4)";
 
@@ -65,14 +67,17 @@ bundle agent sipxpublisher_running {
   commands:
     sipxpublisher_running.!sipxpublisher::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
-        args => "stop";
+        args => "stop",
+	action => track("sipxpublisher stop");
 
     !sipxpublisher_running.sipxpublisher::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
-        args => "start";
+        args => "start",
+	action => track("sipxpublisher start");
 
     restart_sipxpublisher::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
-        args => "restart";
+        args => "restart",
+	action => track("sipxpublisher restart");
 }
 
