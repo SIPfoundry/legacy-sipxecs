@@ -1,0 +1,39 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary: sipXecs postgres integration project
+License: LGPL
+Group: Telcommunications
+Vendor: SIPfoundry
+Packager: Douglas Hubler <dhubler@ezuce.com>
+Url: http://www.sipfoundry.org
+
+BuildRequires: automake
+BuildRequires: postgresql-server
+
+Source: %name-%version.tar.gz
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Setup postgres server on this system
+
+%prep
+%setup -q
+
+%build
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%{_datadir}/sipxecs/cfinputs/plugin.d/postgres.cf
+%{_localstatedir}/sipxdata/cfdata/defaults/postgres.cfdat

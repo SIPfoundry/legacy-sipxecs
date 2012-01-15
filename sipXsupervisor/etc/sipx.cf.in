@@ -27,6 +27,9 @@
 #
 # common variables in $(sipx.*) space that isn't in a *.cfdat file
 #
+# NOTE: Cannot use $(sipx. in this bundle because it's not loaded yet. Instead
+# use @SIPX.
+#
 bundle common sipx {
   vars:
     any::
@@ -51,6 +54,9 @@ bundle common sipx {
 
 #
 # imports all the variables into $(sipx.*) from *.cfdat files
+#
+# NOTE: Cannot use $(sipx. here because it's not loaded yet. Instead
+# use @SIPX.
 # 
 bundle agent sipx_module {
   vars:
@@ -61,9 +67,7 @@ bundle agent sipx_module {
   files:
     any::
       "$(logs)"
-        create => "true",
-        perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@"),
-	edit_line => clear_all;
+        delete => tidy;
 
   commands:
     any::
@@ -73,10 +77,16 @@ bundle agent sipx_module {
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
 }
 
-bundle edit_line clear_all {
-  delete_lines:
-    any::
-      ".*";
+#
+# To run a command as the sipxpbxuser
+#
+# Example:
+#  commands:
+#    "/bin/mycommand"
+#      contain => su_sipxpbxuser();
+#
+body contain su(user) {
+  exec_owner => "$(user)";
 }
 
 # Copy a local file from cfdata area to final destination if it's changed

@@ -6,7 +6,8 @@ all : $(proc_DATA) $(conf_DATA) $(addprefix out/,$(conf_SOURCE))
 EXTRA_DIST = \
 	$(addprefix sipxpbx/,$(conf_SOURCE)) \
 	$(proc_DATA:=.in) \
-	$(conf_DATA:=.in)
+	$(conf_DATA:=.in) \
+	sipxconfig.cfdat
 
 procdir = $(SIPX_DATADIR)/process.d
 proc_DATA = \
@@ -30,6 +31,14 @@ emptydirs = \
 
 confdir = @SIPX_CONFDIR@
 conf_DATA = sipxconfig.properties
+
+cfdefaultsdir = @SIPX_CFDATDIR@/defaults
+cfdefaults_DATA = \
+	location_id \
+	sipxconfig.cfdat
+
+location_id :
+	echo 1 > $@
 
 # automatically selects configuration files, but as importantly, also has to distinguish what is NOT
 # a configuration file in the 'find' statement

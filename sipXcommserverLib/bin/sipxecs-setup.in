@@ -6,6 +6,15 @@ if [ -f @SIPX_CONFDIR@/domain-config ]; then
   fi
 fi
 
+if [ ! -f @SIPX_CFDATA@/defaults/location_id ]; then
+    echo "1" > @SIPX_CFDATA@/defaults/location_id
+fi
+
+cat > @SIPX_CFDATA@/defaults/primary.cfdat <<EOF
++postgres
++primary
+EOF
+
 TempDir=@SIPX_VARDIR@/temp/cert-temp
 test -d ${TempDir} && rm -rf ${TempDir}
 mkdir -p $TempDir

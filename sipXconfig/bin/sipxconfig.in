@@ -74,16 +74,6 @@ export CLASSPATH=`echo @SIPX_CONFDIR@ ${Dependencies} ${PluginDir}/*.jar | sed -
 # set primary system hostname (assume sipxconfig is only run on primary system)
 PRIMARY_HOSTNAME=`hostname -f`
 
-initAsPrimary() {
-  if [ ! -f @SIPX_CONFDIR@/domain-config ]; then
-      @SIPX_BINDIR@/sipxecs-setup
-  fi
-
-  if [ ! -f @SIPX_CFDATA@/defaults/location_id ]; then
-      echo "1" > @SIPX_CFDATA@/defaults/location_id
-  fi
-}
-
 # Incase system failed suddenly, clear previous locks
 clearIndexLocks() {
   rm ${IndexDir}/*.lock 2>/dev/null
@@ -91,6 +81,7 @@ clearIndexLocks() {
 
 # Turn control over to ant to run database command
 databaseCommand() {
+    initAsPrimary
     databaseCheck
     clearIndexLocks
     JavaOpts=""
@@ -145,9 +136,12 @@ databaseCommand() {
     fi
 }
 
+initAsPrimary() {
+  test -f @SIPX_CONFDIR@/domain-config || @SIPX_BINDIR@/sipxagent
+}
+
 # Run Web interface
 start() {
-    initAsPrimary
     databaseCommand upgrade
     databaseVersionCheck    
     clearIndexLocks

@@ -110,7 +110,7 @@ public class ConfigAgent {
             LOG.info("Stating agent run " + command);
             exec = Runtime.getRuntime().exec(command);
             out = new FileWriter(m_logDir + '/' + m_logFile);
-            // nothing goes to stderr, eat it
+            // nothing goes to stderr, so just eat it
             StreamGobbler errGobbler = new StreamGobbler(exec.getErrorStream());
             StreamGobbler outGobbler = new StreamGobbler(exec.getInputStream(), out);
             Worker worker = new Worker(exec);

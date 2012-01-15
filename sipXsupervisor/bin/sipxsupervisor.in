@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# sipxsupervisord         Start/Stop the cfengine server daemon.
+# sipxsupervisor         Start/Stop the cfengine server daemon.
 #
 # chkconfig: - 96 20
-# description: sipxsupervisord is responsible from giving out configuration files to
+# description: sipxsupervisor is responsible from giving out configuration files to
 #              those cfengine clients, who wish to update their configs.
 #              For more information, visit http://www.cfengine.org
 # processname: cf-serverd
@@ -12,23 +12,23 @@
 # Source function library.
 . /etc/init.d/functions
 
-config="@SIPX_CFINPUTS@/sipxsupervisord.cf"
+config="@SIPX_CFINPUTS@/sipxsupervisor.cf"
 exec="/usr/sbin/cf-serverd"
 prog=$(basename $exec)
 # used to tell which config is in use.
-configid=/var/run/sipxsupervisord-configid
+configid=/var/run/sipxsupervisor-configid
 
-[ -e /etc/sysconfig/sipxsupervisord ] && . /etc/sysconfig/sipxsupervisord
+[ -e /etc/sysconfig/sipxsupervisor ] && . /etc/sysconfig/sipxsupervisor
 
 lockfile=/var/lock/subsys/$prog
 
 check_setup() {
 	[ ! -f /var/cfengine/ppkeys/localhost.priv ] && /usr/sbin/cfkey
-	if [ ! -f @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini ] ; then 
-	    echo -e "127.0.0.1\n::1" > @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini
+	if [ ! -f @SIPX_CONFDIR@/sipxsupervisor-allowed-addrs.ini ] ; then 
+	    echo -e "127.0.0.1\n::1" > @SIPX_CONFDIR@/sipxsupervisor-allowed-addrs.ini
 	fi
-	if [ ! -f @SIPX_CONFDIR@/sipxsupervisord-allowed-users.ini ] ; then 
-	    echo -e "root\n@SIPXPBXUSER@" > @SIPX_CONFDIR@/sipxsupervisord-allowed-users.ini
+	if [ ! -f @SIPX_CONFDIR@/sipxsupervisor-allowed-users.ini ] ; then 
+	    echo -e "root\n@SIPXPBXUSER@" > @SIPX_CONFDIR@/sipxsupervisor-allowed-users.ini
 	fi
 }
 
