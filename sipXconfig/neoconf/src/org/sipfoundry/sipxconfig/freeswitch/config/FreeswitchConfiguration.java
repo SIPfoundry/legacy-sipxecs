@@ -34,12 +34,12 @@ public class FreeswitchConfiguration extends AbstractFreeswitchConfiguration {
 
     @Override
     protected String getTemplate() {
-        return getFileName() + ".vm";
+        return "freeswitch/freeswitch.xml.vm";
     }
 
     @Override
     protected String getFileName() {
-        return "freeswitch/freeswitch.xml";
+        return "freeswitch.xml";
     }
 
     public void setDomainManager(DomainManager domainManager) {

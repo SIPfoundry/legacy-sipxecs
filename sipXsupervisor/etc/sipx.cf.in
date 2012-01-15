@@ -49,7 +49,7 @@ bundle common sipx {
       # don't run chkconfig, they don't install crontabs, they don't create unix users.
       #
       # comparing where the service directory is seems like a solid test if src based install
-      "src" expression => strcmp("@SIPX_SERVICEDIR@", "/etc/init.d");
+      "src" not => strcmp("@SIPX_SERVICEDIR@", "/etc/init.d");
 }
 
 #
@@ -62,7 +62,8 @@ bundle agent sipx_module {
   vars:
     "failed_log" string => "@SIPX_LOGDIR@/sipxagent-failed.log";
     "repaired_log" string => "@SIPX_LOGDIR@/sipxagent-repaired.log";
-    "logs" slist => { "$(failed_log)", "$(repaired_log)" };
+    "kept_log" string => "/opt/sipx-main/var/log/sipxpbx/sipxagent-kept.log";
+    "logs" slist => { "$(failed_log)", "$(repaired_log)", "$(kept_log)" };
 
   files:
     any::
@@ -104,6 +105,8 @@ body copy_from copy_from_cfdata(filename) {
 body action track(id) {
   log_failed => "$(sipx_module.failed_log)";
   log_repaired => "$(sipx_module.repaired_log)";
+  # bug, w/o a log_kept entry, cfengine will segfault. Tested up to 3.3.0 r3779.
+  log_kept => "$(sipx_module.kept_log)";
   log_string => "$(id)";
 }
 

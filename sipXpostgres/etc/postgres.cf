@@ -80,6 +80,7 @@ bundle edit_line postgresql_conf() {
       "autovacuum_analyze_scale_factor = 0.1";
       "autovacuum_vacuum_cost_delay = 20";
       "autovacuum_vacuum_cost_limit = 0";
+
     src::
       # allows unit tests to run exponentially faster after using
       # the new truncate sql command. Otherwise this wouldn't be

@@ -11,9 +11,7 @@ EXTRA_DIST = \
 
 procdir = $(SIPX_DATADIR)/process.d
 proc_DATA = \
-	sipxconfig-process.xml \
-	tunnel-process.xml \
-	sipXmrtg-process.xml
+	tunnel-process.xml
 
 # Directories should be created in the application layer to make it more resiliant to IT administation errors
 # but these may exist for historical or special reasons
@@ -32,7 +30,7 @@ emptydirs = \
 confdir = @SIPX_CONFDIR@
 conf_DATA = sipxconfig.properties
 
-cfdefaultsdir = @SIPX_CFDATDIR@/defaults
+cfdefaultsdir = @SIPX_CFDATA@/defaults
 cfdefaults_DATA = \
 	location_id \
 	sipxconfig.cfdat

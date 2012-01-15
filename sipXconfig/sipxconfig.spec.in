@@ -52,13 +52,13 @@ Requires: sipxcommserverlib >= %version
 Requires: sipxacdstatistics-client >= %version
 Requires: sipxcdr-client >= %version
 Requires: sipxpbx >= %version
+Requires: sipxpostgres >= %version
 
 # doesn't really require mongo server on same machine, but 
 # hard to see a reason why this isn't true and there needs
 # to be a mongo server somewhere to might as well be here.
 Requires: sipxmongo-server >= %version
 
-Requires: postgresql-server
 Requires: ruby
 Requires: rubygems
 

@@ -21,7 +21,7 @@ bundle agent sipxproxy_config {
         "authrules.xml",
         "fallbackrules.xml",
         "forwardingrules.xml",
-        "nattraversal.xml"
+        "nattraversalrules.xml"
       };
   files:
     any::
