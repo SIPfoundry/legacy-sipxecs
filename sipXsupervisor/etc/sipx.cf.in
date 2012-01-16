@@ -37,10 +37,13 @@ bundle common sipx {
       "bind_ip" string => "$(sys.ipv4)";
 
     SuSE::
-      "crontab" string => "/var/spool/cron/tabs/root";
+      "crontabs" string => "/var/spool/cron/tabs";
 
-    !SuSE::
-      "crontab" string => "/var/spool/cron/root";
+    redhat::
+      "crontabs" string => "/var/spool/cron";
+
+    debian|ubuntu::
+      "crontabs" string => "/var/spool/crontabs";
       
 
   classes:
@@ -69,6 +72,10 @@ bundle agent sipx_module {
     any::
       "$(logs)"
         delete => tidy;
+    
+      "$(logs)"
+        create => "true",
+	perms => m(644);
 
   commands:
     any::

@@ -47,7 +47,7 @@ fi
 repair_db() {
    echo "repairing database"
    ! test -f $LOCK_FILE || rm -f $LOCK_FILE
-   su -u ${MONGO_USER} /usr/bin/mongod --repair
+   su -- ${MONGO_USER} /usr/bin/mongod --repair
 }
 
 if [ "${Action}" = "AUTO_REPAIR" ]
