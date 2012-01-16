@@ -1,0 +1,104 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# Common configure setup for sipXecs components
+#
+
+bundle agent sipxcommserverlib {
+  methods:
+    sipxcommserverlib::
+      "any" usebundle => "sipxcommserverlib_setup";
+      "any" usebundle => "sipxcommserverlib_config";
+}
+
+bundle agent sipxcommserverlib_setup {
+  classes:
+    primary::
+      "init_certs" not => fileexists("$(sipx.SIPX_CONFDIR)/ssl/ssl.crt");
+      "domain_config" not => fileexists("$(sipx.SIPX_CFDATA)/domain-config");
+
+  methods:
+    primary.init_certs::
+      "any" usebundle => sipxcommserverlib_certs();
+
+    primary.domain_config::
+      "any" usebundle => sipxcommserverlib_domain_config();
+}
+
+bundle agent sipxcommserverlib_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/domain-config"
+        create => "false",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("domain-config"),
+        classes => if_repaired("restart_sipxecs"),
+	action => track("domain-config");
+}
+
+bundle agent sipxcommserverlib_domain_config {
+  files:
+    any::
+      "$(sipx.SIPX_CFDATA)/domain-config"
+        create => "true",
+        perms => m("644"),
+        edit_line => domain_config();
+}
+
+bundle agent sipxcommserverlib_certs {
+  files:
+    any::
+      "$(sipx.SIPX_VARDIR)/temp/cert-temp/SSL_DEFAULTS"
+        create => "true",
+        edit_line => SSL_DEFAULTS();
+
+  commands:
+    any::
+      "$(sipx.SIPX_BINDIR)/ssl-cert/gen-ssl-keys.sh"
+        args => "-d -p SSL_DEFAULTS",
+	contain => sipxcommserverlib_cert_cmd;
+      "$(sipx.SIPX_BINDIR)/ssl-cert/install-cert.sh",
+	contain => sipxcommserverlib_cert_cmd;
+}
+
+body contain sipxcommserverlib_cert_cmd {
+  chdir => "$(sipx.SIPX_VARDIR)/temp/cert-temp";
+}
+
+bundle edit_line SSL_DEFAULTS {
+  insert_lines:
+    "countryName=\"US\"";
+    "stateOrProvinceName=\"AnyState\"";
+    "localityName=\"AnyTown\"";
+    "organizationName=\"$(sys.fqhost)\"";
+    "organizationalUnitName=\"IT\"";
+    "caName=\"ca.$(sys.fqhost)\"";
+    "caEmail=\"root@$(sys.fqhost)\"";
+    "sipDomainName=\"$(sys.fqhost)\"";
+    "server=\"$(sys.fqhost)\"";
+    "serverEmail=\"root@$(sys.fqhost)\"";
+    
+  delete_lines:
+    ".*";
+}
+
+bundle edit_line domain_config {
+
+# TODO: decide if we really need shared secret
+#  vars:
+#    "SharedSecret" string => execresult("/usr/bin/head -c 18 /dev/urandom | /usr/bin/base64", "useshell");
+
+  insert_lines:
+    "SIP_DOMAIN_NAME : $(sys.fqhost)";
+    "SIP_DOMAIN_ALIASES : $(sys.fqhost)";
+    "SIP_REALM : $(sys.fqhost)";
+    "SHARED_SECRET : Y4bguaywt2sNB8eKwFRgTeMN";
+    "DEFAULT_LANGUAGE : en";
+    "SUPERVISOR_PORT : 8092";
+    "CONFIG_HOSTS : $(sys.fqhost)";
+
+  delete_lines:
+    ".*";
+}
