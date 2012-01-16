@@ -214,6 +214,13 @@
   <bean id="restRedirectorResource" class="org.sipfoundry.sipxconfig.rest.RestRedirectorResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
   </bean>
-  <alias name="restRedirectorResource" alias="/my/redirect" />  
+  <alias name="restRedirectorResource" alias="/my/redirect" />
+  
+  <bean id="conferenceDetailsResource" class="org.sipfoundry.sipxconfig.rest.UserConferenceDetailsResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="activeConferenceContext" ref="activeConferenceContext" />
+	<property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+  </bean>
+  <alias name="conferenceDetailsResource" alias="/my/conferencedetails/{confName}" />     
 
 </beans>
