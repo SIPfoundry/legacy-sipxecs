@@ -110,6 +110,11 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     @Override
+    public File getGlobalDataDirectory() {
+        return m_cfDataDir;
+    }
+
+    @Override
     public File getLocationDataDirectory(Location location) {
         File d = new File(m_cfDataDir, String.valueOf(location.getId()));
         if (!d.exists()) {

@@ -19,6 +19,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcManager;
@@ -31,19 +32,20 @@ public class NatConfiguration implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(NatTraversal.FEATURE)) {
+        if (!request.applies(NatTraversal.FEATURE, ProxyManager.FEATURE)) {
             return;
         }
 
+        boolean relayEnabled = manager.getFeatureManager().isFeatureEnabled(NatTraversal.FEATURE);
         Set<Location> locations = request.locations(manager);
         NatSettings settings = m_nat.getSettings();
         int proxyTcpPort = manager.getAddressManager().getSingleAddress(ProxyManager.TCP_ADDRESS).getPort();
         int proxyTlsPort = manager.getAddressManager().getSingleAddress(ProxyManager.TLS_ADDRESS).getPort();
         SbcRoutes routes = m_sbcManager.getRoutes();
         for (Location location : locations) {
-            boolean enabled = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
-            if (enabled) {
-                File dir = manager.getLocationDataDirectory(location);
+            File dir = manager.getLocationDataDirectory(location);
+            boolean proxyEnabled = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
+            if (proxyEnabled) {
                 Writer writer = new FileWriter(new File(dir, "nattraversalrules.xml"));
                 try {
                     write(writer, settings, location, routes, proxyTcpPort, proxyTlsPort);
@@ -51,6 +53,8 @@ public class NatConfiguration implements ConfigProvider {
                     IOUtils.closeQuietly(writer);
                 }
             }
+
+            ConfigUtils.enableCfengineClass(dir, "sipxrelay.cfdat", "sipxrelay", relayEnabled && proxyEnabled);
         }
     }
 

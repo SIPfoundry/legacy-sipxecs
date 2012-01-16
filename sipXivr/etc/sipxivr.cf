@@ -31,11 +31,11 @@ bundle agent sipxivr_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxivr.properties"
-        create => "false",
+        create => "true",
         perms => m("644"),
 	edit_line => sipxivr_properties_contents(),
         classes => if_repaired("restart_sipxivr"),
-	action => track("sipxivr.properties");
+	action => track("$(this.promiser)");
 }
 
 bundle edit_line sipxivr_properties_contents() {

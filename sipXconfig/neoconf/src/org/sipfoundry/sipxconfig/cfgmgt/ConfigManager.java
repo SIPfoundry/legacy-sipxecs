@@ -42,6 +42,8 @@ public interface ConfigManager {
     public void configureAllFeatures(Collection<Location> locations);
 
 
+    public File getGlobalDataDirectory();
+
     public File getLocationDataDirectory(Location location);
 
     /**
