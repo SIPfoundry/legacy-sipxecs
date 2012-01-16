@@ -31,7 +31,7 @@ checkRunningInstance() {
 start() {
     checkRunningInstance
     echo -n $"Starting $prog: "
-    setTruststoreOpts
+    setJavaSslOpts
 
     JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
     Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @ivr_PKGS@`
