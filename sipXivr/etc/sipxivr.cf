@@ -7,9 +7,10 @@
 #
 bundle agent sipxivr {
   methods:
-    any::
-      "sipxivr" usebundle => "sipxivr_config";
+    sipxivr::
+      "any" usebundle => "sipxivr_config";
       "any" usebundle => "sipxivr_setup";
+    any::
       "any" usebundle => "sipxivr_running";
 }
 

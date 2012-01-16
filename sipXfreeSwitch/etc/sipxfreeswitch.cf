@@ -7,9 +7,10 @@
 #
 bundle agent sipxfreeswitch {
   methods:
-    any::
-      "sipxfreeswitch" usebundle => "sipxfreeswitch_config";
+    sipxfreeswitch::
+      "any" usebundle => "sipxfreeswitch_config";
       "any" usebundle => "sipxfreeswitch_setup";
+    any::
       "any" usebundle => "sipxfreeswitch_running";
 }
 

@@ -198,24 +198,31 @@ bundle agent find_sipxservice_by_command(command,on_find_define) {
   processes:
     "$(command)"
       process_count => on_process_count("$(on_find_define)"),
-      process_select => sipxprocess_select("$(command).*");
+      process_select => user_process_select("$(command).*","$(sipx.SIPXPBXUSER)");
+}
+
+bundle agent find_service_by_command(command,on_find_define,user_id) {
+  processes:
+    "$(command)"
+      process_count => on_process_count("$(on_find_define)"),
+      process_select => user_process_select("$(command).*","$(user_id)");
 }
 
 #
 # Be careful, cfengine truncates command line after X characters. Best to find
 # good identifier early in the command string
 #
+body process_select user_process_select(command_regex,user_id) {
+  command => "$(command_regex)";
+  process_owner => { "$(user_id)" };
+  process_result => "command.process_owner";
+}
+
 bundle agent find_sipxservice_by_command_regex(command_regex,on_find_define) {
   processes:
     "$(command_regex)"
       process_count => on_process_count("$(on_find_define)"),
-      process_select => sipxprocess_select("$(command_regex)");
-}
-
-body process_select sipxprocess_select(command_regex) {
-  command => "$(command_regex)";
-  process_owner => { "$(sipx.SIPXPBXUSER)" };
-  process_result => "command.process_owner";
+      process_select => user_process_select("$(command_regex)","$(sipx.SIPXPBXUSER)");
 }
 
 body process_count on_process_count(on_find_define) {

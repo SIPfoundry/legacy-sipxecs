@@ -16,6 +16,7 @@ proc_DATA = \
 # Directories should be created in the application layer to make it more resiliant to IT administation errors
 # but these may exist for historical or special reasons
 emptydirs = \
+	$(DESTDIR)@SIPX_CFDATA@/1 \
 	$(DESTDIR)@SIPX_CONFDIR@/freeswitch/conf/dialplan \
 	$(DESTDIR)@SIPX_CONFDIR@/freeswitch/conf/sip_profiles \
 	$(DESTDIR)@SIPX_VARDIR@/mrtg/thresh \

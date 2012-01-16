@@ -81,8 +81,6 @@ clearIndexLocks() {
 
 # Turn control over to ant to run database command
 databaseCommand() {
-    initAsPrimary
-    databaseCheck
     clearIndexLocks
     JavaOpts=""
 
@@ -136,12 +134,19 @@ databaseCommand() {
     fi
 }
 
-initAsPrimary() {
+setupCheck() {
   test -f @SIPX_CONFDIR@/domain-config || @SIPX_BINDIR@/sipxagent
+  if ! databaseCheck
+  then
+    echo "Initializing configuration database..."
+    databaseCommand drop-index create first-run
+    # echo "Configuration database created"
+  fi
 }
 
 # Run Web interface
 start() {
+    setupCheck
     databaseCommand upgrade
     databaseVersionCheck    
     clearIndexLocks
@@ -223,25 +228,6 @@ EOF
     fi
 }
 
-# Called as root in sipxpbx startup script to do initial setup,
-# but can be called manually and is harmless if called multiple times.
-onSetup() {
-   # pgpatch is part of sipXcommserverlib and also used by sipxcallresolver.sh
-   # pgpatch initializes the Postgresql database, patches the postgres configuration,
-   # and configures appropriate runlevels (it runs postgresSetup and setPostgresRunlevels)
-   # patching of postgres config is necessary because default authentication needs
-   # to be changed from "ident sameuser" to "trust". sipXecs configures the database
-   # under the user postgres and not the user sipXecs runs under
-
-   @bindir@/pgpatch.sh
-   if ! databaseCheck
-   then
-       echo "Initializing configuration database..."
-       databaseCommand create
-       # echo "Configuration database created"
-   fi
-}
-
 # simple diagnostics
 configtest() {
     if ! databaseCheck
@@ -298,6 +284,7 @@ case "$1" in
     ;;
   db)
     shift
+    setupCheck
     databaseCommand ${@}
     ;;
   *)

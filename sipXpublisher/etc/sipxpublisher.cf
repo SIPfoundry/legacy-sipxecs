@@ -7,9 +7,10 @@
 #
 bundle agent sipxpublisher {
   methods:
-    any::
-      "sipxpublisher" usebundle => "sipxpublisher_config";
+    sipxpublisher::
+      "any" usebundle => "sipxpublisher_config";
       "any" usebundle => "sipxpublisher_setup";
+    any::
       "any" usebundle => "sipxpublisher_running";
 }
 

@@ -35,6 +35,7 @@ AC_CONFIG_FILES([
   Makefile
   include/Makefile
   bin/Makefile
+  etc/Makefile
   bin/ssl-cert/Makefile
   src/Makefile
   src/sipdb/Makefile

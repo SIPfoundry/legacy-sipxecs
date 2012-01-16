@@ -8,9 +8,10 @@
 
 bundle agent postgres {
   methods:
+    postgres::
+      "any" usebundle => "postgres_init";
+      "any" usebundle => "postgres_config";
     any::
-      "postgres" usebundle => "postgres_init";
-      "postgres" usebundle => "postgres_config";
       "any" usebundle => "postgres_running";
 }
 
@@ -102,6 +103,14 @@ bundle edit_line pg_hba_conf() {
 
 
 bundle agent postgres_running {
+  vars:
+    any::
+      "service_command" string => "/usr/bin/postmaster";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "postgres_running","$(sipx.POSTGRESQL_USER)");
+
   commands:
     postgres_running.!postgres::
       "$(sipx.PG_DAEMON)"
@@ -116,5 +125,5 @@ bundle agent postgres_running {
     postgres_running.restart_postgres::
       "$(sipx.PG_DAEMON)"
         args => "restart",
-	action => track("postgres_restart");
+	action => track("postgres_restart");  
 }

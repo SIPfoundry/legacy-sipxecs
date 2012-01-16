@@ -8,8 +8,9 @@
 
 bundle agent sipxregistrar {
   methods:
+    sipxregistrar::
+      "any" usebundle => "sipxregistrar_config";
     any::
-      "sipxregistrar" usebundle => "sipxregistrar_config";
       "any" usebundle => "sipxregistrar_running";
 }
 

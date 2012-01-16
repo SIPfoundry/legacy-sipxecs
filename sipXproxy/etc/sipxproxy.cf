@@ -7,9 +7,10 @@
 #
 bundle agent sipxproxy {
   methods:
-    any::
-      "sipxproxy" usebundle => "sipxproxy_config";
+    sipxproxy::
+      "any" usebundle => "sipxproxy_config";
       "any" usebundle => "sipxproxy_setup";
+    any::
       "any" usebundle => "sipxproxy_running";
 }
 
