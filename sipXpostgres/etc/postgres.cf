@@ -67,7 +67,6 @@ bundle agent postgres_config {
 bundle edit_line postgresql_conf() {
   insert_lines:
     any::
-      "tcpip_socket = true";
       # makes a difference when row counts get higher both
       # in users table and cdrs.  A database that has not
       # been vacuumed will take 20-30 minutes before it will
