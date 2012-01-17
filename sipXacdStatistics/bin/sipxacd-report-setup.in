@@ -11,7 +11,7 @@
 Database=SIPXACD_HISTORY
 
 #Creates database if not found
-@bindir@/sipxconfig-report --setup
+@bindir@/sipxacd-report --setup
 
 # How to add a database patch:
 #
