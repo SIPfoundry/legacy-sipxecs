@@ -18,7 +18,7 @@ bundle agent mongodb_config {
   vars:
      mongod::
       "conf[replSet]" string => "sipxecs";
-      "conf[bind_ip]" string => "0.0.0.0";
+      "conf[bind_ip]" string => "127.0.0.1";
       "conf[port]" string => "27017";
 
   files:
