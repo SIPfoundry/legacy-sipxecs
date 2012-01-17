@@ -19,6 +19,7 @@ proc_DATA = \
 emptydirs = \
 	$(DESTDIR)@SIPX_CONFDIR@/freeswitch/conf/dialplan \
 	$(DESTDIR)@SIPX_CONFDIR@/freeswitch/conf/sip_profiles \
+	$(DESTDIR)@SIPX_CONFDIR@/database/plugin.d/v12 \
 	$(DESTDIR)@SIPX_VARDIR@/mrtg/thresh \
 	$(DESTDIR)@SIPX_VARDIR@/configserver/web-cert \
 	$(DESTDIR)@SIPX_VARDIR@/configserver/phone/profile/tftproot \

@@ -17,6 +17,7 @@ neoconf_JAVAROOT = $(abspath $(top_builddir)/neoconf/src/classes)
 neoconf_SRCDIR = $(abspath $(top_srcdir)/neoconf/src)
 neoconf_PKGS = \
 	acegi-security \
+	ant-contrib \
 	antlr \
 	aopalliance \
 	axis \
