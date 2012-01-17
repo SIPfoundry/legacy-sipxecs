@@ -88,6 +88,12 @@
   <property name="primary.not.exists" value="@primary.not.exists@" />
   <property name="message.oldversion" value="Migration from this version of the database is no longer supported.  You need to install a previous version first, then this version"/>
 
+  <taskdef resource="net/sf/antcontrib/antlib.xml">
+    <classpath>
+      <pathelement location="${ant-contrib.jar}"/>
+    </classpath>
+  </taskdef>
+
   <target name="patches">
     <!-- ANT BUG: sql task has issues when output=absolute file path -->
     <sipx-sql print="yes" output="${tmp.dir}/patches.properties" showheaders="no">
@@ -135,7 +141,7 @@
 
   <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11,version12" />
 
-  <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,initialize" />
+  <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,plugin-patches,initialize" />
 
   <target name="initialize" depends="tasks" if="initialize">
     <sipx-task output="/dev/null" beanId="initializeSystemTask">
@@ -394,6 +400,28 @@
     <antcall target="openacd-insert-commands" />
     <antcall target="openacd-add-line-regex" />
   	<antcall target="remove-personal-att-oper" />
+  </target>
+
+  <target name="plugin-patches">
+    <foreach param="file" target="plugin-patch">
+      <path>
+        <fileset dir="${sql.dir}/plugin.d/v12" includes="*.sql"/>
+      </path>
+    </foreach>
+  </target>
+
+  <target name="plugin-patch" depends="patches">
+    <basename file="${file}" property="patch" suffix=".sql"/>
+    <antcall target="plugin-db-patch" />
+  </target>
+
+  <target name="plugin-db-patch" unless="${patch}">
+    <sequential>
+      <sipx-sql>
+        <transaction src="${file}" />
+      </sipx-sql>
+      <mark-patch-applied patch="${patch}" />
+    </sequential>
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
