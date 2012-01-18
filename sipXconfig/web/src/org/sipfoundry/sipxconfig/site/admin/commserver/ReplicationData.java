@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 
 /*

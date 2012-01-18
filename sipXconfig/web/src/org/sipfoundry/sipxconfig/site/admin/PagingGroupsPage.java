@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
-import org.sipfoundry.sipxconfig.paging.PagingProvisioningContext;
 
 public abstract class PagingGroupsPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/PagingGroupsPage";
@@ -42,9 +41,6 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
 
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
-
-    @InjectObject(value = "spring:pagingProvisioningContext")
-    public abstract PagingProvisioningContext getPagingProvisioningContext();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -85,13 +81,13 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
 
     public void pageBeginRender(PageEvent event) {
         // load paging prefix
-        if (StringUtils.isEmpty(getPrefix())) {
-            String prefix = getPagingContext().getPagingPrefix();
-            setPrefix(prefix);
-        }
-
-        // load sip trace level
-        setTraceLevel(getPagingContext().getSipTraceLevel());
+//        if (StringUtils.isEmpty(getPrefix())) {
+//            String prefix = getPagingContext().getPagingPrefix();
+//            setPrefix(prefix);
+//        }
+//
+//        // load sip trace level
+//        setTraceLevel(getPagingContext().getSipTraceLevel());
 
         // load paging groups
         List<PagingGroup> groups = getPagingContext().getPagingGroups();
@@ -106,11 +102,14 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
             return;
         }
 
-        List<PagingGroup> groups = getGroups();
-        if (groups.size() > 0) {
-            getPagingContext().setPagingPrefix(prefix);
-            getPagingContext().setSipTraceLevel(getTraceLevel());
-        }
+//
+//        List<PagingGroup> groups = getGroups();
+//        if (groups.size() > 0) {
+//            PagingSettings settings = getPagingContext().getSettings();
+//            settings.setPrefix(prefix);
+//            settings.setSipTraceLevel(getTraceLevel());
+//            getPagingContext().saveSettings(settings);
+//        }
     }
 
     public void delete() {
@@ -123,10 +122,6 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
 
     public Collection getAllSelected() {
         return getSelections().getAllSelected();
-    }
-
-    public void restart() {
-        getPagingProvisioningContext().deploy();
     }
 
     public IPropertySelectionModel getTraceLevelModel() {

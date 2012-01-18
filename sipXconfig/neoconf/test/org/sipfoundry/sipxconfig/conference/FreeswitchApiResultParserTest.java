@@ -16,6 +16,8 @@ import junit.framework.JUnit4TestAdapter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParser;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParserImpl;
 
 public class FreeswitchApiResultParserTest {
 

@@ -719,9 +719,12 @@ AC_DEFUN([CHECK_POSTGRES],
       [The PostgreSQL user, default is postgres]),
     [POSTGRESQL_USER=${withval}],[POSTGRESQL_USER=postgres])
   AC_SUBST([POSTGRESQL_USER])
+  AC_SUBST([POSTGRESQL_GROUP], ["${POSTGRESQL_USER}"])
   AC_SUBST([PG_SQL], ["psql -U ${POSTGRESQL_USER}"])
   AC_SUBST([PG_DROPDB], ["dropdb -U ${POSTGRESQL_USER}"])
   AC_SUBST([PG_CREATEDB], ["createdb -U ${POSTGRESQL_USER}"])
+  AC_SUBST([PGDATA], ["/var/lib/pgsql/data"])
+  AC_SUBST([PG_DAEMON], ["/etc/init.d/postgresql"])
   AC_SUBST([POSTGRESQL_USER])
   if test -d /usr/include/pgsql ; then
     AC_SUBST(POSTGRESQL_INLCLUDE,--with-pgsql-include-dir=/usr/include/pgsql)

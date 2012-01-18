@@ -12,14 +12,14 @@
     <property name="overrideLanguage" />
     <property name="language" />
     <many-to-one name="user"  cascade="save-update" column="user_id" not-null="true" class="org.sipfoundry.sipxconfig.common.User" />
-    <component name="menu" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu">
+    <component name="menu" class="org.sipfoundry.sipxconfig.dialplan.AttendantMenu">
       <map name="menuItems" cascade="all" table="personal_attendant_menu_item" order-by="dialpad_key asc">
         <key column="personal_attendant_id" />
         <index column="dialpad_key" type="org.sipfoundry.sipxconfig.common.DialPad$UserType" />
-        <composite-element class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem">
+        <composite-element class="org.sipfoundry.sipxconfig.dialplan.AttendantMenuItem">
           <!-- explicit column names, default prepended 'element_' -->
           <property name="action" column="action"
-            type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction$UserType" />
+            type="org.sipfoundry.sipxconfig.dialplan.AttendantMenuAction$UserType" />
           <property name="parameter" column="parameter" />
         </composite-element>
       </map>

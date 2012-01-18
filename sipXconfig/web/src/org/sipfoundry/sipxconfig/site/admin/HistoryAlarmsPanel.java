@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.createDateColumn;
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.isValid;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -24,16 +27,16 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManager;
-import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
-import org.sipfoundry.sipxconfig.common.AlarmContext;
+import org.sipfoundry.sipxconfig.alarm.AlarmContext;
+import org.sipfoundry.sipxconfig.alarm.AlarmEvent;
+import org.sipfoundry.sipxconfig.alarm.AlarmHistoryManager;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 
-import static org.sipfoundry.sipxconfig.components.TapestryUtils.createDateColumn;
-import static org.sipfoundry.sipxconfig.components.TapestryUtils.isValid;
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBeginRenderListener {
     private static final String CLIENT = "client";
@@ -44,11 +47,11 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
     @InjectObject("spring:alarmHistoryManager")
     public abstract AlarmHistoryManager getAlarmHistoryManager();
 
-    @InjectObject("spring:monitoringContext")
-    public abstract MonitoringContext getMonitoringContext();
-
     @InjectObject("service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
+
+    @InjectObject("spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
 
     @Parameter
     public abstract SipxValidationDelegate getValidator();
@@ -86,12 +89,15 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
 
     public void pageBeginRender(PageEvent event) {
         if (getHostModel() == null) {
-            List<String> hosts = getMonitoringContext().getAvailableHosts();
-            Collections.sort(hosts);
-            StringPropertySelectionModel model = new StringPropertySelectionModel(hosts.toArray(new String[hosts
-                    .size()]));
+            Location[] locations = getLocationsManager().getLocations();
+            String[] hosts = new String[locations.length];
+            for (int i = 0; i < locations.length; i++) {
+                hosts[i] = locations[i].getHostname();
+            }
+            Arrays.sort(hosts);
+            StringPropertySelectionModel model = new StringPropertySelectionModel(hosts);
             setHostModel(model);
-            if (!hosts.contains(getHost()) && getHostModel().getOptionCount() > 0) {
+            if (Arrays.binarySearch(hosts, getHost()) > 0 && getHostModel().getOptionCount() > 0) {
                 setHost(getHostModel().getLabel(0));
             }
         }

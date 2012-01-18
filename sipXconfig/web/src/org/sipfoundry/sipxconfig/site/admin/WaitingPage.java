@@ -14,7 +14,7 @@ import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEndRenderListener;
-import org.sipfoundry.sipxconfig.admin.WaitingListener;
+import org.sipfoundry.sipxconfig.common.WaitingListener;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 

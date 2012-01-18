@@ -20,9 +20,9 @@ import org.apache.tapestry.TapestryUtils;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleFactory;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleType;
 
 /**
  * SelectRuleType

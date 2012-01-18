@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.presence;
 
+
 import java.util.Hashtable;
 
 import junit.framework.TestCase;

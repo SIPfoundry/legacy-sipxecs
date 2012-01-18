@@ -11,25 +11,19 @@ package org.sipfoundry.sipxconfig.speeddial;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
-import org.sipfoundry.sipxconfig.common.event.UserGroupSaveDeleteListener;
-import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements SpeedDialManager {
-
     private CoreContext m_coreContext;
-
-    private ConfigFileActivationManager m_configFileManager;
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -136,37 +130,19 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     }
 
     @Override
+    public void deleteSpeedDialsForGroup(int groupId) {
+        List<SpeedDialGroup> groups = findSpeedDialForGroupId(groupId);
+        getDaoEventPublisher().publishDeleteCollection(groups);
+        getHibernateTemplate().deleteAll(groups);
+    }
+
+    @Override
     public void deleteSpeedDialsForUser(int userId) {
         List<SpeedDial> speedDials = findSpeedDialForUserId(userId);
         if (!speedDials.isEmpty()) {
+            getDaoEventPublisher().publishDeleteCollection(speedDials);
             getHibernateTemplate().deleteAll(speedDials);
             getHibernateTemplate().flush();
-        }
-    }
-
-    public UserDeleteListener createUserDeleteListener() {
-        return new OnUserDelete();
-    }
-
-    public UserGroupSaveDeleteListener createUserGroupDeleteListener() {
-        return new OnUserGroupDelete();
-    }
-
-    private class OnUserDelete extends UserDeleteListener {
-        @Override
-        protected void onUserDelete(User user) {
-            deleteSpeedDialsForUser(user.getId());
-            activateResourceList();
-        }
-    }
-
-    private class OnUserGroupDelete extends UserGroupSaveDeleteListener {
-        @Override
-        protected void onUserGroupDelete(Group user) {
-            List<SpeedDialGroup> speedDialGroups = findSpeedDialForGroupId(user.getId());
-            if (!speedDialGroups.isEmpty()) {
-                getHibernateTemplate().deleteAll(speedDialGroups);
-            }
         }
     }
 
@@ -178,24 +154,14 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return Arrays.asList(rules);
     }
 
-    @Override
-    public void activateResourceList() {
-        m_configFileManager.activateConfigFiles();
-    }
 
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
-    @Required
-    public void setRlsConfigFilesActivator(ConfigFileActivationManager configFileManager) {
-        m_configFileManager = configFileManager;
-    }
-
     @Override
     public void clear() {
-        Collection c = getHibernateTemplate().loadAll(SpeedDial.class);
-        getHibernateTemplate().deleteAll(c);
+        removeAll(SpeedDial.class);
     }
 }

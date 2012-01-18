@@ -13,10 +13,11 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.intercom.Intercom;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
@@ -24,7 +25,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public interface PhoneContext extends DataObjectSource {
+public interface PhoneContext extends DataObjectSource, DaoEventListener {
 
     String GROUP_RESOURCE_ID = "phone";
     String CONTEXT_BEAN_NAME = "phoneContext";

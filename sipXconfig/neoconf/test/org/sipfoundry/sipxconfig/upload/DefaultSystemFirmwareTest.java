@@ -9,19 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
-
 public class DefaultSystemFirmwareTest extends TestCase {
 
     public void testGetUploadArgs() {
         String uploadSpec = "testUploadSpec";
-        String rootDir = TestHelper.getSourceDirectory(getClass()) + "/firmware-dir/";
+        String thisDir = new File(getClass().getResource("file1.txt").getFile()).getParent();
+        String rootDir = thisDir + "/firmware-dir/";
 
         List<String> fileSettings = new ArrayList<String>();
         List<String> uploadFiles = new ArrayList<String>();

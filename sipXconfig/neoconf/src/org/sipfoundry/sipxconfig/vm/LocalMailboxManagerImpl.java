@@ -27,8 +27,8 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.BackupBean;
-import org.sipfoundry.sipxconfig.admin.Restore;
+import org.sipfoundry.sipxconfig.backup.BackupBean;
+import org.sipfoundry.sipxconfig.backup.Restore;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public class LocalMailboxManagerImpl extends AbstractMailboxManager implements MailboxManager {
@@ -231,5 +231,4 @@ public class LocalMailboxManagerImpl extends AbstractMailboxManager implements M
             }
         }
     }
-
 }

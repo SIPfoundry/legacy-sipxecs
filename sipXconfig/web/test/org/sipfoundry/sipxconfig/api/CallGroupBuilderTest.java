@@ -26,7 +26,7 @@ public class CallGroupBuilderTest extends TestCase {
         USER.setUserName(USER_NAME);
     }
     private CallGroupBuilder m_builder;
-    private org.sipfoundry.sipxconfig.admin.callgroup.CallGroup m_myCallGroup;
+    private org.sipfoundry.sipxconfig.callgroup.CallGroup m_myCallGroup;
     private CallGroup m_apiCallGroup;
     private IMocksControl m_control;
     private CoreContext m_coreContext;
@@ -37,7 +37,7 @@ public class CallGroupBuilderTest extends TestCase {
         m_coreContext = m_control.createMock(CoreContext.class);
         m_builder = new CallGroupBuilder();
         m_builder.setCoreContext(m_coreContext);
-        m_myCallGroup = new org.sipfoundry.sipxconfig.admin.callgroup.CallGroup();
+        m_myCallGroup = new org.sipfoundry.sipxconfig.callgroup.CallGroup();
         m_apiCallGroup = new CallGroup();
     }
 
@@ -69,10 +69,10 @@ public class CallGroupBuilderTest extends TestCase {
         assertEquals(true, m_myCallGroup.isEnabled());
         List myRings = m_myCallGroup.getRings();
         assertEquals(1, myRings.size());
-        org.sipfoundry.sipxconfig.admin.callgroup.UserRing myRing =
-            (org.sipfoundry.sipxconfig.admin.callgroup.UserRing) myRings.get(0);
+        org.sipfoundry.sipxconfig.callgroup.UserRing myRing =
+            (org.sipfoundry.sipxconfig.callgroup.UserRing) myRings.get(0);
         assertEquals(19, myRing.getExpiration());
-        assertEquals(org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type.IMMEDIATE, myRing.getType());
+        assertEquals(org.sipfoundry.sipxconfig.callgroup.AbstractRing.Type.IMMEDIATE, myRing.getType());
     }
 
     public void testToApi() {
@@ -82,11 +82,11 @@ public class CallGroupBuilderTest extends TestCase {
         m_myCallGroup.setEnabled(true);
 
         // Create a test UserRing
-        org.sipfoundry.sipxconfig.admin.callgroup.UserRing myRing =
-            new org.sipfoundry.sipxconfig.admin.callgroup.UserRing();
+        org.sipfoundry.sipxconfig.callgroup.UserRing myRing =
+            new org.sipfoundry.sipxconfig.callgroup.UserRing();
         myRing.setCallGroup(m_myCallGroup);
         myRing.setExpiration(19);
-        myRing.setType(org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type.IMMEDIATE);
+        myRing.setType(org.sipfoundry.sipxconfig.callgroup.AbstractRing.Type.IMMEDIATE);
         myRing.setUser(USER);
         List myRings = new ArrayList(1);
         myRings.add(myRing);

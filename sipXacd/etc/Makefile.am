@@ -1,15 +1,12 @@
 include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-        $(proc_DATA:.xml=.xml.in)
+        $(conf_DATA:=.in)
 
-procdir = \
-        $(SIPX_DATADIR)/process.d
+confdir = $(SIPX_CONFDIR)
+conf_DATA = sipxacd-config
 
-proc_DATA = \
-	sipxacd-process.xml
-
-$(proc_DATA) : % : %.in Makefile
+$(conf_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
-CLEANFILES = $(proc_DATA)
+CLEANFILES = $(conf_DATA)

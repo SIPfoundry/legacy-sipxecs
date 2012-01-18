@@ -16,9 +16,10 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
-import java.io.Serializable;
+import static org.restlet.data.MediaType.APPLICATION_JSON;
+import static org.restlet.data.MediaType.TEXT_XML;
 
-import com.thoughtworks.xstream.XStream;
+import java.io.Serializable;
 
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -29,8 +30,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.User;
 
-import static org.restlet.data.MediaType.APPLICATION_JSON;
-import static org.restlet.data.MediaType.TEXT_XML;
+import com.thoughtworks.xstream.XStream;
 
 public class LoginDetailsResource extends UserResource {
 

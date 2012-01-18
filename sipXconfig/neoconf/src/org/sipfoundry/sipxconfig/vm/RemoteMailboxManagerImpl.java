@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,8 +27,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.BackupBean;
-import org.sipfoundry.sipxconfig.admin.Restore;
+import org.sipfoundry.sipxconfig.backup.BackupBean;
+import org.sipfoundry.sipxconfig.backup.Restore;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;

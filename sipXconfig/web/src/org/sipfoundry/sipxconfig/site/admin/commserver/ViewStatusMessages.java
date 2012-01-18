@@ -10,7 +10,6 @@
 
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.tapestry.IRequestCycle;
@@ -18,15 +17,12 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatusMessage;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatusMessageHolder;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatusMessage;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatusMessageHolder;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public abstract class ViewStatusMessages extends PageWithCallback implements PageBeginRenderListener {
 
@@ -43,17 +39,17 @@ public abstract class ViewStatusMessages extends PageWithCallback implements Pag
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
-
-    @InjectObject("spring:sipxProcessContext")
-    public abstract SipxProcessContext getSipxProcessContext();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
+//
+//    @InjectObject("spring:sipxProcessContext")
+//    public abstract SipxProcessContext getSipxProcessContext();
 
     public abstract Location getServiceLocation();
     public abstract void setServiceLocation(Location serviceLocation);
 
-    public abstract SipxService getService();
-    public abstract void setService(SipxService service);
+//    public abstract SipxService getService();
+//    public abstract void setService(SipxService service);
 
     @Persist
     public abstract String getServiceBeanId();
@@ -72,16 +68,16 @@ public abstract class ViewStatusMessages extends PageWithCallback implements Pag
     }
 
     public void pageBeginRender(PageEvent event) {
-        setServiceLocation(getLocationsManager().getLocation(getLocationId()));
-        setService(getSipxServiceManager().getServiceByBeanId(getServiceBeanId()));
-
-        ServiceStatusMessageHolder messages = new ServiceStatusMessageHolder();
-        setStatusMessages(messages);
-
-        List<String> allMessages = getSipxProcessContext().getStatusMessages(getServiceLocation(), getService());
-        for (String message : allMessages) {
-            messages.addMessage(message);
-        }
+//        setServiceLocation(getLocationsManager().getLocation(getLocationId()));
+//        setService(getSipxServiceManager().getServiceByBeanId(getServiceBeanId()));
+//
+//        ServiceStatusMessageHolder messages = new ServiceStatusMessageHolder();
+//        setStatusMessages(messages);
+//
+//        List<String> allMessages = getSipxProcessContext().getStatusMessages(getServiceLocation(), getService());
+//        for (String message : allMessages) {
+//            messages.addMessage(message);
+//        }
     }
 
     public void returnToServices(IRequestCycle cycle) {

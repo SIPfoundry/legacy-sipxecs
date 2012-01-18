@@ -9,36 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.address.AddressType;
 
-public class UnmanagedService extends ConfiguredService {
-    public static final String BEAN_ID = "unmanagedService";
+public interface UnmanagedService {
+    //public static final GlobalFeature FEATURE = new GlobalFeature("unmanagedServices");
+    public static final AddressType NTP = new AddressType("ntp");
+    public static final AddressType SYSLOG = new AddressType("syslog");
+    public static final AddressType DNS = new AddressType("dns");
 
-    public static final ServiceDescriptor NTP = new ServiceDescriptor(BEAN_ID, "ntpService",
-            "NTP");
-    public static final ServiceDescriptor DNS = new ServiceDescriptor(BEAN_ID, "dnsService",
-            "DNS");
-    public static final ServiceDescriptor SYSLOG = new ServiceDescriptor(BEAN_ID,
-            "syslogService", "Syslog");
+    public UnmanagedServiceSettings getSettings();
 
-    public UnmanagedService() {
-        super(BEAN_ID);
-    }
-
-    public final ServiceDescriptor ntp() {
-        return NTP;
-    }
-
-    public final ServiceDescriptor dns() {
-        return DNS;
-    }
-
-    public final ServiceDescriptor syslog() {
-        return SYSLOG;
-    }
-
-    @Override
-    protected Setting loadSettings() {
-        return null;
-    }
+    public void saveSettings(UnmanagedServiceSettings settings);
 }

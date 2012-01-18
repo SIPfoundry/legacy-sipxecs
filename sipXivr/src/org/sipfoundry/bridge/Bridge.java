@@ -35,5 +35,4 @@ public class Bridge extends SipxIvrApp {
         controller.set("export_vars", "variable_sip_from_uri, Channel-Caller-ID-Number");
         controller.bridgeCall();
     }
-
 }

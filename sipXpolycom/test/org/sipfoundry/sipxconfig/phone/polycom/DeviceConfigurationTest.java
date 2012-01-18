@@ -14,12 +14,12 @@ import java.io.InputStream;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class DeviceConfigurationTest extends TestCase {
 
@@ -37,6 +37,7 @@ public class DeviceConfigurationTest extends TestCase {
         phone = new PolycomPhone();
         phone.setModel(model);
         PhoneTestDriver.supplyTestData(phone);
+        phone.setDefaults(PhoneTestDriver.getDeviceDefaults());
 
         m_location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         m_pg = phone.getProfileGenerator();

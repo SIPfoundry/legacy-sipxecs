@@ -96,22 +96,13 @@
     </property>
   </bean>
 
-  <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory" />
-    </property>
-    <property name="templateFactory">
-      <ref local="ldapTemplateFactory" />
-    </property>
-	<property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />
+  <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl" parent="abstractDaoImpl">
+    <property name="templateFactory" ref="ldapTemplateFactory"/>
   </bean>
 
   <bean id="ldapManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.bulk.ldap.LdapManager" />
-    <property name="target">
-      <ref local="ldapManagerImpl" />
-    </property>
+    <property name="target" ref="ldapManagerImpl"/>
   </bean>
 
   <bean id="ldapImportManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManagerImpl">

@@ -13,9 +13,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 public interface AcdContext extends AliasOwner {
     public static final String CONTEXT_BEAN_NAME = "acdContext";
@@ -46,7 +46,9 @@ public interface AcdContext extends AliasOwner {
 
     AcdAudio newAudio();
 
-    void removeServers(Collection serversIds);
+    void removeServersByIds(Collection serversIds);
+
+    void removeServers(Collection<AcdServer> servers);
 
     void removeLines(Collection linesIds);
 
@@ -84,16 +86,9 @@ public interface AcdContext extends AliasOwner {
 
     void migrateLineExtensions();
 
-    /**
-     * @return true if ACD configuration disabled
-     */
-    boolean isEnabled();
-
     Collection<AcdQueue> getQueuesForUsers(AcdServer server, Collection<User> agents);
 
     void removeOverflowSettings(Collection overflowIds, String overflowType);
-
-    void migrateAcdServers();
 
     AcdServer getAcdServerForLocationId(Integer locationId);
 

@@ -19,9 +19,7 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.components.Block;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.update.XmppContactInformationUpdate;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.FaxServicePanel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Conference;
@@ -29,8 +27,6 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
@@ -50,11 +46,11 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
-
-    @InjectObject("spring:xmppContactInformationUpdate")
-    public abstract XmppContactInformationUpdate getXmppContactInformationUpdate();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
+//
+//    @InjectObject("spring:xmppContactInformationUpdate")
+//    public abstract XmppContactInformationUpdate getXmppContactInformationUpdate();
 
     @InjectObject("spring:openAcdContext")
     public abstract OpenAcdContext getOpenAcdContext();
@@ -166,11 +162,11 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     }
 
     public void syncXmppContacts() {
-        try {
-            getXmppContactInformationUpdate().notifyChange(getUser());
-        } catch (Exception e) {
-            throw new UserException(getMessages().getMessage("xmpp.sync.error"), e.getMessage());
-        }
+//        try {
+//            getXmppContactInformationUpdate().notifyChange(getUser());
+//        } catch (Exception e) {
+//            throw new UserException(getMessages().getMessage("xmpp.sync.error"), e.getMessage());
+//        }
     }
 
     private void initAvailableTabs() {
@@ -191,9 +187,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             tabNames.add("menu");
         }
 
-        if (getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-            tabNames.add("myAssistant");
-        }
+//        if (getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
+//            tabNames.add("myAssistant");
+//        }
 
         if (getOpenAcdContext().isOpenAcdAgent(getUser())) {
             tabNames.add(TAB_OPENACD);

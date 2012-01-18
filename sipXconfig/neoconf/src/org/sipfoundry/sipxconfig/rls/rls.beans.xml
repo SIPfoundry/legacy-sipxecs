@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="rlsSettings" class="org.sipfoundry.sipxconfig.rls.RlsSettings" parent="settingsBean">
+  </bean>
+
+  <bean id="rlsLists" class="org.sipfoundry.sipxconfig.rls.ResourceLists">
+    <property name="coreContext" ref="coreContext" />
+    <property name="validUsers" ref="validUsers" />
+  </bean>
+
+  <bean id="rls" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="rlsImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.rls.Rls"/>
+  </bean>
+
+  <bean id="rlsImpl" class="org.sipfoundry.sipxconfig.rls.RlsImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.rls.RlsSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="rlsConfig" class="org.sipfoundry.sipxconfig.rls.RlsConfig">
+    <property name="rls" ref="rls" />
+  </bean>
+
+</beans>

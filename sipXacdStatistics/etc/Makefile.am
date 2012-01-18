@@ -28,8 +28,7 @@ rptdir = $(SIPX_CONFDIR)/report
 rpt_DATA = \
 	schema.sql \
 	enable_upgrades.sql \
-	location_fqdn.sql \
-	sipxconfig-report-config.vm
+	location_fqdn.sql
 
 $(cron_FILES) $(cfg_DATA) $(proc_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)

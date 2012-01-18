@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.site.admin;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmTrapReceiver;
+import org.sipfoundry.sipxconfig.alarm.AlarmTrapReceiver;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class AlarmTrapReceiverEditor extends BaseComponent {

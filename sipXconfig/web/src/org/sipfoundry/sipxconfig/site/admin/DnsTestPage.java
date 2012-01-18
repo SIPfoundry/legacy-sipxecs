@@ -14,9 +14,9 @@ import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
-import org.sipfoundry.sipxconfig.admin.DnsTestContext;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.dns.DnsTestContext;
 
 public abstract class DnsTestPage extends SipxBasePage {
 

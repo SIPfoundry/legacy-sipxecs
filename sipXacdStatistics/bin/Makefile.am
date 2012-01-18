@@ -6,11 +6,11 @@ EXTRA_DIST = \
 
 setupbindir = @SIPX_LIBEXECDIR@/setup.d
 setupbin_SCRIPTS = \
-	sipxconfig-report-setup
+	sipxacd-report-setup
 
 bin_SCRIPTS = \
-	sipxconfig-agent \
-	sipxconfig-report
+	sipxacd-stats \
+	sipxacd-report
 
 $(setupbin_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)

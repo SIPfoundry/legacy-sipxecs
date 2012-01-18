@@ -20,9 +20,6 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
@@ -33,6 +30,9 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.device.RestartManager;
+import org.sipfoundry.sipxconfig.sbc.SbcDescriptor;
+import org.sipfoundry.sipxconfig.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 
 /**
  * List all the gateways, allow adding and deleting gateways

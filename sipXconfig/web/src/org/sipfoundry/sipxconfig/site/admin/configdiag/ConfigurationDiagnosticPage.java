@@ -20,9 +20,9 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnostic;
-import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContext;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
+import org.sipfoundry.sipxconfig.configdiag.ConfigurationDiagnostic;
+import org.sipfoundry.sipxconfig.configdiag.ConfigurationDiagnosticContext;
 
 public abstract class ConfigurationDiagnosticPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/configdiag/ConfigurationDiagnosticPage";

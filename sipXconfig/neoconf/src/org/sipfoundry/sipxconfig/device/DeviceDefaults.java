@@ -9,24 +9,24 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
-import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.EmergencyInfo;
+import org.sipfoundry.sipxconfig.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
-import org.sipfoundry.sipxconfig.service.ConfiguredService;
-import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
-import org.sipfoundry.sipxconfig.service.ServiceManager;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
+import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -35,30 +35,18 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class DeviceDefaults {
     private static final Log LOG = LogFactory.getLog(DeviceDefaults.class);
-
     private static final String DEFAULT_SIP_PORT = "5060";
 
     private String m_profileRootUrl;
-
     private DialPlanContext m_dialPlanContext;
-
     private DomainManager m_domainManager;
-
     private TimeZoneManager m_timeZoneManager;
-
-    private ServiceManager m_serviceManager;
-
-    private String m_defaultNtpService = "pool.ntp.org";
-
     private String m_logDirectory;
-
-    private SipxServiceManager m_sipxServiceManager;
-
     private LocationsManager m_locationsManager;
-
-    private MusicOnHoldManager m_musicOnHoldManager;
-
+    private MohAddressFactory m_musicOnHold;
     private PagingContext m_pagingContext;
+    private Registrar m_registrar;
+    private AddressManager m_addressManager;
 
     /**
      * If true sipXconfig will attempt to route emergency calls directly through emergency
@@ -66,22 +54,6 @@ public class DeviceDefaults {
      * alarms and registering CDRs.
      */
     private boolean m_routeEmergencyCallsDirectly;
-
-    public void setDefaultNtpService(String defaultNtpService) {
-        m_defaultNtpService = defaultNtpService;
-    }
-
-    public void setServiceManager(ServiceManager serviceManager) {
-        m_serviceManager = serviceManager;
-    }
-
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    public SipxServiceManager getSipxServiceManager() {
-        return m_sipxServiceManager;
-    }
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
@@ -92,7 +64,7 @@ public class DeviceDefaults {
     }
 
     public String getPagingPrefix() {
-        return m_pagingContext.getPagingPrefix();
+        return m_pagingContext.getSettings().getPrefix();
     }
 
     public String getDomainName() {
@@ -100,52 +72,30 @@ public class DeviceDefaults {
     }
 
     public String getNtpServer() {
-        String server = getServer(0, UnmanagedService.NTP);
-        return server == null ? m_defaultNtpService : server;
+        return m_addressManager.getSingleAddress(UnmanagedService.NTP).getAddress();
     }
 
     /**
      * @return null if not set
      */
     public String getAlternateNtpServer() {
-        return getServer(1, UnmanagedService.NTP);
-    }
-
-    /**
-     * Find IP address (or FQDN) of the specific type of server.
-     *
-     * @param index 0-based index of the server (0 == Primary, 1 = Secondary, etc._
-     * @param s service descriptor
-     * @return null if service is not defined
-     */
-    public String getServer(int index, ServiceDescriptor s) {
-        List<ConfiguredService> servers = m_serviceManager.getEnabledServicesByType(s);
-        if (servers == null || servers.size() <= index) {
-            return null;
+        Collection<Address> ntp = m_addressManager.getAddresses(UnmanagedService.NTP);
+        if (ntp.size() > 1) {
+            return ((Address) ntp.toArray()[1]).getAddress();
         }
-        return servers.get(index).getAddress();
+        return null;
     }
 
-    public String getTftpServer() {
-        return m_locationsManager.getPrimaryLocation().getAddress();
+    public Address getTftpServer() {
+        return m_addressManager.getSingleAddress(AdminContext.TFTP_ADDRESS);
     }
 
     /**
      * Only use this function when IP address of the proxy is needed. In most cases you should be
      * able to use SIP domain name
      */
-    public String getProxyServerAddr() {
-        return m_locationsManager.getPrimaryLocation().getAddress();
-    }
-
-    /**
-     * Only use this function when port of the the proxy is needed. In most cases you should be
-     * able to use SIP domain name
-     */
-    public String getProxyServerSipPort() {
-        SipxProxyService sipxProxyService = (SipxProxyService) m_sipxServiceManager
-                .getServiceByBeanId(SipxProxyService.BEAN_ID);
-        return sipxProxyService.getSipPort();
+    public Address getProxyAddress() {
+        return m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS);
     }
 
     /**
@@ -241,7 +191,11 @@ public class DeviceDefaults {
 
     @Required
     public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
-        m_musicOnHoldManager = musicOnHoldManager;
+        setMohAddressFactory(musicOnHoldManager.getAddressFactory());
+    }
+
+    public void setMohAddressFactory(MohAddressFactory musicOnHold) {
+        m_musicOnHold = musicOnHold;
     }
 
     @Required
@@ -250,7 +204,7 @@ public class DeviceDefaults {
     }
 
     public String getMusicOnHoldUri() {
-        return m_musicOnHoldManager.getDefaultMohUri();
+        return m_musicOnHold.getDefaultMohUri();
     }
 
     public void setLogDirectory(String logDirectory) {
@@ -262,15 +216,42 @@ public class DeviceDefaults {
     }
 
     public String getDirectedCallPickupCode() {
-        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
-                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        return registrarService.getDirectedCallPickupCode();
+        return m_registrar.getSettings().getDirectedCallPickupCode();
     }
 
     public String getCallRetrieveCode() {
-        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
-                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        return registrarService.getCallRetrieveCode();
+        return m_registrar.getSettings().getCallRetrieveCode();
     }
 
+    public void setRegistrar(Registrar registrar) {
+        m_registrar = registrar;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public DialPlanContext getDialPlanContext() {
+        return m_dialPlanContext;
+    }
+
+    public DomainManager getDomainManager() {
+        return m_domainManager;
+    }
+
+    public TimeZoneManager getTimeZoneManager() {
+        return m_timeZoneManager;
+    }
+
+    public LocationsManager getLocationsManager() {
+        return m_locationsManager;
+    }
+
+    public PagingContext getPagingContext() {
+        return m_pagingContext;
+    }
+
+    public AddressManager getAddressManager() {
+        return m_addressManager;
+    }
 }

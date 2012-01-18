@@ -10,39 +10,32 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.io.InputStream;
+import java.io.StringWriter;
+
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ConferenceConfigurationTest extends TestCase {
 
     private DomainManager m_domainManager;
     private final Location m_location = new Location();
+    private final Domain m_domain = new Domain("example.com");
     private final ConferenceConfiguration m_config = new ConferenceConfiguration();
 
     @Override
     protected void setUp() throws Exception {
         m_location.setFqdn("test.example.com");
-
-        Domain domain = new Domain("example.com");
-        IMocksControl control = EasyMock.createControl();
-        m_domainManager = control.createMock(DomainManager.class);
-        m_domainManager.getDomain();
-        EasyMock.expectLastCall().andReturn(domain);
-        EasyMock.replay(m_domainManager);
-
         m_config.setDomainManager(m_domainManager);
         m_config.setVelocityEngine(TestHelper.getVelocityEngine());
         m_config.setMohLocalStreamUrl("local_stream://moh");
         m_config.setPortAudioUrl("portaudio_stream://");
-        m_config.setTemplate("sipxconference/conference.conf.xml.vm");
     }
 
     public void testGenerate() throws Exception {
@@ -107,9 +100,10 @@ public class ConferenceConfigurationTest extends TestCase {
 
         m_config.setConferenceBridgeContext(confContext);
 
-        String generatedXml = AbstractConfigurationFile.getFileContent(m_config, m_location);
+        StringWriter actual = new StringWriter();
+        m_config.writeXml(actual, m_location, m_domain, bridge);
         InputStream referenceXml = getClass().getResourceAsStream("conference_config.test.xml");
-        assertEquals(IOUtils.toString(referenceXml), generatedXml);
+        assertEquals(actual.toString().trim(), IOUtils.toString(referenceXml).trim());
     }
 
     public void testGenerateNullBridge() throws Exception {
@@ -120,8 +114,9 @@ public class ConferenceConfigurationTest extends TestCase {
 
         m_config.setConferenceBridgeContext(confContext);
 
-        String generatedXml = AbstractConfigurationFile.getFileContent(m_config, m_location);
+        StringWriter actual = new StringWriter();
+        m_config.writeXml(actual, m_location, m_domain, null);
         InputStream referenceXml = getClass().getResourceAsStream("conference_config_null_bridge.test.xml");
-        assertEquals(IOUtils.toString(referenceXml), generatedXml);
+        assertEquals(actual.toString().trim(), IOUtils.toString(referenceXml).trim());
     }
 }

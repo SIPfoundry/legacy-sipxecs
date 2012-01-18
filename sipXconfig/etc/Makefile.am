@@ -6,17 +6,17 @@ all : $(proc_DATA) $(conf_DATA) $(addprefix out/,$(conf_SOURCE))
 EXTRA_DIST = \
 	$(addprefix sipxpbx/,$(conf_SOURCE)) \
 	$(proc_DATA:=.in) \
-	$(conf_DATA:=.in)
+	$(conf_DATA:=.in) \
+	sipxconfig.cfdat
 
 procdir = $(SIPX_DATADIR)/process.d
 proc_DATA = \
-	sipxconfig-process.xml \
-	tunnel-process.xml \
-	sipXmrtg-process.xml
+	tunnel-process.xml
 
 # Directories should be created in the application layer to make it more resiliant to IT administation errors
 # but these may exist for historical or special reasons
 emptydirs = \
+	$(DESTDIR)@SIPX_CFDATA@/1 \
 	$(DESTDIR)@SIPX_CONFDIR@/freeswitch/conf/dialplan \
 	$(DESTDIR)@SIPX_CONFDIR@/freeswitch/conf/sip_profiles \
 	$(DESTDIR)@SIPX_CONFDIR@/database/plugin.d/v12 \
@@ -31,6 +31,14 @@ emptydirs = \
 
 confdir = @SIPX_CONFDIR@
 conf_DATA = sipxconfig.properties
+
+cfdefaultsdir = @SIPX_CFDATA@/defaults
+cfdefaults_DATA = \
+	location_id \
+	sipxconfig.cfdat
+
+location_id :
+	echo 1 > $@
 
 # automatically selects configuration files, but as importantly, also has to distinguish what is NOT
 # a configuration file in the 'find' statement
@@ -65,7 +73,7 @@ check : validate-xml
 setting_2_0.dtd setting_1_0.dtd : sipxpbx/setting.dtd
 	cp $< $@
 
-validate-xml : setting_2_0.dtd setting_1_0.dtd
+validate-xml : setting_2_0.dtd setting_1_0.dtd $(addprefix out/,$(SETTINGS_XML)) $(SIPX_DATADIR)/schema/sipXecs-process.xsd $(proc_DATA)
 	xmllint --noout --schema $(SIPX_DATADIR)/schema/sipXecs-process.xsd $(proc_DATA)
 	xmllint --noout --path . --valid $(addprefix out/,$(SETTINGS_XML))
 

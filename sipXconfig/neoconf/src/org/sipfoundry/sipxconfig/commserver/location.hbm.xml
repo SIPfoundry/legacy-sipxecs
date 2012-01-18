@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.commserver" default-lazy="false">
+
+  <class name="Location" table="location">
+    <id name="id" column="location_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">location_seq</param>
+      </generator>
+    </id>
+    <property name="name" />
+    <property name="address" column="ip_address" />
+    <property name="fqdn" />
+    <property name="password" />
+    <property name="primary" column="primary_location" />
+    <property name="registered" />
+    <property name="callTraffic" />
+    <property name="state" column="state" type="org.sipfoundry.sipxconfig.commserver.Location$LocationState" />
+    <property name="lastAttempt" />
+    <set name="failedReplications" table="location_failed_replications">
+      <key column="location_id" not-null="true" foreign-key="location_failed_replications_fk" />
+      <element type="string" column="entity_name" not-null="true" />
+    </set>
+    <property name="useStun" />
+    <property name="stunAddress" />
+    <property name="stunInterval" />
+    <property name="publicAddress" />
+    <property name="publicPort" />
+    <property name="publicTlsPort" />
+    <property name="startRtpPort" />
+    <property name="stopRtpPort" />
+    <many-to-one name="branch" column="branch_id" not-found="ignore" />
+  </class>
+
+  <class name="SettingsWithLocation" table="settings_with_location" discriminator-value="settingsWithLocation">
+    <id name="id" column="settings_with_location_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">settings_with_location_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id"/>    
+    <property name="beanId" column="bean_id" insert="false" update="false"/>
+    <many-to-one name="location" column="location_id" unique="true"
+      class="org.sipfoundry.sipxconfig.commserver.Location" />
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+    <set name="groups" table="settings_location_group" sort="natural" cascade="save-update">
+      <key column="settings_with_location_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
+    </set>
+    
+  </class>
+  
+  <query name="settingByLocation">
+    <![CDATA[from SettingsWithLocation swl where swl.location.id = ?]]>
+  </query>    
+
+  <query name="locationsForBranch">
+    <![CDATA[from Location l where l.branch = :branch]]>
+  </query>
+
+  <query name="anotherLocationWithSameFqdnOrIpExceptThis">
+    <![CDATA[select count (*) from Location location where location.id != :locationId and (location.fqdn = :fqdn or location.address = :ipAddress)]]>
+  </query>
+
+  <query name="sameLocationWithSameFqdnOrIp">
+    <![CDATA[select count (*) from Location location where location.id = :locationId and location.fqdn = :fqdn and location.address = :ipAddress]]>
+  </query>
+</hibernate-mapping>

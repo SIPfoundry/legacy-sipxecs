@@ -1,0 +1,107 @@
+#!@BASH@
+# sipxproxy - Startup script for sipxproxy
+
+# chkconfig: 35 85 15
+# description: sipxproxy is a SIP proxy for telecommunications
+# processname: sipXproxy
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+prog=sipXproxy
+exec="@SIPX_BINDIR@/${prog}"
+config="@SIPX_CONFDIR@/sipXproxy-config"
+pidfile="@SIPX_RUNDIR@/sipxproxy.pid"
+
+[ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
+
+start() {
+    [ -x $exec ] || exit 5
+    [ -f $config ] || exit 6
+    echo -n $"Starting $prog: "
+    # if not running, start it up here, usually something like "daemon $exec"
+    daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec $pidfile
+    Status=$?
+    echo
+}
+
+stop() {
+  echo -n $"Stopping sipXproxy: "
+  killproc -p "${pidfile}" -t30 -TERM "${binfile}"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
+}
+
+restart() {
+  stop
+  start
+}
+
+configtest() {
+  myDomain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+  Status=$((${Status} + $?))
+  sipx_config_exists @SIPX_CONFDIR@/sipXproxy-config
+  proxy_config_status=$?
+  Status=$((${Status} + ${proxy_config_status}))
+
+  # check validity of xml routing rules, and authorization rules
+  @bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
+  Status=$((${Status} + $?))
+  @bindir@/sipx-validate-xml @SIPX_CONFDIR@/authrules.xml
+  Status=$((${Status} + $?))
+  @bindir@/sipx-validate-xml @SIPX_CONFDIR@/nattraversalrules.xml
+  Status=$((${Status} + $?))
+
+  # Check that the log file is writable.
+  logfile="@SIPX_LOGDIR@/sipXproxy.log"
+  if [ -e $logfile -a ! -w $logfile ]
+  then
+    echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+    Status=1
+  fi
+
+  if [ ${proxy_config_status} -eq 0 ]
+  then
+    myIp=`sipx_config_value @SIPX_CONFDIR@/sipXproxy-config SIPX_PROXY_BIND_IP 2> /dev/null`
+    if ! sip_resolves_to ${myDomain} ${myIp}
+    then
+      cat <<ERROR
+  SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to my IP address: ${myIp}
+  See the installation guide on setting the DNS SRV records and domain names
+ERROR
+         Status=1
+    fi
+  fi
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${pidfile} ] && restart || :
+    ;;
+  status)
+    status -p "${pidfile}" "${prog}"
+    Status=$?
+    ;;
+  configtest)
+    configtest
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    Status=1
+esac
+
+exit $Status

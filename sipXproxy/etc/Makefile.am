@@ -1,15 +1,10 @@
 include $(top_srcdir)/config/utility.am
 
-EXTRA_DIST = \
-	$(proc_DATA:.xml=.xml.in)
+cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
+dist_cfinputs_DATA = \
+	sipxproxy.cf
 
-procdir = \
-	$(SIPX_DATADIR)/process.d
+cfdefaultsdir = @SIPX_CFDATA@/defaults
+dist_cfdefaults_DATA = \
+	sipxproxy.cfdat
 
-proc_DATA = \
-	sipXproxy-process.xml
-
-$(proc_DATA) : % : %.in Makefile
-	@$(call SearchAndReplace, $<, $@, $(OPENACD_VARS))
-
-CLEANFILES = $(proc_DATA)

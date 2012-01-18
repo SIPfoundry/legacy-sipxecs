@@ -8,6 +8,10 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,16 +21,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-
-import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
-import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
-import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -76,7 +77,7 @@ public class User extends AbstractUser implements Replicable {
         m_identity = identity;
     }
 
-    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService freeswitchService) {
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         String contact = getUri(domainName);
         for (String alias : getAliases()) {
@@ -106,13 +107,13 @@ public class User extends AbstractUser implements Replicable {
 
         if (this.hasPermission(PermissionName.EXCHANGE_VOICEMAIL)
                 || this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
-            String host;
-            host = freeswitchService.getLocationsManager().getPrimaryLocation().getAddress();
-
-            int fsPort = freeswitchService.getFreeswitchSipPort();
-            String sipUri = SipUri.formatDepositVm(getUserName(), host, fsPort);
-            AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), sipUri, "vmprm");
-            mappings.add(mapping);
+            // NOTE: Missing explaination why exchange needs direction connection to FS
+            Address address = getAddressManager().getSingleAddress(FreeswitchFeature.SIP_ADDRESS, this);
+            if (address != null) {
+                String sipUri = SipUri.formatDepositVm(getUserName(), address.getAddress(), address.getPort());
+                AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), sipUri, "vmprm");
+                mappings.add(mapping);
+            }
         }
 
         return mappings;
@@ -135,10 +136,5 @@ public class User extends AbstractUser implements Replicable {
         props.put(GROUPS, getGroupsNames().split(" "));
         props.put(MongoConstants.TIMESTAMP, System.currentTimeMillis());
         return props;
-    }
-
-    @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName) {
-        return null;
     }
 }

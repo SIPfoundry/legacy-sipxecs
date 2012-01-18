@@ -23,8 +23,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
-import org.sipfoundry.sipxconfig.service.SipxPageService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
 import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
@@ -39,9 +37,9 @@ public abstract class EditPagingGroupPage extends UserBasePage {
 
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
-
-    @InjectObject(value = "spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//
+//    @InjectObject(value = "spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @Persist(value = "client")
     public abstract Integer getGroupId();
@@ -93,9 +91,9 @@ public abstract class EditPagingGroupPage extends UserBasePage {
         setGroup(group);
     }
 
-    public SipxPageService getSipxPageService() {
-        return ((SipxPageService) getSipxServiceManager().getServiceByBeanId(SipxPageService.BEAN_ID));
-    }
+//    public SipxPageService getSipxPageService() {
+//        return ((SipxPageService) getSipxServiceManager().getServiceByBeanId(SipxPageService.BEAN_ID));
+//    }
 
     public IPage add(IRequestCycle cycle) {
         SelectUsers editUsers = (SelectUsers) cycle.getPage(SelectUsers.PAGE);

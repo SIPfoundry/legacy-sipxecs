@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.cdr;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
+import org.sipfoundry.sipxconfig.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.common.SipUri;
 
 public class Cdr implements Serializable {

@@ -24,7 +24,7 @@ public class UserRingBuilderTest extends TestCase {
     }
 
     private UserRingBuilder m_builder;
-    private org.sipfoundry.sipxconfig.admin.callgroup.UserRing m_myUserRing;
+    private org.sipfoundry.sipxconfig.callgroup.UserRing m_myUserRing;
     private UserRing m_apiUserRing;
     private IMocksControl m_control;
     private CoreContext m_coreContext;
@@ -33,7 +33,7 @@ public class UserRingBuilderTest extends TestCase {
         m_control = EasyMock.createControl();
         m_coreContext = m_control.createMock(CoreContext.class);
         m_builder = new UserRingBuilder(m_coreContext);
-        m_myUserRing = new org.sipfoundry.sipxconfig.admin.callgroup.UserRing();
+        m_myUserRing = new org.sipfoundry.sipxconfig.callgroup.UserRing();
         m_apiUserRing = new UserRing();
         m_apiUserRing.setType(AbstractRingBuilder.TYPE_IMMEDIATE);
     }

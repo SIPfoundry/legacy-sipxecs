@@ -16,7 +16,7 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.alarm.Alarm;
+import org.sipfoundry.sipxconfig.alarm.Alarm;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 @ComponentClass

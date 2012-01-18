@@ -1,0 +1,84 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipxpublisher configuration and process management
+#
+bundle agent sipxpublisher {
+  methods:
+    sipxpublisher::
+      "any" usebundle => "sipxpublisher_config";
+      "any" usebundle => "sipxpublisher_setup";
+    any::
+      "any" usebundle => "sipxpublisher_running";
+}
+
+bundle agent sipxpublisher_config {
+  vars:
+    any::
+      "xml_file" slist => {
+        "status-plugin.xml"
+      };
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/status-config"
+        create => "true",
+        perms => m("644"),
+        edit_line => sipstatus_config_contents(),
+        classes => if_repaired("restart_sipxpublisher"),
+	action => track("status-config");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxpublisher"),
+	action => track("$(xml_file)");
+}
+
+bundle edit_line sipstatus_config_contents() {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/status-config.part"
+        insert_type => "file";
+      "SIP_STATUS_BIND_IP : $(sys.ipv4)";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxpublisher_setup {
+  methods:
+    !src::
+      "any" usebundle => rh_chkconfig_status("sipxpublisher");
+}
+
+bundle agent sipxpublisher_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipstatus";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpublisher_running");
+
+  commands:
+    sipxpublisher_running.!sipxpublisher::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
+        args => "stop",
+	action => track("sipxpublisher stop");
+
+    !sipxpublisher_running.sipxpublisher::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
+        args => "start",
+	action => track("sipxpublisher start");
+
+    restart_sipxpublisher::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
+        args => "restart",
+	action => track("sipxpublisher restart");
+}
+

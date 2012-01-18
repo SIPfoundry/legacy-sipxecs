@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.xml.FlatDtdDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 /**
  * Generate a DTD that helps writing dbunit files.  You can run this from eclipse or commandline

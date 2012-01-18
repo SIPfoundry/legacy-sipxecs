@@ -23,7 +23,6 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.callback.ICallback;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class ServiceSettingsPanel extends BaseComponent {
@@ -33,10 +32,10 @@ public abstract class ServiceSettingsPanel extends BaseComponent {
     @Parameter
     public abstract ICallback getCallback();
 
-    @Parameter(required = true)
-    public abstract SipxService getService();
-
-    public abstract void setService(SipxService service);
+//    @Parameter(required = true)
+//    public abstract SipxService getService();
+//
+//    public abstract void setService(SipxService service);
 
     @Parameter(required = true)
     public abstract String getGroupToDisplay();
@@ -61,8 +60,8 @@ public abstract class ServiceSettingsPanel extends BaseComponent {
 
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
-        Setting root = getService().getSettings();
-        Setting parent = root.getSetting(getGroupToDisplay());
-        setParentSetting(parent);
+//        Setting root = getService().getSettings();
+//        Setting parent = root.getSetting(getGroupToDisplay());
+//        setParentSetting(parent);
     }
 }

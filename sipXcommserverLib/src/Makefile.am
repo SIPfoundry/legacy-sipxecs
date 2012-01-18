@@ -68,6 +68,7 @@ libsipXcommserver_la_SOURCES = \
     configrpc/ConfigRPC.cpp \
     odbc/OdbcWrapper.cpp \
     persist/SipPersistentSubscriptionMgr.cpp \
-	 sipXecsService/SipXecsService.cpp \
+    sipXecsService/daemon.cpp \
+    sipXecsService/SipXecsService.cpp \
     sipXecsService/SipNonceDb.cpp \
-	 sipXecsService/SharedSecret.cpp
+    sipXecsService/SharedSecret.cpp

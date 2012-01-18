@@ -124,19 +124,19 @@
     </property>
     <property name="mappingResources">
       <list>
-        <value>org/sipfoundry/sipxconfig/acccode/acccode.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/callgroup/callGroup.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/commserver/location.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/parkorbit/parkOrbit.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/acccode/authcode.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/callgroup/callGroup.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/commserver/location.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/parkorbit/parkOrbit.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/forwarding/ring.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/admin.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/backup.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/ftp/ftp.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/intercom/intercom.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/localization/localization.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/backup/backup.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/ftp/ftp.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/intercom/intercom.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/dialplan/dialingRule.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/localization/localization.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/dialplan/autoAttendant.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/sbc/sbc.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/bulk/ldap/ldap.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/common/common.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/conference/conference.hbm.xml</value>
@@ -154,18 +154,15 @@
         <value>org/sipfoundry/sipxconfig/phonebook/phonebook_file_entry.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phonebook/google_domain.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/acd/acd.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/service/service.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/service/sipx-service.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/service/location-specific-service.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/vm/attendant/personalAttendant.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/paging/paging.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/alarm/alarm.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/alarm/alarm.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/device/timezone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/branch/branch.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/tls/tls.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/authcode/authcode.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/tls/tls.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/freeswitch/freeswitch.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/openacd/openacd.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/feature/feature.hbm.xml</value>
       </list>
     </property>
     <property name="baseClassBeanIds">
@@ -174,8 +171,8 @@
         <value>sbcGeneric</value>
         <value>abstractPhone</value>
         <value>upload</value>
-        <value>abstractService</value>
-        <value>sipxService</value>
+        <value>settingsBean</value>
+        <value>settingsWithLocation</value>
       </list>
     </property>
   </bean>
@@ -206,6 +203,12 @@
     <property name="indexer" ref="fastIndexer" />
     <property name="beanIndexHelper" ref="beanIndexHelper"/>
   </bean>
+  
+  <bean id="abstractDaoImpl" abstract="true">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>    
+  </bean>
+  
   <!--
     - Use this instead of 'hibernateInterceptor' when you want to
     - load spring beans from hibernate mappings.  See common/common.beans.xml for example
@@ -219,6 +222,7 @@
       </list>
     </property>
   </bean>
+  
   <bean id="onDeleteAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
     <property name="advice">
       <ref local="onDeleteEventDispatcher" />
@@ -321,5 +325,4 @@
   <bean id="beanWithSettings" abstract="true">
     <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
-
 </beans>

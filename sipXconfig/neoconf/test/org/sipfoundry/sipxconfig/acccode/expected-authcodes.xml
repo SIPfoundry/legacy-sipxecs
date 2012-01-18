@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<authcodes xmlns="http://www.sipfoundry.org/sipX/schema/xml/authcodes-00-00">
+  <authcode code="444">
+    <authname>~~ac~1</authname>
+    <authpassword>xxx</authpassword>
+  </authcode>
+</authcodes>

@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.common.User;
 
 public interface SpeedDialManager extends DialingRuleProvider {
@@ -24,11 +24,11 @@ public interface SpeedDialManager extends DialingRuleProvider {
 
     void saveSpeedDialGroup(SpeedDialGroup speedDialGroup);
 
-    void activateResourceList();
-
     void clear();
 
     void deleteSpeedDialsForUser(int userId);
+
+    void deleteSpeedDialsForGroup(int groupId);
 
     void saveSpeedDialSynchToGroup(SpeedDial speedDial);
 

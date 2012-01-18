@@ -2,12 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <!--
-    - Branch
-  -->
-  <bean id="branchManagerImpl" class="org.sipfoundry.sipxconfig.branch.BranchManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="daoEventPublisher" ref="daoEventPublisher" />
+  <bean id="branchManagerImpl" class="org.sipfoundry.sipxconfig.branch.BranchManagerImpl" parent="abstractDaoImpl">
     <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 

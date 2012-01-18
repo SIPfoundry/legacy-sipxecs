@@ -10,9 +10,9 @@
 package org.sipfoundry.sipxconfig.common;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.springframework.context.ApplicationContext;
 
 public class SpringHibernateInstantiatorTestIntegration

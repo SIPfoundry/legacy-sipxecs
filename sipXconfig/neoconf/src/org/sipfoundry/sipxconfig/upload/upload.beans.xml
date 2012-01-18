@@ -12,9 +12,7 @@
     <property name="modelSource" ref="nakedUploadSpecificationSource" />
   </bean>
 
-  <bean id="uploadManagerImpl"
-    class="org.sipfoundry.sipxconfig.upload.UploadManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
+  <bean id="uploadManagerImpl" class="org.sipfoundry.sipxconfig.upload.UploadManagerImpl" parent="abstractDaoImpl">
     <property name="specificationSource" ref="nakedUploadSpecificationSource"/>
   </bean>
 

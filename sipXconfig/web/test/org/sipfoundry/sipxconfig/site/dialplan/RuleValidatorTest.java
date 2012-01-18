@@ -9,13 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
-import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.LocalRule;
-import org.sipfoundry.sipxconfig.gateway.Gateway;
-
 import junit.framework.TestCase;
+
+import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.dialplan.InternalRule;
+import org.sipfoundry.sipxconfig.dialplan.LocalRule;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 public class RuleValidatorTest extends TestCase {
 

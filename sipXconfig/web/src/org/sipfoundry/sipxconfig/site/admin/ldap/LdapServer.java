@@ -134,7 +134,7 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
         LdapManager ldapManager = getLdapManager();
         ldapManager.setAttrMap(getAttrMap());
         // write openfire.xml file /  mark sipxopenfire service for restart
-        ldapManager.replicateOpenfireConfig();
+//        ldapManager.replicateOpenfireConfig();
         // send us to import preview
         LdapImportPreview ldapImportPreview = (LdapImportPreview) cycle.getPage(LdapImportPreview.PAGE);
         ldapImportPreview.setExample(null);

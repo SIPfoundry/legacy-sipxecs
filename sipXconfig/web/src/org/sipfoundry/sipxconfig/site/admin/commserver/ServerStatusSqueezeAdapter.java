@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import org.apache.tapestry.components.IPrimaryKeyConverter;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
 
 public class ServerStatusSqueezeAdapter implements IPrimaryKeyConverter {
 

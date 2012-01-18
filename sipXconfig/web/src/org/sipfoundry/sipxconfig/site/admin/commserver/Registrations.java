@@ -17,9 +17,9 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.RegistrationMetrics;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
+import org.sipfoundry.sipxconfig.registrar.RegistrationContext;
+import org.sipfoundry.sipxconfig.registrar.RegistrationMetrics;
 
 /**
  * Displays active and expired registrations

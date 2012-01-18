@@ -9,21 +9,19 @@
 */
 package org.sipfoundry.sipxconfig.site.common;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.classextension.EasyMock.createStrictMock;
+import static org.easymock.classextension.EasyMock.replay;
 import junit.framework.TestCase;
 
 import org.apache.hivemind.Messages;
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages;
-import org.sipfoundry.sipxconfig.site.common.InstalledLanguages;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.classextension.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.createStrictMock;
 
 public class InstalledLanguagesTest extends TestCase {
 

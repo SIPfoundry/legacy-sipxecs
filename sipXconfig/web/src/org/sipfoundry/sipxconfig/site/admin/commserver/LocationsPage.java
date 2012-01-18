@@ -25,18 +25,17 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.Location.State;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location.State;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
 
@@ -47,20 +46,23 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
 
-    @InjectObject("spring:serviceConfigurator")
-    public abstract ServiceConfigurator getServiceConfigurator();
+//    @InjectObject("spring:serviceConfigurator")
+//    public abstract ServiceConfigurator getServiceConfigurator();
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
 
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject("spring:configManager")
+    public abstract ConfigManager getConfigManager();
 
     @InjectObject("spring:auditLogContext")
     public abstract AuditLogContext getAuditLogContext();
@@ -176,7 +178,7 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
                 selectedLocations.add(location);
             }
         }
-        getServiceConfigurator().sendProfiles(selectedLocations);
+        getConfigManager().configureAllFeatures(selectedLocations);
     }
 
     public boolean isFailedState() {

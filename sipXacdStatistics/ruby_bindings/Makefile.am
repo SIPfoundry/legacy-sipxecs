@@ -8,7 +8,7 @@ EXTRA_DIST = \
 noinst_DATA = \
 	sipxacd-stats-client-$(sipxacd_stats_client_VER).gem
 
-WSDL = $(abspath $(srcdir)/../agent/sipxconfig-agent.wsdl)
+WSDL = $(abspath $(srcdir)/../agent/sipxacd-stats.wsdl)
 
 sipxacd_stats_client_SRC = \
 	lib/defaultDriver.rb \

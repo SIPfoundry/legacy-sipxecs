@@ -10,15 +10,6 @@ libexec_SCRIPTS = \
 	sipx-strip-db-secrets.pl \
 	sipxkeystoregen
 
-pylibexec_SRC = \
-	sipxecs_setup_common.py
-
-pylibexecdir = @SIPX_LIBEXECDIR@
-# install python source in case it needs to be modified
-pylibexec_DATA = \
-	$(pylibexec_SRC) \
-	$(pylibexec_SRC:.py=.pyc)
-
 bin_SCRIPTS = \
 	analyze_483s \
 	ipcclean.pl \
@@ -42,29 +33,18 @@ bin_SCRIPTS = \
 	sipxecs-pgcdraccess \
 	sipx-package.py \
 	sipx-swadmin.py \
-	sipxecs-setup \
-	sipxecs-setup-system \
 	sipxecs-upgrade
 
 CLEANFILES = \
-	$(pylibexec_SRC) \
-	$(pylibexec_SRC:.py=.pyc) \
 	$(libexec_SCRIPTS) \
 	$(bin_SCRIPTS) \
 	$(daily_SCRIPTS)
 
 EXTRA_DIST = \
-	$(pylibexec_SRC:=.in) \
 	$(libexec_SCRIPTS:=.in) \
 	$(bin_SCRIPTS:=.in) \
 	$(daily_SCRIPTS:=.in) \
 	$(messages_DATA:.mo=.po)
-
-messagesdir = \
-	$(SIPX_DATADIR)/locale/en_US/LC_MESSAGES
-
-messages_DATA = \
-	sipxecs-setup.mo
 
 dailydir = @DAILYDIR@
 daily_SCRIPTS = \
@@ -82,14 +62,8 @@ setup_LINKS = \
 
 NoSequenceId = $(shell echo $1 | sed -e 's|^[0-9]\{3\}_\(.*\)$$|\1|g')
 
-$(pylibexec_SRC) $(daily_SCRIPTS) $(libexec_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
+$(daily_SCRIPTS) $(libexec_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
-
-%.mo : %.po
-	msgfmt --output-file=$@ $<
-
-%.pyc : %.py
-	python -m py_compile $<
 
 install-exec-hook : $(addprefix $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/,$(setup_LINKS))
 

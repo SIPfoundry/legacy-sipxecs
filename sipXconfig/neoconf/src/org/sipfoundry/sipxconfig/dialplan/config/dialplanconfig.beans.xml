@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="mappingRules" class="org.sipfoundry.sipxconfig.dialplan.config.MappingRules" scope="prototype">
+    <property name="addressManager" ref="addressManager" />
+  </bean>
+
+  <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.dialplan.config.FallbackRules" scope="prototype">
+    <property name="addressManager" ref="addressManager" />
+  </bean>
+
+  <bean id="authRules" class="org.sipfoundry.sipxconfig.dialplan.config.AuthRules" scope="prototype">
+  </bean>
+
+  <bean id="forwardingRules" class="org.sipfoundry.sipxconfig.dialplan.config.ForwardingRules" scope="prototype">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="sbcManager" ref="sbcManager" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+  </bean>
+
+  <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.dialplan.config.ConfigGenerator">
+    <property name="dialingRuleProvider" ref="dialingRuleCollector"/>
+    <property name="planContext" ref="dialPlanContext"/>
+  </bean>
+
+</beans>

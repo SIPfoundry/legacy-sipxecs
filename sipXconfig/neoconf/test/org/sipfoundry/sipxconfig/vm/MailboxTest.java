@@ -13,12 +13,11 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
-
 public class MailboxTest extends TestCase {
 
     public void testFilePreferencesFile() {
-        LocalMailbox mbox = new LocalMailbox(new File(TestHelper.getSourceDirectory(this.getClass())), "200");
+        File thisDir = new File(getClass().getResource("mailboxprefs.test.xml").getFile()).getParentFile();
+        LocalMailbox mbox = new LocalMailbox(thisDir, "200");
         assertTrue(mbox.getVoicemailPreferencesFile().isFile());
     }
 

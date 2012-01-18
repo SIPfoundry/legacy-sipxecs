@@ -22,18 +22,16 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
-import org.sipfoundry.sipxconfig.admin.forwarding.UserGroupSchedule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.forwarding.UserGroupSchedule;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
@@ -88,8 +86,8 @@ public abstract class UserGroupSettings extends GroupSettings {
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @Persist
     public abstract SpeedDialGroup getSpeedDialGroup();
@@ -288,18 +286,18 @@ public abstract class UserGroupSettings extends GroupSettings {
         List<String> names = new LinkedList<String>();
         names.add(VOICEMAIL);
         names.add(MOH);
-        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-            names.add("im_notification");
-        }
+//        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
+//            names.add("im_notification");
+//        }
         return StringUtils.join(names, SEPARATOR);
     }
 
     public String getSettingsToHide() {
         List<String> names = new LinkedList<String>();
 
-        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-            names.add("add-pa-to-group");
-        }
+//        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
+//            names.add("add-pa-to-group");
+//        }
         return StringUtils.join(names, SEPARATOR);
     }
 

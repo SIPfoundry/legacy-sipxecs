@@ -9,20 +9,25 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.Context;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.CronSchedule;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.CronSchedule;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.springframework.ldap.support.LdapContextSource;
 
 /**
  * Used to store LDAP connections in the DB LdapConnectionParams
  */
-public class LdapConnectionParams extends BeanWithId {
+public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEdit {
     private static final int DEFAULT_PORT = 389;
     private static final int DEFAULT_SSL_PORT = 636;
 
@@ -114,5 +119,10 @@ public class LdapConnectionParams extends BeanWithId {
         Map<String, String> otherParams = new HashMap<String, String>();
         otherParams.put(Context.REFERRAL, m_referral);
         config.setBaseEnvironmentProperties(otherParams);
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) LdapManager.FEATURE);
     }
 }

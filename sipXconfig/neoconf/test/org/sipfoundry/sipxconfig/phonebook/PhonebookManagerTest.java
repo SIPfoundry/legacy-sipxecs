@@ -12,6 +12,9 @@ package org.sipfoundry.sipxconfig.phonebook;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.replay;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -31,7 +34,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
 import org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -44,13 +46,10 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhoneEntryCompar
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhonebookEntryPredicate;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.StringArrayPhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.UserPhonebookEntry;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.PhonebookTestHelper;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
 
 public class PhonebookManagerTest extends BeanWithSettingsTestCase {
     GeneralPhonebookSettings settings;
@@ -249,7 +248,7 @@ public class PhonebookManagerTest extends BeanWithSettingsTestCase {
     public void testExport() throws Exception {
         VcardWriter vcardWriter = new VcardWriter();
         PhonebookManagerImpl context = new PhonebookManagerImpl();
-        context.setVcardWriter(vcardWriter);
+        //context.setVcardWriter(vcardWriter);
         context.setVcardEncoding("US-ASCII");
 
         ByteArrayOutputStream empty = new ByteArrayOutputStream();

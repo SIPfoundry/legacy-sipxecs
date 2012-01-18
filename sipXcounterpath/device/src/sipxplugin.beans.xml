@@ -18,5 +18,6 @@
   <bean id="counterpath" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone" scope="prototype" parent="abstractPhone">
     <property name="syswwwdir" value="${sysdir.www}"/>
     <property name="locationsManager" ref="locationsManager"/>
+    <property name="addressManager" ref="addressManager"/>
   </bean>
 </beans>

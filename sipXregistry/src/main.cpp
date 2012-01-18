@@ -24,6 +24,7 @@
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"
+#include "sipXecsService/daemon.h"
 #include "registry/SipRegistrar.h"
 
 // DEFINES
@@ -160,43 +161,34 @@ initSysLog(OsConfigDb* pConfig)
 
 bool isInterrupted = false;
 
-void catchInterrupt(int param)
-{
-   isInterrupted = true;
+void signal_handler(int sig) {
+    // cannot seem to log from here?
+    switch(sig) {
+    case SIGTERM:
+	isInterrupted = true;
+	break;
+    }
 }
 
 /** The main entry point to the sipregistrar */
 int
 main(int argc, char* argv[] )
 {
+    char* pidFile = NULL;
+    for(int i = 1; i < argc; i++) {
+        if(strncmp("-v", argv[i], 2) == 0) {
+  	    std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
+	    exit(0);
+	} else {
+            pidFile = argv[i];
+	}
+    }
+    if (pidFile) {
+      daemonize(pidFile);
+    }
+
    // Configuration Database (used for OsSysLog)
    OsConfigDb* configDb = new OsConfigDb();
-
-   
-   UtlString argString;
-   for (int argIndex = 1; argIndex < argc; argIndex++)
-   {
-      osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
-      argString = argv[argIndex];
-      NameValueTokenizer::frontBackTrim(&argString, "\t ");
-      if (argString.compareTo("-v") == 0)
-      {
-         osPrintf("Version: %s (%s)\n", PACKAGE_VERSION, PACKAGE_REVISION);
-         return(1);
-      }
-      else if ( argString.compareTo("-i") == 0)
-      {
-         
-         osPrintf("Entering Interactive Mode\n");
-      }
-      else
-      {
-         osPrintf("usage: %s [-v] [-i]\nwhere:\n -v provides the software version\n"
-                  " -i start the server in an interactive mode\n",
-                  argv[0]);
-         return(1);
-      }
-   }
 
    // initialize log file
    OsPath workingDirectory;
@@ -254,7 +246,8 @@ main(int argc, char* argv[] )
    registrar->setNodeConfig(nodeFile.data());
    registrar->start();
    pServerTask = static_cast<OsServerTask*>(registrar);
-   signal(SIGINT, catchInterrupt);
+   signal(SIGHUP, signal_handler); // catch hangup signal
+   signal(SIGTERM, signal_handler); // catch kill signal
    while( !isInterrupted && !pServerTask->isShutDown())
    {
        sleep(2000);

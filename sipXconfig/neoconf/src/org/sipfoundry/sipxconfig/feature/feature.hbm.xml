@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.feature" default-lazy="false">
+
+  <sql-query name="locationsForEnabledFeature">
+    <return class="org.sipfoundry.sipxconfig.commserver.Location"/>
+    <![CDATA[
+      select location.* 
+        from location inner join feature_local on 
+          location.location_id = feature_local.location_id 
+       where 
+          feature_local.feature_id = :featureId
+      ]]>
+  </sql-query>
+
+</hibernate-mapping>

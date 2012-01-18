@@ -11,10 +11,10 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 
 public abstract class ResetDialPlan extends PageWithCallback {
 

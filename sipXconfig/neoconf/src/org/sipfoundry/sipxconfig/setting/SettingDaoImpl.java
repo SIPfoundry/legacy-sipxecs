@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -37,13 +36,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
     private static final String CLOSED_BRACKET = ")";
     private static final String WHERE_CLAUSE = "where schedule.group_id=";
 
-    private DaoEventPublisher m_daoEventPublisher;
-
     private JdbcTemplate m_jdbcTemplate;
-
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
-    }
 
     public Group getGroup(Integer groupId) {
         return (Group) getHibernateTemplate().load(Group.class, groupId);
@@ -90,9 +83,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
             }
         }
         m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
-        for (Group group : groups) {
-            m_daoEventPublisher.publishDelete(group);
-        }
+        getDaoEventPublisher().publishDeleteCollection(groups);
         return affectAdmin;
     }
 
@@ -125,6 +116,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
             groups.get(i).setWeight(i + 1);
         }
         getHibernateTemplate().saveOrUpdateAll(groups);
+        getDaoEventPublisher().publishSave(groups);
     }
 
     void assignWeightToNewGroups(Group group) {

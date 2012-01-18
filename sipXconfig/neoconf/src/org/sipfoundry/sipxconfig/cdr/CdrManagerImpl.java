@@ -22,13 +22,13 @@ import java.sql.Timestamp;
 import java.text.Format;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
 import javax.xml.rpc.ServiceException;
-
-import com.thoughtworks.xstream.XStream;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -36,11 +36,17 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -48,6 +54,8 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
+
+import com.thoughtworks.xstream.XStream;
 
 public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     static final String CALL_ID = "call_id";
@@ -74,8 +82,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
      * timestamp as UTC timestamps.
      */
     private TimeZone m_tz = DateUtils.UTC_TIME_ZONE;
-    private CdrServiceProvider m_cdrServiceProvider;
-    private SipxServiceManager m_sipxServiceManager;
+    private AddressManager m_addressManager;
+    private FeatureManager m_featureManager;
+    private BeanWithSettingsDao<CdrSettings> m_settingsDao;
+
+    public CdrSettings getSettings() {
+        return m_settingsDao.findOrCreateOne();
+    }
 
     public List<Cdr> getCdrs(Date from, Date to, User user) {
         return getCdrs(from, to, new CdrSearch(), user);
@@ -198,42 +211,26 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         return cdrs;
     }
 
+    private Address getCdrAgentAddress() {
+        return m_addressManager.getSingleAddress(CDR_API);
+    }
+
     private String getActiveCdrsRestUrl(User user) {
+        Address address = getCdrAgentAddress();
         return String.format("http://%s:%d/activecdrs?name=%s",
-                getCdrAgentAddress(), getCdrAgentPort(), user.getUserName());
+                address.getAddress(), address.getPort(), user.getUserName());
     }
 
     public CdrService getCdrService() {
         try {
-            URL url = new URL("http", getCdrAgentAddress(), getCdrAgentPort(), StringUtils.EMPTY);
-            return m_cdrServiceProvider.getCdrService(url);
+            Address address = getCdrAgentAddress();
+            URL url = new URL("http", address.getAddress(), address.getPort(), StringUtils.EMPTY);
+            return new CdrImplServiceLocator().getCdrService(url);
         } catch (ServiceException e) {
             throw new UserException(e);
         } catch (MalformedURLException e) {
             throw new UserException(e);
         }
-    }
-
-    public void setCdrServiceProvider(CdrServiceProvider cdrServiceProvider) {
-        m_cdrServiceProvider = cdrServiceProvider;
-    }
-
-    private int getCdrAgentPort() {
-        return getSipxCallResolverService().getAgentPort();
-    }
-
-    private String getCdrAgentAddress() {
-        return getSipxCallResolverService().getAgentAddress();
-    }
-
-    private SipxCallResolverService getSipxCallResolverService() {
-        SipxCallResolverService service =
-            (SipxCallResolverService) m_sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
-        return service;
-    }
-
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
     }
 
     public void setCsvLimit(int csvLimit) {
@@ -506,5 +503,46 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
             return m_duration;
         }
 
+    }
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return null;
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return Collections.singleton(FEATURE);
+    }
+
+    @Override
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
+        return Collections.singleton(CDR_API);
+    }
+
+    @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
+            Object requester) {
+        if (!type.equals(CDR_API)) {
+            return null;
+        }
+        List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
+        if (locations.isEmpty()) {
+            return null;
+        }
+
+        CdrSettings settings = getSettings();
+        return Collections.singleton(new Address(locations.get(0).getAddress(), settings.getAgentPort()));
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<CdrSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }

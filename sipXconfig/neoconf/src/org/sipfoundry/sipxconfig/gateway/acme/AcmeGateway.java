@@ -35,9 +35,8 @@ public class AcmeGateway extends Gateway {
 
         @SettingEntry(path = "basic/proxyAddress")
         public String getProxyAddress() {
-            return m_defaults.getProxyServerAddr();
+            return m_defaults.getProxyAddress().getAddress();
         }
-
     }
 
     @Override

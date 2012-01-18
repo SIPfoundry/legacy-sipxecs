@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-  <bean id="settingDaoImpl" class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="daoEventPublisher" ref="daoEventPublisher" />
+  
+  <bean id="settingsBean" class="org.sipfoundry.sipxconfig.setting.PersistableSettings" scope="prototype" parent="beanWithSettings"
+    abstract="true">
+    <property name="modelFilesContext" ref="modelFilesContext"/>    
+  </bean>
+
+  <bean id="settingDaoImpl" class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl" parent="abstractDaoImpl">
     <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 
   <bean id="settingDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setting.SettingDao" />
-    <property name="target">
-      <ref local="settingDaoImpl" />
-    </property>
+    <property name="target" ref="settingDaoImpl"/>
   </bean>
 
   <bean id="loadModelCacheAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
@@ -20,6 +22,13 @@
         <property name="cache" ref="methodCache" />
       </bean>
     </property>
+  </bean>
+
+  <bean id="beanWithSettingsDaoImpl" class="org.sipfoundry.sipxconfig.setting.BeanWithSettingsDaoImpl" abstract="true" parent="abstractDaoImpl">
+  </bean>
+
+  <bean id="beanWithSettingsDao" class="org.springframework.aop.framework.ProxyFactoryBean" abstract="true" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao" />
   </bean>
 
   <bean id="modelBuilderImpl" class="org.sipfoundry.sipxconfig.setting.XmlModelBuilder">
@@ -36,8 +45,7 @@
     </property>
   </bean>
 
-  <bean id="modelFilesContext" class="org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl"
-    dependency-check="all">
+  <bean id="modelFilesContext" class="org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl" dependency-check="all">
     <property name="configDirectory" value="${sysdir.etc}" />
     <property name="modelBuilder" ref="modelBuilder" />
   </bean>

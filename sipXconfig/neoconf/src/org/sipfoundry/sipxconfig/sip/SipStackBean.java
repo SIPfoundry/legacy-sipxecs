@@ -9,6 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
+import gov.nist.javax.sip.DialogExt;
+import gov.nist.javax.sip.ListeningPointExt;
+import gov.nist.javax.sip.SipStackImpl;
+import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
+import gov.nist.javax.sip.header.HeaderFactoryImpl;
+import gov.nist.javax.sip.header.extensions.ReferredByHeader;
+
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
@@ -52,22 +59,14 @@ import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
-import gov.nist.javax.sip.DialogExt;
-import gov.nist.javax.sip.ListeningPointExt;
-import gov.nist.javax.sip.SipStackImpl;
-import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
-import gov.nist.javax.sip.header.HeaderFactoryImpl;
-import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.service.SipxConfigService;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -112,7 +111,9 @@ public class SipStackBean {
 
     private AuthenticationHelper m_authenticationHelper;
 
-    private SipxServiceManager m_sipxServiceManager;
+    private AddressManager m_addressManager;
+
+    private LocationsManager m_locationsManager;
 
     private final Timer m_timer = new Timer();
 
@@ -137,8 +138,8 @@ public class SipStackBean {
             m_addressFactory = factory.createAddressFactory();
             m_headerFactory = factory.createHeaderFactory();
             m_messageFactory = factory.createMessageFactory();
-
-            m_listeningPoint = stack.createListeningPoint(getHostIpAddress(), m_port, m_transport);
+            String myAddress = m_locationsManager.getPrimaryLocation().getAddress();
+            m_listeningPoint = stack.createListeningPoint(myAddress, m_port, m_transport);
             m_sipProvider = stack.createSipProvider(m_listeningPoint);
 
             m_sipListener = new SipListenerImpl(this);
@@ -211,23 +212,9 @@ public class SipStackBean {
         return m_coreContext;
     }
 
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    final String getHostName() {
-        SipxService sipXconfig = m_sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
-        return sipXconfig.getFqdn();
-    }
-
-    final String getHostIpAddress() {
-        SipxService sipXconfig = m_sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
-        return sipXconfig.getAddress();
-    }
-
     private SipURI createOurSipUri(String userName) throws ParseException {
-        return m_addressFactory.createSipURI(userName, getHostName());
+        String fqdn = m_locationsManager.getPrimaryLocation().getFqdn();
+        return m_addressFactory.createSipURI(userName, fqdn);
     }
 
     private FromHeader createFromHeader(String fromDisplayName, SipURI fromAddress) throws ParseException {
@@ -292,8 +279,10 @@ public class SipStackBean {
             Request request = m_messageFactory.createRequest(requestURI, requestType, callIdHeader, cSeqHeader,
                     fromHeader, toHeader, Collections.singletonList(viaHeader), maxForwards);
 
-            SipURI sipUri = m_addressFactory.createSipURI(null, getProxyHost());
-            sipUri.setPort(getProxyPort());
+            org.sipfoundry.sipxconfig.address.Address proxy = m_addressManager
+                    .getSingleAddress(ProxyManager.TCP_ADDRESS);
+            SipURI sipUri = m_addressFactory.createSipURI(null, proxy.getAddress());
+            sipUri.setPort(proxy.getPort());
             sipUri.setLrParam();
             Address address = m_addressFactory.createAddress(sipUri);
 
@@ -307,8 +296,7 @@ public class SipStackBean {
     }
 
     private String getProxyHost() {
-        SipxService proxy = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
-        return proxy.getFqdn();
+        return m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS).getAddress();
     }
 
     final void addContent(Request request, String contentType, byte[] payload) throws ParseException {
@@ -420,11 +408,11 @@ public class SipStackBean {
         m_timer.schedule(referTimerTask, 180000);
     }
 
-    private int getProxyPort() {
-        SipxService proxyService = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
-        if (proxyService != null) {
-            return Integer.valueOf(proxyService.getSipPort());
-        }
-        return SipUri.DEFAULT_SIP_PORT;
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

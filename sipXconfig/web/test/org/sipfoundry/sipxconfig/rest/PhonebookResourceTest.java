@@ -17,9 +17,9 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.rest.PhonebookResource.PhonebookCsv;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class PhonebookResourceTest extends TestCase {
     private PhonebookEntry m_entry;

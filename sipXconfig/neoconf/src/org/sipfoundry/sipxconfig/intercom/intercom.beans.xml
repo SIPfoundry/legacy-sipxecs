@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  <!--
+    - I N T E R C O M   M A N A G E R   I M P L
+  -->
+  <bean id="intercomManagerImpl" class="org.sipfoundry.sipxconfig.intercom.IntercomManagerImpl" parent="abstractDaoImpl">
+  </bean>
+
+  <!--
+    - I N T E R C O M   M A N A G E R
+  -->
+  <bean id="intercomManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.intercom.IntercomManager</value>
+    </property>
+    <property name="target">
+      <ref local="intercomManagerImpl" />
+    </property>
+  </bean>
+
+  <!--
+    - I N T E R C O M
+  -->
+  <bean id="org.sipfoundry.sipxconfig.intercom.Intercom" class="org.sipfoundry.sipxconfig.intercom.Intercom"
+    scope="prototype" parent="beanWithSettings">
+    <property name="prefix" value="*76" />
+    <property name="timeout" value="5000" />
+  </bean>
+
+  <bean id="phonesWithIntercom" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
+    <property name="modelSource" ref="phoneModelSource" />
+    <property name="filter">
+      <bean class="org.sipfoundry.sipxconfig.device.FeatureFilter">
+        <constructor-arg value="intercom" />
+      </bean>
+    </property>
+  </bean>
+</beans>

@@ -1,0 +1,4 @@
+bundle agent sipxcdr {
+
+  # need to add address to postgres from 
+}

@@ -19,11 +19,11 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.AuxSbc;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.sbc.AuxSbc;
+import org.sipfoundry.sipxconfig.sbc.SbcManager;
 
 public abstract class ListSbcs extends BaseComponent {
     @InjectObject(value = "spring:sbcManager")

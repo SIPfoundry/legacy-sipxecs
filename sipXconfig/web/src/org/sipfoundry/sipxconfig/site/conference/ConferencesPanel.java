@@ -41,8 +41,8 @@ import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.BridgeConferenceIdentity;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.conference.FreeswitchApiConnectException;
-import org.sipfoundry.sipxconfig.conference.FreeswitchApiException;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiConnectException;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiException;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class ConferencesPanel extends TablePanel {

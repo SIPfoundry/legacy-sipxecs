@@ -9,9 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.vm.attendant;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
 
 public class PersonalAttendant extends BeanWithId {
     private User m_user;

@@ -10,7 +10,10 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
-import com.thoughtworks.xstream.XStream;
+import static org.restlet.data.MediaType.APPLICATION_JSON;
+import static org.restlet.data.MediaType.TEXT_XML;
+import static org.sipfoundry.sipxconfig.permission.PermissionName.RECORD_SYSTEM_PROMPTS;
+
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -19,11 +22,9 @@ import org.restlet.data.Status;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
 
-import static org.restlet.data.MediaType.APPLICATION_JSON;
-import static org.restlet.data.MediaType.TEXT_XML;
-import static org.sipfoundry.sipxconfig.permission.PermissionName.RECORD_SYSTEM_PROMPTS;
+import com.thoughtworks.xstream.XStream;
 
 public class SpecialAttendantResource extends UserResource {
 

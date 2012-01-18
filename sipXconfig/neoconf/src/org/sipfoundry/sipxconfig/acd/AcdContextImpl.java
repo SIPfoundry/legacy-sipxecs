@@ -10,9 +10,6 @@
 package org.sipfoundry.sipxconfig.acd;
 
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,27 +23,21 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.classic.Session;
-import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
-import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
+import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxAcdService;
-import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.beans.factory.BeanFactory;
@@ -55,8 +46,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
-        DaoEventListener {
+public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware, DaoEventListener {
     public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);
     private static final String NAME_PROPERTY = "name";
     private static final String SERVER_PARAM = "acdServer";
@@ -69,24 +59,25 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
-    private boolean m_enabled = true;
     private LocationsManager m_locationsManager;
-    private SipxServiceManager m_sipxServiceManager;
     private CoreContext m_coreContext;
-    private SipxServiceBundle m_acdBundle;
+    private FeatureManager m_featureManager;
 
     private AcdServer getAcdServer(Integer id) {
         return (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
     }
 
+    @Override
     public List<AcdServer> getServers() {
         return getHibernateTemplate().loadAll(AcdServer.class);
     }
 
+    @Override
     public List<AcdLine> getLines() {
         return getHibernateTemplate().loadAll(AcdLine.class);
     }
 
+    @Override
     public boolean isAcdServerIdValid(int acdServerId) {
         List<AcdServer> acdServers = getServers();
         for (AcdServer acdServer : acdServers) {
@@ -97,20 +88,24 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         return false;
     }
 
+    @Override
     public List getUsersWithAgents() {
         return getHibernateTemplate().findByNamedQuery("usersWithAgents");
     }
 
+    @Override
     public List getUsersWithAgentsForLocation(Location location) {
         AcdServer acdServer = getAcdServerForLocationId(location.getId());
         return getHibernateTemplate().findByNamedQueryAndNamedParam("usersWithAgentsForServer", SERVER_PARAM,
                 acdServer);
     }
 
+    @Override
     public AcdServer loadServer(Serializable id) {
         return (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
     }
 
+    @Override
     public void saveComponent(AcdComponent acdComponent) {
         if (acdComponent instanceof AcdLine) {
             AcdLine line = (AcdLine) acdComponent;
@@ -142,33 +137,47 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         } else {
             getHibernateTemplate().save(acdComponent);
         }
+        getDaoEventPublisher().publishSave(acdComponent);
     }
 
+    @Override
     public AcdLine loadLine(Serializable id) {
         return (AcdLine) getHibernateTemplate().load(AcdLine.class, id);
     }
 
+    @Override
     public AcdQueue loadQueue(Serializable id) {
         return (AcdQueue) getHibernateTemplate().load(AcdQueue.class, id);
     }
 
+    @Override
     public AcdAgent loadAgent(Serializable id) {
         return (AcdAgent) getHibernateTemplate().load(AcdAgent.class, id);
     }
 
+    @Override
     public AcdAudio newAudio() {
         return (AcdAudio) m_beanFactory.getBean(AcdAudio.BEAN_NAME, AcdAudio.class);
     }
 
+    @Override
     public AcdLine newLine() {
         return (AcdLine) m_beanFactory.getBean(AcdLine.BEAN_NAME, AcdLine.class);
     }
 
+    @Override
     public AcdServer newServer() {
         return (AcdServer) m_beanFactory.getBean(AcdServer.BEAN_NAME, AcdServer.class);
     }
 
-    public void removeServers(Collection serversIds) {
+    @Override
+    public void removeServers(Collection<AcdServer> servers) {
+        HibernateTemplate hibernate = getHibernateTemplate();
+        hibernate.deleteAll(servers);
+    }
+
+    @Override
+    public void removeServersByIds(Collection serversIds) {
         HibernateTemplate hibernate = getHibernateTemplate();
         Collection servers = new ArrayList();
         for (Iterator i = serversIds.iterator(); i.hasNext();) {
@@ -176,9 +185,11 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             AcdServer server = loadServer(id);
             servers.add(server);
         }
+        getDaoEventPublisher().publishDelete(servers);
         hibernate.deleteAll(servers);
     }
 
+    @Override
     public void removeLines(Collection linesIds) {
         HibernateTemplate hibernate = getHibernateTemplate();
         Collection servers = new HashSet();
@@ -188,15 +199,19 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             AcdServer acdServer = line.getAcdServer();
             line.associateQueue(null);
             acdServer.removeLine(line);
+            getDaoEventPublisher().publishDelete(line);
             servers.add(acdServer);
         }
+        getDaoEventPublisher().publishSave(servers);
         hibernate.saveOrUpdateAll(servers);
     }
 
+    @Override
     public AcdQueue newQueue() {
         return (AcdQueue) m_beanFactory.getBean(AcdQueue.BEAN_NAME, AcdQueue.class);
     }
 
+    @Override
     public void removeQueues(Collection queuesIds) {
         HibernateTemplate hibernate = getHibernateTemplate();
         for (Iterator i = queuesIds.iterator(); i.hasNext();) {
@@ -204,6 +219,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             AcdQueue queue = (AcdQueue) hibernate.load(AcdQueue.class, id);
             AcdServer acdServer = queue.getAcdServer();
             acdServer.removeQueue(queue);
+            getDaoEventPublisher().publishDelete(queue);
             queue.cleanLines();
             queue.cleanAgents();
             cleanReferencesToOverflowQueue(queue);
@@ -242,6 +258,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         return agent;
     }
 
+    @Override
     public boolean isUserAnAgentOnThisServer(AcdServer server, User user) {
         String[] params = {
             USER_PARAM, SERVER_PARAM
@@ -254,6 +271,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         return !agents.isEmpty();
     }
 
+    @Override
     public void removeAgents(Serializable acdQueueId, Collection agentsIds) {
         AcdQueue queue = loadQueue(acdQueueId);
         AcdServer server = queue.getAcdServer();
@@ -267,10 +285,13 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
                 server.removeAgent(agent);
             }
         }
+        getDaoEventPublisher().publishSave(server);
         hibernate.save(server);
+        getDaoEventPublisher().publishSave(queue);
         hibernate.save(queue);
     }
 
+    @Override
     public void addUsersToQueue(Serializable queueId, Collection usersIds) {
         AcdQueue queue = loadQueue(queueId);
         CoreContext coreContext = queue.getCoreContext();
@@ -303,6 +324,9 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     }
 
     public Collection<AliasMapping> getAliasMappings() {
+        if (!m_featureManager.isFeatureEnabled(Acd.FEATURE)) {
+            return null;
+        }
         HibernateTemplate hibernate = getHibernateTemplate();
         List<AcdLine> acdLines = hibernate.loadAll(AcdLine.class);
         Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
@@ -310,26 +334,24 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             aliases.addAll(acdLine.getAliasMappings(m_coreContext.getDomainName()));
         }
 
-        List<AcdServer> servers = getServers();
-        for (AcdServer server : servers) {
-            aliases.addAll(server.getAliasMappings(m_coreContext.getDomainName()));
-        }
-
         return aliases;
     }
 
+    @Override
     public void moveAgentsInQueue(Serializable queueId, Collection agentsIds, int step) {
         AcdQueue queue = loadQueue(queueId);
         queue.moveAgents(agentsIds, step);
         saveComponent(queue);
     }
 
+    @Override
     public void moveQueuesInAgent(Serializable agnetId, Collection queueIds, int step) {
         AcdAgent agent = loadAgent(agnetId);
         agent.moveQueues(queueIds, step);
         saveComponent(agent);
     }
 
+    @Override
     public void clear() {
         // only need to delete servers and agents - lines and queues are handled by cascades
         List components = getHibernateTemplate().loadAll(AcdServer.class);
@@ -337,7 +359,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         getHibernateTemplate().deleteAll(components);
     }
 
-    // trivial setters/getters below
+    @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
@@ -359,59 +381,13 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         getHibernateTemplate().saveOrUpdateAll(servers);
     }
 
-    private void onLocationSpecificServiceDelete(LocationSpecificService locationService) {
-        SipxService service = locationService.getSipxService();
-        if (service instanceof SipxAcdService) {
-            AcdServer server = getAcdServerForLocationId(locationService.getLocation().getId());
-
-            if (server != null) {
-                getHibernateTemplate().delete(server);
-            }
-        }
-    }
-
-    private void onLocationDelete(Location location) {
-        getHibernateTemplate().update(location);
-        AcdServer server = getAcdServerForLocationId(location.getId());
-        if (server != null) {
-            getHibernateTemplate().delete(server);
-        }
-    }
-
-    private void onLocationSave(Location location) {
-        getHibernateTemplate().update(location);
-        AcdServer server = getAcdServerForLocationId(location.getId());
-        boolean isAcdInstalled = location.isBundleInstalled(m_acdBundle.getModelId());
-        if (server == null && isAcdInstalled) {
-            server = newServer();
-            server.setLocation(location);
-            getHibernateTemplate().save(server);
-        } else if (server != null && !isAcdInstalled) {
-            getHibernateTemplate().delete(server);
-        }
-    }
-
-    public void onDelete(Object entity) {
-        if (entity instanceof User) {
-            onUserDelete((User) entity);
-        } else if (entity instanceof LocationSpecificService) {
-            onLocationSpecificServiceDelete((LocationSpecificService) entity);
-        } else if (entity instanceof Location) {
-            onLocationDelete((Location) entity);
-        }
-    }
-
-    public void onSave(Object entity) {
-        if (entity instanceof Location) {
-            onLocationSave((Location) entity);
-        }
-    }
-
+    @Override
     public String getAudioServerUrl() {
         String audioServerAddr = m_locationsManager.getPrimaryLocation().getAddress();
         return "http://" + audioServerAddr + "/phone/acd/audio";
     }
 
+    @Override
     public void migrateOverflowQueues() {
         List queues = getHibernateTemplate().loadAll(AcdQueue.class);
         Map name2queue = new HashMap(queues.size());
@@ -453,14 +429,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         getHibernateTemplate().saveOrUpdateAll(lines);
     }
 
-    public boolean isEnabled() {
-        return m_enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        m_enabled = enabled;
-    }
-
+    @Override
     public Collection<AcdQueue> getQueuesForUsers(AcdServer server, Collection<User> agents) {
         if (agents.isEmpty()) {
             return Collections.EMPTY_LIST;
@@ -477,6 +446,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         return queues;
     }
 
+    @Override
     public void removeOverflowSettings(Collection overflowIds, String overflowType) {
         List<ValueStorage> l = getHibernateTemplate().findByNamedQuery("valueStorage");
         for (ValueStorage storage : l) {
@@ -496,6 +466,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
     }
 
+    @Override
     public void addNewServer(Location location) {
         // HACK: this probably should be only called from event notification
         AcdServer acdServer = getAcdServerForLocationId(location.getId());
@@ -506,89 +477,11 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
     }
 
-    public void migrateAcdServers() {
-        Map<String, Integer> locationsFqdn = new HashMap<String, Integer>();
-        Map<String, Integer> locationsAddress = new HashMap<String, Integer>();
-
-        List servers = getHibernateTemplate().findByNamedQuery("allAcdServers");
-        if (servers.size() > 0) {
-            Location[] locations = m_locationsManager.getLocations();
-            for (Location location : locations) {
-                locationsFqdn.put(location.getFqdn(), location.getId());
-                locationsAddress.put(location.getAddress(), location.getId());
-            }
-        }
-
-        for (Iterator i = servers.iterator(); i.hasNext();) {
-            Object[] row = (Object[]) i.next();
-            Integer acdServerId = (Integer) row[0];
-            String host = (String) row[1];
-            AcdServer acdServer = getAcdServer(acdServerId);
-            if (acdServer == null || acdServerId == null || host == null) {
-                continue;
-            }
-
-            Location location;
-            Integer locationId = locationsFqdn.get(host);
-            if (locationId == null) {
-                locationId = locationsAddress.get(host);
-            }
-
-            if (locationId != null) {
-                // existing location
-                location = m_locationsManager.getLocation(locationId);
-            } else {
-                // new location
-                location = new Location();
-                location.setFqdn(host);
-                location.setName("constructed upon migration from Acd servers");
-            }
-            SipxAcdService acdService = (SipxAcdService) m_sipxServiceManager
-                    .getServiceByBeanId(SipxAcdService.BEAN_ID);
-            location.addService(acdService);
-            m_locationsManager.saveLocation(location);
-            getHibernateTemplate().flush();
-
-            acdServer.setLocation(location);
-            saveComponent(acdServer);
-            getHibernateTemplate().flush();
-        }
-
-        cleanSchema();
-        checkAcdServerForAcdService();
-    }
-
-    private void checkAcdServerForAcdService() {
-        // make sure that SipxAcdService always has a corresponding AcdServer
-        Location[] locations = m_locationsManager.getLocations();
-        for (Location location : locations) {
-            if (m_sipxServiceManager.isServiceInstalled(location.getId(), SipxAcdService.BEAN_ID)) {
-                addNewServer(location);
-            }
-        }
-    }
-
-    private void cleanSchema() {
-        try {
-            Session currentSession = getHibernateTemplate().getSessionFactory().getCurrentSession();
-            Connection connection = currentSession.connection();
-            Statement statement = connection.createStatement();
-            statement.addBatch(SQL);
-            statement.executeBatch();
-            statement.close();
-        } catch (SQLException e) {
-            LOG.warn("cleaning schema", e);
-        }
-    }
-
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
 
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
+    @Override
     public AcdServer getAcdServerForLocationId(Integer locationId) {
         HibernateTemplate hibernate = getHibernateTemplate();
         List<AcdServer> servers = hibernate.findByNamedQueryAndNamedParam("acdServerForLocationId", "locationId",
@@ -597,12 +490,11 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         return (AcdServer) DataAccessUtils.singleResult(servers);
     }
 
-    @Required
-    public void setAcdBundle(SipxServiceBundle acdBundle) {
-        m_acdBundle = acdBundle;
-    }
-
+    @Override
     public boolean isAliasInUse(String alias) {
+        if (!m_featureManager.isFeatureEnabled(Acd.FEATURE)) {
+            return false;
+        }
         for (AliasMapping aliasMapping : getAliasMappings()) {
             if (aliasMapping.getIdentity().equals(alias)) {
                 return true;
@@ -611,22 +503,12 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         return false;
     }
 
+    @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection<Integer> ids = getHibernateTemplate().findByNamedQueryAndNamedParam(ACD_LINE_IDS_WITH_ALIAS,
                 VALUE, alias);
         Collection<BeanId> bids = BeanId.createBeanIdCollection(ids, AcdLine.class);
 
-        SipxPresenceService presence = null;
-        Collection<SipxService> services = getHibernateTemplate().loadAll(SipxService.class);
-        for (SipxService sipxService : services) {
-            if (sipxService instanceof SipxPresenceService) {
-                presence = (SipxPresenceService) sipxService;
-                break;
-            }
-        }
-        if (presence.getPresenceSignIn().equals(alias) || presence.getPresenceSignOut().equals(alias)) {
-            bids.add(new BeanId(presence.getId(), SipxPresenceService.class));
-        }
         return bids;
     }
 
@@ -637,5 +519,30 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof User) {
+            onUserDelete((User) entity);
+        } else if (entity instanceof Location) {
+            onLocationDelete((Location) entity);
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
+    }
+
+    private void onLocationDelete(Location location) {
+        getHibernateTemplate().update(location);
+        AcdServer server = getAcdServerForLocationId(location.getId());
+        if (server != null) {
+            getHibernateTemplate().delete(server);
+        }
     }
 }

@@ -9,7 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.audiocodesphone;
 
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;

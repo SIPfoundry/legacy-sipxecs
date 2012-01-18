@@ -3,16 +3,6 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.paging" default-lazy="false">
 
-  <class name="PagingServer" table="paging_server">
-    <id name="id" column="paging_server_id" type="int" unsaved-value="-1">
-      <generator class="sequence">
-        <param name="sequence">paging_group_seq</param>
-      </generator>
-    </id>
-    <property name="prefix" />
-    <property name="sipTraceLevel" />
-  </class>
-
   <class name="PagingGroup" table="paging_group">
     <id name="id" column="paging_group_id" type="int" unsaved-value="-1">
       <generator class="sequence">

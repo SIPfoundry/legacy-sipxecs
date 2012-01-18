@@ -81,9 +81,9 @@ public abstract class UserSettings extends PageWithCallback implements PageBegin
 
         CoreContext dao = getCoreContext();
         dao.saveUser(getUser());
-        if (adminChanged) {
-            getLdapManager().replicateOpenfireConfig();
-        }
+//        if (adminChanged) {
+//            getLdapManager().replicateOpenfireConfig();
+//        }
     }
 
     public String getParentSettingLabel() {

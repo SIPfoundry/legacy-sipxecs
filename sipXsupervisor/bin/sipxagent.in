@@ -1,9 +1,11 @@
 #!@BASH@
 
-Hosts=
 Defines=
-Action=RUN
+Hosts=
+Action=RUN_LOCAL
 Status=0
+Args=$*
+Verbose=
 
 while [ $# -ne 0 ]
 do
@@ -20,6 +22,7 @@ do
 	shift
 	;;
       --host|-H)
+        Action=RUN_REMOTE
 	Hosts="${Hosts}${HostsDelim}$2"
 	HostsDelim=","
 	shift
@@ -28,37 +31,54 @@ do
     shift # always consume 1
 done
 
-check_setup() {
+# Non-root user HAS to use remote access because this user doesn't
+# have file permissions run promises as non-root user.
+if [ `whoami` != "root" ]; then
+  if [ -z "${Hosts}" ]; then
+    Action=RUN_REMOTE
+    Hosts=127.0.0.1
+  fi
+fi
+
+check_remote_setup() {
   [ ! -f ~/.cfagent/ppkeys/localhost.priv ] && cf-key
-  if [ ! -f @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini ] ; then 
-    echo -e "127.0.0.1\n::1" > @SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini
+  if [ ! -f @SIPX_CONFDIR@/sipxsupervisor-allowed-addrs.ini ] ; then 
+    echo -e "127.0.0.1\n::1" > @SIPX_CONFDIR@/sipxsupervisor-allowed-addrs.ini
   fi
 }
-
-if [ -z "$Hosts" ]
-then
-  Action=USAGE
-  Status=1
-fi
 
 if [ "${Action}" = "USAGE" ]
 then
   cat <<USAGE
-sipxagent --host hostname [--host additional-hostnames] [options]
+sipxagent [--host hostname1 --host hostname2] [options]
 
 Optional Parameters:
- --help     - This message
 
- -D class   - Define a 'class' to be sent to remote machine. Can be used multiple times.
-              A 'class' is like a boolean and can be used to denote a command, state
-	      or multitude of things, it's really up to how the promises were written.  
+ --help       - This message
+
+ -H|--host    - Execute this on remote host(s) or even on local host but as non-root user.
+                Requires that sipxsupervisor is running on host and allows connections from
+                this machines.
+
+ -D class     - Define a 'class' to be sent to remote machine. Can be used multiple times.
+                A 'class' is like a boolean and can be used to denote a command, state
+	        or multitude of things, it's really up to how the promises were written.
 USAGE
 fi
 
-if [ "${Action}" = "RUN" ]
-then
-  check_setup
-  cf-runagent ${Verbose} -H "$Hosts" -f @SIPX_CFINPUTS@/sipxagent.cf ${Defines} -o "${Verbose} -K"
+if [ "${Action}" = "RUN_REMOTE" ]; then
+  if [ `whoami` = "root" ]; then
+    # !RECURSIVE
+    # Too many commands needs to run as proper user to try and run "su" on them all 
+    # so just call this script again as the proper user
+    su - @SIPXPBXUSER@ sh -c "$0 $Args"
+  else
+    check_remote_setup
+    cf-runagent ${Verbose} -H "$Hosts" -f @SIPX_CFINPUTS@/sipxagent.cf ${Defines} -o "${Verbose} -K"
+    Status=$?
+  fi
+elif [ "${Action}" = "RUN_LOCAL" ]; then
+  cf-agent ${Verbose} -IKf @SIPX_CFINPUTS@/promises.cf ${Defines}
   Status=$?
 fi
 exit $Status

@@ -21,11 +21,11 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
-import org.sipfoundry.sipxconfig.admin.BackupPlan;
-import org.sipfoundry.sipxconfig.admin.DailyBackupSchedule;
-import org.sipfoundry.sipxconfig.admin.FtpBackupPlan;
-import org.sipfoundry.sipxconfig.admin.LocalBackupPlan;
+import org.sipfoundry.sipxconfig.backup.BackupManager;
+import org.sipfoundry.sipxconfig.backup.BackupPlan;
+import org.sipfoundry.sipxconfig.backup.DailyBackupSchedule;
+import org.sipfoundry.sipxconfig.backup.FtpBackupPlan;
+import org.sipfoundry.sipxconfig.backup.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
@@ -42,8 +42,8 @@ public abstract class BackupPage extends SipxBasePage implements PageBeginRender
      */
     public static final List<Integer> BACKUP_LIMIT_MODEL = Arrays.asList(1, 2, 3, 4, 5, 10, 20, 30, 40, 50);
 
-    @InjectObject("spring:adminContext")
-    public abstract AdminContext getAdminContext();
+    @InjectObject("spring:backupManager")
+    public abstract BackupManager getBackupManager();
 
     public abstract List<File> getBackupFiles();
 
@@ -96,13 +96,13 @@ public abstract class BackupPage extends SipxBasePage implements PageBeginRender
     }
 
     private void configure() {
-        BackupPlan plan = getAdminContext().getBackupPlan(getBackupPlanType());
+        BackupPlan plan = getBackupManager().getBackupPlan(getBackupPlanType());
 
         // every plan has exactly 1 schedule
         if (plan.getSchedules().isEmpty()) {
             DailyBackupSchedule schedule = new DailyBackupSchedule();
             plan.addSchedule(schedule);
-            getAdminContext().storeBackupPlan(plan);
+            getBackupManager().storeBackupPlan(plan);
         }
 
         Locale locale = getPage().getLocale();
@@ -138,7 +138,7 @@ public abstract class BackupPage extends SipxBasePage implements PageBeginRender
             throw new EmptySelectionException();
         }
 
-        AdminContext adminContext = getAdminContext();
+        BackupManager adminContext = getBackupManager();
         File[] backupFiles = adminContext.performBackup(plan);
         if (null == backupFiles) {
             throw new FailedBackupException();
@@ -155,7 +155,7 @@ public abstract class BackupPage extends SipxBasePage implements PageBeginRender
         if (plan.isEmpty()) {
             throw new EmptySelectionException();
         }
-        AdminContext adminContext = getAdminContext();
+        BackupManager adminContext = getBackupManager();
         adminContext.storeBackupPlan(plan);
     }
 

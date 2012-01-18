@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="restServerSettings" class="org.sipfoundry.sipxconfig.restserver.RestServerSettings" parent="settingsBean">
+  </bean>
+
+  <bean id="restServer" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="restServerImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.restserver.RestServer"/>
+  </bean>
+
+  <bean id="restServerImpl" class="org.sipfoundry.sipxconfig.restserver.RestServerImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.restserver.RestServerSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="restServerConfiguration" class="org.sipfoundry.sipxconfig.restserver.RestConfiguration">
+    <property name="restServer" ref="restServer" />
+    <property name="velocityEngine" ref="velocityEngine"/>
+  </bean>
+
+</beans>

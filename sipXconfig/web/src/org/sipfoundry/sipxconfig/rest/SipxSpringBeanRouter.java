@@ -10,13 +10,13 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.springframework.beans.factory.BeanFactoryUtils.beanNamesForTypeIncludingAncestors;
+
 import org.apache.commons.lang.StringUtils;
 import org.restlet.Finder;
 import org.restlet.ext.spring.SpringBeanRouter;
 import org.restlet.resource.Resource;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-
-import static org.springframework.beans.factory.BeanFactoryUtils.beanNamesForTypeIncludingAncestors;
 
 /**
  * This router behaves similarly to standard Spring bean router, but it adds additional routes.

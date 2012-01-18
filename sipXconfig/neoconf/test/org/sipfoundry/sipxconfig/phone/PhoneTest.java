@@ -13,10 +13,10 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class PhoneTest extends TestCase {
 

@@ -9,12 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
-import org.sipfoundry.sipxconfig.admin.localization.Localization;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.localization.Localization;
 
 public interface DomainManager extends DialingRuleProvider {
+    public static final GlobalFeature FEATURE = new GlobalFeature("domain");
 
     static final String CONTEXT_BEAN_NAME = "domainManager";
 
@@ -25,10 +25,6 @@ public interface DomainManager extends DialingRuleProvider {
     void initializeDomain();
 
     void saveDomain(Domain domain);
-
-    void replicateDomainConfig(SipxReplicationContext replicationContext, Location location);
-
-    void setDomainConfigFilename(String domainConfigFilename);
 
     Localization getExistingLocalization();
 

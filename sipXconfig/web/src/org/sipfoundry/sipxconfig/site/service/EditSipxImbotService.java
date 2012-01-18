@@ -30,6 +30,6 @@ public abstract class EditSipxImbotService extends EditSipxService {
     public void apply() {
         super.apply();
         //we need to acknowledge openfire that mybuddy credentials has changed
-        getLdapManager().replicateOpenfireConfig();
+//        getLdapManager().replicateOpenfireConfig();
     }
 }

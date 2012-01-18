@@ -132,7 +132,9 @@
   </target>
 
   <!-- Resets database for unit testing -->
-  <target name="unittest-reset" depends="drop,create,upgrade-no-init" />
+  <target name="unittest-reset" depends="drop,create,upgrade-no-init">
+    <plsql-patch patch="truncate-all-function" />
+  </target>
 
   <!-- 
     - NOTE: Creating a database and apply schema. Does not run any patches or initialize task.
@@ -399,6 +401,11 @@
     <antcall target="init-location" />
     <antcall target="openacd-insert-commands" />
     <antcall target="openacd-add-line-regex" />
+    <antcall target="feature" />
+    <antcall target="bean_with_settings" />
+    <antcall target="meetme_location" />
+    <antcall target="migrate_services" />
+    <antcall target="settings_with_location" />
   	<antcall target="remove-personal-att-oper" />
   </target>
 
@@ -1228,6 +1235,22 @@
   <target name="location-active" unless="location-active">
 	<db-patch patch="location-active" />
   </target>
+  <target name="feature" unless="feature">
+    <db-patch patch="feature" />
+  </target>
+  <target name="bean_with_settings" unless="bean_with_settings">
+    <db-patch patch="bean_with_settings" />
+  </target>
+  <target name="settings_with_location" unless="settings_with_location">
+    <db-patch patch="settings_with_location" />
+  </target>
+  <target name="meetme_location" unless="meetme_location">
+    <plsql-patch patch="meetme_location" />
+  </target>
+  <target name="migrate_services" unless="migrate_services">
+    <db-patch patch="migrate_services" />
+  </target>
+
   <!--
   This target initializes the location. Parameters are passed by sipxconfig.sh
   -->
@@ -1279,7 +1302,22 @@
   <presetdef name="sipx-sql">
     <sql driver="org.postgresql.Driver" url="${sipxconfig.db.url}" userid="${sipxconfig.db.user}" password="${sipxconfig.db.password}" classpath="${jdbc-driver.jar}" />
   </presetdef>
-
+  
+  <!--
+   - PL/PGSQL that is not escaped with ' (see meetme_location.sql v.s. migrate-2.8.sql) cannot be run thru
+   - java driver so use psql command.  Not having to escape ' with '' means easy to read script AND a script
+   - you can develop inside a SQL editor. Douglas  
+   --> 
+  <macrodef name="plsql-patch">
+    <attribute name="patch" />
+    <sequential>
+      <exec executable="psql" failonerror="true">
+        <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/@{patch}.sql" />
+      </exec>
+      <mark-patch-applied patch="@{patch}" />
+    </sequential>
+  </macrodef>
+  
   <!-- declare schema version -->
   <macrodef name="sipx-version">
     <attribute name="version" />

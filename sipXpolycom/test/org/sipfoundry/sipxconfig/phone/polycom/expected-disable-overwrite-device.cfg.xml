@@ -2,7 +2,7 @@
 <!-- Device Configuration File -->
 <device device.set="1"
     device.syslog.serverName.set="1"
-    device.syslog.serverName="10.4.5.2"
+    device.syslog.serverName="testdriver.example.org"
     device.syslog.transport.set="1"
     device.syslog.transport="1"
     device.syslog.facility.set="1"

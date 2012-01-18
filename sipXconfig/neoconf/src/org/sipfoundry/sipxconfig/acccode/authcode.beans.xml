@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="authCodeManagerImpl" class="org.sipfoundry.sipxconfig.acccode.AuthCodeManagerImpl" parent="abstractDaoImpl">
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="authCodeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acccode.AuthCodeManager" />
+    <property name="target" ref="authCodeManagerImpl" />
+  </bean>
+  
+  <bean id="authCodes" class="org.sipfoundry.sipxconfig.acccode.AuthCodes">
+    <property name="authCodeManager" ref="authCodeManager" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="featureManager" ref="featureManager" />
+    <property name="settingsDao">
+      <bean parent="settingsWithLocationDao">
+        <property name="target">
+          <bean parent="settingsWithLocationDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig">
+    <property name="authCodeManager" ref="authCodeManager" />
+  </bean>
+  
+  <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" parent="settingsWithLocation">
+  </bean>
+  
+  <bean id="authCodeAliases" class="org.sipfoundry.sipxconfig.acccode.AuthCodeAliases">
+    <property name="featureManager" ref="featureManager"/>
+    <property name="authCodes" ref="authCodes"/>
+  </bean>
+  
+</beans>

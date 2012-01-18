@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
+
 
 public class AcdAudioTest extends BeanWithSettingsTestCase {
 

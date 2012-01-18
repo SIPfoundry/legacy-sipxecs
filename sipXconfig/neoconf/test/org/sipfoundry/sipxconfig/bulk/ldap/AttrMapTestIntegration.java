@@ -7,7 +7,7 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class AttrMapTestIntegration extends IntegrationTestCase {
 

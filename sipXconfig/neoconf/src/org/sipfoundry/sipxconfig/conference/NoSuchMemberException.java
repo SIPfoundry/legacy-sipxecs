@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiException;
+
 public class NoSuchMemberException extends FreeswitchApiException {
 
     public NoSuchMemberException(ActiveConferenceMember member) {

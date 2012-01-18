@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+  "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+  
+  <bean id="configManagerImpl" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigManagerImpl" init-method="init">
+    <property name="locationManager" ref="locationsManager" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="featureManager" ref="featureManager" />
+    <property name="configAgent" ref="configAgent"/>
+  </bean>
+  
+  <alias alias="configManager" name="configManagerImpl"/>
+  
+  <bean id="configTrigger" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigTrigger">
+    <property name="configManager" ref="configManager"/>
+  </bean>
+    
+  <bean id="configAgent" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigAgent">
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="jobContext" ref="jobContext"/>
+  </bean>
+
+</beans>

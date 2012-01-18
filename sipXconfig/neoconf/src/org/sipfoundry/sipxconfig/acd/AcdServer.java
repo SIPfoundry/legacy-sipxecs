@@ -10,57 +10,48 @@
 package org.sipfoundry.sipxconfig.acd;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.enums.ValuedEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.LoggingManager;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.service.LoggingEntity;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.presence.PresenceServer;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.springframework.beans.factory.annotation.Required;
 
-public class AcdServer extends AcdComponent implements LoggingEntity, Replicable {
+public class AcdServer extends AcdComponent {
     public static final Log LOG = LogFactory.getLog(AcdServer.class);
     public static final String OBJECT_CLASS = "acd-server";
     public static final String BEAN_NAME = "acdServer";
     public static final String LOG_SETTING = "acd-server/log-level";
     static final String ADMIN_STATE = "acd-server/administrative-state";
     static final String UDP_PORT = "acd-server/udp-port";
+    static final String TLS_PORT = "acd-server/tls-port";
+    static final String MONITOR_PORT = "acd-server/presence-monitor-port";
     static final String DOMAIN = "acd-server/domain";
     static final String FQDN = "acd-server/fqdn";
     static final String PRESENCE_SERVER_URI = "acd-server/presence-server-uri";
     static final String PRESENCE_SERVICE_URI = "acd-server/presence-service-uri";
     private static final String KEY_URI = "uri";
     private static final String KEY_NAME = "name";
-    private static final String URI = "http://{0}:{1}/RPC2";
-    private static final String ALIAS_RELATION = "acd";
 
     // TODO: only needed to create AcdAudio - we may be able to remove this dependency
     private transient AcdContext m_acdContext;
-    private transient SipxServiceManager m_sipxServiceManager;
-    private SipxPresenceService m_presenceService;
+    private AddressManager m_addressManager;
+    private CoreContext m_coreContext;
     private int m_port;
     private int m_agentPort;
     private Location m_location;
     private Set m_lines = new HashSet();
     private Set m_queues = new HashSet();
     private Set m_agents = new HashSet();
-    private LoggingManager m_loggingManager;
 
     public AcdServer() {
         super("sipxacd-server.xml", OBJECT_CLASS);
@@ -126,71 +117,26 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
         setSettingValue(ADMIN_STATE, status.getValueAsString());
     }
 
-    String getServiceUri() {
-        Object[] params = new Object[] {
-            getLocation().getFqdn(), Integer.toString(m_port)
-        };
-        return MessageFormat.format(URI, params);
+    @SettingEntry(path = DOMAIN)
+    public String getDomain() {
+        return m_coreContext.getDomainName();
     }
 
-    public static class AcdServerDefaults {
-        private final AcdServer m_server;
-
-        AcdServerDefaults(AcdServer server) {
-            m_server = server;
-        }
-
-        @SettingEntry(path = DOMAIN)
-        public String getDomain() {
-            return m_server.getCoreContext().getDomainName();
-        }
-
-        @SettingEntry(path = FQDN)
-        public String getFqdn() {
-            return m_server.getLocation().getFqdn();
-        }
-
-        @SettingEntry(path = PRESENCE_SERVER_URI)
-        public String getPresenceServerUri() {
-            return m_server.getPresenceServerUri();
-        }
-
-        @SettingEntry(path = PRESENCE_SERVICE_URI)
-        public String getPresenceServiceUri() {
-            return m_server.getPresenceServiceUri();
-        }
+    @SettingEntry(path = FQDN)
+    public String getFqdn() {
+        return m_location.getFqdn();
     }
 
-    public Collection<AliasMapping> getAliasMappings(String domainName) {
-        Collection<AliasMapping> mappings = new ArrayList<AliasMapping>();
-        int presencePort = m_presenceService.getPresenceServerPort();
-        String signInCode = m_presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE);
-        String signOutCode = m_presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE);
-        if (1 < m_acdContext.getServers().size()) {
-            signInCode += String.valueOf(m_location.getId());
-            signOutCode += String.valueOf(m_location.getId());
-        }
-
-        mappings.add(createPresenceAliasMapping(signInCode.trim(), presencePort));
-        mappings.add(createPresenceAliasMapping(signOutCode.trim(), presencePort));
-        return mappings;
-    }
-
-    private AliasMapping createPresenceAliasMapping(String code, int port) {
-        AliasMapping mapping = new AliasMapping(code, SipUri.format(code,
-                getLocation().getFqdn(), port), ALIAS_RELATION);
-        return mapping;
-    }
-
-    public String getPresenceServiceUri() {
-        Object[] params = new Object[] {
-            getLocation().getFqdn(), String.valueOf(m_presenceService.getPresenceApiPort())
-        };
-        return MessageFormat.format(URI, params);
-    }
-
+    @SettingEntry(path = PRESENCE_SERVER_URI)
     public String getPresenceServerUri() {
-        return SipUri.format(getLocation().getFqdn(), m_presenceService.getPresenceServerPort());
+        Address presence = m_addressManager.getSingleAddress(PresenceServer.SIP_TCP_ADDRESS);
+        return presence.toString();
+    }
+
+    @SettingEntry(path = PRESENCE_SERVICE_URI)
+    public String getPresenceServiceUri() {
+        Address presence = m_addressManager.getSingleAddress(PresenceServer.HTTP_ADDRESS);
+        return presence.toString();
     }
 
     public void deploy(XmlRpcSettings xmlRpc) {
@@ -289,12 +235,6 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
         m_acdContext = acdContext;
     }
 
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-        m_presenceService = (SipxPresenceService) m_sipxServiceManager
-                .getServiceByBeanId(SipxPresenceService.BEAN_ID);
-    }
-
     /**
      * SIP port is for now hard coded as UDP port
      *
@@ -305,6 +245,14 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
         return port.intValue();
     }
 
+    public int getTlsPort() {
+        return ((Integer) getSettingTypedValue(TLS_PORT)).intValue();
+    }
+
+    public int getMonitorPort() {
+        return ((Integer) getSettingTypedValue(MONITOR_PORT)).intValue();
+    }
+
     @Override
     public Serializable getAcdServerId() {
         return getId();
@@ -312,56 +260,15 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new AcdServerDefaults(this));
+        addDefaultBeanSettingHandler(this);
     }
 
-    public void setLoggingManager(LoggingManager loggingManager) {
-        m_loggingManager = loggingManager;
+    @Required
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
-    public void setLogLevel(String logLevel) {
-        if (logLevel != null && !logLevel.equals(getSettingValue(LOG_SETTING))) {
-            setSettingValue(LOG_SETTING, logLevel);
-            m_loggingManager.getEntitiesToProcess().add(this);
-        }
-    }
-
-    public String getLogLevel() {
-        return getSettingValue(LOG_SETTING);
-    }
-
-    public String getLabelKey() {
-        return "label.sipxAcdService";
-    }
-
-    @Override
-    public Set<DataSet> getDataSets() {
-        Set<DataSet> dataSets = new HashSet<DataSet>();
-        dataSets.add(DataSet.ALIAS);
-        return dataSets;
-    }
-
-    @Override
-    public String getIdentity(String domain) {
-        return null;
-    }
-
-    @Override
-    public boolean isValidUser() {
-        return true;
-    }
-
-    @Override
-    public Map<String, Object> getMongoProperties(String domain) {
-        return Collections.EMPTY_MAP;
-    }
-
-    public SipxPresenceService getPresenceService() {
-        return m_presenceService;
-    }
-
-    @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService fs) {
-        return null;
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

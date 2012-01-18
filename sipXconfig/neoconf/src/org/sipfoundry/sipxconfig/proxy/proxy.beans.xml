@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="proxySettings" class="org.sipfoundry.sipxconfig.proxy.ProxySettings" parent="settingsBean">
+  </bean>
+
+  <bean id="proxyManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="proxyManagerImpl"/>
+  </bean>
+
+  <bean id="proxyManagerImpl" class="org.sipfoundry.sipxconfig.proxy.ProxyManagerImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.proxy.ProxySettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+    <property name="featureManager" ref="featureManager" />
+  </bean>
+
+  <bean id="proxyConfiguration" class="org.sipfoundry.sipxconfig.proxy.ProxyConfiguration">
+    <property name="tlsPeerManager" ref="tlsPeerManager" />
+    <property name="proxyManager" ref="proxyManager" />
+  </bean>
+
+</beans>

@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import org.sipfoundry.sipxconfig.common.InitTaskListener;
+import org.sipfoundry.sipxconfig.admin.InitTaskListener;
 
 public class SipTrunkMigrationTrigger extends InitTaskListener {
     private SipTrunkMigrationContext m_sipTrunkMigrationContext;

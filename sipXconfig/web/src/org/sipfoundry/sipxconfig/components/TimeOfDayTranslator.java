@@ -15,8 +15,8 @@ import java.util.Locale;
 import org.apache.tapestry.form.translator.FormatTranslator;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.apache.tapestry.valid.ValidationStrings;
-import org.sipfoundry.sipxconfig.admin.TimeOfDay;
-import org.sipfoundry.sipxconfig.admin.TimeOfDay.TimeOfDayFormat;
+import org.sipfoundry.sipxconfig.common.TimeOfDay;
+import org.sipfoundry.sipxconfig.common.TimeOfDay.TimeOfDayFormat;
 
 public class TimeOfDayTranslator extends FormatTranslator {
     protected String defaultPattern() {

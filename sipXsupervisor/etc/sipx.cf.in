@@ -1,4 +1,12 @@
-# cfengine cheatsheet
+# Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# Main library and core entry point of cfengine agent scripts.
+#
+
+# helpful cfengine cheatsheet
 #
 # Natural order of promises inside a bundle
 #  vars
@@ -16,19 +24,237 @@
 #  databases
 #  reports
 
+#
+# common variables in $(sipx.*) space that isn't in a *.cfdat file
+#
+# NOTE: Cannot use $(sipx. in this bundle because it's not loaded yet. Instead
+# use @SIPX.
+#
+bundle common sipx {
+  vars:
+    any::
+      "location_id" string => readfile("@SIPX_CFDATA@/defaults/location_id", "100");
+      "bind_ip" string => "$(sys.ipv4)";
+
+    SuSE::
+      "crontabs" string => "/var/spool/cron/tabs";
+
+    redhat::
+      "crontabs" string => "/var/spool/cron";
+
+    debian|ubuntu::
+      "crontabs" string => "/var/spool/crontabs";
+      
+
+  classes:
+    any::
+      # source based installs do not fully integrate. For example, they typically 
+      # don't run chkconfig, they don't install crontabs, they don't create unix users.
+      #
+      # comparing where the service directory is seems like a solid test if src based install
+      "src" not => strcmp("@SIPX_SERVICEDIR@", "/etc/init.d");
+}
+
+#
+# imports all the variables into $(sipx.*) from *.cfdat files
+#
+# NOTE: Cannot use $(sipx. here because it's not loaded yet. Instead
+# use @SIPX.
+# 
 bundle agent sipx_module {
+  vars:
+    "failed_log" string => "@SIPX_LOGDIR@/sipxagent-failed.log";
+    "repaired_log" string => "@SIPX_LOGDIR@/sipxagent-repaired.log";
+    "kept_log" string => "/opt/sipx-main/var/log/sipxpbx/sipxagent-kept.log";
+    "logs" slist => { "$(failed_log)", "$(repaired_log)", "$(kept_log)" };
+
+  files:
+    any::
+      "$(logs)"
+        delete => tidy;
+    
+      "$(logs)"
+        create => "true",
+	perms => m(644);
+
   commands:
     any::
       "@SIPX_CFMODULES@/sipx"
+        args => "$(sipx.location_id)",
         module => "true",
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
 }
 
-bundle agent sipx {
-  vars:
-   SuSE::
-     "crontab" string => "/var/spool/cron/tabs/root";
-
-   !SuSE::
-     "crontab" string => "/var/spool/cron/root";
+#
+# To run a command as the sipxpbxuser
+#
+# Example:
+#  commands:
+#    "/bin/mycommand"
+#      contain => su_sipxpbxuser();
+#
+body contain su(user) {
+  exec_owner => "$(user)";
 }
+
+# Copy a local file from cfdata area to final destination if it's changed
+# Often you want to include the location id 
+# Example:
+#  copy_from => copy_from_cfdata("$(sipx.location_id)/myfile"),
+#
+# 
+body copy_from copy_from_cfdata(filename) {
+  source => "$(sipx.SIPX_CFDATA)/$(filename)";
+  compare => "digest";
+}
+
+# identify essentially all promises with this to surface issues in sipxconfig ui
+body action track(id) {
+  log_failed => "$(sipx_module.failed_log)";
+  log_repaired => "$(sipx_module.repaired_log)";
+  # bug, w/o a log_kept entry, cfengine will segfault. Tested up to 3.3.0 r3779.
+  log_kept => "$(sipx_module.kept_log)";
+  log_string => "$(id)";
+}
+
+#
+# Registers or deregisters a service into start with system on startup
+#
+bundle agent rh_chkconfig_status(s){
+  classes:
+    "${s}_enabled" expression => returnszero("/sbin/chkconfig ${s}", "noshell");
+
+  reports:
+    all::
+      "${g.pf} Service ${s} is enabled",
+        ifvarclass => "${s}_enabled";
+
+      "${g.pk} Service ${s} is not enabled",
+        ifvarclass => "!${s}_enabled";
+}
+
+#
+# Replace the entire contents of a file with a given set of contents
+#
+# Example:
+#  edit_line => replace_contents("file contents here").
+#
+bundle edit_line replace_contents(contents) {
+   insert_lines:
+     "$(contents)";
+
+   delete_lines:
+      ".*";
+}
+
+# 
+# Edit select properties of a configuration file that is colon delimited
+# Example:
+#  var:
+#    "x[foo]" string => "bar";
+#    "x[goo]" string => "gar";
+# ...
+#  file:
+#   "myfile"
+#     edit_line => set_variable_colon_values("x");
+#
+# Results of myfile contents:
+#  a=b
+#  foo=bar
+#  goo=gar
+#  c=d
+#
+bundle edit_line set_variable_colon_values(v) {
+vars:
+  "index" slist => getindices("$(v)");
+  "cindex[$(index)]" string => canonify("$(index)");
+
+field_edits:
+  "\s*$(index)\s*:.*"
+     edit_field => col(":", "2", "$($(v)[$(index)])", "set"),
+        classes => if_ok("$(cindex[$(index)])_in_file"),
+        comment => "Match a line starting like key = something";
+
+insert_lines:
+  "$(index) : $($(v)[$(index)])",
+         comment => "Insert a variable definition",
+      ifvarclass => "!$(cindex[$(index)])_in_file";
+}
+
+
+# 
+# Used to find a running service by looking in process table for command name.
+# NOTE: When looking for processes started by an init.d script, you'll need
+# to specify the path to the binary because that usually what is listed in the
+# process table, not the init.d wrapper script.
+# 
+# Example:
+#
+#  methods:
+#    any::
+#      "any" usebundle => find_sipxservice_by_command("/full/path/myservice","myservice_running");
+#
+#  commands:
+#    myservice_running.!supposed_to_be_running::
+#      "/full/path/myservice_stop";
+#
+#    !myservice_running.supposed_to_be_running::
+#      "/full/path/myservice_start";
+#
+bundle agent find_sipxservice_by_command(command,on_find_define) {
+  processes:
+    "$(command)"
+      process_count => on_process_count("$(on_find_define)"),
+      process_select => user_process_select("$(command).*","$(sipx.SIPXPBXUSER)");
+}
+
+bundle agent find_service_by_command(command,on_find_define,user_id) {
+  processes:
+    "$(command)"
+      process_count => on_process_count("$(on_find_define)"),
+      process_select => user_process_select("$(command).*","$(user_id)");
+}
+
+#
+# Be careful, cfengine truncates command line after X characters. Best to find
+# good identifier early in the command string
+#
+body process_select user_process_select(command_regex,user_id) {
+  command => "$(command_regex)";
+  process_owner => { "$(user_id)" };
+  process_result => "command.process_owner";
+}
+
+bundle agent find_sipxservice_by_command_regex(command_regex,on_find_define) {
+  processes:
+    "$(command_regex)"
+      process_count => on_process_count("$(on_find_define)"),
+      process_select => user_process_select("$(command_regex)","$(sipx.SIPXPBXUSER)");
+}
+
+body process_count on_process_count(on_find_define) {
+  match_range => "0,0";
+  out_of_range_define => { "$(on_find_define)" };
+}
+
+#
+# Normal process select is by regex in process list, so here's help selecting a 
+# process by pid file.
+#
+# TODO: find a way to call more convieniently
+#   - not require pidfile to exists
+#   - not to have to call readfile to translate pidfile to pid in caller
+#
+# Example:
+#
+#  processes:
+#     my_process_should_be_running:
+#       "anyname_you_want"
+#          process_select => by_pid(readfile("$(my_pidfile)", "100")),
+#          restart_class => "start_my_process";
+#
+body process_select by_pid(pid) {
+  pid => irange("$(pid)", "$(pid)");
+  process_result => "pid";
+}
+

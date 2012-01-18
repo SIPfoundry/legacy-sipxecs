@@ -2,7 +2,6 @@ include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
 	$(schema_DATA:=.in) \
-        $(proc_DATA:=.in) \
 	$(cfinputs_PROMISES:=.in) \
 	cfengine_stdlib.cf
 
@@ -12,7 +11,10 @@ cfdefaults_DATA = \
 
 dirvars = \
 	$(filter SIPX%DIR,$(.VARIABLES)) \
-	$(filter SIPX_CF%,$(.VARIABLES))
+	$(filter SIPX_CF%,$(.VARIABLES)) \
+	wwwdir \
+	SIPXPBXUSER \
+	SIPXPBXGROUP
 
 dirs.cfdat : Makefile
 	! test -f $@ || rm $@
@@ -24,7 +26,7 @@ cfinputs_DATA = \
 	cfengine_stdlib.cf
 
 cfinputs_PROMISES = \
-	sipxsupervisord.cf \
+	sipxsupervisor.cf \
 	sipx.cf \
 	promises.cf \
 	sipxagent.cf
@@ -36,15 +38,8 @@ $(emptydirs) :
 
 install-data-hook : $(emptydirs)
 
-procdir = \
-        $(SIPX_DATADIR)/process.d
-
-proc_DATA = \
-	sipxsupervisor-process.xml
-
 schemadir = @SIPX_DATADIR@/schema
 schema_DATA = \
-	sipXecs-process.xsd \
 	alarm.xsd \
 	alarm-group.xsd
 
@@ -61,7 +56,7 @@ mibdir = @SIPX_DATADIR@/mibs
 dist_mib_DATA = \
 	SIPXECS-ALARM-NOTIFICATION-MIB.mib
 
-$(cfinputs_PROMISES) $(schema_DATA) $(proc_DATA) : % : %.in Makefile
+$(cfinputs_PROMISES) $(schema_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
-CLEANFILES = $(proc_DATA) $(schema_DATA) $(cfinputs_PROMISES) $(cfdefaults_DATA)
+CLEANFILES = $(schema_DATA) $(cfinputs_PROMISES) $(cfdefaults_DATA)

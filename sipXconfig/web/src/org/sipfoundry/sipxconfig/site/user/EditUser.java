@@ -70,10 +70,10 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
             mmgr.renameMailbox(oldUserName, newUserName);
         }
 
-        if (userNameChanged) {
-            // FIXME: this should be done automatically by speed dial manager
-            getSpeedDialManager().activateResourceList();
-        }
+//        if (userNameChanged) {
+//            // FIXME: this should be done automatically by speed dial manager
+//            getSpeedDialManager().activateResourceList();
+//        }
     }
 
     public void pageBeginRender(PageEvent event_) {

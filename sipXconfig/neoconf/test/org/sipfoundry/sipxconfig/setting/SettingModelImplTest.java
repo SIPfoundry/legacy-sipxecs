@@ -13,8 +13,8 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingTest.BirdWithSettings;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SettingModelImplTest extends TestCase {
 

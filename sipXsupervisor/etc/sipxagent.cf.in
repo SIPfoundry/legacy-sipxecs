@@ -1,9 +1,18 @@
+# Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# Promises When contacting sipxsupervisor. Not the promises for actually configuring a
+# machine, only in the contact itself.
+#
+
 bundle agent sipx {
   vars:
     any::
       # Have to turn scalars_ to slists because of bug found in cfengine 3.2.3 and lower versions
       #  https://cfengine.com/bugtracker/view.php?id=865
-      "allowed_addrs" slist => readstringlist("@SIPX_CONFDIR@/sipxsupervisord-allowed-addrs.ini", "#.*", "\n", "100", "10000");
+      "allowed_addrs" slist => readstringlist("@SIPX_CONFDIR@/sipxsupervisor-allowed-addrs.ini", "#.*", "\n", "100", "10000");
 }
 
 body common control {

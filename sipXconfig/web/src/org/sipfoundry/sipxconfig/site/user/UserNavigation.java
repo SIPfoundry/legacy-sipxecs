@@ -20,8 +20,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.moh.MusicOnHoldPage;
@@ -42,8 +40,8 @@ public abstract class UserNavigation extends BeanNavigation {
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectPage(value = SpeedDialPage.PAGE)
     public abstract SpeedDialPage getSpeedDialPage();
@@ -184,9 +182,9 @@ public abstract class UserNavigation extends BeanNavigation {
         names.add(PERSONAL_ATTENDANT);
         names.add("callfwd");
         names.add("moh");
-        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-            names.add("im_notification");
-        }
+//        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
+//            names.add("im_notification");
+//        }
         return StringUtils.join(names, ",");
     }
 

@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.rest;
 import java.util.Collection;
 import java.util.List;
 
-import com.thoughtworks.xstream.XStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.Context;
@@ -28,6 +27,8 @@ import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+
+import com.thoughtworks.xstream.XStream;
 
 public class PhonesResource extends Resource {
 

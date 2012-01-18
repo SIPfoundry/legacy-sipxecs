@@ -16,11 +16,20 @@ import java.util.regex.Pattern;
 
 public class PatternSettingFilter implements SettingFilter {
 
-    private List m_exclude = new ArrayList();
+    private List<Pattern> m_exclude = new ArrayList<Pattern>();
 
-    public void addExcludes(String excludePath) {
-        Pattern pattern = Pattern.compile(excludePath);
-        m_exclude.add(pattern);
+    public PatternSettingFilter() {
+    }
+
+    public PatternSettingFilter(String...patterns) {
+        addExcludes(patterns);
+    }
+
+    public void addExcludes(String...excludePaths) {
+        for (String excludePath : excludePaths) {
+            Pattern pattern = Pattern.compile(excludePath);
+            m_exclude.add(pattern);
+        }
     }
 
     public boolean acceptSetting(Setting root_, Setting setting) {

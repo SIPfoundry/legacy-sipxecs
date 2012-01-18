@@ -12,19 +12,20 @@ package org.sipfoundry.sipxconfig.paging;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface PagingContext extends DialingRuleProvider, AliasOwner {
-    String getPagingPrefix();
+    public static LocationFeature FEATURE = new LocationFeature("page");
+    public static AddressType SIP_TCP = new AddressType("pageTcp");
+    public static AddressType SIP_UDP = new AddressType("pageUdp");
+    public static AddressType SIP_TLS = new AddressType("pageTls");
 
-    void setPagingPrefix(String prefix);
+    PagingSettings getSettings();
 
-    String getSipTraceLevel();
-
-    void setSipTraceLevel(String traceLevel);
-
-    PagingServer getPagingServer();
+    void saveSettings(PagingSettings settings);
 
     List<PagingGroup> getPagingGroups();
 
@@ -35,5 +36,4 @@ public interface PagingContext extends DialingRuleProvider, AliasOwner {
     void savePagingGroup(PagingGroup group);
 
     void clear();
-
 }

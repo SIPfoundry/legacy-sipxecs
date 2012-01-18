@@ -18,7 +18,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.acd.stats.AcdStatistics;
-import org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -58,7 +57,9 @@ public abstract class AcdServerPage extends PageWithCallback implements PageBegi
             setTab("config");
         }
         if (getAcdStatistics() == null) {
-            setAcdStatistics(new AcdStatisticsImpl(getAcdContext()));
+            AcdStatistics stats = new AcdStatistics();
+            stats.setAcdContext(getAcdContext());
+            setAcdStatistics(stats);
         }
     }
 

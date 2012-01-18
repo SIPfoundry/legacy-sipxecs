@@ -17,9 +17,9 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.Lifecycle;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.components.LenSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.dialplan.DialPattern;
 
 /**
  * PatternsEditor - list of pattersn with ability to edit, remove and delete

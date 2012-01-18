@@ -31,12 +31,33 @@
       </option>
     </enum>
   </type>
+  <type id="nonRootRequiredPort">
+    <integer min="1025" max="65535"/>
+  </type>
   <group name="park-config">
-    <setting name="SIP_REGISTRAR_PARK_SERVER" hidden="yes" />
-    <setting name="SIP_PARK_DOMAIN_NAME" hidden="yes"/>
-    <setting name="SIP_PARK_LOG_LEVEL" hidden="yes">
+    <setting name="SIP_PARK_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>
+    </setting>
+    <setting name="SIP_PARK_UDP_PORT">
+      <type refid="nonRootRequiredPort" />
+      <value>5120</value>
+    </setting>
+    <setting name="SIP_PARK_TCP_PORT">
+      <type refid="loglevel" />
+      <value>5120</value>
+    </setting>
+    <setting name="SIP_PARK_RTP_PORT">
+      <type refid="nonRootRequiredPort" />
+      <value>8000</value>
+    </setting>
+    <setting name="SIP_PARK_CODEC_LIST" advanced="yes">
+      <type><string/></type>
+      <value>pcmu pcma telephone-event</value>
+    </setting>
+    <setting name="SIP_PARK_MAX_SESSIONS" advanced="yes">
+      <type><integer required="yes"/></type>
+      <value>50</value>
     </setting>
   </group>
 </model>

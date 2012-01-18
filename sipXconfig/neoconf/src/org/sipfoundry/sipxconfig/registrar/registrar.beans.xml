@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="registrarSettings" class="org.sipfoundry.sipxconfig.registrar.RegistrarSettings" parent="settingsBean">
+    <property name="aliasManager" ref="aliasManager"/>
+  </bean>
+
+  <bean id="registrar" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="registrarImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.registrar.Registrar"/>
+  </bean>
+
+  <bean id="registrarImpl" class="org.sipfoundry.sipxconfig.registrar.RegistrarImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.registrar.RegistrarSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="registrarConfiguration" class="org.sipfoundry.sipxconfig.registrar.RegistrarConfiguration">
+    <property name="registrar" ref="registrar" />
+  </bean>
+  
+  <bean id="registrationContextImpl" class="org.sipfoundry.sipxconfig.registrar.RegistrationContextImpl">
+    <property name="nodedb" ref="nodeDb"/>
+  </bean>
+
+  <alias alias="registrationContext" name="registrationContextImpl"/>
+
+</beans>

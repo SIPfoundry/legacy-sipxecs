@@ -15,6 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.sipfoundry.sipxconfig.job.JobContextImpl;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 
 public class ScheduledRestartManagerImplTest extends TestCase {
 

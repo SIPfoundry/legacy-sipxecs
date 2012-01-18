@@ -29,7 +29,7 @@
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
     <many-to-one name="sbcDevice" column="sbc_device_id" unique="true"
-      class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice" />
+      class="org.sipfoundry.sipxconfig.sbc.SbcDevice" />
 
     <component name="callerAliasInfo" class="GatewayCallerAliasInfo">
       <property name="defaultCallerAlias" />

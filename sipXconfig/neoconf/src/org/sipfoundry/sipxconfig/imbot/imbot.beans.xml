@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="imBot" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="imBotImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.imbot.ImBot"/>
+  </bean>
+
+  <bean id="imBotImpl" class="org.sipfoundry.sipxconfig.imbot.ImBotImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.imbot.ImBotSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="imBotSettings" class="org.sipfoundry.sipxconfig.imbot.ImBotSettings" parent="settingsBean">
+  </bean>
+  
+  <bean id="imBotConfiguration" class="org.sipfoundry.sipxconfig.imbot.ImBotConfiguration">
+    <property name="imbot" ref="imBot" />
+  </bean>
+
+</beans>

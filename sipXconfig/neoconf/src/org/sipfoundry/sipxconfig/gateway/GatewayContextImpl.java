@@ -19,35 +19,29 @@ import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
-import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
-import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
+import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext, BeanFactoryAware,
+public class GatewayContextImpl extends SipxHibernateDaoSupport implements GatewayContext, BeanFactoryAware,
         ReplicableProvider {
-
     private static final String QUERY_GATEWAY_ID_BY_SERIAL_NUMBER = "gatewayIdsWithSerialNumber";
-
     private static final String AUDIT_LOG_CONFIG_TYPE = "Gateway";
 
     private static class DuplicateNameException extends UserException {
         private static final String ERROR = "A gateway with name \"{0}\" already exists.";
-
         public DuplicateNameException(String name) {
             super(ERROR, name);
         }
@@ -55,20 +49,13 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     private static class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A gateway with serial number \"{0}\" already exists.";
-
         public DuplicateSerialNumberException(String name) {
             super(ERROR, name);
         }
     }
 
     private DialPlanContext m_dialPlanContext;
-
     private BeanFactory m_beanFactory;
-
-    private ReplicationManager m_replicationManager;
-
-    private DialPlanActivationManager m_dialPlanActivationManager;
-
     private AuditLogContext m_auditLogContext;
 
     public GatewayContextImpl() {
@@ -109,8 +96,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
         } else {
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
-            // Replicate occurs only for update gateway
-            m_dialPlanActivationManager.replicateDialPlan(true);
         }
 
         SbcDevice sbc = gateway.getSbcDevice();
@@ -129,6 +114,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         ProfileLocation location = gateway.getModel().getDefaultProfileLocation();
         gateway.removeProfiles(location);
         getHibernateTemplate().delete(gateway);
+        getDaoEventPublisher().publishDelete(gateway);
         m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
         return true;
     }
@@ -148,11 +134,11 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             if (sbc != null) {
                 sbcSet.add(sbc);
             }
+            getDaoEventPublisher().publishDelete(gw);
             deleteGateway(gw.getId());
         }
 
         getHibernateTemplate().flush();
-        m_dialPlanActivationManager.replicateDialPlan(true);
         for (Iterator i = sbcSet.iterator(); i.hasNext();) {
             SbcDevice sbc = (SbcDevice) i.next();
             sbc.generateProfiles(sbc.getProfileLocation());
@@ -228,16 +214,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         m_dialPlanContext = dialPlanContext;
     }
 
-    public void setReplicationManager(ReplicationManager replicationContext) {
-        m_replicationManager = replicationContext;
-    }
-
     public void setAuditLogContext(AuditLogContext auditLogContext) {
         m_auditLogContext = auditLogContext;
-    }
-
-    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
-        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     public void removePortsFromGateway(Integer gatewayId, Collection<Integer> portIds) {
@@ -253,23 +231,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_GATEWAY_ID_BY_SERIAL_NUMBER, "value",
                 serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_GATEWAY_ID_BY_SERIAL_NUMBER);
-    }
-
-    public SbcDeviceDeleteListener createSbcDeviceDeleteListener() {
-        return new OnSbcDeviceDelete();
-    }
-
-    private class OnSbcDeviceDelete extends SbcDeviceDeleteListener {
-        @Override
-        protected void onSbcDeviceDelete(SbcDevice sbcDevice) {
-            List<SipTrunk> sipTrunks = getGatewayByType(SipTrunk.class);
-            for (SipTrunk sipTrunk : sipTrunks) {
-                if (sbcDevice.equals(sipTrunk.getSbcDevice())) {
-                    sipTrunk.setSbcDevice(null);
-                    saveGateway(sipTrunk);
-                }
-            }
-        }
     }
 
     @Override

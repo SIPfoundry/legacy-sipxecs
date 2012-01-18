@@ -12,5 +12,6 @@ package org.sipfoundry.sipxconfig.acd;
 import java.io.Serializable;
 
 public interface AcdProvisioningContext {
-    void deploy(Serializable serverId);
+
+    void deploy(Serializable id);
 }

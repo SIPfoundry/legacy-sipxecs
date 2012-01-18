@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.components.TablePanel;
 import org.sipfoundry.sipxconfig.conference.ActiveConferenceContext;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.conference.FreeswitchApiException;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiException;
 
 public abstract class BridgesPanel extends TablePanel {
     private static final Log LOG = LogFactory.getLog(ConferencesPanel.class);

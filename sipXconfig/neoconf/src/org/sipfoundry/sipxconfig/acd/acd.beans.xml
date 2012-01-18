@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">  
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
+  <bean id="acd" class="org.sipfoundry.sipxconfig.acd.Acd">
+    <property name="featureManager" ref="featureManager" />
+    <property name="acdContext" ref="acdContext" />
+  </bean>
+    
   <bean id="acdComponent" abstract="true" class="org.sipfoundry.sipxconfig.acd.AcdComponent"
     parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
@@ -12,51 +18,29 @@
     scope="prototype">
     <property name="location" ref="location"/>
     <property name="port" value="8110"/>
-    <property name="acdContext">
-      <ref local="acdContextImpl"/>
-    </property>
-    <property name="sipxServiceManager" ref="sipxServiceManager"/>
-    <property name="loggingManager" ref="loggingManager"/>
+    <property name="acdContext" ref="acdContextImpl"/>
+    <property name="addressManager" ref="addressManager"/>
   </bean>
-  <bean id="acdAgent" class="org.sipfoundry.sipxconfig.acd.AcdAgent" parent="acdComponent"
-    scope="prototype"/>
-  <bean id="acdLine" class="org.sipfoundry.sipxconfig.acd.AcdLine" parent="acdComponent"
-    scope="prototype"/>
-  <bean id="acdQueue" class="org.sipfoundry.sipxconfig.acd.AcdQueue" parent="acdComponent"
-    scope="prototype"/>
-  <bean id="acdAudio" class="org.sipfoundry.sipxconfig.acd.AcdAudio" parent="acdComponent"
-    scope="prototype"/>
 
-  <bean id="acdContextImpl" class="org.sipfoundry.sipxconfig.acd.AcdContextImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
+  <bean id="acdAgent" class="org.sipfoundry.sipxconfig.acd.AcdAgent" parent="acdComponent" scope="prototype" />
+  <bean id="acdLine" class="org.sipfoundry.sipxconfig.acd.AcdLine" parent="acdComponent" scope="prototype" />
+  <bean id="acdQueue" class="org.sipfoundry.sipxconfig.acd.AcdQueue" parent="acdComponent" scope="prototype" />
+  <bean id="acdAudio" class="org.sipfoundry.sipxconfig.acd.AcdAudio" parent="acdComponent" scope="prototype" />
+
+  <bean id="acdContextImpl" class="org.sipfoundry.sipxconfig.acd.AcdContextImpl" parent="abstractDaoImpl">
     <property name="locationsManager" ref="locationsManager"/>
-	<property name="sipxServiceManager" ref="sipxServiceManager"/>
-	<property name="acdBundle" ref="acdBundle"/>
 	<property name="aliasManager" ref="aliasManager"/>
 	<property name="coreContext" ref="coreContext"/>
+    <property name="featureManager" ref="featureManager"/>
   </bean>
 
-  <bean id="acdContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="acdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.AcdContext"/>
     <property name="target" ref="acdContextImpl"/>
   </bean>
 
   <bean id="acdReplicationProvider" class="org.sipfoundry.sipxconfig.acd.AcdReplicationProvider">
     <property name="acdContext" ref="acdContext"/>
-  </bean>
-
-  <bean id="acdMigrationTrigger" class="org.sipfoundry.sipxconfig.acd.AcdMigrationTrigger">
-    <property name="acdContext">
-      <ref local="acdContext"/>
-    </property>
-    <property name="taskNames">
-      <list>
-        <value>acd_migrate_line_extensions</value>
-        <value>acd_migrate_overflow_queues</value>
-        <value>acd_server_migrate_acd_service</value>
-      </list>
-    </property>
   </bean>
 
   <bean id="acdProvisioningContext" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -70,11 +54,10 @@
     </property>
     <property name="target">
       <bean class="org.sipfoundry.sipxconfig.acd.AcdProvisioningContextImpl">
-        <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
-        <property name="sessionFactory" ref="sessionFactory"/>
-        <property name="serviceConfigurator" ref="serviceConfigurator"/>
-		<property name="sipxServiceManager" ref="sipxServiceManager"/>
         <property name="jobContext" ref="jobContext"/>
+        <property name="configManager" ref="configManager"/>
+        <property name="acdContext" ref="acdContext"/>
+        <property name="addressManager" ref="addressManager"/>
       </bean>
     </property>
   </bean>

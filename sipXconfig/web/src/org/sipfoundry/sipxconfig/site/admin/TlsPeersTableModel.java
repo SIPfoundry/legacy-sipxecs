@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
+import org.sipfoundry.sipxconfig.tls.TlsPeer;
 
 public class TlsPeersTableModel implements IBasicTableModel {
     private List<TlsPeer> m_peers;

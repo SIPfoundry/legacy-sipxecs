@@ -20,11 +20,11 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import org.dom4j.DocumentException;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import junit.framework.TestCase;
 

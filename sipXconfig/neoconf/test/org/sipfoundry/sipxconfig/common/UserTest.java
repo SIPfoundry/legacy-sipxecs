@@ -22,21 +22,22 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class UserTest extends TestCase {
 
@@ -191,14 +192,12 @@ public class UserTest extends TestCase {
         user.setPermissionManager(pManager);
 
         user.setSettingTypedValue("im/im-account", true);
-
-        SipxFreeswitchService fs = org.easymock.classextension.EasyMock.createMock(SipxFreeswitchService.class);
-        fs.getAddress();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
-        fs.getFreeswitchSipPort();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
-        fs.getBeanId();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn(SipxFreeswitchService.BEAN_ID).anyTimes();
+        
+        AddressManager am = EasyMock.createNiceMock(AddressManager.class);
+        am.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, user);
+        expectLastCall().andReturn(new Address("1111111", 22)).anyTimes();
+        replay(am);
+        user.setAddressManager(am);
 
         Location l = new Location();
         l.setAddress("blabla.com");
@@ -208,14 +207,7 @@ public class UserTest extends TestCase {
         expectLastCall().andReturn(l).anyTimes();
         replay(lm);
         
-        fs.getLocationsManager();
-        expectLastCall().andReturn(lm).anyTimes();
-        
-        fs.setLocationsManager(lm);
-
-        org.easymock.classextension.EasyMock.replay(fs);
-        
-        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org", fs);
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         assertEquals(6, aliasMappings.size());
 
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
@@ -236,7 +228,7 @@ public class UserTest extends TestCase {
         // Set the additional alias, imId, to user's userName, it should not be
         // added as an alias.
         user.setImId(user.getUserName());
-        aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org", fs);
+        aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         assertEquals(5, aliasMappings.size());
     }
 
@@ -274,13 +266,11 @@ public class UserTest extends TestCase {
         replay(pManager);
         user.setPermissionManager(pManager);
 
-        SipxFreeswitchService fs = org.easymock.classextension.EasyMock.createMock(SipxFreeswitchService.class);
-        fs.getAddress();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
-        fs.getFreeswitchSipPort();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
-        fs.getBeanId();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn(SipxFreeswitchService.BEAN_ID).anyTimes();
+        AddressManager am = EasyMock.createNiceMock(AddressManager.class);
+        am.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, user);
+        expectLastCall().andReturn(new Address("1111111", 22)).anyTimes();
+        replay(am);
+        user.setAddressManager(am);
 
         Location l = new Location();
         l.setAddress("blabla.com");
@@ -289,15 +279,8 @@ public class UserTest extends TestCase {
         lm.getPrimaryLocation();
         expectLastCall().andReturn(l).anyTimes();
         replay(lm);
-        
-        fs.getLocationsManager();
-        expectLastCall().andReturn(lm).anyTimes();
-        
-        fs.setLocationsManager(lm);
 
-        org.easymock.classextension.EasyMock.replay(fs);
-        
-        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org", fs);
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         // actually there is 1 alias that is the ~~vm~
         assertEquals(1, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
@@ -402,40 +385,39 @@ public class UserTest extends TestCase {
     }
 
     public void testGetMusicOnHoldUri() {
-        MusicOnHoldManager musicOnHoldManager = createMock(MusicOnHoldManager.class);
-        musicOnHoldManager.getDefaultMohUri();
+        MohAddressFactory moh = org.easymock.classextension.EasyMock.createMock(MohAddressFactory.class);
+        moh.getDefaultMohUri();
         expectLastCall().andReturn("sip:~~mh@example.org").anyTimes();
-        musicOnHoldManager.getLocalFilesMohUri();
+        moh.getLocalFilesMohUri();
         expectLastCall().andReturn("sip:~~mh~l@example.org").anyTimes();
-        musicOnHoldManager.getPersonalMohFilesUri("1234");
+        moh.getPersonalMohFilesUri("1234");
         expectLastCall().andReturn("sip:~~mh~1234@example.org").anyTimes();
-        musicOnHoldManager.getPortAudioMohUri();
+        moh.getPortAudioMohUri();
         expectLastCall().andReturn("sip:~~mh~p@example.org").anyTimes();
-        musicOnHoldManager.getNoneMohUri();
+        moh.getNoneMohUri();
         expectLastCall().andReturn("sip:~~mh~n@example.org").anyTimes();
-        replay(musicOnHoldManager);
+        org.easymock.classextension.EasyMock.replay(moh);
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
 
         User user = new User();
-        user.setPermissionManager(pm);
-        user.setMusicOnHoldManager(musicOnHoldManager);
         user.setName("1234");
-
-        assertEquals("sip:~~mh@example.org", user.getMusicOnHoldUri());
+        user.setPermissionManager(pm);
+                
+        assertEquals("sip:~~mh@example.org", user.getMusicOnHoldUri(moh));
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.FILES_SRC.toString());
-        assertEquals("sip:~~mh~l@example.org", user.getMusicOnHoldUri());
+        assertEquals("sip:~~mh~l@example.org", user.getMusicOnHoldUri(moh));
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.PERSONAL_FILES_SRC.toString());
-        assertEquals("sip:~~mh~1234@example.org", user.getMusicOnHoldUri());
+        assertEquals("sip:~~mh~1234@example.org", user.getMusicOnHoldUri(moh));
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.SOUNDCARD_SRC.toString());
-        assertEquals("sip:~~mh~p@example.org", user.getMusicOnHoldUri());
+        assertEquals("sip:~~mh~p@example.org", user.getMusicOnHoldUri(moh));
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.NONE.toString());
-        assertEquals("sip:~~mh~n@example.org", user.getMusicOnHoldUri());
+        assertEquals("sip:~~mh~n@example.org", user.getMusicOnHoldUri(moh));
 
     }
 

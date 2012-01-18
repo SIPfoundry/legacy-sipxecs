@@ -11,22 +11,10 @@
         <value>INFO</value>
       </option>
       <option>
-        <value>NOTICE</value>
-      </option>
-      <option>
         <value>WARNING</value>
       </option>
       <option>
         <value>ERR</value>
-      </option>
-      <option>
-        <value>CRIT</value>
-      </option>
-      <option>
-        <value>ALERT</value>
-      </option>
-      <option>
-        <value>EMERG</value>
       </option>
     </enum>
   </type>
@@ -40,18 +28,10 @@
       </false>
     </boolean>
   </type>
+  <type id="requiredNonRootPort">
+    <integer min="1025" max="65535" required="yes"/>
+  </type>
   <group name="settings" advanced="yes">
-    <setting name="sipx-proxy-domain" hidden="yes">
-      <type>
-        <string required="yes" />
-      </type>
-    </setting>
-    <setting name="sipx-proxy-port" hidden="yes">
-      <type>
-        <integer required="yes" />
-      </type>
-      <value>5060</value>
-    </setting>
     <setting name="watcher-address" hidden="yes">
       <type>
         <string required="yes" />
@@ -59,9 +39,7 @@
       <value></value>
     </setting>
     <setting name="watcher-port">
-      <type>
-        <integer required="yes" />
-      </type>
+      <type refid="requiredNonRootPort"/>
       <value>5064</value>
     </setting>
     <setting name="log-level" hidden="yes">
@@ -69,15 +47,8 @@
       <value>NOTICE</value>
     </setting>
     <setting name="openfire-xml-rpc-port">
-      <type>
-        <integer required="yes" />
-      </type>
+      <type refid="requiredNonRootPort"/>
       <value>9094</value>
-    </setting>
-    <setting name="openfire-host" hidden="yes">
-      <type>
-        <string required="yes" />
-      </type>
     </setting>
     <setting name="locale" hidden="yes">
       <type>
@@ -92,9 +63,7 @@
       <value>false</value>
     </setting>
     <setting name="port">
-      <type>
-        <integer min="1024" max="65535" required="yes" />
-      </type>
+      <type refid="requiredNonRootPort"/>
       <value>5269</value>
     </setting>
     <setting name="disconnect-on-idle" advanced="yes">
@@ -124,12 +93,6 @@
           <pattern>[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1}(,\s*[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1})*</pattern>
         </string>
       </type>
-    </setting>
-    <setting name="default-remote-server-port" hidden="yes">
-      <type>
-        <integer />
-      </type>
-      <value>5269</value>
     </setting>
   </group>
   <group name="message-logging">

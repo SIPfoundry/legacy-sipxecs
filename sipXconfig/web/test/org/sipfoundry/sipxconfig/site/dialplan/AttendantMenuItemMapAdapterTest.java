@@ -13,9 +13,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import junit.framework.TestCase;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
+
 import org.sipfoundry.sipxconfig.common.DialPad;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.site.dialplan.AttendantMenuPanel.AttendantMenuItemMapAdapter;
 
 public class AttendantMenuItemMapAdapterTest extends TestCase {

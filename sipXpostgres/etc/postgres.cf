@@ -1,0 +1,128 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# Postgres configuration for working with sipxecs
+#
+
+bundle agent postgres {
+  methods:
+    postgres::
+      "any" usebundle => "postgres_init";
+      "any" usebundle => "postgres_config";
+    any::
+      "any" usebundle => "postgres_running";
+}
+
+bundle agent postgres_init {
+  classes:
+    postgres::
+      "no_pgver" not => fileexists("$(sipx.PGDATA)/PG_VERSION");
+      "no_pgdata" not => fileexists("$(sipx.PGDATA)/data");
+      "initdb" or => { "no_pgdata", "no_pgver" };
+
+  methods:
+    # Most distributions use a separate command "initdb"
+    # to initialize the db which can also be called by
+    # starting and stopping server. Although you could call
+    # initdb directly there is various other housekeeping that
+    # the service script handles so leverage it here.
+    initdb.(redhat|SuSe)::
+      "any" usebundle => define_class("postgres_restart");
+
+  commands:
+    initdb.(debian|ubuntu|freebsd)::
+      # not verified, ported from pgpatch.sh
+      "$(sipx.PG_DAEMON)"        
+        args => "initdb",
+	contain => su("$(sipx.POSTGRES_USER)");
+}
+
+bundle agent define_class(to_be_defined) {
+  vars:
+    any::
+      "unused_var_name" string => canonify("$(to_be_defined)");
+}
+
+bundle agent postgres_config {
+  files:
+    postgres::
+      "$(sipx.PGDATA)/pg_hba.conf"
+        create => "false",
+	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+	edit_line => pg_hba_conf();
+
+      "$(sipx.PGDATA)/postgresql.conf"
+        create => "true",
+	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+	edit_line => postgresql_conf();
+
+      "$(sipx.PGDATA)/postmaster.opts.default"
+        create => "true",
+	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+	edit_line => replace_contents("-i");
+}
+
+bundle edit_line postgresql_conf() {
+  insert_lines:
+    any::
+      # makes a difference when row counts get higher both
+      # in users table and cdrs.  A database that has not
+      # been vacuumed will take 20-30 minutes before it will
+      # seen an improvement.  You may have to run manually
+      #  psql -U postgres -c 'vacuum'
+      "autovacuum = on";
+      "autovacuum_naptime = 60";
+      "autovacuum_vacuum_threshold = 50";
+      "autovacuum_analyze_threshold = 50";
+      "autovacuum_vacuum_scale_factor = 0.2";
+      "autovacuum_analyze_scale_factor = 0.1";
+      "autovacuum_vacuum_cost_delay = 20";
+      "autovacuum_vacuum_cost_limit = 0";
+
+    src::
+      # allows unit tests to run exponentially faster after using
+      # the new truncate sql command. Otherwise this wouldn't be
+      # required.
+      "fsync = off";
+
+  delete_lines:
+    any::
+      "autovacuum.*";
+      "tcpip_socket.*";
+      "fsync.*";
+}
+
+bundle edit_line pg_hba_conf() {
+  insert_lines::
+    "local *all *all *trust";
+    "host *all *all *127.0.0.1\/32 *trust";
+}
+
+
+bundle agent postgres_running {
+  vars:
+    any::
+      "service_command" string => "/usr/bin/postmaster";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "postgres_running","$(sipx.POSTGRESQL_USER)");
+
+  commands:
+    postgres_running.!postgres::
+      "$(sipx.PG_DAEMON)"
+        args => "stop",
+	action => track("postgres_stop");
+
+    !postgres_running.postgres::
+      "$(sipx.PG_DAEMON)"
+        args => "start",
+	action => track("postgres_start");
+
+    postgres_running.restart_postgres::
+      "$(sipx.PG_DAEMON)"
+        args => "restart",
+	action => track("postgres_restart");  
+}

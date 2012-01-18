@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.bulk.BulkParser;
@@ -20,6 +21,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class BulkManagerImpl extends HibernateDaoSupport implements BulkManager {
     private BulkParser m_csvParser;
+    private ExportCsv m_exportCsv;
 
     private CsvRowInserter m_rowInserter;
 
@@ -51,5 +53,13 @@ public class BulkManagerImpl extends HibernateDaoSupport implements BulkManager 
         } finally {
             IOUtils.closeQuietly(reader);
         }
+    }
+
+    public void performExport(Writer writer) throws IOException {
+        m_exportCsv.exportCsv(writer);
+    }
+
+    public void setExportCsv(ExportCsv exportCsv) {
+        m_exportCsv = exportCsv;
     }
 }

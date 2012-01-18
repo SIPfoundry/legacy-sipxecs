@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
+  <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="localhost" />
+    <property name="defaultFileTypeMap">
+      <bean class="org.springframework.mail.javamail.ConfigurableMimeFileTypeMap">
+        <property name="mappings">
+          <list>
+            <value>application/x-compressed gz tgz</value>
+          </list>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="mailSenderContextImpl" class="org.sipfoundry.sipxconfig.mail.MailSenderContextImpl">
+    <property name="mailSender" ref="mailSender" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="mailSenderContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.mail.MailSenderContext</value>
+    </property>
+    <property name="target">
+      <ref local="mailSenderContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.mail</value>
+    </property>
+  </bean>
+
+</beans>

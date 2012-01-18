@@ -11,6 +11,9 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.Collections;
 
+import org.sipfoundry.sipxconfig.admin.InitTaskListener;
+import org.sipfoundry.sipxconfig.admin.InitializationTask;
+
 import junit.framework.TestCase;
 
 public class InitTaskListenerTest extends TestCase {

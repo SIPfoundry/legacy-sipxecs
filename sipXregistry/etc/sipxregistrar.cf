@@ -1,0 +1,81 @@
+# Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipXregstrar configuration and process management
+#
+
+bundle agent sipxregistrar {
+  methods:
+    sipxregistrar::
+      "any" usebundle => "sipxregistrar_config";
+    any::
+      "any" usebundle => "sipxregistrar_running";
+}
+
+bundle agent sipxregistrar_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/registrar-config"
+        create => "true",
+        perms => m("644"),
+        edit_line => registrar_config_contents(),
+        classes => if_repaired("restart_sipxregistrar"),
+	action => track("registrar-config");
+}
+
+bundle edit_line registrar_config_contents() {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/registrar-config.part"
+        insert_type => "file";
+      "SIP_REDIRECT.100-PICKUP.ORBIT_FILENAME : $(sipx.SIPX_CONFDIR)/orbits.xml";
+      "SIP_REDIRECT.130-MAPPING.MAPPING_RULES_FILENAME : $(sipx.SIPX_CONFDIR)/mappingrules.xml";
+      "SIP_REDIRECT.140-FALLBACK.MAPPING_RULES_FILENAME : $(sipx.SIPX_CONFDIR)/fallbackrules.xml";
+      "SIP_REDIRECT.900-PRESENCE.USER_PREFS_FILE : $(sipx.SIPX_CONFDIR)/presencerouting-prefs.xml";
+      "SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM : $(sipx.SIPX_LIBDIR)/libRedirectorUserParam.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.100-PICKUP : $(sipx.SIPX_LIBDIR)/libRedirectorPickUp.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.110-REG : $(sipx.SIPX_LIBDIR)/libRedirectorRegDB.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.120-ALIAS : $(sipx.SIPX_LIBDIR)/libRedirectorAliasDB.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.130-MAPPING : $(sipx.SIPX_LIBDIR)/libRedirectorMapping.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.140-FALLBACK : $(sipx.SIPX_LIBDIR)/libRedirectorFallback.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.150-ISN : $(sipx.SIPX_LIBDIR)/libRedirectorISN.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.160-ENUM : $(sipx.SIPX_LIBDIR)/libRedirectorENUM.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.900-PRESENCE : $(sipx.SIPX_LIBDIR)/libRedirectorPresenceRouting.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.997-SUBSCRIBE : $(sipx.SIPX_LIBDIR)/libRedirectorSubscribe.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.998-TIMEOFDAY : $(sipx.SIPX_LIBDIR)/libRedirectorTimeOfDay.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.999-AUTHROUTER : $(sipx.SIPX_LIBDIR)/libRedirectorAuthRouter.so";
+      "SIP_REGISTRAR_BIND_IP : $(sys.ipv4)";
+      "SIP_REGISTRAR_HOOK_LIBRARY.MWI : $(sipx.SIPX_LIBDIR)/libRegistrarImpliedMWI.so";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxregistrar_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipregistrar";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxregistrar_running");
+
+  commands:
+    sipxregistrar_running.!sipxregistrar::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
+        args => "stop",
+	action => track("sipxegistrar stop");
+
+    !sipxregistrar_running.sipxregistrar::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
+        args => "start",
+	action => track("sipxegistrar start");
+
+    restart_sipxregistrar::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
+        args => "restart",
+	action => track("sipxegistrar restart");
+}

@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-import org.sipfoundry.sipxconfig.common.InitTaskListener;
+import org.sipfoundry.sipxconfig.admin.InitTaskListener;
 import org.springframework.beans.factory.annotation.Required;
 
 public class FilePhonebookEntryUpgradeTask extends InitTaskListener {

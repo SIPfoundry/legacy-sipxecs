@@ -11,8 +11,7 @@
     <property name="logDirectory" value="${sysdir.log}" />
   </bean>
 
-  <bean id="privateUserKeyManagerImpl" class="org.sipfoundry.sipxconfig.login.PrivateUserKeyManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="privateUserKeyManagerImpl" class="org.sipfoundry.sipxconfig.login.PrivateUserKeyManagerImpl" parent="abstractDaoImpl">
   </bean>
 
   <bean id="privateUserKeyManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

@@ -1,0 +1,101 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipXproxy configuration and process management
+#
+bundle agent sipxproxy {
+  methods:
+    sipxproxy::
+      "any" usebundle => "sipxproxy_config";
+      "any" usebundle => "sipxproxy_setup";
+    any::
+      "any" usebundle => "sipxproxy_running";
+}
+
+bundle agent sipxproxy_config {
+  vars:
+    any::
+      "xml_file" slist => {
+        "peeridentities.xml",
+        "authrules.xml",
+        "fallbackrules.xml",
+        "forwardingrules.xml",
+        "nattraversalrules.xml"
+      };
+  files:
+    any::
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipXproxy-config"
+        create => "true",
+        perms => m("644"),
+        edit_line => sipXproxy_config_contents(),
+        classes => if_repaired("restart_sipxproxy"),
+	action => track("sipXproxy-config");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxproxy"),
+	action => track("$(xml_file)");
+}
+
+bundle edit_line sipXproxy_config_contents() {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipXproxy-config.part"
+        insert_type => "file";
+      "SIPX_PROXY.400_authrules.RULES : $(sipx.SIPX_CONFDIR)/authrules.xml";
+      "SIPX_PROXY.990_emergnotif.EMERGRULES : $(sipx.SIPX_CONFDIR)/authrules.xml";
+      "SIPX_PROXY_BIND_IP : $(sys.ipv4)";
+      "SIPX_PROXY_HOOK_LIBRARY.200_xfer : $(sipx.SIPX_LIBDIR)/authplugins/libTransferControl.so";
+      "SIPX_PROXY_HOOK_LIBRARY.205_subscriptionauth : $(sipx.SIPX_LIBDIR)/authplugins/libSubscriptionAuth.so";
+      "SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack : $(sipx.SIPX_LIBDIR)/authplugins/libMSFT_ExchangeTransferHack.so";
+      "SIPX_PROXY_HOOK_LIBRARY.300_calldestination: $(sipx.SIPX_LIBDIR)/authplugins/libCallDestination.so";
+      "SIPX_PROXY_HOOK_LIBRARY.350_calleralertinfo: $(sipx.SIPX_LIBDIR)/authplugins/libCallerAlertInfo.so";
+      "SIPX_PROXY_HOOK_LIBRARY.400_authrules : $(sipx.SIPX_LIBDIR)/authplugins/libEnforceAuthRules.so";
+      "SIPX_PROXY_HOOK_LIBRARY.700_fromalias : $(sipx.SIPX_LIBDIR)/authplugins/libCallerAlias.so";
+      "SIPX_PROXY_HOOK_LIBRARY.900_ntap : $(sipx.SIPX_LIBDIR)/authplugins/libNatTraversalAgent.so";
+      "SIPX_PROXY_HOOK_LIBRARY.990_emergnotif: $(sipx.SIPX_LIBDIR)/authplugins/libEmergencyNotify.so";
+      "SIPX_PROXY_HOOK_LIBRARY.995_requestlinter: $(sipx.SIPX_LIBDIR)/authplugins/libRequestLinter.so";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxproxy_setup {
+  methods:
+    !src::
+      "any" usebundle => rh_chkconfig_status("sipxproxy");
+}
+
+bundle agent sipxproxy_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipXproxy";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxproxy_running");
+
+  commands:
+    sipxproxy_running.!sipxproxy::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        args => "stop",
+	action => track("sipxproxy_stop");
+
+    !sipxproxy_running.sipxproxy::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        args => "start",
+	action => track("sipxproxy_start");
+
+    restart_sipxproxy::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        args => "restart",
+	action => track("sipxproxy_restart");
+}
+

@@ -11,30 +11,22 @@ package org.sipfoundry.sipxconfig.acd;
 
 import java.io.Serializable;
 
-import static java.util.Collections.singleton;
-
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxAcdService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.presence.PresenceServer;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class AcdProvisioningContextImpl extends HibernateDaoSupport implements
-        AcdProvisioningContext {
-    private SipxReplicationContext m_sipxReplicationContext;
-    private ServiceConfigurator m_serviceConfigurator;
-    private SipxServiceManager m_sipxServiceManager;
-
+public class AcdProvisioningContextImpl implements AcdProvisioningContext {
     private JobContext m_jobContext;
+    private ConfigManager m_configManager;
+    private AcdContext m_acdContext;
+    private AddressManager m_addressManager;
 
     public void deploy(Serializable id) {
         boolean success = false;
-        AcdServer server = (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
-        SipxService acdService = getAcdService();
+        AcdServer server = m_acdContext.loadServer(id);
         Serializable jobId = m_jobContext.schedule("ACD Server Configuration");
         try {
             // ENG-494 very first command in try block to ensure job state machine
@@ -43,18 +35,18 @@ public class AcdProvisioningContextImpl extends HibernateDaoSupport implements
             // TODO: it would be nice if we could use Spring to set it up somehow
             XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
             factory.setServiceInterface(Provisioning.class);
-            factory.setServiceUrl(server.getServiceUri());
+            String serviceUri = m_addressManager.getSingleAddress(PresenceServer.HTTP_ADDRESS).toString();
+            factory.setServiceUrl(serviceUri);
             factory.afterPropertiesSet();
             Provisioning provisioning = (Provisioning) factory.getObject();
             XmlRpcSettings xmlRpc = new XmlRpcSettings(provisioning);
             server.deploy(xmlRpc);
             success = true;
-            m_sipxReplicationContext.generate(server);
+            m_configManager.configureEverywhere(Acd.FEATURE);
         } finally {
-            //XML-RPC deploy operation doesn't automatically restart the acd service
-            //Make sure that the acd service is marked for restart
-            m_serviceConfigurator.markServiceForRestart(server.getLocation(),
-                    singleton(acdService));
+            // XML-RPC deploy operation doesn't automatically restart the acd service
+            // Make sure that the acd service is marked for restart
+            m_configManager.restartService(server.getLocation(), "sipxacd");
             if (success) {
                 m_jobContext.success(jobId);
             } else {
@@ -63,27 +55,21 @@ public class AcdProvisioningContextImpl extends HibernateDaoSupport implements
         }
     }
 
-    private SipxService getAcdService() {
-        return m_sipxServiceManager.getServiceByBeanId(SipxAcdService.BEAN_ID);
-    }
-
     @Required
-    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
-        m_sipxReplicationContext = sipxReplicationContext;
-    }
-
-    @Required
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 
     @Required
     public void setJobContext(JobContext jobContext) {
         m_jobContext = jobContext;
+    }
+
+    public void setAcdContext(AcdContext acdContext) {
+        m_acdContext = acdContext;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

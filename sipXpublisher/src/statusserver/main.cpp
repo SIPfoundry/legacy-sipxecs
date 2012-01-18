@@ -23,6 +23,7 @@
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"    // now deregister this process's database references from the IMDB
+#include "sipXecsService/daemon.h"
 #include "statusserver/StatusServer.h"
 
 #include <os/OsLogger.h>
@@ -136,39 +137,39 @@ void initSysLog(OsConfigDb* pConfig)
 }
 
 
+void signal_handler(int sig) {
+    switch(sig) {
+    case SIGHUP:
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
+	break;
 
+    case SIGTERM:
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
+        gShutdownFlag = TRUE;
+	break;
+    }
+}
 
 /** The main entry point to the StatusServer */
 int
 main(int argc, char* argv[] )
 {
-   OsConfigDb  configDb ;  // Params for OsSysLog init
+    char* pidFile = NULL;
+    for(int i = 1; i < argc; i++) {
+        if(strncmp("-v", argv[i], 2) == 0) {
+  	    std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
+	    exit(0);
+	} else {
+            pidFile = argv[i];
+	}
+    }
+    if (pidFile) {
+      daemonize(pidFile);
+    }
+    signal(SIGHUP, signal_handler); // catch hangup signal
+    signal(SIGTERM, signal_handler); // catch kill signal
 
-   UtlBoolean interactiveSet = false;
-   UtlString argString;
-   for(int argIndex = 1; argIndex < argc; argIndex++)
-   {
-      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "arg[%d]: %s\n", argIndex, argv[argIndex]) ;
-      argString = argv[argIndex];
-      NameValueTokenizer::frontBackTrim(&argString, "\t ");
-      if(argString.compareTo("-v") == 0)
-      {
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "Version: %s %s\n", PACKAGE_VERSION, PACKAGE_REVISION);
-         return(1);
-      }
-      else if( argString.compareTo("-i") == 0)
-      {
-         interactiveSet = true;
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "Entering Interactive Mode\n");
-      }
-      else
-      {
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "usage: %s [-v] [-i]\nwhere:\n -v provides the software version\n"
-            " -i start the server in an interactive made\n",
-         argv[0]);
-         return(1);
-      }
-   }
+    OsConfigDb  configDb ;  // Params for OsSysLog init
 
     // initialize log file
    OsPath workingDirectory;
@@ -203,29 +204,9 @@ main(int argc, char* argv[] )
     pServerTask = static_cast<OsServerTask*>(pStatusServer);
 
     // Do not exit, let the proxy do its stuff
-    while( !Os::UnixSignals::instance().isTerminateSignalReceived() )
+    while( !gShutdownFlag )
     {
-        if( interactiveSet)
-        {
-            int charCode = getchar();
-
-            if(charCode != '\n' && charCode != '\r')
-            {
-                if( charCode == 'e')
-                {
-                    Os::Logger::instance().enableConsoleOutput(true);
-                } else if( charCode == 'd')
-                {
-                    Os::Logger::instance().enableConsoleOutput(false);
-                } else
-                {
-                    // pStatusServer->printMessageLog();
-                }
-            }
-        } else
-        {
-            OsTask::delay(2000);
-        }
+        OsTask::delay(2000);
     }
 
     // Remove the current process's row from the IMDB

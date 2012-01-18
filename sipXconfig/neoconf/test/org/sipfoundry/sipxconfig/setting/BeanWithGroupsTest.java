@@ -12,8 +12,8 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class BeanWithGroupsTest extends TestCase {
     private BeanWithGroups m_bean;

@@ -14,15 +14,15 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.AuxSbc;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.sbc.AuxSbc;
+import org.sipfoundry.sipxconfig.sbc.Sbc;
+import org.sipfoundry.sipxconfig.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.sbc.SbcRoutes;
 
 public abstract class EditSbc extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "dialplan/sbc/EditSbc";

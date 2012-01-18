@@ -9,12 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import static java.text.DateFormat.SHORT;
+
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import static java.text.DateFormat.SHORT;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IRequestCycle;
@@ -24,10 +24,10 @@ import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.Snapshot;
-import org.sipfoundry.sipxconfig.admin.Snapshot.SnapshotResult;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.backup.Snapshot;
+import org.sipfoundry.sipxconfig.backup.Snapshot.SnapshotResult;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;

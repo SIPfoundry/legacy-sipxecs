@@ -16,13 +16,14 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.restlet.data.MediaType.APPLICATION_JSON;
+import static org.restlet.data.MediaType.TEXT_XML;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.thoughtworks.xstream.XStream;
 
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -36,8 +37,7 @@ import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.restlet.data.MediaType.APPLICATION_JSON;
-import static org.restlet.data.MediaType.TEXT_XML;
+import com.thoughtworks.xstream.XStream;
 
 public class UserActiveCdrsResource extends UserResource {
 

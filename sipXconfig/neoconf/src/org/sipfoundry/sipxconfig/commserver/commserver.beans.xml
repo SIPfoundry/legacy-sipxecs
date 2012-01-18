@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="location" class="org.sipfoundry.sipxconfig.commserver.Location" scope="prototype">
+	<property name="fqdn" value="localhost"/>
+  </bean>
+
+  <bean id="locationsManagerImpl" class="org.sipfoundry.sipxconfig.commserver.LocationsManagerImpl" parent="abstractDaoImpl">
+  </bean>
+
+  <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.commserver.LocationsManager</value>
+    </property>
+    <property name="target">
+      <ref local="locationsManagerImpl" />
+    </property>
+  </bean>
+  
+  <bean id="settingsWithLocationDaoImpl" class="org.sipfoundry.sipxconfig.commserver.SettingsWithLocationDaoImpl" abstract="true" parent="abstractDaoImpl">
+  </bean>
+  
+  <bean id="settingsWithLocationDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao" abstract="true">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.SettingsWithLocationDao"/>
+  </bean>
+  
+  <bean id="settingsWithLocation" class="org.sipfoundry.sipxconfig.commserver.SettingsWithLocation" parent="settingsBean">
+  </bean>
+
+  <bean id="contactInfoChangeApiProvider"
+    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="ContactInfoHandler." />
+    <property name="secure" value="false" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.commserver.ContactInfoChangeApi" />
+  </bean>
+
+  <bean id="sipxReplicationContextImpl" class="org.sipfoundry.sipxconfig.commserver.SipxReplicationContextImpl">
+    <property name="replicationManager" ref="replicationManagerImpl" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="jobContext" ref="jobContext" />
+  </bean>
+
+  <bean id="sipxReplicationContextDao" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="interceptorNames">
+      <list>
+        <value>readOnlyHibernateInterceptor</value>
+      </list>
+    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.SipxReplicationContext"/>
+    <property name="target" ref="sipxReplicationContextImpl"/>
+  </bean>
+
+  <bean id="sipxReplicationContext" class="org.sipfoundry.sipxconfig.commserver.LazySipxReplicationContextImpl"
+    init-method="init">
+    <property name="target" ref="sipxReplicationContextDao" />
+  </bean>
+
+  <bean id="softwareAdminApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="SwAdminRpc." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.commserver.SoftwareAdminApi" />
+    <property name="timeout" value="10000" />
+  </bean>
+
+  <bean id="initialConfig" class="org.sipfoundry.sipxconfig.commserver.InitialConfig">
+    <property name="tmpDirectory" value="${sysdir.tmp}"/>
+    <property name="binDirectory" value="${sysdir.libexec}"/>
+  </bean>
+
+</beans>

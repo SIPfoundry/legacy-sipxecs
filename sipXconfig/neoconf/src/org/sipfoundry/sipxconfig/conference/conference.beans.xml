@@ -11,7 +11,7 @@
 
   <bean name="conferenceConference" class="org.sipfoundry.sipxconfig.conference.Conference" scope="prototype"
     parent="beanWithSettings">
-    <!-- default value - overridden in sipxconfig.properties -->
+    <property name="addressManager" ref="addressManager" />
   </bean>
 
   <bean id="activeConferenceContextImpl" class="org.sipfoundry.sipxconfig.conference.ActiveConferenceContextImpl">
@@ -19,7 +19,7 @@
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="domainManager" ref="domainManager" />
     <property name="sipService" ref="sip" />
-    <property name="sipxIvrService" ref="sipxIvrService" />
+    <property name="addressManager" ref="addressManager" />
     <property name="coreContext" ref="coreContext" />
   </bean>
 
@@ -29,90 +29,44 @@
     </property>
   </bean>
 
-  <bean id="conferenceBridgeContextImpl" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
+  <bean id="conferenceBridgeContextImpl" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl" parent="abstractDaoImpl">
     <property name="aliasManager" ref="aliasManager" />
     <property name="domainManager" ref="domainManager" />
-    <property name="daoEventPublisher" ref="daoEventPublisher"/>
-    <property name="provisioning">
-      <ref local="eagerConferenceBridgeProvisioning" />
-    </property>
-    <property name="conferenceBundle" ref="conferenceBundle" />
-    <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
-    <property name="replicationContext" ref="sipxReplicationContextDao" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+  
+  <bean id="conferenceFeature" class="org.sipfoundry.sipxconfig.conference.ConferenceFeature">
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext"/>
   </bean>
 
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces"
-      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext" />
-    <property name="target">
-      <ref local="conferenceBridgeContextImpl" />
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext" />
+    <property name="target" ref="conferenceBridgeContextImpl" />
   </bean>
 
   <bean id="freeswitchApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
-    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.conference.FreeswitchApi" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi" />
     <property name="marshaller">
-      <bean class="org.sipfoundry.sipxconfig.conference.FreeswitchApiMarshaller" />
+      <bean class="org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiMarshaller" />
     </property>
   </bean>
 
-  <bean id="conferenceConfiguration" class="org.sipfoundry.sipxconfig.conference.ConferenceConfiguration" scope="prototype"
-    parent="serviceConfigurationFile">
-    <property name="name" value="conference.conf.xml" />
-    <property name="template" value="sipxconference/conference.conf.xml.vm" />
-    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+  <bean id="conferenceConfiguration" class="org.sipfoundry.sipxconfig.conference.ConferenceConfiguration">
     <property name="domainManager" ref="domainManager" />
+    <property name="velocityEngine" ref="velocityEngine"/>
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
-    <property name="restartRequired" value="false" />
     <property name="mohLocalStreamUrl" value="local_stream://moh" />
     <property name="portAudioUrl" value="portaudio_stream://" />
+    <property name="bridgeConfig" ref="conferenceBridgeConfig"/>
   </bean>
 
-  <bean id="conferenceBridgeConfig" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeConfig"
-    scope="prototype" parent="defaultConfigurationFile">
-    <property name="name" value="conferencebridge.xml" />
-    <property name="restartRequired" value="false" />
+  <bean id="conferenceBridgeConfig" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeConfig">
     <property name="domainManager" ref="domainManager" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-  </bean>
-
-  <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioning" />
-    <property name="target">
-      <bean class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioningImpl">
-        <property name="sessionFactory" ref="sessionFactory" />
-        <!-- eager replication here -->
-        <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
-        <property name="replicationContext" ref="sipxReplicationContextDao" />
-        <property name="sipxServiceManager" ref="sipxServiceManager" />
-        <property name="sipxProcessContext" ref="sipxProcessContext" />
-      </bean>
-    </property>
-  </bean>
-
-  <bean id="conferenceBridgeProvisioning" class="org.sipfoundry.sipxconfig.conference.LazyConferenceBridgeProvisioningImpl"
-    init-method="init">
-    <property name="target">
-      <ref local="eagerConferenceBridgeProvisioning" />
-    </property>
-    <property name="sleepInterval" value="15000" />
+    <property name="addressManager" ref="addressManager" />
   </bean>
 
   <bean id="identity" class="org.sipfoundry.sipxconfig.conference.BridgeConferenceIdentityImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-  </bean>
-
-  <bean name="conferenceBridgeMigrationTask" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeMigrationTask">
-    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="taskNames">
-      <list>
-        <value>migrate-conference-bridges</value>
-      </list>
-    </property>
   </bean>
 
 </beans>

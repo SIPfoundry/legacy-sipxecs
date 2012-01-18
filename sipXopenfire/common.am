@@ -3,6 +3,7 @@ cfg_PKGS = \
 	sipxcommons \
 	velocity \
 	commons-lang \
+	commons-io \
 	dom4j \
 	org.springframework.beans \
 	org.springframework.core \

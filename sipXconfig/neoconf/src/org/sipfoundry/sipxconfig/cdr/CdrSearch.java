@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.cdr;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
+import org.sipfoundry.sipxconfig.dialplan.CallTag;
 
 public class CdrSearch {
     public static final Map<String, String> ORDER_TO_COLUMN;

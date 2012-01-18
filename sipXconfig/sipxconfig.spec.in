@@ -52,13 +52,13 @@ Requires: sipxcommserverlib >= %version
 Requires: sipxacdstatistics-client >= %version
 Requires: sipxcdr-client >= %version
 Requires: sipxpbx >= %version
+Requires: sipxpostgres >= %version
 
 # doesn't really require mongo server on same machine, but 
 # hard to see a reason why this isn't true and there needs
 # to be a mongo server somewhere to might as well be here.
 Requires: sipxmongo-server >= %version
 
-Requires: postgresql-server
 Requires: ruby
 Requires: rubygems
 
@@ -218,9 +218,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc  README  NOTICE  ChangeLog %name.configlog
-%attr(755,root,root) %{_bindir}/sipxconfig.sh
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxconfig-setup
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-process.xml
 %attr(755,sipxchange, sipxchange) %{_bindir}/sipx-time-manager
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXconfig/.java-dep
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXconfig/*.jar
@@ -446,20 +443,6 @@ fi
 
 %post snmp
 sipx-snmp-init > /dev/null
-
-%files mrtg
-%defattr(644,sipxchange,sipxchange,755)
-%attr(755,sipxchange,sipxchange) %{_bindir}/sipx-mrtg-init
-%attr(755,sipxchange,sipxchange) %{_bindir}/sipXmrtg.sh
-%config(noreplace) %{sipxpbxconf}/mrtg/*
-%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/mrtg
-%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/mrtg/thresh
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXmrtg-process.xml
-
-%preun mrtg
-if [ "$1" = "0" ] ; then
-  sipx-mrtg-init -d > /dev/null
-fi
 
 %files tunnel
 %defattr(644,sipxchange,sipxchange,755)

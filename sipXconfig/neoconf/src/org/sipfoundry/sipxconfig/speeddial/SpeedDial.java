@@ -9,12 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.rls.Rls;
 
 /**
  * Collection of speeddial buttons associated with the user.
  */
-public class SpeedDial extends SpeedDialButtons {
+public class SpeedDial extends SpeedDialButtons implements DeployConfigOnEdit {
     private User m_user;
 
     public User getUser() {
@@ -57,5 +63,10 @@ public class SpeedDial extends SpeedDialButtons {
             }
         }
         return false;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) Rls.FEATURE);
     }
 }

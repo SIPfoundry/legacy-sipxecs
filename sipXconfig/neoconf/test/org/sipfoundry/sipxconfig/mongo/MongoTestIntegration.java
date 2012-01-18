@@ -1,6 +1,6 @@
 package org.sipfoundry.sipxconfig.mongo;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 

@@ -9,36 +9,42 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ConferenceTest extends BeanWithSettingsTestCase {
     private Conference m_conf;
     private Bridge m_bridge;
+    private AddressManager m_addressManager;
 
     protected void setUp() throws Exception {
         super.setUp();
 
-        Location location = new Location();
-        SipxFreeswitchService sipxService = new SipxFreeswitchService();
-        sipxService.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
-        LocationSpecificService service = new LocationSpecificService(sipxService);
-        service.setLocation(location);
+//        Location location = new Location();
+//        SipxFreeswitchService sipxService = new SipxFreeswitchService();
+//        sipxService.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
+//        LocationSpecificService service = new LocationSpecificService(sipxService);
+//        service.setLocation(location);
+        m_addressManager = createMock(AddressManager.class);
 
         m_bridge = new Bridge();
-        m_bridge.setService(service);
         m_bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         initializeBeanWithSettings(m_bridge);
 
         m_conf = new Conference();
         initializeBeanWithSettings(m_conf);
         m_conf.getSettings();
+        m_conf.setAddressManager(m_addressManager);
     }
 
     public void testGenerateAccessCodes() {
@@ -48,18 +54,24 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
     }
 
     public void testGetUri() {
-        m_bridge.getService().getLocation().setFqdn("bridge1.sipfoundry.org");
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
+        expectLastCall().andReturn(new Address("bridge1.example.org", 1111)).once();
+        expectLastCall().andReturn(new Address("abc.example.com", 2222)).once();
+        replay(m_addressManager);
+        
         m_bridge.addConference(m_conf);
 
         m_conf.setName("weekly.marketing");
-        assertEquals("sip:weekly.marketing@bridge1.sipfoundry.org:15060", m_conf.getUri());
+        assertEquals("sip:weekly.marketing@bridge1.example.org:1111", m_conf.getUri());
 
-        m_bridge.getService().getLocation().setFqdn("abc.domain.com");
-        assertEquals("sip:weekly.marketing@abc.domain.com:15060", m_conf.getUri());
+        assertEquals("sip:weekly.marketing@abc.example.com:2222", m_conf.getUri());
     }
 
     public void testGenerateRemoteAdmitSecret() {
-        m_bridge.getService().getLocation().setFqdn("bridge1.sipfoundry.org");
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
+        expectLastCall().andReturn(new Address("bridge1.example.org", 1111)).once();
+        replay(m_addressManager);
+        
         m_bridge.addConference(m_conf);
 
         assertNull(m_conf.getRemoteAdmitSecret());
@@ -68,7 +80,10 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
     }
 
     public void testGenerateAliases() {
-        m_bridge.getService().getLocation().setFqdn("bridge1.sipfoundry.org");
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
+        expectLastCall().andReturn(new Address("bridge1.sipfoundry.org", 2222)).anyTimes();
+        replay(m_addressManager);
+
         m_bridge.addConference(m_conf);
         // empty for disabled conference
         m_conf.setName("conf1");

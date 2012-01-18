@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+  "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+  
+  <bean id="imdb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
+    <constructor-arg ref="mongoDbFactory"/>
+    <property name="dbname" value="imdb${sysdir.mongo_ns}"/> 
+  </bean>
+
+  <bean id="nodeDb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
+    <constructor-arg ref="mongoDbFactory"/>
+    <property name="dbname" value="node${sysdir.mongo_ns}"/> 
+  </bean>
+  
+  <bean id="validUsers" class="org.sipfoundry.commons.userdb.ValidUsersSpring">
+    <property name="imdbTemplate" ref="imdb"/>
+  </bean>
+
+  <bean id="abstractDataSetGenerator" abstract="true"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.DataSetGenerator">
+    <property name="coreContext" ref="coreContext" />
+    <property name="imdb" ref="imdb"/>
+  </bean>
+
+  <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
+  <bean id="externalAliases"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.ExternalAliases">
+  </bean>
+
+  <bean id="dataSetGenerator" parent="abstractDataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.DataSetGenerator">
+  </bean>
+  <bean id="aliasDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.Aliases">
+  </bean>
+  <bean id="credentialDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.Credentials">
+  </bean>
+  <bean id="permissionDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.Permissions">
+    <property name="permissionManager" ref="permissionManager" />
+  </bean>
+  <bean id="calleraliasDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.CallerAliases">
+  </bean>
+  <bean id="userlocationDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.UserLocation">
+  </bean>
+  <bean id="userforwardDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.UserForward">
+  </bean>
+  <bean id="userstaticDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.UserStatic">
+  </bean>
+  <bean id="attendantDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.Attendant">
+  </bean>
+  <bean id="speeddialDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.SpeedDials">
+    <property name="speedDialManager" ref="speedDialManager" />
+  </bean>
+  
+  <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl" parent="abstractDaoImpl">
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
+    <property name="externalAliases" ref="externalAliases" />
+    <property name="dataSetGenerator" ref="dataSetGenerator" />
+    <property name="validUsers" ref="validUsers"/>
+    <property name="imdb" ref="imdb"/>
+  </bean>
+
+  <bean id="replicationManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager"/>
+    <property name="target" ref="replicationManagerImpl"/>
+  </bean>
+
+  <bean id="replicationTrigger" class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationTrigger">
+    <property name="replicationManager" ref="replicationManager" />
+    <property name="openAcdContext" ref="openAcdContextImpl" />
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
+  </bean>
+
+</beans>

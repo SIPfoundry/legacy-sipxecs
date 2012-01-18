@@ -15,15 +15,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.conference.DummyAliasConflicter;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class PagingContextImplTestIntegration extends IntegrationTestCase {
     private PagingContext m_pagingContext;
     private CoreContext m_coreContext;
-
+    
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
@@ -31,18 +33,11 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
     public void setPagingContext(PagingContext pagingContext) {
         m_pagingContext = pagingContext;
     }
-
+    
     protected void onSetUpInTransaction() throws Exception {
-        loadDataSet("paging/paging.db.xml");
-        loadDataSet("paging/user-paging.db.xml");
-    }
-
-    public void testGetPagingPrefix() throws Exception {
-        assertEquals("*77", m_pagingContext.getPagingPrefix());
-    }
-
-    public void testGetSipTraceLevel() throws Exception {
-        assertEquals("NONE", m_pagingContext.getSipTraceLevel());
+        super.onSetUpInTransaction();
+        db().execute("select truncate_all()");
+        sql("paging/paging.sql");
     }
 
     public void testGetPagingGroups() throws Exception {
@@ -90,48 +85,39 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(1, groups.size());
     }
 
-    public void testSavePagingPrefix() throws Exception {
-        assertEquals("*77", m_pagingContext.getPagingPrefix());
-        m_pagingContext.setPagingPrefix("*88");
-        assertEquals("*88", m_pagingContext.getPagingPrefix());
-    }
-
-    public void testSaveCodeConflict() throws Exception {
-        assertEquals("*77", m_pagingContext.getPagingPrefix());
+    public void testSaveCodeConflict() throws Exception {        
+        PagingSettings settings = new PagingSettings();        
+        settings.setModelFilesContext(TestHelper.getModelFilesContext());
+        assertEquals("*77", settings.getPrefix());
         PagingGroup pg = m_pagingContext.getPagingGroupById(100);
-        pg.setPageGroupNumber(4);
+        assertEquals("858585", DummyAliasConflicter.MY_ALIAS); // if this fails, you need to change seed data 85 and 8585
+        pg.setPageGroupNumber(85);
         m_pagingContext.savePagingGroup(pg);
 
         try {
-            m_pagingContext.setPagingPrefix("100");
+            settings.setPrefix("8585");
+            m_pagingContext.saveSettings(settings);
             fail();
         } catch (UserException e) {
-
         }
 
         pg.setPageGroupNumber(7);
         m_pagingContext.savePagingGroup(pg);
-        m_pagingContext.setPagingPrefix("100");
+        settings = m_pagingContext.getSettings();
+        settings.setPrefix("8585");
+        m_pagingContext.saveSettings(settings);
 
         PagingGroup group = new PagingGroup();
-        group.setPageGroupNumber(4);
         group.setDescription("test");
         group.setSound("TadaTada.wav");
         group.setTimeout(120);
-        group.setPageGroupNumber(4);
+        group.setPageGroupNumber(85);
         try {
             m_pagingContext.savePagingGroup(group);
             fail();
         } catch (UserException e) {
 
         }
-
-    }
-
-    public void testSaveSipTraceLevel() throws Exception {
-        assertEquals("NONE", m_pagingContext.getSipTraceLevel());
-        m_pagingContext.setSipTraceLevel("DEBUG");
-        assertEquals("DEBUG", m_pagingContext.getSipTraceLevel());
     }
 
     public void testSavePagingGroup() throws Exception {

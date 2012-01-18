@@ -11,8 +11,8 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.dialplan.CallTag;
+import org.sipfoundry.sipxconfig.dialplan.config.Transform;
 
 public class MohRuleTest extends XMLTestCase {
     MohRule m_mohRule;

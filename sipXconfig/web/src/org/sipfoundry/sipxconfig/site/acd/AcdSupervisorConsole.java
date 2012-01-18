@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.acd.stats.AcdStatistics;
-import org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -75,7 +74,8 @@ public abstract class AcdSupervisorConsole extends PageWithCallback implements P
 
         AcdStatistics stats = getAcdStatistics();
         if (stats == null) {
-            stats = new AcdStatisticsImpl(getAcdContext());
+            stats = new AcdStatistics();
+            stats.setAcdContext(getAcdContext());
 
             CoreContext core = getCoreContext();
             Integer userId = getUserSession().getUserId();

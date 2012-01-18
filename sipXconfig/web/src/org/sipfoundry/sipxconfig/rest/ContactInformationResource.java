@@ -8,9 +8,10 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
-import java.io.Serializable;
+import static org.restlet.data.MediaType.APPLICATION_JSON;
+import static org.restlet.data.MediaType.TEXT_XML;
 
-import com.thoughtworks.xstream.XStream;
+import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
 import org.restlet.Context;
@@ -24,8 +25,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 
-import static org.restlet.data.MediaType.APPLICATION_JSON;
-import static org.restlet.data.MediaType.TEXT_XML;
+import com.thoughtworks.xstream.XStream;
 
 public class ContactInformationResource extends UserResource {
 

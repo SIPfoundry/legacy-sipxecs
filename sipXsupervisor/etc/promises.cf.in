@@ -1,3 +1,25 @@
+# Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# Main entry point for cfengine agent run (scripts that actually do work)
+#
+
+#
+# gather lists of CFEngine agent scripts and default entry point for each which
+# is just the name of the agent script file sans extension.
+# Example:
+#   plugin.d/foo.cf
+#
+# will automatically be loaded on agent runs and the bundle will automatically be
+# executed.
+#
+#  bundle foo {
+#   reports:
+#     "Hello World";
+#  }
+#
 bundle common g {
   vars:
     any::
@@ -6,13 +28,15 @@ bundle common g {
 
       # only files in base plugin.d dir with automatically use bundle.  plugin.d/foo.cf will load bundle "foo", but
       # plugin.d/mylib/bar.cf will not load bundle "bar"
-      "bundles" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -maxdepth 1 -name '*.cf' -printf '%f\n' | /bin/sed 's/.cf//g'", "useshell"),"\n", "10");
+      "bundles" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -maxdepth 1 -name '*.cf' -printf '%f\n' | /bin/sed 's/.cf//g'", "useshell"),"\n", "10");      
 }
 
+#
+# Load and run cfengine agent scripts.
+#
 body common control {
   bundlesequence => { 
     "sipx_module",
-    "sipx",
     @(g.bundles)
   };
 

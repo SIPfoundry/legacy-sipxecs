@@ -27,7 +27,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -35,7 +35,6 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
-import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
 
 public abstract class EditOpenAcdCommand extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "openacd/EditOpenAcdCommand";
@@ -46,8 +45,8 @@ public abstract class EditOpenAcdCommand extends PageWithCallback implements Pag
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject("spring:sipxOpenAcdService")
-    public abstract SipxOpenAcdService getSipxOpenAcdService();
+//    @InjectObject("spring:sipxOpenAcdService")
+//    public abstract SipxOpenAcdService getSipxOpenAcdService();
 
     public abstract boolean isEnabled();
 

@@ -9,43 +9,43 @@
       All other requests go to the SIP registry/redirect service.
     </description>
 
-    <routeFrom>${proxyService.domainName}:${proxyService.sipPort}</routeFrom>
-    <routeFrom>${proxyService.domainName}</routeFrom>
-    <routeFrom>${location.address}:${proxyService.sipPort}</routeFrom>
+    <routeFrom>${domainName}:${proxyAddress.port}</routeFrom>
+    <routeFrom>${domainName}</routeFrom>
+    <routeFrom>${location.address}:${proxyAddress.port}</routeFrom>
     <routeFrom>${location.address}</routeFrom>
-    <routeFrom>${location.fqdn}:${proxyService.sipPort}</routeFrom>
+    <routeFrom>${location.fqdn}:${proxyAddress.port}</routeFrom>
     <routeFrom>${location.fqdn}</routeFrom>
-    <routeFrom>${location.hostname}:${proxyService.sipPort}</routeFrom>
+    <routeFrom>${location.hostname}:${proxyAddress.port}</routeFrom>
     <routeFrom>${location.hostname}</routeFrom>
 #foreach ($route in ${routes})
-    <routeFrom>$route:${proxyService.sipPort}</routeFrom>
+    <routeFrom>$route:${proxyAddress.port}</routeFrom>
     <routeFrom>$route</routeFrom>
 #end	    
     <methodMatch>
       <methodPattern>SUBSCRIBE</methodPattern>
-#if("" != ${statusService.address})
+#if("" != ${statusAddress.address})
 
       <!-- Message waiting indication events -->
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <!--this goes to the status server-->
-        <routeTo>&lt;${statusService.address}:${statusService.sipPort};transport=tcp&gt;</routeTo>
+        <routeTo>&lt;${statusAddress};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
 #end
       <!-- "reg" event subscriptions. -->
       <fieldMatch fieldName="Event">
         <fieldPattern>reg</fieldPattern>
-        <routeTo>&lt;${location.address}:${registrarService.registrarEventSipPort};transport=tcp&gt;</routeTo>
+        <routeTo>&lt;${regEventAddress};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      <routeTo>&lt;${registrarMappingLocation};x-sipx-routetoreg&gt;</routeTo>
+      <routeTo>&lt;${regAddress};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
 
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    <routeTo>&lt;${registrarMappingLocation};x-sipx-routetoreg&gt;</routeTo>
+    <routeTo>&lt;${regAddress};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
   </route>
 
 #if(${sbc.enabled})

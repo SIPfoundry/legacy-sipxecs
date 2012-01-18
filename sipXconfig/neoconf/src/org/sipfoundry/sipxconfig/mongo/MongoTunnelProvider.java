@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.tunnel.AllowedIncomingTunnel;
 import org.sipfoundry.sipxconfig.tunnel.RemoteOutgoingTunnel;
 import org.sipfoundry.sipxconfig.tunnel.TunnelProvider;

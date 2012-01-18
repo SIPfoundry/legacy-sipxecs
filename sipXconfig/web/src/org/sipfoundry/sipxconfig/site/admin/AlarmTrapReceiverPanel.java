@@ -17,7 +17,7 @@ import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmTrapReceiver;
+import org.sipfoundry.sipxconfig.alarm.AlarmTrapReceiver;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)

@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.job;
 import java.io.Serializable;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 public interface JobContext {
     Serializable schedule(String name);

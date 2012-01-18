@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
+import org.sipfoundry.sipxconfig.dialplan.CallPattern;
 
 public abstract class CallPatternEditor extends BaseComponent {
     @Parameter(required = true)

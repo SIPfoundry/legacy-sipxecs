@@ -9,10 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class GeneralPhonebookSettings extends BeanWithSettings {
+public class GeneralPhonebookSettings extends PersistableSettings {
 
     private static final String EVERYONE = "application/everyone";
 
@@ -30,5 +30,10 @@ public class GeneralPhonebookSettings extends BeanWithSettings {
     public void setEveryoneEnabled(boolean enabled) {
         Setting everyoneSetting = getSettings().getSetting(EVERYONE);
         everyoneSetting.setTypedValue(enabled);
+    }
+
+    @Override
+    public String getBeanId() {
+        return "generalPhonebookSettings";
     }
 }

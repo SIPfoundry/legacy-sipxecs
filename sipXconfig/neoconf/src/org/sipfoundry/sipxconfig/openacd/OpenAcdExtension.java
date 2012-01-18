@@ -29,22 +29,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
-public class OpenAcdExtension extends FreeswitchExtension implements Replicable {
+public class OpenAcdExtension extends FreeswitchExtension implements Replicable, DeployConfigOnEdit {
     public static final String DESTINATION_NUMBER = "destination_number";
     public static final String DESTINATION_NUMBER_PATTERN = "^%s$";
     public static final String EMPTY_STRING = "";
     public static final String VALID_REGULAR_EXPRESSION = "^\\((\\d+)\\).*$";
     static final String ALIAS_RELATION = "openacd";
+    private AddressManager m_addressManager;
 
     /**
      * We call this condition the (first, because they can be many) condition that has
@@ -138,23 +143,13 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     }
 
     @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName, SipxFreeswitchService freeswitchService) {
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
-        String host;
-        if (freeswitchService.getAddresses().size() > 1) {
-            host = freeswitchService.getLocationsManager().getPrimaryLocation().getAddress();
-        } else {
-            host = freeswitchService.getAddress();
-        }
-
+        Address address = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
         String extension = getCapturedExtension();
-        int fsPort = freeswitchService.getFreeswitchSipPort();
-        String sipUri = SipUri.format(extension, host, fsPort);
-
-        AliasMapping nameMapping = new AliasMapping(getName(), SipUri.format(extension, host, fsPort, false),
-                ALIAS_RELATION);
-
-
+        String sipUri = SipUri.format(extension, address.getAddress(), address.getPort());
+        String sipUriNoQuote = SipUri.format(extension, address.getAddress(), address.getPort(), false);
+        AliasMapping nameMapping = new AliasMapping(getName(), sipUriNoQuote, ALIAS_RELATION);
         AliasMapping lineMapping = new AliasMapping(extension, sipUri, ALIAS_RELATION);
         mappings.addAll(Arrays.asList(nameMapping, lineMapping));
         if (getAlias() != null) {
@@ -170,11 +165,6 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     }
 
     @Override
-    public Collection<AliasMapping> getAliasMappings(String domainName) {
-        return null;
-    }
-
-    @Override
     public Set<DataSet> getDataSets() {
         Set<DataSet> ds = new HashSet<DataSet>();
         ds.add(DataSet.ALIAS);
@@ -183,7 +173,6 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
 
     @Override
     public String getIdentity(String domain) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -194,7 +183,16 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
 
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return (!isEnabled() ? null : Collections.singleton((Feature) FreeswitchFeature.FEATURE));
     }
 
 }

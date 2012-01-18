@@ -27,28 +27,29 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
-import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
+import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserChangeEvent;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext,
-    DaoEventListener, OpenAcdConfigObjectProvider {
+public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext,
+    DaoEventListener, OpenAcdConfigObjectProvider, BeanFactoryAware {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -69,15 +70,27 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private static final String DEFAULT_CLIENT = "Demo Client";
     private static final String FS_ACTIONS_WITH_DATA = "freeswitchActionsWithData";
 
-    private SipxServiceManager m_serviceManager;
-    private boolean m_enabled = true;
     private AliasManager m_aliasManager;
+    private FeatureManager m_featureManager;
     private OpenAcdProvisioningContext m_provisioningContext;
-    private LocationsManager m_locationsManager;
-    private ServiceConfigurator m_serviceConfigurator;
-    private SipxProcessContext m_processContext;
+    private BeanWithSettingsDao<OpenAcdSettings> m_settingsDao;
+    private ListableBeanFactory m_beanFactory;
 
-    public abstract OpenAcdExtension newOpenAcdExtension();
+    public OpenAcdSettings getSettings() {
+        return m_settingsDao.findOrCreateOne();
+    }
+
+    public void saveSettings(OpenAcdSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
+
+    public OpenAcdLine newOpenAcdLine() {
+        return m_beanFactory.getBean(OpenAcdLine.class);
+    }
+
+    public OpenAcdCommand newOpenAcdCommand() {
+        return m_beanFactory.getBean(OpenAcdCommand.class);
+    }
 
     @Override
     public OpenAcdExtension getExtensionById(Integer extensionId) {
@@ -132,15 +145,12 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
     @Override
     public boolean isEnabled() {
-        return m_enabled;
+        return m_featureManager.isFeatureEnabled(FEATURE);
     }
 
     public void deleteExtension(OpenAcdExtension ext) {
         getHibernateTemplate().delete(ext);
         getHibernateTemplate().flush();
-        if (ext.isEnabled()) {
-            replicateConfig();
-        }
     }
 
     public void saveExtension(OpenAcdExtension extension) {
@@ -168,17 +178,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         } else {
             getHibernateTemplate().merge(extension);
         }
-    }
-
-    public void replicateConfig() {
-        SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
-                .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-        for (Location location : m_locationsManager.getLocations()) {
-            if (location.isServiceInstalled(freeswitchService)) {
-                m_serviceConfigurator.replicateServiceConfig(location, freeswitchService, true, false);
-            }
-        }
-        m_processContext.markServicesForReload(Collections.singleton(freeswitchService));
     }
 
     private void removeNullActions(OpenAcdExtension extension) {
@@ -313,6 +312,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 affectDefaultAgentGroup = true;
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(groups);
         getHibernateTemplate().deleteAll(groups);
         m_provisioningContext.deleteObjects(agents);
         m_provisioningContext.deleteObjects(groups);
@@ -378,8 +378,10 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
             agents.add(agent);
             OpenAcdAgentGroup group = agent.getGroup();
             group.removeAgent(agent);
+            getDaoEventPublisher().publishSave(group);
             getHibernateTemplate().save(group);
         }
+        getDaoEventPublisher().publishDeleteCollection(agents);
         m_provisioningContext.deleteObjects(agents);
     }
 
@@ -470,6 +472,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 groups.add(group);
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(groups);
         getHibernateTemplate().deleteAll(groups);
         if (!skills.isEmpty()) {
             m_provisioningContext.deleteObjects(skills);
@@ -562,6 +565,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 skills.add(skill);
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(skills);
         getHibernateTemplate().deleteAll(skills);
         m_provisioningContext.deleteObjects(skills);
 
@@ -704,6 +708,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 clients.add(client);
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(clients);
         getHibernateTemplate().deleteAll(clients);
         m_provisioningContext.deleteObjects(clients);
 
@@ -901,7 +906,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 getHibernateTemplate().merge(action);
             }
             getHibernateTemplate().flush();
-            replicateConfig();
         }
     }
 
@@ -922,6 +926,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
                 groups.add(group);
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(queues);
         getHibernateTemplate().deleteAll(queues);
         m_provisioningContext.deleteObjects(queues);
 
@@ -975,10 +980,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         return objects;
     }
 
-    public void setSipxServiceManager(SipxServiceManager manager) {
-        m_serviceManager = manager;
-    }
-
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
     }
@@ -987,16 +988,42 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         m_provisioningContext = context;
     }
 
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 
-    public void setProcessContext(SipxProcessContext processContext) {
-        m_processContext = processContext;
+    public void setSettingsDao(BeanWithSettingsDao<OpenAcdSettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
+    @Override
+    public void replicateConfig() {
     }
 
+    @Override
+    public void resync() {
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof UserChangeEvent) {
+            UserChangeEvent userEvent = (UserChangeEvent) event;
+            OpenAcdAgent agent = getAgentByUserId(userEvent.getUserId());
+            if (agent != null) {
+                agent.setOldName(userEvent.getOldUserName());
+                agent.getUser().setUserName(userEvent.getUserName());
+                agent.getUser().setFirstName(userEvent.getFirstName());
+                agent.getUser().setLastName(userEvent.getLastName());
+
+                ArrayList<OpenAcdAgent> list = new ArrayList<OpenAcdAgent>();
+                list.add(agent);
+                m_provisioningContext.updateObjects(list);
+            }
+        }
+    }
 }

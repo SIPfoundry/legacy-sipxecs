@@ -30,4 +30,11 @@ public interface AliasManager extends AliasOwner {
      */
     boolean canObjectUseAlias(BeanWithId bean, String alias);
 
+    /**
+     * Attempts to find an unused alias by looking at the desired alias and
+     * finding the next closest alias if the desired alias is taken.  Function
+     * will eventually give-up and throw user exception if an alias cannot be
+     * found.
+     */
+    String getNextAvailableNumericBasedAlias(String desiredAlias);
 }

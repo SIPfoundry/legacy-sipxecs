@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.sipfoundry.sipxconfig.admin.CertificateDecorator;
+import org.sipfoundry.sipxconfig.cert.CertificateDecorator;
 
 public class CertificatesTableModel implements IBasicTableModel {
     private Set<CertificateDecorator> m_certificates;

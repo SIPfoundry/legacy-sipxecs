@@ -8,6 +8,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
+
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,12 +16,12 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class AudioCodesBRIGatewayTest extends TestCase {
     private ModelFilesContext m_modelFilesContext;

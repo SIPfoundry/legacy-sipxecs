@@ -17,47 +17,42 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.annotations.Bean;
-import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public abstract class CallRateLimitPage extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "admin/CallRateLimitPage";
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
-
-    @InjectObject("spring:serviceConfigurator")
-    public abstract ServiceConfigurator getServiceConfigurator();
+//    @InjectObject("spring:sipxServiceManager")
+//    public abstract SipxServiceManager getSipxServiceManager();
+//
+//    @InjectObject("spring:serviceConfigurator")
+//    public abstract ServiceConfigurator getServiceConfigurator();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    public abstract SipxService getService();
-
-    public abstract void setService(SipxService service);
+//    public abstract SipxService getService();
+//
+//    public abstract void setService(SipxService service);
 
     @Override
     public void pageBeginRender(PageEvent event) {
-        SipxService sipxService = getSipxServiceManager().getServiceByBeanId(SipxProxyService.BEAN_ID);
-        setService(sipxService);
+//        SipxService sipxService = getSipxServiceManager().getServiceByBeanId(SipxProxyService.BEAN_ID);
+//        setService(sipxService);
     }
 
     public void saveService() {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-        SipxService service = getService();
-        getSipxServiceManager().storeService(service);
-        getServiceConfigurator().replicateServiceConfig(service);
+//        SipxService service = getService();
+//        getSipxServiceManager().storeService(service);
+//        getServiceConfigurator().replicateServiceConfig(service);
     }
 
 }

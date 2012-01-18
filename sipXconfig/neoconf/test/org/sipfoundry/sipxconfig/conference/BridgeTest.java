@@ -11,18 +11,13 @@ package org.sipfoundry.sipxconfig.conference;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+
 import java.io.File;
-import org.sipfoundry.commons.freeswitch.Localization;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxParkService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class BridgeTest extends BeanWithSettingsTestCase {
 
@@ -59,34 +54,6 @@ public class BridgeTest extends BeanWithSettingsTestCase {
         assertNull(c.getBridge());
     }
 
-    public void testAccessors()
-    {
-        Location location = new Location();
-        SipxFreeswitchService sipxService = new SipxFreeswitchService();
-        sipxService.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
-        LocationSpecificService service = new LocationSpecificService(sipxService);
-        service.setLocation(location);
-
-        Bridge bridge = new Bridge();
-        bridge.setService(service);
-
-        bridge.setModelFilesContext(TestHelper.getModelFilesContext());
-        assertTrue(bridge.getConferences().isEmpty());
-
-        // Test the defaults
-        assertEquals(null, bridge.getHost());
-        assertEquals(15060, bridge.getFreeswitchService().getFreeswitchSipPort());
-        assertEquals(null, bridge.getDescription());
-        assertEquals(null, bridge.getName());
-        assertEquals("http://null:8080/RPC2", bridge.getServiceUri());
-
-        // Test setting explicit values
-        location.setFqdn("bridge");
-        location.setName("Example Bridge");
-
-        assertEquals("bridge", bridge.getHost());
-        assertEquals("Example Bridge", bridge.getDescription());
-    }
 
     public void testGetAudioDirecotry() {
         Bridge bridge = new Bridge();

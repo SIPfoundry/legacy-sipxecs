@@ -8,6 +8,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import static org.springframework.dao.support.DataAccessUtils.intResult;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,16 +25,13 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
-import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
@@ -40,8 +39,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
-
-import static org.springframework.dao.support.DataAccessUtils.intResult;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
        ApplicationContextAware, ReplicableProvider {
@@ -76,9 +73,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
-    private DaoEventPublisher m_daoEventPublisher;
     private AliasManager m_aliasManager;
-    private ConfigFileActivationManager m_configFileManager;
     private ApplicationContext m_applicationContext;
     private JdbcTemplate m_jdbcTemplate;
     private boolean m_debug;
@@ -126,16 +121,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return m_domainManager.getDomain().getName();
     }
 
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
-    }
-
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
-    }
-
-    public void setRlsConfigFilesActivator(ConfigFileActivationManager configFileManager) {
-        m_configFileManager = configFileManager;
     }
 
     @Override
@@ -190,8 +177,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         } else {
             getHibernateTemplate().saveOrUpdate(user);
         }
-        m_configFileManager.activateConfigFiles();
-
         return newUserName;
     }
 
@@ -236,7 +221,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     @Override
     public void deleteUser(User user) {
         getHibernateTemplate().delete(user);
-        m_configFileManager.activateConfigFiles();
     }
 
     @Override
@@ -253,13 +237,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             User user = loadUser(id);
             if (user != admin) {
                 users.add(user);
-                m_daoEventPublisher.publishDelete(user);
             } else {
                 affectAdmin = true;
             }
         }
+        getDaoEventPublisher().publishDeleteCollection(users);
         getHibernateTemplate().deleteAll(users);
-        m_configFileManager.activateConfigFiles();
         return affectAdmin;
     }
 
@@ -273,8 +256,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         for (String userName : userNames) {
             User user = loadUserByUserName(userName);
             users.add(user);
-            m_daoEventPublisher.publishDelete(user);
         }
+        getDaoEventPublisher().publishDeleteCollection(users);
         getHibernateTemplate().deleteAll(users);
     }
 
@@ -592,7 +575,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
         User admin = loadUserByUserName(User.SUPERADMIN);
         if (admin == null) {
-            admin = new User();
+            admin = newUser();
             admin.setUserName(User.SUPERADMIN);
 
             // currently superadmin cannot invite to a conference without a valid sip password
@@ -778,12 +761,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                         group.getBranch().getName());
             }
         }
-        DaoUtils.addToGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, User.class, ids);
+        DaoUtils.addToGroup(getHibernateTemplate(), getDaoEventPublisher(), groupId, User.class, ids);
     }
 
     @Override
     public void removeFromGroup(Integer groupId, Collection<Integer> ids) {
-        DaoUtils.removeFromGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, User.class, ids);
+        DaoUtils.removeFromGroup(getHibernateTemplate(), getDaoEventPublisher(), groupId, User.class, ids);
     }
 
     @Override

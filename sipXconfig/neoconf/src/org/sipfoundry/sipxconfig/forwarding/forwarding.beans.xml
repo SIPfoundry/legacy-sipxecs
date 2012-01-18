@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  <!--
+    - F O R W A R D I N G  C O N T E X T
+  -->
+
+  <bean id="forwardingContextImpl" class="org.sipfoundry.sipxconfig.forwarding.ForwardingContextImpl" parent="abstractDaoImpl">
+    <property name="coreContext" ref="coreContextImpl" />
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
+  </bean>
+
+  <bean id="forwardingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.forwarding.ForwardingContext" />
+    <property name="target">
+      <ref local="forwardingContextImpl" />
+    </property>
+  </bean>
+
+</beans>

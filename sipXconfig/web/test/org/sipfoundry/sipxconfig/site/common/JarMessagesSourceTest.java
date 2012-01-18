@@ -23,8 +23,8 @@ import org.apache.tapestry.services.impl.ComponentMessages;
 import org.apache.tapestry.spec.ComponentSpecification;
 import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.site.admin.configdiag.ConfigurationDiagnosticPage;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class JarMessagesSourceTest extends TestCase {
 

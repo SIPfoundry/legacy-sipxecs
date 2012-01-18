@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.audiocodesphone;
 
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -50,7 +51,8 @@ public class AudioCodesPhoneDefaults {
 
     @SettingEntry(path = SYSLOG_SERVER)
     public String getSyslogServer() {
-        return m_defaults.getServer(0, UnmanagedService.SYSLOG);
+        Address syslog = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+        return syslog != null ? syslog.getAddress() : null;
     }
 
     @SettingEntry(path = PROXY_ADDRESS)

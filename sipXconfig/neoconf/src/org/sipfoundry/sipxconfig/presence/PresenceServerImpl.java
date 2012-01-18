@@ -1,45 +1,79 @@
 /*
- *
- *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
+ * Licensed to the User under the AGPL license.
  *
  * $
  */
 package org.sipfoundry.sipxconfig.presence;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 
-/**
- * Interaction with PresenceServer
- */
-public class PresenceServerImpl implements PresenceServer {
+public class PresenceServerImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, FeatureListener,
+        PresenceServer {
+    public static final LocationFeature FEATURE = new LocationFeature("acdPresence");
+    public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi");
+    public static final AddressType SIP_TCP_ADDRESS = new AddressType("acdPresenceTcp");
+    public static final AddressType SIP_UDP_ADDRESS = new AddressType("acdPresenceUdp");
     public static final String OBJECT_CLASS_KEY = "object-class";
-    private static final Log LOG = LogFactory.getLog(PresenceServerImpl.class);
+    private static final Log LOG = LogFactory.getLog(PresenceServer.class);
+    private static final List<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS);
     private CoreContext m_coreContext;
-    private boolean m_enabled;
+    private FeatureManager m_featureManager;
+    private BeanWithSettingsDao<PresenceSettings> m_settingsDao;
+    private ListableBeanFactory m_beanFactory;
+    private AddressManager m_addressManager;
+
+    @Override
+    public PresenceSettings getSettings() {
+        return m_settingsDao.findOrCreateOne();
+    }
+
+    @Override
+    public void saveSettings(PresenceSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
+
+    public void initialize() {
+        PresenceSettings settings = getSettings();
+        if (settings == null) {
+            settings = m_beanFactory.getBean(PresenceSettings.class);
+            settings.assignAvailableAliases();
+            m_settingsDao.upsert(settings);
+        }
+    }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public boolean isEnabled() {
-        return m_enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        m_enabled = enabled;
     }
 
     public void signIn(User user, AcdServer acdServer) {
@@ -52,7 +86,7 @@ public class PresenceServerImpl implements PresenceServer {
 
     public PresenceStatus getStatus(User user, AcdServer acdServer) {
         PresenceStatus status = PresenceStatus.NOT_AVAILABLE;
-        if (m_enabled) {
+        if (m_featureManager.isFeatureEnabled(FEATURE)) {
             try {
                 Hashtable response = signInAction(SignIn.STATUS, user, acdServer);
                 String statusId = (String) response.get(SignIn.RESULT_TEXT);
@@ -66,16 +100,10 @@ public class PresenceServerImpl implements PresenceServer {
 
 
     private Hashtable signInAction(String action, User user, AcdServer acdServer) {
-        String presenceServiceUri = acdServer.getPresenceServiceUri();
-
-        if (!m_enabled) {
+        if (!m_featureManager.isFeatureEnabled(PresenceServer.FEATURE)) {
             return null;
         }
-
-        if (presenceServiceUri == null) {
-            LOG.warn("No ACD presence server available.");
-            return null;
-        }
+        String presenceServiceUri = m_addressManager.getSingleAddress(PresenceServer.HTTP_ADDRESS).toString();
         XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
         factory.setServiceInterface(SignIn.class);
         factory.setServiceUrl(presenceServiceUri);
@@ -127,5 +155,78 @@ public class PresenceServerImpl implements PresenceServer {
         public static final String SIGN_OUT = "sign-out";
 
         public Hashtable action(Hashtable params);
+    }
+
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return null;
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return Collections.singleton(FEATURE);
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+
+    @Override
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
+        return ADDRESSES;
+    }
+
+    @Override
+    public java.util.Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
+            Object requester) {
+        if (!ADDRESSES.contains(type) || manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            return null;
+        }
+
+        PresenceSettings settings = getSettings();
+        List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            Address address = new Address();
+            address.setAddress(location.getAddress());
+            if (type.equals(HTTP_ADDRESS)) {
+                address.setPort(settings.getApiPort());
+                address.setFormat("http://%s:%d/RPC2");
+            } else if (type.equals(SIP_TCP_ADDRESS)) {
+                address.setPort(settings.getSipTcpPort());
+            } else if (type.equals(SIP_UDP_ADDRESS)) {
+                address.setPort(settings.getSipUdpPort());
+            }
+            addresses.add(address);
+        }
+
+        return addresses;
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        if (feature.equals(PresenceServer.FEATURE)) {
+            if (event == FeatureEvent.PRE_ENABLE) {
+                initialize();
+            }
+        }
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<PresenceSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

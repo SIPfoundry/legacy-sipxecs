@@ -24,7 +24,6 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidationConstraint;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.bulk.csv.BulkManager;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -39,8 +38,6 @@ public abstract class BulkImport extends SipxBasePage {
     public abstract IUploadFile getUploadFile();
 
     public abstract BulkManager getBulkManager();
-
-    public abstract AdminContext getAdminContext();
 
     public abstract String getExportFile();
 
@@ -88,7 +85,7 @@ public abstract class BulkImport extends SipxBasePage {
             File exportFile = File.createTempFile("export", ".csv");
             exportFile.deleteOnExit();
             Writer writer = new FileWriter(exportFile);
-            getAdminContext().performExport(writer);
+            getBulkManager().performExport(writer);
             writer.close();
             setExportFile(exportFile.getPath());
             validator.recordSuccess(getMessages().getMessage("msg.exportSuccess"));

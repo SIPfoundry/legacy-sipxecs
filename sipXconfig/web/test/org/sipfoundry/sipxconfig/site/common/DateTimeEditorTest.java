@@ -15,7 +15,7 @@ import java.util.Locale;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.TimeOfDay;
+import org.sipfoundry.sipxconfig.common.TimeOfDay;
 
 public class DateTimeEditorTest extends TestCase {
 

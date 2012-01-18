@@ -68,6 +68,14 @@
     <property name="nextExtension" />
   </class>
 
+  <class name="CronSchedule" table="cron_schedule">
+    <id name="id" column="cron_schedule_id" type="int" unsaved-value="-1">
+      <generator class="native" />
+    </id>
+    <property name="cronString" />
+    <property name="enabled" />
+  </class>  
+
   <query name="userByAlias">
     <![CDATA[select u from User u join u.aliases alias where alias = :value]]>
   </query>
@@ -136,5 +144,5 @@
   <query name="userByUserName">
     <![CDATA[select u from User u where u.userName = :value]]>
   </query>
-
+  
 </hibernate-mapping>

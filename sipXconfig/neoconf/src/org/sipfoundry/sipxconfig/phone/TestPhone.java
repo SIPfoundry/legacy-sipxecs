@@ -7,8 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class TestPhone extends Phone {
     public static final String BEAN_ID = "testPhone";

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import static org.springframework.dao.support.DataAccessUtils.singleResult;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,21 +23,15 @@ import javax.naming.directory.SearchControls;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.CronSchedule;
+import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.ldap.AttributesMapper;
 import org.springframework.ldap.UncategorizedLdapException;
-
-import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
@@ -46,8 +42,6 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private LdapTemplateFactory m_templateFactory;
     private ApplicationContext m_applicationContext;
-    private SipxServiceManager m_sipxServiceManager;
-    private ServiceConfigurator m_serviceConfigurator;
 
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
         try {
@@ -217,7 +211,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         LdapConnectionParams connectionParams = getConnectionParams();
         connectionParams.setSchedule(schedule);
         getHibernateTemplate().update(connectionParams);
-
+        getDaoEventPublisher().publishSave(connectionParams);
         m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule, this));
     }
 
@@ -228,6 +222,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         }
         AttrMap attrMap = (AttrMap) m_applicationContext.getBean("attrMap", AttrMap.class);
         getHibernateTemplate().save(attrMap);
+        getDaoEventPublisher().publishSave(attrMap);
         return attrMap;
     }
 
@@ -262,11 +257,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
     public void setConnectionParams(LdapConnectionParams params) {
         getHibernateTemplate().saveOrUpdate(params);
-    }
-
-    public void replicateOpenfireConfig() {
-        SipxService openfireService = m_sipxServiceManager.getServiceByBeanId("sipxOpenfireService");
-        m_serviceConfigurator.replicateServiceConfig(openfireService);
+        getDaoEventPublisher().publishSave(params);
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -275,15 +266,5 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
     public void setTemplateFactory(LdapTemplateFactory templateFactory) {
         m_templateFactory = templateFactory;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Required
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
     }
 }

@@ -9,25 +9,32 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
-import java.io.File;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import java.util.Collections;
+import java.util.Set;
+
 import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public class MailboxManagerTestIntegration extends IntegrationTestCase {
     private LocalMailboxManagerImpl m_mailboxManager;
     private SettingDao m_settingDao;
-
     private CoreContext m_coreContext;
+    
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        db().execute("select truncate_all()");
+    }
 
     public void testLoadPersonalAttendantPerUser() throws Exception {
-        loadDataSetXml("admin/dialplan/sbc/domain.xml");
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        sql("domain/DomainSeed.sql");
+        sql("commserver/SeedLocations.sql");
         assertEquals(0, countRowsInTable("personal_attendant"));
 
         User newUser = m_coreContext.newUser();
@@ -40,42 +47,17 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         assertSame(newUser, pa.getUser());
 
         m_mailboxManager.storePersonalAttendant(pa);
+        assertEquals(1, db().queryForLong("select count(*) from personal_attendant"));
 
-        flush();
-        assertEquals(1, countRowsInTable("personal_attendant"));
+        Set<Integer> ids = Collections.singleton(newUser.getId());
+        m_coreContext.deleteUsers(ids);
 
-        m_coreContext.deleteUser(newUser);
-
-        flush();
-        assertEquals(0, countRowsInTable("personal_attendant"));
-    }
-
-    public void testDeleteUserMailbox() throws Exception {
-        loadDataSetXml("admin/dialplan/sbc/domain.xml");
-        loadDataSetXml("admin/commserver/seedLocations.xml");
-        User newUser = m_coreContext.newUser();
-        newUser.setUserName("200");
-        m_coreContext.saveUser(newUser);
-
-        File mailstore = MailboxManagerTest.createTestMailStore();
-        m_mailboxManager.setMailstoreDirectory(mailstore.getAbsolutePath());
-        LocalMailbox mbox = ((LocalMailboxManagerImpl) m_mailboxManager).getMailbox("200");
-        assertTrue(mbox.getUserDirectory().exists());
-
-        PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(newUser);
-        flush();
-        m_mailboxManager.storePersonalAttendant(pa);
-        flush();
-
-        m_coreContext.deleteUser(newUser);
-
-        flush();
-        assertFalse(((LocalMailbox) mbox).getUserDirectory().exists());
+        assertEquals(0, db().queryForLong("select count(*) from personal_attendant"));
     }
 
     public void testUserGroupOperator() throws Exception {
-        loadDataSetXml("admin/dialplan/sbc/domain.xml");
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        sql("domain/DomainSeed.sql");
+        sql("commserver/SeedLocations.sql");
         
         User user = m_coreContext.newUser();
         user.setUserName("200");

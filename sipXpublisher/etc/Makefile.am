@@ -1,15 +1,8 @@
 include $(top_srcdir)/config/utility.am
 
-EXTRA_DIST = \
-        $(proc_DATA:.xml=.xml.in)
+cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
+dist_cfinputs_DATA = \
+	sipxpublisher.cf
 
-procdir = \
-        $(SIPX_DATADIR)/process.d
-
-proc_DATA = \
-	sipstatus-process.xml
-
-$(proc_DATA) : % : %.in Makefile
+$(cfdefaults_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
-
-CLEANFILES = $(proc_DATA)

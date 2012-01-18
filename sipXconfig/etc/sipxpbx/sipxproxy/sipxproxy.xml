@@ -40,13 +40,13 @@
   <group name="proxy-configuration">
     <setting name="SIPX_PROXY_DEFAULT_SERIAL_EXPIRES">
       <type>
-        <integer />
+        <integer required="yes" />
       </type>
       <value>20</value>
     </setting>
     <setting name="SIPX_PROXY_DEFAULT_EXPIRES">
       <type>
-        <integer />
+        <integer required="yes" />
       </type>
       <value>300</value>
     </setting>
@@ -54,69 +54,97 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="SIPX_PROXY_DIALOG_SUBSCRIBE_AUTHENTICATION" advanced="yes">
-      <type>
-        <boolean>
-          <true>
-            <value>dialog</value>
-          </true>
-          <false>
-            <value />
-          </false>
-        </boolean>
-      </type>
-      <value>dialog</value>
-    </setting>
-    <setting name="SIP_PORT" advanced="yes">
+    <setting name="SIPX_PROXY_TCP_PORT" advanced="yes">
       <type>
         <integer />
       </type>
       <value>5060</value>
     </setting>
-    <setting name="TLS_SIP_PORT" advanced="yes">
+    <setting name="SIPX_PROXY_UDP_PORT" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="SIPX_PROXY_TLS_PORT" advanced="yes">
       <type>
         <integer />
       </type>
       <value>5061</value>
     </setting>
-    <setting name="ENABLE_BRIDGE_PROXY_RELAY" advanced="yes">
-      <type>
-        <boolean>
-          <true>
-            <value>true</value>
-          </true>
-          <false>
-            <value>false</value>
-          </false>
-        </boolean>
-      </type>
-      <value>false</value>
+    <setting name="SIPX_PROXY_AUTHENTICATE_ALGORITHM" advanced="yes">
+      <type><string/></type>      
     </setting>
-    <group name="alert-info">
-      <label>Alert Info</label>
-      <setting name="INTERNAL_ENABLED">
-        <type><boolean /></type>
-        <value>0</value>
-      </setting>
-      <setting name="INTERNAL" advanced="yes">
-        <type><string /></type>
-        <!--Polycom phones interpret only the part in angle brackets, Snom phones only the part following info=.
-            alert-internal is a default value for Snom-->
-        <value>&lt;http://internal.call&gt;;info=alert-internal;x-line-id=0</value>
-      </setting>
-      <setting name="EXTERNAL_ENABLED">
-        <type><boolean /></type>
-        <value>1</value>
-      </setting>
-      <setting name="EXTERNAL" advanced="yes">
-        <type><string /></type>
-        <value>&lt;http://external.call&gt;;info=alert-external;x-line-id=0</value>
-      </setting>
-      <setting name="ON_EXISTING" advanced="yes">
-        <type refid="replaceOrKeep" />
-        <value>0</value>
-      </setting>
-    </group>
+    <setting name="SIPX_PROXY_MAX_FORWARDS" advanced="yes">
+      <type><integer/></type>      
+    </setting>
+    <setting name="SIPX_PROXY_STALE_TCP_TIMEOUT" advanced="yes">
+      <type><integer/></type>      
+    </setting>
+    <!--  unsure what these next 2 settings do -->
+    <setting name="SIPX_PROXY_LOG_CONSOLE" hidden="yes">
+      <type><string/></type>
+    </setting>    
+    <setting name="SIPX_PROXY_CALL_STATE" hidden="yes">
+      <type><string/></type>
+    </setting>    
+  </group>
+  <group name="subscriptionauth">
+    <setting name="PACKAGES_REQUIRING_AUTHENTICATION" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>dialog</value>
+          </option>
+          <option>
+            <label>- none - </label>
+            <value />
+          </option>
+        </enum>
+      </type>
+      <value>dialog</value>
+    </setting>
+    <setting name="TARGETS_EXEMPTED_FROM_AUTHENTICATION" advanced="yes">
+      <type><string/></type>
+      <value>^~~rl~</value>
+    </setting>
+  </group>
+  <group name="alert-info">
+    <label>Alert Info</label>
+    <setting name="INTERNAL_ENABLED">
+      <type><boolean /></type>
+      <value>0</value>
+    </setting>
+    <setting name="INTERNAL" advanced="yes">
+      <type><string /></type>
+      <!--Polycom phones interpret only the part in angle brackets, Snom phones only the part following info=.
+          alert-internal is a default value for Snom-->
+      <value>&lt;http://internal.call&gt;;info=alert-internal;x-line-id=0</value>
+    </setting>
+    <setting name="EXTERNAL_ENABLED">
+      <type><boolean /></type>
+      <value>1</value>
+    </setting>
+    <setting name="EXTERNAL" advanced="yes">
+      <type><string /></type>
+      <value>&lt;http://external.call&gt;;info=alert-external;x-line-id=0</value>
+    </setting>
+    <setting name="ON_EXISTING" advanced="yes">
+      <type refid="replaceOrKeep" />
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="authrules">
+    <setting name="IDENTITY_VALIDITY_SECONDS">
+      <type><integer min="10" required="yes"/></type>
+      <value>300</value>
+    </setting>
+  </group>
+  <group name="msftxchghack">
+    <setting name="USERAGENT" advanced="">
+      <type><string/></type>
+      <value>^RTCC/</value>
+    </setting>
   </group>
   <group name="call-rate-limit">
     <setting name="SIPX_PROXY_AUTOBAN_THRESHOLD_VIOLATORS">

@@ -12,8 +12,6 @@ package org.sipfoundry.sipxconfig.rest;
 import java.util.Collection;
 import java.util.List;
 
-import com.thoughtworks.xstream.XStream;
-
 import org.restlet.data.MediaType;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
@@ -21,6 +19,8 @@ import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+
+import com.thoughtworks.xstream.XStream;
 
 public class UserPhonebookResource extends UserPhonebookSearchResource {
     @Override

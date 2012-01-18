@@ -16,6 +16,10 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,20 +34,13 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
-
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.createMock;
 
 public class UserConferenceResourceTest extends TestCase {
     private Conference m_conference;
@@ -68,11 +65,8 @@ public class UserConferenceResourceTest extends TestCase {
         replay(m_coreContext);
 
         Location location = new Location();
-        SipxFreeswitchService fsService = new SipxFreeswitchService();
-        LocationSpecificService service = new LocationSpecificService(fsService);
-        service.setLocation(location);
         m_bridge = new Bridge();
-        m_bridge.setService(service);
+        m_bridge.setLocation(location);
 
         m_conference = new Conference();
         m_conference.setEnabled(true);

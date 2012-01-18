@@ -9,10 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
+
 import java.util.Arrays;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
+import org.sipfoundry.sipxconfig.callgroup.AbstractCallSequence;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 
@@ -34,8 +35,8 @@ public class CallGroupBuilder extends SimpleBeanBuilder {
 
     public void toApiObject(Object apiObject, Object myObject, Set properties) {
         super.toApiObject(apiObject, myObject, properties);
-        org.sipfoundry.sipxconfig.admin.callgroup.CallGroup my =
-            (org.sipfoundry.sipxconfig.admin.callgroup.CallGroup) myObject;
+        org.sipfoundry.sipxconfig.callgroup.CallGroup my =
+            (org.sipfoundry.sipxconfig.callgroup.CallGroup) myObject;
         CallGroup api = (CallGroup) apiObject;
         if (properties.contains(RINGS_PROP) && !SipxCollectionUtils.safeIsEmpty(my.getRings())) {
             UserRing[] rings =
@@ -48,17 +49,17 @@ public class CallGroupBuilder extends SimpleBeanBuilder {
 
     public void toMyObject(Object myObject, Object apiObject, Set properties) {
         super.toMyObject(myObject, apiObject, properties);
-        org.sipfoundry.sipxconfig.admin.callgroup.CallGroup my =
-            (org.sipfoundry.sipxconfig.admin.callgroup.CallGroup) myObject;
+        org.sipfoundry.sipxconfig.callgroup.CallGroup my =
+            (org.sipfoundry.sipxconfig.callgroup.CallGroup) myObject;
         CallGroup api = (CallGroup) apiObject;
         UserRing[] apiRings = api.getRings();
         if (properties.contains(RINGS_PROP)) {
             my.getRings().clear();
             if (apiRings != null) {
-                org.sipfoundry.sipxconfig.admin.callgroup.UserRing[] myRings =
-                    (org.sipfoundry.sipxconfig.admin.callgroup.UserRing[])
+                org.sipfoundry.sipxconfig.callgroup.UserRing[] myRings =
+                    (org.sipfoundry.sipxconfig.callgroup.UserRing[])
                     ApiBeanUtil.toMyArray(new UserRingBuilder(m_coreContext), apiRings,
-                            org.sipfoundry.sipxconfig.admin.callgroup.UserRing.class);
+                            org.sipfoundry.sipxconfig.callgroup.UserRing.class);
                 my.insertRings(Arrays.asList(myRings));
             }
         }

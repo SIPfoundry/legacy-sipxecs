@@ -9,9 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
@@ -20,15 +17,11 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
-import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 
 public abstract class LocalizationPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/LocalizationPage";
@@ -41,15 +34,6 @@ public abstract class LocalizationPage extends SipxBasePage implements PageBegin
 
     @InjectObject("spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
-
-    @InjectObject("spring:sipxProcessContext")
-    public abstract SipxProcessContext getProcessContext();
-
-    @InjectObject("spring:sipxRegistrarService")
-    public abstract SipxRegistrarService getSipxRegistrarService();
-
-    @InjectObject("spring:sipxProxyService")
-    public abstract SipxProxyService getSipxProxyService();
 
     public abstract IPropertySelectionModel getRegionList();
 
@@ -102,10 +86,6 @@ public abstract class LocalizationPage extends SipxBasePage implements PageBegin
         int exitCode = getLocalizationContext().updateLanguage(language);
 
         if (exitCode > 0) {
-            List< ? extends SipxService> processList = Arrays.asList(getSipxProxyService(),
-                    getSipxRegistrarService());
-            // mark services for restart - a reminder will be shown to the user
-            getProcessContext().markServicesForRestart(processList);
             recordSuccess("message.label.languageChanged");
         } else if (exitCode < 0) {
             recordFailure("message.label.languageFailed");

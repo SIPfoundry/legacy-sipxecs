@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
+import org.sipfoundry.sipxconfig.acccode.AuthCode;
 
 public class AuthCodesTableModel implements IBasicTableModel {
     private List<AuthCode> m_codes;

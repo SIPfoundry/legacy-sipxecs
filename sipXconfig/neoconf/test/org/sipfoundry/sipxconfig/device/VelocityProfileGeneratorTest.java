@@ -15,6 +15,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 
 public class VelocityProfileGeneratorTest extends TestCase {
 

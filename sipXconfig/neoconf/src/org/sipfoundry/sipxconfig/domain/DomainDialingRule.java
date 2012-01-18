@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleType;
+import org.sipfoundry.sipxconfig.dialplan.config.Transform;
 
 /**
  * Generate the following into the mappingrules.xml

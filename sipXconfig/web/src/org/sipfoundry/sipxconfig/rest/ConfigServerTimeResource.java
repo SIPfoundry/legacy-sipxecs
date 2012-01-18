@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.restlet.data.MediaType.TEXT_PLAIN;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -24,7 +26,6 @@ import org.restlet.resource.OutputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
-import static org.restlet.data.MediaType.TEXT_PLAIN;
 
 public class ConfigServerTimeResource extends UserResource {
 

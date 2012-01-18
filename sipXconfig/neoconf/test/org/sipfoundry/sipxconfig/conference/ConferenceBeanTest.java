@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
 
 public class ConferenceBeanTest extends BeanWithSettingsTestCase {
 

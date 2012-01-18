@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="parkConfig" class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitConfiguration">
+    <property name="parkOrbitContext" ref="parkOrbitContext" />
+    <property name="configManager" ref="configManager" />    
+  </bean>
+
+  <bean id="org.sipfoundry.sipxconfig.parkorbit.ParkOrbit"
+    class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbit" scope="prototype" parent="beanWithSettings">
+  </bean>
+  
+  <bean id="parkSettings" class="org.sipfoundry.sipxconfig.parkorbit.ParkSettings" parent="settingsBean">
+  </bean>
+
+  <bean id="parkOrbitContextImpl" class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContextImpl" parent="abstractDaoImpl">
+    <property name="aliasManager" ref="aliasManager" />
+    <property name="settingDao" ref="settingDao"/>
+    <property name="beanWithSettingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.parkorbit.ParkSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext" />
+    <property name="target" ref="parkOrbitContextImpl"/>
+  </bean>
+</beans>

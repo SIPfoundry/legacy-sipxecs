@@ -1,7 +1,7 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
 
-WSDL = $(abspath $(srcdir)/../agent/sipxconfig-agent.wsdl)
+WSDL = $(abspath $(srcdir)/../agent/sipxacd-stats.wsdl)
 
 noinst_DATA = javac-client
 

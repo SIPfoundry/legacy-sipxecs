@@ -19,8 +19,6 @@ CHECK_SERVICEDIR
 AC_CONFIG_FILES([
 	Makefile
 	bin/Makefile
-	src/Makefile
-	src/test/Makefile
 	etc/Makefile
 ])
 AC_OUTPUT

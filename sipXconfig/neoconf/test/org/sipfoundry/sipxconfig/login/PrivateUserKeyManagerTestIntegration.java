@@ -10,9 +10,9 @@
 
 package org.sipfoundry.sipxconfig.login;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class PrivateUserKeyManagerTestIntegration extends IntegrationTestCase {
     private PrivateUserKeyManager m_manager;
@@ -20,7 +20,7 @@ public class PrivateUserKeyManagerTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
 
     public void testPrivateKeyForUser() throws Exception {
-        loadDataSet("admin/dialplan/seedUser.xml");
+        loadDataSet("dialplan/seedUser.xml");
 
         User user = m_coreContext.loadUser(1001);
 

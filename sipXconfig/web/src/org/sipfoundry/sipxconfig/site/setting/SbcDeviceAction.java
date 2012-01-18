@@ -10,8 +10,8 @@
 package org.sipfoundry.sipxconfig.site.setting;
 
 import org.apache.tapestry.IActionListener;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
+import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 
 public abstract class SbcDeviceAction implements OptionAdapter, IActionListener {
 
