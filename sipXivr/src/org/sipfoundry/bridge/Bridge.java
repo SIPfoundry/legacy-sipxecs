@@ -18,71 +18,21 @@
 package org.sipfoundry.bridge;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.commons.freeswitch.BridgeCommand;
-import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
-import org.sipfoundry.commons.freeswitch.Hangup;
-import org.sipfoundry.commons.freeswitch.Set;
-import org.sipfoundry.sipxivr.IvrConfiguration;
+import org.sipfoundry.sipxivr.SipxIvrApp;
 
 
-public class Bridge {
+public class Bridge extends SipxIvrApp {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-
-    // Global store for AutoAttendant resource bundles keyed by locale
-    private static final String RESOURCE_NAME="org.sipfoundry.attendant.AutoAttendant";
-
-    private final IvrConfiguration m_ivrConfig;
-    private final FreeSwitchEventSocketInterface m_fses;
-    @SuppressWarnings("unused")
-
-    /**
-     * Create an Bridge.
-     *
-     * @param ivrConfig top level configuration stuff
-     * @param fses The FreeSwitchEventSocket with the call already answered
-     * @param parameters The parameters from the sip URI
-     */
-    public Bridge(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses) {
-        this.m_ivrConfig = ivrConfig;
-        this.m_fses = fses;
-    }
-
-    /**
-     * Load all the needed configuration.
-     *
-     * The attendantBundle with the resources is located based on locale, as is the TextToPrompts
-     * class. The attendant configuration files are loaded (if they changed since last time), and
-     * the ValidUsers (also if they changed).
-     *      *
-     */
-    void loadConfig() {}
-
 
     /**
      * Run the bridge. Bridge the call back to freeswitch with all the parameters intact
      *
      * @throws Throwable indicating an error or hangup condition.
      */
+    @Override
     public void run() {
-        String uuid = m_fses.getVariable("Caller-Unique-ID");
-        String domain = m_ivrConfig.getSipxchangeDomainName();
-        String sipReqParams = m_fses.getVariable("variable_sip_req_params");
-        String sipReqUri = m_fses.getVariable("variable_sip_req_uri");
-        if (uuid == null || domain == null || sipReqParams == null )
-        {
-            //
-            // Disconnect the call and exit
-            //
-            m_fses.invoke(new Hangup(m_fses));
-            return;
-        }
-        sipReqParams += ";uuid=";
-        sipReqParams += uuid;
-        sipReqUri += ";";
-        sipReqUri += sipReqParams;
-        Set exportVars = new Set(m_fses, m_fses.getVariable("Unique-ID"), "export_vars", "variable_sip_from_uri, Channel-Caller-ID-Number");
-        exportVars.start();
-        BridgeCommand bridge = new BridgeCommand(m_fses, m_fses.getVariable("Unique-ID"), sipReqUri, domain);
-        bridge.start();
+        BridgeEslRequestController controller = (BridgeEslRequestController) getEslRequestController();
+        controller.set("export_vars", "variable_sip_from_uri, Channel-Caller-ID-Number");
+        controller.bridgeCall();
     }
 }

@@ -461,7 +461,7 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
 UtlBoolean CpPeerCall::handleTransferAddress(OsMsg* pEventMessage)
 {
     CpMultiStringMessage* pMessage = (CpMultiStringMessage*) pEventMessage ;
-    int msgSubType = pEventMessage->getMsgSubType() ;
+
 
     UtlString sourceCallId ;
     UtlString sourceAddress ;
@@ -972,7 +972,7 @@ UtlBoolean CpPeerCall::handleRejectConnection(OsMsg* pEventMessage)
     UtlString remoteAddress;
     UtlString errorText;
     int errorCode ;
-    UtlBoolean connectionFound = FALSE;
+
 
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(errorText);
@@ -1013,7 +1013,7 @@ UtlBoolean CpPeerCall::handleRejectConnection(OsMsg* pEventMessage)
             if(connectState == Connection::CONNECTION_OFFERING)
             {
                 connection->reject(errorCode, errorText);
-                connectionFound = TRUE;
+                
                 break;
             }
         }
@@ -1046,7 +1046,7 @@ UtlBoolean CpPeerCall::handleRedirectConnection(OsMsg* pEventMessage)
 {
     UtlString remoteAddress;
     UtlString forwardAddress;
-    UtlBoolean connectionFound = FALSE;
+
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(forwardAddress);
 
@@ -1084,7 +1084,7 @@ UtlBoolean CpPeerCall::handleRedirectConnection(OsMsg* pEventMessage)
                 connectState == Connection::CONNECTION_ALERTING)
             {
                 connection->redirect(forwardAddress.data());
-                connectionFound = TRUE;
+                
                 break;
             }
         }

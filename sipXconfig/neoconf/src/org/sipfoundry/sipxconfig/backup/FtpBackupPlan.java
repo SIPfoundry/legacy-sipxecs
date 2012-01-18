@@ -20,13 +20,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
-import org.sipfoundry.sipxconfig.ftp.FtpContext;
-import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.sipfoundry.sipxconfig.SipxUtil;
 import org.sipfoundry.sipxconfig.backup.BackupBean.Type;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.ftp.FtpContext;
 
 public class FtpBackupPlan extends BackupPlan {
     public static final String TYPE = "F";
@@ -37,7 +38,7 @@ public class FtpBackupPlan extends BackupPlan {
 
     @Override
     public File[] doPerform(String binPath) throws IOException, InterruptedException {
-        File rootBackupDir = TestHelper.createTempDir("ftpBackup");
+        File rootBackupDir = SipxUtil.createTempDir("ftpBackup");
 
         File backupDir = createBackupDirectory(rootBackupDir);
         File[] backupFiles = executeBackup(backupDir, new File(binPath));
@@ -98,11 +99,13 @@ public class FtpBackupPlan extends BackupPlan {
                 continue;
             }
             String[] childrenFiles = ftpContext.listFiles(directory);
-            if (childrenFiles.length > 2) {
-                // more than 2 files - not interested
+            if (childrenFiles.length > 3) {
+                // more than 3 files - not interested
                 continue;
             }
-            if (contains(childrenFiles, CONFIGURATION_ARCHIVE) || contains(childrenFiles, VOICEMAIL_ARCHIVE)) {
+            if (contains(childrenFiles, CONFIGURATION_ARCHIVE)
+                || contains(childrenFiles, VOICEMAIL_ARCHIVE)
+                || contains(childrenFiles, CDR_ARCHIVE)) {
                 listDirValid.add(directory);
             }
         }
@@ -131,8 +134,9 @@ public class FtpBackupPlan extends BackupPlan {
                 String[] names = ftpContext.listFiles(backupFolder.getName());
                 List<File> backupFiles = new ArrayList<File>();
                 for (String name : names) {
-                    if (name.equalsIgnoreCase(BackupPlan.VOICEMAIL_ARCHIVE)
-                            || name.equalsIgnoreCase(BackupPlan.CONFIGURATION_ARCHIVE)) {
+                    if (StringUtils.equals(name, BackupPlan.VOICEMAIL_ARCHIVE)
+                        || StringUtils.equals(name, BackupPlan.CONFIGURATION_ARCHIVE)
+                        || StringUtils.equals(name, BackupPlan.CDR_ARCHIVE)) {
                         backupFiles.add(new File(backupFolder.getAbsolutePath(), name));
                     }
                 }

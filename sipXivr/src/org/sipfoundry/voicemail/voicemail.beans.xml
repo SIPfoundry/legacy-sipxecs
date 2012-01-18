@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="deposit" class="org.sipfoundry.voicemail.VoiceMail" scope="eslRequest">
+    <property name="depositAction" ref="depositAction" />
+    <property name="retrieveAction" ref="retrieveAction" />
+    <property name="eslRequestController" ref="vmEslRequestController" />
+  </bean>
+
+  <alias name="deposit" alias="retrieve"/>
+
+  <bean id="vmEslRequestController" class="org.sipfoundry.voicemail.VmEslRequestController" scope="eslRequest">
+    <property name="sipxchangeDomainName" value="${ivr.sipxchangeDomainName}" />
+    <property name="operatorAddr" value="${ivr.operatorAddr}" />
+    <property name="fsConfig" ref="fsConfig" />
+    <property name="fsEventSocket" ref="fsEventSocket" />
+    <property name="validUsers" ref="validUsers" />
+    <property name="alarmClient" ref="alarmClient" />
+    <property name="voicemailConfiguration" ref="voicemailConfiguration" />
+  </bean>
+
+  <bean id="depositAction" class="org.sipfoundry.voicemail.Deposit" scope="eslRequest">
+    <property name="sendImUrl" value="${ivr.sendIMUrl}" />
+    <property name="eslRequestController" ref="vmEslRequestController" />
+    <property name="depositMap" ref="depositMap" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="validUsers" ref="validUsers" />
+    <property name="operatorAddr" value="${ivr.operatorAddr}" />
+  </bean>
+
+  <bean id="depositMap" class="java.util.HashMap" />
+
+  <bean id="retrieveAction" class="org.sipfoundry.voicemail.Retrieve" scope="eslRequest">
+    <property name="validUsers" ref="validUsers" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="eslRequestController" ref="vmEslRequestController" />
+  </bean>
+
+  <bean id="voicemailConfiguration" class="org.sipfoundry.sipxivr.ApplicationConfiguraton" />
+
+  <bean id="mwiManager" class="org.sipfoundry.voicemail.Mwi">
+    <property name="mwiUrl" value="${ivr.mwiUrl}" />
+  </bean>
+
+</beans>

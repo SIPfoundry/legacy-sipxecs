@@ -6,28 +6,30 @@
 package org.sipfoundry.voicemail;
 
 import org.sipfoundry.commons.freeswitch.PromptList;
-import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
+import org.sipfoundry.sipxivr.ApplicationConfiguraton;
+import org.sipfoundry.sipxivr.common.IvrChoice;
+import org.sipfoundry.sipxivr.common.IvrChoice.IvrChoiceReason;
 
 /**
  * Customize sipxivr.Menu with VoiceMail specific options
  */
-public class VmMenu extends org.sipfoundry.sipxivr.Menu {
-    private VoiceMail m_vm;
+public class VmMenu extends org.sipfoundry.voicemail.Menu {
     private boolean m_speakCanceled;
     private boolean m_operatorOn0;
+    private VmEslRequestController m_controller;
     
-    public VmMenu(VoiceMail vm) {
-        super(vm.getLoc());
-        m_vm = vm ;
+    public VmMenu(VmEslRequestController controller) {
+        super(controller.getLocalization());
         m_speakCanceled = true;
         m_operatorOn0 = true;
-        setInvalidMax(vm.getConfig().getInvalidResponseCount());
-        setTimeoutMax(vm.getConfig().getNoInputCount());
-        setInitialTimeout(vm.getConfig().getInitialTimeout());
-        setInterDigitTimeout(vm.getConfig().getInterDigitTimeout());
-        setExtraDigitTimeout(vm.getConfig().getExtraDigitTimeout());
-        setErrorPl(vm.getLoc().getPromptList("invalid_try_again"));
+        ApplicationConfiguraton config = controller.getVoicemailConfiguration();
+        setInvalidMax(config.getInvalidResponseCount());
+        setTimeoutMax(config.getNoInputCount());
+        setInitialTimeout(config.getInitialTimeout());
+        setInterDigitTimeout(config.getInterDigitTimeout());
+        setExtraDigitTimeout(config.getExtraDigitTimeout());
+        setErrorPl(controller.getPromptList("invalid_try_again"));
+        m_controller = controller;
     }
 
     @Override
@@ -64,7 +66,7 @@ public class VmMenu extends org.sipfoundry.sipxivr.Menu {
         switch (choice.getIvrChoiceReason()) {
         case FAILURE:
         case TIMEOUT:
-            m_vm.failure();
+            m_controller.failure();
             return null;
         case CANCELED:
             if (m_speakCanceled) {
@@ -76,7 +78,7 @@ public class VmMenu extends org.sipfoundry.sipxivr.Menu {
             if (m_operatorOn0) {
                 // "0" means transfer to operator
                 if (choice.getDigits().equals("0")) {
-                    m_vm.operator();
+                    m_controller.transferToOperator();
                     return null;
                 }
             }

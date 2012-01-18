@@ -4,6 +4,7 @@ spec = Gem::Specification.new do |s|
   s.name = '@GEM_NAME@'
   s.version = '@GEM_VER@'
   s.require_path = 'lib'
+  s.authors = "sipfoundry"
   # client_bindings task needs to have completed in a previous
   # run inorder for this file list to be resolved correctly
   s.files = Dir.glob("lib/**/*")

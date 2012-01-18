@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
@@ -52,8 +53,8 @@ public class User extends AbstractUser implements Replicable {
         dataSets.add(DataSet.CREDENTIAL);
         dataSets.add(DataSet.USER_FORWARD);
         dataSets.add(DataSet.USER_LOCATION);
-        dataSets.add(DataSet.ATTENDANT);
         dataSets.add(DataSet.SPEED_DIAL);
+        dataSets.add(DataSet.MAILSTORE);
         return dataSets;
     }
 
@@ -133,6 +134,7 @@ public class User extends AbstractUser implements Replicable {
         props.put(UID, getUserName());
         props.put(CONTACT, getContactUri(domain));
         props.put(GROUPS, getGroupsNames().split(" "));
+        props.put(MongoConstants.TIMESTAMP, System.currentTimeMillis());
         return props;
     }
 }

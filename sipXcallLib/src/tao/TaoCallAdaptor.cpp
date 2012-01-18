@@ -399,16 +399,15 @@ TaoStatus TaoCallAdaptor::callConnect(TaoMessage& rMsg)
         TaoObjHandle    objId = rMsg.getTaoObjHandle();
         TaoString               args(rMsg.getArgList(), TAOMESSAGE_DELIMITER);
 
-        PtTerminal              *pTerminal;
-        PtAddress               *pAddress;
+
         UtlString               destinationURL;
-        PtSessionDesc   *pSession;
+
         UtlString               callId;
 
-        pTerminal = (PtTerminal *) atol(args[0]);
-        pAddress =  (PtAddress *) atol(args[1]);
+        
+        
         destinationURL = args[2];
-        pSession = (PtSessionDesc *) atol(args[3]);
+        
         callId = args[4];
 
         int ret = mpCallMgrTask->connect(callId.data(), destinationURL.data());

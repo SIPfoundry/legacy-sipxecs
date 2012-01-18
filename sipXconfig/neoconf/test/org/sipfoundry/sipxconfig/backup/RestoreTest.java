@@ -14,9 +14,6 @@ import java.io.File;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.backup.BackupBean;
-import org.sipfoundry.sipxconfig.backup.BackupPlan;
-import org.sipfoundry.sipxconfig.backup.Restore;
 
 public class RestoreTest extends TestCase {
 
@@ -42,6 +39,17 @@ public class RestoreTest extends TestCase {
 
         cmdLine = StringUtils.join(Restore.getCmdLine("", voicemailBackupBean, true, true), ' ');
         assertEquals("/sipx-sudo-restore -v " + voicemail.getAbsolutePath()
+                + " --non-interactive --enforce-version --verify --no-restart", cmdLine);
+
+        File cdr = new File("path_to_cdr_backup", BackupPlan.CDR_ARCHIVE);
+        BackupBean cdrBackupBean = new BackupBean(cdr);
+
+        cmdLine = StringUtils.join(Restore.getCmdLine("", cdrBackupBean, false, false), ' ');
+        assertEquals("/sipx-sudo-restore -cdr " + cdr.getAbsolutePath() + " --non-interactive --enforce-version",
+                cmdLine);
+
+        cmdLine = StringUtils.join(Restore.getCmdLine("", cdrBackupBean, true, true), ' ');
+        assertEquals("/sipx-sudo-restore -cdr " + cdr.getAbsolutePath()
                 + " --non-interactive --enforce-version --verify --no-restart", cmdLine);
 
     }

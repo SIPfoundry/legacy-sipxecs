@@ -32,9 +32,9 @@ public interface MailboxManager {
 
     void renameMailbox(String oldUserId, String newUserId);
 
-    void saveDistributionLists(String userId, DistributionList[] lists);
+    void saveDistributionLists(User user, DistributionList[] lists);
 
-    DistributionList[] loadDistributionLists(String userId);
+    DistributionList[] loadDistributionLists(User users);
 
     void markRead(String userId, String messageId);
 
@@ -46,19 +46,24 @@ public interface MailboxManager {
 
     String getMediaFileURL(String userId, String folder, String messageId);
 
+    /**
+     * Load a PA for a user, create it if it does not exist
+     * @param user
+     * @return
+     */
     PersonalAttendant loadPersonalAttendantForUser(User user);
+    /**
+     * Load a PA for a user, return null if it does not exist
+     * @param user
+     * @return
+     */
+    PersonalAttendant getPersonalAttendantForUser(User user);
 
     void removePersonalAttendantForUser(User user);
 
     void storePersonalAttendant(PersonalAttendant pa);
 
-    void storePersonalAttendant(PersonalAttendant pa, boolean writeFile);
-
     void clearPersonalAttendants();
-
-    void updatePersonalAttendantForUser(User user, String operatorValue);
-
-    void writePreferencesFile(User user);
 
     List<String> getFolderIds();
 

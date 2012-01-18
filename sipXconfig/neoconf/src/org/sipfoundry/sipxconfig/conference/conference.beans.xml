@@ -20,6 +20,7 @@
     <property name="domainManager" ref="domainManager" />
     <property name="sipService" ref="sip" />
     <property name="addressManager" ref="addressManager" />
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="activeConferenceContext" class="org.springframework.aop.framework.ProxyFactoryBean">

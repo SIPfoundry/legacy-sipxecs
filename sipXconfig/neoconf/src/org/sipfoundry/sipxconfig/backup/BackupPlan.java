@@ -1,6 +1,4 @@
 /*
- *
- *
  * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
@@ -27,9 +25,9 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.mail.MailSenderContext;
 import org.sipfoundry.sipxconfig.backup.BackupBean.Type;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.mail.MailSenderContext;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
@@ -41,9 +39,12 @@ import org.springframework.context.ApplicationContextAware;
 public abstract class BackupPlan extends BeanWithId implements ApplicationContextAware {
     public static final String VOICEMAIL_ARCHIVE = "voicemail.tar.gz";
     public static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
+    public static final String CDR_ARCHIVE = "cdr.tar.gz";
     public static final FilenameFilter BACKUP_FILE_FILTER = new FilenameFilter() {
+        @Override
         public boolean accept(File dir, String name) {
-            return name.equalsIgnoreCase(VOICEMAIL_ARCHIVE) || name.equalsIgnoreCase(CONFIGURATION_ARCHIVE);
+            return StringUtils.equals(name, VOICEMAIL_ARCHIVE) || StringUtils.equals(name, CONFIGURATION_ARCHIVE)
+                || StringUtils.equals(name, CDR_ARCHIVE);
         }
     };
     private static final SimpleDateFormat FILE_NAME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
@@ -54,6 +55,7 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
 
     private boolean m_voicemail = true;
     private boolean m_configs = true;
+    private boolean m_cdr = true;
     private Integer m_limitedCount = 50;
     private Date m_backupTime;
     private String m_emailAddress;
@@ -169,22 +171,33 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
     }
 
     private boolean perform(File workingDir, File binDir) throws IOException, InterruptedException {
+        boolean success = true;
         if (isConfigs()) {
             // configuration backup
-            ProcessBuilder pb = new ProcessBuilder(binDir.getPath() + File.separator + m_backupScript, "-n", "-c");
-            Process process = pb.directory(workingDir).start();
-            int code = process.waitFor();
-            if (code != 0) {
-                String errorMsg = String.format("Config backup operation failed. Exit code: %d", code);
-                LOG.error(errorMsg);
-                return false;
-            }
+            success = perform(workingDir, binDir, "-c");
         }
 
-        if (isVoicemail()) {
-            return m_mailboxManager.performBackup(workingDir);
+        if (isVoicemail() && success) {
+            success = m_mailboxManager.performBackup(workingDir);
         }
 
+        if (isCdr() && success) {
+            // call detail records backup
+            success = perform(workingDir, binDir, "-cdr");
+        }
+
+        return success;
+    }
+
+    private boolean perform(File workingDir, File binDir, String type) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder(binDir.getPath() + File.separator + m_backupScript, "-n", type);
+        Process process = pb.directory(workingDir).start();
+        int code = process.waitFor();
+        if (code != 0) {
+            String errorMsg = String.format("Config backup operation failed. Exit code: %d", code);
+            LOG.error(errorMsg);
+            return false;
+        }
         return true;
     }
 
@@ -216,9 +229,14 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
             File voicemail = new File(backupDir, VOICEMAIL_ARCHIVE);
             files.add(voicemail);
         }
+        if (isCdr()) {
+            File cdr = new File(backupDir, CDR_ARCHIVE);
+            files.add(cdr);
+        }
         return (File[]) files.toArray(new File[files.size()]);
     }
 
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
     }
@@ -260,12 +278,20 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         m_voicemail = voicemail;
     }
 
+    public boolean isCdr() {
+        return m_cdr;
+    }
+
+    public void setCdr(boolean cdr) {
+        m_cdr = cdr;
+    }
+
     /**
      * For backup to make sense at least one of the parameters (i.e. voicemail or configuration)
      * have to be set.
      */
     public boolean isEmpty() {
-        return !(m_voicemail || m_configs);
+        return !(m_voicemail || m_configs || m_cdr);
     }
 
     public void schedule(Timer timer, String binPath) {

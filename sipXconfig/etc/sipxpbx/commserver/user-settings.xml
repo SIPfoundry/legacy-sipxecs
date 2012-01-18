@@ -170,6 +170,53 @@
       </type>
     </setting>
   </group>
+  <group name="distribution-lists" hidden="yes">
+    <setting name="item1">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="item2">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="item3">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="item4">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="item5">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="item6">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="item7">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="item8">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="item9">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
   <group name="voicemail">
     <group name="fax" hidden="yes">
       <setting name="extension">

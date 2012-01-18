@@ -13,7 +13,7 @@ JAR_FILE = sipXivr.jar
 jar_DATA = $(JAR_FILE)
 
 ivr_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
-ivr_RESOURCES = $(shell cd $(srcdir); find . \( -name '*.png' -o -name '*.properties' \) )
+ivr_RESOURCES = $(shell cd $(srcdir); find . \( -name '*.png' -o -name '*.properties' -o -name '*.xml' -o -name '*.xsd' \) )
 
 ivr_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(ivr_PKGS)) \

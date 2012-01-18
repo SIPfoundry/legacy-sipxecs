@@ -33,8 +33,7 @@ public class AuthCode {
 
     // Global store for resource bundles keyed by locale
     private static final String RESOURCE_NAME = "org.sipfoundry.authcode.AuthCode";
-    private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
-    
+
     private AccCodeConfiguration m_acccodeConfig;
     private Localization m_loc;
     private FreeSwitchEventSocketInterface m_fses;
@@ -42,22 +41,22 @@ public class AuthCode {
     private Configuration m_config;
     private String m_localeString;
 
-    private Hashtable<String, String> m_parameters;  // The parameters from the sip URI
-    
+    private Hashtable<String, String> m_parameters; // The parameters from the sip URI
+
     /**
      * Create an AuthCode object.
      * 
      * @param acccodeConfig top level configuration stuff
      * @param fses The FreeSwitchEventSocket with the call already answered
-     * @param parameters The parameters from the sip URI (to determine locale and which action
-     *        to run)
+     * @param parameters The parameters from the sip URI (to determine locale and which action to
+     *        run)
      */
     public AuthCode(AccCodeConfiguration acccodeConfig, FreeSwitchEventSocketInterface fses,
             Hashtable<String, String> parameters) {
         this.m_acccodeConfig = acccodeConfig;
         this.m_fses = fses;
         this.m_parameters = parameters;
-        
+
         // Look for "locale" parameter
         String m_localeString = m_parameters.get("locale");
         if (m_localeString == null) {
@@ -77,8 +76,7 @@ public class AuthCode {
     void loadConfig() {
 
         // Load the account code configuration
-        m_loc = new Localization(RESOURCE_NAME,
-                                   m_localeString, s_resourcesByLocale, m_acccodeConfig, m_fses);
+        m_loc = new Localization(RESOURCE_NAME, m_localeString, m_acccodeConfig, m_fses);
         m_config = Configuration.update(true);
 
     }
@@ -92,17 +90,18 @@ public class AuthCode {
     public String extensionToUrl(String extension) {
         return "sip:" + extension + "@" + m_acccodeConfig.getSipxchangeDomainName();
     }
-    
+
     public String paramAddToUrl(String url, String name, String value) {
-       if (url.toLowerCase().contains("?")) {
-          return url + ";" + name + "=" + value;
-       } else {
-          return url + "?" + name + "=" + value;
-       }
+        if (url.toLowerCase().contains("?")) {
+            return url + ";" + name + "=" + value;
+        } else {
+            return url + "?" + name + "=" + value;
+        }
     }
+
     /**
      * Run Authorization Code for each call.
-     *
+     * 
      */
     public void run() throws Throwable {
         if (m_loc == null) {
@@ -114,7 +113,7 @@ public class AuthCode {
         s.go();
         // Play the feature start tone.
         m_fses.setRedactDTMF(false);
-        m_fses.trimDtmfQueue("") ; // Flush the DTMF queue
+        m_fses.trimDtmfQueue(""); // Flush the DTMF queue
 
         m_loc.play("AuthCode_please_enter", "0123456789#*");
 
@@ -124,12 +123,12 @@ public class AuthCode {
         currentauthorization = getAuthcode();
         LOG.info("AuthCode entered = " + currentauthorization);
         if (currentauthorization != null) {
-            AuthCodeConfig authcode = m_config.getAuthCode(currentauthorization);   
+            AuthCodeConfig authcode = m_config.getAuthCode(currentauthorization);
             destdial = getDestDial();
             if (destdial != null) {
                 // Build a SIP URL and transfer the call to this destination.
                 String destURL = extensionToUrl(destdial);
-                //Add account code to URL
+                // Add account code to URL
                 transfer(destURL, authcode.getAuthName(), authcode.getAuthPassword());
             }
         }
@@ -146,18 +145,16 @@ public class AuthCode {
         return codeEntered = new AuthEnter(this).enterAuthorizationCode();
     }
 
-
     /**
      * Get the Destination Dial String.
      * 
      * @throws Throwable indicating an error or hangup condition.
      */
     String getDestDial() {
-               
+
         Localization usrLoc = m_loc;
         return new DestinationEnter(this).enterDestinationDialString();
     }
-
 
     /**
      * Transfer the call to the indicated destination.
@@ -175,15 +172,16 @@ public class AuthCode {
     }
 
     public void failure() {
-       LOG.info("failure");
-       goodbye();
+        LOG.info("failure");
+        goodbye();
     }
+
     /**
      * Play a good bye tone and hangup.
      * 
      */
     public void goodbye() {
-        // Play an error hang up tone. 
+        // Play an error hang up tone.
         m_loc.play("AuthCode_error_hang_up", "");
         new Hangup(m_fses).go();
     }
@@ -203,15 +201,15 @@ public class AuthCode {
     public void setLocalization(Localization localization) {
         m_loc = localization;
     }
-    
+
     public Localization getLoc() {
-        return(m_loc);
+        return (m_loc);
     }
-    
-    public void playError(String errPrompt, String ...vars) {
+
+    public void playError(String errPrompt, String... vars) {
         m_loc.play("error_beep", "");
         m_fses.trimDtmfQueue("");
         m_loc.play(errPrompt, "0123456789*#", vars);
     }
-    
+
 }

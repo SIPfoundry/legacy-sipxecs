@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="moh" class="org.sipfoundry.moh.Moh" scope="eslRequest">
+    <property name="dataDirectory" value="${ivr.dataDirectory}" />
+    <property name="promptsDir" value="${ivr.promptsDirectory}" />
+    <property name="validUsers" ref="validUsers" />
+    <property name="eslRequestController" ref="mohEslRequestController" />
+  </bean>
+
+  <bean id="mohEslRequestController" class="org.sipfoundry.moh.MohEslRequestController" scope="eslRequest">
+    <property name="sipxchangeDomainName" value="${ivr.sipxchangeDomainName}" />
+    <property name="fsConfig" ref="fsConfig" />
+    <property name="fsEventSocket" ref="fsEventSocket" />
+  </bean>
+
+</beans>

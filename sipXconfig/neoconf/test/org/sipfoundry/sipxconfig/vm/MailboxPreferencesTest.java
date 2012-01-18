@@ -29,17 +29,9 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences.AttachType;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences.MailFormat;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
 
 public class MailboxPreferencesTest extends XMLTestCase {
-    private MailboxPreferencesWriter m_writer;
-
-    protected void setUp() {
-        m_writer = new MailboxPreferencesWriter();
-        m_writer.setVelocityEngine(TestHelper.getVelocityEngine());
-    }
 
     public void testGetValueOfById() {
         MailboxPreferences.ActiveGreeting actual = MailboxPreferences.ActiveGreeting.fromId("none");
@@ -114,13 +106,4 @@ public class MailboxPreferencesTest extends XMLTestCase {
         assertEquals("false", user.getSettingValue(BUSY_PROMPT));
     }
 
-    public void testWritePreferences() throws Exception {
-        StringWriter actual = new StringWriter();
-        MailboxPreferences prefs = new MailboxPreferences();
-        prefs.setActiveGreeting(ActiveGreeting.EXTENDED_ABSENCE);
-
-        m_writer.writeObject(prefs, actual);
-        InputStream expectedIn = getClass().getResourceAsStream("expected-mailboxprefs.xml");
-        assertXMLEqual(new InputStreamReader(expectedIn), new StringReader(actual.toString()));
-    }
 }

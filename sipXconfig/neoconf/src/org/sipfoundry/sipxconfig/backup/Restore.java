@@ -49,6 +49,7 @@ public class Restore implements Serializable, WaitingListener {
 
     private List<BackupBean> m_selectedBackups;
 
+    @Override
     public void afterResponseSent() {
         perform(m_selectedBackups);
 
@@ -75,11 +76,14 @@ public class Restore implements Serializable, WaitingListener {
     protected void execute(List<BackupBean> backups, boolean verify) {
         BackupBean config = null;
         BackupBean voicemail = null;
+        BackupBean cdr = null;
         for (BackupBean bean : backups) {
             if (bean.getType().equals(BackupBean.Type.CONFIGURATION)) {
                 config = bean;
             } else if (bean.getType().equals(BackupBean.Type.VOICEMAIL)) {
                 voicemail = bean;
+            } else if (bean.getType().equals(BackupBean.Type.CDR)) {
+                cdr = bean;
             }
         }
 
@@ -89,6 +93,10 @@ public class Restore implements Serializable, WaitingListener {
 
         if (config != null) {
             runRestoreScript(getBinDirectory(), config, verify, false);
+        }
+
+        if (cdr != null) {
+            runRestoreScript(getBinDirectory(), cdr, verify, false);
         }
 
     }

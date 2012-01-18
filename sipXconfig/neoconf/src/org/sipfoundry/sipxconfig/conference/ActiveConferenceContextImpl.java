@@ -14,10 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -27,6 +32,7 @@ import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiConnectException;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParser;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParserImpl;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
@@ -37,6 +43,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private static final String COMMAND_LIST_DELIM = ">,<";
     private static final String COMMAND_LIST = "list delim " + COMMAND_LIST_DELIM;
     private static final Log LOG = LogFactory.getLog(ActiveConferenceContextImpl.class);
+    private static final String ERROR_INVITE_PARTICIPANT = "&error.inviteParticipant";
 
     private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
     private ConferenceBridgeContext m_conferenceBridgeContext;
@@ -44,6 +51,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private DomainManager m_domainManager;
     private AddressManager m_addressManager;
     private SipService m_sipService;
+    private CoreContext m_coreContext;
 
     @Required
     public void setDomainManager(DomainManager domainManager) {
@@ -65,6 +73,12 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         m_sipService = sipService;
     }
 
+    @Required
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    @Override
     public int getActiveConferenceCount(Bridge bridge) {
         LOG.debug("Requesting count of active conferences from bridge " + bridge.getName());
         String result = null;
@@ -86,6 +100,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return m_freeswitchApiProvider.getApi(url);
     }
 
+    @Override
     public List<ActiveConference> getActiveConferences(Bridge bridge) {
         LOG.debug("Requesting list of active conferences from bridge " + bridge.getName());
         String result = null;
@@ -109,6 +124,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return conferences;
     }
 
+    @Override
     public Map<Conference, ActiveConference> getActiveConferencesMap(Bridge bridge) {
         Map<Conference, ActiveConference> activeConferencesMap = new HashMap<Conference, ActiveConference>();
 
@@ -120,6 +136,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return activeConferencesMap;
     }
 
+    @Override
     public List<ActiveConferenceMember> getConferenceMembers(Conference conference) {
         LOG.debug("Requesting list of members for conference \"" + conference.getName() + "\"");
         Bridge bridge = conference.getBridge();
@@ -142,34 +159,87 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return members;
     }
 
+    @Override
+    public String executeCommand(Conference conference, String[] arguments) {
+        HttpClient client = new HttpClient();
+        String uri = getConferenceManagerRestUrl(conference, arguments);
+        PutMethod putMethod = new PutMethod(uri);
+        int statusCode = HttpStatus.SC_OK;
+        String response = null;
+        try {
+            statusCode = client.executeMethod(putMethod);
+            if (statusCode == HttpStatus.SC_OK) {
+                response = putMethod.getResponseBodyAsString();
+            }
+        } catch (Exception ex) {
+            response = "ERROR: " + ex.getMessage();
+        }
+        return response;
+    }
+
+    private String getConferenceManagerRestUrl(Conference conf, String[] arguments) {
+        if (StringUtils.equals(arguments[0], "record")) {
+            User owner = conf.getOwner();
+            String domainName = m_domainManager.getDomain().getName();
+            return String.format("http://%s:%d/recordconference?action=%s&conf=%s&ownerName=%s&ownerId=%s"
+                    + "&bridgeContact=%s&mboxServer=%s",
+                conf.getBridge().getName(), 8549, arguments.length == 1 ? "start" : arguments[1],
+                conf.getName(), owner.getUserName(), owner.getAddrSpec(domainName), conf.getUri(), findMailboxServer());
+        } else {
+            StringBuilder builder = new StringBuilder();
+            for (String argument : arguments) {
+                builder.append("/")
+                       .append(argument);
+            }
+            return String.format("http://%s:%d/conference/%s%s",
+                    conf.getBridge().getName(), 8549, conf.getName(), builder.toString());
+        }
+    }
+
+    private String findMailboxServer() {
+        Address api = m_addressManager.getSingleAddress(Ivr.REST_API);
+        if (api == null) {
+            return StringUtils.EMPTY;
+        }
+        return api.getAddress() + ':' + api.getPort();
+    }
+
+    @Override
     public boolean lockConference(Conference conference) {
         return conferenceAction(conference, "lock");
     }
 
+    @Override
     public boolean unlockConference(Conference conference) {
         return conferenceAction(conference, "unlock");
     }
 
+    @Override
     public boolean deafUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "deaf");
     }
 
+    @Override
     public boolean muteUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "mute");
     }
 
+    @Override
     public boolean undeafUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "undeaf");
     }
 
+    @Override
     public boolean unmuteUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "unmute");
     }
 
+    @Override
     public boolean kickUser(Conference conference, ActiveConferenceMember member) {
         return memberAction(conference, member, "kick");
     }
 
+    @Override
     public void inviteParticipant(User user, Conference conference, String inviteNumber) {
         String domain = m_domainManager.getDomain().getName();
         String sourceAddressSpec = SipUri.fix(inviteNumber, domain);
@@ -196,7 +266,17 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
                   dest, true);
         } else {
             LOG.warn("conference does not have owner -- cannot INVITE participant");
-            throw new UserException("&error.inviteParticipant");
+            throw new UserException(ERROR_INVITE_PARTICIPANT);
+        }
+    }
+
+    public void inviteImParticipant(User user, Conference conference, String imIdToInvite) {
+        User userToInvite = m_coreContext.loadUserByConfiguredImId(imIdToInvite);
+        if (userToInvite != null) {
+            inviteParticipant(user, conference, userToInvite.getUserName());
+        } else {
+            LOG.warn("There is no user for the specified ImId -- cannot INVITE participant");
+            throw new UserException(ERROR_INVITE_PARTICIPANT);
         }
     }
 
@@ -238,6 +318,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         }
     }
 
+    @Override
     public boolean isConferenceLocked(Conference conference) {
         ActiveConference activeConference = null;
         try {
@@ -249,6 +330,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         return (activeConference != null) ? activeConference.isLocked() : false;
     }
 
+    @Override
     public ActiveConference getActiveConference(Conference conference) {
         String conferenceName = conference.getName();
         ActiveConference activeConference = null;

@@ -44,7 +44,8 @@ public class LoginDetailsResource extends UserResource {
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         User user = getUser();
-        return new LoginDetails(variant.getMediaType(), new Representable(user.getUserName(), user.getImId()));
+        return new LoginDetails(variant.getMediaType(), new Representable(user.getUserName(),
+                user.getImId(), user.getImPassword()));
     }
 
     @SuppressWarnings("serial")
@@ -53,10 +54,13 @@ public class LoginDetailsResource extends UserResource {
         private String m_userName;
         @SuppressWarnings("unused")
         private String m_imId;
+        @SuppressWarnings("unused")
+        private String m_imPassword;
 
-        public Representable(String userName, String imId) {
+        public Representable(String userName, String imId, String imPassword) {
             m_userName = userName;
             m_imId = imId;
+            m_imPassword = imPassword;
         }
     }
 

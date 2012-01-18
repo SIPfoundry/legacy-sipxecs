@@ -1,0 +1,240 @@
+/*
+ *
+ *
+ * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the AGPL license.
+ *
+ * $
+ */
+package org.sipfoundry.sipxivr;
+
+
+/**
+ * Holds the configuration data needed for sipXivr.
+ * 
+ */
+public class SipxIvrConfiguration {
+
+    private String m_logLevel; // The desired logging level in SipFoundry format (not log4j!)
+    private String m_logFile; // The file to log into
+    private int m_eventSocketPort; // The Event Socket Listen port
+    private String m_dataDirectory; // File path to the media server data directory
+    private String m_mailstoreDirectory; // File path to the mailstore
+    private String m_promptsDirectory; // File path to the AA prompts
+    private String m_organizationPrefs; // File path to organizationprefs.xml
+    private String m_scriptsDirectory; // File path to the AA scripts (for schedule access)
+    private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
+    private String m_operatorAddr; // Address of 'operator'
+    private String m_sipxchangeDomainName; // The domain name of this system
+    private String m_realm;
+    private String m_mwiUrl; // The url of the Status Server we send MWI requests to
+    private String m_configUrl; // The url of the Config Server for PIN change requests
+    private int m_httpsPort; // The port on which we listen for HTTPS services
+    private String m_sendIMUrl;
+    private String m_openfireHost; // The host name where the Openfire service runs
+    private int m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
+    private String m_sipxSupervisorHost;//The host name where SipX Supervisor runs.
+    private int  m_sipxSupervisorXmlRpcPort;// The port number to use for XML-RPC SipX Supervisor alarm requests
+    private String m_configAddress;//The IP where sipXconfig runs.
+    private String m_binDirectory;
+    private String m_logDirectory;
+    private String m_backupPath;
+    
+    public String getLogLevel() {
+        return m_logLevel;
+    }
+
+    public void setLogLevel(String logLevel) {
+        m_logLevel = logLevel;
+    }
+
+    public String getLogFile() {
+        return m_logFile;
+    }
+
+    public void setLogFile(String logFile) {
+        m_logFile = logFile;
+    }
+
+    public int getEventSocketPort() {
+        return m_eventSocketPort;
+    }
+
+    public void setEventSocketPort(int port) {
+        m_eventSocketPort = port;
+    }
+
+    public String getDataDirectory() {
+        return m_dataDirectory;
+    }
+
+    public void setDataDirectory(String dir) {
+        m_dataDirectory = dir;
+    }
+    
+    public String getMailstoreDirectory() {
+        return m_mailstoreDirectory;
+    }
+
+    public void setMailstoreDirectory(String dir) {
+        m_mailstoreDirectory = dir;
+    } 
+
+    public String getPromptsDirectory() {
+        return m_promptsDirectory;
+    }
+
+    public void setPromptsDirectory(String dir) {
+        m_promptsDirectory = dir;
+    } 
+    
+    public String getOrganizationPrefs() {
+        return m_organizationPrefs;
+    }
+
+    public void setOrganizationPrefs(String prefs) {
+        m_organizationPrefs = prefs;
+    }
+
+    public String getScriptsDirectory() {
+        return m_scriptsDirectory;
+    }
+
+    public void setScriptsDirectory(String dir) {
+        m_scriptsDirectory = dir;
+    }
+
+    public String getDocDirectory() {
+        return m_docDirectory;
+    }
+
+    public void setDocDirectory(String dir) {
+        m_docDirectory = dir;
+    }
+    
+    public String getSendIMUrl() {
+        return m_sendIMUrl;
+    }
+
+    public void setSendIMUrl(String url) {
+        m_sendIMUrl = url;
+    }
+
+    public String getOperatorAddr() {
+        return m_operatorAddr;
+    }
+
+    public void setOperatorAddr(String url) {
+        m_operatorAddr = url;
+    }
+
+    public String getSipxchangeDomainName() {
+        return m_sipxchangeDomainName;
+    }
+
+    public void setSipxchangeDomainName(String name) {
+        m_sipxchangeDomainName = name;
+    }
+
+    public String getRealm() {
+        return m_realm;
+    }
+    
+    public void setRealm(String realm) {
+        m_realm = realm;
+    }
+    
+    public String getMwiUrl() {
+        return m_mwiUrl;
+    }
+    
+    public void setMwiUrl(String mwiUrl) {
+        m_mwiUrl = mwiUrl;
+    }
+
+    public String getConfigUrl() {
+        return m_configUrl;
+    }
+    
+    public void setConfigUrl(String configUrl) {
+        m_configUrl = configUrl;
+    }
+    
+    public int getHttpsPort() {
+        return m_httpsPort;
+    }
+    
+    public void setHttpsPort(int httpsPort) {
+        m_httpsPort = httpsPort;
+    }
+
+    public String get3pccSecureUrl() {
+        return "https://" + m_sipxchangeDomainName + ":6666" + "/callcontroller/";
+    }
+
+    public String getOpenfireHost() {
+        return m_openfireHost;
+    }
+    
+    public void setOpenfireHost(String host) {
+    	m_openfireHost = host;
+    }
+
+    public int getOpenfireXmlRpcPort() {
+        return m_openfireXmlRpcPort;
+    }
+    
+    public void setOpenfireXmlRpcPort(int port) {
+        m_openfireXmlRpcPort = port;
+    }
+    
+    public String getSipxSupervisorHost() {
+        return m_sipxSupervisorHost;
+    }
+
+    public void setSipxSupervisorHost(String host) {
+        m_sipxSupervisorHost = host;
+    }
+
+    public String getConfigAddress() {
+        return m_configAddress;
+    }
+
+    public void setConfigAddress(String config) {
+        m_configAddress = config;
+    }
+
+    public String getBinDirectory() {
+        return m_binDirectory;
+    }
+
+    public void setBinDirectory(String dir) {
+        m_binDirectory = dir;
+    }
+
+    public String getLogDirectory() {
+        return m_logDirectory;
+    }
+
+    public void setLogDirectory(String dir) {
+        m_logDirectory = dir;
+    }
+
+    public String getBackupPath() {
+        return m_backupPath;
+    }
+
+    public void setBackupPath(String path) {
+        m_backupPath = path;
+    }
+    
+    public int getSipxSupervisorXmlRpcPort() {
+        return m_sipxSupervisorXmlRpcPort;
+    }
+
+    public void setSipxSupervisorXmlRpcPort(int port) {
+        m_sipxSupervisorXmlRpcPort = port;
+    }
+
+}

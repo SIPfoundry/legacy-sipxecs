@@ -420,7 +420,6 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
 {
  
    OsStatus fieldMatchFound = OS_FAILED;
-   UtlBoolean methodMatchFound = false;
    UtlString method;
    request.getRequestMethod(&method);
 
@@ -477,7 +476,6 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
                   // Found a matching method, see if there is a fieldMatch
                   // with a fieldName attribute that matches the fields
                   // in the message
-                  methodMatchFound = true;
                   fieldMatchFound = parseFieldMatchContainer(request,
                      routeToString,
                      authRequired,

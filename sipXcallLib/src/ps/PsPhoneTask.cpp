@@ -172,30 +172,30 @@ OsStatus PsPhoneTask::postEvent(const int msg, void* source,
 
 int PsPhoneTask::taoGetMicGain(int group)
 {
-        OsStatus rc = OS_INVALID_ARGUMENT;
+        
         int level = 0;
 
         switch(group)
         {
         case PtComponentGroup::HAND_SET:
            if (mpHandSetGroup)
-              rc = mpHandSetGroup->getMicGain(PsTaoComponentGroup::HAND_SET, level);
+              mpHandSetGroup->getMicGain(PsTaoComponentGroup::HAND_SET, level);
            break;
         case PtComponentGroup::SPEAKER_PHONE:
            if (mpSpeakerPhoneGroup)
-              rc = mpSpeakerPhoneGroup->getMicGain(PsTaoComponentGroup::SPEAKER_PHONE, level);
+              mpSpeakerPhoneGroup->getMicGain(PsTaoComponentGroup::SPEAKER_PHONE, level);
            break;
         case PtComponentGroup::RINGER:
            if (mpPhoneSetGroup)
-              rc = mpPhoneSetGroup->getMicGain(PsTaoComponentGroup::PHONE_SET, level);
+              mpPhoneSetGroup->getMicGain(PsTaoComponentGroup::PHONE_SET, level);
            break;
         case PtComponentGroup::PHONE_SET:
            if (mpPhoneSetGroup)
-              rc = mpPhoneSetGroup->getMicGain(PsTaoComponentGroup::PHONE_SET, level);
+              mpPhoneSetGroup->getMicGain(PsTaoComponentGroup::PHONE_SET, level);
            break;
         case PtComponentGroup::HEAD_SET:
            if (mpHeadSetGroup)
-              rc = mpHeadSetGroup->getMicGain(PsTaoComponentGroup::HEAD_SET, level);
+              mpHeadSetGroup->getMicGain(PsTaoComponentGroup::HEAD_SET, level);
            break;
         default:
            level = getGain();
@@ -429,7 +429,7 @@ void PsPhoneTask::extSpeakerConnect(UtlBoolean connected)
 // Return the current microphone gain setting (a value from 0..100)
 int PsPhoneTask::getGain(void) const
 {
-        OsStatus rc = OS_UNSPECIFIED;
+        
 
         int level1 = 0;
         int level = 0;
@@ -442,23 +442,23 @@ int PsPhoneTask::getGain(void) const
    {
    case HANDSET_ENABLED:
                 if (mpHandSetGroup)
-                        rc = mpHandSetGroup->getMicGain(PsTaoComponentGroup::HAND_SET, level);
+                        mpHandSetGroup->getMicGain(PsTaoComponentGroup::HAND_SET, level);
            break;
    case SPEAKERPHONE_ENABLED:
            if (mpSpeakerPhoneGroup)
-                        rc = mpSpeakerPhoneGroup->getMicGain(PsTaoComponentGroup::SPEAKER_PHONE, level);
+                        mpSpeakerPhoneGroup->getMicGain(PsTaoComponentGroup::SPEAKER_PHONE, level);
            break;
    case RINGER_ENABLED:
            if (mpPhoneSetGroup)
-                        rc = mpPhoneSetGroup->getMicGain(PsTaoComponentGroup::PHONE_SET, level);
+                        mpPhoneSetGroup->getMicGain(PsTaoComponentGroup::PHONE_SET, level);
            break;
    case SOUND_ENABLED:
            if (mpPhoneSetGroup)
-                        rc = mpPhoneSetGroup->getMicGain(PsTaoComponentGroup::PHONE_SET, level);
+                        mpPhoneSetGroup->getMicGain(PsTaoComponentGroup::PHONE_SET, level);
            break;
    case HEADSET_ENABLED:
            if (mpHeadSetGroup)
-                        rc = mpHeadSetGroup->getMicGain(PsTaoComponentGroup::HEAD_SET, level);
+                        mpHeadSetGroup->getMicGain(PsTaoComponentGroup::HEAD_SET, level);
            break;
    default:
 //      assert(FALSE);
@@ -768,14 +768,14 @@ UtlBoolean PsPhoneTask::handlePhoneMessage(const PsMsg& rMsg)
    void* msgSrc;
    int   msgType;
    int   param1;
-   int   param2;
+   
 
    processed = TRUE;
 
    msgType = rMsg.getMsg();
    msgSrc  = rMsg.getMsgSource();
    param1  = rMsg.getParam1();
-   param2  = rMsg.getParam2();
+   
    TaoMessage *pMsg = (TaoMessage *) &rMsg;
 
    switch (msgType)
@@ -1123,7 +1123,7 @@ int PsPhoneTask::activateGroup(PsMsg& rMsg)
 
 int PsPhoneTask::activateGroup(int type)
 {
-        UtlBoolean rc = FALSE;
+        
         int level = 0;
 
         switch(type)
@@ -1131,7 +1131,7 @@ int PsPhoneTask::activateGroup(int type)
         case PtComponentGroup::HEAD_SET:
                 if (mpHeadSetGroup)
                 {
-                        rc = mpHeadSetGroup->activate();
+                        mpHeadSetGroup->activate();
                         speakerModeEnable(HEADSET_ENABLED);
                         mpHeadSetGroup->getVolume(PsTaoComponentGroup::HEAD_SET, level);
                         setVolume(level);
@@ -1142,7 +1142,7 @@ int PsPhoneTask::activateGroup(int type)
         case PtComponentGroup::HAND_SET:
                 if (mpHandSetGroup)
                 {
-                        rc = mpHandSetGroup->activate();
+                        mpHandSetGroup->activate();
                         speakerModeEnable(HANDSET_ENABLED);
                         mpHandSetGroup->getVolume(PsTaoComponentGroup::HAND_SET, level);
                         setVolume(level);
@@ -1153,7 +1153,7 @@ int PsPhoneTask::activateGroup(int type)
         case PtComponentGroup::SPEAKER_PHONE:
                 if (mpSpeakerPhoneGroup)
                 {
-                        rc = mpSpeakerPhoneGroup->activate();
+                        mpSpeakerPhoneGroup->activate();
                         speakerModeEnable(SPEAKERPHONE_ENABLED);
                         mpSpeakerPhoneGroup->getVolume(PsTaoComponentGroup::SPEAKER_PHONE, level);
                         setVolume(level);
@@ -1164,7 +1164,7 @@ int PsPhoneTask::activateGroup(int type)
         case PtComponentGroup::EXTERNAL_SPEAKER:
                 if (mpExtSpeakerGroup)
                 {
-                        rc = mpExtSpeakerGroup->activate();
+                        mpExtSpeakerGroup->activate();
                         speakerModeEnable(EXTSPEAKER_ENABLED);
                         mpExtSpeakerGroup->getVolume(PsTaoComponentGroup::EXTERNAL_SPEAKER, level);
                         setVolume(level);
@@ -1182,11 +1182,11 @@ int PsPhoneTask::activateGroup(int type)
         case PtComponentGroup::SOUND:
                 if (mpSpeakerPhoneGroup)
                 {
-                   int low;
-                   int high;
-                   int nominal;     // low <= nominal <= high
-                   int stepsize;    // in .1 dB
-                   int mute;
+                   
+                   
+                   
+                   
+                   
 
                   assert(false);
                 }
@@ -1219,34 +1219,34 @@ UtlBoolean PsPhoneTask::deactivateGroup(PsMsg& rMsg)
 
 UtlBoolean PsPhoneTask::deactivateGroup(int type)
 {
-        UtlBoolean rc = FALSE;
+        
         switch(type)
         {
         case PtComponentGroup::HEAD_SET:
            if (mpHeadSetGroup)
            {
-                        rc = mpHeadSetGroup->deactivate();
+                        mpHeadSetGroup->deactivate();
                         speakerModeDisable(HEADSET_ENABLED);
            }
            break;
         case PtComponentGroup::HAND_SET:
            if (mpHandSetGroup)
            {
-                        rc = mpHandSetGroup->deactivate();
+                        mpHandSetGroup->deactivate();
                         speakerModeDisable(HANDSET_ENABLED);
            }
            break;
         case PtComponentGroup::SPEAKER_PHONE:
            if (mpSpeakerPhoneGroup)
            {
-                        rc = mpSpeakerPhoneGroup->deactivate();
+                        mpSpeakerPhoneGroup->deactivate();
                         speakerModeDisable(SPEAKERPHONE_ENABLED);
            }
            break;
         case PtComponentGroup::EXTERNAL_SPEAKER:
            if (mpExtSpeakerGroup)
            {
-                        rc = mpExtSpeakerGroup->deactivate();
+                        mpExtSpeakerGroup->deactivate();
                         speakerModeDisable(EXTSPEAKER_ENABLED);
            }
            break;
@@ -1255,14 +1255,14 @@ UtlBoolean PsPhoneTask::deactivateGroup(int type)
             if (mpPhoneSetGroup)
             {
                 assert(false);
-                rc = mpPhoneSetGroup->deactivate();
+                mpPhoneSetGroup->deactivate();
                 speakerModeDisable(RINGER_ENABLED | SOUND_ENABLED);
             }
             break;
         case PtComponentGroup::SOUND:
            if (mpSpeakerPhoneGroup)
            {
-                        rc = mpSpeakerPhoneGroup->deactivate();
+                        mpSpeakerPhoneGroup->deactivate();
                         speakerModeDisable(SOUND_ENABLED);
            }
            break;

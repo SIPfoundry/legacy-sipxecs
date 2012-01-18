@@ -23,4 +23,7 @@ test_DEPS = \
 test_SRC = $(shell cd $(srcdir); find org \( \
 	-name '*.java' \
 	-a -not -name 'RestfulRequestTest.java' \
+	-a -not -name 'MessageTest.java' \
 	\))
+
+precommit : check

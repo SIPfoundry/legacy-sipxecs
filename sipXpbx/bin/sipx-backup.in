@@ -25,15 +25,16 @@ usage() {
   echo
   echo Usage: $0 parameters
   echo
-  echo "   Backup Configuration and/or Voicemail into archive(s.)  If neither -c nor -v are"
-  echo "   specified, then both Configuration and Voicemail are backed up."
+  echo "   Backup Configuration and/or Voicemail into archive(s.)  If neither -c nor -v or -cdr are"
+  echo "   specified, then all Configuration and Voicemail and CDR are backed up."
   echo
   echo Parameters:
   echo "   -h|--help             Display this help text."
   echo "   -n|--non-interactive  Do not run in interactive mode.  All output is logged "
   echo "                         to sipx-restore.log."
-  echo "   -c|--configuration    Backup only Configuation.  (Incompatible with -v.)"
-  echo "   -v|--voicemail        Backup only Voicemail.  (Incompatible with -c.)"
+  echo "   -c|--configuration    Backup only Configuation.  (Incompatible with -v or -cdr.)"
+  echo "   -cdr|--cdrdatabase    Backup only Call Detail Records (CDR).  (Incompatible with -v or -c.)"
+  echo "   -v|--voicemail        Backup only Voicemail.  (Incompatible with -c or -cdr.)"
   echo "   -d|--directory        Create the archive(s) in the specified directory, rather"
   echo "                         than the current working directory."
   echo
@@ -46,6 +47,7 @@ bad_candv_usage() {
 
 CONFIGURATION="yes"
 VOICEMAIL="yes"
+CDR="yes"
 ARCHIVE_DIR=`pwd`
 
 bad_directory() {
@@ -71,6 +73,7 @@ do
          bad_candv_usage
       fi
       VOICEMAIL="no"
+      CDR="no"
       ;;
 
     -v|--voicemail)
@@ -78,6 +81,15 @@ do
          bad_candv_usage
       fi
       CONFIGURATION="no"
+      CDR="no"
+      ;;
+
+    -cdr|--cdrdatabase)
+      if [ "$CDR" = "no" ]; then
+         bad_candv_usage
+      fi
+      CONFIGURATION="no"
+      VOICEMAIL="no"
       ;;
 
     -d|--directory)
@@ -107,6 +119,10 @@ done
 
 CONFIG_BACKUP_TAR_FILE=$ARCHIVE_DIR/configuration.tar
 CONFIG_BACKUP_FILE=$CONFIG_BACKUP_TAR_FILE.gz
+
+CDR_BACKUP_TAR_FILE=$ARCHIVE_DIR/cdr.tar
+CDR_BACKUP_FILE=$CDR_BACKUP_TAR_FILE.gz
+
 VM_BACKUP_FILE=$ARCHIVE_DIR/voicemail.tar.gz
 VERSION_FILE_NAME=version
 
@@ -190,6 +206,22 @@ then
   gzip --best $CONFIG_BACKUP_TAR_FILE
 
 fi # *** END Configuration ***
+
+# *** BEGIN CDR ***
+if [ "$CDR" = "yes" ]
+then
+  # Delete the old backup file if it exists.
+  delete_old_file $CDR_BACKUP_FILE
+
+  # Cdr database
+  echo -n "Copying the '$CDR_DATABASE_NAME' database contents..."
+  pg_dump -U @POSTGRESQL_USER@ -F t $CDR_DATABASE_NAME > $DB_CDR_TAR
+  tar --remove-files -rf $CDR_BACKUP_TAR_FILE $DB_CDR_TAR
+  echo "done."
+
+  gzip --best $CDR_BACKUP_TAR_FILE
+
+fi # *** END CDR ***
 
 # *** BEGIN Voicemail ***
 if [ "$VOICEMAIL" = "yes" ]

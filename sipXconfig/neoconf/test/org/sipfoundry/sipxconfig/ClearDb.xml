@@ -11,8 +11,8 @@
   <table name="patch"/>
   <table name="initialization_task"/>
   <table name="upload"/>
-  <table name="location_failed_replications"/>
   <table name="location"/>
+  <table name="location_failed_replications"/>
 
   <!-- settings -->  
   <table name="value_storage"/>

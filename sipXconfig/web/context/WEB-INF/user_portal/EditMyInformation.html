@@ -63,17 +63,8 @@
 			    languageDescription="message:language.description"
 			    defaultLanguage="ognl:null"/>
 	      </tr>
-	      <tr jwcid="@common/FieldPanel"
-	        for="personalAttendant:operator"
-	        label="message:label.operator"
-	        description="message:description.operator"
-	        field="component:operator">
-	        <td jwcid="operator@TextField"
-	          id="personalAttendant:operator"
-	          value="ognl:personalAttendant.operator"
-	          validators="spring-validators:validSipUserIdOrAor"
-	          displayName="message:label.operator"/>
-	      </tr>
+	      <tr jwcid="@setting/SettingsFieldset" settings="ognl:parentSetting"/>
+	      
 	    </table>
 	  </fieldset>
 	  <fieldset jwcid="@dialplan/AttendantMenuPanel"

@@ -2487,6 +2487,8 @@ void SipMessage::setReceivedViaParams(const UtlString& fromIpAddress,
    if (!portIsValid(lastPort))
    {
       tempLastPort = 5060;
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                    "SipMessage::setReceivedViaParams tempLastPort %d", tempLastPort);
    }
 
    if (receivedPortSet || receivedTagAdded)

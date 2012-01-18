@@ -54,7 +54,7 @@ public abstract class DistributionListComponent extends BaseComponent implements
         DistributionList[] lists = getDistributionLists();
         if (lists == null) {
             try {
-                lists = getMailboxManager().loadDistributionLists(getUser().getUserName());
+                lists = getMailboxManager().loadDistributionLists(getUser());
                 setDistributionLists(lists);
             } catch (UserException e) {
                 SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(getPage());
@@ -66,7 +66,7 @@ public abstract class DistributionListComponent extends BaseComponent implements
 
     public void save() {
         if (TapestryUtils.isValid(this)) {
-            getMailboxManager().saveDistributionLists(getUser().getUserName(), getDistributionLists());
+            getMailboxManager().saveDistributionLists(getUser(), getDistributionLists());
             setDistributionLists(null);
         }
     }

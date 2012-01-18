@@ -26,11 +26,6 @@ public abstract class Linksys extends Phone {
     protected Linksys() {
     }
 
-    @Override
-    public LinksysModel getModel() {
-        return (LinksysModel) super.getModel();
-    }
-
     public int getMaxLineCount() {
         return getModel().getMaxLineCount();
     }
@@ -45,7 +40,7 @@ public abstract class Linksys extends Phone {
      */
     @Override
     protected void copyFiles(ProfileLocation location) {
-        LinksysModel model = getModel();
+        LinksysModel model = (LinksysModel) getModel();
         String defaultConfigName = model.getDefaultConfigName();
         if (null == defaultConfigName) {
             return;

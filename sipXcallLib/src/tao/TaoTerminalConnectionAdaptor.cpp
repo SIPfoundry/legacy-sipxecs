@@ -557,8 +557,8 @@ TaoStatus TaoTerminalConnectionAdaptor::destroyPlayer(TaoMessage& rMsg)
                 return TAO_FAILURE;
 
    TaoString arg(rMsg.getArgList(), TAOMESSAGE_DELIMITER);
-   MpStreamPlayer* pPlayer = (MpStreamPlayer*) atol(arg[0]) ;
-   const char* szCallId = arg[1] ;
+   
+   
 
 //   mpCallMgrTask->destroyPlayer(MpPlayer::STREAM_PLAYER, szCallId, pPlayer) ;
 

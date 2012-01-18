@@ -78,7 +78,7 @@ case ${Action} in
 	 -Djetty.x509.algorithm=$X509Algorithm		\
 	 -Djetty.ssl.password=$TrustStorePassword	\
 	 -Djetty.ssl.keypassword=$KeyStorePassword	\
-         org.sipfoundry.sipxivr.SipXivr \
+         org.sipfoundry.sipxivr.SipXivrServer \
          $Args
      ;;
 
