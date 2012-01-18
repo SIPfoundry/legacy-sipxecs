@@ -44,6 +44,7 @@ public class LocalBackupPlanTest extends TestCase {
 
         // second backup folder;
         buildConfigurationBackup(SECOND_BACKUP);
+        buildCdrBackup(SECOND_BACKUP);
 
         // third backup folder;
         buildVoicemailBackup(THIRD_BACKUP);
@@ -59,14 +60,17 @@ public class LocalBackupPlanTest extends TestCase {
         assertEquals(2, first.size());
         assertTrue(first.containsKey(Type.CONFIGURATION));
         assertTrue(first.containsKey(Type.VOICEMAIL));
+        assertFalse(first.containsKey(Type.CDR));
         Map<Type, BackupBean> second = backups.get(1);
-        assertEquals(1, second.size());
+        assertEquals(2, second.size());
         assertTrue(second.containsKey(Type.CONFIGURATION));
         assertFalse(second.containsKey(Type.VOICEMAIL));
+        assertTrue(second.containsKey(Type.CDR));
         Map<Type, BackupBean> third = backups.get(2);
         assertEquals(1, third.size());
         assertFalse(third.containsKey(Type.CONFIGURATION));
         assertTrue(third.containsKey(Type.VOICEMAIL));
+        assertFalse(third.containsKey(Type.CDR));
     }
 
     private String getBackupDir() {
@@ -92,6 +96,17 @@ public class LocalBackupPlanTest extends TestCase {
             backup.createNewFile();
         } catch (IOException ex) {
             fail("Could not create the mailstore backup");
+        }
+    }
+
+    private void buildCdrBackup(String folder) {
+        try {
+            File file = new File(getBackupDir(), folder);
+            file.mkdirs();
+            File backup = new File(file, BackupPlan.CDR_ARCHIVE);
+            backup.createNewFile();
+        } catch (IOException ex) {
+            fail("Could not create the CDR backup");
         }
     }
 }

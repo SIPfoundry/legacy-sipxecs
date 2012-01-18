@@ -20,6 +20,7 @@ import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -31,6 +32,7 @@ import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiConnectException;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParser;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParserImpl;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
@@ -49,7 +51,6 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private DomainManager m_domainManager;
     private AddressManager m_addressManager;
     private SipService m_sipService;
-    private SipxIvrService m_sipxIvrService;
     private CoreContext m_coreContext;
 
     @Required
@@ -70,11 +71,6 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     @Required
     public void setSipService(SipService sipService) {
         m_sipService = sipService;
-    }
-
-    @Required
-    public void setSipxIvrService(SipxIvrService sipxIvrService) {
-        m_sipxIvrService = sipxIvrService;
     }
 
     @Required
@@ -201,11 +197,11 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     }
 
     private String findMailboxServer() {
-        String fqdn = m_sipxIvrService.getFqdn();
-        if (fqdn == null) {
+        Address api = m_addressManager.getSingleAddress(Ivr.REST_API);
+        if (api == null) {
             return StringUtils.EMPTY;
         }
-        return fqdn + ":" + m_sipxIvrService.getHttpsPort();
+        return api.getAddress() + ':' + api.getPort();
     }
 
     @Override

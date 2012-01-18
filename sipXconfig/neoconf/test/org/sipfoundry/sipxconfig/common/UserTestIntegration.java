@@ -15,12 +15,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.dao.DataIntegrityViolationException;
 
 public class UserTestIntegration extends ImdbTestCase {
@@ -249,12 +248,12 @@ public class UserTestIntegration extends ImdbTestCase {
     }
 
     public void testLastUpdated() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
+        loadDataSetXml("commserver/seedLocationsAndServices.xml");
         Long past = System.currentTimeMillis();
         User u1 = m_coreContext.newUser();
         u1.setUserName("u1");
         m_coreContext.saveUser(u1);
+        flush();
         
         assertTrue(!m_validUsers.getUsersUpdatedAfter(past).isEmpty());
         

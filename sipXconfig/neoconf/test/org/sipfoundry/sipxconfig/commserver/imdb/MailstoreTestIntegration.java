@@ -7,34 +7,31 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.admin.commserver.imdb;
+package org.sipfoundry.sipxconfig.commserver.imdb;
 
-import static org.sipfoundry.commons.mongo.MongoConstants.*;
-import static org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
-import static org.sipfoundry.sipxconfig.vm.DistributionList.SETTING_PATH_DISTRIBUTION_LIST;
+import static org.sipfoundry.commons.mongo.MongoConstants.BUTTONS;
+import static org.sipfoundry.commons.mongo.MongoConstants.DIALPAD;
+import static org.sipfoundry.commons.mongo.MongoConstants.DISTRIB_LISTS;
+import static org.sipfoundry.commons.mongo.MongoConstants.ITEM;
+import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
+import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
-import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.DialPad;
-import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
-import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantManager;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;

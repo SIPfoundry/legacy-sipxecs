@@ -395,15 +395,12 @@
     <antcall target="init-location" />
     <antcall target="openacd-insert-commands" />
     <antcall target="openacd-add-line-regex" />
-<<<<<<< HEAD
     <antcall target="feature" />
     <antcall target="bean_with_settings" />
     <antcall target="meetme_location" />
     <antcall target="migrate_services" />
     <antcall target="settings_with_location" />
-=======
   	<antcall target="remove-personal-att-oper" />
->>>>>>> master
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">

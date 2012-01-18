@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.backup.BackupBean;
 import org.sipfoundry.sipxconfig.backup.Restore;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public class LocalMailboxManagerImpl extends AbstractMailboxManager implements MailboxManager {
@@ -231,16 +230,5 @@ public class LocalMailboxManagerImpl extends AbstractMailboxManager implements M
                 throw new MailstoreMisconfigured("Cannot delete mailbox directory " + userDir.getAbsolutePath(), e);
             }
         }
-    }
-
-    public void writePersonalAttendant(PersonalAttendant pa) {
-        LocalMailbox mailbox = getMailbox(pa.getUser().getUserName());
-        getPersonalAttendantWriter().write((LocalMailbox) mailbox, pa);
-    }
-
-    public void writePreferencesFile(User user) {
-        LocalMailbox mailbox = getMailbox(user.getUserName());
-        File file = mailbox.getVoicemailPreferencesFile();
-        getMailboxPreferencesWriter().writeObject(new MailboxPreferences(user), file);
     }
 }

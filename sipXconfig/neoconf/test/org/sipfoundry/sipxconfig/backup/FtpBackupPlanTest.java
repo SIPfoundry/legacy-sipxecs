@@ -36,7 +36,7 @@ public class FtpBackupPlanTest extends TestCase {
             BackupPlan.CONFIGURATION_ARCHIVE, BackupPlan.VOICEMAIL_ARCHIVE
         };
         String[] names2 = new String[] {
-            BackupPlan.CONFIGURATION_ARCHIVE
+            BackupPlan.CONFIGURATION_ARCHIVE, BackupPlan.CDR_ARCHIVE
         };
         String[] names3 = new String[] {
             BackupPlan.VOICEMAIL_ARCHIVE
@@ -73,15 +73,17 @@ public class FtpBackupPlanTest extends TestCase {
         assertEquals(2, first.size());
         assertTrue(first.containsKey(Type.CONFIGURATION));
         assertTrue(first.containsKey(Type.VOICEMAIL));
+        assertFalse(first.containsKey(Type.CDR));
         Map<Type, BackupBean> second = backups.get(1);
-        assertEquals(1, second.size());
+        assertEquals(2, second.size());
         assertTrue(second.containsKey(Type.CONFIGURATION));
         assertFalse(second.containsKey(Type.VOICEMAIL));
+        assertTrue(second.containsKey(Type.CDR));
         Map<Type, BackupBean> third = backups.get(2);
         assertEquals(1, third.size());
         assertFalse(third.containsKey(Type.CONFIGURATION));
         assertTrue(third.containsKey(Type.VOICEMAIL));
-
+        assertFalse(third.containsKey(Type.CDR));
         verify(ftpContext);
     }
 

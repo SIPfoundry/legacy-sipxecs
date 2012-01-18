@@ -9,15 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.vm.attendant;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
-import org.sipfoundry.sipxconfig.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
 
 public class PersonalAttendant extends BeanWithId {
     private User m_user;

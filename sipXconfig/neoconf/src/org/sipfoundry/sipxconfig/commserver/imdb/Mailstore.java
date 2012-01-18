@@ -78,9 +78,9 @@ public class Mailstore extends AbstractDataSetGenerator {
     private MailboxManager m_mailboxManager;
 
     @Override
-    public boolean generate(Replicable entity, DBObject top) {
+    public void generate(Replicable entity, DBObject top) {
         if (!(entity instanceof User)) {
-            return false;
+            return;
         }
         User user = (User) entity;
         // The following settings used to be in validusers.xml
@@ -174,7 +174,7 @@ public class Mailstore extends AbstractDataSetGenerator {
         if (!dLists.isEmpty()) {
             top.put(DISTRIB_LISTS, dLists);
         }
-        return true;
+        getDbCollection().save(top);
     }
 
     @Override
