@@ -55,6 +55,7 @@ public interface MongoConstants {
                                                     // location db
     static final String HOME_PHONE_NUMBER = "hmph";
     static final String CELL_PHONE_NUMBER = "cell";
+    static final String AVATAR = "avt";
     static final String HOME_STREET = "hstr";
     static final String HOME_CITY = "hcty";
     static final String HOME_COUNTRY = "hcntry";
@@ -111,4 +112,13 @@ public interface MongoConstants {
     static final String ENABLED = "active";
     static final String TIMESTAMP = "lastUpdated";
     static final String NEXT_NODE = "next";
+    //MAILSTORE
+    static final String OPERATOR = "opr";
+    static final String LANGUAGE = "lng";
+    static final String DIALPAD = "dlpd";
+    static final String PERSONAL_ATT = "pa";
+    static final String ACTIVEGREETING = "actvgr";
+    static final String ITEM = "itm";
+    static final String DISTRIB_LISTS = "dlst";
+
 }

@@ -1355,7 +1355,6 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
         OsTimer* timer;
         void* sipMessageVoid;
         intptr_t timerIntptr;
-        int protocolType;
 
         ((OsEventMsg&)eventMessage).getUserData(sipMessageVoid);
         ((OsEventMsg&)eventMessage).getEventData(timerIntptr);
@@ -1372,7 +1371,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
         if ( sipMessage )
         {
             UtlString callId;
-            protocolType = sipMessage->getSendProtocol();
+            sipMessage->getSendProtocol();
             sipMessage->getCallIdField(&callId);
             sipMessage->getRequestMethod(&method);
 

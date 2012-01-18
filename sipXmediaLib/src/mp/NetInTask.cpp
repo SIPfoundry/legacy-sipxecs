@@ -221,14 +221,12 @@ static OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, int rtpOrRtcp,
         MpBufPtr ib;
         char junk[MAX_RTP_BYTES];
         int ret, nRead;
-        struct rtpHeader *rp;
         struct in_addr fromIP;
         int      fromPort;
 
 static  int numFlushed = 0;
 static  int flushedLimit = 125;
 
-        rp = (struct rtpHeader *) &junk[0];
         if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
            ib = MpBuf_getBuf(MpMisc.RtpPool, 0, 0, MP_FMT_RTPPKT);
         } else {
@@ -379,16 +377,14 @@ int whereSelectCounter()
 
 int showNetInTable() {
    int     last = 1234567;
-   int     pipeFd;
    int     i;
    netInTaskMsgPtr ppr;
    NetInTask* pInst = NetInTask::getNetInTask();
    OsConnectionSocket* readSocket;
 
-   // pInst->getWriteFD();
    readSocket = pInst->getReadSocket();
 
-   pipeFd = readSocket->getSocketDescriptor();
+   readSocket->getSocketDescriptor();
 
    for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
       if (NULL != ppr->fwdTo) {
@@ -399,7 +395,6 @@ int showNetInTable() {
       }
       ppr++;
    }
-   Zprintf("pipeFd = %d (last = %d)\n", pipeFd, last, 0,0,0,0);
    for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
       if (NULL != ppr->fwdTo) {
          Zprintf(" %2d: MprFromNet=0x%p, pRtpSocket: 0x%p, pRtcpSocket: 0x%p\n",
@@ -925,10 +920,6 @@ rtpHandle StartRtpSession(OsSocket* socket, int direction, char type)
 rtcpHandle StartRtcpSession(int direction)
 {
         struct rtcpSession *ret;
-        USHORT rseq;
-
-        rseq = 0xFFFF & rand_timer32();
-
         ret = (struct rtcpSession *) malloc(sizeof(struct rtcpSession));
         if (ret) {
                 ret->dir = direction | RTP_DIR_NEW;

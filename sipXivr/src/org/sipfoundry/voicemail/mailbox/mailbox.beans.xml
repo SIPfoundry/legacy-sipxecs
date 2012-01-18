@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="mailboxManager" class="org.sipfoundry.voicemail.mailbox.FilesystemMailboxManager" init-method="init">
+    <property name="mailstoreDirectory" value="${ivr.mailstoreDirectory}" />
+    <property name="promptsDirectory" value="${ivr.promptsDirectory}" />
+    <property name="operatorAddr" value="${ivr.operatorAddr}" />
+    <property name="configUrl" value="${ivr.configUrl}" />
+    <property name="secret" value="${SHARED_SECRET}" />
+    <property name="messageDescriptorWriter" ref="messageDescriptorWriter" />
+    <property name="messageDescriptorReader" ref="messageDescriptorReader" />
+    <property name="emailer" ref="emailer" />
+    <property name="mwiManager" ref="mwiManager" />
+  </bean>
+
+  <bean id="messageDescriptorWriter" class="org.sipfoundry.voicemail.mailbox.MessageDescriptorWriter" />
+
+  <bean id="messageDescriptorReader" class="org.sipfoundry.voicemail.mailbox.MessageDescriptorReader" />
+
+</beans>

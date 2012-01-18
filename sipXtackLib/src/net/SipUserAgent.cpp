@@ -1119,7 +1119,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   UtlString method;
   int seqNum;
   UtlString seqMethod;
-  int responseCode = 0;
+
   UtlBoolean sentOk = FALSE;
   UtlString msgBytes;
   UtlString messageStatusString = "SipUserAgent::sendUdp ";
@@ -1132,7 +1132,6 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   else
     {
       message->getCSeqField(&seqNum, &seqMethod);
-      responseCode = message->getResponseStatusCode();
     }
 
   if(timesSent == 0)
@@ -1857,6 +1856,8 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                                           HttpMessage::PROXY);
             }
 
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,"SipUserAgent::dispatch resentWithAuth %d", resentWithAuth);
+
             // If we have a request for this incoming response
             // Forward it on to interested applications
             if (   request
@@ -2578,7 +2579,6 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    else if(msgType == OsMsg::OS_EVENT &&
            msgSubType == OsEventMsg::NOTIFY)
    {
-      OsTimer* timer;
       SipMessageEvent* sipEvent = NULL;
       intptr_t timerIntptr;
       void* sipEventVoid;
@@ -2588,7 +2588,6 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
       osMsg->getUserData(sipEventVoid);
       osMsg->getEventData(timerIntptr);
       sipEvent = (SipMessageEvent*)sipEventVoid;
-      timer = (OsTimer*)timerIntptr;
 
       if(sipEvent)
       {

@@ -24,5 +24,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/openfire.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

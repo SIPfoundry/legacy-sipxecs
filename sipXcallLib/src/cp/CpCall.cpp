@@ -571,7 +571,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 // the event because it might still be in use.  Instead,
                 // the recipient of the CP_REMOVE_DTMF_EVENT message must take
                 // responsibility for deleting the event.
-                OsQueuedEvent* pEvent = (OsQueuedEvent*) ev;
+                OsQueuedEvent* pEvent = reinterpret_cast<OsQueuedEvent*>(ev);
                 delete pEvent;
             }
             break;
@@ -688,7 +688,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                         mCallId.data(), (long)eventData);
                                     continue; // previous key still down, ignore long key event
                                 }
-                                OsQueuedEvent* dtmfEvent = (OsQueuedEvent*)(mDtmfEvents[i].event);
+                                OsQueuedEvent* dtmfEvent = reinterpret_cast<OsQueuedEvent*>(mDtmfEvents[i].event);
                                 if (dtmfEvent)
                                 {
                                     OsStatus res = dtmfEvent->signal((eventData & 0xfffffff0));

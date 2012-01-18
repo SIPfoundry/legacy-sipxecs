@@ -49,15 +49,13 @@ OsStatus MpeSipxPcma::encode(const Sample* pAudioSamples,
                              UtlBoolean& sendNow,
                              MpBufSpeech& rAudioCategory)
 {
-   JB_ret res;
    JB_size size;
 
-   res = G711A_Encoder(numSamples, (Sample*)pAudioSamples, pCodeBuf, &size);
+   G711A_Encoder(numSamples, (Sample*)pAudioSamples, pCodeBuf, &size);
    rSizeInBytes = size;
    rAudioCategory = MP_SPEECH_UNKNOWN;
    sendNow = FALSE;
    rSamplesConsumed = numSamples;
-
    return OS_SUCCESS;
 }
 #endif /* HAVE_GIPS ] */

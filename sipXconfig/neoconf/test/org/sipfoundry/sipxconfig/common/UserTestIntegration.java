@@ -14,16 +14,20 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.springframework.dao.DataIntegrityViolationException;
 
-public class UserTestIntegration extends IntegrationTestCase {
+public class UserTestIntegration extends ImdbTestCase {
     private CoreContext m_coreContext;
     private SettingDao m_settingDao;
     private Integer userId = new Integer(1000);
+    private ValidUsers m_validUsers;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -244,11 +248,33 @@ public class UserTestIntegration extends IntegrationTestCase {
         user2.isGroupAvailable(group2);
     }
 
+    public void testLastUpdated() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
+        Long past = System.currentTimeMillis();
+        User u1 = m_coreContext.newUser();
+        u1.setUserName("u1");
+        m_coreContext.saveUser(u1);
+        
+        assertTrue(!m_validUsers.getUsersUpdatedAfter(past).isEmpty());
+        
+        Long now = System.currentTimeMillis();
+        assertTrue(m_validUsers.getUsersUpdatedAfter(now).isEmpty());
+        
+        m_coreContext.saveUser(u1);
+        assertTrue(!m_validUsers.getUsersUpdatedAfter(now).isEmpty());
+        
+    }
+    
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
+    }
+
+    public void setValidUsers(ValidUsers validUsers) {
+        m_validUsers = validUsers;
     }
 }

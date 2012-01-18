@@ -15,7 +15,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.ApplicationConfiguraton;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -28,36 +27,7 @@ public class Configuration {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private String m_specialId; // The ID of the special attendant (if any)
 
-    public class AttendantConfig extends ApplicationConfiguraton {
-    	private String m_id ; // The ID of this attendant
-        private String m_name; // The name of this attendant
-        private String m_prompt; // The top level prompt
-        private Vector<AttendantMenuItem> m_menuItems;
-
-        public AttendantConfig() {
-            super();
-        }
-        
-        public String getId() {
-        	return m_id;
-        }
-        
-        public String getName() {
-            return m_name;
-        }
-
-        public String getPrompt() {
-            return m_prompt;
-        }
-
-        public Vector<AttendantMenuItem> getMenuItems() {
-            return m_menuItems;
-        }
-
-    }
-
-    private static Configuration s_current;
-    private static File s_configFile;
+    private File s_configFile;
     private static long s_lastModified;
 
     private Vector<AttendantConfig> m_attendants;
@@ -76,10 +46,17 @@ public class Configuration {
         return null;
     }
 
-    /**
-     * Private constructor for updatable singleton
-     */
-    private Configuration() {
+    public AttendantConfig getAttendant(String id) {
+        if (m_attendants == null || id == null) {
+            return null;
+        }
+
+        for (AttendantConfig config : m_attendants) {
+            if (config.getId().contentEquals(id)) {
+                return config;
+            }
+        }
+        return null;
     }
 
     /**
@@ -88,27 +65,10 @@ public class Configuration {
      * 
      * @return
      */
-    public static Configuration update(boolean load) {
-        if (s_current == null || s_configFile.lastModified() != s_lastModified) {
-            s_current = new Configuration();
-            if (load) {
-                s_current.loadXML();
-            }
+    public void update() {
+        if (s_configFile.lastModified() != s_lastModified) {
+            loadXML();
         }
-        return s_current;
-    }
-
-    public AttendantConfig getAttendant(String id) {
-        if (m_attendants == null || id == null) {
-            return null;
-        }
-
-        for (AttendantConfig config : m_attendants) {
-            if (config.m_id.contentEquals(id)) {
-                return config;
-            }
-        }
-        return null;
     }
 
     /**
@@ -155,18 +115,18 @@ public class Configuration {
                 Node attendantNode = autoattendants.item(aaNum);
                 AttendantConfig c = new AttendantConfig() ;
                 String id = attendantNode.getAttributes().getNamedItem("id").getNodeValue();
-                c.m_id = id;
                 Node specialNode = attendantNode.getAttributes().getNamedItem("special");
                 if (specialNode != null && Boolean.parseBoolean(specialNode.getNodeValue())) {
                     m_specialId = id;
                 }
+                c.setId(id);
                 for(Node next = attendantNode.getFirstChild(); next != null; next = next.getNextSibling()) {
                     if (next.getNodeType() == Node.ELEMENT_NODE) {
                         String name = next.getNodeName();
                         if (name.equals(prop = "name")) {
-                            c.m_name = next.getTextContent().trim();
+                            c.setName(next.getTextContent().trim());
                         } else if (name.equals(prop = "prompt")) {
-                            c.m_prompt = next.getTextContent().trim();
+                            c.setPrompt(next.getTextContent().trim());
                         } else if (name.equals(prop = "menuItems")) {
                             parseMenuItems(next, c) ;
                         } else if (name.equals(prop = "dtmf")) {
@@ -196,7 +156,6 @@ public class Configuration {
     }
 
     void parseMenuItems(Node menuItemsNode, AttendantConfig c) {
-        c.m_menuItems = new Vector<AttendantMenuItem>();
         for(Node next = menuItemsNode.getFirstChild(); next != null; next = next.getNextSibling()) {
             if (next.getNodeType() == Node.ELEMENT_NODE) {
                 if (next.getNodeName().equals("menuItem")) {
@@ -277,7 +236,7 @@ public class Configuration {
                 }
             }
         }
-        c.m_menuItems.add(new AttendantMenuItem(dialPad, Actions.valueOf(action), parameter, extension));
+        c.addMenuItem(new AttendantMenuItem(dialPad, Actions.valueOf(action), parameter, extension));
     }
     
  

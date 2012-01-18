@@ -82,7 +82,7 @@ MprRecorder::~MprRecorder()
 
 OsStatus MprRecorder::setup(int file, RecordFileFormat recFormat, int timeMS, int silenceLength, OsEvent* event)
 {
-   MpFlowGraphMsg msg(SETUP, this, (void*) event, (void*)silenceLength, file, timeMS);
+   MpFlowGraphMsg msg(SETUP, this, (void*) event, reinterpret_cast<void*>(silenceLength), file, timeMS);
 
    mRecFormat = recFormat;
    if (isEnabled()) {
@@ -254,15 +254,14 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
 
     //and update the RIFF length
     uint32_t rifflength = htolel(length-8);        // 4 byte value written to WAV file
-    ssize_t dummy;
-    dummy = write(handle, (char*)&rifflength,sizeof(rifflength));
+    write(handle, (char*)&rifflength,sizeof(rifflength));
 
     //now seek to the data length
     lseek(handle,40,SEEK_SET);
 
     //this should be the length of just the data
     uint32_t datalength = htolel(length-44);       // 4 byte value written to WAV file
-    dummy = write(handle, (char*)&datalength,sizeof(datalength));
+    write(handle, (char*)&datalength,sizeof(datalength));
 
     return retCode;
 }

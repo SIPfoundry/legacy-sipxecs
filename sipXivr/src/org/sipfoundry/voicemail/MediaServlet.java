@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.voicemail;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,9 +22,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.DomainConfiguration;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
-import org.sipfoundry.sipxivr.Mailbox;
+import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
+import org.sipfoundry.voicemail.mailbox.MailboxManager;
+import org.sipfoundry.voicemail.mailbox.VmMessage;
 
 public class MediaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -47,6 +48,8 @@ public class MediaServlet extends HttpServlet {
     }
 
     public void doIt(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        ValidUsers validUsers = (ValidUsers) request.getAttribute(SipxIvrServletHandler.VALID_USERS_ATTR);
+        MailboxManager mailboxManager = (MailboxManager) request.getAttribute(SipxIvrServletHandler.MAILBOX_MANAGER);
         if (sharedSecret == null) {
             DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
             sharedSecret = config.getSharedSecret();
@@ -67,7 +70,7 @@ public class MediaServlet extends HttpServlet {
         String dir = subDirs[2];
         String messageId = subDirs[3];
 
-        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(mailboxString);
+        User user = validUsers.getUser(mailboxString);
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
         boolean trustedSource = request.getAttribute("trustedSource") != null
@@ -83,27 +86,18 @@ public class MediaServlet extends HttpServlet {
         }
 
         if (user != null) {
-            Mailbox mailbox = new Mailbox(user);
             if (method.equals(METHOD_GET)) {
-                File media = new File(mailbox.getUserDirectory() + dir + "/" + messageId + "-00.wav");
-                if (!media.exists()) {
-                    media = new File(mailbox.getUserDirectory() + dir + "/" + messageId + "-FW.wav");
-                    if (!media.exists()) {
-                        media = new File(mailbox.getUserDirectory() + dir + "/" + messageId + "-01.wav");
-                    } else {
-                        response.sendError(404, "message not found");
-                    }
-                }
+                VmMessage message = mailboxManager.getVmMessage(user.getUserName(), messageId, true);
                 response.setHeader("Expires", "0");
                 response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
                 response.setHeader("Pragma", "public");
-                response.setHeader("Content-Disposition", "attachment; filename=\"" + media.getName() + "\"");
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + message.getAudioFile().getName() + "\"");
 
                 OutputStream responseOutputStream = null;
                 InputStream stream = null;
                 try {
                     responseOutputStream = response.getOutputStream();
-                    stream = new FileInputStream(media);
+                    stream = new FileInputStream(message.getAudioFile());
                     IOUtils.copy(stream, responseOutputStream);
                 } finally {
                     IOUtils.closeQuietly(stream);

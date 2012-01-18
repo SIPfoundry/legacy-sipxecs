@@ -8,6 +8,7 @@
 // SYSTEM INCLUDES
 #include <set>
 
+#include <boost/algorithm/string.hpp>
 #include "sipdb/EntityDB.h"
 #include <sipxproxy/SipRouter.h>
 #include "os/OsReadLock.h"

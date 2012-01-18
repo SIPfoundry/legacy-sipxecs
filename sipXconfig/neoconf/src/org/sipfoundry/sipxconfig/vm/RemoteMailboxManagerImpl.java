@@ -11,16 +11,11 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringWriter;
 import java.net.URL;
-import java.util.Collection;
 import java.util.List;
 
 import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -35,8 +30,6 @@ import org.sipfoundry.sipxconfig.backup.BackupBean;
 import org.sipfoundry.sipxconfig.backup.Restore;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.xml.xpath.NodeMapper;
@@ -108,31 +101,6 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     }
 
     @Override
-    public void saveDistributionLists(String userId, DistributionList[] lists) {
-        Collection<String> aliases = DistributionList.getUniqueExtensions(lists);
-        getCoreContext().checkForValidExtensions(aliases, PermissionName.VOICEMAIL);
-        StringWriter request = new StringWriter();
-        getDistributionListsWriter().writeObject(lists, request);
-        try {
-            m_restTemplate.put(DISTRIBUTION_URL, request.toString(), getHost(), getPort(), userId);
-        } catch (RestClientException ex) {
-            throw createUserException(ex.getMessage());
-        }
-    }
-
-    @Override
-    public DistributionList[] loadDistributionLists(String userId) {
-        try {
-            StreamSource distributions = m_restTemplate.getForObject(DISTRIBUTION_URL, StreamSource.class,
-                    getHost(), getPort(), userId);
-            Reader reader = new InputStreamReader(distributions.getInputStream());
-            return getDistributionListsReader().readObject(reader);
-        } catch (RestClientException ex) {
-            throw createUserException(ex.getMessage());
-        }
-    }
-
-    @Override
     public void markRead(String userId, String messageId) {
         put(MESSAGE_READ_URL, null, getHost(), getPort(), userId, messageId);
     }
@@ -151,20 +119,6 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     public void save(Voicemail voicemail) {
         put(SAVE_SUBJECT, voicemail.getSubject(), getHost(), getPort(), voicemail.getUserId(),
                 voicemail.getMessageId());
-    }
-
-    @Override
-    public void writePersonalAttendant(PersonalAttendant pa) {
-        StringWriter request = new StringWriter();
-        getPersonalAttendantWriter().write(pa, request);
-        put(PA_URL, request.toString(), getHost(), getPort(), pa.getUser().getUserName());
-    }
-
-    @Override
-    public void writePreferencesFile(User user) {
-        StringWriter request = new StringWriter();
-        getMailboxPreferencesWriter().writeObject(new MailboxPreferences(user), request);
-        put(ACTIVE_GREETING_URL, request.toString(), getHost(), getPort(), user.getUserName());
     }
 
     @Override

@@ -38,7 +38,7 @@ usage() {
   echo
   echo Usage: $0 parameters
   echo
-  echo "   Restore the specified Configuration and/or Voicemail archive(s.)  At least one archive"
+  echo "   Restore the specified Configuration and/or Voicemail or CDR archive(s.)  At least one archive"
   echo "   must be specified."
   echo
   echo Parameters:
@@ -47,6 +47,7 @@ usage() {
   echo "                                 to sipx-restore.log."
   echo "   -c|--configuration <archive>  Restore the specified Configuration archive."
   echo "   -v|--voicemail <archive>      Restore the specified voicemail archive."
+  echo "   -cdr|--cdrdatabase <archive>  Restore the Call Detail Records archive."
   echo "   -e|--enforce-version          Verify the version number."
   echo "   --verify                      Just verify the archive. Should be used with -e switch"
   echo "   --no-restart                  Do not restart server"
@@ -105,6 +106,23 @@ do
       fi
       ;;
 
+    -cdr|--cdrdatabase)
+      # Parse and check the Configuration archive file path.
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -f "${2}" ]
+      then
+        # The extra argument specifies a regular file.
+        # Store it, then consume it.
+        CDR_PATH="${2}"
+        shift
+      else
+        bad_archive ${2}
+      fi
+      ;;
+
     -e|--enforce-version)
       CHECK_VERSION="yes"
       ;;
@@ -126,14 +144,14 @@ do
 done
 
 # Ensure at least one archive was specified.
-if [ -z "$CONFIGURATION_PATH" ] &&  [ -z "$VOICEMAIL_PATH" ]
+if [ -z "$CONFIGURATION_PATH" ] &&  [ -z "$VOICEMAIL_PATH" ] && [ -z "$CDR_PATH" ]
 then
   echo "Must specify at least one archive file to restore."
   bad_usage
 fi
 
-# If Configuration is to be restored, then PostgreSQL must be running.
-if [ -n "$CONFIGURATION_PATH" ]
+# If Configuration or cdr is to be restored, then PostgreSQL must be running.
+if [ -n "$CONFIGURATION_PATH" ] && [ -z "$CDR_PATH" ]
 then
   postgresql_running
 fi
@@ -205,6 +223,16 @@ then
   fi
 fi
 
+if [ -n "$CDR_PATH" ]
+then
+  #sanity check - we check if configuration/voicemail archives are indeed configuration/voicemail files respectively
+  if [[ `tar --list --file=$CDR_PATH | grep db_cdr.tar` != db_cdr.tar ]];
+  then
+    echo "Cdr archive seems invalid (it's either corrupt or incomplete, or it may be a voicemail/configuration archive)"
+    exit 7
+  fi
+fi
+
 if [ $CHECK_ARCHIVE = "yes" ]
 then
   echo "Archive seems to be O.K. You can proceed with restoring"
@@ -262,6 +290,24 @@ then
   @BASH@ -p @SIPX_BINDIR@/sipxconfig.sh --first-run
   
 fi # *** END Configuration ***
+
+# *** BEGIN Cdr ***
+PATH_DB_CDR_TAR=@SIPX_TMPDIR@/$DB_CDR_TAR
+
+if [ -n "$CDR_PATH" ]
+then
+  # cdr database.
+  echo -n "Restoring the '$CDR_DATABASE_NAME' database contents..."
+
+  # drop existing CDR database
+  @SIPX_BINDIR@/sipxcallresolver.sh --database drop > /dev/null
+  # create empty CDR database
+  @SIPX_BINDIR@/sipxcallresolver.sh --database create > /dev/null
+  tar -xzvC @SIPX_TMPDIR@ $DB_CDR_TAR < $CDR_PATH
+  cat $PATH_DB_CDR_TAR | pg_restore -U @POSTGRESQL_USER@ -d $CDR_DATABASE_NAME 2> /dev/null
+  rm $PATH_DB_CDR_TAR
+  echo "done."
+fi # *** END Cdr ***
 
 # *** BEGIN Voicemail ***
 if [ -n "$VOICEMAIL_PATH"  ]

@@ -44,12 +44,12 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     @Override
     protected LineInfo getLineInfo(Line line) {
-        return CiscoAtaLineDefaults.getLineInfo(getModel(), line);
+        return CiscoAtaLineDefaults.getLineInfo((CiscoModel) getModel(), line);
     }
 
     @Override
     protected void setLineInfo(Line line, LineInfo lineInfo) {
-        CiscoAtaLineDefaults.setLineInfo(getModel(), line, lineInfo);
+        CiscoAtaLineDefaults.setLineInfo((CiscoModel) getModel(), line, lineInfo);
     }
 
     /**
@@ -65,14 +65,14 @@ public class CiscoAtaPhone extends CiscoPhone {
     @Override
     public String getProfileFilename() {
         String phoneFilename = getSerialNumber();
-        return getModel().getCfgPrefix() + phoneFilename.toLowerCase();
+        return ((CiscoModel) getModel()).getCfgPrefix() + phoneFilename.toLowerCase();
     }
 
     @Override
     protected ProfileFilter getProfileFilter() {
         if (!m_isTextFormatEnabled) {
             String systemDir = getPhoneContext().getSystemDirectory();
-            return new BinaryFilter(systemDir + "/ciscoAta", getModel());
+            return new BinaryFilter(systemDir + "/ciscoAta", (CiscoModel) getModel());
         }
         return null;
     }

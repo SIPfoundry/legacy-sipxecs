@@ -15,7 +15,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,8 +31,6 @@ import org.sipfoundry.sipxconfig.backup.BackupBean;
 import org.sipfoundry.sipxconfig.backup.Restore;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public class LocalMailboxManagerImpl extends AbstractMailboxManager implements MailboxManager {
     private static final String MESSAGE_SUFFIX = "-00.xml";
@@ -88,26 +85,6 @@ public class LocalMailboxManagerImpl extends AbstractMailboxManager implements M
                         e);
             }
         }
-    }
-
-    @Override
-    public void saveDistributionLists(String userId, DistributionList[] lists) {
-        LocalMailbox mailbox = getMailbox(userId);
-        Collection<String> aliases = DistributionList.getUniqueExtensions(lists);
-        getCoreContext().checkForValidExtensions(aliases, PermissionName.VOICEMAIL);
-        File file = mailbox.getDistributionListsFile();
-        getDistributionListsWriter().writeObject(lists, file);
-    }
-
-    @Override
-    public DistributionList[] loadDistributionLists(String userId) {
-        LocalMailbox mailbox = getMailbox(userId);
-        File file = mailbox.getDistributionListsFile();
-        DistributionList[] lists = getDistributionListsReader().readObject(file);
-        if (lists == null) {
-            lists = DistributionList.createBlankList();
-        }
-        return lists;
     }
 
     @Override

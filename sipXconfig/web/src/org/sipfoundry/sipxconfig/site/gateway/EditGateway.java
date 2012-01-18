@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.gateway;
 
+import java.util.List;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
@@ -21,6 +23,10 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -103,7 +109,6 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
 
     public abstract SbcDevice getSelectedSbcDevice();
-
 
     /**
      * Names of the tabs that are not in navigation components
@@ -193,7 +198,14 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
                 gateway.setSbcDevice(sbcDevice);
             } else {
                 if (gateway.getUseSipXBridge()) {
-                    gateway.setSbcDevice(getSbcDeviceManager().getBridgeSbcs().get(0));
+                    List<BridgeSbc> sbcs = getSbcDeviceManager().getBridgeSbcs();
+                    if (sbcs != null && sbcs.size() > 0) {
+                        gateway.setSbcDevice(getSbcDeviceManager().getBridgeSbcs().get(0));
+                    } else {
+                        getValidator().record(
+                                new ValidatorException(getMessages().getMessage("msg.err.trunkingNotEnabled")));
+                        return;
+                    }
                 }
             }
         }

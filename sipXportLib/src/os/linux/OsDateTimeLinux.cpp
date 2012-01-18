@@ -224,8 +224,7 @@ double OsDateTimeLinux::secondsSinceBoot(void)
         proc = fopen("/proc/uptime","r");
         if(proc != NULL)
         {
-           int dummy;
-           dummy = fscanf(proc, "%lf", &seconds);
+           fscanf(proc, "%lf", &seconds);
            fclose(proc);
         }
         sSecondsSinceBoot = seconds;

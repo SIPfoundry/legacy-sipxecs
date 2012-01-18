@@ -10,6 +10,7 @@
 package org.sipfoundry.commons.userdb;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ACCOUNT;
+import static org.sipfoundry.commons.mongo.MongoConstants.ACTIVEGREETING;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALIASES;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS_ID;
@@ -18,7 +19,10 @@ import static org.sipfoundry.commons.mongo.MongoConstants.ALT_EMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.ATTACH_AUDIO;
+import static org.sipfoundry.commons.mongo.MongoConstants.AVATAR;
+import static org.sipfoundry.commons.mongo.MongoConstants.BUTTONS;
 import static org.sipfoundry.commons.mongo.MongoConstants.CELL_PHONE_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.COMPANY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_ENTRY_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXIT_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXT;
@@ -26,11 +30,19 @@ import static org.sipfoundry.commons.mongo.MongoConstants.CONF_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.DIALPAD;
 import static org.sipfoundry.commons.mongo.MongoConstants.DISPLAY_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.DISTRIB_LISTS;
 import static org.sipfoundry.commons.mongo.MongoConstants.EMAIL;
+import static org.sipfoundry.commons.mongo.MongoConstants.FAX_NUMBER;
 import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.HASHED_PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOME_PHONE_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_CITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_COUNTRY;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_STATE;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_STREET;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_ZIP;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOST;
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
@@ -38,11 +50,22 @@ import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ON_THE_PHONE_MESSAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_PASSWORD;
+import static org.sipfoundry.commons.mongo.MongoConstants.JOB_DEPT;
+import static org.sipfoundry.commons.mongo.MongoConstants.JOB_TITLE;
+import static org.sipfoundry.commons.mongo.MongoConstants.ITEM;
+import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_BEGIN_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_END_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_CITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_COUNTRY;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STATE;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STREET;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_ZIP;
+import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
 import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
+import static org.sipfoundry.commons.mongo.MongoConstants.PERSONAL_ATT;
 import static org.sipfoundry.commons.mongo.MongoConstants.PINTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.PORT;
 import static org.sipfoundry.commons.mongo.MongoConstants.RELATION;
@@ -55,12 +78,16 @@ import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
 
 import com.mongodb.BasicDBList;
@@ -76,7 +103,6 @@ import com.mongodb.QueryBuilder;
  * 
  */
 public class ValidUsers {
-
     // Mapping of letters to DTMF numbers.
     // Position of letter in letters maps to corresponding position in numbers
     private static String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -85,7 +111,6 @@ public class ValidUsers {
     private static final String IMDB_PERM_VOICEMAIL = "Voicemail";
     private static final String IMDB_PERM_RECPROMPTS = "RecordSystemPrompts";
     private static final String IMDB_PERM_TUICHANGEPIN = "tui-change-pin";
-    
     private DB m_imdb;
 
     /**
@@ -151,11 +176,13 @@ public class ValidUsers {
 
     /**
      * Returns a list of all im ids (of users with im enabled)
+     * 
      * @return
      */
     public List<String> getAllImIdsInGroup(String group) {
         List<String> imIds = new ArrayList<String>();
-        DBCursor cursor = getEntityCollection().find(QueryBuilder.start(GROUPS).is(group).and(IM_ENABLED).is(Boolean.TRUE).get());
+        DBCursor cursor = getEntityCollection().find(
+                QueryBuilder.start(GROUPS).is(group).and(IM_ENABLED).is(Boolean.TRUE).get());
         Iterator<DBObject> objects = cursor.iterator();
         while (objects.hasNext()) {
             DBObject user = objects.next();
@@ -178,7 +205,7 @@ public class ValidUsers {
         DBObject queryUserName = QueryBuilder.start(VALID_USER).is(Boolean.TRUE).and(UID).is(userName).get();
         DBObject result = getEntityCollection().findOne(queryUserName);
         if (result != null) {
-            return extractValidUser(getEntityCollection().findOne(queryUserName));
+            return extractValidUser(result);
         }
 
         // check aliases
@@ -243,26 +270,39 @@ public class ValidUsers {
         return user;
     }
 
+    public List<User> getUsersUpdatedAfter(Long ms) {
+        List<User> users = new ArrayList<User>();
+        Pattern userPattern = Pattern.compile("User.*");
+        DBObject query = QueryBuilder.start(ID).is(userPattern).and(MongoConstants.TIMESTAMP).greaterThan(ms).get();
+        DBCursor cursor = getEntityCollection().find(query);
+        Iterator<DBObject> objects = cursor.iterator();
+        while (objects.hasNext()) {
+            DBObject user = objects.next();
+            users.add(extractUser(user));
+        }
+        return users;
+    }
+    
     public DBCursor getEntitiesWithPermissions() {
-        DBObject query =  QueryBuilder.start(PERMISSIONS).exists(true).get();
+        DBObject query = QueryBuilder.start(PERMISSIONS).exists(true).get();
         DBCursor cursor = getEntityCollection().find(query);
         return cursor;
     }
 
     public DBCursor getEntitiesWithPermission(String name) {
-        DBObject query =  QueryBuilder.start(PERMISSIONS).exists(true).and(PERMISSIONS).is(name).get();
+        DBObject query = QueryBuilder.start(PERMISSIONS).exists(true).and(PERMISSIONS).is(name).get();
         DBCursor cursor = getEntityCollection().find(query);
         return cursor;
     }
 
     public DBCursor getUsersInBranch(String name) {
-        DBObject query =  QueryBuilder.start(USER_LOCATION).is(name).get();
+        DBObject query = QueryBuilder.start(USER_LOCATION).is(name).get();
         DBCursor cursor = getEntityCollection().find(query);
         return cursor;
     }
 
     public DBCursor getUsersInGroup(String name) {
-        DBObject query =  QueryBuilder.start(GROUPS).is(name).get();
+        DBObject query = QueryBuilder.start(GROUPS).is(name).get();
         DBCursor cursor = getEntityCollection().find(query);
         return cursor;
     }
@@ -416,6 +456,67 @@ public class ValidUsers {
         user.setAltJid(getStringValue(obj, ALT_IM_ID));
         user.setImPassword(getStringValue(obj, IM_PASSWORD));
         user.setOnthePhoneMessage(getStringValue(obj, IM_ON_THE_PHONE_MESSAGE));
+        user.setCompanyName(getStringValue(obj, COMPANY_NAME));
+        user.setJobDepartment(getStringValue(obj, JOB_DEPT));
+        user.setJobTitle(getStringValue(obj, JOB_TITLE));
+        user.setFaxNumber(getStringValue(obj, FAX_NUMBER));
+
+        // office details
+        user.setOfficeStreet(getStringValue(obj, OFFICE_STREET));
+        user.setOfficeCity(getStringValue(obj, OFFICE_CITY));
+        user.setOfficeState(getStringValue(obj, OFFICE_STATE));
+        user.setOfficeZip(getStringValue(obj, OFFICE_ZIP));
+        user.setOfficeCountry(getStringValue(obj, OFFICE_COUNTRY));
+
+        // home details
+        user.setHomeCity(getStringValue(obj, HOME_CITY));
+        user.setHomeState(getStringValue(obj, HOME_STATE));
+        user.setHomeZip(getStringValue(obj, HOME_ZIP));
+        user.setHomeCountry(getStringValue(obj, HOME_COUNTRY));
+        user.setHomeStreet(getStringValue(obj, HOME_STREET));
+
+        user.setAvatar(getStringValue(obj, AVATAR));
+
+        // active greeting related data
+        if (obj.keySet().contains(ACTIVEGREETING)) {
+            user.setActiveGreeting(getStringValue(obj, ACTIVEGREETING));
+        }
+
+        // personal attendant related data
+        if (obj.keySet().contains(PERSONAL_ATT)) {
+            BasicDBObject pao = (BasicDBObject) obj.get(PERSONAL_ATT);
+            String operator = getStringValue(pao, OPERATOR);
+            String language = getStringValue(pao, LANGUAGE);
+            Map<String, String> menu = new HashMap<String, String>();
+            StringBuilder validDigits = new StringBuilder(10);
+            BasicDBList buttonsList = (BasicDBList) pao.get(BUTTONS);
+            if (buttonsList != null) {
+                for (int i = 0; i < buttonsList.size(); i++) {
+                    DBObject button = (DBObject) buttonsList.get(i);
+                    if (button != null) {
+                        menu.put(getStringValue(button, DIALPAD), getStringValue(button, ITEM));
+                        validDigits.append(getStringValue(button, DIALPAD));
+                    }
+                }
+            }
+            user.setPersonalAttendant(new PersonalAttendant(language, operator, menu, validDigits.toString()));
+        }
+
+        // distribution lists
+        if (obj.keySet().contains(DISTRIB_LISTS)) {
+            Distributions distribs = new Distributions();
+            BasicDBList distribList = (BasicDBList) obj.get(DISTRIB_LISTS);
+            if (distribList != null) {
+                for (int i = 0; i < distribList.size(); i++) {
+                    DBObject distrib = (DBObject) distribList.get(i);
+                    if (distrib != null) {
+                        distribs.addList(getStringValue(distrib, DIALPAD),
+                                StringUtils.split(getStringValue(distrib, ITEM), " "));
+                    }
+                }
+            }
+            user.setDistributions(distribs);
+        }
 
         if (user.isInDirectory()) {
             buildDialPatterns(user);

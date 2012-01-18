@@ -1552,7 +1552,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
    UtlBoolean fieldFound = TRUE;
    UtlBoolean commonVideo = FALSE;
    UtlString mediaType;
-   int mediaPort, audioPort, videoPort;
+   int mediaPort/*, audioPort, videoPort*/;
    int mediaPortPairs, audioPortPairs, videoPortPairs;
    SdpDirectionality mediaDirectionality, audioDirectionality, videoDirectionality;
    UtlString mediaTransportType, audioTransportType, videoTransportType;
@@ -1588,14 +1588,14 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
    numPayloadTypes = 0 ;
    memset(&payloadTypes, 0, sizeof(int) * MAXIMUM_MEDIA_TYPES) ;
 
-   audioPort = 0 ;
+   
    audioPortPairs = 0 ;
    numAudioPayloadTypes = 0 ;
    memset(&audioPayloadTypes, 0, sizeof(int) * MAXIMUM_MEDIA_TYPES) ;
    memset(&receivedAudioSrtpParams,0 , sizeof(SdpSrtpParameters));
    audioDirectionality = sdpDirectionalitySendRecv;
 
-   videoPort = 0 ;
+
    videoPortPairs = 0 ;
    numVideoPayloadTypes = 0 ;
    memset(&videoPayloadTypes, 0, sizeof(int) * MAXIMUM_MEDIA_TYPES) ;
@@ -1639,7 +1639,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
             sdpRequest->getSrtpCryptoField(mediaIndex, 1, receivedSrtpParams);
             if (mediaType.compareTo("audio") == 0)
             {
-                audioPort = mediaPort;
+                //audioPort = mediaPort;
                 audioPortPairs = mediaPortPairs;
                 audioTransportType = mediaTransportType;
                 numAudioPayloadTypes = numPayloadTypes;
@@ -1649,7 +1649,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
             }
             else
             {
-                videoPort = mediaPort;
+                //videoPort = mediaPort;
                 videoPortPairs = mediaPortPairs;
                 videoTransportType = mediaTransportType;
                 numVideoPayloadTypes = numPayloadTypes;

@@ -935,7 +935,7 @@ void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int t
 
     bool changePort=false;
     bool changeIP=false;
-    bool discard=false;
+
 
     switch (testNum) {
     case 1:
@@ -957,7 +957,6 @@ void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int t
         break;
     case 5:
         /* Discard */
-        discard=true;
         break;
     default:
         /* Unknown test number */
@@ -1072,7 +1071,7 @@ NatType OsStunQueryAgent::getNatType (OsDatagramSocket *oDS1, OsDatagramSocket *
     bool isNat=true; /* Is there a NAT or not? */
     bool respTestI=false; /* Response for Test I */
 
-    StunAddress4 testIchangedAddr; /* Test I - Changed address */
+    
     StunAddress4 testImappedAddr; /* Test I - Mapped address */
 
     bool respTestI2=false; /* Response for Test I2 (Test I send second time) */
@@ -1173,9 +1172,7 @@ NatType OsStunQueryAgent::getNatType (OsDatagramSocket *oDS1, OsDatagramSocket *
                     if ( !respTestI ) {
                         /* This is the first response; so, set the needed values */
 
-                        testIchangedAddr.addr = resp.changedAddress.ipv4.addr;
-                        testIchangedAddr.port = resp.changedAddress.ipv4.port;
-                        testImappedAddr.addr = resp.mappedAddress.ipv4.addr;
+                                                testImappedAddr.addr = resp.mappedAddress.ipv4.addr;
                         testImappedAddr.port = resp.mappedAddress.ipv4.port;
 
                         testI2dest.addr = resp.changedAddress.ipv4.addr;

@@ -445,7 +445,6 @@ res_response *
 res_parse(char *msg)
 {
         char *cp;
-        HEADER *hp;
         res_response *resp;
         int i;
 
@@ -459,7 +458,6 @@ res_parse(char *msg)
         if ((resp = (res_response *)malloc(sizeof(res_response))) == NULL )
                 return(NULL);
         memcpy((void *)&(resp->header), (void *)msg, sizeof(HEADER));
-        hp = &(resp->header);
         cp = msg + sizeof(HEADER);
 
 

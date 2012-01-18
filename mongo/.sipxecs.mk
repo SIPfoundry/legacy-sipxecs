@@ -1,4 +1,4 @@
-mongo_VER = 2.0.0
+mongo_VER = 2.0.2
 mongo_SRPM = mongodb-$(mongo_VER)-1$(RPM_DIST).src.rpm
 mongo_SPEC = $(SRC)/$(PROJ)/mongodb.spec
 

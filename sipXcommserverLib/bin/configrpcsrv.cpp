@@ -179,18 +179,18 @@ int main(int argc, char *argv[])
 
     configDb.storeToFile(configDbFile);
 
-    ConfigRPC_Callback* confCallbacks;
-    ConfigRPC*          configRPC;
+    
+    
     XmlRpcDispatch*     rpc;
 
     // start a simple XmlRpc test server
     rpc = new XmlRpcDispatch(HTTP_PORT, false);
 
-    confCallbacks = new test_Callback();
-    configRPC     = new ConfigRPC( TEST_DATASET,
-                                   TEST_VERSION,
-                                   configDbFile,
-                                   confCallbacks);
+    
+    
+                                   
+                                   
+                                   
     // enter the connector RPC methods in the XmlRpcDispatch table
     ConfigRPC::registerMethods(*rpc);
 

@@ -8,25 +8,30 @@
  */
 package org.sipfoundry.voicemail;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.SipUriUtil;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
-import org.sipfoundry.sipxivr.IvrConfiguration;
-import org.sipfoundry.sipxivr.Mailbox;
+import org.sipfoundry.sipxivr.SipxIvrConfiguration;
+import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
+import org.sipfoundry.voicemail.mailbox.Folder;
+import org.sipfoundry.voicemail.mailbox.MailboxDetails;
+import org.sipfoundry.voicemail.mailbox.MailboxManager;
+import org.sipfoundry.voicemail.mailbox.MessageDescriptor;
+import org.sipfoundry.voicemail.mailbox.MessageNotFoundException;
+import org.sipfoundry.voicemail.mailbox.VmMessage;
 
 /**
  * A RESTful interface to the mailbox messages
@@ -66,6 +71,13 @@ public class MailboxServlet extends HttpServlet {
     }
 
     public void doIt(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        SipxIvrConfiguration ivrConfig = (SipxIvrConfiguration) request
+                .getAttribute(SipxIvrServletHandler.IVR_CONFIG_ATTR);
+        ValidUsers validUsers = (ValidUsers) request.getAttribute(SipxIvrServletHandler.VALID_USERS_ATTR);
+        Map<String, String> depositMap = (Map<String, String>) request
+                .getAttribute(SipxIvrServletHandler.DEPOSIT_MAP_ATTR);
+        MailboxManager mailboxManager = (MailboxManager) request.getAttribute(SipxIvrServletHandler.MAILBOX_MANAGER);
+        Mwi mwiManager = (Mwi) request.getAttribute(SipxIvrServletHandler.MWI_MANAGER);
         if (sharedSecret == null) {
             DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
             sharedSecret = config.getSharedSecret();
@@ -85,7 +97,7 @@ public class MailboxServlet extends HttpServlet {
         // The third element is the "context" (either mwi, message)
         String context = subDirs[2];
 
-        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(mailboxString);
+        User user = validUsers.getUser(mailboxString);
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
         boolean trustedSource = request.getAttribute("trustedSource") != null
@@ -106,9 +118,8 @@ public class MailboxServlet extends HttpServlet {
             if (trustedSource) {
                 if (method.equals(METHOD_PUT)) {
                     try {
-                        FileUtils.deleteDirectory(new File(IvrConfiguration.get().getMailstoreDirectory() + "/"
-                                + mailboxString + "/"));
-                    } catch (IOException ex) {
+                        mailboxManager.deleteMailbox(user);
+                    } catch (Exception ex) {
                         response.sendError(500);
                     }
                 } else {
@@ -123,232 +134,203 @@ public class MailboxServlet extends HttpServlet {
                 // (Okay, worry about this one. It walks the mailstore directories counting .xml
                 // and
                 // .sta files.)
-                Mailbox mailbox = new Mailbox(user);
-                Messages messages = Messages.newMessages(mailbox);
-                synchronized (messages) {
-                    if (context.equals("message")) {
-                        if (subDirs.length >= 5) {
-                            String messageId = subDirs[3];
-                            String action = subDirs[4];
-                            if (action.equals("heard")) {
-                                if (method.equals(METHOD_DELETE)) {
-                                    messages.markMessageUnheard(messageId, true);
-                                } else if (method.equals(METHOD_PUT)) {
-                                    messages.markMessageHeard(messageId, true);
-                                } else if (method.equals(METHOD_GET)) {
-                                    VmMessage msg = messages.getMessage(messageId);
-                                    if (msg != null) {
-                                        response.setContentType("text/xml");
-                                        pw.format("<heard>%s</heard>\n", msg.isUnHeard() ? "false" : "true");
-                                    } else {
-                                        response.sendError(404, "messageId not found");
-                                    }
+                if (context.equals("message")) {
+                    if (subDirs.length >= 5) {
+                        String messageId = subDirs[3];
+                        String action = subDirs[4];
+                        if (action.equals("heard")) {
+                            if (method.equals(METHOD_DELETE)) {
+                                mailboxManager.markMessageUnheard(user, messageId);
+                            } else if (method.equals(METHOD_PUT)) {
+                                mailboxManager.markMessageHeard(user, messageId);
+                            } else if (method.equals(METHOD_GET)) {
+                                try {
+                                    response.setContentType("text/xml");
+                                    pw.format("<heard>%s</heard>\n",
+                                            mailboxManager.isMessageUnHeard(user, messageId) ? "false" : "true");
+                                } catch (MessageNotFoundException ex) {
+                                    response.sendError(404, "messageId not found");
                                 }
                             }
-
-                            if (action.equals("delete")) {
-                                if (method.equals(METHOD_PUT)) {
-                                    VmMessage msg = messages.getMessage(messageId);
-                                    if (msg != null) {
-                                        messages.deleteMessage(msg);
-                                    } else {
-                                        response.sendError(404, "messageId not found");
-                                    }
-                                }
-                            }
-
-                            if (action.equals("subject")) {
-                                if (method.equals(METHOD_PUT)) {
-                                    VmMessage msg = messages.getMessage(messageId);
-                                    if (msg != null) {
-                                        String subject = IOUtils.toString(request.getInputStream());
-                                        msg.updateSubject(subject);
-                                    } else {
-                                        response.sendError(404, "messageId not found");
-                                    }
-                                }
-                            }
-
-                            if (action.equals("move")) {
-                                if (method.equals(METHOD_PUT)) {
-                                    VmMessage msg = messages.getMessage(messageId);
-                                    if (msg != null) {
-                                        String destinationFolder = subDirs[5];
-                                        File destination = new File(mailbox.getUserDirectory(), destinationFolder);
-                                        msg.moveToDirectory(destination);
-                                        Mwi.sendMWI(mailbox, messages);
-                                    } else {
-                                        response.sendError(404, "messageId not found");
-                                    }
-                                }
-                            }
-
-                        } else {
-                            response.sendError(400, "messageId missing");
-                        }
-                    } else if (context.equals("mwi")) {
-                        if (method.equals(METHOD_PUT)) {
-                            Mwi.sendMWI(mailbox, messages);
-                        } else if (method.equals(METHOD_GET)) {
-                            response.setContentType(Mwi.MessageSummaryContentType);
-                            String accountUrl = "sip:" + user.getIdentity();
-                            pw.write(Mwi.formatRFC3842(messages, accountUrl));
-                        } else {
-                            response.sendError(405);
-                        }
-                    } else if (context.equals("uuid")) {
-                        response.setContentType("text/xml");
-                        String uuid = Deposit.getChannelUUID(user);
-                        if (uuid == null) {
-                            pw.write("<uuid></uuid>\n");
-                        } else {
-                            pw.format("<uuid>%s</uuid>\n", uuid);
                         }
 
-                    } else if (context.equals("personalattendant")) {
-                        if (method.equals(METHOD_PUT)) {
-                            File pa = new File(mailbox.getUserDirectory() + "/PersonalAttendant.properties");
-                            if (!pa.exists()) {
-                                pa.createNewFile();
-                            }
-                            FileUtils.writeStringToFile(pa, IOUtils.toString(request.getInputStream()));
-                        }
-
-                    } else if (context.equals("activegreeting")) {
-                        if (method.equals(METHOD_PUT)) {
-                            File prefs = new File(mailbox.getUserDirectory() + "/mailboxprefs.xml");
-                            if (!prefs.exists()) {
-                                prefs.createNewFile();
-                            }
-                            FileUtils.writeStringToFile(prefs, IOUtils.toString(request.getInputStream()));
-                        }
-
-                    } else if (context.equals("rename")) {
-                        if (subDirs.length >= 4) {
-                            String oldMailbox = subDirs[3];
+                        if (action.equals("delete")) {
                             if (method.equals(METHOD_PUT)) {
                                 try {
-                                    mailbox.renameMailbox(oldMailbox);
-                                } catch (IOException ex) {
-                                    response.sendError(500);
+                                    mailboxManager.deleteMessage(user, messageId);
+                                } catch (MessageNotFoundException ex) {
+                                    response.sendError(404, "messageId not found");
                                 }
-                            } else {
-                                response.sendError(405);
                             }
-                        } else {
-                            response.sendError(400, "destination missing");
                         }
 
-                    } else if (context.equals("messages")) {
-                        if (method.equals(METHOD_GET)) {
-                            response.setContentType("text/xml");
-                            pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
-                            pw.write("<messages>\n");
-                            listMessages(messages.getInbox(), "inbox", pw);
-                            listMessages(messages.getSaved(), "saved", pw);
-                            listMessages(messages.getDeleted(), "deleted", pw);
-                            pw.write("</messages>");
-                        } else {
-                            response.sendError(405);
-                        }
-                    } else if (context.equals("inbox")) {
-                        if (method.equals(METHOD_GET)) {
-                            response.setContentType("text/xml");
-                            pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
-                            pw.write("<messages>\n");
-                            if (subDirs.length >= 4) {
-                                String messageId = subDirs[3];
-                                VmMessage message = messages.getMessage(messageId);
-                                if (message != null) {
-                                    listFullMessage(message, "inbox", pw);
-                                } else {
+                        if (action.equals("subject")) {
+                            if (method.equals(METHOD_PUT)) {
+                                try {
+                                    String subject = IOUtils.toString(request.getInputStream());
+                                    mailboxManager.updateMessageSubject(user, messageId, subject);
+                                } catch (MessageNotFoundException ex) {
                                     response.sendError(404, "messageId not found");
                                 }
-                            } else {
-                                listFullMessages(messages.getInbox(), "inbox", pw);
                             }
-                            pw.write("</messages>");
-                        } else {
-                            response.sendError(405);
                         }
-                    } else if (context.equals("saved")) {
-                        if (method.equals(METHOD_GET)) {
-                            response.setContentType("text/xml");
-                            pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
-                            pw.write("<messages>\n");
-                            if (subDirs.length >= 4) {
-                                String messageId = subDirs[3];
-                                VmMessage message = messages.getMessage(messageId);
-                                if (message != null) {
-                                    listFullMessage(message, "saved", pw);
-                                } else {
+
+                        if (action.equals("move")) {
+                            if (method.equals(METHOD_PUT)) {
+                                try {
+                                    String destinationFolder = subDirs[5];
+                                    mailboxManager.moveMessageToFolder(user, messageId, destinationFolder);
+                                    MailboxDetails mailbox = mailboxManager.getMailboxDetails(user.getUserName());
+                                    mwiManager.sendMWI(user, mailbox);
+                                } catch (MessageNotFoundException ex) {
                                     response.sendError(404, "messageId not found");
                                 }
-                            } else {
-                                listFullMessages(messages.getSaved(), "saved", pw);
                             }
-                            pw.write("</messages>");
+                        }
+
+                    } else {
+                        response.sendError(400, "messageId missing");
+                    }
+                } else if (context.equals("mwi")) {
+                    if (method.equals(METHOD_PUT)) {
+                        MailboxDetails mailbox = mailboxManager.getMailboxDetails(user.getUserName());
+                        mwiManager.sendMWI(user, mailbox);
+                    } else if (method.equals(METHOD_GET)) {
+                        response.setContentType(Mwi.MessageSummaryContentType);
+                        String accountUrl = "sip:" + user.getIdentity();
+                        MailboxDetails mailbox = mailboxManager.getMailboxDetails(user.getUserName());
+                        pw.write(Mwi.formatRFC3842(mailbox, accountUrl));
+                    } else {
+                        response.sendError(405);
+                    }
+                } else if (context.equals("uuid")) {
+                    response.setContentType("text/xml");
+                    String uuid = depositMap.get(user.getUserName());
+                    if (uuid == null) {
+                        pw.write("<uuid></uuid>\n");
+                    } else {
+                        pw.format("<uuid>%s</uuid>\n", uuid);
+                    }
+
+                } else if (context.equals("rename")) {
+                    if (subDirs.length >= 4) {
+                        String oldMailbox = subDirs[3];
+                        if (method.equals(METHOD_PUT)) {
+                            try {
+                                mailboxManager.renameMailbox(user, oldMailbox);
+                            } catch (Exception ex) {
+                                response.sendError(500);
+                            }
                         } else {
                             response.sendError(405);
-                        }
-                    } else if (context.equals("deleted")) {
-                        if (method.equals(METHOD_GET)) {
-                            response.setContentType("text/xml");
-                            pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
-                            pw.write("<messages>\n");
-                            if (subDirs.length >= 4) {
-                                String messageId = subDirs[3];
-                                VmMessage message = messages.getMessage(messageId);
-                                if (message != null) {
-                                    listFullMessage(message, "deleted", pw);
-                                } else {
-                                    response.sendError(404, "messageId not found");
-                                }
-                            } else {
-                                listFullMessages(messages.getDeleted(), "deleted", pw);
-                            }
-                            pw.write("</messages>");
-                        } else {
-                            response.sendError(405);
-                        }
-                    } else if (context.equals("conference")) {
-                        if (method.equals(METHOD_GET)) {
-                            response.setContentType("text/xml");
-                            pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
-                            pw.write("<messages>\n");
-                            if (subDirs.length >= 4) {
-                                String messageId = subDirs[3];
-                                VmMessage message = messages.getMessage(messageId);
-                                if (message != null) {
-                                    listFullMessage(message, "conference", pw);
-                                } else {
-                                    response.sendError(404, "messageId not found");
-                                }
-                            } else {
-                                listFullMessages(messages.getConference(), "conference", pw);
-                            }
-                            pw.write("</messages>");
-                        } else {
-                            response.sendError(405);
-                        }
-                    } else if (context.equals("distribution")) {
-                        if (method.equals(METHOD_GET)) {
-                            response.setContentType("text/xml");
-                            if (mailbox.getDistributionListsFile().exists()) {
-                                pw.write(FileUtils.readFileToString(mailbox.getDistributionListsFile()));
-                            } else {
-                                pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
-                                pw.write("<distributions/>");
-                            }
-                        } else {
-                            FileUtils.writeStringToFile(mailbox.getDistributionListsFile(),
-                                    IOUtils.toString(request.getInputStream()));
                         }
                     } else {
-                        response.sendError(400, "context not understood");
+                        response.sendError(400, "destination missing");
                     }
+
+                } else if (context.equals("messages")) {
+                    if (method.equals(METHOD_GET)) {
+                        response.setContentType("text/xml");
+                        pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+                        pw.write("<messages>\n");
+                        List<VmMessage> inboxMessages = mailboxManager.getMessages(user.getUserName(), Folder.INBOX);
+                        List<VmMessage> savedMessages = mailboxManager.getMessages(user.getUserName(), Folder.SAVED);
+                        List<VmMessage> deletedMessages = mailboxManager.getMessages(user.getUserName(),
+                                Folder.DELETED);
+                        listMessages(inboxMessages, "inbox", pw);
+                        listMessages(savedMessages, "saved", pw);
+                        listMessages(deletedMessages, "deleted", pw);
+                        pw.write("</messages>");
+                    } else {
+                        response.sendError(405);
+                    }
+                } else if (context.equals("inbox")) {
+                    if (method.equals(METHOD_GET)) {
+                        response.setContentType("text/xml");
+                        pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+                        pw.write("<messages>\n");
+                        if (subDirs.length >= 4) {
+                            String messageId = subDirs[3];
+                            try {
+                                listFullMessage(mailboxManager.getVmMessage(user.getUserName(), Folder.INBOX,
+                                        messageId, false), "inbox", pw);
+                            } catch (MessageNotFoundException ex) {
+                                response.sendError(404, "messageId not found");
+                            }
+                        } else {
+                            listFullMessages(mailboxManager.getMessages(user.getUserName(), Folder.INBOX), "inbox",
+                                    pw);
+                        }
+                        pw.write("</messages>");
+                    } else {
+                        response.sendError(405);
+                    }
+                } else if (context.equals("saved")) {
+                    if (method.equals(METHOD_GET)) {
+                        response.setContentType("text/xml");
+                        pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+                        pw.write("<messages>\n");
+                        if (subDirs.length >= 4) {
+                            String messageId = subDirs[3];
+                            try {
+                                listFullMessage(mailboxManager.getVmMessage(user.getUserName(), Folder.SAVED,
+                                        messageId, false), "saved", pw);
+                            } catch (MessageNotFoundException ex) {
+                                response.sendError(404, "messageId not found");
+                            }
+                        } else {
+                            listFullMessages(mailboxManager.getMessages(user.getUserName(), Folder.SAVED), "saved",
+                                    pw);
+                        }
+                        pw.write("</messages>");
+                    } else {
+                        response.sendError(405);
+                    }
+                } else if (context.equals("deleted")) {
+                    if (method.equals(METHOD_GET)) {
+                        response.setContentType("text/xml");
+                        pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+                        pw.write("<messages>\n");
+                        if (subDirs.length >= 4) {
+                            String messageId = subDirs[3];
+                            try {
+                                listFullMessage(mailboxManager.getVmMessage(user.getUserName(), Folder.DELETED,
+                                        messageId, false), "deleted", pw);
+                            } catch (MessageNotFoundException ex) {
+                                response.sendError(404, "messageId not found");
+                            }
+                        } else {
+                            listFullMessages(mailboxManager.getMessages(user.getUserName(), Folder.DELETED),
+                                    "deleted", pw);
+                        }
+                        pw.write("</messages>");
+                    } else {
+                        response.sendError(405);
+                    }
+                } else if (context.equals("conference")) {
+                    if (method.equals(METHOD_GET)) {
+                        response.setContentType("text/xml");
+                        pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+                        pw.write("<messages>\n");
+                        if (subDirs.length >= 4) {
+                            String messageId = subDirs[3];
+                            try {
+                                listFullMessage(mailboxManager.getVmMessage(user.getUserName(), Folder.CONFERENCE,
+                                        messageId, false), "conference", pw);
+                            } catch (MessageNotFoundException ex) {
+                                response.sendError(404, "messageId not found");
+                            }
+                        } else {
+                            listFullMessages(mailboxManager.getMessages(user.getUserName(), Folder.CONFERENCE),
+                                    "conference", pw);
+                        }
+                        pw.write("</messages>");
+                    } else {
+                        response.sendError(405);
+                    }
+                } else {
+                    response.sendError(400, "context not understood");
                 }
-                Messages.releaseMessages(messages);
                 pw.close();
             } else {
                 response.sendError(404, "Mailbox not found");
@@ -361,11 +343,12 @@ public class MailboxServlet extends HttpServlet {
     private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {
         String author = null;
         for (VmMessage message : messages) {
-            author = SipUriUtil.extractUserName(message.getMessageDescriptor().getFromUri().replace('+', ' '));
+            MessageDescriptor descriptor = message.getDescriptor();
+            author = SipUriUtil.extractUserName(descriptor.getFromUri().replace('+', ' '));
             pw.format(
                     "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\"/>\n",
-                    message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder, message.getDuration(),
-                    message.getTimestamp(), author);
+                    message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
+                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author);
         }
     }
 
@@ -376,11 +359,13 @@ public class MailboxServlet extends HttpServlet {
     }
 
     private void listFullMessage(VmMessage message, String folder, PrintWriter pw) {
-        String author = SipUriUtil.extractUserName(message.getMessageDescriptor().getFromUri().replace('+', ' '));
+        MessageDescriptor descriptor = message.getDescriptor();
+        String author = SipUriUtil.extractUserName(descriptor.getFromUri().replace('+', ' '));
         pw.format(
                 "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" subject=\"%s\"/>\n",
-                message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder, message.getDuration(),
-                message.getTimestamp(), author, message.getMessageDescriptor().getSubject());
+                message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
+                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author,
+                descriptor.getSubject());
     }
 
 }

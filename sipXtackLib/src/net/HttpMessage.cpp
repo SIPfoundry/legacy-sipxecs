@@ -1357,14 +1357,12 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                   // Get the content type
                   contentTypeSet = getContentType(&contentType);
 
-#                 ifdef TEST
                   Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                                 "HttpMessage::read  "
                                 "contentLength %d, contentTypeSet %d, "
                                 "contentType '%s'",
                                 contentLength, contentTypeSet,
                                 contentType.data());
-#                 endif
 
                   // If this is UDP we know that the message has
                   // a maximum size of 64K

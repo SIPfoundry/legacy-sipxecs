@@ -14,13 +14,17 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public class MailboxManagerTestIntegration extends IntegrationTestCase {
     private LocalMailboxManagerImpl m_mailboxManager;
+    private SettingDao m_settingDao;
     private CoreContext m_coreContext;
     
     @Override
@@ -43,7 +47,6 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         assertEquals(1, countRowsInTable("personal_attendant"));
         assertSame(newUser, pa.getUser());
 
-        pa.setOperator("150");
         m_mailboxManager.storePersonalAttendant(pa);
         assertEquals(1, db().queryForLong("select count(*) from personal_attendant"));
 
@@ -81,6 +84,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
 
         PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(newUser);
         pa.setOperator("150");
+        flush();
         m_mailboxManager.storePersonalAttendant(pa);
         
         Set<Integer> ids = Collections.singleton(newUser.getId());
@@ -90,11 +94,41 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         // assertFalse(((LocalMailbox) mbox).getUserDirectory().exists());
     }
 
+    public void testUserGroupOperator() throws Exception {
+        loadDataSetXml("admin/dialplan/sbc/domain.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
+        
+        User user = m_coreContext.newUser();
+        user.setUserName("200");
+        m_coreContext.saveUser(user);
+        assertEquals(null, user.getOperator());
+        
+        Group g = new Group();
+        g.setName("group");
+        g.setSettingValue(AbstractUser.OPERATOR_SETTING, "111");
+        m_settingDao.saveGroup(g);
+        user.addGroup(g);
+        m_coreContext.saveUser(user);
+        assertEquals("111", user.getOperator());
+        
+        g.setSettingValue(AbstractUser.OPERATOR_SETTING, "");
+        m_settingDao.saveGroup(g);
+        assertEquals(null, user.getOperator());
+        
+        user.setOperator("123");
+        m_coreContext.saveUser(user);
+        assertEquals("123", user.getOperator());
+    }
+    
     public void setMailboxManagerImpl(LocalMailboxManagerImpl mailboxManager) {
         m_mailboxManager = mailboxManager;
     }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 }

@@ -32,12 +32,20 @@
   </bean>
   
   <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl" parent="abstractMailboxManager">
+    <property name="coreContext" ref="coreContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="binDir" value="${sysdir.bin}" />
   </bean>
 
   <bean id="xpathTemplate" class="org.springframework.xml.xpath.Jaxp13XPathTemplate"/>
   <bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
 
   <bean id="remoteMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.RemoteMailboxManagerImpl"  parent="abstractMailboxManager">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="locationsManager" ref="locationsManager"/>
     <property name="xpathTemplate" ref="xpathTemplate"/>
     <property name="restTemplate" ref="restTemplate"/>
   </bean>

@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
-import org.sipfoundry.sipxivr.Mailbox;
+import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
+import org.sipfoundry.voicemail.mailbox.MailboxManager;
 
 /**
  * Return the status (heard/unheard messages) of a mailbox using a simple HTTP request.
@@ -46,7 +46,8 @@ public class Mwistatus extends HttpServlet {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        ValidUsers validUsers = (ValidUsers) request.getAttribute(SipxIvrServletHandler.VALID_USERS_ATTR);
+        MailboxManager mailboxManager = (MailboxManager) request.getAttribute(SipxIvrServletHandler.MAILBOX_MANAGER);
         response.setContentType(Mwi.MessageSummaryContentType);
         // Use the OutputStream rather than the PrintWriter as this will cause Jetty
         // To NOT set the charset= parameter on the content type, which breaks
@@ -58,14 +59,12 @@ public class Mwistatus extends HttpServlet {
         // read the query string
         String idUri = request.getParameter("identity");
         
-        User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(ValidUsers.getUserPart(idUri));
+        User user = validUsers.getUser(ValidUsers.getUserPart(idUri));
         if (user != null) {
             // determine the message counts for the mailbox
             // (Okay, worry about this one.  It walks the mailstore directories counting .xml and .sta files.)
-            Messages messages = Messages.newMessages(new Mailbox(user));
             String accountUrl = "sip:" + user.getIdentity();
-            rfc3842 = Mwi.formatRFC3842(messages, accountUrl);
-            Messages.releaseMessages(messages);
+            rfc3842 = Mwi.formatRFC3842(mailboxManager.getMailboxDetails(user.getUserName()), accountUrl);
             LOG.info(String.format("Mwistatus::doGet %s", idUri));
         } else {
             // Just lie and give no messages

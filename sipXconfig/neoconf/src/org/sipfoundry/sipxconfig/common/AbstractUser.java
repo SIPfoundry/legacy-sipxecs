@@ -69,6 +69,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     public static final String FAX_EXTENSION_SETTING = "voicemail/fax/extension";
     public static final String DID_SETTING = "voicemail/fax/did";
     public static final String CALLFWD_TIMER = "callfwd/timer";
+    public static final String OPERATOR_SETTING = "personal-attendant/operator";
 
 
     public static enum MohAudioSource {
@@ -553,6 +554,14 @@ public abstract class AbstractUser extends BeanWithGroups {
             m_addressBookEntry = new AddressBookEntry();
         }
         return m_addressBookEntry;
+    }
+
+    public String getOperator() {
+        return getSettingValue(OPERATOR_SETTING);
+    }
+
+    public void setOperator(String oper) {
+        setSettingValue(OPERATOR_SETTING, oper);
     }
 
     public void setPermissionManager(PermissionManager permissionManager) {

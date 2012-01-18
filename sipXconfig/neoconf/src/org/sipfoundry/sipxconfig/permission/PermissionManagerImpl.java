@@ -41,6 +41,8 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
 
     public void deleteCallPermission(Permission permission) {
         getHibernateTemplate().delete(permission);
+        m_permissions = null;
+        m_customPermissions = null;
     }
 
     public Permission getCallPermission(Object id) {
