@@ -5,7 +5,8 @@ source_files = \
 	spx_autoloader.erl \
 	spx_log_loader.erl \
 	spx_agentconfig_loader.erl \
-	spx_integration.erl
+	spx_integration.erl \
+	spx_util.erl
 
 compiled_files = $(source_files:.erl=.beam)
 
