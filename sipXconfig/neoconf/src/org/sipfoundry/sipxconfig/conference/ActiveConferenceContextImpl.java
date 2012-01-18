@@ -73,6 +73,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         m_sipService = sipService;
     }
 
+
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
