@@ -9,42 +9,26 @@
 bundle agent sipxcommserverlib {
   methods:
     sipxcommserverlib::
-      "any" usebundle => "sipxcommserverlib_setup";
       "any" usebundle => "sipxcommserverlib_config";
 }
 
-bundle agent sipxcommserverlib_setup {
+bundle agent sipxcommserverlib_config {
   classes:
     primary::
       "init_certs" not => fileexists("$(sipx.SIPX_CONFDIR)/ssl/ssl.crt");
-      "domain_config" not => fileexists("$(sipx.SIPX_CFDATA)/domain-config");
 
   methods:
     primary.init_certs::
       "any" usebundle => sipxcommserverlib_certs();
 
-    primary.domain_config::
-      "any" usebundle => sipxcommserverlib_domain_config();
-}
-
-bundle agent sipxcommserverlib_config {
   files:
-    any::
+    primary::
       "$(sipx.SIPX_CONFDIR)/domain-config"
-        create => "false",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("domain-config"),
-        classes => if_repaired("restart_sipxecs"),
-	action => track("domain-config");
-}
-
-bundle agent sipxcommserverlib_domain_config {
-  files:
-    any::
-      "$(sipx.SIPX_CFDATA)/domain-config"
         create => "true",
         perms => m("644"),
-        edit_line => domain_config();
+        edit_line => domain_config(),
+        classes => if_repaired("restart_sipxecs"),
+	action => track("domain-config");
 }
 
 bundle agent sipxcommserverlib_certs {
@@ -85,20 +69,24 @@ bundle edit_line SSL_DEFAULTS {
 }
 
 bundle edit_line domain_config {
-
-# TODO: decide if we really need shared secret
-#  vars:
-#    "SharedSecret" string => execresult("/usr/bin/head -c 18 /dev/urandom | /usr/bin/base64", "useshell");
+  classes:
+    "part_exists" expression => fileexists("$(sipx.SIPX_CFDATA)/domain-config.part");
 
   insert_lines:
-    "SIP_DOMAIN_NAME : $(sys.fqhost)";
-    "SIP_DOMAIN_ALIASES : $(sys.fqhost)";
-    "SIP_REALM : $(sys.fqhost)";
-    "SHARED_SECRET : Y4bguaywt2sNB8eKwFRgTeMN";
-    "DEFAULT_LANGUAGE : en";
-    "SUPERVISOR_PORT : 8092";
-    "CONFIG_HOSTS : $(sys.fqhost)";
+    any::
+      "SIP_DOMAIN_NAME : $(sipx.domain)";
+      "SIP_REALM : $(sipx.realm)";
+      "SHARED_SECRET : $(sipx.secret)";
+      "DEFAULT_LANGUAGE : $(sipx.lang)";
+      "SUPERVISOR_PORT : 8092";
+    part_exists::
+      "$(sipx.SIPX_CFDATA)/domain-config.part"
+        insert_type => "file";
+    !part_exists::
+       "SIP_DOMAIN_ALIASES : $(sys.ipv4) $(sipx.domain)";
+       "CONFIG_HOSTS : $(sys.fqhost)";
 
   delete_lines:
-    ".*";
+    any::
+      ".*";
 }

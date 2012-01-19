@@ -86,7 +86,6 @@ public class ProxyConfiguration implements ConfigProvider {
         config.write("SIPX_PROXY.400_authrules.", root.getSetting("authrules"));
         config.write("SIPX_PROXY.210_msftxchghack.", root.getSetting("msftxchghack"));
         config.write(root.getSetting("call-rate-limit"));
-        //config.write("SIPX_PROXY_BIND_IP", location.getAddress());
         config.write("SIPX_PROXY_HOST_NAME", location.getFqdn());
         int port = settings.getSipTcpPort();
         String aliases = format("%s:%d %s:%d", location.getAddress(), port, location.getFqdn(), port);

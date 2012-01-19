@@ -173,12 +173,12 @@ start() {
        org.mortbay.jetty.Server \
        @SIPX_CONFDIR@/sipxconfig-jetty.xml"
 
-    if [ "${Daemon}" == "true" ]; then
+    if [ -n $NoFork ]; then
+      runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+    else
       runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
       echo $! > ${PidFile}
       echo_success
-    else
-      runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
     fi
 }
 
@@ -260,8 +260,8 @@ restart() {
 }
 
 case "$1" in
-  nodaemon)
-    Daemon=false
+  nofork)
+    NoFork=1
     start
     ;;
   start)

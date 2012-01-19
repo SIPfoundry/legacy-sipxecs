@@ -14,7 +14,6 @@
 
 prog=sipxivr
 pidfile="@SIPX_RUNDIR@/sipxivr.pid"
-Daemon=true
 
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
@@ -47,7 +46,7 @@ start() {
       $JavaSslOpts \
       org.sipfoundry.sipxivr.SipXivr \
       $Args"
-    if "$Daemon" == "true"; then
+    if [ -n $NoFork ]; then
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
       echo $! > ${pidfile}
       echo_success
@@ -87,8 +86,8 @@ configtest() {
 }
 
 case "$1" in
-  nodaemon)
-    Daemon=false
+  nofork)
+    NoFork=1
     start
     ;;
   start)
@@ -110,7 +109,7 @@ case "$1" in
     configtest
     ;;
   *)
-    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork}"
     Status=1
 esac
 

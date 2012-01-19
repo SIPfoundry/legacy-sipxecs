@@ -68,6 +68,9 @@ bundle agent sipx_module {
     "kept_log" string => "/opt/sipx-main/var/log/sipxpbx/sipxagent-kept.log";
     "logs" slist => { "$(failed_log)", "$(repaired_log)", "$(kept_log)" };
 
+  classes:
+    "domain_init" not => fileexists("@SIPX_CFDATA@/domain.cfdat");
+
   files:
     any::
       "$(logs)"
@@ -77,12 +80,37 @@ bundle agent sipx_module {
         create => "true",
 	perms => m(644);
 
+    domain_init::
+      "@SIPX_CFDATA@/domain.cfdat"
+        create => "true",
+	perms => mog(644,"@SIPXPBXUSER@","@SIPXPBXGROUP@"),
+	edit_line => domain_cfdat();
+
   commands:
     any::
       "@SIPX_CFMODULES@/sipx"
         args => "$(sipx.location_id)",
         module => "true",
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
+}
+
+bundle edit_line domain_cfdat {
+# TODO: decide if we really need shared secret. Until then stick in a 
+# static value. The code below to generate on works, but has strange
+# side affects where it inserts multiple lines probably because the value
+# is different each time cfengine resolves the vars
+#
+#  vars:
+#    "SharedSecret" string => execresult("/usr/bin/head -c 18 /dev/urandom | /usr/bin/base64", "useshell");
+
+  insert_lines:
+    "=domain=$(sys.fqhost)";
+    "=realm=$(sys.fqhost)";
+    "=lang=en";
+    "=secret=Y4bguaywt2sNB8eKwFRgTeMN";
+
+  delete_lines:
+    ".*";
 }
 
 #

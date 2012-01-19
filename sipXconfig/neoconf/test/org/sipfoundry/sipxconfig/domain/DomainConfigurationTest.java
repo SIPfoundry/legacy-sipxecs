@@ -52,7 +52,7 @@ public class DomainConfigurationTest extends TestCase {
         domain.setSharedSecret("mySecret");
 
         StringWriter actual = new StringWriter();
-        m_out.write(actual, domain, "master.example.com", "en");
+        m_out.writeDomainConfigPart(actual, domain, "master.example.com");
 
         Reader actualConfigReader = new StringReader(actual.toString());
 
@@ -71,7 +71,7 @@ public class DomainConfigurationTest extends TestCase {
         domain.setSharedSecret("mySecret");
 
         StringWriter actual = new StringWriter();
-        m_out.write(actual, domain, "master.example.com", "en");
+        m_out.writeDomainConfigPart(actual, domain, "master.example.com");
 
         Reader actualConfigReader = new StringReader(actual.toString());
 

@@ -11,7 +11,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 /**
- * Sometime's the address you get depending on who's asking. You do not always have to supply a
+ * Sometime's the address you get depends on who's asking. You do not always have to supply a
  * source and you should not always expect a source.
  */
 public class AddressRequester {

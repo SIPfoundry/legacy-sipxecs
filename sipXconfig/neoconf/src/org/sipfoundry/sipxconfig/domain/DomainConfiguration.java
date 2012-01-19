@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -38,25 +39,36 @@ public class DomainConfiguration implements ConfigProvider {
         String fqdn = m_locationsManager.getPrimaryLocation().getFqdn();
         String lang = manager.getDomainManager().getExistingLocalization().getLanguage();
         Set<Location> locations = request.locations(manager);
-        for (Location location : locations) {
-            File dir = manager.getLocationDataDirectory(location);
-            Writer wtr = new FileWriter(new File(dir, "domain-config"));
+        File dir = manager.getGlobalDataDirectory();
+        for (int i = 0; i < locations.size(); i++) {
+            Writer wtr1 = new FileWriter(new File(dir, "domain-config.part"));
             try {
-                write(wtr, domain, fqdn, lang);
+                writeDomainConfigPart(wtr1, domain, lang);
             } finally {
-                IOUtils.closeQuietly(wtr);
+                IOUtils.closeQuietly(wtr1);
             }
+
+            Writer wtr2 = new FileWriter(new File(dir, "domain.cfdat"));
+            try {
+                write(wtr2, domain, fqdn);
+            } finally {
+                IOUtils.closeQuietly(wtr2);
+            }
+
         }
     }
 
-    void write(Writer wtr, Domain domain, String fqdn, String lang) throws IOException {
+    void write(Writer wtr, Domain domain, String lang) throws IOException {
+        CfengineModuleConfiguration config = new CfengineModuleConfiguration(wtr);
+        config.write("domain", domain.getName());
+        config.write("realm", domain.getSipRealm());
+        config.write("secret", domain.getSharedSecret());
+        config.write("lang", lang);
+    }
+
+    void writeDomainConfigPart(Writer wtr, Domain domain, String fqdn) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
-        config.write("SIP_DOMAIN_NAME", domain.getName());
         config.write("SIP_DOMAIN_ALIASES", getDomainAliases(domain));
-        config.write("SIP_REALM", domain.getSipRealm());
-        config.write("SHARED_SECRET", domain.getSharedSecret());
-        config.write("DEFAULT_LANGUAGE", lang);
-        config.write("SUPERVISOR_PORT", "8092");
         config.write("CONFIG_HOSTS", fqdn);
     }
 

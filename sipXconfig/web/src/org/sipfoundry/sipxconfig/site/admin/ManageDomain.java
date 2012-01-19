@@ -21,7 +21,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
@@ -39,9 +38,6 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
 
     @InitialValue (value = "ognl:domainManager.domain")
     public abstract Domain getDomain();
-
-    @InjectObject("spring:dialPlanActivationManager")
-    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     public abstract int getIndex();
 

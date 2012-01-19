@@ -35,7 +35,6 @@ EXTRA_DIST = \
 
 servicedir = @SERVICEDIR@
 service_SCRIPTS = \
-	sipxecs \
 	phonelogd
 
 emptydirs = \

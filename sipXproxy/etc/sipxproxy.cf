@@ -24,8 +24,8 @@ bundle agent sipxproxy_config {
         "forwardingrules.xml",
         "nattraversalrules.xml"
       };
+
   files:
-    any::
     any::
       "$(sipx.SIPX_CONFDIR)/sipXproxy-config"
         create => "true",
