@@ -73,8 +73,7 @@ check : validate-xml
 setting_2_0.dtd setting_1_0.dtd : sipxpbx/setting.dtd
 	cp $< $@
 
-validate-xml : setting_2_0.dtd setting_1_0.dtd $(addprefix out/,$(SETTINGS_XML)) $(SIPX_DATADIR)/schema/sipXecs-process.xsd $(proc_DATA)
-	xmllint --noout --schema $(SIPX_DATADIR)/schema/sipXecs-process.xsd $(proc_DATA)
+validate-xml : setting_2_0.dtd setting_1_0.dtd $(addprefix out/,$(SETTINGS_XML))
 	xmllint --noout --path . --valid $(addprefix out/,$(SETTINGS_XML))
 
 # easier to remove all non-settings xml files from list then to specify each settings xml file
