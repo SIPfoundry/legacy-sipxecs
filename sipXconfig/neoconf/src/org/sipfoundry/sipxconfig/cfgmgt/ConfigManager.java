@@ -70,4 +70,8 @@ public interface ConfigManager {
     public AddressManager getAddressManager();
 
     public LocationsManager getLocationManager();
+
+    void regenerateMongo(Collection<Location> locations);
+
+    void sendProfiles(Collection<Location> locations);
 }

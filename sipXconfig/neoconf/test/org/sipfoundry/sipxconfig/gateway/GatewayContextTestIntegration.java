@@ -44,7 +44,8 @@ public class GatewayContextTestIntegration extends IntegrationTestCase {
         m_resetDialPlanTask.reset(true);
     }
 
-    public void testAddGateway() {
+    public void testAddGateway() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         Gateway g1 = new Gateway(m_genericModel);
         Gateway g2 = new Gateway(m_genericModel);
 
@@ -246,6 +247,7 @@ public class GatewayContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testDeleteAssociateSbcDevice() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         sql("gateway/gateway_sbc_device.sql");
 
         SipTrunk sipTrunk = (SipTrunk) m_gatewayContext.getGateway(1002);
