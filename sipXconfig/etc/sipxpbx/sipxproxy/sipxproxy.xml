@@ -141,7 +141,7 @@
     </setting>
   </group>
   <group name="msftxchghack">
-    <setting name="USERAGENT" advanced="">
+    <setting name="USERAGENT" advanced="yes">
       <type><string/></type>
       <value>^RTCC/</value>
     </setting>

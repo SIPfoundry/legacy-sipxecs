@@ -139,7 +139,7 @@ setupCheck() {
   if ! databaseCheck
   then
     echo "Initializing configuration database..."
-    databaseCommand drop-index create first-run
+    databaseCommand drop-index create
     # echo "Configuration database created"
   fi
 }
