@@ -47,7 +47,7 @@ public class PagingConfiguration implements ConfigProvider {
             if (!enabled) {
                 continue;
             }
-            FileWriter writer = new FileWriter(new File(dir, "sipxpage.properties"));
+            FileWriter writer = new FileWriter(new File(dir, "sipxpage.properties.part"));
             try {
                 write(writer, location, groups, settings, domainName);
             } finally {
@@ -60,7 +60,6 @@ public class PagingConfiguration implements ConfigProvider {
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(writer);
         config.write(settings.getSettings().getSetting("page-config"));
-        config.write("sip.address", location.getAddress());
         for (int i = 0; i < groups.size(); i++) {
             PagingGroup g = groups.get(i);
             if (g.isEnabled()) {
@@ -82,5 +81,9 @@ public class PagingConfiguration implements ConfigProvider {
 
     public void setAudioDirectory(String audioDirectory) {
         m_audioDirectory = audioDirectory;
+    }
+
+    public String getAudioDirectory() {
+        return m_audioDirectory;
     }
 }

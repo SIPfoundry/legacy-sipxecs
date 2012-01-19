@@ -1,9 +1,9 @@
 #!/bin/bash
-# sipxivr - Startup script for sipxivr
+# sipxpage - Startup script for sipxpage
 
 # chkconfig: 35 85 15
-# description: sipxivr is a SIP proxy for telecommunications
-# processname: sipxivr
+# description: sipxpage is a SIP proxy for telecommunications
+# processname: sipxpage
 
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -12,8 +12,8 @@
 . /etc/rc.d/init.d/functions || exit 1
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-prog=sipxivr
-pidfile="@SIPX_RUNDIR@/sipxivr.pid"
+prog=sipxpage
+pidfile="@SIPX_RUNDIR@/sipxpage.pid"
 
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
@@ -29,27 +29,21 @@ checkRunningInstance() {
 
 start() {
     checkRunningInstance
-    echo -n $"Starting $prog: "
-    setJavaSslOpts
-
     JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @ivr_PKGS@`
-    export CLASSPATH=`echo @SIPX_CONFDIR@/sipxivr @SIPX_JAVADIR@/{sipXivr,sipXopenfire/plugins}/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @page_PKGS@`
+    export CLASSPATH=`echo @SIPX_JAVADIR@/sipXpage/*.jar ${Dependencies} | sed -e 's/ /:/g'`
 
-    setJavaSslOpts
-
-    # procname is there so cfengine can find it
+    # -Dprocname is there so cfengine can find it
     Command="$JavaCmd \
-      -Dprocname=sipxivr \
+      -Dprocname=sipxpage \
       -Dconf.dir=@SIPX_CONFDIR@ \
-      -Dvar.dir=@SIPX_VARDIR@ \
-      $JavaSslOpts \
-      ${SIPXIVR_OPTS} \
-      org.sipfoundry.sipxivr.SipXivr \
+      ${SIPXPAGE_OPTS} \
+      sipxpage.SipXpage \
       $Args"
     if [ -n $NoFork ]; then
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
     else
+      echo -n $"Starting $prog: "
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
       echo $! > ${pidfile}
       echo_success
@@ -57,8 +51,8 @@ start() {
 }
 
 stop() {
-  echo -n $"Stopping sipxivr: "
-  killproc -p "${pidfile}" -t30 -TERM "sipxivr"
+  echo -n $"Stopping sipxpage: "
+  killproc -p "${pidfile}" -t30 -TERM "sipxpage"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"
@@ -70,7 +64,7 @@ restart() {
 }
 
 configtest() {
-  sipx_config_exists @SIPX_CONFDIR@/sipxivr.properties 
+  sipx_config_exists @SIPX_CONFDIR@/sipxpage.properties 
   Status=$(($Status+$?))
 
   # check validity of xml files
@@ -78,7 +72,7 @@ configtest() {
   Status=$(($Status+$?))
 
   # Check that the log file is writable.
-  logfile="@SIPX_LOGDIR@/sipxivr.log"
+  logfile="@SIPX_LOGDIR@/sipxpage.log"
   if [ -e $logfile -a ! -w $logfile ]
   then
       echo "Log file '$logfile' exists but is not writable." >&2

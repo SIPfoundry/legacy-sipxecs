@@ -3,7 +3,7 @@
 #   Developers - add new settings anywhere but end of this file so pkg-upgrade script
 #                can have a better chance to migrate this file properly
 parkConfig.audioDirectory=@SIPX_VARDIR@/sipxpage/music
-pageSettings.audioDirectory=@SIPX_VARDIR@/sipxpage/music
+pagingConfiguration.audioDirectory=@SIPX_VARDIR@/sipxpage/music
 openAcdSettings.audioDirectory=@SIPX_VARDIR@/configserver/phone/acd/audio
 
 sipImpl.port=5180

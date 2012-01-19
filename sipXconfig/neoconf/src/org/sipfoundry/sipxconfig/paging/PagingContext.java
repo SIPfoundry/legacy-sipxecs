@@ -22,6 +22,7 @@ public interface PagingContext extends DialingRuleProvider, AliasOwner {
     public static AddressType SIP_TCP = new AddressType("pageTcp");
     public static AddressType SIP_UDP = new AddressType("pageUdp");
     public static AddressType SIP_TLS = new AddressType("pageTls");
+    public static AddressType RTP_PORT = new AddressType("pageRtp");
 
     PagingSettings getSettings();
 

@@ -37,6 +37,22 @@ public class PagingSettings extends PersistableSettings implements DeployConfigO
         return Collections.singleton((Feature) PagingContext.FEATURE);
     }
 
+    public int getSipTcpPort() {
+        return (Integer) getSettingTypedValue("page-config/sip.tcpPort");
+    }
+
+    public int getSipUdpPort() {
+        return (Integer) getSettingTypedValue("page-config/sip.udpPort");
+    }
+
+    public int getSipTlsPort() {
+        return (Integer) getSettingTypedValue("page-config/sip.tlsPort");
+    }
+
+    public int getRtpPort() {
+        return (Integer) getSettingTypedValue("page-config/rtp.port");
+    }
+
     @Override
     public String getBeanId() {
         return "pagingSettings";

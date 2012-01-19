@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
@@ -24,18 +28,25 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.PagingRule;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
+public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext, FeatureProvider,
+        AddressProvider {
+
     /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
     private static final String ALERT_INFO = "sipXpage";
     private static final String PARAM_PAGING_GROUP_NUMBER = "pageGroupNumber";
     private static final String PARAM_PAGING_GROUP_ID = "pagingGroupId";
     private static final String ERROR_ALIAS_IN_USE = "&error.aliasinuse";
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_TCP, SIP_TLS, SIP_UDP, RTP_PORT);
     private AliasManager m_aliasManager;
     private BeanWithSettingsDao<PagingSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -208,5 +219,45 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
 
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return null;
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return Collections.singleton(FEATURE);
+    }
+
+    @Override
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
+        return ADDRESSES;
+    }
+
+    @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+        if (!ADDRESSES.contains(type)) {
+            return null;
+        }
+
+        PagingSettings settings = getSettings();
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location l : locations) {
+            Address address = new Address(l.getAddress());
+            if (type.equals(SIP_TCP)) {
+                address.setPort(settings.getSipTcpPort());
+            } else if (type.equals(SIP_UDP)) {
+                address.setPort(settings.getSipUdpPort());
+            } else if (type.equals(SIP_TLS)) {
+                address.setPort(settings.getSipTlsPort());
+            } else if (type.equals(RTP_PORT)) {
+                address.setPort(settings.getRtpPort());
+            }
+        }
+
+        return addresses;
     }
 }

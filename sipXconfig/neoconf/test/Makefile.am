@@ -30,6 +30,7 @@ test_RESOURCES = \
 	spy.properties
 
 test_DEPS = \
+	. \
 	$(JAVAROOT) \
 	$(neoconf_SRCDIR) \
 	$(neoconf_JAVAROOT) \

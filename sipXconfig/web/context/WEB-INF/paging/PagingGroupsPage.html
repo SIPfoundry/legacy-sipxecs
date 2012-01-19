@@ -1,0 +1,75 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'paging','settings'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="pagingTab@Block">  
+	  <div jwcid="@common/QuickLinks">
+	    <ul>
+	      <li>
+	        <a jwcid="@PageLink" page="dialplan/EditFlexibleDialPlan" id="link:dialPlans">
+	          <span key="link.dialPlans">Dial Plans</span>
+	        </a>
+	      </li>
+	    </ul>
+	  </div>
+	  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+	  <form jwcid="pagingGroups@Form" id="pagingGroupsForm" delegate="bean:validator">
+	    <ul class="component-links">
+	      <li>
+	        <a jwcid="@DirectLink"  listener="listener:addPagingGroup" id="link.addPagingGroup">
+	          <span key="add">Add Group</span>
+	        </a>
+	      </li>
+	    </ul>
+		<table jwcid="@common/Table" id="pagingGroups:list"
+	        columns="* pageGroupNumber,enabled,!userCount,description"
+	        source="ognl:groups"
+	        row="ognl:currentRow"
+	        selections="bean:selections">
+	      <tr jwcid="pageGroupNumberColumnValue@Block">
+	        <td jwcid="editRowLink@DirectLink"
+	          listener="listener:editPagingGroup"
+	          parameters="ognl:currentRow.id">
+	          <span jwcid="@Insert" value="ognl:currentRow.pageGroupNumber"/>
+	      	</td>
+	      </tr>
+	      <tr jwcid="enabledColumnValue@Block">
+	        <td jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+	      </tr>
+	      <tr jwcid="userCountColumnValue@Block">
+	        <td jwcid="@Insert" value="ognl:currentRow.users.size()"/>
+	      </tr>
+	    </table>
+	    <ul class="component-submit">
+	      <li>
+	        <input jwcid="restart@Submit" id="pagingGroups:restart"
+	          listener="listener:restart"
+	          value="message:button.restart" />
+	        <span jwcid="@common/Confirm"
+	          component="component:restart"
+	          prompt="message:confirm.restart"/>
+	      </li>
+	      <li>
+	        <input jwcid="delete@Submit" id="pagingGroups:delete"
+	          listener="listener:delete"
+	          selected="ognl:selectedRows"
+	          tag="ognl:allSelected"
+	          value="message:button.delete" />
+	        <span jwcid="@common/Confirm"
+	          component="component:delete"
+	          prompt="message:confirm.delete"/>
+	      </li>
+	    </ul>
+	  </form>
+	</span>
+	 <span jwcid="settingsTab@Block">
+	  <form jwcid="form@Form" delegate="bean:validator">
+	    <fieldset jwcid="@setting/SettingsFieldset"
+	        settings="ognl:settings.settings" />
+	    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+	        listener="listener:apply"/>
+	  </form>  
+	 </span>  	
+</div>

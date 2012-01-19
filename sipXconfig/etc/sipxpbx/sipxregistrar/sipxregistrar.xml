@@ -69,7 +69,7 @@
       <type refid="nonRootPort" />
       <value>9096</value>
     </setting>  
-    <setting name="SIP_REGISTRAR_LOG_LEVEL" advanced="yes">
+    <setting name="SIP_REGISTRAR_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>    

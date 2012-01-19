@@ -31,22 +31,32 @@
       </option>
     </enum>
   </type>
+  <type id="nonRootRequiredPort">
+    <integer min="1025" max="65535"/>
+  </type>
   <group name="page-dial">
     <setting name="prefix">
       <value>*77</value>
     </setting>    
   </group>
   <group name="page-config">
-    <setting name="sip.tcpPort" hidden="yes">
+    <setting name="sip.tcpPort">
+      <type refid="nonRootRequiredPort"/>
       <value>5160</value>
     </setting>
-    <setting name="sip.udpPort" hidden="yes">
+    <setting name="sip.udpPort">
+      <type refid="nonRootRequiredPort"/>
       <value>5160</value>
     </setting>
-    <setting name="sip.tlsPort" hidden="yes">
+    <setting name="sip.tlsPort">
+      <type refid="nonRootRequiredPort"/>
       <value>5161</value>
     </setting>
-    <setting name="log.level" hidden="yes">
+    <setting name="rtp.port">
+      <type refid="nonRootRequiredPort"/>
+      <value>8500</value>
+    </setting>
+    <setting name="log.level">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

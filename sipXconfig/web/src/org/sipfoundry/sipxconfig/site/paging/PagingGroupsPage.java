@@ -7,37 +7,28 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.site.admin;
+package org.sipfoundry.sipxconfig.site.paging;
 
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
+import org.sipfoundry.sipxconfig.paging.PagingSettings;
 
 public abstract class PagingGroupsPage extends SipxBasePage implements PageBeginRenderListener {
-    public static final String PAGE = "admin/PagingGroupsPage";
-
-    public static final String NONE = "NONE";
-
-    public static final String TRACE = "TRACE";
-
-    public static final String DEBUG = "DEBUG";
+    public static final String PAGE = "paging/PagingGroupsPage";
 
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
@@ -56,16 +47,13 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
 
     public abstract Collection getSelectedRows();
 
-    public abstract void setPrefix(String prefix);
+    public abstract PagingSettings getSettings();
 
-    public abstract String getPrefix();
-
-    public abstract void setTraceLevel(String traceLevel);
-
-    public abstract String getTraceLevel();
+    public abstract void setSettings(PagingSettings settings);
 
     @Persist
-    public abstract boolean isAdvanced();
+    @InitialValue(value = "literal:paging")
+    public abstract String getTab();
 
     public IPage addPagingGroup(IRequestCycle cycle) {
         EditPagingGroupPage page = (EditPagingGroupPage) cycle.getPage(EditPagingGroupPage.PAGE);
@@ -80,36 +68,17 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
     }
 
     public void pageBeginRender(PageEvent event) {
-        // load paging prefix
-//        if (StringUtils.isEmpty(getPrefix())) {
-//            String prefix = getPagingContext().getPagingPrefix();
-//            setPrefix(prefix);
-//        }
-//
-//        // load sip trace level
-//        setTraceLevel(getPagingContext().getSipTraceLevel());
+        if (getSettings() == null) {
+            setSettings(getPagingContext().getSettings());
+        }
 
         // load paging groups
         List<PagingGroup> groups = getPagingContext().getPagingGroups();
         setGroups(groups);
     }
 
-    public void savePagingServer() {
-        String prefix = getPrefix();
-        if (StringUtils.isEmpty(prefix)) {
-            TapestryUtils.getValidator(getPage()).record(
-                    new ValidatorException(getMessages().getMessage("error.pagingPrefix")));
-            return;
-        }
-
-//
-//        List<PagingGroup> groups = getGroups();
-//        if (groups.size() > 0) {
-//            PagingSettings settings = getPagingContext().getSettings();
-//            settings.setPrefix(prefix);
-//            settings.setSipTraceLevel(getTraceLevel());
-//            getPagingContext().saveSettings(settings);
-//        }
+    public void apply(IRequestCycle cycle) {
+        getPagingContext().saveSettings(getSettings());
     }
 
     public void delete() {
@@ -122,11 +91,5 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
 
     public Collection getAllSelected() {
         return getSelections().getAllSelected();
-    }
-
-    public IPropertySelectionModel getTraceLevelModel() {
-        return new StringPropertySelectionModel(new String[] {
-            NONE, TRACE, DEBUG
-        });
     }
 }

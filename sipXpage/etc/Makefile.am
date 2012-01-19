@@ -1,8 +1,5 @@
 include $(top_srcdir)/config/utility.am
 
-EXTRA_DIST = \
-	$(proc_DATA:=.in)
-
 audiodir = @SIPX_VARDIR@/sipxpage/music
 dist_audio_DATA = \
 	audio/attention.wav \
@@ -13,10 +10,6 @@ dist_audio_DATA = \
 	audio/reveille.wav \
 	audio/TadaTada.wav
 
-procdir = $(SIPX_DATADIR)/process.d
-proc_DATA = sipxpage-process.xml
-
-$(proc_DATA) : % : %.in Makefile
-	@$(call SearchAndReplace, $<, $@)
-
-CLEANFILES = $(proc_DATA)
+cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
+dist_cfinputs_DATA = \
+	sipxpage.cf

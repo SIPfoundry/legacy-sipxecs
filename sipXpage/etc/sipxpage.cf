@@ -1,0 +1,71 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipXpage configuration and process management
+#
+bundle agent sipxpage {
+  methods:
+    sipxpage::
+      "any" usebundle => "sipxpage_config";
+      "any" usebundle => "sipxpage_setup";
+    any::
+      "any" usebundle => "sipxpage_running";
+}
+
+bundle agent sipxpage_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxpage.properties"
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxpage_properties,
+        classes => if_repaired("restart_sipxpage"),
+	action => track("$(this.promiser)");
+}
+
+bundle edit_line sipxpage_properties {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxpage.properties.part"
+        insert_type => "file";
+      "sip.address : $(sipx.bind_ip)";
+      "log.file : $(sipx.SIPX_LOGDIR)/sipxpage.log";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxpage_setup {
+  methods:
+    !src::
+      "any" usebundle => rh_chkconfig_status("sipxpage");
+}
+
+bundle agent sipxpage_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipxpage\s.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpage_running");
+
+  commands:
+    sipxpage_running.!sipxpage::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+        args => "stop",
+	action => track("sipxpage_stop");
+
+    !sipxpage_running.sipxpage::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+        args => "start",
+	action => track("sipxpage_start");
+
+    restart_sipxpage::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+        args => "restart",
+	action => track("sipxpage_restart");
+}

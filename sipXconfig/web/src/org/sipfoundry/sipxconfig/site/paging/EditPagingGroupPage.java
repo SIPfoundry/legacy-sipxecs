@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.site.admin;
+package org.sipfoundry.sipxconfig.site.paging;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +21,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.paging.PagingConfiguration;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
@@ -29,17 +30,17 @@ import org.sipfoundry.sipxconfig.site.user.UserTable;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class EditPagingGroupPage extends UserBasePage {
-    public static final String PAGE = "admin/EditPagingGroupPage";
+    public static final String PAGE = "paging/EditPagingGroupPage";
 
     @Override
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
+    @InjectObject(value = "spring:pagingConfiguration")
+    public abstract PagingConfiguration getConfig();
+
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
-//
-//    @InjectObject(value = "spring:sipxServiceManager")
-//    public abstract SipxServiceManager getSipxServiceManager();
 
     @Persist(value = "client")
     public abstract Integer getGroupId();
@@ -68,7 +69,6 @@ public abstract class EditPagingGroupPage extends UserBasePage {
 
     @Override
     public void pageBeginRender(PageEvent event_) {
-
         if (!TapestryUtils.isValid(this)) {
             return;
         }
@@ -90,10 +90,6 @@ public abstract class EditPagingGroupPage extends UserBasePage {
         }
         setGroup(group);
     }
-
-//    public SipxPageService getSipxPageService() {
-//        return ((SipxPageService) getSipxServiceManager().getServiceByBeanId(SipxPageService.BEAN_ID));
-//    }
 
     public IPage add(IRequestCycle cycle) {
         SelectUsers editUsers = (SelectUsers) cycle.getPage(SelectUsers.PAGE);

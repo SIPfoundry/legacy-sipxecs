@@ -50,7 +50,7 @@
       </type>
       <value>300</value>
     </setting>
-    <setting name="SIPX_PROXY_LOG_LEVEL" hidden="yes">
+    <setting name="SIPX_PROXY_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
