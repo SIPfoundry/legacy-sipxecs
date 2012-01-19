@@ -44,6 +44,7 @@ public class UserTestIntegration extends ImdbTestCase {
     }
 
     public void testSave() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         User user = m_coreContext.newUser();
         user.setUserName("userid");
         user.setFirstName("FirstName");
