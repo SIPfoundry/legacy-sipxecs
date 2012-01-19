@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -46,6 +47,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private Set<Feature> m_affectedFeatures = new HashSet<Feature>();
     private boolean m_allFeaturesAffected;
     private ConfigAgent m_configAgent;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     public void init() {
         m_worker = new ConfigWorker();
@@ -53,7 +55,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     @Override
-    public synchronized void configureEverywhere(Feature ... features) {
+    public synchronized void configureEverywhere(Feature... features) {
         // (re)start timer
         synchronized (m_worker) {
             m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.only(features), m_outstandingRequest[0]);
@@ -76,6 +78,19 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.only(locations), m_outstandingRequest[0]);
             m_worker.notify();
         }
+    }
+
+    @Override
+    public synchronized void regenerateMongo(Collection<Location> locations) {
+        if (locations.contains(m_locationManager.getPrimaryLocation())) {
+            m_sipxReplicationContext.generateAll();
+        }
+    }
+
+    @Override
+    public void sendProfiles(Collection<Location> locations) {
+        regenerateMongo(locations);
+        configureAllFeatures(locations);
     }
 
     public synchronized boolean hasWork() {
@@ -226,5 +241,9 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     public void setConfigAgent(ConfigAgent configAgent) {
         m_configAgent = configAgent;
+    }
+
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }

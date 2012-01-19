@@ -178,7 +178,7 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
                 selectedLocations.add(location);
             }
         }
-        getConfigManager().configureAllFeatures(selectedLocations);
+        getConfigManager().sendProfiles(selectedLocations);
     }
 
     public boolean isFailedState() {

@@ -10,6 +10,7 @@
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
     <property name="configAgent" ref="configAgent"/>
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
   </bean>
   
   <alias alias="configManager" name="configManagerImpl"/>
