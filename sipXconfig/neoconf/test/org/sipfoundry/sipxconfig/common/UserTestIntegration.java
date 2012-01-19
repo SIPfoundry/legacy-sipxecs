@@ -253,7 +253,6 @@ public class UserTestIntegration extends ImdbTestCase {
         User u1 = m_coreContext.newUser();
         u1.setUserName("u1");
         m_coreContext.saveUser(u1);
-        flush();
         
         assertTrue(!m_validUsers.getUsersUpdatedAfter(past).isEmpty());
         

@@ -54,12 +54,12 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 import com.mongodb.DBObject;
 
-public class Attendant extends DataSetGenerator {
+public class Attendant extends AbstractDataSetGenerator {
 
     @Override
-    public void generate(Replicable entity, DBObject top) {
+    public boolean generate(Replicable entity, DBObject top) {
         if (!(entity instanceof User)) {
-            return;
+            return false;
         }
         User user = (User) entity;
         // The following settings used to be in validusers.xml
@@ -114,7 +114,7 @@ public class Attendant extends DataSetGenerator {
         top.put(IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
         top.put(IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
         top.put(IM_PASSWORD, imAccount.getImPassword());
-        getDbCollection().save(top);
+        return true;
     }
 
     @Override

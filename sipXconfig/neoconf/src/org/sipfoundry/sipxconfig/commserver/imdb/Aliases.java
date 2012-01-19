@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 
 import com.mongodb.DBObject;
 
-public class Aliases extends DataSetGenerator {
+public class Aliases extends AbstractDataSetGenerator {
     public static final String FAX_EXTENSION_PREFIX = "~~ff~";
 
     public Aliases() {
@@ -25,9 +25,9 @@ public class Aliases extends DataSetGenerator {
         return DataSet.ALIAS;
     }
 
-    public void generate(Replicable entity, DBObject top) {
+    public boolean generate(Replicable entity, DBObject top) {
         top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
-        getDbCollection().save(top);
+        return true;
     }
 
 }

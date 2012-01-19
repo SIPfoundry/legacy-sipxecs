@@ -28,7 +28,6 @@ public class UserCallForwardTestIntegration extends ImdbTestCase {
     };
 
     private List<User> m_users;
-    private UserForward m_userforwardDataSet;
     private ProxyManager m_proxyManager;
 
     @Override
@@ -62,20 +61,16 @@ public class UserCallForwardTestIntegration extends ImdbTestCase {
     }
 
     public void testGenerate() throws Exception {
-        m_userforwardDataSet.generate(m_users.get(0), m_userforwardDataSet.findOrCreate(m_users.get(0)));
-        m_userforwardDataSet.generate(m_users.get(1), m_userforwardDataSet.findOrCreate(m_users.get(1)));
-        m_userforwardDataSet.generate(m_users.get(2), m_userforwardDataSet.findOrCreate(m_users.get(2)));
-        m_userforwardDataSet.generate(m_users.get(3), m_userforwardDataSet.findOrCreate(m_users.get(3)));
+        getReplicationManager().replicateEntity(m_users.get(0), DataSet.USER_FORWARD);
+        getReplicationManager().replicateEntity(m_users.get(1), DataSet.USER_FORWARD);
+        getReplicationManager().replicateEntity(m_users.get(2), DataSet.USER_FORWARD);
+        getReplicationManager().replicateEntity(m_users.get(3), DataSet.USER_FORWARD);
         assertCollectionCount(getEntityCollection(), 4);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[0][4]));
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User2", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[1][4]));
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User3", MongoConstants.CFWDTIME, Integer.valueOf(USER_DATA[2][4]));
         Integer defaultInitDelay = Integer.valueOf(m_proxyManager.getSettings().getDefaultInitDelay());
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User4", MongoConstants.CFWDTIME, defaultInitDelay);
-    }
-
-    public void setUserforwardDataSet(UserForward userforwardDataSet) {
-        m_userforwardDataSet = userforwardDataSet;
     }
 
     public void setProxyManager(ProxyManager proxyManager) {

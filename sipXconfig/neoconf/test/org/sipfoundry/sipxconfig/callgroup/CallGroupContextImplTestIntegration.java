@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class CallGroupContextImplTestIntegration extends IntegrationTestCase {
     private CallGroupContext m_callGroupContext;
@@ -196,16 +197,14 @@ public class CallGroupContextImplTestIntegration extends IntegrationTestCase {
         User user = m_coreContext.loadUser(new Integer(1000));
         assertEquals(1, countRowsInTable("user_ring"));
         m_coreContext.deleteUser(user);
-        commit();
-        assertEquals(0, countRowsInTable("user_ring"));
+        assertEquals(0, TestHelper.getConnection().createDataSet().getTable("user_ring").getRowCount());
     }
 
     public void testDeleteUserById() throws Exception {
         User user = m_coreContext.loadUser(new Integer(1000));
         assertEquals(1, countRowsInTable("user_ring"));
         m_coreContext.deleteUsers(Collections.singletonList(user.getId()));
-        commit();
-        assertEquals(0, countRowsInTable("user_ring"));
+        assertEquals(0, TestHelper.getConnection().createDataSet().getTable("user_ring").getRowCount());
     }
 
     public void testIsAliasInUse() {

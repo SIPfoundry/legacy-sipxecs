@@ -65,7 +65,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     }
 
     @Override
-    public void onSave(final Object entity) {
+    public void onSave(Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.replicateEntity((Replicable) entity);
             if (entity instanceof OpenAcdExtension) {
@@ -90,7 +90,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     }
 
     @Override
-    public void onDelete(final Object entity) {
+    public void onDelete(Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.removeEntity((Replicable) entity);
         } else if (entity instanceof Group) {

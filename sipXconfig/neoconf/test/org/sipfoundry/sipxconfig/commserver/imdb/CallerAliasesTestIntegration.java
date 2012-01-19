@@ -23,7 +23,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class CallerAliasesTestIntegration extends ImdbTestCase {
-    private CallerAliases m_calleraliasDataSet;
     
     public void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
@@ -46,8 +45,8 @@ public class CallerAliasesTestIntegration extends ImdbTestCase {
         gcai.setDisplayName("display name");
         gcai.setUrlParameters("key=value");
         gw.setCallerAliasInfo(gcai);
-        
-        m_calleraliasDataSet.generate(gw, m_calleraliasDataSet.findOrCreate(gw));
+
+        getReplicationManager().replicateEntity(gw, DataSet.CALLER_ALIAS);
         
         assertObjectWithIdPresent(getEntityCollection(), "Gateway1");
         DBObject ref = new BasicDBObject();
@@ -67,18 +66,15 @@ public class CallerAliasesTestIntegration extends ImdbTestCase {
         user.setPermissionManager(getPermissionManager());
         user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, "userCID");
         
-        m_calleraliasDataSet.generate(user, m_calleraliasDataSet.findOrCreate(user));
+        getReplicationManager().replicateEntity(user, DataSet.CALLER_ALIAS);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CALLERALIAS, "sip:userCID@example.org");
 
         User userWithoutClrid = new User();
         userWithoutClrid.setUniqueId(1);
         userWithoutClrid.setPermissionManager(getPermissionManager());
         
-        m_calleraliasDataSet.generate(userWithoutClrid, m_calleraliasDataSet.findOrCreate(userWithoutClrid));
+        getReplicationManager().replicateEntity(userWithoutClrid, DataSet.CALLER_ALIAS);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CALLERALIAS, "");       
     }
 
-    public void setCalleraliasDataSet(CallerAliases calleraliasDataSet) {
-        m_calleraliasDataSet = calleraliasDataSet;
-    }
 }

@@ -13,16 +13,16 @@ import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
 
-    private final Map<String, DataSetGenerator> m_dataSetGeneratorMap;
+    private final Map<String, AbstractDataSetGenerator> m_dataSetGeneratorMap;
 
     public DataSetGeneratorTestIntegration() {
-        m_dataSetGeneratorMap = new HashMap<String, DataSetGenerator>();
+        m_dataSetGeneratorMap = new HashMap<String, AbstractDataSetGenerator>();
     }
 
     public void testDataSetGeneratorBeans() {
         for (Iterator i = DataSet.iterator(); i.hasNext();) {
             DataSet set = (DataSet) i.next();
-            DataSetGenerator gen = m_dataSetGeneratorMap.get(set.getName());
+            AbstractDataSetGenerator gen = m_dataSetGeneratorMap.get(set.getName());
             assertNotNull(set.getName(), gen);
             assertNotNull(set.getName(), gen.getCoreContext());
         }
@@ -62,5 +62,9 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
 
     public void setSpeeddialDataSet(SpeedDials sd) {
         m_dataSetGeneratorMap.put(DataSet.SPEED_DIAL.getName(), sd);
+    }
+
+    public void setMailstoreDataSet(Mailstore sd) {
+        m_dataSetGeneratorMap.put(DataSet.MAILSTORE.getName(), sd);
     }
 }

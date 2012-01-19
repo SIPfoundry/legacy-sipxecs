@@ -32,7 +32,6 @@ public class UserLocationTestIntegration extends ImdbTestCase {
     };
 
     private List<User> m_users;
-    private UserLocation m_userlocationDataSet;
 
     public void testGenerate() throws Exception {
         m_users = new ArrayList<User>();
@@ -59,16 +58,12 @@ public class UserLocationTestIntegration extends ImdbTestCase {
             }
             m_users.add(user);
         }
-        m_userlocationDataSet.generate(m_users.get(0), m_userlocationDataSet.findOrCreate(m_users.get(0)));
-        m_userlocationDataSet.generate(m_users.get(1), m_userlocationDataSet.findOrCreate(m_users.get(1)));
-        m_userlocationDataSet.generate(m_users.get(2), m_userlocationDataSet.findOrCreate(m_users.get(2)));
+        getReplicationManager().replicateEntity(m_users.get(0), DataSet.USER_LOCATION);
+        getReplicationManager().replicateEntity(m_users.get(1), DataSet.USER_LOCATION);
+        getReplicationManager().replicateEntity(m_users.get(2), DataSet.USER_LOCATION);
 
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User0", MongoConstants.USER_LOCATION, USER_DATA[0][4]);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.USER_LOCATION, USER_DATA[1][4]);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User2", MongoConstants.USER_LOCATION, USER_DATA[2][4]);
-    }
-
-    public void setUserlocationDataSet(UserLocation userlocationDataSet) {
-        m_userlocationDataSet = userlocationDataSet;
     }
 }

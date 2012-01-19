@@ -29,7 +29,6 @@ public class UserStaticTestIntegration extends ImdbTestCase {
     };
 
     private List<User> m_users;
-    private UserStatic m_userstaticDataSet;
 
     @Override
     public void onSetUpInTransaction() throws Exception {
@@ -50,9 +49,9 @@ public class UserStaticTestIntegration extends ImdbTestCase {
     }
 
     public void testGenerate() throws Exception {
-        m_userstaticDataSet.generate(m_users.get(0), m_userstaticDataSet.findOrCreate(m_users.get(0)));
-        m_userstaticDataSet.generate(m_users.get(1), m_userstaticDataSet.findOrCreate(m_users.get(1)));
-        m_userstaticDataSet.generate(m_users.get(2), m_userstaticDataSet.findOrCreate(m_users.get(2)));
+        getReplicationManager().replicateEntity(m_users.get(0), DataSet.USER_STATIC);
+        getReplicationManager().replicateEntity(m_users.get(1), DataSet.USER_STATIC);
+        getReplicationManager().replicateEntity(m_users.get(2), DataSet.USER_STATIC);
         assertCollectionCount(getEntityCollection(), 3);
         QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
         qb.is("User0").and(MongoConstants.STATIC+"."+MongoConstants.CONTACT).is("sip:"+USER_DATA[0][4]+"@"+DOMAIN);
@@ -61,9 +60,5 @@ public class UserStaticTestIntegration extends ImdbTestCase {
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User0", MongoConstants.STATIC+"."+MongoConstants.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.STATIC+"."+MongoConstants.EVENT, "message-summary");
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User2", MongoConstants.STATIC+"."+MongoConstants.FROM_URI, "sip:IVR@"+DOMAIN);
-    }
-
-    public void setUserstaticDataSet(UserStatic userstaticDataSet) {
-        m_userstaticDataSet = userstaticDataSet;
     }
 }

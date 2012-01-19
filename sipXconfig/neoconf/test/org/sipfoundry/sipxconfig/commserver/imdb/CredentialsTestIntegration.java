@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class CredentialsTestIntegration extends ImdbTestCase {
-    private Credentials m_credentialDataSet;
 
     public void testAddCallgroup() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
@@ -27,7 +26,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         cg.setName("sales");
         cg.setSipPassword("pass4321");
 
-        m_credentialDataSet.generate(cg, m_credentialDataSet.findOrCreate(cg));
+        getReplicationManager().replicateEntity(cg, DataSet.CREDENTIAL);
 
         String digest = Md5Encoder.digestPassword("sales", DOMAIN, "pass4321");
         assertObjectWithIdPresent(getEntityCollection(), "CallGroup1");
@@ -46,7 +45,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         user.setSipPassword("pass4321");
         user.setDomainManager(getDomainManager());
 
-        m_credentialDataSet.generate(user, m_credentialDataSet.findOrCreate(user));
+        getReplicationManager().replicateEntity(user, DataSet.CREDENTIAL);
 
         assertObjectWithIdPresent(getEntityCollection(), "User1");
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.IDENTITY, "superadmin@" + DOMAIN);
@@ -63,7 +62,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         user.setPin("", DOMAIN);
         user.setDomainManager(getDomainManager());
 
-        m_credentialDataSet.generate(user, m_credentialDataSet.findOrCreate(user));
+        getReplicationManager().replicateEntity(user, DataSet.CREDENTIAL);
 
         assertObjectWithIdPresent(getEntityCollection(), "User1");
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.IDENTITY, "superadmin@" + DOMAIN);
@@ -71,10 +70,6 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.PASSTOKEN, "");
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.PINTOKEN, emptyHash);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.REALM, DOMAIN);
-    }
-
-    public void setCredentialDataSet(Credentials credentialDataSet) {
-        m_credentialDataSet = credentialDataSet;
     }
 
 }

@@ -32,7 +32,6 @@ public class PermissionsTestIntegration extends ImdbTestCase {
     // needs to be adjusted every time a new permission is added
     private static int PERM_COUNT = 5;
     private static int SPEC_COUNT = SpecialUserType.values().length;
-    private Permissions m_permissionDataSet;
     User m_testUser;
 
     @Override
@@ -46,7 +45,7 @@ public class PermissionsTestIntegration extends ImdbTestCase {
     public void testGenerateEmpty() throws Exception {
         for (SpecialUserType u : SpecialUserType.values()) {
             SpecialUser su = new SpecialUser(u);
-            m_permissionDataSet.generate(su, m_permissionDataSet.findOrCreate(su));
+            getReplicationManager().replicateEntity(su, DataSet.PERMISSION);
         }
 
         // As PHONE_PROVISION does NOT require any permissions, don't count it.
@@ -75,9 +74,9 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         callGroup3.setName("disabled");
         callGroup3.setUniqueId(3);
 
-        m_permissionDataSet.generate(callGroup1, m_permissionDataSet.findOrCreate(callGroup1));
-        m_permissionDataSet.generate(callGroup2, m_permissionDataSet.findOrCreate(callGroup2));
-        m_permissionDataSet.generate(callGroup3, m_permissionDataSet.findOrCreate(callGroup3));
+        getReplicationManager().replicateEntity(callGroup1, DataSet.PERMISSION);
+        getReplicationManager().replicateEntity(callGroup2, DataSet.PERMISSION);
+        getReplicationManager().replicateEntity(callGroup3, DataSet.PERMISSION);
 
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "CallGroup2", MongoConstants.IDENTITY, "marketing@" + DOMAIN);
@@ -97,7 +96,7 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         m_testUser.addGroup(g);
         m_testUser.setUserName("goober");
         m_testUser.setUniqueId(1);
-        m_permissionDataSet.generate(m_testUser, m_permissionDataSet.findOrCreate(m_testUser));
+        getReplicationManager().replicateEntity(m_testUser, DataSet.PERMISSION);
 
         assertObjectWithIdPresent(getEntityCollection(), "User1");
         assertObjectListFieldCount(getEntityCollection(), "User1", MongoConstants.PERMISSIONS, 8);
@@ -122,7 +121,7 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         
         AuthCode code = new AuthCode();
         code.setInternalUser(user);
-        m_permissionDataSet.generate(code, m_permissionDataSet.findOrCreate(code));
+        getReplicationManager().replicateEntity(code, DataSet.PERMISSION);
         assertObjectWithIdPresent(getEntityCollection(), "AuthCode-1");
         QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
         qb.is("AuthCode-1").and(MongoConstants.PERMISSIONS).size(1).and(MongoConstants.PERMISSIONS)
@@ -132,14 +131,11 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         user.setPermission(PermissionName.NINEHUNDERED_DIALING, false);
         user.setPermission(PermissionName.INTERNATIONAL_DIALING, true);
         code.setInternalUser(user);
-        m_permissionDataSet.generate(code, m_permissionDataSet.findOrCreate(code));
+        
+        getReplicationManager().replicateEntity(code, DataSet.PERMISSION);
         qb.is("AuthCode-1").and(MongoConstants.PERMISSIONS).size(1).and(MongoConstants.PERMISSIONS)
         .is(PermissionName.INTERNATIONAL_DIALING.getName());
         assertObjectPresent(getEntityCollection(), qb.get());
-    }
-    
-    public void setPermissionDataSet(Permissions permissionDataSet) {
-        m_permissionDataSet = permissionDataSet;
     }
 
 }

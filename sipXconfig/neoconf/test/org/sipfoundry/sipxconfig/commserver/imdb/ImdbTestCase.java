@@ -18,6 +18,7 @@ public class ImdbTestCase extends IntegrationTestCase {
     private PermissionManager m_permissionManager;
     private DomainManager m_domainManager;
     private AddressManager m_addressManager;
+    private ReplicationManagerImpl m_replManager;
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
@@ -69,5 +70,13 @@ public class ImdbTestCase extends IntegrationTestCase {
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    public ReplicationManagerImpl getReplicationManager() {
+        return m_replManager;
+    }
+
+    public void setReplicationManagerImpl(ReplicationManagerImpl replManager) {
+        m_replManager = replManager;
     }
 }

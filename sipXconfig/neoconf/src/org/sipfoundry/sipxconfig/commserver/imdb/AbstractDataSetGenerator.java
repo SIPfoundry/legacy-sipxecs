@@ -16,20 +16,17 @@
  */
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
-import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.SpecialUser;
-import org.sipfoundry.sipxconfig.common.User;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 public abstract class AbstractDataSetGenerator {
-    private MongoTemplate m_imdb;
     private CoreContext m_coreContext;
+
+    public abstract boolean generate(Replicable entity, DBObject top);
+
+    protected abstract DataSet getType();
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -44,41 +41,6 @@ public abstract class AbstractDataSetGenerator {
      */
     protected String getSipDomain() {
         return m_coreContext.getDomainName();
-    }
-
-    public DBCollection getDbCollection() {
-        return m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
-    }
-
-    public abstract void generate(Replicable entity, DBObject top);
-
-    protected abstract DataSet getType();
-
-    public static String getEntityId(Replicable entity) {
-        String id = "";
-        if (entity instanceof BeanWithId) {
-            id = entity.getClass().getSimpleName() + ((BeanWithId) entity).getId();
-        }
-        if (entity instanceof SpecialUser) {
-            id = ((SpecialUser) entity).getUserName();
-        } else if (entity instanceof User) {
-            User u = (User) entity;
-            if (u.isNew()) {
-                id = u.getUserName();
-            }
-        } else if (entity instanceof ExternalAlias) {
-            ExternalAlias alias = (ExternalAlias) entity;
-            id = alias.getName();
-        }
-        return id;
-    }
-
-    public MongoTemplate getImdb() {
-        return m_imdb;
-    }
-
-    public void setImdb(MongoTemplate imdb) {
-        m_imdb = imdb;
     }
 
 }

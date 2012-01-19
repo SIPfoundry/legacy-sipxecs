@@ -50,7 +50,7 @@ public class MailstoreTestIntegration extends ImdbTestCase {
 
     public void testGenerate() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         getCoreContext().saveUser(m_user);
         PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(m_user);
         pa.setLanguage("ro");

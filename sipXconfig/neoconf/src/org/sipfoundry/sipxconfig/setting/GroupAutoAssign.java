@@ -201,11 +201,6 @@ public class GroupAutoAssign {
             createUserCallForward(user, extcontactGroup);
         }
 
-        // Initialize the new user's mailbox
-        if (m_mailboxManager.isEnabled()) {
-            m_mailboxManager.deleteMailbox(user.getUserName());
-        }
-
         // If necessary, create a conference for this user.
         Group conferenceGroup = getHighestGroup(user, "conference");
         if (conferenceGroup != null) {

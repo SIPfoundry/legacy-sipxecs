@@ -17,7 +17,6 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class AliasesTestIntegration extends ImdbTestCase {
-    private Aliases m_aliasDataSet;
     private User m_user;
 
     @Override
@@ -33,11 +32,8 @@ public class AliasesTestIntegration extends ImdbTestCase {
 
     public void testGenerate() throws Exception {
         loadDataSetXml("commserver/seedLocations.xml");
-        m_aliasDataSet.generate(m_user, m_aliasDataSet.findOrCreate(m_user));
+        getReplicationManager().replicateEntity(m_user, DataSet.ALIAS);
         assertObjectWithIdPresent(getEntityCollection(), "User1");
     }
 
-    public void setAliasDataSet(Aliases aliasDataSet) {
-        m_aliasDataSet = aliasDataSet;
-    }
 }

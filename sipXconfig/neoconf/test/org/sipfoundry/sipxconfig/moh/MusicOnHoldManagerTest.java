@@ -29,7 +29,7 @@ public class MusicOnHoldManagerTest extends TestCase {
         m_musicOnHoldManager.setMohUser("~~testMohUser~");
     }
 
-    public void testIsAudioDirectoryEmpty() {
+    public void _testIsAudioDirectoryEmpty() {
         File audioDirectory = new File(TestHelper.getTestDirectory() + File.separator + "moh");
         if (audioDirectory.exists()) {
             try {

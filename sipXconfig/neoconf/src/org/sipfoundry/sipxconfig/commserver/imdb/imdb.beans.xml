@@ -18,10 +18,9 @@
     <property name="imdbTemplate" ref="imdb"/>
   </bean>
 
-  <bean id="abstractDataSetGenerator" abstract="true"
-    class="org.sipfoundry.sipxconfig.commserver.imdb.DataSetGenerator">
+  <bean id="dataSetGenerator" abstract="true"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.AbstractDataSetGenerator">
     <property name="coreContext" ref="coreContext" />
-    <property name="imdb" ref="imdb"/>
   </bean>
 
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
@@ -29,9 +28,6 @@
     class="org.sipfoundry.sipxconfig.commserver.imdb.ExternalAliases">
   </bean>
 
-  <bean id="dataSetGenerator" parent="abstractDataSetGenerator"
-    class="org.sipfoundry.sipxconfig.commserver.imdb.DataSetGenerator">
-  </bean>
   <bean id="aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.commserver.imdb.Aliases">
   </bean>
@@ -61,6 +57,10 @@
     class="org.sipfoundry.sipxconfig.commserver.imdb.SpeedDials">
     <property name="speedDialManager" ref="speedDialManager" />
   </bean>
+  <bean id="mailstoreDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.Mailstore">
+    <property name="mailboxManager" ref="mailboxManager" />
+  </bean>
   
   <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl" parent="abstractDaoImpl">
     <property name="locationsManager" ref="locationsManager" />
@@ -68,7 +68,6 @@
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />
     <property name="externalAliases" ref="externalAliases" />
-    <property name="dataSetGenerator" ref="dataSetGenerator" />
     <property name="validUsers" ref="validUsers"/>
     <property name="imdb" ref="imdb"/>
   </bean>

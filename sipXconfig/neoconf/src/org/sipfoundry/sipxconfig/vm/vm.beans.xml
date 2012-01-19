@@ -32,7 +32,7 @@
       <value>org.sipfoundry.sipxconfig.vm.MailboxManager</value>
     </property>
     <property name="target">
-      <ref local="genericMailboxManagerImpl" />
+      <ref local="remoteMailboxManagerImpl" />
     </property>
   </bean>
 

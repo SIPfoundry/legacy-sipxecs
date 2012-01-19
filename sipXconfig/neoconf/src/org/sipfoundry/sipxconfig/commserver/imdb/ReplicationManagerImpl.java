@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.commserver.imdb;
 
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
@@ -32,12 +34,14 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -99,7 +103,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private CoreContext m_coreContext;
     private ForwardingContext m_forwardingContext;
     private ExternalAliases m_externalAliases;
-    private DataSetGenerator m_dataSetGenerator;
     private int m_pageSize;
     private int m_nThreads;
     private boolean m_useDynamicPageSize;
@@ -293,13 +296,21 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
-            DBObject top = m_dataSetGenerator.findOrCreate(entity);
+            DBObject top = findOrCreate(entity);
             Set<DataSet> dataSets = entity.getDataSets();
+            boolean shouldSave = false;
             for (DataSet dataSet : dataSets) {
-                replicateEntity(entity, dataSet, top);
+                if (shouldSave) {
+                    replicateEntity(entity, dataSet, top);
+                } else {
+                    shouldSave = replicateEntity(entity, dataSet, top);
+                }
             }
-            Long end = System.currentTimeMillis();
-            LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
+            if (shouldSave) {
+                getDbCollection().save(top);
+                Long end = System.currentTimeMillis();
+                LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
+            }
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + name, e);
             throw new UserException(REPLICATION_FAILED + entity.getName(), e);
@@ -310,27 +321,34 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
      * Replicates an array of {@link DataSet}s for a given {@link Replicable}
      */
     @Override
-    public void replicateEntity(Replicable entity, DataSet... dataSet) {
+    public void replicateEntity(Replicable entity, DataSet... dataSets) {
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
-            DBObject top = m_dataSetGenerator.findOrCreate(entity);
-            for (int i = 0; i < dataSet.length; i++) {
-                replicateEntity(entity, dataSet[i], top);
+            DBObject top = findOrCreate(entity);
+            boolean shouldSave = false;
+            for (DataSet dataSet : dataSets) {
+                if (shouldSave) {
+                    replicateEntity(entity, dataSet, top);
+                } else {
+                    shouldSave = replicateEntity(entity, dataSet, top);
+                }
             }
-            Long end = System.currentTimeMillis();
-            LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
+            if (shouldSave) {
+                getDbCollection().save(top);
+                Long end = System.currentTimeMillis();
+                LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
+            }
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + name, e);
             throw new UserException(REPLICATION_FAILED + entity.getName(), e);
         }
     }
 
-    private void replicateEntity(Replicable entity, DataSet dataSet, DBObject top) {
+    private boolean replicateEntity(Replicable entity, DataSet dataSet, DBObject top) {
         String beanName = dataSet.getBeanName();
-        final DataSetGenerator generator = m_beanFactory.getBean(beanName, DataSetGenerator.class);
-        generator.generate(entity, top);
-        LOG.debug("Entity " + entity.getName() + " updated.");
+        final AbstractDataSetGenerator generator = m_beanFactory.getBean(beanName, AbstractDataSetGenerator.class);
+        return generator.generate(entity, top);
     }
 
     /**
@@ -347,15 +365,19 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
                     if (!entity.getDataSets().contains(ds)) {
                         continue;
                     }
-                    DBObject top = m_dataSetGenerator.findOrCreate(entity);
-                    replicateEntity(entity, ds, top);
+                    DBObject top = findOrCreate(entity);
+                    if (replicateEntity(entity, ds, top)) {
+                        getDbCollection().save(top);
+                    }
                 }
             }
             Closure<User> closure = new Closure<User>() {
                 @Override
                 public void execute(User user) {
-                    DBObject top = m_dataSetGenerator.findOrCreate(user);
-                    replicateEntity(user, ds, top);
+                    DBObject top = findOrCreate(user);
+                    if (replicateEntity(user, ds, top)) {
+                        getDbCollection().save(top);
+                    }
                 }
             };
             DaoUtils.forAllUsersDo(m_coreContext, closure);
@@ -499,7 +521,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     @Override
     public void removeEntity(Replicable entity) {
         try {
-            String id = DataSetGenerator.getEntityId(entity);
+            String id = getEntityId(entity);
             remove(MongoConstants.ENTITY_COLLECTION, id);
             LOG.info("Replication: removed " + entity.getName());
         } catch (Exception e) {
@@ -583,6 +605,53 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         }
     }
 
+    protected DBObject findOrCreate(Replicable entity) {
+        DBCollection collection = getDbCollection();
+        String id = getEntityId(entity);
+
+        DBObject search = new BasicDBObject();
+        search.put(ID, id);
+        DBObject top = collection.findOne(search);
+        if (top == null) {
+            top = new BasicDBObject();
+            top.put(ID, id);
+        }
+        String sipDomain = m_coreContext.getDomainName();
+        if (entity.getIdentity(sipDomain) != null) {
+            top.put(IDENTITY, entity.getIdentity(sipDomain));
+        }
+        for (String key : entity.getMongoProperties(sipDomain).keySet()) {
+            top.put(key, entity.getMongoProperties(sipDomain).get(key));
+        }
+        if (entity.isValidUser()) {
+            top.put(VALID_USER, true);
+        }
+        return top;
+    }
+
+    private String getEntityId(Replicable entity) {
+        String id = "";
+        if (entity instanceof BeanWithId) {
+            id = entity.getClass().getSimpleName() + ((BeanWithId) entity).getId();
+        }
+        if (entity instanceof SpecialUser) {
+            id = ((SpecialUser) entity).getUserName();
+        } else if (entity instanceof User) {
+            User u = (User) entity;
+            if (u.isNew()) {
+                id = u.getUserName();
+            }
+        } else if (entity instanceof ExternalAlias) {
+            ExternalAlias alias = (ExternalAlias) entity;
+            id = alias.getName();
+        }
+        return id;
+    }
+
+    public DBCollection getDbCollection() {
+        return m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
+    }
+
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
     }
@@ -602,10 +671,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
 
     public void setExternalAliases(ExternalAliases externalAliases) {
         m_externalAliases = externalAliases;
-    }
-
-    public void setDataSetGenerator(DataSetGenerator dataSetGenerator) {
-        m_dataSetGenerator = dataSetGenerator;
     }
 
     public void setPageSize(int pageSize) {
