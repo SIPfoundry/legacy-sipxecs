@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +24,7 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -43,15 +44,15 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
             return;
         }
 
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                ParkOrbitContext.FEATURE);
-        if (locations.isEmpty()) {
-            return;
-        }
-
+        Set<Location> locations = request.locations(manager);
         ParkSettings settings = m_parkOrbitContext.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(ParkOrbitContext.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxpark.cfdat", "sipxpark", enabled);
+            if (!enabled) {
+                continue;
+            }
             Writer xml = new FileWriter(new File(dir, "orbits.xml"));
             try {
                 XmlFile config = new XmlFile(xml);
@@ -61,11 +62,11 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
                 IOUtils.closeQuietly(xml);
             }
 
-            Writer config = new FileWriter(new File(dir, "sipxpark-config"));
+            Writer config = new FileWriter(new File(dir, "sipxpark-config.part"));
             try {
                 write(config, location, settings);
             } finally {
-                IOUtils.closeQuietly(xml);
+                IOUtils.closeQuietly(config);
             }
         }
     }
@@ -73,7 +74,6 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
     void write(Writer writer, Location location, ParkSettings settings) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(writer);
         config.write(settings.getSettings().getSetting("park-config"));
-        config.write("SIP_PARK_BIND_IP", location.getAddress());
     }
 
     Document getDocument() {

@@ -7,12 +7,14 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.site.admin;
+package org.sipfoundry.sipxconfig.site.park;
 
 import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -20,27 +22,39 @@ import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
+import org.sipfoundry.sipxconfig.parkorbit.ParkSettings;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class ListParkOrbits extends SipxBasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "admin/ListParkOrbits";
+    public static final String PAGE = "park/ListParkOrbits";
 
     public abstract ParkOrbitContext getParkOrbitContext();
 
     public abstract CoreContext getCoreContext();
-
-    public void pageBeginRender(PageEvent event_) {
-        // initialize properties
-    }
 
     public abstract ParkOrbit getCurrentRow();
 
     public abstract void setCurrentRow(ParkOrbit parkOrbit);
 
     public abstract Collection getRowsToDelete();
+
+    public abstract ParkSettings getSettings();
+
+    public abstract void setSettings(ParkSettings settings);
+
+    @Persist
+    @InitialValue(value = "literal:orbits")
+    public abstract String getTab();
+
+    @Override
+    public void pageBeginRender(PageEvent arg0) {
+        if (getSettings() == null) {
+            setSettings(getParkOrbitContext().getSettings());
+        }
+    }
 
     public IPage add(IRequestCycle cycle) {
         EditParkOrbit editPage = (EditParkOrbit) cycle.getPage(EditParkOrbit.PAGE);
@@ -55,6 +69,10 @@ public abstract class ListParkOrbits extends SipxBasePage implements PageBeginRe
         editPage.setParkOrbitId(callGroupId);
         editPage.setParkOrbit(null);
         return editPage;
+    }
+
+    public void apply(IRequestCycle cycle) {
+        getParkOrbitContext().saveSettings(getSettings());
     }
 
     public void formSubmit() {

@@ -1,15 +1,96 @@
-    # @Override
-    # public void onInitTask(String task) {
-    #     LOG.info("Starting park server migration");
-    #     File parkServerDirectory = new File(m_orbitsGenerator.getAudioDirectory());
-    #     File systemMohDirectory = new File(m_musicOnHoldManager.getAudioDirectoryPath());
-    #     try {
-    #         if (parkServerDirectory.exists()) {
-    #             LOG.info("Copying all files from " + m_orbitsGenerator.getAudioDirectory() + " to "
-    #                     + systemMohDirectory.getAbsolutePath());
-    #             FileUtils.copyDirectory(parkServerDirectory, systemMohDirectory);
-    #         }
-    #     } catch (IOException e) {
-    #         LOG.error("Unable to copy files/folder; " + e);
-    #     }
-    # }
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipXpark configuration and process management
+#
+bundle agent sipxpark {
+  methods:
+    sipxpark::
+      "any" usebundle => "sipxpark_config";
+      "any" usebundle => "sipxpark_setup";
+    any::
+      "any" usebundle => "sipxpark_running";
+}
+
+bundle agent sipxpark_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxpark-config"
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxpark_config_contents(),
+        classes => if_repaired("restart_sipxpark"),
+	action => track("$(this.promiser)");
+
+      "$(sipx.SIPX_CONFDIR)/orbits.xml"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/orbits.xml"),
+        classes => if_repaired("restart_sipxpark"),
+	action => track("$(this.promiser)");
+}
+
+bundle edit_line sipxpark_config_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxpark-config.part"
+        insert_type => "file";
+      "SIP_PARK_BIND_IP : $(sipx.bind_ip)";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxpark_setup {
+  methods:
+    !src::
+      "any" usebundle => rh_chkconfig_status("sipxpark");
+}
+
+bundle agent sipxpark_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipxpark";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpark_running");
+
+  commands:
+    sipxpark_running.!sipxpark::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpark"
+        args => "stop",
+	action => track("sipxpark_stop");
+
+    !sipxpark_running.sipxpark::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpark"
+        args => "start",
+	action => track("sipxpark_start");
+
+    restart_sipxpark::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpark"
+        args => "restart",
+	action => track("sipxpark_restart");
+}
+
+# This code was extracted from park java code.  not sure how to handle this or when versions 
+# this applies to --Douglas
+#
+# @Override
+# public void onInitTask(String task) {
+#     LOG.info("Starting park server migration");
+#     File parkServerDirectory = new File(m_orbitsGenerator.getAudioDirectory());
+#     File systemMohDirectory = new File(m_musicOnHoldManager.getAudioDirectoryPath());
+#     try {
+#         if (parkServerDirectory.exists()) {
+#             LOG.info("Copying all files from " + m_orbitsGenerator.getAudioDirectory() + " to "
+#                     + systemMohDirectory.getAbsolutePath());
+#             FileUtils.copyDirectory(parkServerDirectory, systemMohDirectory);
+#         }
+#     } catch (IOException e) {
+#         LOG.error("Unable to copy files/folder; " + e);
+#     }
+# }

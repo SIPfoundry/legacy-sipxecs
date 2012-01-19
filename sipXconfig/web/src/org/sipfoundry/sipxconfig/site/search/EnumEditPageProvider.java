@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.search;
 
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,7 +48,7 @@ import org.sipfoundry.sipxconfig.site.acd.EditAcdLine;
 import org.sipfoundry.sipxconfig.site.acd.EditAcdQueue;
 import org.sipfoundry.sipxconfig.site.admin.EditAuthCode;
 import org.sipfoundry.sipxconfig.site.admin.EditCallGroup;
-import org.sipfoundry.sipxconfig.site.admin.EditParkOrbit;
+import org.sipfoundry.sipxconfig.site.park.EditParkOrbit;
 import org.sipfoundry.sipxconfig.site.branch.EditBranch;
 import org.sipfoundry.sipxconfig.site.conference.EditBridge;
 import org.sipfoundry.sipxconfig.site.conference.EditConference;

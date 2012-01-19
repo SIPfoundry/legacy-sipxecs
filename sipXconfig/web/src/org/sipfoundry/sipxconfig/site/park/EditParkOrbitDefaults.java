@@ -7,10 +7,10 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.site.admin;
+package org.sipfoundry.sipxconfig.site.park;
 
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class EditParkOrbitDefaults extends GroupSettings {
-    public static final String PAGE = "admin/EditParkOrbitDefaults";
+    public static final String PAGE = "park/EditParkOrbitDefaults";
 }

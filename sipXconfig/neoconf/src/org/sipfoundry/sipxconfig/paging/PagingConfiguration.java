@@ -15,12 +15,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 
@@ -33,12 +35,18 @@ public class PagingConfiguration implements ConfigProvider {
         if (!request.applies(PagingContext.FEATURE)) {
             return;
         }
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(PagingContext.FEATURE);
+
+        Set<Location> locations = request.locations(manager);
         PagingSettings settings = m_pagingContext.getSettings();
         String domainName = manager.getDomainManager().getDomainName();
         List<PagingGroup> groups = m_pagingContext.getPagingGroups();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(PagingContext.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxpage.cfdat", "sipxpage", enabled);
+            if (!enabled) {
+                continue;
+            }
             FileWriter writer = new FileWriter(new File(dir, "sipxpage.properties"));
             try {
                 write(writer, location, groups, settings, domainName);

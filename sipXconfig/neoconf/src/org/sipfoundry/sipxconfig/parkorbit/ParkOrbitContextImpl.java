@@ -24,8 +24,10 @@ import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.event.SupressDaoEvent;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -33,7 +35,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements ParkOrbitContext, BeanFactoryAware {
+public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements ParkOrbitContext, BeanFactoryAware,
+        FeatureProvider {
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
     private AliasManager m_aliasManager;
@@ -45,7 +48,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         return m_beanWithSettingsDao.findOrCreateOne();
     }
 
-    @SupressDaoEvent
     public void saveSettings(ParkSettings settings) {
         m_beanWithSettingsDao.upsert(settings);
     }
@@ -187,5 +189,15 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
     public void setBeanWithSettingsDao(BeanWithSettingsDao<ParkSettings> beanWithSettingsDao) {
         m_beanWithSettingsDao = beanWithSettingsDao;
+    }
+
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return null;
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return Collections.singleton(FEATURE);
     }
 }

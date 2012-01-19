@@ -44,7 +44,7 @@
       <value>5120</value>
     </setting>
     <setting name="SIP_PARK_TCP_PORT">
-      <type refid="loglevel" />
+      <type refid="nonRootRequiredPort" />
       <value>5120</value>
     </setting>
     <setting name="SIP_PARK_RTP_PORT">

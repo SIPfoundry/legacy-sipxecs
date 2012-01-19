@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.site.admin;
+package org.sipfoundry.sipxconfig.site.park;
 
 
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -16,12 +16,15 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbit;
+import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitConfiguration;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 
 public abstract class EditParkOrbit extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "admin/EditParkOrbit";
+    public static final String PAGE = "park/EditParkOrbit";
 
     public abstract ParkOrbitContext getParkOrbitContext();
+
+    public abstract ParkOrbitConfiguration getParkConfig();
 
     public abstract Integer getParkOrbitId();
 
