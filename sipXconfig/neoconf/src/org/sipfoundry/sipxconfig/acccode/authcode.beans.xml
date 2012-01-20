@@ -16,9 +16,9 @@
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
     <property name="settingsDao">
-      <bean parent="settingsWithLocationDao">
+      <bean parent="beanWithSettingsDao">
         <property name="target">
-          <bean parent="settingsWithLocationDaoImpl">
+          <bean parent="beanWithSettingsDaoImpl">
             <constructor-arg value="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings"/>
           </bean>
         </property>
@@ -30,7 +30,7 @@
     <property name="authCodeManager" ref="authCodeManager" />
   </bean>
   
-  <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" parent="settingsWithLocation">
+  <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" parent="settingsBean">
   </bean>
   
   <bean id="authCodeAliases" class="org.sipfoundry.sipxconfig.acccode.AuthCodeAliases">

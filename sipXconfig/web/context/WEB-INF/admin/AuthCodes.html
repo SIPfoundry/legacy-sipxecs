@@ -2,13 +2,13 @@
   <div jwcid="@common/QuickHelp" value="message:quick.help"/>
   <span jwcid="@common/ErrorMsg"/>
   
-    <form jwcid="form@Form" delegate="bean:validator">
+    <form jwcid="form@Form" delegate="bean:validator" >
     
     <fieldset>
       <table>
         <tr>
           <fieldset  jwcid="@setting/SettingsFieldset"
-              settings="ognl:myConfigSettings"
+              settings="ognl:settings.settings"
               settingsToHide="ognl:myHiddenSettings"
               renderGroupTitle="false" />
         </tr>

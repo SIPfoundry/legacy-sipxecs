@@ -23,13 +23,13 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.commserver.SettingsWithLocation;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class AuthCodeSettings extends SettingsWithLocation implements DeployConfigOnEdit, Replicable {
+public class AuthCodeSettings extends PersistableSettings implements DeployConfigOnEdit, Replicable {
     public static final String AUTH_CODE_PREFIX = "authcode/SIP_AUTH_CODE_PREFIX";
     public static final String AUTH_CODE_ALIASES = "authcode/SIP_AUTH_CODE_ALIASES";
     private static final Log LOG = LogFactory.getLog(AuthCodeSettings.class);

@@ -38,7 +38,6 @@ public class AuthCode {
     private Localization m_loc;
     private FreeSwitchEventSocketInterface m_fses;
     private ResourceBundle m_authBundle;
-    private Configuration m_config;
     private String m_localeString;
 
     private Hashtable<String, String> m_parameters; // The parameters from the sip URI
@@ -77,7 +76,6 @@ public class AuthCode {
 
         // Load the account code configuration
         m_loc = new Localization(RESOURCE_NAME, m_localeString, m_acccodeConfig, m_fses);
-        m_config = Configuration.update(true);
 
     }
 
@@ -123,7 +121,7 @@ public class AuthCode {
         currentauthorization = getAuthcode();
         LOG.info("AuthCode entered = " + currentauthorization);
         if (currentauthorization != null) {
-            AuthCodeConfig authcode = m_config.getAuthCode(currentauthorization);
+            AuthCodeConfig authcode = AuthCodeManager.getAuthCode(currentauthorization);
             destdial = getDestDial();
             if (destdial != null) {
                 // Build a SIP URL and transfer the call to this destination.
@@ -188,14 +186,6 @@ public class AuthCode {
 
     public void setAuthorizationCodeBundle(ResourceBundle authcodeBundle) {
         m_authBundle = authcodeBundle;
-    }
-
-    public Configuration getConfig() {
-        return m_config;
-    }
-
-    public void setConfig(Configuration config) {
-        m_config = config;
     }
 
     public void setLocalization(Localization localization) {

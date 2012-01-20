@@ -6,6 +6,7 @@ sipxacc_PKGS = \
 	dom4j \
 	jaxen \
 	log4j \
+	mongo \
 	sipxcommons
 
 sipxacc_JAVAROOT = $(abspath $(top_builddir)/src/main/java/classes)

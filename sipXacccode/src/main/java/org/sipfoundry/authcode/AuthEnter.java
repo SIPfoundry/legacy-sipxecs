@@ -29,14 +29,12 @@ public class AuthEnter {
     private int maxErrors = 2;
     private AuthCode m_authcode;
     private Localization m_loc;
-    private Configuration m_config;
     private FreeSwitchEventSocketInterface m_fses;
     private String m_userEnteredAuth;        // Authorization Code entered
     
     public AuthEnter(AuthCode authcode) {
         m_authcode = authcode;
         m_loc = authcode.getLoc();
-        m_config = authcode.getConfig();
         m_fses = m_loc.getFreeSwitchEventSocketInterface();
     }
     
@@ -73,7 +71,7 @@ public class AuthEnter {
             DigitCollect dc = new DigitCollect(m_loc);
             authdigstr = dc.collectDtmf(authcodePl, 10);
             
-            if ((authdigstr == null)  || (authdigstr == "") || (m_config.getAuthCode(authdigstr) == null)) {
+            if ((authdigstr == null)  || (authdigstr == "") || (AuthCodeManager.getAuthCode(authdigstr) == null)) {
                 // The authorization code entered is not valid, play the invalid tone
                 m_loc.play("AuthCode_invalid", "");
                 ++errorCount;
