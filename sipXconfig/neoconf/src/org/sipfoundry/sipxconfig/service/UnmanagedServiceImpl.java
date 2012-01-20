@@ -46,7 +46,7 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService 
         if (type.equals(NTP)) {
             return settings.getAddresses("services/ntp");
         } else if (type.equals(SYSLOG)) {
-            return settings.getAddresses("servers/syslog");
+            return settings.getAddresses("services/syslog");
         } else if (type.equals(DNS)) {
             return settings.getAddresses("services/dns");
         }

@@ -26,7 +26,7 @@ public class UnmanagedServiceSettings extends PersistableSettings {
         addDefaultBeanSettingHandler(new Defaults());
     }
 
-    class Defaults {
+    public class Defaults {
         @SettingEntry(paths = { "services/syslog", "services/ntp/0", "services/dns/0" })
         public String getPrimaryServer() {
             return m_locationsManager.getPrimaryLocation().getAddress();
