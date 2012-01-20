@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.acccode;
 
-
+import static org.sipfoundry.commons.mongo.MongoConstants.AUTH_CODE;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
@@ -45,6 +45,7 @@ public class AuthCode extends BeanWithUserPermissions implements DeployConfigOnE
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
+        props.put(AUTH_CODE, m_code);
         props.put(UID, getInternalUser().getUserName());
         props.put(PASSTOKEN, getInternalUser().getSipPassword());
         return props;

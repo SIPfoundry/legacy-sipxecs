@@ -50,7 +50,6 @@ public class AuthCodeTest extends TestCase {
         resourcesByLocale.put(Locale.ENGLISH, new MyResources());
         Localization loc = new Localization("dog", Locale.ENGLISH.toString(), accCodeConfig, fses);
         a.setLocalization(loc);
-        a.setConfig(org.sipfoundry.authcode.Configuration.update(false));
 
         try {
             Vector<String> response = new Vector<String>();

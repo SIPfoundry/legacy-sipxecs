@@ -22,6 +22,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.authcode.AuthCode;
 
 public class SipXacccode implements Runnable {
@@ -171,6 +172,8 @@ public class SipXacccode implements Runnable {
         props.setProperty("log4j.appender.file.layout.facility", "sipXacccode");
         PropertyConfigurator.configure(props);
  
+        initMongoConnection();
+
         eventSocketPort = s_config.getEventSocketPort();
         LOG.info("Starting SipXacccode listening on port " + eventSocketPort);
         ServerSocket serverSocket = new ServerSocket(eventSocketPort);
@@ -180,6 +183,15 @@ public class SipXacccode implements Runnable {
             Thread thread = new Thread(acccode);
             thread.start();
         }
+    }
+
+    private static void initMongoConnection() throws Exception {
+        String configPath = System.getProperty("conf.dir");
+        if (configPath == null) {
+            LOG.fatal("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
+            System.exit(1);
+        }
+        UnfortunateLackOfSpringSupportFactory.initialize(configPath + "/mongo-client.ini");
     }
 
     /**
