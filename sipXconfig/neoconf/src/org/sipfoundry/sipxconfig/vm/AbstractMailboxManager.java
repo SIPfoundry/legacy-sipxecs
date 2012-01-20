@@ -30,14 +30,12 @@ import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantManager;
 public abstract class AbstractMailboxManager extends PersonalAttendantManager implements DaoEventListener {
     protected static final String PATH_MAILBOX = "/mailbox/";
     protected static final String PATH_MESSAGE = "/message/";
-    private File m_mailstoreDirectory;
     private File m_stdpromptDirectory;
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
     private AddressManager m_addressManager;
     private String m_host;
     private Integer m_port;
-    private boolean m_active;
     private String m_binDir;
     private FeatureManager m_featureManager;
 
@@ -70,11 +68,11 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         if (entity instanceof User) {
             User user = (User) entity;
             removePersonalAttendantForUser(user);
-            if (m_active && m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
+            if (m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
                 deleteMailbox(user.getUserName());
             }
         } else if (entity instanceof Location) {
-            if (m_active && m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
+            if (m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
                 init();
             }
         }
@@ -84,22 +82,6 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         if (entity instanceof Location) {
             init();
         }
-    }
-
-    public void setActive(boolean active) {
-        m_active = active;
-    }
-
-    public String getMailstoreDirectory() {
-        return m_mailstoreDirectory.getPath();
-    }
-
-    public void setMailstoreDirectory(String mailstoreDirectory) {
-        m_mailstoreDirectory = new File(mailstoreDirectory);
-    }
-
-    protected File getMailstoreFileDirectory() {
-        return m_mailstoreDirectory;
     }
 
     public void setStdpromptDirectory(String stdpromptDirectory) {
@@ -183,7 +165,6 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     }
 
     public void init() {
-        m_active = true;
         Address ivrAddress = m_addressManager.getSingleAddress(Ivr.REST_API);
         if (ivrAddress != null) {
             m_host = ivrAddress.getAddress();

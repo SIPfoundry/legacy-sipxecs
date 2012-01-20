@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.ResultDataGrid;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
@@ -198,8 +199,7 @@ public class PhoneTestIntegration extends IntegrationTestCase {
         sql("phone/EndpointLineSeed.sql");
         User testUser = core.loadUser(new Integer(1000));
         core.deleteUser(testUser);
-        flush();
-        assertEquals(0, db().queryForLong("select count(*) from line"));
+        assertEquals(0, TestHelper.getConnection().createDataSet().getTable("line").getRowCount());
     }
 
     public void testDeleteUserOnPhoneWithExternalLines() throws Exception {

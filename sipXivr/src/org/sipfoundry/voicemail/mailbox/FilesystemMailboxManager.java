@@ -465,6 +465,10 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         if (files != null) {
             return files;
         }
+        files = findFilesInFolder(getFolder(username, Folder.CONFERENCE), filter);
+        if (files != null) {
+            return files;
+        }
         throw new MessageNotFoundException();
     }
 

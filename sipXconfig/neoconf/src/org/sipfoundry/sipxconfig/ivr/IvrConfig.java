@@ -54,6 +54,7 @@ public class IvrConfig implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = featureManager.isFeatureEnabled(Ivr.FEATURE, location);
+
             ConfigUtils.enableCfengineClass(dir, "sipxivr.cfdat", "sipxivr", enabled);
             if (!enabled) {
                 continue;
@@ -81,6 +82,7 @@ public class IvrConfig implements ConfigProvider {
         config.write("ivr.sipxchangeDomainName", domain.getName());
         config.write("ivr.realm", domain.getSipRealm());
         config.write("ivr.httpsPort", settings.getHttpsPort());
+        config.write("ivr.configAddress", adminApi.getAddress());
 
         // required services
         if (mwiApi == null) {

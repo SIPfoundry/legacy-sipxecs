@@ -54,6 +54,7 @@ public abstract class GroupActions extends BaseComponent {
             try {
                 triggerAction(cycle);
             } catch (UserException e) {
+                // TODO this cast shouldn't be here, group actions is used from several pages
                 ((ManageUsers) this.getPage()).getValidator().record(
                         new UserException("&branch.validity.error", e.getRawParams()[0], e.getRawParams()[1],
                                 e.getRawParams()[2]), getMessages());

@@ -41,7 +41,12 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
         Location location = m_locationsManager.getPrimaryLocation();
         Address address = new Address();
-        address.setAddress(location.getAddress());
+        if (type.equals(HTTPS_ADDRESS)) {
+            address.setAddress(location.getFqdn());
+        } else {
+            address.setAddress(location.getAddress());
+        }
+
         if (type.equals(HTTP_ADDRESS)) {
             address.setPort(12000);
         } else if (type.equals(HTTPS_ADDRESS)) {

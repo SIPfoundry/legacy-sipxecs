@@ -10,9 +10,6 @@
     <property name="binDir" value="${sysdir.bin}" />
     <property name="sessionFactory" ref="sessionFactory" />
   </bean>
-  
-  <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl" parent="abstractMailboxManager">
-  </bean>
 
   <bean id="xpathTemplate" class="org.springframework.xml.xpath.Jaxp13XPathTemplate"/>
   <bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
@@ -20,11 +17,6 @@
   <bean id="remoteMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.RemoteMailboxManagerImpl"  parent="abstractMailboxManager">
     <property name="xpathTemplate" ref="xpathTemplate"/>
     <property name="restTemplate" ref="restTemplate"/>
-  </bean>
-
-  <bean id="genericMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.GenericMailboxManagerImpl">
-    <!--  circular dep, see init function -->
-    <!--   property name="mailboxManager" ref="mailboxManager"/>  -->
   </bean>
 
   <bean id="mailboxManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
