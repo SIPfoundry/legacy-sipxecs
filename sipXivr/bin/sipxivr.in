@@ -30,7 +30,6 @@ checkRunningInstance() {
 start() {
     checkRunningInstance
     echo -n $"Starting $prog: "
-    setJavaSslOpts
 
     JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
     Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @ivr_PKGS@`
@@ -45,7 +44,7 @@ start() {
       -Dvar.dir=@SIPX_VARDIR@ \
       $JavaSslOpts \
       ${SIPXIVR_OPTS} \
-      org.sipfoundry.sipxivr.SipXivr \
+      org.sipfoundry.sipxivr.SipXivrServer \
       $Args"
     if [ -n $NoFork ]; then
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"

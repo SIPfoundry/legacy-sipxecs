@@ -74,7 +74,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr {
             List<Address> addresses = new ArrayList<Address>(locations.size());
             for (Location location : locations) {
                 Address address = new Address();
-                address.setAddress(location.getAddress());
+                address.setAddress(location.getFqdn());
                 if (type.equals(REST_API)) {
                     address.setPort(settings.getHttpsPort());
                     address.setFormat("https://%s:%d");

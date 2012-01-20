@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public class MailboxManagerTestIntegration extends IntegrationTestCase {
-    private LocalMailboxManagerImpl m_mailboxManager;
+    private RemoteMailboxManagerImpl m_mailboxManager;
     private SettingDao m_settingDao;
     private CoreContext m_coreContext;
     
@@ -52,6 +52,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         Set<Integer> ids = Collections.singleton(newUser.getId());
         m_coreContext.deleteUsers(ids);
 
+        commit();
         assertEquals(0, db().queryForLong("select count(*) from personal_attendant"));
     }
 
@@ -81,7 +82,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         assertEquals("123", user.getOperator());
     }
     
-    public void setMailboxManagerImpl(LocalMailboxManagerImpl mailboxManager) {
+    public void setRemoteMailboxManagerImpl(RemoteMailboxManagerImpl mailboxManager) {
         m_mailboxManager = mailboxManager;
     }
 

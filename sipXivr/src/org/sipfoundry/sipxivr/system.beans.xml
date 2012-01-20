@@ -40,8 +40,6 @@
   </bean>
 
   <bean id="alarmClient" class="org.sipfoundry.commons.alarm.SipXAlarmClient">
-    <constructor-arg><value>${ivr.sipxSupervisorHost}</value></constructor-arg>
-    <constructor-arg><value>${ivr.sipxSupervisorXmlRpcPort}</value></constructor-arg>
   </bean>
 
   <bean id="sipxIvr" class="org.sipfoundry.sipxivr.SipXivr" scope="prototype">
@@ -77,8 +75,6 @@
     <property name="httpsPort" value="${ivr.httpsPort}" />
     <property name="openfireHost" value="${ivr.openfireHost}" />
     <property name="openfireXmlRpcPort" value="9094" />
-    <property name="sipxSupervisorHost" value="${ivr.sipxSupervisorHost}" />
-    <property name="sipxSupervisorXmlRpcPort" value="${ivr.sipxSupervisorXmlRpcPort}" />
     <property name="configAddress" value="${ivr.configAddress}" />
     <property name="binDirectory" value="${ivr.binDirectory}" />
     <property name="logDirectory" value="${ivr.logDirectory}" />

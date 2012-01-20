@@ -357,7 +357,9 @@ public class User {
     }
 
     public void setConfEntryIM(String value) {
-        m_sendConfEntryIM = value.equals("1") || value.equals("true");
+        if (value != null) {
+            m_sendConfEntryIM = value.equals("1") || value.equals("true");
+        }
     }
 
     public boolean getConfEntryIM() {
@@ -365,7 +367,9 @@ public class User {
     }
 
     public void setConfExitIM(String value) {
-        m_sendConfExitIM = value.equals("1") || value.equals("true");
+        if (value != null) {
+            m_sendConfExitIM = value.equals("1") || value.equals("true");
+        }
     }
 
     public boolean getConfExitIM() {
@@ -373,7 +377,9 @@ public class User {
     }
 
     public void setVMEntryIM(String value) {
-        m_sendVMEntryIM = value.equals("1") || value.equals("true");
+        if (value != null) {
+            m_sendVMEntryIM = value.equals("1") || value.equals("true");
+        }
     }
 
     public boolean getVMEntryIM() {
@@ -381,7 +387,9 @@ public class User {
     }
 
     public void setVMExitIM(String value) {
-        m_sendVMExitIM = value.equals("1") || value.equals("true");
+        if (value != null) {
+            m_sendVMExitIM = value.equals("1") || value.equals("true");
+        }
     }
 
     public boolean getVMExitIM() {

@@ -42,14 +42,11 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private static final String GET_VOICEMAIL_URL = "https://{host}:{port}/mailbox/{userId}/{folder}/{messageId}";
     private static final String DELETE_MAILBOX_URL = "https://{host}:{port}/mailbox/{userId}/delete";
     private static final String RENAME_MAILBOX_URL = "https://{host}:{port}/mailbox/{userId}/rename/{oldUserId}";
-    private static final String DISTRIBUTION_URL = "https://{host}:{port}/mailbox/{userId}/distribution";
     private static final String MESSAGE_READ_URL = "https://{host}:{port}/mailbox/{userId}/message/{messageId}/heard";
     private static final String MOVE_MSG = "https://{host}:{port}/mailbox/{userId}/"
             + "message/{messageId}/move/{destination}";
     private static final String DEL_MSG_URL = "https://{host}:{port}/mailbox/{userId}/message/{messageId}/delete";
     private static final String SAVE_SUBJECT = "https://{host}:{port}/mailbox/{userId}/message/{messageId}/subject";
-    private static final String PA_URL = "https://{host}:{port}/mailbox/{userId}/personalattendant";
-    private static final String ACTIVE_GREETING_URL = "https://{host}:{port}/mailbox/{userId}/activegreeting";
     private static final String RESTORE_LOG_URL = "https://{host}:{port}/manage/restore/log";
     private static final Log LOG = LogFactory.getLog(RemoteMailboxManagerImpl.class);
     private XPathOperations m_xPathTemplate;

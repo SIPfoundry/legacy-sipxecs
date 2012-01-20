@@ -101,7 +101,7 @@ public class Configuration {
             
         } catch (Throwable t) {
             LOG.fatal("Configuration::loadXML Something went wrong loading the autoattendants.xml file.", t);
-            System.exit(1);
+            return;
         }
 
         String prop = null;

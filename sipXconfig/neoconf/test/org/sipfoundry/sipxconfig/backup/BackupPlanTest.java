@@ -23,7 +23,7 @@ import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.mail.MailSenderContextImpl;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.sipfoundry.sipxconfig.vm.LocalMailboxManagerImpl;
+import org.sipfoundry.sipxconfig.vm.RemoteMailboxManagerImpl;
 
 public class BackupPlanTest extends TestCase {
 
@@ -34,7 +34,7 @@ public class BackupPlanTest extends TestCase {
         m_backup = new LocalBackupPlan();
         m_backup.setMailSenderContext(new MailSenderContextImpl());
         m_backup.setScript("mock-backup.sh");
-        m_backup.setMailboxManager(new LocalMailboxManagerImpl());
+        m_backup.setMailboxManager(new RemoteMailboxManagerImpl());
         String backupPath = TestHelper.getTestDirectory() + File.separator + System.currentTimeMillis();
         m_backup.setBackupDirectory(backupPath);
     }
