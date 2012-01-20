@@ -20,9 +20,11 @@ import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.InjectState;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -46,14 +48,8 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
 
-//    @InjectObject("spring:serviceConfigurator")
-//    public abstract ServiceConfigurator getServiceConfigurator();
-
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
-
-//    @InjectObject("spring:sipxServiceManager")
-//    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
@@ -96,6 +92,10 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
 
     @InjectPage(LocationStatePage.PAGE)
     public abstract LocationStatePage getLocationStatePage();
+
+    @Persist
+    @InitialValue("literal:locations")
+    public abstract String getTab();
 
     public String getStatusLabel() {
         Location currentLocation = getCurrentRow();

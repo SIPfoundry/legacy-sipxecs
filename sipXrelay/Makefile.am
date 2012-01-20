@@ -1,6 +1,5 @@
 include config/utility.am
 include config/project.am
-include config/utility.am
 include common.am
 
 SUBDIRS = \
@@ -9,19 +8,17 @@ SUBDIRS = \
 
 @PACKAGE@_EXTRA_DIST = \
 	CONTRIBUTORS \
-	$(proc_DATA:=.in) \
-	$(bin_SCRIPTS:=.in)
+	$(initd_SCRIPTS:=.in)
 
-bin_SCRIPTS = \
-	sipxrelay.sh
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+	sipxrelay
 
-procdir = \
-	$(SIPX_DATADIR)/process.d
+$(initd_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@,relay_PKGS)
 
-proc_DATA = \
-	sipxrelay-process.xml
+cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
+dist_cfinputs_DATA = \
+	sipxrelay.cf
 
-$(proc_DATA) $(bin_SCRIPTS) : % : %.in Makefile
-	$(call SearchAndReplace,$<,$@,relay_PKGS)
-
-CLEANFILES = $(proc_DATA) $(bin_SCRIPTS)
+DISTCLEANFILES = $(initd_SCRIPTS)
