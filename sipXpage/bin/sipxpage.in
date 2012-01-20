@@ -40,7 +40,7 @@ start() {
       ${SIPXPAGE_OPTS} \
       sipxpage.SipXpage \
       $Args"
-    if [ -n $NoFork ]; then
+    if [ -n "${NoFork}" ] ; then
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
     else
       echo -n $"Starting $prog: "

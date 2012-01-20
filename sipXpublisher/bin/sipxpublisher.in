@@ -22,14 +22,14 @@ pidfile="@SIPX_RUNDIR@/sipxpublisher.pid"
 start() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
-    if [ -n $NoFork ] ; then
+    if [ -n "${NoFork}" ] ; then
       runuser - @SIPXPBXUSER@ -c $exec
       Status=$?
     else
       echo -n $"Starting $prog: "
       daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec $pidfile
       Status=$?
-      echo
+      echo_success
     fi
 }
 

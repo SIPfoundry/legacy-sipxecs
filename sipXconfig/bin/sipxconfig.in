@@ -173,9 +173,10 @@ start() {
        org.mortbay.jetty.Server \
        @SIPX_CONFDIR@/sipxconfig-jetty.xml"
 
-    if [ -n $NoFork ]; then
+    if [ -n "${NoFork}" ] ; then
       runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
     else
+      echo -n $"Starting sipxconfig: "
       runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
       echo $! > ${PidFile}
       echo_success

@@ -46,10 +46,6 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
         if (bridge != null && event == FeatureEvent.POST_ENABLE) {
             m_conferenceBridgeContext.deploy(bridge);
         }
-        if (bridge != null && event == FeatureEvent.PRE_DISABLE) {
-            m_conferenceBridgeContext.removeConferences(Collections.singleton(bridge.getId()));
-            m_conferenceBridgeContext.deploy(bridge);
-        }
     }
 
     @Override

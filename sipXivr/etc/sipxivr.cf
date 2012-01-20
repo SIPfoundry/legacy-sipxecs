@@ -17,16 +17,9 @@ bundle agent sipxivr {
 bundle agent sipxivr_config {
   vars:    
     any::
-      "conference_file" string => "autoload_configs/conference.conf.xml";
-      "conference_file_src" string => "$(sipx.SIPX_CFDATA)/$(location_id)/$(conference_file)";
-
       "xml_file" slist => { 
         "autoattendants.xml",
       };
-
-  classes:
-    any::
-      "conference_file_exists" expression => fileexists("$(conference_file_src)");
 
   files:
     any::
@@ -34,6 +27,14 @@ bundle agent sipxivr_config {
         create => "true",
         perms => m("644"),
 	edit_line => sipxivr_properties_contents(),
+        classes => if_repaired("restart_sipxivr"),
+	action => track("$(this.promiser)");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxivr"),
 	action => track("$(this.promiser)");
 }

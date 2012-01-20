@@ -175,13 +175,13 @@ int
 main(int argc, char* argv[] )
 {
     char* pidFile = NULL;
-    for(int i = 1; i < argc; i++) {
-        if(strncmp("-v", argv[i], 2) == 0) {
-  	    std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
-	    exit(0);
-	} else {
+    for (int i = 1; i < argc; i++) {
+        if (strncmp("-v", argv[i], 2) == 0) {
+            std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
+            exit(0);
+        } else {
             pidFile = argv[i];
-	}
+        }
     }
     if (pidFile) {
       daemonize(pidFile);

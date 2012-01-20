@@ -27,13 +27,13 @@ pidfile="@SIPX_RUNDIR@/sipxregistrar.pid"
 start() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
-    echo -n $"Starting $prog: "
-    if [ -n $NoFork ] ; then
+    if [ -n "${NoFork}" ] ; then
       runuser - @SIPXPBXUSER@ -c $exec
     else
+      echo -n $"Starting $prog: "
       daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec $pidfile
       Status=$?
-      echo
+      echo_success
     fi
 }
 

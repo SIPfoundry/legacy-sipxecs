@@ -94,6 +94,18 @@ bundle agent sipx_module {
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
 }
 
+#
+# Normal delete single file operation. Doesn't remove containing directory if it's empty
+# as some delete commands can do.
+#
+#  files:
+#    "some/file"
+#       delete => nodir;
+#
+body delete unlink {
+  rmdirs => "false";
+}
+
 bundle edit_line domain_cfdat {
 # TODO: decide if we really need shared secret. Until then stick in a 
 # static value. The code below to generate on works, but has strange

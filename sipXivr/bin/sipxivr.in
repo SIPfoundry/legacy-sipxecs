@@ -29,7 +29,6 @@ checkRunningInstance() {
 
 start() {
     checkRunningInstance
-    echo -n $"Starting $prog: "
 
     JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
     Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @ivr_PKGS@`
@@ -46,9 +45,10 @@ start() {
       ${SIPXIVR_OPTS} \
       org.sipfoundry.sipxivr.SipXivrServer \
       $Args"
-    if [ -n $NoFork ]; then
+    if [ -n "${NoFork}" ] ; then
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
     else
+      echo -n $"Starting $prog: "
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
       echo $! > ${pidfile}
       echo_success

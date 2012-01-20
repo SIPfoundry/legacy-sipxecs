@@ -9,11 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import static org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext.FEATURE;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -23,6 +24,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -40,14 +42,18 @@ public class ConferenceConfiguration implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(ConferenceBridgeContext.FEATURE, LocalizationContext.FEATURE)) {
+        if (!request.applies(FEATURE, LocalizationContext.FEATURE)) {
             return;
         }
 
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                ConferenceBridgeContext.FEATURE);
+        Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxconference.cfdat", "sipxconference", enabled);
+            if (!enabled) {
+                continue;
+            }
             Writer wtr = new FileWriter(new File(dir, "conference.conf.xml"));
             try {
                 String fqdn = location.getFqdn();
