@@ -7,15 +7,19 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
+
+import java.util.Collection;
+import java.util.Collections;
+
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.feature.FeatureListener.FeatureEvent;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
-public class NatTraversalImpl implements FeatureListener, NatTraversal {
+public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureProvider {
     private BeanWithSettingsDao<NatSettings> m_settingsDao;
 
     public NatSettings getSettings() {
@@ -54,4 +58,13 @@ public class NatTraversalImpl implements FeatureListener, NatTraversal {
         m_settingsDao = settingsDao;
     }
 
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return Collections.singleton(FEATURE);
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return null;
+    }
 }

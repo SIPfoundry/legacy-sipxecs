@@ -27,7 +27,9 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.site.common.BetterMultiplePropertySelectionRenderer;
 
@@ -44,14 +46,17 @@ public abstract class ConfigureFeaturesPanel extends BaseComponent implements Pa
     @InjectObject("spring:configManager")
     public abstract ConfigManager getConfigManager();
 
-    public abstract List<LocationFeature> getFeatures();
+    public abstract List<Feature> getFeatures();
 
-    public abstract void setFeatures(List<LocationFeature> features);
+    public abstract void setFeatures(List<Feature> features);
 
     @Parameter
     public abstract ICallback getCallback();
 
-    @Parameter(required = true)
+    /**
+     * If not given, managed global features, otherwise features at a specific location
+     */
+    @Parameter
     public abstract Location getLocationBean();
 
     public IMultiplePropertySelectionRenderer getFeaturesRenderer() {
@@ -59,7 +64,13 @@ public abstract class ConfigureFeaturesPanel extends BaseComponent implements Pa
     }
 
     public IPropertySelectionModel getFeaturesModel() {
-        Set<LocationFeature> all = getFeatureManager().getAvailableLocationFeatures(getLocationBean());
+        Location location = getLocationBean();
+        Set<? extends Feature> all;
+        if (location != null) {
+            all = getFeatureManager().getAvailableLocationFeatures(getLocationBean());
+        } else {
+            all = getFeatureManager().getAvailableGlobalFeatures();
+        }
 
         ObjectSelectionModel nakedModel = new ObjectSelectionModel();
         nakedModel.setCollection(all);
@@ -86,8 +97,14 @@ public abstract class ConfigureFeaturesPanel extends BaseComponent implements Pa
     @Override
     public void pageBeginRender(PageEvent event) {
         if (getFeatures() == null) {
-            Set<LocationFeature> enabled = getFeatureManager().getEnabledLocationFeatures(getLocationBean());
-            setFeatures(new ArrayList<LocationFeature>(enabled));
+            Location location = getLocationBean();
+            if (location != null) {
+                Set<LocationFeature> enabled = getFeatureManager().getEnabledLocationFeatures(getLocationBean());
+                setFeatures(new ArrayList<Feature>(enabled));
+            } else {
+                Set<GlobalFeature> enabled = getFeatureManager().getEnabledGlobalFeatures();
+                setFeatures(new ArrayList<Feature>(enabled));
+            }
         }
     }
 
@@ -95,7 +112,20 @@ public abstract class ConfigureFeaturesPanel extends BaseComponent implements Pa
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-        HashSet<LocationFeature> enabled = new HashSet<LocationFeature>(getFeatures());
-        getFeatureManager().enableLocationFeatures(enabled, getLocationBean());
+
+        Location location = getLocationBean();
+        if (location != null) {
+            HashSet<LocationFeature> enabled = new HashSet<LocationFeature>();
+            for (Feature f : getFeatures()) {
+                enabled.add((LocationFeature) f);
+            }
+            getFeatureManager().enableLocationFeatures(enabled, getLocationBean());
+        } else {
+            HashSet<GlobalFeature> enabled = new HashSet<GlobalFeature>();
+            for (Feature f : getFeatures()) {
+                enabled.add((GlobalFeature) f);
+            }
+            getFeatureManager().enableGlobalFeatures(enabled);
+        }
     }
 }
