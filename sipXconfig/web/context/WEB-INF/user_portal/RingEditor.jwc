@@ -10,7 +10,7 @@
 
   <!-- B E A N S -->
   <bean name="delayModel_en" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
-    <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>
+    <set name="enumClass" value="@org.sipfoundry.sipxconfig.callgroup.AbstractRing$Type@class"/>
   </bean>
   <bean name="delayModel" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator" lifecycle="page">
     <set name="model" value="bean:delayModel_en"/>
