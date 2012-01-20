@@ -51,7 +51,7 @@ public class AuthCodesConfig implements ConfigProvider {
         Address fs = manager.getAddressManager().getSingleAddress(FreeswitchFeature.EVENT_ADDRESS);
         Domain domain = manager.getDomainManager().getDomain();
         for (Location location : locations) {
-            AuthCodeSettings settings = m_authCodes.getSettings(location);
+            AuthCodeSettings settings = m_authCodes.getSettings();
             File dir = manager.getLocationDataDirectory(location);
             Writer xml = new FileWriter(new File(dir, "authcodes.xml"));
             try {

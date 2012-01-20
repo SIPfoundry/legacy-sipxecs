@@ -23,23 +23,24 @@ public class AuthCodeAliases implements AliasOwner {
 
     @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
+        Collection ids = Collections.emptyList();
         if (!m_authCodes.isEnabled()) {
-            return Collections.emptyList();
+            return ids;
         }
 
         List<Location> locations = m_featureManager.getLocationsForEnabledFeature(AuthCodes.FEATURE);
-        Collection ids = Collections.emptyList();
-        for (Location location : locations) {
-            AuthCodeSettings settings = m_authCodes.getSettings(location);
-            if (settings != null) {
-                Set<String> aliases = settings.getAliasesAsSet();
-                aliases.add(settings.getAuthCodeAliases());
-                for (String serviceAlias : aliases) {
-                    if (serviceAlias.equals(alias)) {
-                        ids = BeanId.createBeanIdCollection(Collections.singletonList(settings.getId()),
-                                AuthCodeSettings.class);
-                        break;
-                    }
+        if (locations.isEmpty()) {
+            return ids;
+        }
+        AuthCodeSettings settings = m_authCodes.getSettings();
+        if (settings != null) {
+            Set<String> aliases = settings.getAliasesAsSet();
+            aliases.add(settings.getAuthCodeAliases());
+            for (String serviceAlias : aliases) {
+                if (serviceAlias.equals(alias)) {
+                    ids = BeanId.createBeanIdCollection(Collections.singletonList(settings.getId()),
+                            AuthCodeSettings.class);
+                    break;
                 }
             }
         }
@@ -49,8 +50,8 @@ public class AuthCodeAliases implements AliasOwner {
     @Override
     public boolean isAliasInUse(String alias) {
         List<Location> locations = m_featureManager.getLocationsForEnabledFeature(AuthCodes.FEATURE);
-        for (Location location : locations) {
-            AuthCodeSettings settings = m_authCodes.getSettings(location);
+        if (!locations.isEmpty()) {
+            AuthCodeSettings settings = m_authCodes.getSettings();
             Set<String> aliases = settings.getAliasesAsSet();
             aliases.add(settings.getAuthCodeAliases());
             for (String serviceAlias : aliases) {
