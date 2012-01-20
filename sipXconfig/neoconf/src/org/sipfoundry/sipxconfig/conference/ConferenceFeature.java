@@ -40,6 +40,7 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
         Bridge bridge = m_conferenceBridgeContext.getBridgeByServer(location.getFqdn());
         if (bridge == null && event == FeatureEvent.PRE_ENABLE) {
             bridge = m_conferenceBridgeContext.newBridge();
+            bridge.setLocation(location);
             m_conferenceBridgeContext.store(bridge);
         }
         if (bridge != null && event == FeatureEvent.POST_ENABLE) {
