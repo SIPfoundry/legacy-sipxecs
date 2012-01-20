@@ -79,6 +79,9 @@ public class PresenceReplication implements Replicable, ReplicableProvider {
 
     @Override
     public List<Replicable> getReplicables() {
+        if (!m_featureManager.isFeatureEnabled(PresenceServer.FEATURE)) {
+            return Collections.EMPTY_LIST;
+        }
         return Collections.singletonList((Replicable) this);
     }
 

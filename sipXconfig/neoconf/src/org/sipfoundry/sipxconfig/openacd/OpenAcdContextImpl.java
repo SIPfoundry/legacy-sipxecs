@@ -32,7 +32,6 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserChangeEvent;
@@ -943,15 +942,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public OpenAcdRecipeStep getRecipeStepById(Integer recipeStepId) {
         return getHibernateTemplate().load(OpenAcdRecipeStep.class, recipeStepId);
-    }
-
-    @Override
-    public List<Replicable> getReplicables() {
-        List<Replicable> replicables = new ArrayList<Replicable>();
-        for (OpenAcdExtension ext : getHibernateTemplate().loadAll(OpenAcdExtension.class)) {
-            replicables.add(ext);
-        }
-        return replicables;
     }
 
     public void onSave(Object entity) {

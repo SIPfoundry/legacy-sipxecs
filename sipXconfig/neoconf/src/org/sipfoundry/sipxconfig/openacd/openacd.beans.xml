@@ -29,8 +29,26 @@
   </bean>
   
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.openacd.OpenAcdContext" />
+    <property name="proxyInterfaces">
+      <list>
+        <value>org.sipfoundry.sipxconfig.openacd.OpenAcdContext</value>
+      </list>
+    </property>
     <property name="target" ref="openAcdContextImpl"/>
+  </bean>
+
+  <bean id="openAcdReplicationProvider" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+      <property name="proxyInterfaces">
+      <list>
+        <value>org.sipfoundry.sipxconfig.common.ReplicableProvider</value>
+      </list>
+    </property>
+    <property name="target" ref="openAcdReplicationProviderImpl" />
+  </bean>
+
+  <bean id="openAcdReplicationProviderImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdReplicationProvider">
+    <property name="openAcdContext" ref="openAcdContext" />
+    <property name="featureManager" ref="featureManager" />
   </bean>
 
   <bean id="openAcdDb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">

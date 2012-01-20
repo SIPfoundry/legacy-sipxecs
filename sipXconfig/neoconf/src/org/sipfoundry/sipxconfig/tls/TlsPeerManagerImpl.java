@@ -20,14 +20,12 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
-import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.beans.factory.annotation.Required;
 
-public class TlsPeerManagerImpl extends SipxHibernateDaoSupport implements TlsPeerManager, ReplicableProvider {
+public class TlsPeerManagerImpl extends SipxHibernateDaoSupport implements TlsPeerManager {
 
     private static final String TLS_PEER_NAME = "name";
     private static final String INTERNAL_NAME = "~~tp~%s";
@@ -118,15 +116,6 @@ public class TlsPeerManagerImpl extends SipxHibernateDaoSupport implements TlsPe
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    @Override
-    public List<Replicable> getReplicables() {
-        List<Replicable> replicables = new ArrayList<Replicable>();
-        for (TlsPeer tp : getTlsPeers()) {
-            replicables.add(tp);
-        }
-        return replicables;
     }
 
 }
