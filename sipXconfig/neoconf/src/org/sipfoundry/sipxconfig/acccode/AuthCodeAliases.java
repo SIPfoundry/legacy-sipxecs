@@ -28,10 +28,6 @@ public class AuthCodeAliases implements AliasOwner {
             return ids;
         }
 
-        List<Location> locations = m_featureManager.getLocationsForEnabledFeature(AuthCodes.FEATURE);
-        if (locations.isEmpty()) {
-            return ids;
-        }
         AuthCodeSettings settings = m_authCodes.getSettings();
         if (settings != null) {
             Set<String> aliases = settings.getAliasesAsSet();
