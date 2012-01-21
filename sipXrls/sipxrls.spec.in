@@ -54,14 +54,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%dir %{_datadir}/sipxecs
-%dir %{_datadir}/sipxecs/process.d
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrls-process.xml
 %attr(755,root,root) %{_bindir}/sipx-snapshot-rls
-%attr(755,root,root) %{_bindir}/sipxrls.sh
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxrls
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxrls.cf
 %attr(755,root,root) %{_bindir}/sipxrls
-%attr(755,root,root) %{_datadir}/sipxecs/schema/resource-lists.xsd
-
-%pre
-
-%post
+%{_datadir}/sipxecs/schema/resource-lists.xsd

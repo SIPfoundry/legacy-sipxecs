@@ -46,13 +46,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,sipxchange,sipxchange,755)
-%dir %{_datadir}/sipxecs
-%dir %{_datadir}/sipxecs/process.d
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/freeswitch-process.xml
-%attr(755,root,root) %{_bindir}/freeswitch.sh
-%dir %{_libexecdir}/sipXecs
-%dir %{_libexecdir}/sipXecs/setup.d
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/freeswitch_setup.sh
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxfreeswitch
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxfreeswitch.cf
 %{_sysconfdir}/sipxpbx/freeswitch/conf
 
 %post

@@ -1,8 +1,5 @@
 include $(top_srcdir)/config/utility.am
 
-EXTRA_DIST = \
-        $(proc_DATA:=.in)
-
 sqldir = @SIPX_CONFDIR@/cdr
 dist_sql_DATA = \
 	database/schema.sql \
@@ -15,13 +12,6 @@ dist_sql_DATA = \
 	database/cdrremote.sql \
 	database/transaction.sql
 
-procdir = \
-        $(SIPX_DATADIR)/process.d
-
-proc_DATA = \
-	sipxcallresolver-process.xml
-
-$(proc_DATA) : % : %.in Makefile
-	@$(call SearchAndReplace, $<, $@)
-
-CLEANFILES = $(proc_DATA)
+cfinputsdir = @SIPX_CFINPUTS@/plugin.d
+dist_cfinputs_DATA = \
+	sipxcdr.cf

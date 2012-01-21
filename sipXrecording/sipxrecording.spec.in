@@ -52,6 +52,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXrecording
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrecording-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/schema/conferencebridge.xsd
-%attr(755,sipxchange,sipxchange) %{_bindir}/sipxrecording.sh
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxrecording
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxrecording.cf

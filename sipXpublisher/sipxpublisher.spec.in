@@ -64,10 +64,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc  %name.configlog
-%dir %{_datadir}/sipxecs/process.d
-%attr(755,root,root) %{_bindir}/sipstatus.sh
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxpublisher
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxpublisher.cf
 %attr(755,root,root) %{_bindir}/sipstatus
-%attr(755,root,root) %{_datadir}/sipxecs/process.d/sipstatus-process.xml
 
 %files devel
 %defattr(644,root,root,755)

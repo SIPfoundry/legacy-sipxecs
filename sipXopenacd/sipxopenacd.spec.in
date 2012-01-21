@@ -42,10 +42,8 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%{_datadir}/sipxecs/process.d/sipxopenacd-process.xml
-%attr(755,root,root) %{_bindir}/sipxopenacd
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxopenacd.cf
 %attr(755,root,root) %{_bindir}/find-erlang-lib
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxopenacd-setup
 %dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/openacd
 %dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/log/sipxpbx/openacd
 %{plugindir}/sipxplugin.app

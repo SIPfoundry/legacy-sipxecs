@@ -47,5 +47,5 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXprovision
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxprovision-process.xml
-%attr(755,sipxchange,sipxchange) %{_bindir}/sipxprovision.sh
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxprovision
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxprovision.cf

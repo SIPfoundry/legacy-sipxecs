@@ -55,11 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%dir %{_datadir}/sipxecs
-%dir %{_datadir}/sipxecs/process.d
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpresence-process.xml
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxpresence
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxpresence.cf
 %config(noreplace) %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/sipxpresence
-%attr(755,root,root) %{_bindir}/sipxpresence.sh
 %attr(755,root,root) %{_bindir}/sipxpresence
 %attr(755,root,root) %{_datadir}/sipxecs/schema/presence-state.xsd
 

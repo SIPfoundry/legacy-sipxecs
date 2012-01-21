@@ -61,11 +61,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%dir %{_datadir}/sipxecs/process.d
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxsaa-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/schema/appearance-groups.xsd
-%attr(755,root,root) %{_bindir}/sipxsaa.sh
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxsaa
 %attr(755,root,root) %{_bindir}/sipxsaa
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxsaa.cf
 %attr(755,root,root) %{_bindir}/sipx-snapshot-saa
 
 %pre

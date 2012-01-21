@@ -1,19 +1,14 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/common.am
 
-bin_SCRIPTS = \
-	sipxcallresolver-agent.sh \
-	sipxcallresolver.sh
-
 EXTRA_DIST = \
-	$(bin_SCRIPTS:=.in) \
-	$(setup_SCRIPTS:=.in)
+	$(initd_SCRIPTS:=.in)
 
-setupdir = @SIPX_LIBEXECDIR@/setup.d
-setup_SCRIPTS = \
-	sipxcallresolver-setup
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+	sipxcdr
 
-$(setup_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
-	@$(call SearchAndReplace,$<,$@,STUNNEL ODBC_LIBDIR sipxcallresolver_VER)
+$(initd_SCRIPTS) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@,ODBC_LIBDIR sipxcallresolver_VER)
 
-CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS)
+CLEANFILES = $(initd_SCRIPTS)

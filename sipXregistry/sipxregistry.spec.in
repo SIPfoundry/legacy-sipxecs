@@ -67,10 +67,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 
 %doc  %name.configlog
-%dir %{_datadir}/sipxecs
-%dir %{_datadir}/sipxecs/process.d
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXregistry-process.xml
-%attr(755,root,root) %{_bindir}/sipregistrar.sh
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxregistrar
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxregistrar.cf
 %attr(755,root,root) %{_bindir}/sipregistrar
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.la
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.a

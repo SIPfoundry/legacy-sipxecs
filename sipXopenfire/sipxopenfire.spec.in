@@ -46,9 +46,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,sipxchange,sipxchange,755)
-%attr(755,root,root) %{_bindir}/sipxopenfire.sh
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxopenfire-setup.sh
-%{_datadir}/sipxecs/process.d/sipxopenfire-process.xml
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxopenfire
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxopenfire.cf
 %{_sysconfdir}/sipxpbx/database/sipxopenfire-initdb.sql
 %dir %attr(775,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/openfire
 %{_sysconfdir}/sipxpbx/sipxopenfire-database.xml

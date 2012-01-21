@@ -48,8 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%{_datadir}/sipxecs/process.d/sipxpage-process.xml
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxpage
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxpage.cf
 %{_datadir}/java/sipXecs/sipXpage/sipXpage.jar
-%attr(755,root,root) %{_bindir}/sipxpage.sh
 %dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata
 %config(noreplace) %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/sipxpage

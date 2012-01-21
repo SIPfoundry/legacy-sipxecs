@@ -174,8 +174,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/sipXecs/ibm_jvm_tmpdir
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/020_ibm_jvm_tmpdir
 
-%attr(755,root,root) %{_sysconfdir}/init.d/sipxecs
-%attr(755,root,root) %{_sysconfdir}/init.d/phonelogd
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
 %attr(755,root,root) %{_sysconfdir}/cron.daily/voicemail_clean
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-core-clean
@@ -190,8 +188,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange
 
-%config(noreplace) %attr(644,root,root) %{_sysconfdir}/sipxpbx/phonelog.conf
-
 %dir %attr(775,sipxchange,root) %{_datadir}/www/doc
 %config(noreplace) %attr(755,root,sipxchange) %{_datadir}/www/doc/index.html
 %config(noreplace) %attr(755,root,sipxchange) %{_datadir}/www/doc/retrieve-update-log.cgi
@@ -204,7 +200,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/mediaserver
 
-%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/log/sipxpbx/phone
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/webdav
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/var
 %{_datadir}/sipxecs/locale/en_US/LC_MESSAGES/*
@@ -224,18 +219,6 @@ rm -f %{_sysconfdir}/sipxpbx/cbadmission.xml.in
 if [ -d %{old_processdefdir} ]; then
    mv %{old_processdefdir} %{upg_processdefdir}
    chmod -R 0777 %{upg_processdefdir}
-fi
-
-# Arrange for sipX to be started every time the system starts up.
-# It starts in runlevels 3 and 5.
-if [ -x /sbin/chkconfig ]; then
-  # RedHat / Fedora
-  chkconfig --add sipxecs
-  chkconfig --add phonelogd
-else
-  # SuSE
-  insserv sipxecs
-  insserv phonelogd
 fi
 
 # Reconfigure sendmail (if that is the mail daemon chosen) to ensure

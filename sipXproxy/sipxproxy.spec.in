@@ -82,6 +82,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc  ChangeLog %name.configlog
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxproxy
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxproxy.cf
+%attr(755,root,root) %{_localstatedir}/sipxdata/cfdata/defaults/sipxproxy.cfdat
 %attr(755,root,root) %{_bindir}/sipXproxy
 %attr(755,root,root) %{_datadir}/sipxecs/schema/forwardingrules.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/nattraversalrules.xsd

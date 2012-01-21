@@ -11,18 +11,11 @@ Packager: Pingtel <support@pingtel.com>
 Url:      http://www.pingtel.com
 
 BuildRequires: automake
-BuildRequires: gcc-c++
-BuildRequires: cppunit-devel
-BuildRequires: pcre-devel >= 4.5
-BuildRequires: openssl-devel
-BuildRequires: unixODBC-devel
-BuildRequires: sipxcommserverlib-devel >= %version
-BuildRequires: sipxportlib-devel >= %version
-BuildRequires: sipxtacklib-devel >= %version
 
 Source:   %name-%version.tar.gz
 Obsoletes: %name-devel
 
+Requires: cfengine >= 3.2.3
 %if %{_vendor} == redhat
 Requires: chkconfig
 %endif
@@ -33,10 +26,6 @@ BuildRequires: net-snmp-devel >= 5.3.1
 BuildRequires: net-snmp-devel >= 5.3.1
 Requires: net-snmp-libs >= 5.3.1
 %endif
-Requires: sipxcommserverlib >= %version
-
-# by requiring sipxpbx, that will be upgraded first so it won't object to this overriding files
-Requires: sipxpbx >= @VERSION@
 
 # sending email - an smtp listener must be running on localhost
 %if %{_vendor} == redhat
@@ -45,33 +34,22 @@ Requires: smtpdaemon
 %if %{_vendor} == suse
 Requires: sendmail
 %endif
-Requires: %{name}-lite
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
 %description
-The sipXecs project is a comprehensive small/medium scale Enterprise SIP PBX.
-
 This component manages sipXecs processes and acts as the configuration agent
 for a remote management application.
 
-%if %{_vendor} == suse
-%debug_package
-%endif
-
-%package lite
-Requires: cfengine >= 3.2.3
-
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Summary: Configures servers and proper integration with services
-
-%description lite 
 Uses cfengine to securely distribute configuration. cfengine is a
 distributed configuration system.  The fact cfengine is used in this
 project should not interfere with any configuration systems an IT
 infrastruture might already have like puppet, chef or even cfengine.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
 
 %prep
 %setup -q
@@ -91,37 +69,12 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
-%attr(755,root,root) %{_bindir}/sipxsupervisor
-%attr(755,root,root) %{_bindir}/sipxsupervisor.sh
-%dir %{_datadir}/sipxecs/process.d
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxsupervisor-process.xml
-%dir %{_sysconfdir}/sipxpbx/alarms
-%attr(644,root,sipxchange) %{_sysconfdir}/sipxpbx/alarms/sipXalarms-config.xml
-%dir %{_datadir}/sipxecs/mibs
-%attr(644,root,sipxchange) %{_datadir}/sipxecs/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.mib
-%dir %{_datadir}/sipxecs/alarms
-%attr(644,root,sipxchange) %{_datadir}/sipxecs/alarms/alarm-strings.xml
-%attr(644,root,sipxchange) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml
-%attr(755,root,root) %{_datadir}/sipxecs/schema/sipXecs-process.xsd
-%attr(755,root,root) %{_datadir}/sipxecs/schema/alarm.xsd
-%attr(755,root,root) %{_datadir}/sipxecs/schema/alarm-group.xsd
-%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/process-state
-%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/process-cfgver
-
-%files lite
-%defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/sipxagent
-%attr(755,root,root) %{_sysconfdir}/init.d/sipxsupervisord
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxsupervisor
+%{_datadir}/sipxecs/cfinputs/sipxsupervisor.cf
 %attr(755,root,root) %{_datadir}/sipxecs/cfmodules/sipx
-%{_datadir}/sipxecs/cfinputs/*.cf
 %dir %{_datadir}/sipxecs/cfinputs/plugin.d
-# where sipxconfig writes data, sipxchange user needs write access
+# where sipxconfig writes data, sipxchange user needs r/w access
 %dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/cfdata
 # defaults are static, only root should write
-%{_localstatedir}/sipxdata/cfdata/defaults/*.cfdat
-
-%pre
-
-%post
-rm -f %{_localstatedir}/sipxdata/tmp/processAlias.dat
-rm -f %{_localstatedir}/sipxdata/tmp/locked.lck
+%{_localstatedir}/sipxdata/cfdata/defaults/dirs.cfdat

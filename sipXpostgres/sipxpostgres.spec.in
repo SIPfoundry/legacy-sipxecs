@@ -36,4 +36,5 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %{_datadir}/sipxecs/cfinputs/plugin.d/postgres.cf
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/cfdata
 %{_localstatedir}/sipxdata/cfdata/defaults/postgres.cfdat

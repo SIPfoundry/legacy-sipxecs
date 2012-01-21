@@ -112,6 +112,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxcommserverlib.cf
 %attr(4755,root,root) %{_bindir}/sipx-sudo-restore
 %attr(755,root,root) %{_bindir}/pkg-upgrade
 %attr(755,root,root) %{_bindir}/configmerge
@@ -119,7 +120,6 @@ fi
 %attr(755,root,root) %{_bindir}/xsdvalid
 %attr(755,root,root) %{_bindir}/sipx-validate-xml
 %attr(755,root,root) %{_bindir}/sipx-dns
-%attr(755,root,root) %{_bindir}/pgpatch.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/gen-ssl-keys.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/install-cert.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/check-cert.sh
