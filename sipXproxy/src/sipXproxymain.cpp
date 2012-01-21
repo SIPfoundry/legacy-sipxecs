@@ -686,13 +686,17 @@ int proxy()
 
 void signal_handler(int sig) {
     switch(sig) {
+    case SIGPIPE:
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGPIPE caught. Ignored.");
+    break;
+
     case SIGHUP:
         Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
 	break;
 
     case SIGTERM:
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
         gShutdownFlag = TRUE;
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
 	break;
     }
 }
@@ -713,6 +717,7 @@ int main(int argc, char* argv[]) {
     }
     signal(SIGHUP, signal_handler); // catch hangup signal
     signal(SIGTERM, signal_handler); // catch kill signal
+    signal(SIGPIPE, signal_handler); // r/w socket failure
     proxy();
     Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
     Os::Logger::instance().flush();

@@ -16,13 +16,16 @@ bundle agent sipxproxy {
 
 bundle agent sipxproxy_config {
   vars:
+    # XX-8932 - sipxbridge.xml is a strange dependency, but there because of
+    # strange hack made in proxy to try to support routing directory to bridge
     any::
       "xml_file" slist => {
         "peeridentities.xml",
         "authrules.xml",
         "fallbackrules.xml",
         "forwardingrules.xml",
-        "nattraversalrules.xml"
+        "nattraversalrules.xml",
+        "sipxbridge.xml"
       };
 
   files:
@@ -50,7 +53,7 @@ bundle edit_line sipXproxy_config_contents() {
         insert_type => "file";
       "SIPX_PROXY.400_authrules.RULES : $(sipx.SIPX_CONFDIR)/authrules.xml";
       "SIPX_PROXY.990_emergnotif.EMERGRULES : $(sipx.SIPX_CONFDIR)/authrules.xml";
-      "SIPX_PROXY_BIND_IP : $(sys.ipv4)";
+      "SIPX_PROXY_BIND_IP : $(sys.bind_ip)";
       "SIPX_PROXY_HOOK_LIBRARY.200_xfer : $(sipx.SIPX_LIBDIR)/authplugins/libTransferControl.so";
       "SIPX_PROXY_HOOK_LIBRARY.205_subscriptionauth : $(sipx.SIPX_LIBDIR)/authplugins/libSubscriptionAuth.so";
       "SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack : $(sipx.SIPX_LIBDIR)/authplugins/libMSFT_ExchangeTransferHack.so";

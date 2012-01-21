@@ -9,6 +9,7 @@ package org.sipfoundry.sipxconfig.bridge;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
@@ -28,19 +29,24 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(BridgeSbcContext.FEATURE, TlsPeerManager.FEATURE)) {
+        if (!request.applies(ProxyManager.FEATURE, BridgeSbcContext.FEATURE, TlsPeerManager.FEATURE)) {
             return;
         }
 
+        Set<Location> locations = request.locations(manager);
+        FeatureManager fm = manager.getFeatureManager();
         List<BridgeSbc> bridges = m_sbcDeviceManager.getBridgeSbcs();
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                BridgeSbcContext.FEATURE);
-        for (BridgeSbc bridge : bridges) {
-            Location location = bridge.getLocation();
-            if (locations.contains(location)) {
-                // strange object for profile location to be compatible with device module
-                ProfileLocation profileLocation = bridge.getProfileLocation();
-                bridge.generateFiles(profileLocation);
+        for (Location l : locations) {
+            for (BridgeSbc bridge : bridges) {
+                Location location = bridge.getLocation();
+                boolean bridgeHere = l.getId().equals(location.getId());
+                boolean proxyHere = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
+                // Proxy source reads sipxbrige.xml to find how to connect to bridge
+                if (bridgeHere || proxyHere) {
+                    // strange object for profile location to be compatible with device module
+                    ProfileLocation profileLocation = bridge.getProfileLocation();
+                    bridge.generateFiles(profileLocation);
+                }
             }
         }
     }
@@ -48,7 +54,13 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
     @Override
     public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
             Location location) {
-        if (!feature.equals(ProxyManager.FEATURE)) {
+
+        if (feature.equals(ProxyManager.FEATURE) && event == FeatureEvent.PRE_ENABLE) {
+            // HACK: Proxy requires one or more bridges to be running on your system
+            // this should in turn call this function again with BridgeFeature on
+            if (!manager.isFeatureEnabled(BridgeSbcContext.FEATURE)) {
+                manager.enableLocationFeature(BridgeSbcContext.FEATURE, location, true);
+            }
             return;
         }
 
