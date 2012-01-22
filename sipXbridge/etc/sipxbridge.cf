@@ -1,0 +1,68 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipxbridge configuration and process management
+#
+bundle agent sipxbridge {
+  methods:
+    sipxbridge::
+      "any" usebundle => "sipxbridge_config";
+      "any" usebundle => "sipxbridge_setup";
+    any::
+      "any" usebundle => "sipxbridge_running";
+}
+
+bundle agent sipxbridge_config {
+  vars:    
+    any::
+      "xml_file" slist => { 
+        "sipxbridge.xml",
+        "peeridentities.xml",
+      };
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxbridge"),
+	action => track("$(this.promiser)");
+}
+
+bundle agent sipxbridge_setup {
+  methods:
+    !src.sipxbridge::
+      "any" usebundle => rh_chkconfig_status("sipxbridge");
+}
+
+bundle agent sipxbridge_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipxbridge\s.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxbridge_running");
+
+  commands:
+    sipxbridge_running.!sipxbridge::
+      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+        args => "stop",
+	action => track("sipxbridge stop");
+
+    !sipxbridge_running.sipxbridge::
+      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+        args => "start",
+	action => track("sipxbridge start");
+
+    restart_sipxbridge::
+      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+        args => "restart",
+	action => track("sipxbridge restart");
+}
+
+
+

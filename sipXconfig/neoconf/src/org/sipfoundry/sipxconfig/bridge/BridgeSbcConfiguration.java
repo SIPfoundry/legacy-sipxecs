@@ -7,12 +7,15 @@
  */
 package org.sipfoundry.sipxconfig.bridge;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
@@ -35,9 +38,17 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
         List<BridgeSbc> bridges = m_sbcDeviceManager.getBridgeSbcs();
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
                 BridgeSbcContext.FEATURE);
+        FeatureManager featureManager = manager.getFeatureManager();
         for (BridgeSbc bridge : bridges) {
             Location location = bridge.getLocation();
             if (locations.contains(location)) {
+                File dir = manager.getLocationDataDirectory(location);
+                boolean enabled = featureManager.isFeatureEnabled(BridgeSbcContext.FEATURE, location);
+
+                ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", "sipxbridge", enabled);
+                if (!enabled) {
+                    continue;
+                }
                 // strange object for profile location to be compatible with device module
                 ProfileLocation profileLocation = bridge.getProfileLocation();
                 bridge.generateFiles(profileLocation);
@@ -48,12 +59,12 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
     @Override
     public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
             Location location) {
-        if (!feature.equals(ProxyManager.FEATURE)) {
+        if (!feature.equals(BridgeSbcContext.FEATURE)) {
             return;
         }
 
-        if (!manager.isFeatureEnabled(BridgeSbcContext.FEATURE)) {
-            return;
+        if (!manager.isFeatureEnabled(ProxyManager.FEATURE, location)) {
+            throw new UserException("Proxy should be enabled");
         }
 
         BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location);

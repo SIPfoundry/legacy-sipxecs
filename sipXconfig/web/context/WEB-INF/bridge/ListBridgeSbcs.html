@@ -1,0 +1,24 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="@PageLink" page="sbc/BridgeSbcStatisticsPage" href="#"><span key="label.statistics">Stats</span></a>
+      </li>
+    </ul>
+  </div>
+  <div jwcid="@common/QuickHelp" value="message:quick.help">help text here...</div>
+  <form jwcid="@Form">
+   <table jwcid="tableView@common/Table" id="bridge:sbcs"
+		columns="literal:* name, address, description"
+		source="ognl:source"
+		row="ognl:currentRow">
+	  <span jwcid="nameColumnValue@Block">
+	    <span jwcid="editRowLink@DirectLink"
+		  listener="listener:editBridge"
+		  parameters="ognl:currentRow.id">
+		  <span jwcid="nameText@Insert" value="ognl:currentRow.name"/>
+	    </span>
+	  </span>
+    </table>
+  </form>
+</div>

@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.bridge;
 
-
 import java.util.Map;
 import java.util.Set;
 
@@ -47,14 +46,15 @@ public class BridgeSbcStatistics {
         if (!isOk(bridgeSbc)) {
             return null;
         }
-        Address address = m_addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS, BridgeSbcContext.FEATURE);
+        Address address = m_addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS,
+                BridgeSbcContext.FEATURE);
         BridgeSbcXmlRpcApi api = m_bridgeSbcApiProvider.getApi(address.toString());
         return api;
     }
 
     /**
-     * Gets an array of Registration records - one record for each account
-     * that requires registration.
+     * Gets an array of Registration records - one record for each account that requires
+     * registration.
      *
      * @return an array of registration records.
      * @throws Exception
@@ -71,8 +71,8 @@ public class BridgeSbcStatistics {
             return null;
         }
 
-        BridgeSbcRegistrationRecord[] registrationRecords = new
-            BridgeSbcRegistrationRecord[registrationRecordMap.size()];
+        BridgeSbcRegistrationRecord[] registrationRecords = new BridgeSbcRegistrationRecord[registrationRecordMap
+                .size()];
         int i = 0;
         Set<String> keys = registrationRecordMap.keySet();
         for (String key : keys) {
