@@ -89,6 +89,6 @@ public abstract class ManagePhonebooks extends SipxBasePage implements PageBegin
     }
 
     public void saveGeneralPhonebookSettings() {
-        getPhonebookManager().saveGeneralPhonebookSettings(getGeneralPhonebookSettings());
+        getPhonebookManager().saveGeneralPhonebookSettings();
     }
 }
