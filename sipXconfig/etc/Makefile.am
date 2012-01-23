@@ -1,17 +1,12 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/common.am
 
-all : $(proc_DATA) $(conf_DATA) $(addprefix out/,$(conf_SOURCE))
+all : $(conf_DATA) $(addprefix out/,$(conf_SOURCE))
 
 EXTRA_DIST = \
 	$(addprefix sipxpbx/,$(conf_SOURCE)) \
-	$(proc_DATA:=.in) \
 	$(conf_DATA:=.in) \
 	sipxconfig.cfdat
-
-procdir = $(SIPX_DATADIR)/process.d
-proc_DATA = \
-	tunnel-process.xml
 
 # Directories should be created in the application layer to make it more resiliant to IT administation errors
 # but these may exist for historical or special reasons
@@ -32,20 +27,20 @@ emptydirs = \
 confdir = @SIPX_CONFDIR@
 conf_DATA = sipxconfig.properties
 
+cfinputsdir = @SIPX_CFINPUTS@/plugin.d
+dist_cfinputs_DATA = \
+	sipxconfig.cf
+
 cfdefaultsdir = @SIPX_CFDATA@/defaults
 cfdefaults_DATA = \
-	location_id \
 	sipxconfig.cfdat
-
-location_id :
-	echo 1 > $@
 
 # automatically selects configuration files, but as importantly, also has to distinguish what is NOT
 # a configuration file in the 'find' statement
 conf_SOURCE = \
 	$(shell cd $(srcdir)/sipxpbx; find -type f -printf '%P\n')
 
-$(conf_DATA) $(proc_DATA) : % : %.in Makefile
+$(conf_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,$(EXTRA_REPLACE))
 
 out/% : sipxpbx/% Makefile
@@ -65,7 +60,7 @@ install-data-hook : $(addprefix out/,$(conf_SOURCE)) $(emptydirs)
 clean-local :
 	! test -d out || rm -rf out
 
-CLEANFILES = $(proc_DATA) $(conf_DATA)
+CLEANFILES = $(conf_DATA)
 
 
 check : validate-xml

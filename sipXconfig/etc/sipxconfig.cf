@@ -1,0 +1,41 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipxconfig configuration and process management
+#
+bundle agent sipxconfig {
+  methods:
+    any::
+      "any" usebundle => "sipxconfig_running";
+}
+
+bundle agent sipxconfig_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipxconfig\s.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxconfig_running");
+
+  commands:
+    sipxconfig_running.!sipxconfig::
+      "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
+        args => "stop",
+	action => track("sipxconfig stop");
+
+    !sipxconfig_running.sipxconfig::
+      "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
+        args => "start",
+	action => track("sipxconfig start");
+
+    restart_sipxconfig::
+      "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
+        args => "restart",
+	action => track("sipxconfig restart");
+}
+
+
+

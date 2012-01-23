@@ -139,9 +139,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-snapshot
 %attr(755,root,root) %{_bindir}/sipx-backup
 %attr(755,root,root) %{_bindir}/sipx-restore
-%attr(755,root,root) %{_bindir}/sipxecs-setup
 %attr(755,root,root) %{_bindir}/sipxecs-upgrade
-%attr(755,root,root) %{_bindir}/sipxecs-setup-system
 %attr(755,root,root) %{_bindir}/sipxecs-pgcdraccess
 %attr(755,root,root) %{_bindir}/sipx-sendmail-configure
 %attr(755,root,root) %{_bindir}/sipx-archive-common
@@ -161,7 +159,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-strip-db-secrets.pl
 %attr(755,root,root) %{_libexecdir}/sipXecs/initial-config
-%attr(755,root,root) %{_libexecdir}/sipXecs/sipxecs_setup_common.py*
 
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-activate-ntp
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/010_sipx-activate-ntp
@@ -202,7 +199,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/webdav
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/var
-%{_datadir}/sipxecs/locale/en_US/LC_MESSAGES/*
 
 %pre
 
@@ -213,13 +209,6 @@ rm -f %{_bindir}/restore-mailstore.sh
 rm -f %{_bindir}/backup-configs.sh
 rm -rf %{_datadir}/www/cgi-bin/processmonitor
 rm -f %{_sysconfdir}/sipxpbx/cbadmission.xml.in
-
-%define old_processdefdir %{_sysconfdir}/sipxpbx/process.d
-%define upg_processdefdir %{_sysconfdir}/sipxpbx/process-old.d
-if [ -d %{old_processdefdir} ]; then
-   mv %{old_processdefdir} %{upg_processdefdir}
-   chmod -R 0777 %{upg_processdefdir}
-fi
 
 # Reconfigure sendmail (if that is the mail daemon chosen) to ensure
 # prompt delivery of voicemail notifications.

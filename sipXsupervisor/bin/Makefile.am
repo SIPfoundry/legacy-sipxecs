@@ -6,7 +6,8 @@ EXTRA_DIST = \
 	$(cfmod_SCRIPTS:=.in)
 
 bin_SCRIPTS = \
-	sipxagent
+	sipxagent \
+	sipx-setup
 
 cfmoddir = @SIPX_CFMODULES@
 cfmod_SCRIPTS = \

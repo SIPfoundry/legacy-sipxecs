@@ -2,8 +2,7 @@ include $(top_srcdir)/config/utility.am
 
 confdir = @SIPX_CONFDIR@
 dist_conf_DATA = \
-	mime.types \
-	phonelog.conf
+	mime.types
 
 wwwconfdir = @SIPX_CONFDIR@
 wwwconf_DATA = \
@@ -20,22 +19,16 @@ EXTRA_REPLACE = \
 	APACHE2_HOST_ACCESS \
 	APACHE2_MOD_ACCESS
 
-$(logrotate_DATA) $(service_SCRIPTS) $(wwwconf_DATA) : % : %.in Makefile
+$(logrotate_DATA) $(wwwconf_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,EXTRA_REPLACE)
 
 CLEANFILES = \
 	$(wwwconf_DATA) \
-	$(service_SCRIPTS) \
 	$(logrotate_DATA)
 
 EXTRA_DIST = \
 	$(wwwconf_DATA:=.in) \
-	$(service_SCRIPTS:=.in) \
 	$(logrotate_DATA:=.in)
-
-servicedir = @SERVICEDIR@
-service_SCRIPTS = \
-	phonelogd
 
 emptydirs = \
 	$(DESTDIR)@SIPX_CONFDIR@/httpd.conf.d \

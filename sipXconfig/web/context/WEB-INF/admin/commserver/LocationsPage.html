@@ -1,5 +1,5 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'locations','features'}" selectedTab="ognl:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'locations','unmanaged','features'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
@@ -61,6 +61,14 @@
 	    </li>
 	  </ul>
 	</form>
+  </div>
+  <div jwcid="unmanagedTab@Block">
+	  <form jwcid="form@Form" delegate="bean:validator">
+	    <fieldset jwcid="@setting/SettingsFieldset"
+	        settings="ognl:unmanagedServiceSettings.settings" />
+	    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+	        listener="listener:applyUnmanagedServiceSettings"/>
+	  </form>
   </div>
   <div jwcid="featuresTab@Block">
     <form jwcid="@Form" delegate="bean:validator">

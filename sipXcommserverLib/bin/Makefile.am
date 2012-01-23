@@ -10,7 +10,6 @@ util_SCRIPTS = \
 
 bin_SCRIPTS = \
 	sipx-validate-xml \
-	sipxecs-setup \
 	sipx-dns
 
 dist_bin_SCRIPTS = \

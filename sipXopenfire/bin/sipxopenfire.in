@@ -1,0 +1,184 @@
+#!@BASH@
+# sipxopenfire - Startup script for sipxopenfire
+
+# chkconfig: 35 85 15
+# description: sipxopenfire is an administration server
+# processname: java
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+usage() {
+cat <<USAGE
+Usage: sipxopenfire [start|stop|configtest|status|db commands ...]
+
+Start Web UI administration for sipXpbx and for remotely provisioned
+SIP-based phones.
+
+Options include:
+
+  none                 Runs web admin ui
+
+  stop                 Stop web admin ui
+
+  status               Checks if process is running
+
+  db commands ...      Runs an operation on the database. Database commands
+                       are detailed below
+
+  configtest           Run diagnostics
+
+
+Common Database commands include:
+
+   drop                Drops ${Database} database
+
+   create              Create new ${Database} database
+
+   upgrade             Upgrade database from a previous version by applying
+                       patches to the database schema.  This will only
+                       upgrade if nec.
+
+   reset-superadmin    Clear the password of the superadmin user.
+                       This lets you log in if you've forgotten the superadmin
+                       password.  But for security, you should immediately log
+                       in and set superadmin's password.
+
+USAGE
+}
+
+Status=0
+JavaCmd=`@bindir@/sipx-config --java`
+OPENFIRE_HOME="@OPENFIRE_HOME@"
+OPENFIRE_LIB="${OPENFIRE_HOME}/lib"
+Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @plugin_PKGS@`
+export CLASSPATH=`echo ${OPENFIRE_LIB}/*.jar @SIPX_JAVADIR@/sipXopenfire/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+CONFIG_FILES="@SIPX_CONFDIR@/sipxopenfire.xml"
+TMP_DIR="/tmp"
+# Export any necessary variables
+export JAVA_HOME JAVACMD
+PidFile="@SIPX_RUNDIR@/sipxopenfire.pid"
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+[ -e @SIPX_CONFDIR@/sipxopenfirerc ] && . @SIPX_CONFDIR@/sipxopenfirerc
+
+# Turn control over to ant to run database command
+databaseCommand() {
+  databaseCheck
+  
+  # XCF-1275 - Do not want to suppress output if there is an error
+  # however want to be quiet if everything is ok for clean rpm install
+  # output
+  # ant.library.dir needs to be set - but should not point to any jars
+  CmdOut=`$JAVACMD \
+      -Dant.library.dir=${TMP_DIR} \
+      -Dsipxopenfire.db.user=postgres \
+      org.apache.tools.ant.launch.Launcher \
+      -f @SIPX_CONFDIR@/sipxopenfire-database.xml \
+      $@`
+
+  if [ $? != "0" ]; then
+     echo "$CmdOut" | grep -v '^Unable to locate tools\.jar' >&2
+  fi  
+}
+
+# Run Web interface
+start() {
+  setupCheck
+  databaseCommand use-openfire-xml
+  if [ -n "${NoFork}" ] ; then
+    runuser - @SIPXPBXUSER@ ${OPENFIRE_HOME}/bin/openfire start
+  else
+    echo -n $"Starting sipxopenfire: "
+    runuser - @SIPXPBXUSER@ ${OPENFIRE_HOME}/bin/openfire start >/dev/null 2>&1 &
+    echo $! > ${PidFile}
+    echo_success
+  fi
+}
+
+# Return false if postgres is
+#  1. not running
+#  2. running but not setup to communicate w/java or psql command
+#  3. Database is not created
+databaseCheck() {
+    psql --list --field-separator , --no-align --username @POSTGRESQL_USER@ \
+    | cut -d , -f 1 \
+    | grep "openfire"$ > /dev/null 2>&1
+}
+
+setupCheck() {
+  if ! databaseCheck
+  then
+    echo "Initializing openfire database..."
+    databaseCommand create create-tables setup 
+    # more to do here, see sipxopenacd setup
+  fi
+}
+
+# simple diagnostics
+configtest() {
+  echo "sipxopenfire configtest"
+  for f in $CONFIG_FILES; do
+      if ! test -f $f; then
+  	echo "Missing config file $f" >&2
+  	Status=1
+      fi
+  done
+}
+
+stop() {
+  echo -n $"Stopping sipxopenfire: "
+  killproc -p "${PidFile}" -t30 -TERM "sipxopenfire"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${PidFile}"  
+}
+
+restart() {
+  stop
+  # sleep for no good reason. Can be disconcerting if stop/start 
+  # switch is too fast IMHO
+  sleep 1 
+  start
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${PidFile} ] && restart || :
+    ;;
+  status)
+    status -p ${PidFile} sipxopenfire
+    ;;
+  configtest)
+    configtest
+    ;;
+  db)
+    shift
+    setupCheck
+    databaseCommand ${@}
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    Status=1
+esac
+
+exit $Status
+

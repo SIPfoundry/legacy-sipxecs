@@ -141,49 +141,6 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 * turns on xinit.d/vsftpd service on
 * add a user account w/default account for polycom phones
 
-%package snmp
-Requires: net-snmp
-Requires: %{name} >= %{version}
-%if %{_vendor} == redhat
-Requires: net-snmp-utils
-Requires: lm_sensors
-%endif
-%if %{_vendor} == suse
-Requires: sensors
-%endif
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Summary: Configures/enables SNMP for %{name}
-
-%description snmp
-* installs and configures SNMP
-
-%package mrtg
-Requires: sipxconfig-snmp
-Requires: sipxconfig
-Requires: mrtg
-Requires: rrdtool
-Requires: libart_lgpl
-
-%if %{_vendor} == redhat
-Requires: rrdtool-perl
-%endif
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Summary: Configures/enables MRTG monitoring for %{name}
-
-%description mrtg
-* installs and configures sipXconfig integration for MRTG
-
-%package tunnel
-Requires: stunnel
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Summary: Configures/enables stunnels for %{name}
-
-%description tunnel
-Create encrypted tunnels using stunnnel from one machine to another
-
 %prep
 %setup -q
 # suse and obs build system
@@ -242,7 +199,7 @@ rm -rf $RPM_BUILD_ROOT
 # otherwise /somedir will have root permissions
 # see http://lists.rpm.org/pipermail/rpm-list/2011-July/000946.html
 
-%defattr(644,sipxchange,sipxchange,755)
+%defattr(644,root,root,755)
 %config(noreplace) %{sipxpbxconf}/sipxconfig-jetty.xml
 %config(noreplace) %{sipxpbxconf}/log4j.properties
 %config(noreplace) %{sipxpbxconf}/sipxconfig.properties
@@ -250,79 +207,45 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/VM_global_library.vm
 %config(noreplace) %{sipxpbxconf}/setting.dtd
 %config(noreplace) %{sipxpbxconf}/setting.xsl
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/acme
 %config(noreplace) %{sipxpbxconf}/acme/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/acmePhone
 %config(noreplace) %{sipxpbxconf}/acmePhone/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/acd
 %config(noreplace) %{sipxpbxconf}/acd/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/alarms
+%config(noreplace) %{sipxpbxconf}/sipxacdreports/*
+%config(noreplace) %{sipxpbxconf}/sipxacdstats/*
+%config(noreplace) %{sipxpbxconf}/report/*
 %config(noreplace) %{sipxpbxconf}/alarms/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/commserver
 %config(noreplace) %{sipxpbxconf}/commserver/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/freeswitch
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/database
 %config(noreplace) %{sipxpbxconf}/database/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/itspTemplates
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mongo
 %config(noreplace) %{sipxpbxconf}/mongo/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mrtg
 %config(noreplace) %{sipxpbxconf}/mrtg/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/nattraversal
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxbridge
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxconference
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxconfig
 %config(noreplace) %{sipxpbxconf}/sipxconfig/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipximbot
 %config(noreplace) %{sipxpbxconf}/sipximbot/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/scsimbot
 %config(noreplace) %{sipxpbxconf}/scsimbot/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxivr
 %config(noreplace) %{sipxpbxconf}/sipxivr/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxproxy
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxacccode
 %config(noreplace) %{sipxpbxconf}/sipxacccode/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxregistrar
 %config(noreplace) %{sipxpbxconf}/sipxregistrar/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxcallresolver
 %config(noreplace) %{sipxpbxconf}/sipxcallresolver/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxconfigagent
-%config(noreplace) %{sipxpbxconf}/sipxconfigagent/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxpresence
 %config(noreplace) %{sipxpbxconf}/sipxpresence/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxstatus
 %config(noreplace) %{sipxpbxconf}/sipxstatus/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxpark
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxpage
 %config(noreplace) %{sipxpbxconf}/sipxpage/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxrecording
 %config(noreplace) %{sipxpbxconf}/sipxrecording/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxrls
 %config(noreplace) %{sipxpbxconf}/sipxrls/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxvxml
 %config(noreplace) %{sipxpbxconf}/sipxvxml/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/test.d
 %config(noreplace) %{sipxpbxconf}/test.d/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/unmanagedPhone
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mailbox
+%config(noreplace) %{sipxpbxconf}/unmanaged/*
 %config(noreplace) %{sipxpbxconf}/mailbox/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxsaa
 %config(noreplace) %{sipxpbxconf}/sipxsaa/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxrest
 %config(noreplace) %{sipxpbxconf}/sipxrest/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/sipxprovision
 %config(noreplace) %{sipxpbxconf}/sipxprovision/*
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/openacd
-%config(noreplace) %{sipxpbxconf}/openacd
-%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/tunnel
+%config(noreplace) %{sipxpbxconf}/openacd/*
 %config(noreplace) %{sipxpbxconf}/tunnel/*
 
 %dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/reports
@@ -440,17 +363,3 @@ if [ "$1" = "0" ] ; then
     service vsftpd restart
   fi
 fi
-
-%files snmp
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/sipx-snmp-init
-
-%post snmp
-sipx-snmp-init > /dev/null
-
-%files tunnel
-%defattr(644,sipxchange,sipxchange,755)
-%attr(755,sipxchange,sipxchange) %{_bindir}/sipx-tunnel
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/tunnel-process.xml
-
-

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [ -f @SIPX_CONFDIR@/domain-config ]; then  
+  if [ $# -eq 0 ]; then
+    echo "Already initialized, use -f to force reinitialization"
+    exit 0
+  fi
+fi
+
+# To do - support setting up as secondary
+
+# P R I M A R Y 
+if [ ! -f @SIPX_CFDATA@/defaults/location_id ]; then
+    echo "1" > @SIPX_CFDATA@/defaults/location_id
+fi
+
+cat > @SIPX_CFDATA@/1/primary.cfdat <<EOF
++sipxconfig
++postgres
++primary
+EOF
+
+Fqdn=`hostname -f`
+SharedSecret=`head -c 18 /dev/urandom | base64`
+cat > @SIPX_CFDATA@/domain.cfdat <<EOF
+=domain=${Fqdn}
+=realm=${Fqdn}
+=secret=${SharedSecret}
+=lang=en
+EOF
+
+@SIPX_BINDIR@/sipxagent

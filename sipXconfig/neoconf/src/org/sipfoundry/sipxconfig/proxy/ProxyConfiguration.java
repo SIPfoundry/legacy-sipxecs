@@ -57,6 +57,17 @@ public class ProxyConfiguration implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = fm.isFeatureEnabled(ProxyManager.FEATURE, location);
             ConfigUtils.enableCfengineClass(dir, "sipxproxy.cfdat", "sipxproxy", enabled);
+
+            // always generate only because sipxbridge needs file and harmless to generate
+            // even if not every machine needs it.
+            Writer peersConfig = new FileWriter(new File(dir, "peeridentities.xml"));
+            try {
+                XmlFile config = new XmlFile(peersConfig);
+                config.write(getDocument(peers));
+            } finally {
+                IOUtils.closeQuietly(peersConfig);
+            }
+
             if (!enabled) {
                 continue;
             }
@@ -65,13 +76,6 @@ public class ProxyConfiguration implements ConfigProvider {
                 write(proxy, settings, location, domain, isCdrOn);
             } finally {
                 IOUtils.closeQuietly(proxy);
-            }
-            Writer peersConfig = new FileWriter(new File(dir, "peeridentities.xml"));
-            try {
-                XmlFile config = new XmlFile(peersConfig);
-                config.write(getDocument(peers));
-            } finally {
-                IOUtils.closeQuietly(peersConfig);
             }
         }
     }

@@ -2,17 +2,13 @@ include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(bin_SCRIPTS:=.in) \
-	$(setup_SCRIPTS:=.in)
+	$(initd_SCRIPTS:=.in)
 
-bin_SCRIPTS = \
-	sipxopenfire.sh
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+	sipxopenfire
 
-setupdir = $(SIPX_LIBEXECDIR)/setup.d
-setup_SCRIPTS = \
-	sipxopenfire-setup.sh
-
-$(bin_SCRIPTS) $(setup_SCRIPTS) : % : %.in Makefile
+$(initd_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,plugin_PKGS)
 
-CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS)
+CLEANFILES = $(initd_SCRIPTS)

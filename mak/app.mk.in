@@ -5,7 +5,27 @@ app = \
   $(karel)
 
 sf = \
+  sipXacd \
+  sipXacdStatistics \
+  sipXacccode \
   sipXaastra \
+  sipXrest \
+  sipXcallController \
+  sipXcdrLog \
+  sipXcdr \
+  sipXtools \
+  sipXpark \
+  sipXpresence \
+  sipXrls \
+  sipXimbot \
+  sipXtunnel \
+  sipXpage \
+  sipXprovision \
+  sipXrecording \
+  sipXsaa \
+  sipXopenacd \
+  sipXpreflight \
+  sipXviewer \
   sipXcisco \
   sipXclearone \
   sipXgtek \
@@ -18,7 +38,8 @@ sf = \
   sipXsnom \
   sipXunidata \
   sipXgrandstream \
-  sipXexample
+  sipXexample \
+  sipXphonelog
 
 lang = \
   sipXlang-abitibi-fr_CA \

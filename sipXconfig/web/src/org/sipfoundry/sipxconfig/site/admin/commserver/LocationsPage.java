@@ -38,6 +38,8 @@ import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
+import org.sipfoundry.sipxconfig.service.UnmanagedServiceSettings;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
 
@@ -93,6 +95,13 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
     @InjectPage(LocationStatePage.PAGE)
     public abstract LocationStatePage getLocationStatePage();
 
+    @InjectObject("spring:unmanagedService")
+    public abstract UnmanagedService getUnmanagedService();
+
+    public abstract UnmanagedServiceSettings getUnmanagedServiceSettings();
+
+    public abstract void setUnmanagedServiceSettings(UnmanagedServiceSettings settings);
+
     @Persist
     @InitialValue("literal:locations")
     public abstract String getTab();
@@ -119,6 +128,9 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
     public void pageBeginRender(PageEvent event) {
         if (getLocations() == null) {
             setLocations(Arrays.asList(getLocationsManager().getLocations()));
+        }
+        if (getUnmanagedServiceSettings() == null) {
+            setUnmanagedServiceSettings(getUnmanagedService().getSettings());
         }
     }
 
@@ -189,5 +201,9 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
         List<BreadCrumb> breadCrumbs = new ArrayList<BreadCrumb>();
         breadCrumbs.add(new BreadCrumb(getPageName(), "&title", getMessages()));
         return breadCrumbs;
+    }
+
+    public void applyUnmanagedServiceSettings() {
+        getUnmanagedService().saveSettings(getUnmanagedServiceSettings());
     }
 }

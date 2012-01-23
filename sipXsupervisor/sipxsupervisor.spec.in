@@ -70,9 +70,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/sipxagent
+%attr(755,root,root) %{_bindir}/sipxecs-setup
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxsupervisor
-%{_datadir}/sipxecs/cfinputs/sipxsupervisor.cf
+%{_datadir}/sipxecs/cfinputs/*.cf
+%dir %{_datadir}/sipxecs/cfmodules/*
 %attr(755,root,root) %{_datadir}/sipxecs/cfmodules/sipx
+%attr(755,root,root) %{_datadir}/sipxecs/cfmodules/readfile-if-exists
 %dir %{_datadir}/sipxecs/cfinputs/plugin.d
 # where sipxconfig writes data, sipxchange user needs r/w access
 %dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/cfdata

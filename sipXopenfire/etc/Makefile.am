@@ -20,9 +20,9 @@ dbdir = @SIPX_CONFDIR@/database
 dist_db_DATA = \
 	sipxopenfire-initdb.sql
 
-procdir = $(SIPX_DATADIR)/process.d
-proc_DATA = \
-	sipxopenfire-process.xml
+cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
+dist_cfinputs_DATA = \
+	sipxopenfire.cf
 
 cfgdir = @SIPX_CONFDIR@/openfire
 dist_cfg_DATA = \

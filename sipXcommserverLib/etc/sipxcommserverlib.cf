@@ -13,35 +13,26 @@ bundle agent sipxcommserverlib {
 }
 
 bundle agent sipxcommserverlib_config {
-  classes:
-    primary::
-      "init_certs" not => fileexists("$(sipx.SIPX_CONFDIR)/ssl/ssl.crt");
-
-  methods:
-    primary.init_certs::
-      "any" usebundle => sipxcommserverlib_certs();
-
   files:
     primary::
+      "$(sipx.SIPX_CONFDIR)/SSL_DEFAULTS"
+        create => "true",
+        perms => m("644"),
+        edit_line => domain_config(),
+        classes => if_repaired("generate_certs"),
+	action => track("$(this.promiser)");      
+
       "$(sipx.SIPX_CONFDIR)/domain-config"
         create => "true",
         perms => m("644"),
         edit_line => domain_config(),
         classes => if_repaired("restart_sipxecs"),
-	action => track("domain-config");
-}
-
-bundle agent sipxcommserverlib_certs {
-  files:
-    any::
-      "$(sipx.SIPX_VARDIR)/temp/cert-temp/SSL_DEFAULTS"
-        create => "true",
-        edit_line => SSL_DEFAULTS();
+	action => track("$(this.promiser)");
 
   commands:
-    any::
+    generate_certs::
       "$(sipx.SIPX_BINDIR)/ssl-cert/gen-ssl-keys.sh"
-        args => "-d -p SSL_DEFAULTS",
+        args => "-d -p $(sipx.SIPX_CONFDIR)/SSL_DEFAULTS",
 	contain => sipxcommserverlib_cert_cmd;
       "$(sipx.SIPX_BINDIR)/ssl-cert/install-cert.sh",
 	contain => sipxcommserverlib_cert_cmd;
@@ -56,11 +47,11 @@ bundle edit_line SSL_DEFAULTS {
     "countryName=\"US\"";
     "stateOrProvinceName=\"AnyState\"";
     "localityName=\"AnyTown\"";
-    "organizationName=\"$(sys.fqhost)\"";
+    "organizationName=\"$(sys.domain)\"";
     "organizationalUnitName=\"IT\"";
-    "caName=\"ca.$(sys.fqhost)\"";
-    "caEmail=\"root@$(sys.fqhost)\"";
-    "sipDomainName=\"$(sys.fqhost)\"";
+    "caName=\"ca.$(sys.domain)\"";
+    "caEmail=\"root@$(sys.domain)\"";
+    "sipDomainName=\"$(sys.domain)\"";
     "server=\"$(sys.fqhost)\"";
     "serverEmail=\"root@$(sys.fqhost)\"";
     

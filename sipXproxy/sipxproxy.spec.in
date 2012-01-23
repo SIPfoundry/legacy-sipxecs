@@ -34,7 +34,7 @@ Requires: shadow-utils
 Requires: vixie-cron
 %endif
 Requires: sipxcommserverlib >= %version
-Requires: sipxpbx >= %version
+Requires: sipxrelay >= %version
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root

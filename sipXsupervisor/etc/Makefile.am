@@ -38,25 +38,7 @@ $(emptydirs) :
 
 install-data-hook : $(emptydirs)
 
-schemadir = @SIPX_DATADIR@/schema
-schema_DATA = \
-	alarm.xsd \
-	alarm-group.xsd
-
-alarmcfgdir = @SIPX_CONFDIR@/alarms
-dist_alarmcfg_DATA = \
-	sipXalarms-config.xml
-
-alarmdir = @SIPX_DATADIR@/alarms
-dist_alarm_DATA = \
-	alarm-strings.xml \
-	sipXalarms-strings.xml
-
-mibdir = @SIPX_DATADIR@/mibs
-dist_mib_DATA = \
-	SIPXECS-ALARM-NOTIFICATION-MIB.mib
-
-$(cfinputs_PROMISES) $(schema_DATA) : % : %.in Makefile
+$(cfinputs_PROMISES) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
 CLEANFILES = $(schema_DATA) $(cfinputs_PROMISES) $(cfdefaults_DATA)

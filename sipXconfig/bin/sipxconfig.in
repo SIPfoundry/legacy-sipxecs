@@ -135,7 +135,6 @@ databaseCommand() {
 }
 
 setupCheck() {
-  test -f @SIPX_CONFDIR@/domain-config || @SIPX_BINDIR@/sipxagent
   if ! databaseCheck
   then
     echo "Initializing configuration database..."

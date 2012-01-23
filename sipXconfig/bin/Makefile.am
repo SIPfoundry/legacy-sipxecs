@@ -11,11 +11,7 @@ initd_SCRIPTS = \
 	sipxconfig
 
 bin_SCRIPTS = \
-	sipx-mrtg-init \
-	sipx-snmp-init \
-	sipXmrtg.sh \
-	sipx-time-manager \
-	sipx-tunnel
+	sipx-time-manager
 
 $(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,$(EXTRA_REPLACE))
