@@ -235,7 +235,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
             remove, update.toString()
         });
 
-        sendLocationFeatureEvent(FeatureListener.FeatureEvent.PRE_ENABLE, FeatureListener.FeatureEvent.PRE_DISABLE,
+        sendLocationFeatureEvent(FeatureListener.FeatureEvent.POST_ENABLE, FeatureListener.FeatureEvent.POST_DISABLE,
                 delta.m_newlyAdded, delta.m_newlyRemoved, location);
 
         m_daoEventPublisher.publishSave(delta);

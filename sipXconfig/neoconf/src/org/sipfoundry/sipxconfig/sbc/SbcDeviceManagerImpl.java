@@ -153,6 +153,7 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
         bridgeSbc.setSettingTypedValue("bridge-configuration/location-id", location.getId());
         saveSbcDevice(bridgeSbc);
         getDaoEventPublisher().publishSave(bridgeSbc);
+        getHibernateTemplate().flush();
         return bridgeSbc;
     }
 

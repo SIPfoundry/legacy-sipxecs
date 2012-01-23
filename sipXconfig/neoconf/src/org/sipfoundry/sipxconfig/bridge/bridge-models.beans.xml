@@ -38,4 +38,9 @@
     <property name="addressManager" ref="addressManager" />
     <property name="configManager" ref="configManager" />    
   </bean>
+
+  <bean id="sbcSipXbridgeSbcContext" class="org.sipfoundry.sipxconfig.bridge.BridgeSbcContext">
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+  </bean>
+
 </beans>

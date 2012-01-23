@@ -29,7 +29,7 @@ bundle agent sipxbridge_config {
         perms => m("644"),
 	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxbridge"),
-	action => track("$(xml_file)");
+	action => track("$(this.promiser)");
 }
 
 bundle agent sipxbridge_setup {
@@ -63,4 +63,3 @@ bundle agent sipxbridge_running {
         args => "restart",
 	action => track("sipxbridge_restart");
 }
-

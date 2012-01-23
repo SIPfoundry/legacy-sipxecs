@@ -14,6 +14,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.sipfoundry.sipxconfig.acd.Acd;
+import org.sipfoundry.sipxconfig.bridge.BridgeSbcContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
@@ -46,5 +47,9 @@ public abstract class AdminNavigation extends BaseComponent {
 
     public boolean isOpenAcdEnabled() {
         return getFeatureManager().isFeatureEnabled(OpenAcdContext.FEATURE);
+    }
+
+    public boolean isSipTrunkEnabled() {
+        return getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE);
     }
 }

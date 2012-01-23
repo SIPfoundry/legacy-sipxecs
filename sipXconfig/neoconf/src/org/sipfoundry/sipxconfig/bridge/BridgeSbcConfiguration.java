@@ -7,6 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.bridge;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +15,8 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
@@ -40,6 +43,8 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
             for (BridgeSbc bridge : bridges) {
                 Location location = bridge.getLocation();
                 boolean bridgeHere = l.getId().equals(location.getId());
+                File dir = manager.getLocationDataDirectory(location);
+                ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", "sipxbridge", bridgeHere);
                 boolean proxyHere = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
                 // Proxy source reads sipxbrige.xml to find how to connect to bridge
                 if (bridgeHere || proxyHere) {
@@ -61,11 +66,14 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
             if (!manager.isFeatureEnabled(BridgeSbcContext.FEATURE)) {
                 manager.enableLocationFeature(BridgeSbcContext.FEATURE, location, true);
             }
+        }
+
+        if (!feature.equals(BridgeSbcContext.FEATURE)) {
             return;
         }
 
-        if (!manager.isFeatureEnabled(BridgeSbcContext.FEATURE)) {
-            return;
+        if (!manager.isFeatureEnabled(ProxyManager.FEATURE, location)) {
+            throw new UserException("Proxy should be enabled");
         }
 
         BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location);

@@ -10,122 +10,70 @@
 # Declare script variables in a manner that unit test
 # (or end user I suppose) can override
 
-Action=RUN
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
+prog=sipxbridge
+pidfile="@SIPX_RUNDIR@/sipxbridge.pid"
 
-Status=0
-Args=""
+[ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
-SslDir=@SIPX_CONFDIR@/ssl
-AuthoritiesDir=$SslDir/authorities
-KeyStorePassword=changeit
-TrustStorePassword=changeit
-KeyStoreOpts="\
-      -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
-      -Djavax.net.ssl.keyStorePassword=$KeyStorePassword"
+checkRunningInstance() {
+  if [ -f "${pidfile}" ]; then
+    pid=`cat ${pidfile}`
+    if checkpid $pid 2>&1; then
+      echo "Process $prog is already running with pid $pid"
+      exit 1
+    fi
+  fi
+}
 
+start() {
+    checkRunningInstance
 
-setTruststoreOpts() {    
-    # List of authorities accepted system-wide
-    if [ -d $AuthoritiesDir ]
-    then
-      TrustStore=$SslDir/authorities.jks
-      TrustStoreOpts="\
-      	-Djavax.net.ssl.trustStore=$TrustStore \
-     	-Djavax.net.ssl.trustStoreType=JKS \
-        -Djavax.net.ssl.trustStorePassword=$TrustStorePassword"
+    JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
+    export CLASSPATH=`echo @SIPX_CONFDIR@/sipxbridge @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+    
+    JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
+    export CLASSPATH=`echo @SIPX_CONFDIR@/sipxbridge @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+
+    setJavaSslOpts
+
+    # procname is there so cfengine can find it
+    Command="$JavaCmd \
+      -Dprocname=sipxbridge \
+      -Dconf.dir=@SIPX_CONFDIR@ \
+      $JavaSslOpts \
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+         -Dsipxbridge.command=start 		\
+         org.sipfoundry.sipxbridge.Gateway \
+	 $Args"
+    if [ -n "${NoFork}" ] ; then
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
     else
-      # make empty as extra measure to ensure doesn't come from env. var
-      # this is when Java's CA database has required certs
-      TrustStoreOpts=""
+      echo -n $"Starting sipxbridge: "
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+      echo $! > ${pidfile}
+      echo_success
     fi
 }
 
+stop() {
+  echo -n $"Stopping sipxbridge: "
+  killproc -p "${pidfile}" -t30 -TERM "sipxbridge"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
+}
 
+restart() {
+  stop
+  start
+}
 
-while [ $# -ne 0 ]
-do
-    case ${1} in
-        --configtest)
-            Action=CONFIGTEST
-            ;;
-
-        --stop)
-            Action=STOP
-            ;;
-
-        --profile)
-            Action=PROFILE
-            ;;
-
-        *)
-            Args="$1"
-            ;;
-    esac           
-
-    shift # always consume 1
-done
-
-#Override the command line if we have specified profiling options.
-#You must have jprofiler installed for this to work.
-if  [ $Action = "RUN" -a -e @SIPX_CONFDIR@/sipxbridge-profile-opts.sh ] 
-then
-    source @SIPX_CONFDIR@/sipxbridge-profile-opts.sh
-fi
-
-CONFIG_FILES="\
-  @SIPX_CONFDIR@/sipxbridge.xml \
-  "
-
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
-
-JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-
-Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
-export CLASSPATH=`echo @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
-X509Algorithm=`$JavaCmd org.sipfoundry.commons.x509selector.X509Selector`
-
-setTruststoreOpts
-# need to run this again because we need to set 
-# command line options.
-
-case ${Action} in
-   RUN)
-      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
-      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
-	 $TrustStoreOpts 				\
-	 $KeyStoreOpts					\
-	 -Djetty.x509.algorithm=$X509Algorithm		\
-	 -Djetty.ssl.password=$TrustStorePassword	\
-	 -Djetty.ssl.keypassword=$KeyStorePassword	\
-	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-         -Dsipxbridge.command=start 			  \
-         org.sipfoundry.sipxbridge.Gateway \
-	 $Args
-     ;;
-
-   STOP)
-     #Failsafe kill.
-     sipx_stop sipbridge @SIPX_RUNDIR@/sipxbridge.pid
-     ;;
-  
-   PROFILE)
-    echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
-    exec $JavaCmd '-agentlib:jprofilerti' \
-         -Dconf.dir=@SIPX_CONFDIR@  \
-	 $TrustStoreOpts \
-	 $KeyStoreOpts	 \
-	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-	 -Djetty.x509.algorithm=$X509Algorithm 		\
-	 -Djetty.ssl.password=$TrustStorePassword	\
-	 -Djetty.ssl.keypassword=$KeyStorePassword	\
-         -Dsipxbridge.command=start 			\
-	 -Xbootclasspath/a:/opt/jprofiler5/bin/agent.jar \
-         org.sipfoundry.sipxbridge.Gateway \
-	 $Args
-     ;;
-
-   CONFIGTEST)
+configtest() {
      Status=0
      # check validity of xml files
      ! test -e @SIPX_CONFDIR@/peeridentities.xml \
@@ -140,18 +88,46 @@ case ${Action} in
 	 Status=1
      fi
 
+    JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
+    export CLASSPATH=`echo @SIPX_CONFDIR@/sipxbridge @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+
+    setJavaSslOpts
 
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
-	 $TrustStoreOpts \
-	 $KeyStoreOpts	 \
+     $JavaSslOpts \
 	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-	 -Djetty.x509.algorithm=$X509Algorithm 		\
-	 -Djetty.ssl.password=$TrustStorePassword	\
-	 -Djetty.ssl.keypassword=$KeyStorePassword	\
          -Dsipxbridge.command=configtest 		\
          org.sipfoundry.sipxbridge.Gateway \
 	 $Args
-     ;;
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${pidfile} ] && restart || :
+    ;;
+  status)
+    status -p ${pidfile} java
+    ;;
+  configtest)
+    configtest
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork|configtest}"
+    Status=1
 esac
 
 exit $Status
