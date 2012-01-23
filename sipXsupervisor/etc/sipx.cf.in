@@ -55,6 +55,47 @@ bundle common sipx {
       "src" not => strcmp("@SIPX_SERVICEDIR@", "/etc/init.d");
 }
 
+# Add or remove a crontab. Will automaticall reload crontab service
+# Example:
+#  edit_crontab
+bundle agent add_crontab(regex,line) {
+  files:
+    "$(sipx.cron)"
+      edit_line => add_crontab_line("$(regex)","$(line)"),
+      classes => define("reload_crontab");
+      
+  processes:
+    reload_crontab::
+      "cron" signals => { "hup" );
+  
+}
+
+# Add or remove a crontab. Will automaticall reload crontab service
+# Example:
+#  edit_crontab
+bundle agent remove_crontab(regex) {
+  files:
+    "$(sipx.cron)"
+      edit_line => add_crontab_line("$(regex)","$(line)"),
+      classes => define("reload_crontab");
+      
+  processes:
+    reload_crontab::
+      "cron" signals => { "hup" );
+  
+}
+
+
+bundle edit_line remove_crontab_line(regex,value) {
+  delete_lines:
+    "$(regex)";
+}
+
+#
+bundle edit_line add_crontab_line(regex,value) {
+  "$(regex)" replace_with => value("$(value)");
+}
+
 #
 # imports all the variables into $(sipx.*) from *.cfdat files
 #
