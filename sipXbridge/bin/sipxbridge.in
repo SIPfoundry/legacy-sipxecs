@@ -34,10 +34,6 @@ start() {
     JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
     Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
     export CLASSPATH=`echo @SIPX_CONFDIR@/sipxbridge @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
-    
-    JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
-    export CLASSPATH=`echo @SIPX_CONFDIR@/sipxbridge @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
 
     setJavaSslOpts
 
