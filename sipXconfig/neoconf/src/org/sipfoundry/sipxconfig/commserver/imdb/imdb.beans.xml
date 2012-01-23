@@ -78,6 +78,9 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
+    <property name="lazySipxReplicationContext" ref="sipxReplicationContext" />
+    <property name="configManager" ref="configManager" />
+    <property name="featureManager" ref="featureManager" />
   </bean>
 
 </beans>

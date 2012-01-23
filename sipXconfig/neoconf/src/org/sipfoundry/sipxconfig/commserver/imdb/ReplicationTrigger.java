@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -27,11 +28,15 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.Location.State;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
@@ -53,6 +58,9 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
     private ExecutorService m_executorService;
+    private SipxReplicationContext m_lazySipxReplicationContext;
+    private ConfigManager m_configManager;
+    private FeatureManager m_featureManager;
 
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
@@ -179,7 +187,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     private void generateGroup(Group group) {
         if (USER_GROUP_RESOURCE.equals(group.getResource())) {
             m_replicationManager.replicateGroup(group);
-         // CIUC_REVIEW activateGroup();
+            activateGroup();
         }
     }
 
@@ -191,7 +199,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     private void deleteGroup(Group group) {
         if (USER_GROUP_RESOURCE.equals(group.getResource())) {
             m_replicationManager.deleteGroup(group);
-            // CIUC_REVIEW activateGroup();
+            activateGroup();
         }
     }
 
@@ -214,7 +222,19 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
         if ((Boolean) originalDefaultValue == permission.getDefaultValue()) {
             return;
         }
-        // CIUC_REVIEW m_lazySipxReplicationContext.generateAll(DataSet.PERMISSION);
+        m_lazySipxReplicationContext.generateAll(DataSet.PERMISSION);
+    }
+
+    /**
+     * Helper method to replicate files when group is saved/removed.
+     */
+    private void activateGroup() {
+        if (m_featureManager.isFeatureEnabled(ImManager.FEATURE)) {
+            m_configManager.configureEverywhere(ImManager.FEATURE);
+        }
+        if (m_featureManager.isFeatureEnabled(Rls.FEATURE)) {
+            m_configManager.configureEverywhere(Rls.FEATURE);
+        }
     }
 
     private void removePermission(Permission permission) {
@@ -281,5 +301,17 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
      */
     public void setExecutorService(ExecutorService executorService) {
         m_executorService = executorService;
+    }
+
+    public void setLazySipxReplicationContext(SipxReplicationContext lazySipxReplicationContext) {
+        m_lazySipxReplicationContext = lazySipxReplicationContext;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }
