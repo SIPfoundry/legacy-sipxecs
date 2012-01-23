@@ -35,7 +35,7 @@ bundle agent sipxopenfire_config {
       "/tmp/sipx.properties"
         create => "true",
         perms => m("644"),
-	copy_from => sipxopenfire_sipx_properties,
+	edit_line => sipxopenfire_sipx_properties,
         classes => if_repaired("restart_sipxopenfire"),
 	action => track("$(this.promiser)");
 }
@@ -52,7 +52,7 @@ bundle edit_line sipxopenfire_sipx_properties {
 
 
 bundle edit_line sipxopenfire_properties_contents {
-  vars
+  vars:
     openfire_debug::
       "debug" string => "true";
 
@@ -108,7 +108,7 @@ bundle edit_line sipxopenfire_properties_contents {
       <enabled>$(debug)</enabled>
     </debug>
   </log>
-</jive>"
+</jive>";
 
   delete_lines:
     any::

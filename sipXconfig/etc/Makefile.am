@@ -31,10 +31,6 @@ cfinputsdir = @SIPX_CFINPUTS@/plugin.d
 dist_cfinputs_DATA = \
 	sipxconfig.cf
 
-cfdefaultsdir = @SIPX_CFDATA@/defaults
-cfdefaults_DATA = \
-	sipxconfig.cfdat
-
 # automatically selects configuration files, but as importantly, also has to distinguish what is NOT
 # a configuration file in the 'find' statement
 conf_SOURCE = \

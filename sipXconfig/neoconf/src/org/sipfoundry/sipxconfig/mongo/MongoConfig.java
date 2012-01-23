@@ -12,7 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -35,7 +34,6 @@ public class MongoConfig implements ConfigProvider {
         int port = settings.getPort();
         String conStr = getConnectionString(all, port);
         String conUrl = getConnectionUrl(all, port);
-        String mongod = "mongod";
         for (Location location : all) {
             // every location gets a mongo client config
             File dir = manager.getLocationDataDirectory(location);
@@ -45,18 +43,13 @@ public class MongoConfig implements ConfigProvider {
             config.write("connectionUrl", conUrl);
             config.write("connectionString", conStr);
             IOUtils.closeQuietly(wtr);
-            boolean server = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location);
-            ConfigUtils.enableCfengineClass(dir, "mongod.cfdat", mongod, server);
-            // only mongod servers get mongod config
-            if (server) {
-                File filed = new File(dir, "mongod.conf.cfdat");
-                FileWriter wtrd = new FileWriter(filed);
-                CfengineModuleConfiguration configd = new CfengineModuleConfiguration(wtrd);
-                configd.write(settings.getSettings().getSetting(mongod));
-                // TODO this should be 127.0.0.1 only
-                configd.write("bind_ip", "0.0.0.0");
-                IOUtils.closeQuietly(wtrd);
+            boolean enabled = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
+            ConfigUtils.enableCfengineClass(dir, "mongodb.cfdat", "mongod", enabled);
+            if (!enabled) {
+                continue;
             }
+
+            // TODO: HA for MongoDB servers
         }
     }
 

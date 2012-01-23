@@ -23,12 +23,15 @@
 bundle common g {
   vars:
     any::
+      # defined simply because subsequent cfengine calls require an upper limit
+      "max_plugin_count" string => "100";
+
       # all files in plugin.d dir with extension *.cf will be loaded
-      "plugins" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -name '*.cf'", "noshell"),"\n", "10");
+      "plugins" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -name '*.cf'", "noshell"),"\n", "$(max_plugin_count)");
 
       # only files in base plugin.d dir with automatically use bundle.  plugin.d/foo.cf will load bundle "foo", but
       # plugin.d/mylib/bar.cf will not load bundle "bar"
-      "bundles" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -maxdepth 1 -name '*.cf' -printf '%f\n' | /bin/sed 's/.cf//g'", "useshell"),"\n", "10");      
+      "bundles" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -maxdepth 1 -name '*.cf' -printf '%f\n' | /bin/sed 's/.cf//g'", "useshell"),"\n", "$(max_plugin_count)");
 }
 
 #

@@ -1,4 +1,38 @@
-bundle agent sipxcdr {
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
 
-  # need to add address to postgres from 
+#
+# sipxcdr configuration and process management
+#
+bundle agent sipxcdr {
+  methods:
+    any::
+      "any" usebundle => "sipxcdr_running";
+}
+
+bundle agent sipxcdr_running {
+  vars:
+    any::      
+      "service_command" string => "/usr/(lib64|lib)/ruby/gems/[0-9.]+/gems/sipxcallresolver-[0-9.]+/lib/main.rb.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxcdr_running");
+
+  commands:
+    sipxcdr_running.!sipxcdr::
+      "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
+        args => "stop",
+	action => track("sipxcdr_stop");
+
+    !sipxcdr_running.sipxcdr::
+      "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
+        args => "start",
+	action => track("sipxcdr_start");
+
+    restart_sipxcdr::
+      "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
+        args => "restart",
+	action => track("sipxcdr_restart");
 }

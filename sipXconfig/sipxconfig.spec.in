@@ -177,8 +177,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc  README  NOTICE  ChangeLog %name.configlog
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxconfig
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxconfig.cf
-%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/cfdata
-%{_localstatedir}/sipxdata/cfdata/defaults/sipxconfig.cfdat
 %attr(755,sipxchange, sipxchange) %{_bindir}/sipx-time-manager
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXconfig/.java-dep
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXconfig/*.jar

@@ -15,8 +15,6 @@ if [ ! -f @SIPX_CFDATA@/defaults/location_id ]; then
 fi
 
 cat > @SIPX_CFDATA@/1/primary.cfdat <<EOF
-+sipxconfig
-+postgres
 +primary
 EOF
 

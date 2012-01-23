@@ -8,34 +8,51 @@
 
 bundle agent sipxcommserverlib {
   methods:
-    sipxcommserverlib::
+    any::
       "any" usebundle => "sipxcommserverlib_config";
 }
 
 bundle agent sipxcommserverlib_config {
+  classes:
+    "generate_certs" not => fileexists("$(sipx.SIPX_CONFDIR)/ssl/ssl.crt");
+
   files:
     primary::
       "$(sipx.SIPX_CONFDIR)/SSL_DEFAULTS"
         create => "true",
         perms => m("644"),
-        edit_line => domain_config(),
+        edit_line => SSL_DEFAULTS,
         classes => if_repaired("generate_certs"),
 	action => track("$(this.promiser)");      
 
       "$(sipx.SIPX_CONFDIR)/domain-config"
         create => "true",
         perms => m("644"),
-        edit_line => domain_config(),
+        edit_line => domain_config,
         classes => if_repaired("restart_sipxecs"),
 	action => track("$(this.promiser)");
 
-  commands:
+  methods:
     generate_certs::
+      "any" usebundle => "generate_certs";
+}
+
+bundle agent generate_certs {
+  files:
+    any::
+      "$(sipx.SIPX_VARDIR)/temp/cert-temp/."
+         create => "true";
+
+  commands:
+    any::
       "$(sipx.SIPX_BINDIR)/ssl-cert/gen-ssl-keys.sh"
         args => "-d -p $(sipx.SIPX_CONFDIR)/SSL_DEFAULTS",
-	contain => sipxcommserverlib_cert_cmd;
+	contain => sipxcommserverlib_cert_cmd,
+	action => track("gen-ssl-keys");
+
       "$(sipx.SIPX_BINDIR)/ssl-cert/install-cert.sh",
-	contain => sipxcommserverlib_cert_cmd;
+	contain => sipxcommserverlib_cert_cmd,
+	action => track("install-cert");
 }
 
 body contain sipxcommserverlib_cert_cmd {
@@ -47,11 +64,11 @@ bundle edit_line SSL_DEFAULTS {
     "countryName=\"US\"";
     "stateOrProvinceName=\"AnyState\"";
     "localityName=\"AnyTown\"";
-    "organizationName=\"$(sys.domain)\"";
+    "organizationName=\"$(sipx.domain)\"";
     "organizationalUnitName=\"IT\"";
-    "caName=\"ca.$(sys.domain)\"";
-    "caEmail=\"root@$(sys.domain)\"";
-    "sipDomainName=\"$(sys.domain)\"";
+    "caName=\"ca.$(sipx.domain)\"";
+    "caEmail=\"root@$(sipx.domain)\"";
+    "sipDomainName=\"$(sipx.domain)\"";
     "server=\"$(sys.fqhost)\"";
     "serverEmail=\"root@$(sys.fqhost)\"";
     

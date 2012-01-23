@@ -6,13 +6,11 @@ app = \
 
 sf = \
   sipXacd \
-  sipXacdStatistics \
   sipXacccode \
   sipXaastra \
   sipXrest \
   sipXcallController \
   sipXcdrLog \
-  sipXcdr \
   sipXtools \
   sipXpark \
   sipXpresence \

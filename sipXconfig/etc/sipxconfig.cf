@@ -21,17 +21,17 @@ bundle agent sipxconfig_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxconfig_running");
 
   commands:
-    sipxconfig_running.!sipxconfig::
+    sipxconfig_running.!primary::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         args => "stop",
 	action => track("sipxconfig stop");
 
-    !sipxconfig_running.sipxconfig::
+    !sipxconfig_running.primary::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         args => "start",
 	action => track("sipxconfig start");
 
-    restart_sipxconfig::
+    restart_sipxconfig.primary::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         args => "restart",
 	action => track("sipxconfig restart");
