@@ -6,6 +6,7 @@ INCLUDES = -I$(top_srcdir)/include
 
 utildir = @SIPX_LIBEXECDIR@
 util_SCRIPTS = \
+	sipxkeystoregen \
 	sipx-utils.sh
 
 bin_SCRIPTS = \

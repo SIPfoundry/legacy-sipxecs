@@ -12,11 +12,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
-import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
@@ -37,17 +37,14 @@ public class MongoConfig implements ConfigProvider {
         for (Location location : all) {
             // every location gets a mongo client config
             File dir = manager.getLocationDataDirectory(location);
-            File file = new File(dir, "mongo-client.ini.cfdat");
+            File file = new File(dir, "mongodb-client.cfdat");
             FileWriter wtr = new FileWriter(file);
-            KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
+            CfengineModuleConfiguration config = new CfengineModuleConfiguration(wtr);
             config.write("connectionUrl", conUrl);
             config.write("connectionString", conStr);
             IOUtils.closeQuietly(wtr);
             boolean enabled = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
             ConfigUtils.enableCfengineClass(dir, "mongodb.cfdat", "mongod", enabled);
-            if (!enabled) {
-                continue;
-            }
 
             // TODO: HA for MongoDB servers
         }

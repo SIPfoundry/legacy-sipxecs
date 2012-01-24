@@ -51,12 +51,12 @@ bundle agent postgres_config {
       "$(sipx.PGDATA)/pg_hba.conf"
         create => "false",
 	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
-	edit_line => pg_hba_conf();
+	edit_line => pg_hba_conf;
 
       "$(sipx.PGDATA)/postgresql.conf"
         create => "true",
 	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
-	edit_line => postgresql_conf();
+	edit_line => postgresql_conf;
 
       "$(sipx.PGDATA)/postmaster.opts.default"
         create => "true",
@@ -64,7 +64,7 @@ bundle agent postgres_config {
 	edit_line => replace_contents("-i");
 }
 
-bundle edit_line postgresql_conf() {
+bundle edit_line postgresql_conf {
   insert_lines:
     any::
       # makes a difference when row counts get higher both
@@ -89,15 +89,16 @@ bundle edit_line postgresql_conf() {
 
   delete_lines:
     any::
-      "autovacuum.*";
-      "tcpip_socket.*";
+      "autovacuum_.*";
       "fsync.*";
 }
 
-bundle edit_line pg_hba_conf() {
-  insert_lines::
-    "local *all *all *trust";
-    "host *all *all *127.0.0.1\/32 *trust";
+bundle edit_line pg_hba_conf {
+  insert_lines:
+    "local all all trust";
+    "local all all trust";
+    "host all all 127.0.0.1/32 trust";
+    "host all all ::1/128 trust";
 }
 
 
@@ -106,25 +107,22 @@ bundle agent postgres_running {
     any::
       "service_command" string => "/usr/bin/postmaster";
 
-  classes:
-    "enabled" or => { "postgres", "primary" };
-
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "postgres_running","$(sipx.POSTGRESQL_USER)");
 
   commands:
-    postgres_running.!enabled::
+    postgres_running.!postgres::
       "$(sipx.PG_DAEMON)"
         args => "stop",
 	action => track("postgres_stop");
 
-    !postgres_running.enabled::
+    !postgres_running.postgres::
       "$(sipx.PG_DAEMON)"
         args => "start",
 	action => track("postgres_start");
 
-    restart_postgres.enabled::
+    restart_postgres.postgres::
       "$(sipx.PG_DAEMON)"
         args => "restart",
 	action => track("postgres_restart");  

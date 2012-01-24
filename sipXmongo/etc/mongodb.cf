@@ -16,18 +16,29 @@ bundle agent mongodb {
 
 bundle agent mongodb_config {
   vars:
-     mongod|primary::
-      "conf[replSet]" string => "sipxecs";
-      "conf[bind_ip]" string => "127.0.0.1";
-      "conf[port]" string => "27017";
+     mongod::
+       "server[replSet]" string => "sipxecs";
+       "server[bind_ip]" string => "127.0.0.1";
+       "server[port]" string => "27017";
+
+     any::
+       "client[connectionUrl]" string => "$(sipx.connectionUrl)";
+       "client[connectionString]" string => "$(sipx.connectionString)";
 
   files:
-    mongod|primary::
+    mongod::
       "/etc/mongod.conf"
         create => "false",
         perms => m("644"),
-        edit_line => set_variable_values("mongodb_config.conf"),
+        edit_line => set_variable_values("mongodb_config.server"),
         classes => if_repaired("restart_mongodb");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/mongo-client.ini",
+        create => "true",
+        perms => m("644"),
+	edit_line => set_variable_values("mongodb_config.client"),
+        classes => if_repaired("mongodb_client_reconnect");
 }
 
 # not meant to replace monitoring service that will restart crashed mongo
@@ -36,28 +47,23 @@ bundle agent mongodb_running {
   vars:
     any::
       "service" string => "/etc/init.d/mongod";
-      "service_command" string => "/usr/bin/mongod";
 
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "mongodb_running","mongod");
 
-  classes:
-    any::
-      "enabled" or => { "mongodb", "primary" };
-
   commands:
-    mongodb_running.!enabled::
+    mongodb_running.!mongod::
       "$(service)"
         args => "stop",
 	action => track("mongodb_stop");
 
-    (restart_mongodb|!mongodb_running).enabled::
+    (restart_mongodb|!mongodb_running).mongod::
       "$(service)"
         args => "start",
 	action => track("mongodb_start");
 
-    mongodb_running.restart_mongodb.enabled::
+    mongodb_running.restart_mongodb.mongod::
       "$(service)"
         args => "restart",
 	action => track("mongodb_restart");  

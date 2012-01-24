@@ -103,7 +103,7 @@ bundle agent sipx_module {
   vars:
     "failed_log" string => "@SIPX_LOGDIR@/sipxagent-failed.log";
     "repaired_log" string => "@SIPX_LOGDIR@/sipxagent-repaired.log";
-    "kept_log" string => "/opt/sipx-main/var/log/sipxpbx/sipxagent-kept.log";
+    "kept_log" string => "@SIPX_LOGDIR@/sipxagent-kept.log";
     "logs" slist => { "$(failed_log)", "$(repaired_log)", "$(kept_log)" };
 
   classes:

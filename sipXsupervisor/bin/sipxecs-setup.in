@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 if [ -f @SIPX_CONFDIR@/domain-config ]; then
@@ -19,7 +20,10 @@ mkdirs -p ${PrimaryDir}
 chown @SIPXPBXUSER:@SIPXPBXGROUP@ ${PrimaryDir}
 cat > ${PrimaryDir}/primary.cfdat <<EOF
 +primary
++postgres
++mongod
 EOF
+chown @SIPXPBXUSER:@SIPXPBXGROUP@ ${PrimaryDir}/primary.cfdat
 
 Fqdn=`hostname -f`
 SharedSecret=`head -c 18 /dev/urandom | base64`
@@ -29,5 +33,6 @@ cat > @SIPX_CFDATA@/domain.cfdat <<EOF
 =secret=${SharedSecret}
 =lang=en
 EOF
+chown @SIPXPBXUSER:@SIPXPBXGROUP@ domain.cfdat
 
 @SIPX_BINDIR@/sipxagent

@@ -51,6 +51,7 @@ Requires: sipxtacklib >= %version
 Requires: sipxcommserverlib >= %version
 Requires: sipxacdstatistics-client >= %version
 Requires: sipxcdr-client >= %version
+Requires: sipxcounterpath >= %version
 Requires: sipxpostgres >= %version
 
 # doesn't really require mongo server on same machine, but 
