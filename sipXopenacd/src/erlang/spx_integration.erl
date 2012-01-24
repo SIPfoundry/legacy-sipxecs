@@ -592,6 +592,12 @@ acc_cond(Operation, Acc) ->
 				Atm ->
 					[{type, Comp, Atm} | Acc]
 			end;
+		{client, Comp, ClientID} when is_binary(ClientID) ->
+			[{client, Comp, binary_to_list(ClientID)} | Acc];
+		{caller_name, Comp, RegEx} when is_binary(RegEx) ->
+			[{caller_name, Comp, RegEx} | Acc];
+		{caller_id, Comp, RegEx} when is_binary(RegEx) ->
+			[{caller_id, Comp, RegEx} | Acc];
 		_ ->
 			Acc
 	end.
@@ -612,6 +618,8 @@ decode_cond([{<<"rln">>, <<"<">>} | T], {Cndt, _, Vlu}) ->
 	decode_cond(T, {Cndt, '<', Vlu});
 decode_cond([{<<"rln">>, <<"=">>} | T], {Cndt, _, Vlu}) ->
 	decode_cond(T, {Cndt, '=', Vlu});
+decode_cond([{<<"rln">>, <<"!=">>} | T], {Cndt, _, Vlu}) ->
+	decode_cond(T, {Cndt, '!=', Vlu});
 decode_cond([{<<"vlu">>, Vlu} | T], {Cndt, Rln, _}) ->
 	decode_cond(T, {Cndt, Rln, Vlu});
 decode_cond([_ | T], Cond) ->
