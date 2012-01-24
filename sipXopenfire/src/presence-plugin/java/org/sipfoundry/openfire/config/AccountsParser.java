@@ -75,9 +75,9 @@ public class AccountsParser {
     {
         String fileUrl = "file://" + accountDbFileName;
         XmppAccountInfo newAccountInfo = AccountsParser.this.parse(fileUrl);
+        pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
         pruneUnwantedXmppGroups( newAccountInfo.getXmppGroupNames() ); // prune groups before applying deltas - see XX-7886
         enforceConfigurationDeltas( newAccountInfo, previousXmppAccountInfo );
-        pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
         pruneUnwantedXmppChatrooms( newAccountInfo );
         pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
         // Make sure that all user accounts can create multi-user chatrooms
@@ -295,7 +295,7 @@ public class AccountsParser {
 
     public void startScanner() {
         Scanner scanner = new Scanner();
-        timer.schedule(scanner, 10000, 10000);
+        timer.schedule(scanner, 0, 10000);
     }
 
     public void stopScanner() {
