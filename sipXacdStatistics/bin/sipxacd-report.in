@@ -45,12 +45,6 @@ def parse(args)
       exit
     end
 
-    opts.on_tail("--setup", "Configure postgres to allow connection and create database") do
-      setuppg
-      createdb
-      exit
-    end
-
     opts.on_tail("--disable", "Disable production of the sipxconfig-report") do
       disablereport
       exit
@@ -81,12 +75,6 @@ def parse(args)
 
     def disablereport
       `#perl -pi -e 's/^(CONFIG_SERVER_REPORT\s*=\s*")ENABLED"/\1DISABLED"/' @SIPX_CONFDIR@/sipxconfig-report-config`
-    end
-
-    def setuppg
-      if ! system('@bindir@/pgpatch.sh')
-        raise "could not patch postgres setup"
-      end
     end
 
   end
@@ -129,6 +117,10 @@ pid.close
 
 configUrls = Array.new(CONFIG_SERVER_AGENT_URL.split(";"))
 locationFqdns = Array.new(LOCATION_FQDN.split(";"))
+
+# check db schema is updated
+createdb
+system("@SIPX_LIBEXECDIR@/sipxacd-report-setup")
 
 configUrls.length.times do |i|
   importer = Reports::Importer.new

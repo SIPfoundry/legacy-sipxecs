@@ -27,7 +27,6 @@ Obsoletes: %name-devel
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcalllib >= %version
-Requires: sipxpbx >= %version
 Requires: boost
 
 Prefix:    %_prefix

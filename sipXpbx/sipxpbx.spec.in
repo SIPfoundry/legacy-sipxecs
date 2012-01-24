@@ -53,9 +53,6 @@ Requires: chkconfig
 Requires: sipxcalllib >= %version
 Requires: sipxcommserverlib >= %version
 Requires: sipxtools >= %version
-Requires: sipxpark >= %version
-Requires: sipxpresence >= %version
-Requires: sipxrls >= %version
 
 Requires: httpd >= 2.0
 Requires: rsyslog

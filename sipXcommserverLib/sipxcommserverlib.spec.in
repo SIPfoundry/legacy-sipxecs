@@ -46,6 +46,7 @@ Requires: patch
 # bind-utils required for dig
 Requires: bind-utils
 Requires: sipxmongo >= %version
+Requires: sipxsupervisor >= %version
 Obsoletes: %{name}-doc
 
 Prefix: %_prefix

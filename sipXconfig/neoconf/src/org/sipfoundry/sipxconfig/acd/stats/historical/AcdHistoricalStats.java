@@ -17,11 +17,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface AcdHistoricalStats {
-    public static final LocationFeature FEATURE = new LocationFeature("acdHistory");
-
     public static final String BEAN_NAME = "acdHistoricalStats";
 
     public List<String> getReports();

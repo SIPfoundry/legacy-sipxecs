@@ -28,6 +28,11 @@
   <bean id="acdHistoricalSettings" class="org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoricalSettings" parent="settingsBean">
   </bean>
 
+  <bean id="acdHistoryConfig" class="org.sipfoundry.sipxconfig.acd.stats.historical.AcdHistoryConfig">
+    <property name="historicalStats" ref="acdHistoricalStats" />
+    <property name="addressManager" ref="addressManager" />  
+  </bean>
+  
   <!--
     - If you change these reports, you need to update AcdHistoryPage.properties to reflect
     - new column names

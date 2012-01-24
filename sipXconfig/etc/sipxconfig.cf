@@ -8,6 +8,8 @@
 bundle agent sipxconfig {
   methods:
     any::
+      "any" usebundle => "mongodb";
+      "any" usebundle => "postgres";
       "any" usebundle => "sipxconfig_running";
 }
 

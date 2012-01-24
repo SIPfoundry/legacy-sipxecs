@@ -27,6 +27,7 @@ Requires: sipxcommserverlib
 Requires: ruby
 Requires: rubygems
 Requires: rubygem-file-tail
+Requires: rubygem-daemons
 
 %if %{_vendor} == redhat
 # irb is for file-tail gem
@@ -96,6 +97,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_var}/lib/sipxpbx/sipxacd-stats-*.gem
 %attr(755,root,root) %{_bindir}/sipxacd-stats
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxacd-stats-daemon
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxacdstatistics.cf
 
 %post
 gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipXacd-stats-*.gem >/dev/null
@@ -118,17 +121,14 @@ fi
 
 %files report
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxacd-report-setup
-%{_var}/lib/sipxpbx/sipXacd-report-*.gem
-%config(noreplace) /etc/cron.d/sipxacd-report-crontab
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipxacd-report-setup
+%{_var}/lib/sipxpbx/sipxacd-report-*.gem
 %attr(755,root,root) %{_bindir}/sipxacd-report
 
 %defattr(644,sipxchange,sipxchange,755)
-%config(noreplace) %{_sysconfdir}/sipxpbx/sipxacd-report-config
 %config(noreplace) %{_sysconfdir}/sipxpbx/report/schema.sql
 %config(noreplace) %{_sysconfdir}/sipxpbx/report/enable_upgrades.sql
 %config(noreplace) %{_sysconfdir}/sipxpbx/report/location_fqdn.sql
-%config(noreplace) %{_sysconfdir}/sipxpbx/report/sipxacd-report-config.vm
 
 %post report
 gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipXacd-report-*.gem >/dev/null

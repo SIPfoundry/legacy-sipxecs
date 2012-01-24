@@ -10,13 +10,14 @@ package org.sipfoundry.sipxconfig.acd.stats;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
-import org.sipfoundry.sipxconfig.acd.Acd;
+import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -25,17 +26,27 @@ public class AcdStatsConfig implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Acd.FEATURE)) {
+        if (!request.applies(AcdStats.FEATURE)) {
             return;
         }
 
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(AcdStats.FEATURE);
+        Set<Location> locations = request.locations(manager);
+        AcdStatsSettings settings = m_acdStats.getSettings();
         for (Location location : locations) {
-            AcdStatsSettings settings = m_acdStats.getSettings();
-            File file = new File(manager.getLocationDataDirectory(location), "sipxacd-stats.cfdat");
+            File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(AcdStats.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxacdstatistics.cfdat", "sipxacdstatistics", enabled);
+            if (!enabled) {
+                continue;
+            }
+            File file = new File(dir, "sipxacd-stats.cfdat");
             FileWriter wtr = new FileWriter(file);
-            KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
-            config.write(settings.getSettings());
+            try {
+                CfengineModuleConfiguration config = new CfengineModuleConfiguration(wtr);
+                config.write(settings.getSettings());
+            } finally {
+                IOUtils.closeQuietly(wtr);
+            }
         }
     }
 

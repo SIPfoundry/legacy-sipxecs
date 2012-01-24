@@ -106,22 +106,25 @@ bundle agent postgres_running {
     any::
       "service_command" string => "/usr/bin/postmaster";
 
+  classes:
+    "enabled" or => { "postgres", "primary" };
+
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "postgres_running","$(sipx.POSTGRESQL_USER)");
 
   commands:
-    postgres_running.!postgres::
+    postgres_running.!enabled::
       "$(sipx.PG_DAEMON)"
         args => "stop",
 	action => track("postgres_stop");
 
-    !postgres_running.postgres::
+    !postgres_running.enabled::
       "$(sipx.PG_DAEMON)"
         args => "start",
 	action => track("postgres_start");
 
-    postgres_running.restart_postgres::
+    restart_postgres.enabled::
       "$(sipx.PG_DAEMON)"
         args => "restart",
 	action => track("postgres_restart");  

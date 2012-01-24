@@ -5,6 +5,7 @@
 <model>
   <group name="configagent-config">
     <setting name="CONFIG_SERVER_AGENT_PORT" hidden="yes">
+       <type><integer/></type>
       <value>8120</value>
     </setting>
   </group>

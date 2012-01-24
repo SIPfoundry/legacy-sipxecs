@@ -18,7 +18,6 @@ import java.util.Collection;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
@@ -29,11 +28,10 @@ public class AcdReportConfigTest {
         AcdHistoryConfig config = new AcdHistoryConfig();
         AcdHistoricalSettings settings = new AcdHistoricalSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
-        Location location = TestHelper.createDefaultLocation();
         StringWriter actual = new StringWriter();
         String expected = IOUtils.toString(getClass().getResourceAsStream("report-config-expected.xml"));
         Collection<Address> apis = Arrays.asList(new Address("one"), new Address("two"));
-        config.write(actual, settings, location, apis);
+        config.write(actual, settings, apis);
         assertEquals(expected, actual.toString());
     }
 }

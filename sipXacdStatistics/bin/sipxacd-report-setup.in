@@ -6,12 +6,9 @@
 : ${ConfDir:=@SIPX_CONFDIR@}
 : ${DbVersion:=2}
 : ${DbPatchDir:=${ConfDir}/report}
-: ${DbPatchLog:=${LogDir}/sipacdreportpatch.log}
+: ${DbPatchLog:=@SIPX_LOGDIR@/sipacdreportpatch.log}
 
 Database=SIPXACD_HISTORY
-
-#Creates database if not found
-@bindir@/sipxacd-report --setup
 
 # How to add a database patch:
 #

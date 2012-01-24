@@ -32,7 +32,7 @@ public class AcdHistoryConfig implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(AcdHistoricalStats.FEATURE, Acd.FEATURE)) {
+        if (!request.applies(AcdStats.FEATURE, Acd.FEATURE)) {
             return;
         }
 
@@ -40,26 +40,34 @@ public class AcdHistoryConfig implements ConfigProvider {
         AcdHistoricalSettings settings = m_historicalStats.getSettings();
         Collection<Address> statsApis = m_addressManager.getAddresses(AcdStats.API_ADDRESS);
         for (Location location : locations) {
-            if (!manager.getFeatureManager().isFeatureEnabled(AcdHistoricalStats.FEATURE, location)) {
+            if (!manager.getFeatureManager().isFeatureEnabled(AcdStats.FEATURE, location)) {
                 continue;
             }
-            File file = new File(manager.getLocationDataDirectory(location), "sipxconfig-report-config.part");
+            File dir = manager.getLocationDataDirectory(location);
+            File file = new File(dir, "sipxconfig-report-config.part");
             Writer wtr = new FileWriter(file);
             try {
-                write(wtr, settings, location, statsApis);
+                write(wtr, settings, statsApis);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
     }
 
-    void write(Writer wtr, AcdHistoricalSettings settings, Location location, Collection<Address> statsApis)
+    void write(Writer wtr, AcdHistoricalSettings settings, Collection<Address> statsApis)
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.setValueFormat("\"%s\"");
         config.write(settings.getSettings());
-        config.write("LOCATION_FQDN", location.getFqdn());
         String statsUrls = StringUtils.join(statsApis, ';');
         config.write("CONFIG_SERVER_AGENT_URL", statsUrls);
+    }
+
+    public void setHistoricalStats(AcdHistoricalStats historicalStats) {
+        m_historicalStats = historicalStats;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

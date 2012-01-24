@@ -1,0 +1,92 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipxacdstatistics configuration and process management
+#
+bundle agent sipxacdstatistics {
+  methods:
+    sipxacdstatistics::
+      "any" usebundle => "sipxacdstatistics_config";
+      "any" usebundle => "sipxacdstatistics_setup";
+    any::
+      "any" usebundle => "sipxacdstatistics_running";
+}
+
+bundle agent sipxacdstatistics_config {
+  vars:
+    any::
+      "agent[CONFIG_SERVER_AGENT_PORT]" string => "$(sipx.CONFIG_SERVER_AGENT_PORT)";
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxconfig-report-config"
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxacdstatistics_report_config,
+	action => track("$(this.promiser)");
+
+      "$(sipx.SIPX_CONFDIR)/config-agent.properties"
+        create => "true",
+        perms => m("644"),
+        edit_line => set_variable_values("sipxacdstatistics_config.agent"),
+	classes => if_repaired("restart_sipxacdstatistics"),
+	action => track("$(this.promiser)");
+}
+
+bundle edit_line sipxacdstatistics_report_config {
+  insert_lines:
+    "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxconfig-report-config.part"
+      insert_type => "file";
+    "LOCATION_FQDN=\"$(sys.fqhost);\"";
+
+  delete_lines:
+    ".*";
+}
+
+bundle agent sipxacdstatistics_setup {
+  vars:
+    # script uses few resources so even every minute would be reasonable
+    # time should be less than one-half the time window sipxconfig-agent keeps
+    # around with is currently 90 minutes (although for the first 1000 events, it doesn't
+    # matter and sipxconfig-agent will keep at least that many)
+    "cron" string => "*/30 * * * * $(sipx.SIPXPBXUSER) $(sipx.SIPX_BINDIR)/sipxconfig-report > /dev/null";
+    "cron_id" string => ".*/sipxconfig-report .*"; #regex
+
+  methods:
+    !src.sipxacdstatistics::
+      "any" usebundle => rh_chkconfig_status("sipxacdstatistics on");
+      "any" usebundle => add_crontab("$(cron_id)","$(cron)");
+
+    !src.!sipxacdstatistics::
+      "any" usebundle => rh_chkconfig_status("sipxacdstatistics off");
+      "any" usebundle => remove_crontab("$(cron_id)");
+}
+
+bundle agent sipxacdstatistics_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipxacd-stats";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxacdstatistics_running");
+
+  commands:
+    sipxacdstatistics_running.!sipxacdstatistics::
+      "$(sipx.SIPX_SERVICEDIR)/sipxacdstatistics"
+        args => "stop",
+	action => track("sipxacdstatistics_stop");
+
+    !sipxacdstatistics_running.sipxacdstatistics::
+      "$(sipx.SIPX_SERVICEDIR)/sipxacdstatistics"
+        args => "start",
+	action => track("sipxacdstatistics_start");
+
+    restart_sipxacdstatistics::
+      "$(sipx.SIPX_SERVICEDIR)/sipxacdstatistics"
+        args => "restart",
+	action => track("sipxacdstatistics_restart");
+}
+

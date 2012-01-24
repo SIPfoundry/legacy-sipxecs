@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -f @SIPX_CONFDIR@/domain-config ]; then  
+if [ -f @SIPX_CONFDIR@/domain-config ]; then
   if [ $# -eq 0 ]; then
     echo "Already initialized, use -f to force reinitialization"
     exit 0
@@ -14,7 +14,10 @@ if [ ! -f @SIPX_CFDATA@/defaults/location_id ]; then
     echo "1" > @SIPX_CFDATA@/defaults/location_id
 fi
 
-cat > @SIPX_CFDATA@/1/primary.cfdat <<EOF
+PrimaryDir=@SIPX_CFDATA@/1
+mkdirs -p ${PrimaryDir}
+chown @SIPXPBXUSER:@SIPXPBXGROUP@ ${PrimaryDir}
+cat > ${PrimaryDir}/primary.cfdat <<EOF
 +primary
 EOF
 

@@ -173,7 +173,7 @@ start() {
        @SIPX_CONFDIR@/sipxconfig-jetty.xml"
 
     if [ -n "${NoFork}" ] ; then
-      runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+      runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
     else
       echo -n $"Starting sipxconfig: "
       runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
