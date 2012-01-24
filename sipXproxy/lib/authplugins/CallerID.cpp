@@ -153,7 +153,7 @@ CallerID::authorizeAndModify(const UtlString& id,    /**< The authenticated iden
 
                      OsSysLog::add( FAC_SIP, PRI_DEBUG, "parsing cidrules match extension '%s' and rewrite '%s'", extension, rewrite);
 
-                     originalFromUrl.setDisplayName(rewrite);
+                     originalFromUrl.setUserId(rewrite);
                      originalFromUrl.toString(cNewFromUrl);
                      request.setRawFromField(cNewFromUrl.data());
                      return AuthPlugin::CONTINUE;
