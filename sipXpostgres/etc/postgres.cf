@@ -51,16 +51,20 @@ bundle agent postgres_config {
       "$(sipx.PGDATA)/pg_hba.conf"
         create => "false",
 	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+ 	# only reload is nec. but not bothering to support this atm
+        classes => if_repaired("restart_postgres"),
 	edit_line => pg_hba_conf;
 
       "$(sipx.PGDATA)/postgresql.conf"
         create => "true",
 	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+        classes => if_repaired("restart_postgres"),
 	edit_line => postgresql_conf;
 
       "$(sipx.PGDATA)/postmaster.opts.default"
         create => "true",
 	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+        classes => if_repaired("restart_postgres"),
 	edit_line => replace_contents("-i");
 }
 
@@ -96,9 +100,11 @@ bundle edit_line postgresql_conf {
 bundle edit_line pg_hba_conf {
   insert_lines:
     "local all all trust";
-    "local all all trust";
     "host all all 127.0.0.1/32 trust";
     "host all all ::1/128 trust";
+  delete_lines:
+    "host.*";
+    "local.*";
 }
 
 

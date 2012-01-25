@@ -16,14 +16,15 @@ if [ ! -f @SIPX_CFDATA@/defaults/location_id ]; then
 fi
 
 PrimaryDir=@SIPX_CFDATA@/1
-mkdirs -p ${PrimaryDir}
-chown @SIPXPBXUSER:@SIPXPBXGROUP@ ${PrimaryDir}
+mkdir -p ${PrimaryDir}
+chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${PrimaryDir}
 cat > ${PrimaryDir}/primary.cfdat <<EOF
 +primary
++sipxsupervisor
 +postgres
 +mongod
 EOF
-chown @SIPXPBXUSER:@SIPXPBXGROUP@ ${PrimaryDir}/primary.cfdat
+chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${PrimaryDir}/primary.cfdat
 
 Fqdn=`hostname -f`
 SharedSecret=`head -c 18 /dev/urandom | base64`
@@ -33,6 +34,6 @@ cat > @SIPX_CFDATA@/domain.cfdat <<EOF
 =secret=${SharedSecret}
 =lang=en
 EOF
-chown @SIPXPBXUSER:@SIPXPBXGROUP@ domain.cfdat
+chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_CFDATA@/domain.cfdat
 
 @SIPX_BINDIR@/sipxagent

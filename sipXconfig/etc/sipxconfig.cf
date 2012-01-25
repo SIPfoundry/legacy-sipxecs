@@ -10,6 +10,7 @@ bundle agent sipxconfig {
     any::
       "any" usebundle => "mongodb";
       "any" usebundle => "postgres";
+      "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxconfig_running";
 }
 
