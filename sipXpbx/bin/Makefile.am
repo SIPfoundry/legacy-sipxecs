@@ -7,8 +7,7 @@ libexec_SCRIPTS = \
 	sipx-config-httpd-access \
 	sipx-config-vxml-domain \
 	initial-config \
-	sipx-strip-db-secrets.pl \
-	sipxkeystoregen
+	sipx-strip-db-secrets.pl
 
 bin_SCRIPTS = \
 	analyze_483s \
@@ -57,7 +56,6 @@ setup_LINKS = \
 	010_sipx-activate-ntp \
 	011_sipx-config-httpd-access \
 	012_sipx-config-vxml-domain \
-	013_sipxkeystoregen \
 	020_ibm_jvm_tmpdir
 
 NoSequenceId = $(shell echo $1 | sed -e 's|^[0-9]\{3\}_\(.*\)$$|\1|g')

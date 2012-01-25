@@ -18,7 +18,6 @@ sipx = \
   sipXrelay \
   sipXbridge \
   sipXfreeSwitch \
-  sipXpbx \
   sipXcdr \
   sipXacdStatistics \
   sipXconfig \
