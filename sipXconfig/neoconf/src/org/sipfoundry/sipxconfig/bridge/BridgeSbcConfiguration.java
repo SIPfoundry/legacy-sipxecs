@@ -16,7 +16,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
@@ -70,10 +69,6 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
 
         if (!feature.equals(BridgeSbcContext.FEATURE)) {
             return;
-        }
-
-        if (!manager.isFeatureEnabled(ProxyManager.FEATURE, location)) {
-            throw new UserException("Proxy should be enabled");
         }
 
         BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location);
