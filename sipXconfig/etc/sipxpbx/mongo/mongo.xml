@@ -18,7 +18,7 @@
     </setting>
     <setting name="port" hidden="yes">
       <type refid="nonRootPort"/>      
-      <value>27107</value>
+      <value>27017</value>
     </setting>
     <setting name="replSet" hidden="yes">
       <value>sipxecs</value>

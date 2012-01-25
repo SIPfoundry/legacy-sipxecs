@@ -3,7 +3,9 @@
 # Licensed to the User under the AGPL license.
 
 #
-# CFEngine server that allows agents to initiate an agent run remotely.
+# CFEngine server that allows agents to initiate an agent run remotely. This is the rules
+# for the running server, not for the configuration management or process management of
+# the supervisor.  This is in sipxsupervisor.cf.
 #
 
 bundle server sipx {
@@ -51,6 +53,9 @@ bundle server access_rules {
         ".*"
 	  # todo, remove root?
 	  authorize => { @(sipx.allowed_users) };
+  reports:
+    linux::
+      "Allowing connections from $(sipx.allowed_addrs)";
 }
 
 body runagent control {

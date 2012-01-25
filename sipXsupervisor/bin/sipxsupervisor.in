@@ -12,7 +12,7 @@
 # Source function library.
 . /etc/init.d/functions
 
-config="@SIPX_CFINPUTS@/sipxsupervisor.cf"
+config="@SIPX_CFINPUTS@/sipxsupervisord.cf"
 exec="/usr/sbin/cf-serverd"
 prog=$(basename $exec)
 # used to tell which config is in use.
@@ -22,18 +22,7 @@ configid=/var/run/sipxsupervisor-configid
 
 lockfile=/var/lock/subsys/$prog
 
-check_setup() {
-	[ ! -f /var/cfengine/ppkeys/localhost.priv ] && /usr/sbin/cfkey
-	if [ ! -f @SIPX_CONFDIR@/sipxsupervisor-allowed-addrs.ini ] ; then 
-	    echo -e "127.0.0.1\n::1" > @SIPX_CONFDIR@/sipxsupervisor-allowed-addrs.ini
-	fi
-	if [ ! -f @SIPX_CONFDIR@/sipxsupervisor-allowed-users.ini ] ; then 
-	    echo -e "root\n@SIPXPBXUSER@" > @SIPX_CONFDIR@/sipxsupervisor-allowed-users.ini
-	fi
-}
-
 start() {
-        check_setup
 	echo -n $config > $configid
 	echo -n $"Starting $prog: "
 	daemon $exec -f $config
@@ -44,7 +33,6 @@ start() {
 }
 
 nofork() {
-        check_setup
 	$exec -v -f $config
 }
 

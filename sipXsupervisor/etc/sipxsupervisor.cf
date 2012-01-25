@@ -1,0 +1,118 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# This is sipxsupervisor the configuration and process management. Not to be 
+# confused with sipxsupervisord.cf which is the rules for the sipxsupervisor
+# running instance
+#
+bundle agent sipxsupervisor {
+  # cannot think of a situtation were sipxsupervisor would ever be off 
+  # (i.e. !sipxsupervisor) but none the less, let's support it here as it 
+  # makes little difference to code.
+  methods:
+    sipxsupervisor::
+      "any" usebundle => "sipxsupervisor_config";
+      "any" usebundle => "sipxsupervisor_setup";
+    any::
+      "any" usebundle => "sipxsupervisor_running";
+}
+
+bundle agent sipxsupervisor_config {
+  files:
+    any::
+      "/var/cfengine/ppkeys/localhost.priv"
+        create => "true",
+        transformer => "/usr/bin/cf-key",
+	action => track("$(this.promiser)");
+
+      "$(sipx.SIPX_CONFDIR)/sipxsupervisor-allowed-addrs.ini"
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxsupervisor_allowed_addrs,
+	action => track("$(this.promiser)");
+
+      "$(sipx.SIPX_CONFDIR)/sipxsupervisor-allowed-users.ini"
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxsupervisor_allowed_users,
+	action => track("$(this.promiser)");
+}
+
+bundle edit_line sipxsupervisor_allowed_addrs {
+  vars:
+    "part_file" string => "$(sipx.SIPX_CFDATA)/sipxsupervisor-allowed-addrs.part";
+
+  classes:
+    "part_exists" expression => fileexists("$(part_file)");
+
+  insert_lines:
+    part_exists::
+      "$(part_file)"
+        insert_type => "file";
+
+    any::  
+      "127.0.0.1";
+      "::1";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle edit_line sipxsupervisor_allowed_users {
+  vars:
+    "part_file" string => "$(sipx.SIPX_CFDATA)/sipxsupervisor-allowed-users.part";
+
+  classes:
+    "part_exists" expression => fileexists("$(part_file)");
+
+  insert_lines:
+    part_exists::
+      "$(part_file)"
+        insert_type => "file";
+
+    any::  
+      "root";
+      "$(sipx.SIPXPBXUSER)";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxsupervisor_setup {
+  methods:
+    !src.sipxsupervisor::
+      "any" usebundle => rh_chkconfig_status("sipxsupervisor on");
+    !src.!sipxsupervisor::
+      "any" usebundle => rh_chkconfig_status("sipxsupervisor off");
+}
+
+bundle agent sipxsupervisor_running {
+  vars:
+    any::
+      "service_command" string => "/usr/sbin/cf-serverd";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxsupervisor_running");
+
+  commands:
+    sipxsupervisor_running.!sipxsupervisor::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
+        args => "stop",
+	action => track("sipxsupervisor_stop");
+
+    !sipxsupervisor_running.sipxsupervisor::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
+        args => "start",
+	action => track("sipxsupervisor_start");
+
+    restart_sipxsupervisor::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
+        args => "restart",
+	action => track("sipxsupervisor_restart");
+}
+

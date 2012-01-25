@@ -210,14 +210,12 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/acd/*
 %config(noreplace) %{sipxpbxconf}/sipxacdreports/*
 %config(noreplace) %{sipxpbxconf}/sipxacdstats/*
-%config(noreplace) %{sipxpbxconf}/report/*
 %config(noreplace) %{sipxpbxconf}/alarms/*
 %config(noreplace) %{sipxpbxconf}/commserver/*
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
 %config(noreplace) %{sipxpbxconf}/database/*
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
 %config(noreplace) %{sipxpbxconf}/mongo/*
-%config(noreplace) %{sipxpbxconf}/mrtg/*
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*
 %config(noreplace) %{sipxpbxconf}/sipxconference/*

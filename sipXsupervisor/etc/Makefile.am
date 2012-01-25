@@ -25,8 +25,12 @@ cfinputs_DATA = \
 	$(cfinputs_PROMISES) \
 	cfengine_stdlib.cf
 
+cfpluginsdir = $(SIPX_CFINPUTS)/plugin.d
+dist_cfplugins_DATA = \
+	sipxsupervisor.cf
+
 cfinputs_PROMISES = \
-	sipxsupervisor.cf \
+	sipxsupervisord.cf \
 	sipx.cf \
 	promises.cf \
 	sipxagent.cf

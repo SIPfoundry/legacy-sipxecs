@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -39,7 +40,11 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
      */
     public List<DialingRule> getDialingRules() {
         MohAddressFactory factory = getAddressFactory();
-        DialingRule rule = new MohRule(factory.getMediaAddress().toString(), factory.getFilesMohUser());
+        Address mediaAddress = factory.getMediaAddress();
+        if (mediaAddress == null) {
+            return Collections.emptyList();
+        }
+        DialingRule rule = new MohRule(mediaAddress.toString(), factory.getFilesMohUser());
         return Collections.singletonList(rule);
     }
 

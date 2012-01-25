@@ -117,7 +117,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             }
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
-
     };
 
     // the difference between the user and the group closures is that for group members
@@ -129,7 +128,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             replicateEntity(user, GROUP_DATASETS);
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
-
     };
 
     // the difference between the user and the group closures is that for group members
@@ -141,7 +139,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             replicateEntity(user, DataSet.SPEED_DIAL);
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
-
     };
 
     private final Closure<User> m_branchClosure = new Closure<User>() {
@@ -150,7 +147,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             replicateEntity(user, BRANCH_DATASETS);
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
-
     };
 
     @Required
@@ -195,7 +191,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         public int getPage() {
             return m_page;
         }
-
     }
 
     /*

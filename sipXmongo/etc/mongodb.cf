@@ -18,12 +18,10 @@ bundle agent mongodb_config {
   vars:
      mongod::
        "server[replSet]" string => "sipxecs";
-       "server[bind_ip]" string => "127.0.0.1";
+       # TODO: Need to fix this so it only binds to 127.0.0.1
+       # see https://jira.mongodb.org/browse/JAVA-510
+       "server[bind_ip]" string => "0.0.0.0";
        "server[port]" string => "27017";
-
-     any::
-       "client[connectionUrl]" string => "$(sipx.connectionUrl)";
-       "client[connectionString]" string => "$(sipx.connectionString)";
 
   files:
     mongod::
@@ -37,8 +35,17 @@ bundle agent mongodb_config {
       "$(sipx.SIPX_CONFDIR)/mongo-client.ini",
         create => "true",
         perms => m("644"),
-	edit_line => set_variable_values("mongodb_config.client"),
+	edit_line => mongo_client_config,
         classes => if_repaired("mongodb_client_reconnect");
+}
+
+bundle edit_line mongo_client_config {
+  insert_lines:
+     "connectionUrl=$(sipx.connectionUrl)";
+     "connectionString=$(sipx.connectionString)";
+
+  delete_lines:
+    ".*";
 }
 
 # not meant to replace monitoring service that will restart crashed mongo

@@ -68,6 +68,7 @@ bundle agent sipxacdstatistics_running {
   vars:
     any::
       "service_command" string => "$(sipx.SIPX_BINDIR)/sipxacd-stats";
+      "service" string => "$(sipx.SIPX_SERVICEDIR)/sipxacd-stats-daemon";
 
   methods:
     any::
@@ -75,17 +76,17 @@ bundle agent sipxacdstatistics_running {
 
   commands:
     sipxacdstatistics_running.!sipxacdstatistics::
-      "$(sipx.SIPX_SERVICEDIR)/sipxacdstatistics"
+      "$(service)"
         args => "stop",
 	action => track("sipxacdstatistics_stop");
 
     !sipxacdstatistics_running.sipxacdstatistics::
-      "$(sipx.SIPX_SERVICEDIR)/sipxacdstatistics"
+      "$(service)"
         args => "start",
 	action => track("sipxacdstatistics_start");
 
     restart_sipxacdstatistics::
-      "$(sipx.SIPX_SERVICEDIR)/sipxacdstatistics"
+      "$(service)"
         args => "restart",
 	action => track("sipxacdstatistics_restart");
 }
