@@ -95,6 +95,7 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
                 address.setPort(settings.getPresencePort());
                 address.setFormat("http://%s:%d/RPC2");
             }
+            addresses.add(address);
         }
 
         return addresses;
