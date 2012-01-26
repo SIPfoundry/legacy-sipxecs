@@ -286,6 +286,7 @@ bundle agent find_sipxservice_by_command(command,on_find_define) {
       process_select => user_process_select("$(command).*","$(sipx.SIPXPBXUSER)");
 }
 
+# find a service, but specify the user the command should be running as
 bundle agent find_service_by_command(command,on_find_define,user_id) {
   processes:
     "$(command)"

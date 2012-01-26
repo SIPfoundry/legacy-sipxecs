@@ -97,7 +97,7 @@ bundle agent sipxsupervisor_running {
 
   methods:
     any::
-      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxsupervisor_running");
+      "any" usebundle => find_service_by_command("$(service_command)","sipxsupervisor_running","root");
 
   commands:
     sipxsupervisor_running.!sipxsupervisor::
