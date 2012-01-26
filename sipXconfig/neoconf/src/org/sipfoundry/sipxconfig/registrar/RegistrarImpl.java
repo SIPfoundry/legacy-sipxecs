@@ -73,7 +73,7 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Object requester) {
-        if (!ADDRESSES.contains(type) || manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+        if (!ADDRESSES.contains(type) || !manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
             return null;
         }
 
@@ -95,6 +95,7 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
                 address.setPort(settings.getPresencePort());
                 address.setFormat("http://%s:%d/RPC2");
             }
+            addresses.add(address);
         }
 
         return addresses;
