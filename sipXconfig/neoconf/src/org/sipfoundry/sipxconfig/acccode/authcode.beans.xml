@@ -11,6 +11,13 @@
     <property name="target" ref="authCodeManagerImpl" />
   </bean>
   
+  <bean id="dialingRuleProviderProxy" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider" />
+    <property name="target">
+      <ref local="authCodes" />
+    </property>
+  </bean>
+
   <bean id="authCodes" class="org.sipfoundry.sipxconfig.acccode.AuthCodes">
     <property name="authCodeManager" ref="authCodeManager" />
     <property name="addressManager" ref="addressManager" />
@@ -24,10 +31,6 @@
         </property>
       </bean>
     </property>
-  </bean>
-
-  <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig">
-    <property name="authCodeManager" ref="authCodeManager" />
   </bean>
   
   <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" parent="settingsBean">

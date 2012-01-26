@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.springframework.beans.factory.annotation.Required;
 
 public class AuthCodes implements ReplicableProvider, DialingRuleProvider, FeatureProvider {
     public static final LocationFeature FEATURE = new LocationFeature("authCode");
@@ -79,6 +80,7 @@ public class AuthCodes implements ReplicableProvider, DialingRuleProvider, Featu
         return replicables;
     }
 
+    @Required
     public void setAuthCodeManager(AuthCodeManager authCodeManager) {
         m_authCodeManager = authCodeManager;
     }
@@ -93,14 +95,17 @@ public class AuthCodes implements ReplicableProvider, DialingRuleProvider, Featu
         return Collections.singleton(FEATURE);
     }
 
+    @Required
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
     }
 
+    @Required
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }
 
+    @Required
     public void setSettingsDao(BeanWithSettingsDao<AuthCodeSettings> settingsDao) {
         m_settingsDao = settingsDao;
     }

@@ -124,15 +124,4 @@ public class DefaultContextConfigurationTest {
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context.test.xml"));
         assertEquals(expected, actual.toString());
     }
-    
-    @Test
-    public void testAuthCodesConfig() throws Exception {
-        StringWriter actual = new StringWriter();
-        Location location = TestHelper.createDefaultLocation();
-        Bridge bridge = new Bridge();
-        List<FreeswitchExtension> extensions = Collections.emptyList();
-        m_configuration.write(actual, location, bridge, true, extensions);
-        String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-authcodes.test.xml"));
-        assertEquals(expected, actual.toString());
-    }
 }

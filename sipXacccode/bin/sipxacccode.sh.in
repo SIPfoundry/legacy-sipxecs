@@ -32,7 +32,6 @@ done
 
 CONFIG_FILES="\
   @SIPX_CONFDIR@/sipxacccode.properties \
-  @SIPX_CONFDIR@/authcodes.xml \
   "
 
 pidfile=@SIPX_RUNDIR@/sipxacccode.pid
@@ -54,10 +53,6 @@ case ${Action} in
 
    CONFIGTEST)
      sipx_config_exists @SIPX_CONFDIR@/sipxacccode.properties
-     Status=$(($Status+$?))
-
-     # check validity of xml files
-     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/authcodes.xml
      Status=$(($Status+$?))
 
      # Check that the log file is writable.

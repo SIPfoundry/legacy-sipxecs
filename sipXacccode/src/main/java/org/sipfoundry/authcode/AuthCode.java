@@ -9,20 +9,14 @@
 
 package org.sipfoundry.authcode;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.freeswitch.Localization;
-import org.sipfoundry.commons.freeswitch.Play;
-import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.Set;
 import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.freeswitch.Transfer;

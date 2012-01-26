@@ -21,6 +21,7 @@ bundle agent sipxproxy_config {
     any::
       "xml_file" slist => {
         "peeridentities.xml",
+        "mappingrules.xml",
         "authrules.xml",
         "fallbackrules.xml",
         "forwardingrules.xml",
