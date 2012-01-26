@@ -78,10 +78,6 @@ public class IvrConfig implements ConfigProvider {
         // potential bug: name "operator" could be changed by admin. this should be configurable
         // and linked with vm dialing rule
         config.write("ivr.operatorAddr", "sip:operator@" + domain.getName());
-
-        config.write("ivr.sipxchangeDomainName", domain.getName());
-        config.write("ivr.realm", domain.getSipRealm());
-        config.write("ivr.httpsPort", settings.getHttpsPort());
         config.write("ivr.configAddress", adminApi.getAddress());
 
         // required services

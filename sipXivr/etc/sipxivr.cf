@@ -26,7 +26,7 @@ bundle agent sipxivr_config {
       "$(sipx.SIPX_CONFDIR)/sipxivr.properties"
         create => "true",
         perms => m("644"),
-	edit_line => sipxivr_properties_contents(),
+	edit_line => sipxivr_properties_contents,
         classes => if_repaired("restart_sipxivr"),
 	action => track("$(this.promiser)");
 
@@ -39,11 +39,13 @@ bundle agent sipxivr_config {
 	action => track("$(this.promiser)");
 }
 
-bundle edit_line sipxivr_properties_contents() {
+bundle edit_line sipxivr_properties_contents {
   insert_lines:
     any::
       "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxivr.properties.part"
         insert_type => "file";
+      "ivr.sipxchangeDomainName=$(sipx.domain)";
+      "ivr.realm=$(sipx.realm)";
       "log.file=$(sipx.SIPX_LOGDIR)/sipxivr.log";
       "ivr.dataDirectory=$(sipx.SIPX_IVRDATADIR)";
       "ivr.mailstoreDirectory=$(sipx.SIPX_IVRDATADIR)/mailstore";

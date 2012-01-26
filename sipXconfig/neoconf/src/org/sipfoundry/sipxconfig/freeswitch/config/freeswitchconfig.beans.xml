@@ -23,8 +23,6 @@
   </bean>
   <bean id="freeswitchLogfileConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.LogfileConfiguration" parent="freeswitchConfigFile">
   </bean>
-  <bean id="freeswitchModulesConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.ModulesConfiguration" parent="freeswitchConfigFile">
-  </bean>
   <bean id="freeswitchSofiaConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.SofiaConfiguration" parent="freeswitchConfigFile">
     <property name="domainManager" ref="domainManager" />
     <property name="coreContext" ref="coreContext" />
