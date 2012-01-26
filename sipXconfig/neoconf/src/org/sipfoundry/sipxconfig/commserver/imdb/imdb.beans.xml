@@ -61,7 +61,10 @@
     class="org.sipfoundry.sipxconfig.commserver.imdb.Mailstore">
     <property name="mailboxManager" ref="mailboxManager" />
   </bean>
-  
+  <bean id="openacdDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.commserver.imdb.OpenAcd">
+  </bean>
+
   <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl" parent="abstractDaoImpl">
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
