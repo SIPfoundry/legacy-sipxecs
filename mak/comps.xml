@@ -18,11 +18,13 @@
      <packagereq type="mandatory">sipxpublisher</packagereq>
      <packagereq type="mandatory">sipxregistry</packagereq>
      <packagereq type="mandatory">sipxconfig</packagereq>
+     <!-- counterpath : deps because of web deployment issues -->
+     <packagereq type="mandatory">sipxcounterpath</packagereq>
+     <packagereq type="mandatory">sipxpolycom</packagereq>
+     <packagereq type="mandatory">sipxaudiocodes</packagereq>
      <packagereq type="mandatory">sipxbridge</packagereq>
      <packagereq type="mandatory">sipxivr</packagereq>
-     <packagereq type="mandatory">sipxpolycom</packagereq>
      <packagereq type="mandatory">sipxopenfire</packagereq>
-     <packagereq type="mandatory">sipxbridge</packagereq>
    </packagelist>
   </group>
 </comps>
