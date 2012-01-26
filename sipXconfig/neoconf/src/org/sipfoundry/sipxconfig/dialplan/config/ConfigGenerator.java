@@ -64,7 +64,8 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
             }
             File dir = manager.getLocationDataDirectory(location);
             Writer[] writers = new Writer[] {
-                new FileWriter(new File(dir, "mappingrules.xml")), new FileWriter(new File(dir, "authrules.xml")),
+                new FileWriter(new File(dir, "mappingrules.xml")),
+                new FileWriter(new File(dir, "authrules.xml")),
                 new FileWriter(new File(dir, "fallbackrules.xml")),
                 new FileWriter(new File(dir, "forwardingrules.xml"))
             };
