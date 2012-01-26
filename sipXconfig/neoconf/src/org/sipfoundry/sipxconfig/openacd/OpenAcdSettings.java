@@ -26,7 +26,7 @@ public class OpenAcdSettings extends PersistableSettings {
         addDefaultBeanSettingHandler(new Defaults());
     }
 
-    class Defaults {
+    public class Defaults {
         @SettingEntry(path = C_NODE)
         public String getCNode() {
             // change this when installing on different locations will be supported

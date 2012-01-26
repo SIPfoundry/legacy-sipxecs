@@ -91,6 +91,7 @@
   </bean>
   
   <bean id="openAcdSettings" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSettings" parent="settingsBean">
+    <property name="domainManager" ref="domainManager"/>
   </bean>
   
 </beans>
