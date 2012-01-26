@@ -33,6 +33,10 @@
     </property>
   </bean>
   
+  <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig">
+	<property name="authCodes" ref="authCodes"/>
+  </bean>
+
   <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" parent="settingsBean">
   </bean>
   

@@ -34,15 +34,18 @@ public class AuthCodesTestIntegration extends ImdbTestCase {
     private List<AuthCode> m_authCodes;
     private List<InternalUser> m_internalUsers;
 
-    public void testSaveAuthCode() {
+    public void testReplicateAuthCode() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         m_authCodes = new ArrayList<AuthCode>();
         m_internalUsers = new ArrayList<InternalUser>();
         InternalUser user = null;
         for (String[] internalUser : INTERNAL_USER_DATA) {
             user = new InternalUser();
+            user.setPermissionManager(getPermissionManager());
             user.setUniqueId(new Integer(internalUser[0]));
             user.setName(internalUser[1]);
             user.setSipPassword(internalUser[2]);
+            user.setDomainManager(getDomainManager());
             m_internalUsers.add(user);
         }
         Iterator<InternalUser> iterator = m_internalUsers.iterator();

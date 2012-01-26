@@ -47,27 +47,7 @@ public class AuthCodeConfigurationTest {
         m_config.writeConfig(actual, m_settings, m_domain, 1000);
         assertEquals(expected("expected-sipxacccode.properties"), actual.toString());
     }
-    
-    @Test
-    public void testXml() throws Exception {
-        AuthCode code = new AuthCode();
-        code.setCode("444");
-        InternalUser user = new InternalUser();
-        user.setSipPassword("xxx");
-        user.setName("~~ac~1");
-        code.setInternalUser(user);
-        AuthCodeManager authCodesManager = createMock(AuthCodeManager.class);
-        authCodesManager.getAuthCodes();
-        expectLastCall().andReturn(Collections.singletonList(code)).once();
-        replay(authCodesManager);
-        m_config.setAuthCodeManager(authCodesManager);
-        
-        StringWriter actual = new StringWriter();
-        XmlFile x = new XmlFile(actual);
-        x.write(m_config.getDocument());
-        assertEquals(expected("expected-authcodes.xml"), actual.toString());
-    }
-    
+
     private String expected(String name) throws IOException {
         return IOUtils.toString(getClass().getResourceAsStream(name));
     }
