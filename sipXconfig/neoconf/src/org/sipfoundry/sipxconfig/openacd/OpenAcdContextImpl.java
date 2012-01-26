@@ -31,8 +31,6 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
-import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -46,7 +44,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext,
-    BeanFactoryAware, ReplicableProvider {
+    BeanFactoryAware {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -870,42 +868,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public OpenAcdRecipeStep getRecipeStepById(Integer recipeStepId) {
         return getHibernateTemplate().load(OpenAcdRecipeStep.class, recipeStepId);
-    }
-
-    @Override
-    public List<Replicable> getReplicables() {
-        List<Replicable> replicables = new ArrayList<Replicable>();
-        for (OpenAcdExtension ext : getHibernateTemplate().loadAll(OpenAcdExtension.class)) {
-            replicables.add(ext);
-        }
-        for (OpenAcdQueue q : getQueues()) {
-            replicables.add(q);
-        }
-        for (OpenAcdAgent agent : getAgents()) {
-            replicables.add(agent);
-        }
-        for (OpenAcdAgentGroup agentGroup : getAgentGroups()) {
-            replicables.add(agentGroup);
-        }
-        for (OpenAcdClient client : getClients()) {
-            replicables.add(client);
-        }
-        for (OpenAcdQueueGroup qgr : getQueueGroups()) {
-            replicables.add(qgr);
-        }
-        for (OpenAcdSkill skill : getSkills()) {
-            replicables.add(skill);
-        }
-
-        replicables.add(new FreeswitchMediaCommand(
-                getSettings().isEnabled(),
-                getSettings().getCNode(),
-                getSettings().getDialString()));
-        replicables.add(new OpenAcdAgentConfigCommand(
-                getSettings().getDialPlanListener()));
-        replicables.add(new OpenAcdLogConfigCommand(getSettings().getLogLevel(),
-                getSettings().getLogDir()));
-        return replicables;
     }
 
     public void onSave(Object entity) {
