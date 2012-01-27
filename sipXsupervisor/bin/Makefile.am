@@ -18,8 +18,9 @@ initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
 	sipxsupervisor
 
+SIPXPBXUSER_HOMEDIR = ~
 $(cfmod_SCRIPTS) $(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
-	@$(call SearchAndReplace,$<,$@)
+	@$(call SearchAndReplace,$<,$@,SIPXPBXUSER_HOMEDIR)
 
 
 CLEANFILES = $(bin_SCRIPTS) $(initd_SCRIPTS)

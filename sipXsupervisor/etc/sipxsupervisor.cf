@@ -22,11 +22,6 @@ bundle agent sipxsupervisor {
 bundle agent sipxsupervisor_config {
   files:
     any::
-      "/var/cfengine/ppkeys/localhost.priv"
-        create => "true",
-        transformer => "/usr/sbin/cf-key",
-	action => track("$(this.promiser)");
-
       "$(sipx.SIPX_CONFDIR)/sipxsupervisor-allowed-addrs.ini"
         create => "true",
         perms => m("644"),

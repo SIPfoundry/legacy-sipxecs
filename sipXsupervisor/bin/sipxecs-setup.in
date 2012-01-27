@@ -1,39 +1,100 @@
+#!/usr/bin/ruby
 
-#!/bin/bash
+require 'optparse'
 
-if [ -f @SIPX_CONFDIR@/domain-config ]; then
-  if [ $# -eq 0 ]; then
-    echo "Already initialized, use -f to force reinitialization"
-    exit 0
-  fi
-fi
+$domain_dat = "@SIPX_CFDATA@/domain.cfdat"
+$root_key = "/var/cfengine/ppkeys/localhost.pub"
+$user_key = "@SIPXPBXUSER_HOME@/.cfagent/ppkeys/localhost.pub"
+$primary_dir = "@SIPX_CFDATA@/1"
+$primary_dat = "#{$primary_dir}/primary.cfdat"
+$location_dat = "@SIPX_CFDATA@/defaults/location_id"
+$cli_options = {}
+$fqdn = `hostname -f`.chomp
+$cli_options[:host] = $fqdn
+$cli_options[:domain] = $fqdn
+$exit_status = 0
 
-# To do - support setting up as secondary
+def set_root_keys
+  #harmless if re-run
+  `/usr/sbin/cf-key`
+end
 
-# P R I M A R Y 
-if [ ! -f @SIPX_CFDATA@/defaults/location_id ]; then
-    echo "1" > @SIPX_CFDATA@/defaults/location_id
-fi
+# PRIMARY ONLY
+def set_nonroot_keys
+  #harmless if re-run
+  `su - @SIPXPBXUSER@ sh -c '/usr/sbin/cf-key'`
+end
 
-PrimaryDir=@SIPX_CFDATA@/1
-mkdir -p ${PrimaryDir}
-chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${PrimaryDir}
-cat > ${PrimaryDir}/primary.cfdat <<EOF
+# PRIMARY ONLY
+def set_primary
+  File.open($location_dat, 'w') {|f|
+    f.puts('1')
+  }
+  Dir.mkdir($primary_dir) unless File.directory?($primary_dir)
+  File.open($primary_dat, 'w') {|f|
+    f.puts <<EOF
 +primary
 +sipxsupervisor
 +postgres
 +mongod
 EOF
-chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${PrimaryDir}/primary.cfdat
+  }
+  `chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ #{$primary_dir}`
+end
 
-Fqdn=`hostname -f`
-SharedSecret=`head -c 18 /dev/urandom | base64`
-cat > @SIPX_CFDATA@/domain.cfdat <<EOF
-=domain=${Fqdn}
-=realm=${Fqdn}
-=secret=${SharedSecret}
+# PRIMARY ONLY
+def set_domain
+  return if File.exists?($domain_dat)
+  shared_secret = $cli_options[:shared_secret] || `head -c 18 /dev/urandom | base64`.chomp
+  File.open($domain_dat, 'w') { |f|
+    f.puts <<EOF
+=domain=#{$cli_options['domain']}
+=realm=#{$cli_options['domain']}
+=secret=#{shared_secret}
 =lang=en
 EOF
-chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_CFDATA@/domain.cfdat
+  }
+  `chown @SIPXPBXUSER@:@SIPXPBXGROUP@ #{$domain_dat}`
+end
 
-@SIPX_BINDIR@/sipxagent
+def rm_file(file)
+  File.unlink(file) if File.exists?(file)
+end
+
+args = OptionParser.new { |opts|
+  opts.banner = "Usage : sipxecs-setup [options]"
+
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on("--domain domain", "Force system to given domain. Default is #{$fqdn}.") { |val|
+    rm_file($domain_dat)
+    $cli_options[:domain] = val
+  }
+
+  opts.on("--secret secret", "Force configuration to a set secret. Default is a random value.") { |val|
+    rm_file($domain_dat)
+    $cli_options[:domain] = val
+  }
+
+  opts.on("--reset-keys", "Regenerate ssl keys for root to non-root authorization.") {
+    rm_file($root_key)
+    rm_file($user_key)
+  } 
+
+  opts.on_tail("--help", "Print options") {
+    puts opts
+    exit
+  }
+
+}
+args.parse!
+
+raise 'Must run as root' unless Process.uid == 0
+
+set_root_keys()
+set_nonroot_keys()
+set_primary()
+set_domain()
+
+puts `@SIPX_BINDIR@/sipxagent`
