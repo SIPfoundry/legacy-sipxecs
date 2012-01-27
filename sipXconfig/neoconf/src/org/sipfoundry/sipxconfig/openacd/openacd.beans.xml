@@ -61,7 +61,7 @@
 
   <bean id="openAcdSkillGroupMigrationContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroupMigrationContextImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="openAcdContext" ref="openAcdContext" />
+    <property name="openAcdContext" ref="openAcdContextImpl" />
   </bean>
 
   <bean id="openAcdSkillGroupMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
