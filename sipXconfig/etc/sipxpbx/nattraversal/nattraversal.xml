@@ -32,7 +32,20 @@
     </enum>
   </type>
   <group name="nat">
-    <setting name="behind-nat" hidden="yes">
+    <setting name="enabled">
+      <type>
+        <boolean>
+          <true>
+            <value>enabled</value>
+          </true>
+          <false>
+            <value>disabled</value>
+          </false>
+        </boolean>
+      </type>
+      <value>enabled</value>
+    </setting>
+    <setting name="behind-nat">
       <type>
         <boolean>
           <true>

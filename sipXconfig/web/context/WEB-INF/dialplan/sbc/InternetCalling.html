@@ -1,10 +1,11 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
-    <span jwcid="@common/TabNavigation" tabNames="ognl:{'internetCalling', 'natTraversal'}" selectedTab="ognl:tab"/>
-    <div id="settings-content">
-      <span jwcid="@common/ErrorMsg"/>
-      <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+	<div jwcid="@common/QuickLinks">
+      <ul>
+        <li>
+          <a jwcid="@PageLink" page="nat/EditNatTraversal" href="#"><span key="label.natpage">NAT</span></a>
+        </li>
+      </ul>
     </div>
-  <span jwcid="internetCallingTab@Block">
     <div jwcid="@common/QuickHelp" value="message:help.sbc"/><br/>
     <div jwcid="@common/QuickHelp" value="message:help.domains"/><br/>
     <div jwcid="@common/QuickHelp" value="message:help.subnets"/>
@@ -67,19 +68,4 @@
       </li>
     </ul>
   </form>
-  </span>
-
-  <span jwcid="natTraversalTab@Block">
-    <div jwcid="@common/QuickLinks">
-      <ul>
-        <li>
-          <a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="label.jobStatus">Job Status</span></a>
-        </li>
-      </ul>
-    </div>
-    <span jwcid="@common/QuickHelp" value="message:help.natTraversal"/>
-    <form jwcid="natTraversal@Form" delegate="bean:validator">
-      <span jwcid="natTraversalComponent@dialplan/sbc/NatTraversalPanel"/>
-    </form>
-  </span>
 </div>

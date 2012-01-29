@@ -1,0 +1,52 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'settings','locations'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div> 
+  <span jwcid="locationsTab@Block">
+  	  <div jwcid="@common/QuickLinks">
+        <ul>
+          <li>
+            <a jwcid="@PageLink" page="dialplan/sbc/InternetCalling" href="#"><span key="label.internetcalling">Internet Calling</span></a>
+          </li>
+        </ul>
+      </div>
+      <div jwcid="@common/QuickHelp" value="message:quick.help">help text here...</div>
+      <form jwcid="@Form">
+        <table jwcid="tableView@common/Table" id="nat:locations"
+		  columns="* name, address, natConfig, publicPort, publicTlsPort"
+		  source="ognl:locations"
+		  row="ognl:currentRow">
+	     <span jwcid="nameColumnValue@Block">
+	      <span jwcid="editRowLink@DirectLink"
+		    listener="listener:editNat"
+		    parameters="ognl:currentRow.id">
+		    <span jwcid="nameText@Insert" value="ognl:currentRow.fqdn"/>
+	      </span>
+	    </span>
+	    <span jwcid="natConfigColumnValue@Block">
+	      <span jwcid="@If" condition="ognl:currentRow.useStun">
+		    <span key="label.stunServer">Use STUN server</span>: <span jwcid="stun@Insert" value="ognl:currentRow.stunAddress"/>
+	      </span>
+	      <span jwcid="@Else">
+	        <span key="label.publicIp">Public IP Address</span>: <span jwcid="public@Insert" value="ognl:currentRow.publicAddress"/>
+	      </span>
+	    </span>
+      </table>
+    </form>
+  </span>
+  <span jwcid="settingsTab@Block">
+	  <div jwcid="@common/QuickLinks">
+        <ul>
+          <li>
+            <a jwcid="@PageLink" page="dialplan/sbc/InternetCalling" href="#"><span key="label.internetcalling">Internet Calling</span></a>
+          </li>
+        </ul>
+      </div>
+    <span jwcid="@common/QuickHelp" value="message:help.natTraversal"/>
+    <form jwcid="natTraversal@Form" delegate="bean:validator">
+      <span jwcid="natTraversalComponent@dialplan/sbc/NatTraversalPanel"/>
+    </form> 
+  </span> 
+</div>

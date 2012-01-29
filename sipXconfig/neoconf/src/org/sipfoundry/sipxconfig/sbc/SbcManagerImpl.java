@@ -88,9 +88,8 @@ public class SbcManagerImpl extends SipxHibernateDaoSupport implements SbcManage
         Set<String> sbcSubnets = new HashSet<String>();
         List<Sbc> sbcs = getHibernateTemplate().loadAll(Sbc.class);
         for (Sbc sbc : sbcs) {
-            routes = sbc.getRoutes();
-            sbcDomains.addAll(routes.getDomains());
-            sbcSubnets.addAll(routes.getSubnets());
+            sbcDomains.addAll(sbc.getRoutes().getDomains());
+            sbcSubnets.addAll(sbc.getRoutes().getSubnets());
         }
 
         List<String> domains = new ArrayList<String>(sbcDomains);

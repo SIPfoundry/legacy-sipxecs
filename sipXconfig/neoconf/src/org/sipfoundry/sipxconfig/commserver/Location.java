@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.commserver;
 import static org.apache.commons.lang.StringUtils.substringBefore;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,10 +21,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 
-public class Location extends BeanWithId {
+public class Location extends BeanWithId implements DeployConfigOnEdit {
     // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
     public static final int PROCESS_MONITOR_PORT = 8092;
@@ -325,5 +331,10 @@ public class Location extends BeanWithId {
 
     public void setCallTraffic(boolean callTraffic) {
         m_callTraffic = callTraffic;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) NatTraversal.FEATURE);
     }
 }

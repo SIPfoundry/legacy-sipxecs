@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 
 public abstract class Sbc extends BeanWithId implements DeployConfigOnEdit {
 
@@ -90,6 +91,7 @@ public abstract class Sbc extends BeanWithId implements DeployConfigOnEdit {
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) SbcFeature.SBC, (Feature) DialPlanContext.FEATURE);
+        return Arrays.asList((Feature) SbcFeature.SBC, (Feature) DialPlanContext.FEATURE,
+                (Feature) NatTraversal.FEATURE);
     }
 }

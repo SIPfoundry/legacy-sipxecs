@@ -5,7 +5,7 @@
 #set($relay=${settings.getSettings().getSetting('relay-config')})
 #set($nat=${settings.getSettings().getSetting('nat')})
   <info>
-    <state>enabled</state>
+    <state>${nat.getSetting('enabled').Value}</state>
     <behindnat>${nat.getSetting('behind-nat').Value}</behindnat>
 #if(${settings.behindNat})
 #if(${location.useStun})
