@@ -157,12 +157,18 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
     public IPage restore() {
         Collection<File> selectedFiles = getSelections().getAllSelected();
         List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
-        boolean restoreVoicemailOnly = true;
+        boolean restoreVoicemail = false;
+        boolean restoreConfig = false;
+        boolean restoreCdr = false;
         for (File file : selectedFiles) {
             BackupBean backup = new BackupBean(file);
             selectedBackups.add(backup);
             if (backup.getType() == BackupBean.Type.CONFIGURATION) {
-                restoreVoicemailOnly = false;
+                restoreConfig = true;
+            } else if (backup.getType() == BackupBean.Type.CDR) {
+                restoreCdr = true;
+            } else if (backup.getType() == BackupBean.Type.VOICEMAIL) {
+                restoreVoicemail = true;
             }
         }
 
@@ -172,7 +178,7 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
             return null;
         }
         Restore restore = prepareRestore(selectedBackups, getBackupPlanType());
-        return setupWaitingPage(restore, restoreVoicemailOnly);
+        return setupWaitingPage(restore, restoreConfig, restoreVoicemail, restoreCdr);
     }
 
     public IPage uploadAndRestoreFiles() {
@@ -180,27 +186,30 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
         try {
             List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
             BackupBean config;
-            boolean restoreVoicemailOnly = true;
+            boolean restoreVoicemail = false;
+            boolean restoreConfig = false;
+            boolean restoreCdr = false;
             config = upload(getUploadConfigurationFile(), BackupPlan.CONFIGURATION_ARCHIVE);
             if (config != null) {
                 selectedBackups.add(config);
-                restoreVoicemailOnly = false;
+                restoreConfig = true;
             }
             BackupBean cdr = upload(getUploadCdrFile(), BackupPlan.CDR_ARCHIVE);
             if (cdr != null) {
                 selectedBackups.add(cdr);
-                restoreVoicemailOnly = false;
+                restoreCdr = true;
             }
             BackupBean voicemail = upload(getUploadVoicemailFile(), BackupPlan.VOICEMAIL_ARCHIVE);
             if (voicemail != null) {
                 selectedBackups.add(voicemail);
+                restoreVoicemail = true;
             }
 
             if (selectedBackups.isEmpty()) {
                 throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
             }
             Restore restore = prepareRestore(selectedBackups, LocalBackupPlan.TYPE);
-            return setupWaitingPage(restore, restoreVoicemailOnly);
+            return setupWaitingPage(restore, restoreConfig, restoreVoicemail, restoreCdr);
         } catch (ValidatorException e) {
             validator.record(e);
             return null;
@@ -208,18 +217,26 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
 
     }
 
-    private IPage setupWaitingPage(Restore restore, boolean restoreVoicemailOnly) {
-        // if voicemail only selected to be restored and voicemail running remotely display a message on page
-        if (isDistributedVoicemail() && restoreVoicemailOnly) {
+    private IPage setupWaitingPage(Restore restore, boolean restoreConfig, boolean restoreVoicemail, boolean restoreCdr) {
+        if (restoreConfig) {
+            // sets the waiting listener: it'll be notified by waiting page when this is
+            // requested by the client (browser) - after it loads the waiting page
+            WaitingPage waitingPage = getWaitingPage();
+            waitingPage.setWaitingListener(restore);
+            return waitingPage;
+        } else if (restoreVoicemail || restoreCdr) {
             restore.afterResponseSent();
-            TapestryUtils.recordSuccess(this, getMessages().getMessage("message.remoteRestore.started"));
+            if (restoreVoicemail && !restoreCdr) {
+                TapestryUtils.recordSuccess(this, getMessages().getMessage("message.remoteRestore.started"));
+            } else if (restoreCdr && !restoreVoicemail) {
+                TapestryUtils.recordSuccess(this, getMessages().getMessage("message.cdr.started"));
+            } else if (restoreCdr && restoreVoicemail) {
+                TapestryUtils.recordSuccess(this, getMessages().getMessage("message.cdr.ivr.started"));
+            }
+            return null;
+        } else {
             return null;
         }
-        // sets the waiting listener: it'll be notified by waiting page when this is
-        // requested by the client (browser) - after it loads the waiting page
-        WaitingPage waitingPage = getWaitingPage();
-        waitingPage.setWaitingListener(restore);
-        return waitingPage;
     }
 
     private BackupBean upload(IUploadFile uploadFile, String name) throws ValidatorException {
@@ -273,14 +290,6 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
         } catch (UserException ex) {
             return LocalizationUtils.localizeException(getMessages(), ex);
         }
-    }
-
-    private boolean isDistributedVoicemail() {
-//        Location voicemailLocation = getLocationsManager().getLocationByBundle("voicemailBundle");
-//        if (voicemailLocation != null && !voicemailLocation.isPrimary()) {
-//            return true;
-//        }
-        return false;
     }
 
     private Restore prepareRestore(List<BackupBean> selectedBackups, String backupPlanType) {

@@ -3,7 +3,7 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.admin.BackupPage">
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
   <bean name="scheduledDaysPropertyModel_en" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
-    <set name="options" value="@org.sipfoundry.sipxconfig.admin.ScheduledDay@DAYS_OF_WEEK_PLUS_EVERYDAY" />
+    <set name="options" value="@org.sipfoundry.sipxconfig.common.ScheduledDay@DAYS_OF_WEEK_PLUS_EVERYDAY" />
   </bean>
   <bean name="scheduledDaysPropertyModel" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator"
     lifecycle="page">
