@@ -5,9 +5,7 @@ m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
-CHECK_XARGS_REPLACE
-CHECK_NET_SNMP
-SFAC_LIB_COMMSERVER
+SFAC_INIT_FLAGS
 CHECK_SERVICEDIR
 AC_CONFIG_FILES([
 	Makefile

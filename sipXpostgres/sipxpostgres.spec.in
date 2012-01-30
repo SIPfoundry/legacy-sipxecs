@@ -11,6 +11,7 @@ Url: http://www.sipfoundry.org
 
 BuildRequires: automake
 Requires: postgresql-server
+Requires: sipxsupervisor >= %version
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
