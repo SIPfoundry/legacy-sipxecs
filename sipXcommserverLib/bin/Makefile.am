@@ -6,12 +6,16 @@ INCLUDES = -I$(top_srcdir)/include
 
 utildir = @SIPX_LIBEXECDIR@
 util_SCRIPTS = \
+	sipx-archive-common \
 	sipxkeystoregen \
 	sipx-utils.sh
 
 bin_SCRIPTS = \
 	sipx-validate-xml \
-	sipx-dns
+	sipx-dns \
+	sipx-backup \
+	sipx-restore \
+	sipx-snapshot
 
 dist_bin_SCRIPTS = \
 	pkg-upgrade \

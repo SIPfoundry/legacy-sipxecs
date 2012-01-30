@@ -1,7 +1,7 @@
 #!@BASH@
 
 OPERATION="Backup"
-source @SIPX_BINDIR@/sipx-archive-common
+source @SIPX_LIBEXECDIR@/sipx-archive-common
 
 # Look for the INTERACTIVE flag first, before processing any other command-line arguments.
 INTERACTIVE="yes"

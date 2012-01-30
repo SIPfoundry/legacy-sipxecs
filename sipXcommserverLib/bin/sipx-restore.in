@@ -1,7 +1,7 @@
 #!@BASH@
 
 OPERATION="Restore"
-source @SIPX_BINDIR@/sipx-archive-common
+source @SIPX_LIBEXECDIR@/sipx-archive-common
 
 # HACK: allow access to Postgress tools and JVM - those paths should be determined by autoconf
 export PATH=$PATH:/usr/bin
