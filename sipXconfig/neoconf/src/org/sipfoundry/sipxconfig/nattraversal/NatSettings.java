@@ -7,10 +7,15 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class NatSettings extends PersistableSettings {
+public class NatSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String BEHIND_NAT = "nat/behind-nat";
 
     @Override
@@ -33,5 +38,10 @@ public class NatSettings extends PersistableSettings {
     @Override
     public String getBeanId() {
         return "natSettings";
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) NatTraversal.FEATURE);
     }
 }

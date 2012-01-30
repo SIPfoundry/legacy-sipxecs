@@ -1,16 +1,20 @@
-<form jwcid="@Form" delegate="ognl:validator">
   <span jwcid="@Hidden" value="ognl:block" />
   <ul class="component-links">
     <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
   </ul>
   <fieldset>
     <table>
+      <tr>
+        <td colspan="2">
+          <h3><span key="title.nat" /></h3>
+        </td>
+      </tr>
       <tr jwcid="@common/FieldPanel"
 		  field="component:type"
 		  label="message:label.type">
 	    <td jwcid="type@PropertySelection"
 		    model="ognl:addressTypeModel"
-		    value="ognl:natLocation.useStun"
+		    value="ognl:locationBean.useStun"
 		    onchange="javascript:this.form.submit();" />
 	  </tr>
 	  <tr jwcid="render@Any">
@@ -20,7 +24,7 @@
 		  field="component:publicPort"
 		  label="message:public.port">
 	    <td jwcid="publicPort@TextField"
-		    value="ognl:natLocation.publicPort"
+		    value="ognl:locationBean.publicPort"
 		    translator="translator:integer,omitZero=true"
 		    validators="validators:required,min=1024,max=65535"
 		    displayName="message:public.port"/>
@@ -29,7 +33,7 @@
 		  field="component:publicTlsPort"
 		  label="message:public.tlsPort">
 	    <td jwcid="publicTlsPort@TextField"
-		    value="ognl:natLocation.publicTlsPort"
+		    value="ognl:locationBean.publicTlsPort"
 		    translator="translator:integer,omitZero=true"
 		    validators="validators:required,min=1024,max=65535"
 		    displayName="message:public.tlsPort"/>
@@ -40,7 +44,7 @@
 		    label="message:startRtp.port"
 		    description="message:startRtp.port.description">
 	      <td jwcid="startRtpPort@TextField"
-		      value="ognl:natLocation.startRtpPort"
+		      value="ognl:locationBean.startRtpPort"
 		      translator="translator:integer,omitZero=true"
 		      validators="validators:required,min=1024,max=65535"
 		      displayName="message:startRtp.port"/>
@@ -50,7 +54,7 @@
 		    label="message:stopRtp.port"
 		    description="message:stopRtp.port.description">
 	      <td jwcid="stopRtpPort@TextField"
-		      value="ognl:natLocation.stopRtpPort"
+		      value="ognl:locationBean.stopRtpPort"
 		      translator="translator:integer,omitZero=true"
 		      validators="validators:required,min=1024,max=65535"
 		      displayName="message:stopRtp.port"/>
@@ -64,7 +68,7 @@
 	        label="message:stun.address"
 	        description="message:stun.address.description">
 	    <td jwcid="stunAddress@TextField"
-	        value="ognl:natLocation.stunAddress"
+	        value="ognl:locationBean.stunAddress"
 	        validators="spring-validators:validHostOrIp" />
 	  </tr>
 	  <tr jwcid="@common/FieldPanel"
@@ -72,7 +76,7 @@
 		    label="message:stun.interval"
 		    description="message:stun.interval.description">
 	    <td jwcid="stunInterval@TextField"
-	        value="ognl:natLocation.stunInterval"
+	        value="ognl:locationBean.stunInterval"
 	        translator="translator:integer,omitZero=true"
 	        validators="validators:required,min=1"
 	        displayName="message:stun.interval"/>
@@ -84,11 +88,10 @@
 		    label="message:public.address"
 		    description="message:public.address.description">
 	    <td jwcid="publicAddress@TextField"
-	        value="ognl:natLocation.publicAddress"
+	        value="ognl:locationBean.publicAddress"
 	        validators="spring-validators:validIPv4"
 	        displayName="message:public.address"/>
 	  </tr>
     </span>
   </fieldset>
   <span jwcid="@common/FormActions" callback="ognl:callback" listener="listener:activate"/>
-</form>

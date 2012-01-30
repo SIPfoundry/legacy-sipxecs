@@ -1,6 +1,6 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <span jwcid="@common/TabNavigation"
-    tabNames="ognl:{'clients','lines','queueGroups','queues','agentGroups','agents','skillGroups','skills','commands'}"
+    tabNames="ognl:{'clients','lines','queueGroups','queues','agentGroups','agents','skillGroups','skills','commands','settings'}"
     selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
@@ -41,10 +41,19 @@
   <span jwcid="commandsTab@Block">
 	<span jwcid="@common/QuickHelp" value="message:quick.help.commands"/>
 	<form jwcid="@Form" delegate="bean:validator">
-      <span jwcid="agentDialplanListener@service/ServiceSettingsPanel" service="ognl:service"
-        groupToDisplay="agent_configuration" renderGroupTitle="true"/>
-      <ul jwcid="@common/FormActions" listener="listener:saveService" callback="ognl:callback"/>
-    </form>
+	  <fieldset jwcid="agentDialplanListener@setting/SettingsFieldset" settings="ognl:settings.settings"
+	    groupToDisplay="agent_configuration"
+	    settingsToHide="openacd-config,log_level,log_dir,freeswitch_media_manager,C_NODE,DIAL_STRING" />
+	  <ul jwcid="@common/FormActions" callback="ognl:callback" listener="listener:apply"/>
+	</form>
 	<span jwcid="@openacd/OpenAcdCommands"/>
+  </span>
+  <span jwcid="settingsTab@Block">
+	<form jwcid="@Form" delegate="bean:validator">
+	  <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:settings.settings"
+	    groupToDisplay="log_level" renderGroupTitle="false"
+	    settingsToHide="log_dir,freeswitch_media_manager,C_NODE,DIAL_STRING,agent_configuration,DIALPLAN_LISTENER" />
+	  <ul jwcid="@common/FormActions" callback="ognl:callback" listener="listener:apply"/>
+	</form>
   </span>
 </div>

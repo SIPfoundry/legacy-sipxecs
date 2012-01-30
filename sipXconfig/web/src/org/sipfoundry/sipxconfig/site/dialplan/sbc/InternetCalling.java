@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 
 import org.apache.tapestry.annotations.Bean;
-import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -42,10 +41,6 @@ public abstract class InternetCalling extends SipxBasePage implements PageBeginR
 
     @Persist
     public abstract boolean isAdvanced();
-
-    @Persist
-    @InitialValue(value = "literal:internetCalling")
-    public abstract String getTab();
 
     public void pageBeginRender(PageEvent event_) {
         Sbc sbc = getSbc();

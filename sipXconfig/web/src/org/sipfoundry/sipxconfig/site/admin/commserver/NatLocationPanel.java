@@ -16,8 +16,6 @@ import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -25,7 +23,7 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.BooleanPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class NatLocationPanel extends BaseComponent implements PageBeginRenderListener {
+public abstract class NatLocationPanel extends BaseComponent {
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
@@ -41,11 +39,7 @@ public abstract class NatLocationPanel extends BaseComponent implements PageBegi
     @Persist("client")
     public abstract boolean isAdvanced();
 
-//    public abstract NatLocation getNatLocation();
-
     public abstract void setBlock(String block);
-
-//    public abstract void setNatLocation(NatLocation natLocation);
 
     @Message("message.invalidStunAddress")
     public abstract String getInvalidStunAddressMsg();
@@ -66,45 +60,22 @@ public abstract class NatLocationPanel extends BaseComponent implements PageBegi
         return new BooleanPropertySelectionModel(getPublicAddressLabel(), getStunLabel());
     }
 
-    public void pageBeginRender(PageEvent event) {
-//        NatLocation nat = getNatLocation();
-//        if (nat == null) {
-//            nat = getLocationBean().getNat();
-//            setNatLocation(nat);
-//        }
+    private String calculateBlock() {
+        return getLocationBean().isUseStun() ? "stun" : "public";
     }
-
-//    private String calculateBlock() {
-//        return getNatLocation().isUseStun() ? "stun" : "public";
-//    }
 
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
-//        if (!TapestryUtils.isRewinding(cycle, this)) {
-//            setBlock(calculateBlock());
-//        }
+        if (!TapestryUtils.isRewinding(cycle, this)) {
+            setBlock(calculateBlock());
+        }
     }
 
     public void activate() {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-
-//        NatLocation natLocation = getNatLocation();
-//        if (natLocation.isUseStun()) {
-//            if (isEmpty(natLocation.getStunAddress())) {
-//                throw new UserException(getInvalidStunAddressMsg());
-//            }
-//        } else {
-//            if (isEmpty(natLocation.getPublicAddress())) {
-//                throw new UserException(getInvalidPublicAddressMsg());
-//            }
-//        }
-//        if (natLocation.getStartRtpPort() > natLocation.getStopRtpPort()) {
-//            throw new UserException(getInvalidRtpRangeMsg());
-//        }
-//
-//        Location location = getLocationBean();
-//        getLocationsManager().saveNatLocation(location, natLocation);
+        Location location = getLocationBean();
+        getLocationsManager().saveLocation(location);
     }
 }
