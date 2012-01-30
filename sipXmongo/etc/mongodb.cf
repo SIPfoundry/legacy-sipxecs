@@ -18,9 +18,7 @@ bundle agent mongodb_config {
   vars:
      mongod::
        "server[replSet]" string => "sipxecs";
-       # TODO: Need to fix this so it only binds to 127.0.0.1
-       # see https://jira.mongodb.org/browse/JAVA-510
-       "server[bind_ip]" string => "0.0.0.0";
+       "server[bind_ip]" string => "127.0.0.1";
        "server[port]" string => "27017";
 
   files:
@@ -41,8 +39,9 @@ bundle agent mongodb_config {
 
 bundle edit_line mongo_client_config {
   insert_lines:
-     "connectionUrl=$(sipx.connectionUrl)";
-     "connectionString=$(sipx.connectionString)";
+     # TODO: read this from $(sipx.*) properties
+     "connectionUrl=mongodb://localhost:27017/?slaveOk=true";
+     "connectionString=localhost:27017";
 
   delete_lines:
     ".*";
