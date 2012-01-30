@@ -24,6 +24,7 @@ sipx = \
   sipXopenfire \
   sipXcounterpath \
   sipXaudiocodes \
+  sipXprompts \
   sipXivr \
   sipXproxy \
   sipXpublisher \

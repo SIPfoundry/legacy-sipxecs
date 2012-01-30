@@ -1,0 +1,41 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary: sipXecs audio prompts
+License: LGPL
+Group: Telcommunications
+Vendor: SIPfoundry
+Packager: Douglas Hubler <dhubler@ezuce.com>
+Url: http://www.sipfoundry.org
+
+BuildRequires: automake
+Requires: sipxsupervisor >= %version
+
+Source: %name-%version.tar.gz
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Media prompts for english which acts as defaults for all other prompt localization packages.
+
+%prep
+%setup -q
+
+%build
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%dir %attr(755,root,sipxchange) %{_datadir}/www/doc/stdprompts_en
+%{_datadir}/www/doc/stdprompts_en/*
+%config(noreplace) %attr(755,root,sipxchange) %{_datadir}/www/doc/stdprompts
+%config(noreplace) %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/mediaserver
