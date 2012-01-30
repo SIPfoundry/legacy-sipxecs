@@ -167,7 +167,6 @@ fi
 
 %files devel
 %defattr(644,root,root,755)
-%{_libdir}/libsipXcommserver.a
 %{_includedir}/configrpc/*
 %{_includedir}/digitmaps/*
 %{_includedir}/filereader/*

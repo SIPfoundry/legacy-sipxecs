@@ -16,6 +16,7 @@ version_Age=0
 
 libsipdb_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
+	-shared \
 	@ODBC_LDFLAGS@
 
 libsipdb_la_CXXFLAGS = \
