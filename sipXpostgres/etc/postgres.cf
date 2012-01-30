@@ -18,26 +18,33 @@ bundle agent postgres {
 bundle agent postgres_init {
   classes:
     postgres::
-      "no_pgver" not => fileexists("$(sipx.PGDATA)/PG_VERSION");
-      "no_pgdata" not => fileexists("$(sipx.PGDATA)/data");
-      "initdb" or => { "no_pgdata", "no_pgver" };
+      "initdb" not => fileexists("$(sipx.PGDATA)/PG_VERSION");
 
-  methods:
+  files:
+    # postgres very easily gets into a state of half-initialized
+    # there the pgdata directory is created and initdb refuses to
+    # complete, yet postgres is not fully initialized
+    initdb::
+      "$(sipx.PGDATA)"
+        file_select => days_old("0"),
+	depth_search => recurse("inf"),
+        delete => tidy;
+
+      "$(sipx.PGDATA)/."
+	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)");
+
+  commands:
     # Most distributions use a separate command "initdb"
     # to initialize the db which can also be called by
     # starting and stopping server. Although you could call
     # initdb directly there is various other housekeeping that
     # the service script handles so leverage it here.
-    initdb.(redhat|SuSe)::
-      "any" usebundle => define_class("postgres_restart");
-
-  commands:
-    initdb.(debian|ubuntu|freebsd)::
-      # not verified, ported from pgpatch.sh
+    initdb::
       "$(sipx.PG_DAEMON)"        
-        args => "initdb",
-	contain => su("$(sipx.POSTGRES_USER)");
+        args => "initdb";
 }
+
+
 
 bundle agent define_class(to_be_defined) {
   vars:

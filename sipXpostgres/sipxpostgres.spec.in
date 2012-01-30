@@ -10,7 +10,7 @@ Packager: Douglas Hubler <dhubler@ezuce.com>
 Url: http://www.sipfoundry.org
 
 BuildRequires: automake
-BuildRequires: postgresql-server
+Requires: postgresql-server
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
