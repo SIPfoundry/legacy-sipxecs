@@ -50,6 +50,15 @@
     </property>
   </bean>
 
+  <bean id="conferenceReplicationProvider" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.common.ReplicableProvider" />
+    <property name="target" ref="conferenceReplicationProviderImpl" />
+  </bean>
+
+  <bean id="conferenceReplicationProviderImpl" class="org.sipfoundry.sipxconfig.conference.ConferenceReplicationProvider">
+    <property name="bridgeContext" ref="conferenceBridgeContext"/>
+  </bean>
+
   <bean id="conferenceConfiguration" class="org.sipfoundry.sipxconfig.conference.ConferenceConfiguration">
     <property name="domainManager" ref="domainManager" />
     <property name="velocityEngine" ref="velocityEngine"/>

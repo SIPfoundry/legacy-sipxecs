@@ -41,7 +41,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        ConferenceBridgeContext, ReplicableProvider {
+        ConferenceBridgeContext {
     private static final String BUNDLE_CONFERENCE = "conference";
     private static final String CONFERENCE = BUNDLE_CONFERENCE;
     private static final String VALUE = "value";
@@ -329,13 +329,4 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         m_aliasManager = aliasManager;
     }
 
-
-    @Override
-    public List<Replicable> getReplicables() {
-        List<Replicable> replicables = new ArrayList<Replicable>();
-        for (Conference conf : getAllConferences()) {
-            replicables.add(conf);
-        }
-        return replicables;
-    }
 }
