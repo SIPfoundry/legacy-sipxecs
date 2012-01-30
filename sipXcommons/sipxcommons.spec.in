@@ -74,6 +74,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %pre
+# NOTE: Duplicate copy of user/group add in sipXsupervisor
 if ! /usr/bin/id -g sipxchange >/dev/null 2>&1; then
   /usr/sbin/groupadd -r sipxchange
 fi
