@@ -39,6 +39,7 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdClient;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdLine;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdSettings;
 
 public abstract class EditOpenAcdLine extends PageWithCallback implements PageBeginRenderListener {
     public static final Integer FS = OpenAcdLine.FS;
@@ -57,8 +58,8 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-//    @InjectObject("spring:sipxOpenAcdService")
-//    public abstract SipxOpenAcdService getSipxOpenAcdService();
+    @InjectObject("spring:openAcdSettings")
+    public abstract OpenAcdSettings getSettings();
 
     public abstract String getName();
 
@@ -175,10 +176,10 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
                 }
             } else if (StringUtils.contains(data, OpenAcdLine.ALLOW_VOICEMAIL)) {
                 setAllowVoicemail(BooleanUtils.toBoolean(StringUtils.removeStart(data, OpenAcdLine.ALLOW_VOICEMAIL)));
-//            } else if (StringUtils.equals(application, FreeswitchAction.PredefinedAction.playback.toString())) {
-//                if (getWelcomeMessage() == null) {
-//                    setWelcomeMessage(StringUtils.removeStart(data, getSipxOpenAcdService().getAudioDir() + SLASH));
-//                }
+            } else if (StringUtils.equals(application, FreeswitchAction.PredefinedAction.playback.toString())) {
+                if (getWelcomeMessage() == null) {
+                    setWelcomeMessage(StringUtils.removeStart(data, getSettings().getAudioDirectory() + SLASH));
+                }
             } else {
                 actionBeans.add(new ActionBean(action));
             }
@@ -255,11 +256,11 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
                 line.getNumberCondition().addAction(
                         OpenAcdLine.createClientAction(getSelectedClient().getIdentity()));
             }
-//            if (StringUtils.isNotEmpty(getWelcomeMessage())) {
-//                line.getNumberCondition().addAction(
-//                        OpenAcdLine.createPlaybackAction(getSipxOpenAcdService().getAudioDir() + SLASH
-//                                + getWelcomeMessage()));
-//            }
+            if (StringUtils.isNotEmpty(getWelcomeMessage())) {
+                line.getNumberCondition().addAction(
+                        OpenAcdLine.createPlaybackAction(getSettings().getAudioDirectory() + SLASH
+                                + getWelcomeMessage()));
+            }
 
             for (ActionBean actionBean : getActions()) {
                 line.getNumberCondition().addAction((FreeswitchAction) actionBean.getAction().duplicate());

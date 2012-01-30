@@ -28,6 +28,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -71,6 +72,8 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
         OpenAcdSettings settings = m_openAcdContext.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            ConfigUtils.enableCfengineClass(dir, "sipxopenacd.cfdat", "sipxopenacd", true);
+
             Writer vmArgs = new FileWriter(new File(dir, "vm.args"));
             try {
                 writeVmArgs(vmArgs, location);

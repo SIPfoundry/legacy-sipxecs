@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +27,10 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -34,7 +39,11 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
@@ -43,8 +52,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext,
-    BeanFactoryAware {
+public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
+        FeatureProvider, AddressProvider {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -67,6 +76,38 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<OpenAcdSettings> m_settingsDao;
     private ListableBeanFactory m_beanFactory;
+
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return null;
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return Collections.singleton(FEATURE);
+    }
+
+    @Override
+    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
+        return Collections.singleton(REST_API);
+    }
+
+    @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+        if (type.equals(REST_API)) {
+            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+            List<Address> addresses = new ArrayList<Address>(locations.size());
+            for (Location location : locations) {
+                Address address = new Address();
+                address.setAddress(location.getAddress());
+                address.setPort(5050);
+                address.setFormat("http://%s:%d/");
+                addresses.add(address);
+            }
+            return addresses;
+        }
+        return null;
+    }
 
     public OpenAcdSettings getSettings() {
         return m_settingsDao.findOrCreateOne();

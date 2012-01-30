@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -28,6 +29,7 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
 
 public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner {
     public static final LocationFeature FEATURE = new LocationFeature("openacd");
+    public static final AddressType REST_API = new AddressType("openacdRestApi");
     public static final String MAGIC_SKILL_GROUP_NAME = "Magic";
     public static final String GROUP_NAME_DEFAULT = "Default";
 
