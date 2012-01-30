@@ -10,10 +10,10 @@ sipx = \
   sipXmediaLib \
   sipXmediaAdapterLib \
   sipXcallLib \
+  sipXsupervisor \
+  sipXcommserverLib \
   sipXpostgres \
   sipXmongo \
-  sipXcommserverLib \
-  sipXsupervisor \
   sipXcommons \
   sipXrelay \
   sipXbridge \
