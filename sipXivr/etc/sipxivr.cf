@@ -53,7 +53,8 @@ bundle edit_line sipxivr_properties_contents {
       "ivr.scriptsDirectory=$(sipx.wwwdir)/doc/aa_vxml";
       "ivr.docDirectory=$(sipx.wwwdir)/doc";
       "ivr.organizationPrefs=$(sipx.SIPX_IVRDATADIR)/organizationprefs.xml";
-
+      "ivr.binDirectory=$(sipx.SIPX_BINDIR)";
+	  "ivr.backupPath=$(sipx.SIPX_VARDIR)/backup";
   delete_lines:
     any::
       ".*";

@@ -151,7 +151,7 @@ then
 fi
 
 # If Configuration or cdr is to be restored, then PostgreSQL must be running.
-if [ -n "$CONFIGURATION_PATH" ] && [ -z "$CDR_PATH" ]
+if [ -n "$CONFIGURATION_PATH" ] || [ -n "$CDR_PATH" ]
 then
   postgresql_running
 fi
@@ -241,9 +241,20 @@ fi
 
 if [ $RESTART_SERVER = "yes" ]
 then
-  # Stop all services.  After this point, the script MUST NOT exit without
-  # starting all the services back up again.
-  @BASH@ -p @SERVICEDIR@/sipxecs stop
+  # Stop required services.  After this point, the script MUST NOT exit without
+  # starting all the stopped services back up again.
+  if [ -n "$CONFIGURATION_PATH" ]
+  then
+      @BASH@ -p @SIPX_SERVICEDIR@/sipxconfig stop
+  fi
+  if [ -n "$CDR_PATH" ]
+  then
+	  @BASH@ -p @SIPX_SERVICEDIR@/sipxcdr stop
+  fi
+  if [ -n "$VOICEMAIL_PATH" ]
+  then
+     @BASH@ -p @SIPX_SERVICEDIR@/sipxivr stop
+  fi
 fi
 
 # *** BEGIN Configuration ***
@@ -254,7 +265,7 @@ then
   # Configuration database.
   echo -n "Restoring the '$CONFIG_DATABASE_NAME' database contents..."
 
-  @SIPX_BINDIR@/sipxconfig.sh --database drop createdb > /dev/null
+  @SIPX_SERVICEDIR@/sipxconfig db drop createdb > /dev/null
   tar -xzvC @SIPX_TMPDIR@ $DB_TAR < $CONFIGURATION_PATH
   cat $PATH_DB_TAR | pg_restore -U @POSTGRESQL_USER@ -d $CONFIG_DATABASE_NAME 2> /dev/null
   rm $PATH_DB_TAR
@@ -286,8 +297,6 @@ then
   @SIPX_BINDIR@/sipx-time-manager --set-configuration @SIPX_TMPDIR@/$NTPConfigFile
   rm -f @SIPX_TMPDIR@/$NTPConfigFile
   echo "done."
-  #run "first-run" task to force regenerating the configuration files
-  @BASH@ -p @SIPX_BINDIR@/sipxconfig.sh --first-run
   
 fi # *** END Configuration ***
 
@@ -322,6 +331,17 @@ fi # *** END Voicemail ***
 
 if [ $RESTART_SERVER = "yes" ]
 then
-  # Start all services.
-  @BASH@ -p @SERVICEDIR@/sipxecs start
+  # Start all stopped services.
+  if [ -n "$CONFIGURATION_PATH" ]
+  then
+	  @BASH@ -p @SIPX_SERVICEDIR@/sipxconfig start
+  fi
+  if [ -n "$CDR_PATH" ]
+  then
+	  @BASH@ -p @SIPX_SERVICEDIR@/sipxcdr start
+  fi
+  if [ -n "$VOICEMAIL_PATH" ]
+  then
+	  @BASH@ -p @SIPX_SERVICEDIR@/sipxivr start
+  fi
 fi

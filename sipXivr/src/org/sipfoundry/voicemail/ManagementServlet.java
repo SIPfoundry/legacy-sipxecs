@@ -90,7 +90,8 @@ public class ManagementServlet extends HttpServlet {
                         response.setHeader("Content-Disposition", "attachment; filename=\"" + archive + "\"");
 
                         responseOutputStream = response.getOutputStream();
-                        stream = new FileInputStream(new File(ivrConfig.getBackupPath() + File.separator + archive));
+                        File tempBackupFile = new File(ivrConfig.getBackupPath() + File.separator + archive);
+                        stream = new FileInputStream(tempBackupFile);
                         IOUtils.copy(stream, responseOutputStream);
                     } else {
                         response.sendError(500);

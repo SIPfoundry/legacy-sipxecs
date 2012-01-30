@@ -29,4 +29,13 @@
 
   <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.backup.FtpBackupPlan" parent="backupPlan"></bean>
 
+  <bean id="restore" class="org.sipfoundry.sipxconfig.backup.Restore">
+	<property name="mailboxManager" ref="mailboxManager" />
+    <property name="binDirectory" value="${sysdir.bin}" />
+    <property name="logDirectory" value="${sysdir.log}" />
+  </bean>
+
+  <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.backup.FtpRestore" parent="restore">
+  </bean>
+
 </beans>

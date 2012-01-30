@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.WaitingListener;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Interface to command line restore utility
@@ -91,14 +92,13 @@ public class Restore implements Serializable, WaitingListener {
             m_mailboxManager.performRestore(voicemail, verify, config != null);
         }
 
-        if (config != null) {
-            runRestoreScript(getBinDirectory(), config, verify, false);
-        }
-
         if (cdr != null) {
             runRestoreScript(getBinDirectory(), cdr, verify, false);
         }
 
+        if (config != null) {
+            runRestoreScript(getBinDirectory(), config, verify, false);
+        }
     }
 
     public static void runRestoreScript(String binDir, BackupBean backup, boolean verify, boolean noRestart) {
@@ -142,6 +142,7 @@ public class Restore implements Serializable, WaitingListener {
         return m_binDirectory;
     }
 
+    @Required
     public void setBinDirectory(String binDirectory) {
         m_binDirectory = binDirectory;
     }
@@ -150,10 +151,12 @@ public class Restore implements Serializable, WaitingListener {
         return m_logDirectory;
     }
 
+    @Required
     public void setLogDirectory(String logDirectory) {
         m_logDirectory = logDirectory;
     }
 
+    @Required
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
     }
