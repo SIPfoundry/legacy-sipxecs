@@ -1,0 +1,37 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# This is iptables configuration
+#
+bundle agent firewall {
+  methods:
+    any::
+      "any" usebundle => "firewall_running";
+}
+
+bundle agent firewall_running {
+ vars:
+   "service" string => "/etc/init.d/iptables";
+
+ classes:
+    "iptables_running" expression => returnszero("/sbin/lsmod | grep ip_tables","useshell");
+
+  commands:
+    iptables_running.!firewall::
+      "$(service)"
+        args => "stop",
+	action => track("$(service) stop");
+
+    !iptables_running.firewall::
+      "$(service)"
+        args => "start",
+	action => track("$(service) start");
+
+    restart_iptables::
+      "$(service)"
+        args => "restart",
+	action => track("$(service) restart");
+}
+

@@ -3,33 +3,48 @@
 require 'optparse'
 
 $domain_dat = "@SIPX_CFDATA@/domain.cfdat"
-$root_key = "/var/cfengine/ppkeys/localhost.pub"
-$user_key = "@SIPXPBXUSER_HOME@/.cfagent/ppkeys/localhost.pub"
+$root_keydir = "/var/cfengine/ppkeys"
+home_dir = `awk -F : '/@SIPXPBXUSER@/ { print $6 }' /etc/passwd`.chomp
+$user_keydir = "#{home_dir}/.cfagent/ppkeys"
 $primary_dir = "@SIPX_CFDATA@/1"
 $primary_dat = "#{$primary_dir}/primary.cfdat"
 $location_dat = "@SIPX_CFDATA@/defaults/location_id"
+$log = "@SIPX_LOGDIR@/sipxecs-setup.log"
+$verbose = false
 $cli_options = {}
-$fqdn = `hostname -f`.chomp
-$cli_options[:host] = $fqdn
-$cli_options[:domain] = $fqdn
 $exit_status = 0
 
+def run_command(cmd)
+  puts cmd if $verbose
+  ok = system("#{cmd} >> #{$log}")
+  if (!ok) 
+    puts "Failure to run command #{cmd}. See #{$log} for details."
+    if $verbose
+      system "cat #{$log}"
+    end
+    exit 1
+  end
+end
+
 def set_root_keys
-  #harmless if re-run
-  `/usr/sbin/cf-key`
+  #harmless if re-run  
+  run_command "/usr/sbin/cf-key"
 end
 
 # PRIMARY ONLY
 def set_nonroot_keys
   #harmless if re-run
-  `su - @SIPXPBXUSER@ sh -c '/usr/sbin/cf-key'`
+  run_command "su - @SIPXPBXUSER@ sh -c '/usr/sbin/cf-key'"
 end
 
 # PRIMARY ONLY
 def set_primary
+  return if File.exists?($primary_dat)
+  return if !prompt_confirm("Configure as primary machine? Enter y for yes, n for no : ")
   File.open($location_dat, 'w') {|f|
     f.puts('1')
   }
+  puts "Created #{$location_dat}" if $verbose
   Dir.mkdir($primary_dir) unless File.directory?($primary_dir)
   File.open($primary_dat, 'w') {|f|
     f.puts <<EOF
@@ -39,26 +54,70 @@ def set_primary
 +mongod
 EOF
   }
+  puts "Created #{$primary_dat}" if $verbose
   `chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ #{$primary_dir}`
+end
+
+def prompt_confirm(msg)
+  while (true)
+    print msg
+    value = readline.chomp.downcase
+    return false if value == 'n'
+    return true if value == 'y'
+    puts "Invalid response. Please use 'y' or 'n'."
+  end
+end
+
+def prompt(msg, default)
+  print msg
+  value = readline.chomp
+  return value.empty? ? default : value
 end
 
 # PRIMARY ONLY
 def set_domain
   return if File.exists?($domain_dat)
-  shared_secret = $cli_options[:shared_secret] || `head -c 18 /dev/urandom | base64`.chomp
+  current_fqdn = `hostname -f`.chomp
+  fqdn = prompt("Enter fully qualified host name [ or press enter to use #{current_fqdn} ] : ", current_fqdn)
+  domain = prompt("Enter SIP domain name [ or press enter to use #{fqdn} ] : ", fqdn)
+  realm = prompt("Enter SIP realm [ or press enter to use #{domain} ] : ", domain)
+  new_secret = `head -c 18 /dev/urandom | base64`.chomp
+  shared_secret = prompt("Enter shared secret [ or press enter to use random value ] : ", new_secret) 
   File.open($domain_dat, 'w') { |f|
     f.puts <<EOF
-=domain=#{$cli_options['domain']}
-=realm=#{$cli_options['domain']}
+=domain=#{domain}
+=realm=#{realm}
 =secret=#{shared_secret}
 =lang=en
 EOF
   }
+  puts "Created #{$domain_dat}" if $verbose
   `chown @SIPXPBXUSER@:@SIPXPBXGROUP@ #{$domain_dat}`
 end
 
-def rm_file(file)
-  File.unlink(file) if File.exists?(file)
+def rm_files(d)
+  puts "clearing files in directory #{d}" if $verbose
+  Dir.foreach(d) { |f|
+    fname = "#{d}/#{f}"
+    rm_file(fname) if File.file?(fname)
+  }
+end
+
+def rm_file(f)
+  puts "Checking if #{f} exists" if $verbose
+  return unless File.exists?(f)
+  puts "Removing #{f}" if $verbose
+  File.unlink(f)
+end
+
+def reset
+  rm_file($domain_dat)
+end
+
+def reset_all
+  reset
+  rm_files($root_keydir)
+  rm_files($user_keydir)
 end
 
 args = OptionParser.new { |opts|
@@ -67,20 +126,17 @@ args = OptionParser.new { |opts|
   opts.separator ""
   opts.separator "Options:"
 
-  opts.on("--domain domain", "Force system to given domain. Default is #{$fqdn}.") { |val|
-    rm_file($domain_dat)
-    $cli_options[:domain] = val
+  opts.on("--verbose", "Send extra details to console.") {
+    $verbose = true
   }
 
-  opts.on("--secret secret", "Force configuration to a set secret. Default is a random value.") { |val|
-    rm_file($domain_dat)
-    $cli_options[:domain] = val
+  opts.on("--reset", "Force reset of normal settings.") {
+    reset
   }
 
-  opts.on("--reset-keys", "Regenerate ssl keys for root to non-root authorization.") {
-    rm_file($root_key)
-    rm_file($user_key)
-  } 
+  opts.on("--reset-all", "Force reset of all possible settings including ssl keys.") {
+    reset_all
+  }
 
   opts.on_tail("--help", "Print options") {
     puts opts
@@ -91,10 +147,13 @@ args = OptionParser.new { |opts|
 args.parse!
 
 raise 'Must run as root' unless Process.uid == 0
-
+rm_file($log)
 set_root_keys()
 set_nonroot_keys()
 set_primary()
 set_domain()
 
-puts `@SIPX_BINDIR@/sipxagent`
+print "Configuring system..."
+
+run_command("@SIPX_BINDIR@/sipxagent" + ($verbose ? " -v" : ""))
+puts "done."

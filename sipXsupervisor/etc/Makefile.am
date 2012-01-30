@@ -26,7 +26,8 @@ cfinputs_DATA = \
 
 cfpluginsdir = $(SIPX_CFINPUTS)/plugin.d
 dist_cfplugins_DATA = \
-	sipxsupervisor.cf
+	sipxsupervisor.cf \
+	firewall.cf
 
 cfinputs_PROMISES = \
 	sipxsupervisord.cf \
