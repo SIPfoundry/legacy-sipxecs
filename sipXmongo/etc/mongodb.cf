@@ -40,8 +40,8 @@ bundle agent mongodb_config {
 bundle edit_line mongo_client_config {
   insert_lines:
      # TODO: read this from $(sipx.*) properties
-     "connectionUrl=mongodb://localhost:27017/?slaveOk=true";
-     "connectionString=localhost:27017";
+     "connectionUrl=mongodb://127.0.0.1:27017/?slaveOk=true";
+     "connectionString=127.0.0.1:27017";
 
   delete_lines:
     ".*";
