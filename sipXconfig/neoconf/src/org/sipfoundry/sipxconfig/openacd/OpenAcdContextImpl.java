@@ -226,14 +226,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         }
     }
 
-    private boolean isNameChanged(OpenAcdExtension extension) {
-        return !getExtensionById(extension.getId()).getName().equals(extension.getName());
-    }
-
-    private boolean isExtensionChanged(OpenAcdExtension extension) {
-        return !getExtensionById(extension.getId()).getExtension().equals(extension.getExtension());
-    }
-
     private List<FreeswitchAction> getActionsByData(String actionData) {
         return getHibernateTemplate().findByNamedQueryAndNamedParam(FS_ACTIONS_WITH_DATA, VALUE, actionData);
     }
@@ -847,11 +839,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
         if (!queue.isNew()) {
             if (isNameChanged(queue)) {
-                // don't rename the default queue
-                OpenAcdQueue defaultQueue = getQueueByName(DEFAULT_QUEUE);
-                if (defaultQueue != null && defaultQueue.getId().equals(queue.getId())) {
-                    throw new UserException("&msg.err.defaultQueueRename");
-                }
+                // don't rename the queue
+                throw new UserException("&msg.err.queueRename");
             }
             getHibernateTemplate().merge(queue);
         } else {
