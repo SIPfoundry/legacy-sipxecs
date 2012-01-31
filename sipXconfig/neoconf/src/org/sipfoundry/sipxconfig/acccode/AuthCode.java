@@ -13,16 +13,12 @@ import static org.sipfoundry.commons.mongo.MongoConstants.AUTH_CODE;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
-import org.sipfoundry.sipxconfig.feature.Feature;
 
-public class AuthCode extends BeanWithUserPermissions implements DeployConfigOnEdit {
+public class AuthCode extends BeanWithUserPermissions {
     private String m_code;
     private String m_description;
 
@@ -49,10 +45,5 @@ public class AuthCode extends BeanWithUserPermissions implements DeployConfigOnE
         props.put(UID, getInternalUser().getUserName());
         props.put(PASSTOKEN, getInternalUser().getSipPassword());
         return props;
-    }
-
-    @Override
-    public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) AuthCodes.FEATURE);
     }
 }

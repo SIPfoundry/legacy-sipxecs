@@ -24,6 +24,6 @@ public class SnmpConfigTest {
         List<ProcessDefinition> defs = Arrays.asList(new ProcessDefinition("jay"), new ProcessDefinition("robin"));
         StringWriter actual = new StringWriter();
         config.writeProcesses(actual, defs);
-        assertEquals("jay\nrobin\n", actual.toString());
+        assertEquals("proc jay\nproc robin\n", actual.toString());
     }
 }

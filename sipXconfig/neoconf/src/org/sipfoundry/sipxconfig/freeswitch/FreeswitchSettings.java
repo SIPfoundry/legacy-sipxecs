@@ -35,6 +35,10 @@ public class FreeswitchSettings extends SettingsWithLocation {
         return 8084; // not configurable at this time, no particular reason. --Douglas
     }
 
+    public int getAccEventSocketPort() {
+        return 8184; // not configurable at this time, no particular reason. --Douglas
+    }
+
     public int getXmlRpcPort() {
         return (Integer) getSettingTypedValue(FREESWITCH_XMLRPC_PORT);
     }

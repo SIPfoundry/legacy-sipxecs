@@ -1,0 +1,79 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipxacccode configuration and process management
+#
+bundle agent sipxacccode {
+  methods:
+    sipxacccode::
+      "any" usebundle => "sipxacccode_config";
+      "any" usebundle => "sipxacccode_setup";
+    any::
+      "any" usebundle => "sipxacccode_running";
+}
+
+bundle agent sipxacccode_config {
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxacccode.properties"
+        create => "true",
+        perms => m("644"),
+	edit_line => sipxacccode_properties_contents,
+        classes => if_repaired("restart_sipxacccode"),
+	action => track("$(this.promiser)");
+
+}
+
+bundle edit_line sipxacccode_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxacccode.properties.part"
+        insert_type => "file";
+      "acccode.sipxchangeDomainName=$(sipx.domain)";
+      "acccode.realm=$(sipx.realm)";
+      "log.file=$(sipx.SIPX_LOGDIR)/sipxacccode.log";
+      "acccode.promptsDirectory=$(sipx.SIPX_IVRDATADIR)/prompts";
+      "acccode.docDirectory=$(sipx.wwwdir)/doc";
+  delete_lines:
+    any::
+      ".*";
+}
+
+
+bundle agent sipxacccode_setup {
+  methods:
+    !src.sipxacccode::
+      "any" usebundle => rh_chkconfig_status("sipxacccode");
+}
+
+bundle agent sipxacccode_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipxacccode\s.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxacccode_running");
+
+  commands:
+    sipxacccode_running.!sipxacccode::
+      "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
+        args => "stop",
+	action => track("sipxacccode stop");
+
+    !sipxacccode_running.sipxacccode::
+      "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
+        args => "start",
+	action => track("sipxacccode start");
+
+    restart_sipxacccode::
+      "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
+        args => "restart",
+	action => track("sipxacccode restart");
+}
+
+
+
