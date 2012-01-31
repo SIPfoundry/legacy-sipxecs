@@ -49,17 +49,19 @@ or real-time analysys like sipxconfig's statistics web console.
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Ruby and Java API web service bindings for ACD stats
+Requires: ruby
+Requires: rubygems
 
 %description client
 gem and jar of the Ruby and Java API web service bindings for ACD stats
 
 %package report
-Requires: ruby
-Requires: sipxcommserverlib
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
 
+Requires: ruby
+Requires: sipxcommserverlib
 Requires: rubygems
 Requires: ruby-dbi
 Requires: %{name}-client >= %{version}

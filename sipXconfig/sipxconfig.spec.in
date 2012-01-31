@@ -250,25 +250,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/configserver/web-cert
 %dir %attr(775,sipxchange,sipxchange) %{devicefilesdir}
 
-%pre
-
-%post
-sipxconfig.sh --first-run
-
-# merges in new config files reducing the number of .rpmnew files
-%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
-%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
-if [ -f %{current_archive} ]; then
-  mv %{current_archive} %{previous_archive}
-fi
-mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
-
-if [ -f %{previous_archive} ]; then
-  pkg-upgrade --previous %{previous_archive} --current %{current_archive}
-fi
-
-%preun
-
 %postun
 # uninstall lucene index and Jetty scratch dir on every install
 rm -rf /var/sipxdata/tmp/index 2> /dev/null
