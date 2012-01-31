@@ -58,6 +58,9 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        if (l.isPrimary()) {
+            return null;
+        }
         return Collections.singleton(FEATURE_ID);
     }
 
