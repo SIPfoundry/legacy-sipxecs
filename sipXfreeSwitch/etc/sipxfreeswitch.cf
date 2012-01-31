@@ -40,7 +40,7 @@ bundle agent sipxfreeswitch_config {
       "$(conference_file)"
         create => "true",
         perms => m("644"),
-	copy_from => local_cp("$(location_id)/conference.conf.xml"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/conference.conf.xml"),
         classes => if_repaired("reload_freeswitch"),
 	action => track("$(this.promiser)");
 
