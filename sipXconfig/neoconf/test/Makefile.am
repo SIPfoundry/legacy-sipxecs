@@ -121,7 +121,7 @@ define sipxconfig_properties
 	dataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCONFIG_TEST
 	cdrDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCDR_TEST
 	acdHistoryDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST
-	mongoDbFactory.connectionUrl=mongodb://localhost:27017
+	mongoDbFactory.connectionUrl=mongodb://127.0.0.1:27017
 	sysdir.mongo_ns=_TEST
 endef
 export sipxconfig_properties

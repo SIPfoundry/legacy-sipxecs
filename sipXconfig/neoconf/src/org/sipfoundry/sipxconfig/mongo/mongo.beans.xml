@@ -31,5 +31,15 @@
 
   <bean id="mongoSettings" class="org.sipfoundry.sipxconfig.mongo.MongoSettings" parent="settingsBean">
   </bean>
+
+  <bean id="localDb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
+    <constructor-arg ref="mongoDbFactory"/>
+    <!--  NOTE: same db used in unit tests to keep that in mind -->
+    <property name="dbname" value="local"/> 
+  </bean>
+  
+  <bean id="mongoReplicaSetManager" class="org.sipfoundry.sipxconfig.mongo.MongoReplicaSetManager" init-method="checkState">
+    <property name="localDb" ref="localDb"/>
+  </bean>
   
 </beans>
