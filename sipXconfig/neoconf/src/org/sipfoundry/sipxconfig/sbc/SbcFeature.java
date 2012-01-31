@@ -8,7 +8,6 @@
 package org.sipfoundry.sipxconfig.sbc;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -51,7 +50,7 @@ public class SbcFeature implements FeatureProvider, FeatureListener {
 
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
-        return Collections.singleton(SBC);
+        return null;
     }
 
 }

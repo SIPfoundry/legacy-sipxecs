@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.sbc;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +55,7 @@ public class SbcManagerImpl extends SipxHibernateDaoSupport implements SbcManage
 
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
-        return Collections.singleton(FEATURE);
+        return null;
     }
 
     public List<AuxSbc> loadAuxSbcs() {
