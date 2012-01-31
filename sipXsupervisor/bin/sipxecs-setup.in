@@ -80,7 +80,7 @@ end
 def set_domain
   return if File.exists?($domain_dat)
   current_fqdn = `hostname -f`.chomp
-  fqdn = prompt("Enter fully qualified host name : [ press enter to use #{current_fqdn} ] ", current_fqdn)
+  fqdn = prompt("Enter fully qualified domain name : [ press enter to use #{current_fqdn} ] ", current_fqdn)
   domain = prompt("Enter SIP domain name : [ press enter to use #{fqdn} ] ", fqdn)
   realm = prompt("Enter SIP realm : [ press enter to use #{domain} ] ", domain)
   new_secret = `head -c 18 /dev/urandom | base64`.chomp
