@@ -35,8 +35,6 @@ import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
@@ -60,7 +58,6 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     private static final String USER_GROUP_RESOURCE = "user";
 
     private ReplicationManager m_replicationManager;
-    private OpenAcdContext m_openAcdContext;
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
     private ExecutorService m_executorService;
@@ -82,11 +79,7 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     public void onSave(Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.replicateEntity((Replicable) entity);
-            if (entity instanceof OpenAcdExtension) {
-                //unfortunately we need to flush here, otherwise we get inconsistent data
-                //in sipX_context.xml
-                getHibernateTemplate().flush();
-            } else if (entity instanceof OpenAcdAgentGroup) {
+            if (entity instanceof OpenAcdAgentGroup) {
                 OpenAcdAgentGroup aggr = (OpenAcdAgentGroup) entity;
                 getHibernateTemplate().flush();
                 for (OpenAcdAgent agent : aggr.getAgents()) {
@@ -319,10 +312,6 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
 
     public void setReplicationManager(ReplicationManager replicationManager) {
         m_replicationManager = replicationManager;
-    }
-
-    public void setOpenAcdContext(OpenAcdContext openAcdContext) {
-        m_openAcdContext = openAcdContext;
     }
 
     /**

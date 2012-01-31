@@ -77,7 +77,6 @@
 
   <bean id="replicationTrigger" class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationTrigger">
     <property name="replicationManager" ref="replicationManagerImpl" />
-    <property name="openAcdContext" ref="openAcdContextImpl" />
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
