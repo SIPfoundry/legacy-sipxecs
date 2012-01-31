@@ -79,6 +79,11 @@ clearIndexLocks() {
   rm ${IndexDir}/*.lock 2>/dev/null
 }
 
+killAnyOrphans() {
+  procs=`ps -u @SIPXPBXUSER@ -o pid,args | grep '\-Dprocname=sipxconfig' | awk '{print $1 }'`
+  for pid in $procs; do kill -KILL $pid; done
+}
+
 # Turn control over to ant to run database command
 databaseCommand() {
     clearIndexLocks
@@ -177,6 +182,7 @@ start() {
     setJavaSslOpts
 
     # -Dprocname needs to be early in the command so cfengine can detect it
+    killAnyOrphans
     Command="$JavaCmd \
        -Dprocname=sipxconfig \
        -XX:MaxPermSize=128M \
@@ -260,17 +266,19 @@ EOF
 
 stop() {
   echo -n $"Stopping sipxconfig: "
-  killproc -p "${PidFile}" -t30 -TERM "sipxconfig"
+  killproc -p "${PidFile}" -d 60 sipxconfig -TERM
   Status=$?
+  if [ $Status -eq 0 ]; then
+     echo_success
+    [ $Status -eq 0 ] && rm -f "${PidFile}"
+  else
+    echo_failure
+  fi
   echo
-  [ $Status -eq 0 ] && rm -f "${PidFile}"  
 }
 
 restart() {
   stop
-  # sleep for no good reason. Can be disconcerting if stop/start 
-  # switch is too fast IMHO
-  sleep 1 
   start
 }
 
