@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
 public class AuthCodeAliases implements AliasOwner {
-    private AuthCodes m_authCodes;
+    private AuthCodesImpl m_authCodes;
     private FeatureManager m_featureManager;
 
     @Override
@@ -60,7 +60,7 @@ public class AuthCodeAliases implements AliasOwner {
         return false;
     }
 
-    public void setAuthCodes(AuthCodes authCodes) {
+    public void setAuthCodes(AuthCodesImpl authCodes) {
         m_authCodes = authCodes;
     }
 

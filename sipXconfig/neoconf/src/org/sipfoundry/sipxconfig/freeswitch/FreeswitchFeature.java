@@ -41,8 +41,9 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
     public static final AddressType SIP_ADDRESS = new AddressType("freeswitch-sip");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("freeswitch-xmlrpc");
     public static final AddressType EVENT_ADDRESS = new AddressType("freeswitch-event");
+    public static final AddressType ACC_EVENT_ADDRESS = new AddressType("acc-freeswitch-event");
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_ADDRESS, XMLRPC_ADDRESS,
-            EVENT_ADDRESS);
+            EVENT_ADDRESS, ACC_EVENT_ADDRESS);
     private static final String ALIAS_RELATION = "moh";
 
     private FeatureManager m_featureManager;
@@ -172,6 +173,8 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
                 address.setPort(settings.getXmlRpcPort());
             } else if (type.equals(EVENT_ADDRESS)) {
                 address.setPort(settings.getEventSocketPort());
+            } else if (type.equals(ACC_EVENT_ADDRESS)) {
+                address.setPort(settings.getAccEventSocketPort());
             } else if (type.equals(SIP_ADDRESS)) {
                 address.setPort(settings.getFreeswitchSipPort());
             }

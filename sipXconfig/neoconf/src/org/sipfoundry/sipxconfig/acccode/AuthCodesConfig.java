@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -25,7 +26,7 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.springframework.beans.factory.annotation.Required;
 
 public class AuthCodesConfig implements ConfigProvider {
-    private AuthCodes m_authCodes;
+    private AuthCodesImpl m_authCodes;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -38,12 +39,13 @@ public class AuthCodesConfig implements ConfigProvider {
 
         Collection<Location> locations = manager.getFeatureManager().
             getLocationsForEnabledFeature(AuthCodes.FEATURE);
-        Address fs = manager.getAddressManager().getSingleAddress(FreeswitchFeature.EVENT_ADDRESS);
+        Address fs = manager.getAddressManager().getSingleAddress(FreeswitchFeature.ACC_EVENT_ADDRESS);
         Domain domain = manager.getDomainManager().getDomain();
         for (Location location : locations) {
             AuthCodeSettings settings = m_authCodes.getSettings();
             File dir = manager.getLocationDataDirectory(location);
-            Writer flat = new FileWriter(new File(dir, "sipxacccode.properties.cfdat"));
+            ConfigUtils.enableCfengineClass(dir, "sipxacccode.cfdat", "sipxacccode", true);
+            Writer flat = new FileWriter(new File(dir, "sipxacccode.properties.part"));
             try {
                 writeConfig(flat, settings, domain, fs.getPort());
             } finally {
@@ -55,13 +57,11 @@ public class AuthCodesConfig implements ConfigProvider {
     void writeConfig(Writer wtr, AuthCodeSettings settings, Domain domain, int freeswithPort) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write(settings.getSettings().getSetting("acccode-config"));
-        config.write("acccode.sipxchangeDomainName", domain.getName());
-        config.write("acccode.realm", domain.getSipRealm());
         config.write("freeswitch.eventSocketPort", freeswithPort);
     }
 
     @Required
-    public void setAuthCodes(AuthCodes authCodes) {
+    public void setAuthCodes(AuthCodesImpl authCodes) {
         m_authCodes = authCodes;
     }
 }

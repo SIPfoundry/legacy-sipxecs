@@ -16,7 +16,6 @@ import static org.apache.commons.lang.StringUtils.trim;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +43,6 @@ import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.SearchManager;
-import org.sipfoundry.sipxconfig.setting.Setting;
 
 
 public abstract class AuthCodesPage extends SipxBasePage implements PageBeginRenderListener {

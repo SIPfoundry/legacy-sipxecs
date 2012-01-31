@@ -11,14 +11,19 @@
     <property name="target" ref="authCodeManagerImpl" />
   </bean>
   
-  <bean id="dialingRuleProviderProxy" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider" />
+  <bean id="authCodes" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <list>
+        <value>org.sipfoundry.sipxconfig.acccode.AuthCodes</value>
+        <value>org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider</value>
+      </list>
+    </property>
     <property name="target">
-      <ref local="authCodes" />
+      <ref local="authCodesImpl" />
     </property>
   </bean>
 
-  <bean id="authCodes" class="org.sipfoundry.sipxconfig.acccode.AuthCodes">
+  <bean id="authCodesImpl" class="org.sipfoundry.sipxconfig.acccode.AuthCodesImpl">
     <property name="authCodeManager" ref="authCodeManager" />
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
@@ -34,7 +39,7 @@
   </bean>
   
   <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig">
-	<property name="authCodes" ref="authCodes"/>
+	<property name="authCodes" ref="authCodesImpl"/>
   </bean>
 
   <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" parent="settingsBean">
@@ -42,7 +47,7 @@
   
   <bean id="authCodeAliases" class="org.sipfoundry.sipxconfig.acccode.AuthCodeAliases">
     <property name="featureManager" ref="featureManager"/>
-    <property name="authCodes" ref="authCodes"/>
+    <property name="authCodes" ref="authCodesImpl"/>
   </bean>
   
 </beans>

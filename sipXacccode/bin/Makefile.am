@@ -1,13 +1,13 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/common.am
 
-EXTRA_DIST = \
-    $(bin_SCRIPTS:=.in)
+EXTRA_DIST = $(initd_SCRIPTS:=.in)
 
-bin_SCRIPTS = \
-    sipxacccode.sh
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+	sipxacccode
 
-$(bin_SCRIPTS) : % : %.in Makefile
+$(initd_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,sipxacc_PKGS)
 
-CLEANFILES = $(bin_SCRIPTS)
+CLEANFILES = $(initd_SCRIPTS)
