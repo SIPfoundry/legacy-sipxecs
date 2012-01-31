@@ -27,7 +27,7 @@
     <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 
-  <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+  <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao" depends-on="phoneContextImpl">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.phone.PhoneContext"/>
     <property name="target" ref="phoneContextImpl"/>
   </bean>
