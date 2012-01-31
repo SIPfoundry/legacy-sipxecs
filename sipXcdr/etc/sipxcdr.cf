@@ -8,31 +8,33 @@
 bundle agent sipxcdr {
   methods:
     any::
+      "any" usebundle => "postgres";
+      "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxcdr_running";
 }
 
 bundle agent sipxcdr_running {
   vars:
-    any::      
-      "service_command" string => "/usr/(lib64|lib)/ruby/gems/[0-9.]+/gems/sipxcallresolver-[0-9.]+/lib/main.rb.*";
+    any::
+      "service_command" string => ".*\s-Dprocname=sipxcdr\s.*";
 
   methods:
     any::
-      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxcdr_running");
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxcdr_running");
 
   commands:
     sipxcdr_running.!sipxcdr::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
         args => "stop",
-	action => track("sipxcdr_stop");
+	action => track("sipxcdr stop");
 
     !sipxcdr_running.sipxcdr::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
         args => "start",
-	action => track("sipxcdr_start");
+	action => track("sipxcdr start");
 
     restart_sipxcdr::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
         args => "restart",
-	action => track("sipxcdr_restart");
+	action => track("sipxcdr restart");
 }

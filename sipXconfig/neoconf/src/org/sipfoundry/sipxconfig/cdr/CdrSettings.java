@@ -17,7 +17,7 @@ public class CdrSettings extends PersistableSettings {
     }
 
     public int getPostresPort() {
-        return 5433; // not configurable
+        return 5432; // not configurable
     }
 
     @Override

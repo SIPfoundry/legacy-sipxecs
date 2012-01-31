@@ -17,9 +17,11 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class CdrPage extends UserBasePage {
@@ -37,8 +39,8 @@ public abstract class CdrPage extends UserBasePage {
 
     public abstract void setTab(String tab);
 
-//    @InjectObject("spring:sipxServiceManager")
-//    public abstract SipxServiceManager getSipxServiceManager();
+    @InjectObject("spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -56,9 +58,9 @@ public abstract class CdrPage extends UserBasePage {
 
     @Override
     public void pageBeginRender(PageEvent event) {
-        Location primaryLocation = getLocationsManager().getPrimaryLocation();
-//        setCallResolverInstalled(getSipxServiceManager().isServiceInstalled(primaryLocation.getId(),
-//                SipxCallResolverService.BEAN_ID));
+        setCallResolverInstalled(
+                getFeatureManager().isFeatureEnabled(CdrManager.FEATURE) &&
+                getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE));
         if (!isCallResolverInstalled() && getTab().equals(ACTIVE_TAB)) {
             setTab(HISTORIC_TAB);
         }

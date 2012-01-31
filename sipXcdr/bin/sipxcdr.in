@@ -4,18 +4,46 @@
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
 # Licensed to the User under the LGPL license.
 
-Action=RUN
-Status=1
-Args=""
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-. @SIPX_LIBEXECDIR@/sipx-utils.sh
+usage() {
+cat <<USAGE
+Usage: sipxcdr [start|stop|distrib-configtest|patch|database|setup|configtest|db ...]
+
+Start Web UI administration for sipXpbx and for remotely provisioned
+SIP-based phones.
+
+Options include:
+
+  stop                 Stop sipxcdr
+
+  status               Checks if process is running
+
+  db commands ...      Runs an operation on the database. Database commands
+                       are detailed below
+
+  configtest           Run diagnostics
+
+
+Common Database commands include:
+
+   drop                Drops ${Database} database
+
+   create              Create new ${Database} database
+
+USAGE
+}
+
+Status=0
+Args=""
 
 # Declare script variables in a manner that unit test
 # (or end user I suppose) can override
 : ${ConfDir:=@SIPX_CONFDIR@}
 : ${SslDir:=${ConfDir}/ssl}
 : ${AuthoritiesDir:=${SslDir}/authorities}
-: ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
+: ${PidFile:=@SIPX_RUNDIR@/sipxcdr.pid}
 : ${LibOdbcDir:=@ODBC_LIBDIR@}
 : ${Psql:=psql}
 if [ `uname -s` = FreeBSD ] ; then
@@ -38,7 +66,7 @@ fi
 : ${CallResolverLog:=${LogDir}/sipcallresolver.log}
 : ${CallResolverMain:=@GEM_LOCAL_LIB_DIR@/gems/sipxcallresolver-@sipxcallresolver_VER@/lib/main.rb}
 
-resolverArgs="--confdir ${ConfDir} --logdir ${LogDir}"
+resolverArgs="--daemon --confdir ${ConfDir} --logdir ${LogDir}"
 Database=SIPXCDR
 Today=`date`
 
@@ -48,7 +76,7 @@ PsqlCmd="${Psql} --tuples-only --no-align --username ${PgUser} --dbname ${Databa
 assertRoot() {
     user=`whoami`
     if [ "${user}" != "root" ]; then
-      echo "Error: Must be root to run sipxcallresolver.sh script." >&2
+      echo "Error: Must be root to run sipxcdr script." >&2
       exit 1
     fi
 }
@@ -138,8 +166,7 @@ databasePatch() {
 # Setup database
 databaseCommand() {
     databaseCheck Silent
-
-    case ${1} in
+    case ${@} in
        create)
          createdb -U ${PgUser} --encoding=UNICODE --template=template0 ${Database}
          ${PsqlCmd} -f ${PgSchema}
@@ -166,7 +193,7 @@ databaseCheck() {
          cat <<ERROR
 
 Error: The SIPXCDR database does not exist.
-Login as root and run the sipxcallresolver.sh script with the --setup parameter.
+Login as root and run the sipxcdr script with the --setup parameter.
    $0 --setup
 
 ERROR
@@ -213,7 +240,7 @@ ERROR
          cat <<ERROR
 
 Error: $PGDATA/pg_hba.conf is not set up for local connections.
-Login as root and run the sipxcallresolver.sh script with the --setup parameter.
+Login as root and run the sipxcdr script with the --setup parameter.
    $0 --setup
 
 ERROR
@@ -376,7 +403,6 @@ onSetup() {
     removeOldCronEntry
     fixFileAccess ${DbPatchLog}
     fixFileAccess ${CallResolverLog}
-    @bindir@/pgpatch.sh
     if ! databaseCheck Silent
     then
        databaseCommand create
@@ -385,120 +411,79 @@ onSetup() {
 }
 
 # Start CDR call resolver
-onStartup() {
+start() {
+	onSetup
     # Check database version - don't run if it's wrong
     echo $$ > ${PidFile}
     databasePatch
     if ! databaseVersionCheck; then
        exit 1
     fi
-
-    exec ${RubyCmd} ${CallResolverMain} ${resolverArgs}
+    if [ -n "${NoFork}" ] ; then
+		runuser -s /bin/bash @SIPXPBXUSER@ -c "${RubyCmd} ${CallResolverMain} ${resolverArgs}"
+    else
+      echo -n $"Starting sipxacccode: "
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${RubyCmd} ${CallResolverMain} ${resolverArgs}" >/dev/null 2>&1 &
+      echo $! > ${PidFile}
+      echo_success
+    fi
 }
 
-while [ $# -ne 0 ]
-do
-    case ${1} in
-        -c|--configtest)
-            Action=CONFIGTEST
-            ;;
+stop() {
+  echo -n $"Stopping sipxcdr: "
+  killproc -p "${PidFile}" -t30 -TERM "sipxcdr"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${PidFile}"
+}
 
-        -s|--setup)
-            Action=SETUP
-            ;;
+restart() {
+    stop
+    # sleep for no good reason. Can be disconcerting if stop/start
+    # switch is too fast IMHO
+    sleep 1
+    start
+}
 
-        -d|--database)
-            Action=DATABASE
-            shift
-            Args="${@}"
-            break 2
-            ;;
-
-        --patch)
-            Action=PATCH
-            ;;
-
-        --distrib-configtest)
-            Action=DISTRIBTEST
-            ;;
-
-        --nop)
-            Action=NOP
-            ;;
-
-        --stop)
-            Action=STOP
-            ;;
-
-        -h|--help)
-            Action=HELP
-            ;;
-		--start|--end|--daemon)
-			resolverArgs="${resolverArgs} ${1} "
-			;;
-        *)
-            resolverArgs="${resolverArgs} \"${1}\" "
-            ;;
-    esac
-
-    shift # always consume 1
-done
-
-if [ ${Action} = CONFIGTEST ]; then
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+	start
+	;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${pidfile} ] && restart || :
+    ;;
+  status)
+    status -p ${PidFile} java
+    ;;
+  configtest)
     configCheck
-    exit $Status
-elif [ ${Action} = DISTRIBTEST ]; then
-    configCheck
-    exit $Status
-elif [ ${Action} = DATABASE ]; then
-    databaseCommand $Args
-elif [ ${Action} = RUN ]; then
-    onStartup
-elif [ ${Action} = STOP ]; then
-    sipx_stop sipxcallresolver @SIPX_RUNDIR@/sipxcallresolver.pid
-elif [ ${Action} = SETUP ]; then
+    ;;
+  setup)
     onSetup
-elif [ ${Action} = PATCH ]; then
+    ;;
+  db)
+    databaseCommand "$2"
+    ;;
+  patch)
     databasePatch
-else
+    ;;
+  distrib-configtest)
+    configCheck
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|distrib-configtest|patch|database|setup|configtest|db}"
+    Status=1
+esac
 
-cat <<USAGE
-Usage: $0 [-d|--database commands ...]
-                  [-c|--configtest]
-                  [-s|--setup]
-                  [-h|--help]
+exit $Status
 
-Set up CDR database and processing for sipXpbx.
-
-Options include:
-
-  none                 Process a single batch of call events and exit.
-
-  --daemon			   Daemonize call resolver - it remains running and keeps processing incoming call events.
-
-  --database commands  Runs an operation on the database. Database commands
-                       are detailed below
-
-  --configtest         Run diagnostics
-
-  --setup              Initialize postgresql for communicating with sipxconfig
-                       and create initial database. Needs root permissions.
-
-Common Database commands include:
-
-   drop                Drops ${Database} database
-
-   create              Create new ${Database} database
-
-Notable environment variables:
-
-    POSTGRES_SERVICE   a guess is made to determine the name for the
-                       Postgres service.
-                       If the guess is incorrect, then set this to the name of
-                       the script in /etc/init.d that starts/stops
-                       the Postgres database.  The possibilities that
-                       we are aware of are "postgresql" and "rhdb".
-
-USAGE
-
-fi

@@ -26,7 +26,8 @@ bundle agent sipxproxy_config {
         "fallbackrules.xml",
         "forwardingrules.xml",
         "nattraversalrules.xml",
-        "sipxbridge.xml"
+        "sipxbridge.xml",
+        "callresolver-config"
       };
 
   files:

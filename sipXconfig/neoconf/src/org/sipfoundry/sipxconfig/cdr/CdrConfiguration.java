@@ -18,6 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
@@ -45,6 +46,7 @@ public class CdrConfiguration implements ConfigProvider {
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
+            ConfigUtils.enableCfengineClass(dir, "sipxcdr.cfdat", "sipxcdr", true);
         }
     }
 
