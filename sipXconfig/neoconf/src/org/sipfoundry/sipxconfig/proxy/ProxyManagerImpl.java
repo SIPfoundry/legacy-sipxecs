@@ -14,16 +14,16 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressProvider {
+public class ProxyManagerImpl implements ProxyManager {
     public static final LocationFeature FEATURE = new LocationFeature("proxy");
     public static final AddressType TCP_ADDRESS = new AddressType("proxyTcp");
     public static final AddressType UDP_ADDRESS = new AddressType("procyUdp");
@@ -87,5 +87,11 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
 
     public void setSettingsDao(BeanWithSettingsDao<ProxySettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = m_featureManager.isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipXproxy")) : null);
     }
 }

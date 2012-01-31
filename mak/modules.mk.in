@@ -12,6 +12,7 @@ sipx = \
   sipXcallLib \
   sipXsupervisor \
   sipXcommserverLib \
+  sipXsnmp \
   sipXpostgres \
   sipXmongo \
   sipXcommons \

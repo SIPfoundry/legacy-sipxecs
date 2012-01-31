@@ -1,0 +1,19 @@
+/*
+ * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the AGPL license.
+ *
+ * $
+ */
+package org.sipfoundry.sipxconfig.snmp;
+
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
+
+public interface SnmpManager {
+    public static final LocationFeature FEATURE = new LocationFeature("snmp");
+
+    public abstract List<ProcessDefinition> getProcessDefinitions(Location location);
+}

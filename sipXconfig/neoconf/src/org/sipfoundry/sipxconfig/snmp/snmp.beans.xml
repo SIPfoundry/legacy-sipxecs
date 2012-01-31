@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="snmpManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.snmp.SnmpManager"/>
+    <property name="target" ref="snmpManagerImpl" />
+  </bean>
+  
+  <bean id="snmpManagerImpl" class="org.sipfoundry.sipxconfig.snmp.SnmpManagerImpl">
+    <property name="featureManager" ref="featureManager"/>
+  </bean>
+
+  <bean id="snmpConfig" class="org.sipfoundry.sipxconfig.snmp.SnmpConfig">
+    <property name="snmpManager" ref="snmpManager"/>
+    <property name="configManager" ref="configManager"/>
+  </bean>
+  
+</beans>

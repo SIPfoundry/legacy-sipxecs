@@ -18,6 +18,8 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -76,5 +78,10 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        return (location.isPrimary() ? Collections.singleton(new ProcessDefinition("java")) : null);
     }
 }

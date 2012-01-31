@@ -7,10 +7,13 @@
  */
 package org.sipfoundry.sipxconfig.proxy;
 
+import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 
-public interface ProxyManager {
+public interface ProxyManager extends FeatureProvider, AddressProvider, ProcessProvider {
     public static final LocationFeature FEATURE = new LocationFeature("proxy");
     public static final AddressType TCP_ADDRESS = new AddressType("proxyTcp");
     public static final AddressType UDP_ADDRESS = new AddressType("procyUdp");

@@ -1,0 +1,78 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# Postgres configuration for working with sipxecs
+#
+
+bundle agent snmp {
+  methods:
+    snmp::
+      "any" usebundle => "snmp_config";
+    any::
+      "any" usebundle => "snmp_running";
+}
+
+bundle agent snmp_config {
+  files:
+    snmp::
+      "/etc/snmp/snmpd.conf"
+        create => "false",
+	perms => m("644"),
+        classes => if_repaired("reload_snmp"),
+	edit_line => snmpd_conf;
+}
+
+bundle edit_line snmpd_conf {
+  vars:
+    "part" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/snmpd.conf.part";
+
+  insert_lines:
+    any::
+"com2sec local  localhost       public
+group   rwgroup v1           local
+group   rwgroup v2c           local
+view    all    included   .1  80
+access  rwgroup \"\"      any       noauth    exact  all none none
+syslocation Unknown
+syscontact Root <root@localhost>
+dontLogTCPWrappersConnects yes
+";
+
+   "$(part)"
+     insert_type => "file",
+     ifvarclass => canonify(fileexists("$(part)"));
+
+  delete_lines:
+    any::
+     ".*";
+}
+
+
+bundle agent snmp_running {
+  vars:
+    any::
+      "service" string => "/etc/init.d/snmpd";
+      "service_command" string => "/usr/sbin/snmpd";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "snmp_running","root");
+
+  commands:
+    snmp_running.!snmp::
+      "$(service)"
+        args => "stop",
+	action => track("snmp_stop");
+
+    !snmp_running.snmp::
+      "$(service)"
+        args => "start",
+	action => track("snmp_start");
+
+    reload_snmp.snmp::
+      "$(service)"
+        args => "reload",
+	action => track("snmp_restart");  
+}

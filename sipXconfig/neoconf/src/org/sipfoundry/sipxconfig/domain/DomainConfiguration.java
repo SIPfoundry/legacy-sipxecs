@@ -43,14 +43,14 @@ public class DomainConfiguration implements ConfigProvider {
         for (int i = 0; i < locations.size(); i++) {
             Writer wtr1 = new FileWriter(new File(dir, "domain-config.part"));
             try {
-                writeDomainConfigPart(wtr1, domain, lang);
+                writeDomainConfigPart(wtr1, domain, fqdn);
             } finally {
                 IOUtils.closeQuietly(wtr1);
             }
 
             Writer wtr2 = new FileWriter(new File(dir, "domain.cfdat"));
             try {
-                write(wtr2, domain, fqdn);
+                write(wtr2, domain, lang);
             } finally {
                 IOUtils.closeQuietly(wtr2);
             }
