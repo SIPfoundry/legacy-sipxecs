@@ -6,7 +6,7 @@
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-  <bean id="openfire" class="org.sipfoundry.sipxconfig.openfire.Openfire">
+  <bean id="openfireImpl" class="org.sipfoundry.sipxconfig.openfire.OpenfireImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">
@@ -18,8 +18,15 @@
     </property>
   </bean>
 
+  <bean id="openfire" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="openfireImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.openfire.Openfire"/>
+  </bean>
+
   <bean id="openfireSettings" class="org.sipfoundry.sipxconfig.openfire.OpenfireSettings">
     <property name="localizationContext" ref="localizationContext"/>
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="logDir" value="${sysdir.log}" />
   </bean>
   
   <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration">
@@ -56,4 +63,6 @@
     <property name="validUsers" ref="validUsers" />
     <property name="imbot" ref="imBot" />
   </bean>
+
+  <bean id="imFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.IMFeatureHook" />
 </beans>

@@ -17,16 +17,21 @@ bundle agent sipxopenfire {
 bundle agent sipxopenfire_config {
   vars:    
     any::
-      "xml_file" slist => { 
-        "autoattendants.xml",
+      "xml_file_restart" slist => { 
+        "sipxopenfire.xml"
+      };
+
+    any::
+      "xml_file_norestart" slist => { 
+        "xmpp-account-info.xml",
       };
 
   files:
     any::
-      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
+      "$(sipx.SIPX_JAVADIR)/sipXopenfire/conf/openfire.xml"
         create => "true",
         perms => m("644"),
-	edit_line => sipxopenfire_properties_contents,
+	copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
         classes => if_repaired("restart_sipxopenfire"),
 	action => track("$(this.promiser)");
 
@@ -37,6 +42,21 @@ bundle agent sipxopenfire_config {
         perms => m("644"),
 	edit_line => sipxopenfire_sipx_properties,
         classes => if_repaired("restart_sipxopenfire"),
+	action => track("$(this.promiser)");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file_restart)"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_restart)"),
+        classes => if_repaired("restart_sipxopenfire"),
+	action => track("$(this.promiser)");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)"),
 	action => track("$(this.promiser)");
 }
 
@@ -49,72 +69,6 @@ bundle edit_line sipxopenfire_sipx_properties {
   delete_lines:
     ".*";
 }
-
-
-bundle edit_line sipxopenfire_properties_contents {
-  vars:
-    openfire_debug::
-      "debug" string => "true";
-
-    !openfire_debug::
-      "debug" string => "false";
-
-    openfire_admin::
-      "port" string => "9094";
-      "secure_port" string => "9095";
-
-    !openfire_admin::
-      "port" string => "-1";
-      "secure_port" string => "-1";
-
-  insert_lines:
-    any::"
-<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<jive>
-  <adminConsole>
-    <port>$(port)</port>
-    <securePort>$(secure_port)</securePort>
-  </adminConsole>
-  <admin>
-    <authorizedUsernames>admin, superadmin</authorizedUsernames>
-  </admin>
-  <provider>
-    <admin>
-      <className>org.jivesoftware.openfire.admin.DefaultAdminProvider</className>
-    </admin>
-    <auth></auth>
-    <group></group>
-    <user></user>
-    <lockout></lockout>
-    <securityAudit>
-      <className>org.jivesoftware.openfire.security.DefaultSecurityAuditProvider</className>
-    </securityAudit>
-    <vcard></vcard>
-  </provider>
-  <connectionProvider>
-    <className>org.jivesoftware.database.DefaultConnectionProvider</className>
-  </connectionProvider>
-  <database>
-    <defaultProvider>
-      <driver>org.postgresql.Driver</driver>
-      <serverURL>jdbc:postgresql://localhost:5432/openfire</serverURL>
-      <username>postgres</username>
-      <password>postgres</password>
-    </defaultProvider>
-  </database>
-  <setup>true</setup>
-  <log>
-    <debug>
-      <enabled>$(debug)</enabled>
-    </debug>
-  </log>
-</jive>";
-
-  delete_lines:
-    any::
-      ".*";
-}
-
 
 bundle agent sipxopenfire_setup {
   methods:

@@ -53,6 +53,7 @@ import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.util.NotFoundException;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.config.AccountsParser;
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.XmppAccountInfo;
@@ -270,8 +271,15 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             componentManager.getLog().error(ex);
             throw new SipXOpenfirePluginException("Error reading config file ", ex);
         }
-
         configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
+
+        String clientConfig = configurationPath + "/mongo-client.ini";
+        try {
+            UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         parseConfigurationFile();
 
         initializeLogging();

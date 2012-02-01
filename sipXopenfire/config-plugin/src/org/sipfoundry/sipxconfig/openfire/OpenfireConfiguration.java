@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -35,7 +36,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Openfire.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE)) {
+        if (!request.applies(OpenfireImpl.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE)) {
             return;
         }
         
@@ -47,9 +48,10 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             }
         }
         
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(Openfire.FEATURE);
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(OpenfireImpl.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            ConfigUtils.enableCfengineClass(dir, "sipxopenfire.cfdat", "sipxopenfire", true);
             Writer sipxopenfire = new FileWriter(new File(dir, "openfire.xml"));
             try {
                 m_config.write(sipxopenfire);
@@ -88,7 +90,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     
     private void checkReplicate(Object entity) {
         if (entity instanceof User || entity instanceof Conference) {
-            m_configManager.configureEverywhere(Openfire.FEATURE);            
+            m_configManager.configureEverywhere(OpenfireImpl.FEATURE);            
         }
     }
 

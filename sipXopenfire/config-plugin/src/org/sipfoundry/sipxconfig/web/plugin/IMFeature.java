@@ -5,12 +5,10 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.openfire;
+package org.sipfoundry.sipxconfig.web.plugin;
 
+import org.apache.tapestry.html.BasePage;
 
-public interface Openfire {
+public abstract class IMFeature extends BasePage {
 
-    public OpenfireSettings getSettings();
-    
-    public void saveSettings(OpenfireSettings settings);
 }
