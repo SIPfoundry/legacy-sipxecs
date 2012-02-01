@@ -15,6 +15,7 @@ sipXproxy_CXXFLAGS = \
 	$(SIPXPROXY_COMMON_CXX_FLAGS)
 
 sipXproxy_LDFLAGS = \
+    -shared \
     -rdynamic
 
 sipXproxy_LDADD = \
@@ -39,6 +40,7 @@ version_Age=0
 lib_LTLIBRARIES = libsipXproxy.la
 
 libsipXproxy_la_LDFLAGS = \
+    -shared \
     -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXproxy_la_SOURCES = \

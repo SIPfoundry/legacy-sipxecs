@@ -86,42 +86,40 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipXproxy
 %attr(755,root,root) %{_datadir}/sipxecs/schema/forwardingrules.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/nattraversalrules.xsd
-%dir %attr(755,root,root) %{_libdir}/authplugins
-%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.so*
-%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.so*
-%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.so*
-%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.so*
 %attr(755,root,root) %{_libdir}/authplugins/libCallDestination.so*
-%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.so*
-%attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.so*
-%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.so*
-%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.so*
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.so*
+%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.so*
+%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.so*
+%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.so*
+%attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.so*
+%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.so*
+%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.so*
+%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.so*
+%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.so*
 %attr(755,root,root) %{_libdir}/libsipXproxy.so*
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.la
-%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.a
-%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.la
-%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.a
-%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.la
-%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.a
-%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.la
-%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.a
-%attr(755,root,root) %{_libdir}/authplugins/libCallDestination.la
-%attr(755,root,root) %{_libdir}/authplugins/libCallDestination.a
-%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.la
-%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.a
-%attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.la
-%attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.a
-%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.la
-%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.a
-%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.la
-%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.a
-%attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.la
-%attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.a
-%attr(755,root,root) %{_libdir}/libsipXproxy.la
-%attr(755,root,root) %{_libdir}/libsipXproxy.a
+%{_libdir}/authplugins/libCallDestination.a
+%{_libdir}/authplugins/libCallDestination.la
+%{_libdir}/authplugins/libCallerAlertInfo.a
+%{_libdir}/authplugins/libCallerAlertInfo.la
+%{_libdir}/authplugins/libCallerAlias.a
+%{_libdir}/authplugins/libCallerAlias.la
+%{_libdir}/authplugins/libEmergencyNotify.a
+%{_libdir}/authplugins/libEmergencyNotify.la
+%{_libdir}/authplugins/libEnforceAuthRules.a
+%{_libdir}/authplugins/libEnforceAuthRules.la
+%{_libdir}/authplugins/libMSFT_ExchangeTransferHack.a
+%{_libdir}/authplugins/libMSFT_ExchangeTransferHack.la
+%{_libdir}/authplugins/libNatTraversalAgent.a
+%{_libdir}/authplugins/libNatTraversalAgent.la
+%{_libdir}/authplugins/libRequestLinter.a
+%{_libdir}/authplugins/libRequestLinter.la
+%{_libdir}/authplugins/libSubscriptionAuth.a
+%{_libdir}/authplugins/libSubscriptionAuth.la
+%{_libdir}/authplugins/libTransferControl.a
+%{_libdir}/authplugins/libTransferControl.la
+%{_libdir}/libsipXproxy.la
 %{_includedir}/sipxproxy/*
 

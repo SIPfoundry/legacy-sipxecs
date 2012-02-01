@@ -69,36 +69,20 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxregistrar
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxregistrar.cf
 %attr(755,root,root) %{_bindir}/sipregistrar
-%attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.la
-%attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.a
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.so*
-%attr(755,root,root) %{_libdir}/libRedirectorAliasDB.la
 %attr(755,root,root) %{_libdir}/libRedirectorAliasDB.so*
-%attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.la
 %attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.so*
-%attr(755,root,root) %{_libdir}/libRedirectorENUM.la
 %attr(755,root,root) %{_libdir}/libRedirectorENUM.so*
-%attr(755,root,root) %{_libdir}/libRedirectorISN.la
 %attr(755,root,root) %{_libdir}/libRedirectorISN.so*
-%attr(755,root,root) %{_libdir}/libRedirectorJoin.la
 %attr(755,root,root) %{_libdir}/libRedirectorJoin.so*
-%attr(755,root,root) %{_libdir}/libRedirectorMapping.la
 %attr(755,root,root) %{_libdir}/libRedirectorMapping.so*
-%attr(755,root,root) %{_libdir}/libRedirectorFallback.la
 %attr(755,root,root) %{_libdir}/libRedirectorFallback.so*
-%attr(755,root,root) %{_libdir}/libRedirectorPresenceRouting.la
 %attr(755,root,root) %{_libdir}/libRedirectorPresenceRouting.so*
-%attr(755,root,root) %{_libdir}/libRedirectorPickUp.la
 %attr(755,root,root) %{_libdir}/libRedirectorPickUp.so*
-%attr(755,root,root) %{_libdir}/libRedirectorRegDB.la
 %attr(755,root,root) %{_libdir}/libRedirectorRegDB.so*
-%attr(755,root,root) %{_libdir}/libRedirectorSubscribe.la
 %attr(755,root,root) %{_libdir}/libRedirectorSubscribe.so*
-%attr(755,root,root) %{_libdir}/libRedirectorUserParam.la
 %attr(755,root,root) %{_libdir}/libRedirectorUserParam.so*
-%attr(755,root,root) %{_libdir}/libRedirectorTest.la
 %attr(755,root,root) %{_libdir}/libRedirectorTest.so*
-%attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.la
 %attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.so*
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alias.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/caller-alias.xsd
@@ -107,20 +91,36 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%attr(644,root,root) %{_libdir}/libRedirectorAliasDB.a
-%attr(644,root,root) %{_libdir}/libRedirectorAuthRouter.a
-%attr(644,root,root) %{_libdir}/libRedirectorENUM.a
-%attr(644,root,root) %{_libdir}/libRedirectorISN.a
-%attr(644,root,root) %{_libdir}/libRedirectorJoin.a
-%attr(644,root,root) %{_libdir}/libRedirectorMapping.a
-%attr(644,root,root) %{_libdir}/libRedirectorFallback.a
-%attr(644,root,root) %{_libdir}/libRedirectorPickUp.a
-%attr(644,root,root) %{_libdir}/libRedirectorPresenceRouting.a
-%attr(644,root,root) %{_libdir}/libRedirectorRegDB.a
-%attr(644,root,root) %{_libdir}/libRedirectorSubscribe.a
-%attr(644,root,root) %{_libdir}/libRedirectorUserParam.a
-%attr(644,root,root) %{_libdir}/libRedirectorTest.a
-%attr(644,root,root) %{_libdir}/libRedirectorTimeOfDay.a
+%{_libdir}/libRedirectorAliasDB.a
+%{_libdir}/libRedirectorAliasDB.la
+%{_libdir}/libRedirectorAuthRouter.a
+%{_libdir}/libRedirectorAuthRouter.la
+%{_libdir}/libRedirectorENUM.a
+%{_libdir}/libRedirectorENUM.la
+%{_libdir}/libRedirectorFallback.a
+%{_libdir}/libRedirectorFallback.la
+%{_libdir}/libRedirectorISN.a
+%{_libdir}/libRedirectorISN.la
+%{_libdir}/libRedirectorJoin.a
+%{_libdir}/libRedirectorJoin.la
+%{_libdir}/libRedirectorMapping.a
+%{_libdir}/libRedirectorMapping.la
+%{_libdir}/libRedirectorPickUp.a
+%{_libdir}/libRedirectorPickUp.la
+%{_libdir}/libRedirectorPresenceRouting.a
+%{_libdir}/libRedirectorPresenceRouting.la
+%{_libdir}/libRedirectorRegDB.a
+%{_libdir}/libRedirectorRegDB.la
+%{_libdir}/libRedirectorSubscribe.a
+%{_libdir}/libRedirectorSubscribe.la
+%{_libdir}/libRedirectorTest.a
+%{_libdir}/libRedirectorTest.la
+%{_libdir}/libRedirectorTimeOfDay.a
+%{_libdir}/libRedirectorTimeOfDay.la
+%{_libdir}/libRedirectorUserParam.a
+%{_libdir}/libRedirectorUserParam.la
+%{_libdir}/libRegistrarImpliedMWI.a
+%{_libdir}/libRegistrarImpliedMWI.la
 %dir %{_includedir}/registry
 %{_includedir}/registry/*
 
