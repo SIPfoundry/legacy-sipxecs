@@ -31,6 +31,7 @@ then
   AC_SUBST(SIPXTEST_DATABASE, SIPXDB-TEST)
 fi
 AM_CONDITIONAL(ENABLE_ODBC_TESTS, test x$enable_odbc_tests = xyes)
+CHECK_POSTGRES
 AC_CONFIG_FILES([
   Makefile
   include/Makefile

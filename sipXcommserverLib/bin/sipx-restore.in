@@ -309,9 +309,9 @@ then
   echo -n "Restoring the '$CDR_DATABASE_NAME' database contents..."
 
   # drop existing CDR database
-  @SIPX_BINDIR@/sipxcallresolver.sh --database drop > /dev/null
+  @SIPX_SERVICEDIR@/sipxcdr db drop > /dev/null
   # create empty CDR database
-  @SIPX_BINDIR@/sipxcallresolver.sh --database create > /dev/null
+  @SIPX_SERVICEDIR@/sipxcdr db create > /dev/null
   tar -xzvC @SIPX_TMPDIR@ $DB_CDR_TAR < $CDR_PATH
   cat $PATH_DB_CDR_TAR | pg_restore -U @POSTGRESQL_USER@ -d $CDR_DATABASE_NAME 2> /dev/null
   rm $PATH_DB_CDR_TAR
