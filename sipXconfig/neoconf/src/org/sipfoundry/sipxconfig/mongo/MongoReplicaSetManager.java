@@ -10,6 +10,7 @@ package org.sipfoundry.sipxconfig.mongo;
 import org.bson.BasicBSONObject;
 import org.sipfoundry.commons.mongo.MongoUtil;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -45,6 +46,9 @@ public class MongoReplicaSetManager implements FeatureListener {
     @Override
     public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
             Location location) {
+        if (!feature.equals(MongoManager.FEATURE_ID)) {
+            return;
+        }
         if (event != FeatureEvent.POST_ENABLE || event != FeatureEvent.POST_DISABLE) {
             return;
         }
