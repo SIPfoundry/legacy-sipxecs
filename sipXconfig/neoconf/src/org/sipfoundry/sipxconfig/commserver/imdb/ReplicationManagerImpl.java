@@ -58,6 +58,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -69,16 +70,11 @@ import com.mongodb.DBObject;
  * {@link ConfigurationFile}s on different locations.
  */
 public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements ReplicationManager, BeanFactoryAware {
-    private static final int PERMISSIONS = 0644;
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
-    private static final String LOCATION_REGISTRATION = "Location registration in db";
     private static final String DATABASE_REGENERATION = "Database regeneration";
     private static final String BRANCH_REGENERATION = "Branch regeneration";
-    private static final String IP = "ip";
-    private static final String DESCRIPTION = "dsc";
-    private static final String MASTER = "mstr";
     private static final String SECONDS = "s | ";
     private static final String MINUTES = "m.";
     private static final String REGENERATION_OF = "Regeneration of ";
@@ -90,8 +86,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL,
         DataSet.USER_FORWARD, DataSet.USER_LOCATION, DataSet.USER_STATIC};
     private static final DataSet[] BRANCH_DATASETS = {DataSet.USER_LOCATION};
-    private static final String EXCEPTION_LOG = "IOException for stream writer";
-    private static final String UTF_8 = "UTF-8";
 
     private boolean m_enabled = true;
 
@@ -402,7 +396,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     private void replicateGroupWithWorker(Group group, Class<? extends ReplicationWorker> worker) {
-        Location primary = m_locationsManager.getPrimaryLocation();
         try {
             int membersCount = m_coreContext.getGroupMembersCount(group.getId());
             doParallelAsyncReplication(membersCount, worker, group);
@@ -648,6 +641,14 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     public DBCollection getDbCollection() {
+        DB db = m_imdb.getDb();
+        if (!db.collectionExists(MongoConstants.ENTITY_COLLECTION)) {
+            DBCollection entity = db.createCollection(MongoConstants.ENTITY_COLLECTION, null);
+            DBObject indexes = new BasicDBObject();
+            indexes.put(MongoConstants.TIMESTAMP, 1);
+            entity.createIndex(indexes);
+            return entity;
+        }
         return m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
     }
 
