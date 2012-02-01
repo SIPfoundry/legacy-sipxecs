@@ -45,18 +45,18 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(644,sipxchange,sipxchange,755)
+%defattr(644,sipx,sipx,755)
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxopenfire
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxopenfire.cf
 %{_sysconfdir}/sipxpbx/database/sipxopenfire-initdb.sql
-%dir %attr(775,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/openfire
+%dir %attr(775,sipx,sipx) %{_sysconfdir}/sipxpbx/openfire
 %{_sysconfdir}/sipxpbx/sipxopenfire-database.xml
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.properties
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.vm
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.xml
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/sipxopenfire.vm
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/sipxopenfire-prompts.properties
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXopenfire
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXopenfire
 %{_datadir}/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence.jar
 %{_datadir}/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar
 %{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.enable_openfire_admin_console

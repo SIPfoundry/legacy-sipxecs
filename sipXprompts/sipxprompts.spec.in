@@ -35,7 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%dir %attr(755,root,sipxchange) %{_datadir}/www/doc/stdprompts_en
+%dir %attr(755,root,sipx) %{_datadir}/www/doc/stdprompts_en
 %{_datadir}/www/doc/stdprompts_en/*
-%config(noreplace) %attr(755,root,sipxchange) %{_datadir}/www/doc/stdprompts
-%config(noreplace) %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/mediaserver
+%config(noreplace) %attr(755,root,sipx) %{_datadir}/www/doc/stdprompts
+%config(noreplace) %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/mediaserver

@@ -57,7 +57,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpark
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxpark.cf
-%config(noreplace) %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/parkserver
+%config(noreplace) %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/parkserver
 %attr(755,root,root) %{_bindir}/sipxpark
 
 %pre

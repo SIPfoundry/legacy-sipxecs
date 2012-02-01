@@ -44,8 +44,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc  LICENSE README %name.configlog
 %{_bindir}/preflight
-%attr(644,sipxchange,sipxchange) %{_localstatedir}/sipxdata/configserver/phone/profile/docroot/00D01EFFFFFE
-%attr(644,sipxchange,sipxchange) %{_localstatedir}/sipxdata/configserver/phone/profile/tftproot/00D01EFFFFFE
+%attr(644,sipx,sipx) %{_localstatedir}/sipxdata/configserver/phone/profile/docroot/00D01EFFFFFE
+%attr(644,sipx,sipx) %{_localstatedir}/sipxdata/configserver/phone/profile/tftproot/00D01EFFFFFE
 
 
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/preflight
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/preflight

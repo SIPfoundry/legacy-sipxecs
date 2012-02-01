@@ -68,13 +68,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre
 # NOTE: Duplicate copy of user/group add in sipXcommons
-if ! /usr/bin/id -g sipxchange >/dev/null 2>&1; then
-  /usr/sbin/groupadd -r sipxchange
+if ! /usr/bin/id -g sipx >/dev/null 2>&1; then
+  /usr/sbin/groupadd -r sipx
 fi
 
-if ! /usr/bin/id sipxchange >/dev/null 2>&1; then
+if ! /usr/bin/id sipx >/dev/null 2>&1; then
   # hack: use "-s /bin/bash", some scripts need to be fixed to not require that
-  /usr/sbin/useradd -M -r -g sipxchange -d %{_sysconfdir}/sipxpbx -s /bin/bash -c sipxchange sipxchange 2>&1
+  /usr/sbin/useradd -M -r -g sipx -d %{_sysconfdir}/sipxpbx -s /bin/bash -c sipx sipx 2>&1
 fi
 
 %files
@@ -87,7 +87,7 @@ fi
 %attr(755,root,root) %{_datadir}/sipxecs/cfmodules/sipx
 %attr(755,root,root) %{_datadir}/sipxecs/cfmodules/readfile-if-exists
 %{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
-# where sipxconfig writes data, sipxchange user needs r/w access
-%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/cfdata
+# where sipxconfig writes data, sipx user needs r/w access
+%dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 # defaults are static, only root should write
 %{_localstatedir}/sipxdata/cfdata/defaults/dirs.cfdat

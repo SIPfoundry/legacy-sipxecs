@@ -45,10 +45,10 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(644,sipxchange,sipxchange,755)
+%defattr(644,sipx,sipx,755)
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxfreeswitch
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxfreeswitch.cf
-%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/cfdata
+%dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 %{_localstatedir}/sipxdata/cfdata/defaults/sipxfreeswitch.cfdat
 %{_sysconfdir}/sipxpbx/freeswitch/conf
 

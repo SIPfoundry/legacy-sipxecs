@@ -176,22 +176,22 @@ rm -rf $RPM_BUILD_ROOT
 %doc  README  NOTICE  ChangeLog %name.configlog
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxconfig
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxconfig.cf
-%attr(755,sipxchange, sipxchange) %{_bindir}/sipx-time-manager
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXconfig/.java-dep
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXconfig/*.jar
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXconfig/*.war
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXconfig/plugins
-%dir %attr(775,sipxchange,sipxchange) %{phonedir}
-%dir %attr(775,sipxchange,sipxchange) %{phonedir}/profile
-%dir %attr(775,sipxchange,sipxchange) %{phonedir}/profile/docroot
-%dir %attr(775,sipxchange,sipxchange) %{phonedir}/profile/tftproot
+%attr(755,sipx, sipx) %{_bindir}/sipx-time-manager
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/.java-dep
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/*.jar
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/*.war
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/plugins
+%dir %attr(775,sipx,sipx) %{phonedir}
+%dir %attr(775,sipx,sipx) %{phonedir}/profile
+%dir %attr(775,sipx,sipx) %{phonedir}/profile/docroot
+%dir %attr(775,sipx,sipx) %{phonedir}/profile/tftproot
 %dir %{_localstatedir}
 %{upgrade_archive_dir}/%{this_archive}
 
 # Install configserver config files, directory only is created by pbx
 #
 # NOTE: Need to declare both
-#    %dir %attr(755,sipxchange,sipxchange) /somedir
+#    %dir %attr(755,sipx,sipx) /somedir
 #    %config(noreplace) %/somedir/somefile
 # otherwise /somedir will have root permissions
 # see http://lists.rpm.org/pipermail/rpm-list/2011-July/000946.html
@@ -243,12 +243,12 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/openacd/*
 %config(noreplace) %{sipxpbxconf}/tunnel/*
 
-%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/reports
+%dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/reports
 %config(noreplace) %{_localstatedir}/sipxdata/reports/*
-%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/upload
-%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/backup
-%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/configserver/web-cert
-%dir %attr(775,sipxchange,sipxchange) %{devicefilesdir}
+%dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/upload
+%dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/backup
+%dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/configserver/web-cert
+%dir %attr(775,sipx,sipx) %{devicefilesdir}
 
 %postun
 # uninstall lucene index and Jetty scratch dir on every install

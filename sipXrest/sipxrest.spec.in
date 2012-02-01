@@ -48,6 +48,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXrest
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXrest
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxrest.cf
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxrest

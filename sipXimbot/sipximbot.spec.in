@@ -53,11 +53,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXimbot
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXimbot
 %attr(755,root,root) %{_sysconfdir}/init.d/sipximbot
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipximbot.cf
-%config(noreplace) %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/sipximbot
+%config(noreplace) %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/sipximbot
 
-%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx
-%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/imbot
-%attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/imbot/sipximbot-prompts.properties
+%dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx
+%dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx/imbot
+%attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx/imbot/sipximbot-prompts.properties

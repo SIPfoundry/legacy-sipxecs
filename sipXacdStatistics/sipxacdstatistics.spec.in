@@ -127,15 +127,15 @@ fi
 %{_var}/lib/sipxpbx/sipxacd-report-*.gem
 %attr(755,root,root) %{_bindir}/sipxacd-report
 
-%defattr(644,sipxchange,sipxchange,755)
+%defattr(644,sipx,sipx,755)
 %config(noreplace) %{_sysconfdir}/sipxpbx/report/schema.sql
 %config(noreplace) %{_sysconfdir}/sipxpbx/report/enable_upgrades.sql
 %config(noreplace) %{_sysconfdir}/sipxpbx/report/location_fqdn.sql
 
 %post report
 gem install --no-rdoc --local %{_var}/lib/sipxpbx/sipXacd-report-*.gem >/dev/null
-if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^sipxchange$' /etc/cron.d/cron.allow > /dev/null ); then
-  echo sipxchange >> /etc/cron.d/cron.allow
+if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^sipx$' /etc/cron.d/cron.allow > /dev/null ); then
+  echo sipx >> /etc/cron.d/cron.allow
 fi
 
 %preun report

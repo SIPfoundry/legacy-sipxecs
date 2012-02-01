@@ -50,5 +50,5 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXrest/plugins/
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXrest/plugins/
 

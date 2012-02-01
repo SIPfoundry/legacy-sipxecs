@@ -30,7 +30,7 @@ AC_SUBST(SIPX_RUNDIR,  [${localstatedir}/run/sipxpbx])
 AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
 AC_SUBST(SIPX_SERVICEDIR, [${sysconfdir}/init.d])
 # sipx RPMs should be hardcoded to use sipxchange user for their sipx user, not the buildbot user
-AC_SUBST(SIPX_RPM_CONFIGURE_OPTIONS,  [SIPXPBXUSER=sipxchange])
+AC_SUBST(SIPX_RPM_CONFIGURE_OPTIONS,  [SIPXPBXUSER=sipx])
 
 # Get the user to run sipX under.
 AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is ${USER}])

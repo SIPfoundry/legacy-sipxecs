@@ -50,6 +50,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxrelay.cf
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxrelay
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXbridge
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXbridge
 
 

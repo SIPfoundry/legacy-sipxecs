@@ -124,12 +124,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-utils.sh
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipxkeystoregen
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-archive-common
-%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxpackage
-%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxswadmin
-%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxzoneadmin
-%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipx-sudo-timezone
-%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipx-sudo-time-manager
-%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxcdrpostgres
+%attr(4750,root,sipx) %{_libexecdir}/sipXecs/sipxpackage
+%attr(4750,root,sipx) %{_libexecdir}/sipXecs/sipxswadmin
+%attr(4750,root,sipx) %{_libexecdir}/sipXecs/sipxzoneadmin
+%attr(4750,root,sipx) %{_libexecdir}/sipXecs/sipx-sudo-timezone
+%attr(4750,root,sipx) %{_libexecdir}/sipXecs/sipx-sudo-time-manager
+%attr(4750,root,sipx) %{_libexecdir}/sipXecs/sipxcdrpostgres
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-time-manager-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-change-timezone-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxpackage-init
@@ -146,18 +146,18 @@ rm -rf $RPM_BUILD_ROOT
 
 # These should match sipXlib.m4 or at least sent
 # to configure script
-%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx
-%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/ssl
-%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/ssl/authorities
+%dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx
+%dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx/ssl
+%dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx/ssl/authorities
 %{_sysconfdir}/sipxpbx/ssl/authorities/*
-%dir %attr(755,sipxchange,sipxchange) %{_datadir}/sipxecs
-%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/log/sipxpbx
-%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/run/sipxpbx
-%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata
-%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/tmp
-%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/sipdb
-%dir %attr(755,sipxchange,sipxchange) %{_libexecdir}/sipXecs
-%dir %attr(755,sipxchange,sipxchange) %{_libexecdir}/sipXecs/setup.d
+%dir %attr(755,sipx,sipx) %{_datadir}/sipxecs
+%dir %attr(755,sipx,sipx) %{_localstatedir}/log/sipxpbx
+%dir %attr(755,sipx,sipx) %{_localstatedir}/run/sipxpbx
+%dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata
+%dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/tmp
+%dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/sipdb
+%dir %attr(755,sipx,sipx) %{_libexecdir}/sipXecs
+%dir %attr(755,sipx,sipx) %{_libexecdir}/sipXecs/setup.d
 
 %files devel
 %defattr(644,root,root,755)

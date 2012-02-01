@@ -43,5 +43,5 @@ rm -rf $RPM_BUILD_ROOT
 %doc  LICENSE README %name.configlog
 %{_bindir}/sipviewer
 %{_bindir}/tcpdump2siptrace
-%dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXviewer
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXviewer/sipviewer.jar
+%dir %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXviewer
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXviewer/sipviewer.jar

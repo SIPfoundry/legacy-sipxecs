@@ -52,10 +52,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%dir %attr(755,sipxchange,sipxchange) %{_datadir}/sipxecs
-%dir %attr(755,sipxchange,sipxchange) %{_datadir}/sipxecs/schema
+%dir %attr(755,sipx,sipx) %{_datadir}/sipxecs
+%dir %attr(755,sipx,sipx) %{_datadir}/sipxecs/schema
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxivr
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxivr.cf
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXivr
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXivr
 %attr(644,root,root) %{_datadir}/sipxecs/schema/autoattendants.xsd
 %attr(644,root,root) %{_datadir}/sipxecs/schema/validusers.xsd
