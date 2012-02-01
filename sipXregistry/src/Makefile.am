@@ -19,7 +19,6 @@ sipregistrar_LDADD = \
 	@GIPS_NEQ_OBJS@
 
 sipregistrar_LDFLAGS = \
-	-shared \
 	-rdynamic
 
 noinst_LTLIBRARIES = libsipXregistry.la
@@ -27,7 +26,6 @@ noinst_LTLIBRARIES = libsipXregistry.la
 libsipXregistry_la_CXXFLAGS = $(sipregistrar_CXXFLAGS)
 
 libsipXregistry_la_LIBADD = \
-	-shared \
 	-rdynamic
 
 libsipXregistry_la_LIBADD = \

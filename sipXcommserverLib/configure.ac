@@ -5,6 +5,7 @@ m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
+AC_DISABLE_STATIC
 AC_CONFIG_SRCDIR([src/sipdb/EntityDB.cpp])
 AM_CONFIG_HEADER([src/config.h])
 AC_PROG_LIBTOOL

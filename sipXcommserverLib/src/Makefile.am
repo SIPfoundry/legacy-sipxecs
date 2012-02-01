@@ -27,7 +27,6 @@ version_Age=0
 
 libsipXcommserver_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
-	-shared \
 	@ODBC_LDFLAGS@
 
 # @TODO - ideally, these would be passed only to the SipXecsService build,
