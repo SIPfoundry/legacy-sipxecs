@@ -1,80 +1,104 @@
 #!/bin/bash
-#
-# Copyright (C) 2010 eZuce Inc.
-# Licensed by SIPfoundry under the AGPL license.
-#
-Action="START"
-Status=0
-# Required when controlled by supervisor or else openacd terminates if it doesn't detect "real" stdin
-NoInput=""
-# HOME is required for erlang apps and not set when run under sipXsupervisor
-export HOME=`cd ~;pwd`
+# openacd - Startup script for openacd
 
-while [ $# -ne 0 ]
-do
-    case ${1} in
-        --stop)
-            Action=STOP
-            ;;
+# chkconfig: 35 85 15
+# description: openacd is a call center application based on FreeSWITCH
+# processname: openacd
 
-	--noinput)
-	    # only useful if you want to start OpenACD from CLI and you want a console at the same time
-	    # to debug soemthing.  Ideally you should be able to attach but supervisor won't background
-	    # processes that are already backgrounded
-	    NoInput="-noinput"
-	    ;;
 
-        --configtest)
-            Action=CONFIGTEST
-            ;;
-
-        --resync)
-            Action=RESYNC
-            ;;
-
-        *)
-            echo "Warning, unknown args $1" 1>&2
-            ;;
-    esac
-
-    shift # always consume 1
-done
-
+. /etc/rc.d/init.d/functions || exit 1
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-pidfile=@SIPX_RUNDIR@/openacd.pid
-# env var influences by openacd daemon script
-export OPENACD_LOG_DIR=@SIPX_LOGDIR@/openacd
-export OPENACD_RUN_DIR=@SIPX_VARDIR@/openacd
-export OPENACD_ETC_DIR=@SIPX_CONFDIR@/openacd
+prog=openacd
+exec="@OPENACD_DIR@/bin/${prog}"
 
-case "$Action" in
-	START)
-	        test -d "$OPENACD_LOG_DIR" || mkdir -p "$OPENACD_LOG_DIR"
-	        test -d "$OPENACD_RUN_DIR" || mkdir -p "$OPENACD_RUN_DIR"
-		echo $$ > ${pidfile}
-		    RUNNER_USER=@SIPXPBXUSER@ \
-		    exec @OPENACD_DIR@/bin/openacd console $NoInput
-		exit 0
-		;;
+[ -e @SIPX_CONFDIR@/${prog}rc ] && . @SIPX_CONFDIR@/${prog}rc
 
-	STOP)
-		sipx_stop openacd $pidfile
-		exit $?
-		;;
+erlmongo_setup() {
+  target=erlmongo
 
-	CONFIGTEST)
-	        if /etc/init.d/mongod status 2>/dev/null | grep -q stopped; then 
-		    echo 'Mongo database appears to be stopped. Please start mongod service' >&2
-		    Status=1; 
-		fi
-		;;
+  for d in /usr/local/lib /usr/lib64 /usr/lib; do
+    candidate=`readlink -f $d/erlang/lib/$target-*`
+    if test -d $candidate/ebin; then
+      ln -snf $candidate @OPENACD_DIR@/plugin.d/erlmongo
+      return
+    fi
+  done
+  echo "$target library not found" 1>&2
+  exit 1
+}
 
-	RESYNC)
-                fqdn=`hostname -f`
-		rm -rf $OPENACD_ETC_DIR/Mnesia.openacd@$fqdn
-		exit $?
-		;;
+setup() {
+  # HACK!. What we want is to run openacd as the user
+  # the rpm/cfengine script created.
+  chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ @OPENACD_DIR@
+
+  erlmongo_setup
+}
+
+start() {
+  setup
+  [ -x $exec ] || exit 5
+  if [ -n "${NoFork}" ] ; then
+    runuser - @SIPXPBXUSER@ -c $exec console
+  else
+    echo -n $"Starting $prog: "
+    runuser - @SIPXPBXUSER@ -c $exec start
+    Status=$?
+    echo_success
+  fi
+}
+
+stop() {
+  echo -n $"Stopping openacd: "
+  $exec stop
+  Status=$?
+  if [ $Status -eq 0 ]; then
+    echo_success
+  else
+    echo_failure
+  fi
+  echo
+}
+
+restart() {
+  stop
+  start
+}
+
+resync() {
+  dir=@OPENACD_DIR@/run/Mnesia.openacd@`hostname -f`
+  ! test -d $dir || rm -rf $dir
+  Status=$?
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    restart
+    ;;
+  status)
+    runuser - @SIPXPBXUSER@ -c $exec ping
+    Status=$?
+    ;;
+  configtest)
+    configtest
+    ;;
+  resync)
+    resync
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|resync|nofork}"
+    Status=1
 esac
 
 exit $Status
