@@ -1,3 +1,97 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipXopenacd configuration and process management
+#
+
 bundle agent sipxopenacd {
-  # TODO
+  methods:
+    sipxopenacd::
+      "any" usebundle => "sipxopenacd_config";
+      "any" usebundle => "sipxopenacd_setup";
+    any::
+      "any" usebundle => "sipxopenacd_running";
+}
+
+bundle agent sipxopenacd_config {
+  files:
+    any::
+      "$(sipx.OPENACD_HOME)/etc/vm.args"
+        create => "true",
+        perms => m("644"),
+	edit_line => sipxopenacd_vm_args,
+	action => track("$(this.promiser)");
+
+    any::
+      "$(sipx.OPENACD_HOME)/etc/app.config"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/app.config"),
+	action => track("$(this.promiser)");
+}
+
+bundle edit_line sipxopenacd_vm_args() {
+  insert_lines:
+    any::
+"
+## Name of the node
+-name openacd@$(sys.fqhost)
+
+## Cookie for distributed erlang
+-setcookie ClueCon
+
+## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive
+## (Disabled by default..use with caution!)
+##-heart
+
+## Enable kernel poll and a few async threads
++K true
++A 5
+
+## Increase number of concurrent ports/sockets
+-env ERL_MAX_PORTS 4096
+
+-mnesia dir '\"$(sipx.OPENACD_HOME)/run/Mnesia.openacd@$(sys.fqhost)\"'
+
+## Tweak GC to run more often
+-env ERL_FULLSWEEP_AFTER 10
+";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxopenacd_setup {
+  methods:
+    !src::
+      "any" usebundle => rh_chkconfig_status("sipxopenacd");
+}
+
+bundle agent sipxopenacd_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.OPENACD_HOME)/bin/openacd";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxopenacd_running");
+
+  commands:
+    sipxopenacd_running.!sipxopenacd::
+      "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
+        args => "stop",
+	action => track("sipxopenacd stop");
+
+    !sipxopenacd_running.sipxopenacd::
+      "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
+        args => "start",
+	action => track("sipxopenacd start");
+
+    restart_sipxopenacd::
+      "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
+        args => "restart",
+	action => track("sipxopenacd restart");
 }

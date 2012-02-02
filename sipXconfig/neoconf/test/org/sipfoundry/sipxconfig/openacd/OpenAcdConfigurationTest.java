@@ -60,12 +60,4 @@ public class OpenAcdConfigurationTest {
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-app-config"));
         assertEquals(expected, actual.toString());
     }
-    
-    @Test
-    public void testVmArgs() throws Exception {
-        StringWriter actual = new StringWriter();
-        m_config.writeVmArgs(actual, m_location);
-        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-vm-args-config"));
-        assertEquals(expected, actual.toString());
-    }
 }

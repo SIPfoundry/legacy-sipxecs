@@ -29,21 +29,21 @@ erlmongo_setup() {
 }
 
 setup() {
+  erlmongo_setup
+
   # HACK!. What we want is to run openacd as the user
   # the rpm/cfengine script created.
   chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ @OPENACD_DIR@
-
-  erlmongo_setup
 }
 
 start() {
   setup
   [ -x $exec ] || exit 5
   if [ -n "${NoFork}" ] ; then
-    runuser - @SIPXPBXUSER@ -c $exec console
+    runuser - @SIPXPBXUSER@ -c "$exec console"
   else
     echo -n $"Starting $prog: "
-    runuser - @SIPXPBXUSER@ -c $exec start
+    runuser - @SIPXPBXUSER@ -c "$exec start -noinput"
     Status=$?
     echo_success
   fi
@@ -87,7 +87,7 @@ case "$1" in
     restart
     ;;
   status)
-    runuser - @SIPXPBXUSER@ -c $exec ping
+    runuser - @SIPXPBXUSER@ -c "$exec ping"
     Status=$?
     ;;
   configtest)

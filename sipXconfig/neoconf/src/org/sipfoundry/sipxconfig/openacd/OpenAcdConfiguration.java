@@ -38,7 +38,6 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
     private VelocityEngine m_velocityEngine;
     private OpenAcdContext m_openAcdContext;
-    private OpenAcdProvisioningContext m_provisioningContext;
 
     @Override
     public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
@@ -74,29 +73,12 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
             File dir = manager.getLocationDataDirectory(location);
             ConfigUtils.enableCfengineClass(dir, "sipxopenacd.cfdat", "sipxopenacd", true);
 
-            Writer vmArgs = new FileWriter(new File(dir, "vm.args"));
-            try {
-                writeVmArgs(vmArgs, location);
-            } finally {
-                IOUtils.closeQuietly(vmArgs);
-            }
-
             Writer app = new FileWriter(new File(dir, "app.config"));
             try {
                 writeAppConfig(app, settings);
             } finally {
                 IOUtils.closeQuietly(app);
             }
-        }
-    }
-
-    void writeVmArgs(Writer wtr, Location location) throws IOException {
-        VelocityContext context = new VelocityContext();
-        context.put("fqdn", location.getFqdn());
-        try {
-            m_velocityEngine.mergeTemplate("openacd/vm.args.vm", context, wtr);
-        } catch (Exception e) {
-            throw new IOException(e);
         }
     }
 
@@ -116,9 +98,5 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
 
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {
         m_openAcdContext = openAcdContext;
-    }
-
-    public void setProvisioningContext(OpenAcdProvisioningContext provisioningContext) {
-        m_provisioningContext = provisioningContext;
     }
 }

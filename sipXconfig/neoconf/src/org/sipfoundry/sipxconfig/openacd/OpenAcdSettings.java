@@ -7,12 +7,17 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class OpenAcdSettings extends PersistableSettings {
+public class OpenAcdSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String FS_ENABLED = "freeswitch_media_manager/FREESWITCH_ENABLED";
     private static final String C_NODE = "freeswitch_media_manager/C_NODE";
     private static final String DIAL_STRING = "freeswitch_media_manager/DIAL_STRING";
@@ -74,6 +79,11 @@ public class OpenAcdSettings extends PersistableSettings {
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("openacd/sipxopenacd.xml");
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) OpenAcdContext.FEATURE);
     }
 
     public void setDomainManager(DomainManager domainManager) {
