@@ -51,6 +51,10 @@ public abstract class LazyDaemon extends Thread {
         }
     }
 
+    /**
+     * Call this every time you add work to the queue, this is the key to implementing "quiet" time
+     * so that work won't be called into there was no *new* work in the timeout period.
+     */
     public void workScheduled() {
         m_workAddedTimestamp = System.currentTimeMillis();
     }

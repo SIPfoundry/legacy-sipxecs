@@ -57,8 +57,13 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     @Override
     public synchronized void configureEverywhere(Feature... features) {
         // (re)start timer
+        m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.only(features), m_outstandingRequest[0]);
+        notifyWorker();
+    }
+
+    private void notifyWorker() {
         synchronized (m_worker) {
-            m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.only(features), m_outstandingRequest[0]);
+            m_worker.workScheduled();
             m_worker.notify();
         }
     }
@@ -66,18 +71,14 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     @Override
     public synchronized void configureAllFeaturesEverywhere() {
         m_allFeaturesAffected = true;
-        synchronized (m_worker) {
-            m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.always(), m_outstandingRequest[0]);
-            m_worker.notify();
-        }
+        m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.always(), m_outstandingRequest[0]);
+        notifyWorker();
     }
 
     @Override
     public synchronized void configureAllFeatures(Collection<Location> locations) {
-        synchronized (m_worker) {
-            m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.only(locations), m_outstandingRequest[0]);
-            m_worker.notify();
-        }
+        m_outstandingRequest[0] = ConfigRequest.merge(ConfigRequest.only(locations), m_outstandingRequest[0]);
+        notifyWorker();
     }
 
     @Override
