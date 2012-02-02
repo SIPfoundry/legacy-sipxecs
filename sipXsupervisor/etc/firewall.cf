@@ -18,6 +18,10 @@ bundle agent firewall_running {
  classes:
     "iptables_running" expression => returnszero("/sbin/lsmod | grep ip_tables","useshell");
 
+  methods:
+    redhat::
+      "any" usebundle => rh_chkconfig_status("iptables off");
+
   commands:
     iptables_running.!firewall::
       "$(service)"
