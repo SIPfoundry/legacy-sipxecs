@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.phone.nortel12x0;
 
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,11 +33,10 @@ import org.dom4j.dom.DOMElement;
 import org.dom4j.io.SAXReader;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -49,6 +50,8 @@ import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class Nortel12x0PhoneTest extends TestCase {
 
@@ -153,18 +156,17 @@ public class Nortel12x0PhoneTest extends TestCase {
     static {
 
         String expectedMohUri = "~~mh@example.org";
-        IMocksControl mohManagerControl = EasyMock.createNiceControl();
-        MusicOnHoldManager mohManager = mohManagerControl.createMock(MusicOnHoldManager.class);
-        mohManager.getDefaultMohUri();
+        MohAddressFactory mohAddresses = createMock(MohAddressFactory.class);
+        mohAddresses.getDefaultMohUri();
         expectLastCall().andReturn("sip:" + expectedMohUri).anyTimes();
-        mohManagerControl.replay();
+        replay(mohAddresses);
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
 
         special_user = new User();
         special_user.setPermissionManager(pm);
-        special_user.setMusicOnHoldManager(mohManager);
+        special_user.setMohAddresses(mohAddresses);
         special_user.setSipPassword("the ~~id~sipXprovision password");
         special_user.setUserName(SpecialUserType.PHONE_PROVISION.getUserName());
         special_user.setFirstName(expected_label.split(" ")[0]);

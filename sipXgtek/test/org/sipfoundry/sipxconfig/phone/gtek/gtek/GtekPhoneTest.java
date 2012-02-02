@@ -20,16 +20,16 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.gtek.GtekPhone;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class GtekPhoneTest extends TestCase {
 

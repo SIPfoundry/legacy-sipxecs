@@ -17,14 +17,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -35,6 +34,8 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone.PhonebookProfile;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
 public class LgNortelPhoneTest extends TestCase {

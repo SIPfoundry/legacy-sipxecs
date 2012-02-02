@@ -14,11 +14,11 @@ import java.io.InputStream;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class UnidataPhoneTest extends TestCase {
     public void testGetFileName() throws Exception {

@@ -41,7 +41,7 @@ public class LgNortelLineDefaults {
 
     @SettingEntry(path = VOIP_PROXY_PORT)
     public String getProxyPort() {
-        return m_defaults.getProxyServerSipPort();
+        return String.valueOf(m_defaults.getProxyAddress().getPort());
     }
 
     @SettingEntry(path = VOIP_NAME)

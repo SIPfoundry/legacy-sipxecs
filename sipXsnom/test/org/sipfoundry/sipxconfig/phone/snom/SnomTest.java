@@ -9,6 +9,11 @@
 
 package org.sipfoundry.sipxconfig.phone.snom;
 
+import static org.easymock.EasyMock.createNiceControl;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,11 +21,10 @@ import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -30,11 +34,8 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
-
-import static org.easymock.EasyMock.createNiceControl;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SnomTest extends TestCase {
     private final Collection<PhonebookEntry> m_emptyPhonebook = Collections.<PhonebookEntry> emptyList();

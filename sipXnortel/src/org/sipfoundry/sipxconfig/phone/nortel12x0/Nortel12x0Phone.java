@@ -19,6 +19,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
@@ -171,7 +172,8 @@ public class Nortel12x0Phone extends Phone {
 
         @SettingEntry(path = SYSLOG_SERVER)
         public String getSyslogServer() {
-            return m_defaults.getServer(0, UnmanagedService.SYSLOG);
+            Address sys = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+            return sys != null ? sys.getAddress() : null;
         }
 
         @SettingEntry(path = PAGING_PREFIX)

@@ -92,6 +92,6 @@ public class HitachiPhoneDefaults {
 
     @SettingEntry(path = "SYSTEM/TFTP_Server_IP")
     public String getTftpServerIp() {
-        return m_defaults.getTftpServer();
+        return String.valueOf(m_defaults.getTftpServer().getPort());
     }
 }

@@ -13,8 +13,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.device.AbstractProfileGenerator;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 
 public class CiscoAtaPhoneTest extends TestCase {
     private CiscoModel m_model;

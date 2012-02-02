@@ -11,16 +11,6 @@ package org.sipfoundry.sipxconfig.phone.ciscospa;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
-import org.sipfoundry.sipxconfig.device.ProfileGenerator;
-import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 public class ciscospaPhoneTest extends TestCase {
 
 //    private ciscospa m_phone;

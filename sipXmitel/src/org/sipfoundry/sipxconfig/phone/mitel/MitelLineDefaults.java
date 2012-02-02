@@ -60,6 +60,6 @@ public class MitelLineDefaults {
 
     @SettingEntry(paths = { "sip/RegPort", "sip/ProxyPort" })
     public String getSipProxyPort() {
-        return m_defaults.getProxyServerSipPort();
+        return String.valueOf(m_defaults.getProxyAddress().getPort());
     }
 }

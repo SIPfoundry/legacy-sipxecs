@@ -18,12 +18,12 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.AbstractProfileGenerator;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ClearonePhoneTest extends TestCase {
     public void _testFactoryRegistered() {

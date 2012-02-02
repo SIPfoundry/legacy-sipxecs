@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.phone.nortel12x0;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
+import org.sipfoundry.sipxconfig.intercom.Intercom;
 import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 
 public class Nortel12x0IntercomDefaultsTest extends TestCase {

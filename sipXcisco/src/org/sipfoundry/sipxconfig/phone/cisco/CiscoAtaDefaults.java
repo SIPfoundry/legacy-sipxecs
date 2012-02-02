@@ -42,7 +42,7 @@ public class CiscoAtaDefaults {
 
     @SettingEntry(path = TFTP_PATH)
     public String getTftpServer() {
-        return m_defaults.getTftpServer();
+        return String.valueOf(m_defaults.getTftpServer().getPort());
     }
 
     @SettingEntry(path = VOICEMAIL_PATH)

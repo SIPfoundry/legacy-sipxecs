@@ -253,12 +253,12 @@ public class NortelPhone extends Phone {
 
         @SettingEntry(paths = { SERVER_IP1_1, SERVER_IP1_2 })
         public String getServerIp() {
-            return m_defaults.getProxyServerAddr();
+            return m_defaults.getProxyAddress().getAddress();
         }
 
         @SettingEntry(path = SERVER_PORT1_1)
         public String getProxyPort() {
-            return m_defaults.getProxyServerSipPort();
+            return String.valueOf(m_defaults.getProxyAddress().getPort());
         }
 
         @SettingEntry(path = VOIP_DEF_USER1)

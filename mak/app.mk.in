@@ -4,25 +4,29 @@ app = \
   $(telecats) \
   $(karel)
 
-sf = \
+# to be ported to new supervisor model
+sf_broken = \
   sipXacd \
-  sipXacccode \
-  sipXaastra \
+  sipXtunnel \
+  sipXpreflight \
+  sipXrls \
+  sipXsaa \
   sipXrest \
   sipXcallController \
   sipXcdrLog \
   sipXtools \
   sipXpark \
   sipXpresence \
-  sipXrls \
   sipXimbot \
-  sipXtunnel \
   sipXpage \
   sipXprovision \
   sipXrecording \
-  sipXsaa \
+  sipXphonelog
+
+sf = \
+  sipXacccode \
+  sipXaastra \
   sipXopenacd \
-  sipXpreflight \
   sipXviewer \
   sipXcisco \
   sipXclearone \
@@ -36,8 +40,7 @@ sf = \
   sipXsnom \
   sipXunidata \
   sipXgrandstream \
-  sipXexample \
-  sipXphonelog
+  sipXexample
 
 lang = \
   sipXlang-abitibi-fr_CA \
@@ -59,8 +62,9 @@ lang = \
 telecats = \
   sipXcustomCallerId
 
-karel = \
-  sipXkarel
+# broken
+#karel = \
+#  sipXkarel
 
 # Repositories
 $(foreach R,$(lang),$(eval $(R)_REPO = git://github.com/dhubler/$(R).git))

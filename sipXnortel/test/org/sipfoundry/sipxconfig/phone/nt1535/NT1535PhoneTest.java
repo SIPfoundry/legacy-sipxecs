@@ -15,9 +15,7 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -25,6 +23,8 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.nt1535.NT1535Phone.DeviceConfigProfile;
 import org.sipfoundry.sipxconfig.phone.nt1535.NT1535Phone.SystemConfigProfile;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class NT1535PhoneTest extends TestCase {
 

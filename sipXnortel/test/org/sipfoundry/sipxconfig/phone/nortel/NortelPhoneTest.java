@@ -11,13 +11,10 @@ package org.sipfoundry.sipxconfig.phone.nortel;
 
 import java.util.ArrayList;
 
-
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -25,9 +22,10 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
-import org.sipfoundry.sipxconfig.phone.nortel.NortelPhone;
 import org.sipfoundry.sipxconfig.phone.nortel.NortelPhone.FeatureKeyListProfile;
 import org.sipfoundry.sipxconfig.phone.nortel.NortelPhone.PhonebookProfile;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 /**
  * Tests the phone profile

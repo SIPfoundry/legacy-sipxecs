@@ -191,7 +191,7 @@ public class GrandstreamPhone extends Phone {
 
         @SettingEntry(paths = { "upgrade/P192", "upgrade/P237" })
         public String getTftpServer() {
-            return m_defaults.getTftpServer();
+            return m_defaults.getTftpServer().getAddress();
         }
 
         private String zoneOffset(String zone, int offset) {

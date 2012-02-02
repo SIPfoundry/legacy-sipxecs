@@ -9,16 +9,17 @@
 
 package org.sipfoundry.sipxconfig.phone.snom;
 
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
-import org.sipfoundry.sipxconfig.service.UnmanagedService;
-import org.sipfoundry.sipxconfig.setting.SettingEntry;
-
 import static org.sipfoundry.sipxconfig.phone.snom.SnomConstants.CONFIG_URL;
 import static org.sipfoundry.sipxconfig.phone.snom.SnomConstants.DST_SETTING;
 import static org.sipfoundry.sipxconfig.phone.snom.SnomConstants.NTP;
 import static org.sipfoundry.sipxconfig.phone.snom.SnomConstants.SYSLOG_SERVER;
 import static org.sipfoundry.sipxconfig.phone.snom.SnomConstants.TIMEZONE_SETTING;
+
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SnomDefaults {
     private final DeviceDefaults m_defaults;
@@ -53,7 +54,8 @@ public class SnomDefaults {
 
     @SettingEntry(path = SYSLOG_SERVER)
     public String getSyslogServer() {
-        return m_defaults.getServer(0, UnmanagedService.SYSLOG);
+        Address sys = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+        return sys != null ? sys.getAddress() : null;
     }
 
     @SettingEntry(path = DST_SETTING)

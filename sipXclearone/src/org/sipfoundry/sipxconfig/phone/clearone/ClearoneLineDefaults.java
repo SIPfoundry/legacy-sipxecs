@@ -70,7 +70,7 @@ public class ClearoneLineDefaults {
 
     @SettingEntry(paths = { "sip/sip_proxy_port", "sip/outbound_proxy_port" })
     public String getSipProxyPort() {
-        return m_defaults.getProxyServerSipPort();
+        return String.valueOf(m_defaults.getProxyAddress().getPort());
     }
 
     public static void setLineInfo(Phone phone, Line line, LineInfo lineInfo) {

@@ -180,7 +180,7 @@ public class NT1535Phone extends Phone {
 
         @SettingEntry(path = VOIP_PROXY_PORT)
         public String getProxyPort() {
-            return m_defaults.getProxyServerSipPort();
+            return String.valueOf(m_defaults.getProxyAddress().getPort());
         }
     }
 
@@ -211,12 +211,12 @@ public class NT1535Phone extends Phone {
 
         @SettingEntry(path = VOIP_OUTBOUND_PROXY_PORT)
         public String getProxyPort() {
-            return m_defaults.getProxyServerSipPort();
+            return String.valueOf(m_defaults.getProxyAddress().getPort());
         }
 
         @SettingEntry(paths = LAN_TFTP_SERVER_ADDRESS)
         public String getTftpServer() {
-            return m_defaults.getTftpServer();
+            return m_defaults.getTftpServer().getAddress();
         }
 
         @SettingEntry(path = NETTIME_SNTP_SERVER_ADDRESS)

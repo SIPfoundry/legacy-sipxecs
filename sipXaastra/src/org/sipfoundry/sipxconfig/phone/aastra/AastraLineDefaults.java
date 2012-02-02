@@ -99,7 +99,7 @@ public class AastraLineDefaults {
     public String getProxyPort() {
         User u = m_line.getUser();
         if (u != null) {
-            return m_defaults.getProxyServerSipPort();
+            return String.valueOf(m_defaults.getProxyAddress().getPort());
         }
         return null;
     }

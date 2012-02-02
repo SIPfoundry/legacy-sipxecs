@@ -117,7 +117,7 @@ public class CiscoplusPhone extends Ciscoplus {
         @SettingEntry(path = PROXY_PORT_SETTING)
         public String getRegistrationServerPort() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
-            return defaults.getProxyServerSipPort();
+            return String.valueOf(defaults.getProxyAddress().getPort());
         }
     }
 
