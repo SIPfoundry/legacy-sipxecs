@@ -25,6 +25,10 @@
      <packagereq type="mandatory">sipxbridge</packagereq>
      <packagereq type="mandatory">sipxivr</packagereq>
      <packagereq type="mandatory">sipxopenfire</packagereq>
+     <packagereq type="mandatory">sipxfreeswitch</packagereq>
+     <!-- 4.4 feature compatibility -->
+     <packagereq type="mandatory">sipxconfig-ftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-tftp</packagereq>
    </packagelist>
   </group>
 </comps>
