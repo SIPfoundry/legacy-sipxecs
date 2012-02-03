@@ -32,14 +32,15 @@ public class MongoConfig implements ConfigProvider {
         }
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
-        boolean multinode = all.length > 1;
-        boolean encrypt = false; //TODO
+        //TODO  - get firewall/encryption details from system
+        boolean firewall = true;
+        boolean encrypt = false;
         List<Location> secondary = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
         Location primary = manager.getLocationManager().getPrimaryLocation();
         MongoSettings settings = m_mongoManager.getSettings();
         int port = settings.getPort();
-        String connStr = getConnectionString(primary, secondary, port, multinode, encrypt);
-        String connUrl = getConnectionUrl(primary, secondary, port, multinode, encrypt);
+        String connStr = getConnectionString(primary, secondary, port, firewall, encrypt);
+        String connUrl = getConnectionUrl(primary, secondary, port, firewall, encrypt);
         for (Location location : all) {
 
             // CLIENT
@@ -55,18 +56,18 @@ public class MongoConfig implements ConfigProvider {
             boolean enabled = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
             FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
             try {
-                writeServerConfig(server, enabled, multinode, encrypt);
+                writeServerConfig(server, enabled, firewall, encrypt);
             } finally {
                 IOUtils.closeQuietly(server);
             }
         }
     }
 
-    void writeServerConfig(Writer w, boolean enabled, boolean multinode, boolean encrypt) throws IOException {
+    void writeServerConfig(Writer w, boolean enabled, boolean firewall, boolean encrypt) throws IOException {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.writeClass("mongod", enabled);
         // TODO: consider stunnel/encrypt
-        config.write("mongoBindIp", multinode ? "0.0.0.0" : "127.0.0.1");
+        config.write("mongoBindIp", firewall ? "0.0.0.0" : "127.0.0.1");
         config.write("mongoPort", "27017");
     }
 
@@ -76,9 +77,9 @@ public class MongoConfig implements ConfigProvider {
         config.write("connectionString", connStr);
     }
 
-    String getConnectionString(Location primary, List<Location> secondary, int port, boolean multinode,
+    String getConnectionString(Location primary, List<Location> secondary, int port, boolean firewall,
             boolean encrypt) {
-        if (!multinode) {
+        if (!firewall) {
             return "127.0.0.1:" + port;
         }
         StringBuilder r = new StringBuilder(primary.getAddress()).append(':').append(port);
@@ -90,8 +91,8 @@ public class MongoConfig implements ConfigProvider {
         return r.toString();
     }
 
-    String getConnectionUrl(Location primary, List<Location> secondary, int port, boolean multinode, boolean encrypt) {
-        if (!multinode) {
+    String getConnectionUrl(Location primary, List<Location> secondary, int port, boolean firewall, boolean encrypt) {
+        if (!firewall) {
             return "mongodb://127.0.0.1:" + port + "/?slaveOk=true";
         }
         StringBuilder r = new StringBuilder("mongodb://").append(primary.getAddress());

@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
 public class ConfigAgent {
-    private static final Log LOG = LogFactory.getLog(ConfigManagerImpl.class);
+    private static final Log LOG = LogFactory.getLog(ConfigAgent.class);
     private String m_command;
     private String m_logDir;
     private String m_logFile = "sipxagent.log";
@@ -160,13 +160,6 @@ public class ConfigAgent {
                 throw new InterruptedException("Proccess still running");
             }
             return m_exitCode;
-        }
-    }
-
-    @SuppressWarnings("serial")
-    static class ConfigurationError extends Exception {
-        ConfigurationError(String message) {
-            super(message);
         }
     }
 

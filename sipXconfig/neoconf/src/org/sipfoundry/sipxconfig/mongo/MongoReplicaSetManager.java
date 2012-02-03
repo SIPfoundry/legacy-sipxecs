@@ -7,6 +7,13 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
+import static java.lang.String.format;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bson.BasicBSONObject;
 import org.sipfoundry.commons.mongo.MongoUtil;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -21,9 +28,10 @@ import org.springframework.data.mongodb.core.MongoTemplate;
  * server.
  */
 public class MongoReplicaSetManager implements FeatureListener {
+    private static final Log LOG = LogFactory.getLog(MongoReplicaSetManager.class);
     private static final String CHECK_COMMAND = "rs.config()";
     private static final String INIT_COMMAND = "rs.initiate({\"_id\" : \"sipxecs\", \"version\" : 1, \"members\" : "
-        + "[ { \"_id\" : 0, \"host\" : \"127.0.0.1:27017\" } ] })";
+        + "[ { \"_id\" : 0, \"host\" : \"%s:27017\" } ] })";
     private MongoTemplate m_localDb;
 
     public void checkState() {
@@ -35,7 +43,15 @@ public class MongoReplicaSetManager implements FeatureListener {
     }
 
     public void initialize() {
-        MongoUtil.runCommand(m_localDb.getDb(), INIT_COMMAND);
+        // cannot use business object because they are not initialized yet
+        try {
+            String fqdn = InetAddress.getLocalHost().getHostName();
+            LOG.info("initializing mongo replicaset to host " + fqdn);
+            String cmd = format(INIT_COMMAND, fqdn);
+            MongoUtil.runCommand(m_localDb.getDb(), cmd);
+        } catch (UnknownHostException e) {
+            throw new IllegalStateException("Cannot it FQDN to initialize mongo.");
+        }
     }
 
     public void checkMembers() {
