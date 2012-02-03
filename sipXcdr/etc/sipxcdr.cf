@@ -33,7 +33,7 @@ bundle agent sipxcdr_config {
 
 bundle agent sipxcdr_setup {
   methods:
-    !src.sipxivr::
+    !src.sipxcdr::
       "any" usebundle => rh_chkconfig_status("sipxcdr");
 }
 
