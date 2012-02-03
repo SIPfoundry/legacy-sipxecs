@@ -9,8 +9,8 @@ bundle agent sipxcdr {
   methods:
     sipxcdr::
       "any" usebundle => "sipxcdr_config";
-      "any" usebundle => "sipxcdr_setup";
     any::
+      "any" usebundle => "sipxcdr_setup";
       "any" usebundle => "sipxcdr_running";
 }
 
@@ -34,7 +34,9 @@ bundle agent sipxcdr_config {
 bundle agent sipxcdr_setup {
   methods:
     !src.sipxcdr::
-      "any" usebundle => rh_chkconfig_status("sipxcdr");
+      "any" usebundle => rh_chkconfig_status("sipxcdr on");
+    !src.!sipxcdr::
+      "any" usebundle => rh_chkconfig_status("sipxcdr off");
 }
 
 bundle agent sipxcdr_running {

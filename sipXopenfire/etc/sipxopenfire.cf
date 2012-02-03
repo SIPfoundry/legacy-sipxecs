@@ -9,8 +9,8 @@ bundle agent sipxopenfire {
   methods:
     sipxopenfire::
       "any" usebundle => "sipxopenfire_config";
-      "any" usebundle => "sipxopenfire_setup";
     any::
+      "any" usebundle => "sipxopenfire_setup";
       "any" usebundle => "sipxopenfire_running";
 }
 
@@ -73,7 +73,9 @@ bundle edit_line sipxopenfire_sipx_properties {
 bundle agent sipxopenfire_setup {
   methods:
     !src.sipxopenfire::
-      "any" usebundle => rh_chkconfig_status("sipxopenfire");
+      "any" usebundle => rh_chkconfig_status("sipxopenfire on");
+    !src.!sipxopenfire::
+      "any" usebundle => rh_chkconfig_status("sipxopenfire off");
 }
 
 bundle agent sipxopenfire_running {

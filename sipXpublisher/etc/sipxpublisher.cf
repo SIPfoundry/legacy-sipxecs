@@ -9,8 +9,8 @@ bundle agent sipxpublisher {
   methods:
     sipxpublisher::
       "any" usebundle => "sipxpublisher_config";
-      "any" usebundle => "sipxpublisher_setup";
     any::
+      "any" usebundle => "sipxpublisher_setup";
       "any" usebundle => "sipxpublisher_running";
 }
 
@@ -52,8 +52,10 @@ bundle edit_line sipstatus_config_contents() {
 
 bundle agent sipxpublisher_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxpublisher");
+    !src.sipxpublisher::
+      "any" usebundle => rh_chkconfig_status("sipxpublisher on");
+    !src.!sipxpublisher::
+      "any" usebundle => rh_chkconfig_status("sipxpublisher off");
 }
 
 bundle agent sipxpublisher_running {

@@ -9,8 +9,8 @@ bundle agent sipxpage {
   methods:
     sipxpage::
       "any" usebundle => "sipxpage_config";
-      "any" usebundle => "sipxpage_setup";
     any::
+      "any" usebundle => "sipxpage_setup";
       "any" usebundle => "sipxpage_running";
 }
 
@@ -40,8 +40,10 @@ bundle edit_line sipxpage_properties {
 
 bundle agent sipxpage_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxpage");
+    !src.sipxpage::
+      "any" usebundle => rh_chkconfig_status("sipxpage on");
+    !src.!sipxpage::
+      "any" usebundle => rh_chkconfig_status("sipxpage off");
 }
 
 bundle agent sipxpage_running {
