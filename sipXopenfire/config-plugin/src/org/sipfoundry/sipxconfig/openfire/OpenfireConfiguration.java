@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
@@ -48,7 +48,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             }
         }
         
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(OpenfireImpl.FEATURE);
+        Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(OpenfireImpl.FEATURE, location);
