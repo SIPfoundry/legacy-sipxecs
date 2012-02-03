@@ -11,7 +11,9 @@ package org.sipfoundry.sipxconfig.freeswitch;
 import java.util.Formatter;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
 import org.sipfoundry.sipxconfig.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.dialplan.MediaServer;
@@ -83,6 +85,10 @@ public class FreeswitchMediaServer extends MediaServer {
     @Override
     public String getHostname() {
         // wrong: need to select FS by location
+        Address fs = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        if (fs == null) {
+            throw new ConfigException("Freeswitch is not enabled but media services is required");
+        }
         return m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS).toString();
     }
 

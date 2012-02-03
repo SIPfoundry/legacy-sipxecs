@@ -11,7 +11,10 @@ package org.sipfoundry.sipxconfig.commserver;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+
 public interface LocationsManager {
+    public static final GlobalFeature FEATURE = new GlobalFeature("locations");
     String CONTEXT_BEAN_NAME = "locationsManager";
 
     Location[] getLocations();

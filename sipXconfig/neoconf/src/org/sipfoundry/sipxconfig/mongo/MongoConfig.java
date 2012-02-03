@@ -10,13 +10,15 @@ package org.sipfoundry.sipxconfig.mongo;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
@@ -30,45 +32,74 @@ public class MongoConfig implements ConfigProvider {
         }
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
+        boolean multinode = all.length > 1;
+        boolean encrypt = false; //TODO
+        List<Location> secondary = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
+        Location primary = manager.getLocationManager().getPrimaryLocation();
         MongoSettings settings = m_mongoManager.getSettings();
         int port = settings.getPort();
-        String conStr = getConnectionString(all, port);
-        String conUrl = getConnectionUrl(all, port);
+        String connStr = getConnectionString(primary, secondary, port, multinode, encrypt);
+        String connUrl = getConnectionUrl(primary, secondary, port, multinode, encrypt);
         for (Location location : all) {
-            // every location gets a mongo client config
-            File dir = manager.getLocationDataDirectory(location);
-            File file = new File(dir, "mongodb-client.cfdat");
-            FileWriter wtr = new FileWriter(file);
-            CfengineModuleConfiguration config = new CfengineModuleConfiguration(wtr);
-            config.write("connectionUrl", conUrl);
-            config.write("connectionString", conStr);
-            IOUtils.closeQuietly(wtr);
-            boolean enabled = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
-            ConfigUtils.enableCfengineClass(dir, "mongodb.cfdat", "mongod", enabled);
 
-            // TODO: HA for MongoDB servers
+            // CLIENT
+            File dir = manager.getLocationDataDirectory(location);
+            FileWriter client = new FileWriter(new File(dir, "mongo-client.ini"));
+            try {
+                writeClientConfig(client, connStr, connUrl);
+            } finally {
+                IOUtils.closeQuietly(client);
+            }
+
+            // SERVER
+            boolean enabled = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
+            FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
+            try {
+                writeServerConfig(server, enabled, multinode, encrypt);
+            } finally {
+                IOUtils.closeQuietly(server);
+            }
         }
     }
 
-    String getConnectionString(Location[] locations, int port) {
-        if (locations.length == 1) {
-            return "localhost:" + port;
+    void writeServerConfig(Writer w, boolean enabled, boolean multinode, boolean encrypt) throws IOException {
+        CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
+        config.writeClass("mongod", enabled);
+        // TODO: consider stunnel/encrypt
+        config.write("mongoBindIp", multinode ? "0.0.0.0" : "127.0.0.1");
+        config.write("mongoPort", "27017");
+    }
+
+    void writeClientConfig(Writer w, String connStr, String connUrl) throws IOException {
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
+        config.write("connectionUrl", connUrl);
+        config.write("connectionString", connStr);
+    }
+
+    String getConnectionString(Location primary, List<Location> secondary, int port, boolean multinode,
+            boolean encrypt) {
+        if (!multinode) {
+            return "127.0.0.1:" + port;
         }
-        StringBuilder r = new StringBuilder(locations[0].getAddress());
-        for (int i = 1; i < locations.length; i++) {
-            r.append(',').append(locations[i].getAddress()).append(':').append(port);
+        StringBuilder r = new StringBuilder(primary.getAddress()).append(':').append(port);
+        if (secondary != null) {
+            for (Location location : secondary) {
+                r.append(',').append(location.getAddress()).append(':').append(port);
+            }
         }
         return r.toString();
     }
 
-    String getConnectionUrl(Location[] locations, int port) {
-        if (locations.length == 1) {
-            return "mongodb://localhost:" + port + "/?slaveOk=true";
+    String getConnectionUrl(Location primary, List<Location> secondary, int port, boolean multinode, boolean encrypt) {
+        if (!multinode) {
+            return "mongodb://127.0.0.1:" + port + "/?slaveOk=true";
         }
-        StringBuilder r = new StringBuilder("mongodb://").append(locations[0].getAddress());
+        StringBuilder r = new StringBuilder("mongodb://").append(primary.getAddress());
         r.append(':').append(port);
-        for (int i = 1; i < locations.length; i++) {
-            r.append(',').append(locations[i].getAddress()).append(':').append(port);
+        if (secondary != null) {
+            for (Location location : secondary) {
+                r.append(',').append(location.getAddress()).append(':').append(port);
+            }
         }
         r.append("/?slaveOk=true");
         return r.toString();

@@ -18,6 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -83,6 +84,9 @@ public class MwiConfig implements ConfigProvider {
 
     void writePlugin(Writer wtr, Address ivrApi) throws IOException {
         VelocityContext context = new VelocityContext();
+        if (ivrApi == null) {
+            throw new ConfigException("MWI is enabled but could not find IVR address");
+        }
         context.put("mwiUrl", ivrApi.toString() + "/mwi");
         try {
             m_velocityEngine.mergeTemplate("sipxstatus/status-plugin.vm", context, wtr);

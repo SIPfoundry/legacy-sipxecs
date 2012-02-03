@@ -8,9 +8,12 @@
 package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +30,7 @@ import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -48,6 +52,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private boolean m_allFeaturesAffected;
     private ConfigAgent m_configAgent;
     private SipxReplicationContext m_sipxReplicationContext;
+    private JobContext m_jobContext;
 
     public void init() {
         m_worker = new ConfigWorker();
@@ -107,14 +112,42 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     // not synchronized so new incoming work can accumulate.
     public void doWork(ConfigRequest request) {
         LOG.info("Configuration work to do. Notifying providers.");
+        Serializable job = m_jobContext.schedule("Configuration");
+        m_jobContext.start(job);
+        List<Exception> errors = new ArrayList<Exception>();
         for (ConfigProvider provider : getProviders()) {
             try {
                 provider.replicate(this, request);
             } catch (Exception e) {
-                LOG.error("Non fatal failure to configure." + provider.getClass(), e);
+                errors.add(e);
             }
         }
-        m_configAgent.run();
+        try {
+            m_configAgent.run();
+        } catch (ConfigException e) {
+            errors.add(e);
+        }
+        if (errors.size() > 0) {
+            m_jobContext.failure(job, getErrorMessage(errors), new RuntimeException());
+        } else {
+            m_jobContext.success(job);
+        }
+    }
+
+    String getErrorMessage(List<Exception> errors) {
+        StringBuilder msg = new StringBuilder();
+        for (Exception err : errors) {
+            if (msg.length() != 0) {
+                msg.append("\n");
+            }
+            if (err instanceof ConfigException) {
+                msg.append(err.getMessage());
+            } else {
+                msg.append("Internal error (" + err + ")");
+            }
+            LOG.error("Configuration Error", err);
+        }
+        return msg.toString();
     }
 
     public String getCfDataDir() {
@@ -246,5 +279,9 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
+    }
+
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
     }
 }

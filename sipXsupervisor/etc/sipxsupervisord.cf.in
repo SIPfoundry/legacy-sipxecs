@@ -45,7 +45,11 @@ bundle server access_rules {
         admit => { @(sipx.allowed_addrs) },
 	maproot => { @(sipx.allowed_addrs) };
       
-    "@SIPX_CFINPUTS@"
+    "@SIPX_CFDATA@"
+        admit => { @(sipx.allowed_addrs) },
+	maproot => { @(sipx.allowed_addrs) };
+
+    "@SIPX_CONFDIR@/ssl"
         admit => { @(sipx.allowed_addrs) },
 	maproot => { @(sipx.allowed_addrs) };
 
