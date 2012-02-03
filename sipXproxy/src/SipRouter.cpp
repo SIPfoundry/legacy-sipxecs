@@ -427,6 +427,24 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
    // the proxy.
    bool bMessageWillSpiral                 = false;
 
+
+   //
+   // Check the from header if it is correctly formatted
+   // If the Url object is not able to parse
+   //
+   Url fromUrl;
+   sipRequest.getFromUrl(fromUrl);
+   if (fromUrl.getScheme() == UnknownUrlScheme)
+   {
+     //
+     //  Reject this request with a 400
+     //
+     sipResponse.setResponseData(&sipRequest,
+                                           SIP_FORBIDDEN_CODE,
+                                           "Malformed From-URI");
+     return SendResponse;
+   }
+
    /*
     * Check for a Proxy-Require header containing unsupported extensions
     */
@@ -482,12 +500,9 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
 
             if(isPAIdentityApplicable(sipRequest))
             {
-               Url fromUrl;
                UtlString userId;
                UtlString authTypeDB;
                UtlString passTokenDB;
-
-               sipRequest.getFromUrl(fromUrl); 
 
                // If the fromUrl uses domain alias, we need to change the
                // domain to mDomainName for credential database search,
