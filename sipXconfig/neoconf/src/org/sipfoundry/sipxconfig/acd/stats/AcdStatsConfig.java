@@ -35,7 +35,7 @@ public class AcdStatsConfig implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(AcdStats.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxacdstatistics.cfdat", "sipxacdstatistics", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxacdstatistics.cfdat", enabled, "sipxacdstatistics");
             if (!enabled) {
                 continue;
             }

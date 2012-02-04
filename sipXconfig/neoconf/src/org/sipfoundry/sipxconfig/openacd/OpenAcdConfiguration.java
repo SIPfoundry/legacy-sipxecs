@@ -71,7 +71,7 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
         OpenAcdSettings settings = m_openAcdContext.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            ConfigUtils.enableCfengineClass(dir, "sipxopenacd.cfdat", "sipxopenacd", true);
+            ConfigUtils.enableCfengineClass(dir, "sipxopenacd.cfdat", true, "sipxopenacd");
 
             Writer app = new FileWriter(new File(dir, "app.config"));
             try {

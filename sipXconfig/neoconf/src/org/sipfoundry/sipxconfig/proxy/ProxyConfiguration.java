@@ -56,7 +56,7 @@ public class ProxyConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = fm.isFeatureEnabled(ProxyManager.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxproxy.cfdat", "sipxproxy", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxproxy.cfdat", enabled, "sipxproxy");
 
             // always generate only because sipxbridge needs file and harmless to generate
             // even if not every machine needs it.

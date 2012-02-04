@@ -52,7 +52,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(OpenfireImpl.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxopenfire.cfdat", "sipxopenfire", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxopenfire.cfdat", enabled, "sipxopenfire");
             Writer sipxopenfire = new FileWriter(new File(dir, "openfire.xml"));
             try {
                 m_config.write(sipxopenfire);

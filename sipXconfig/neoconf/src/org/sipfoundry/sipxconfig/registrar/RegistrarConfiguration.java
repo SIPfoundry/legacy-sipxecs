@@ -55,7 +55,7 @@ public class RegistrarConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = fm.isFeatureEnabled(Registrar.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxregistrar.cfdat", "sipxregistrar", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxregistrar.cfdat", enabled, "sipxregistrar");
             if (enabled) {
                 Writer w = new FileWriter(new File(dir, "registrar-config.part"));
                 try {

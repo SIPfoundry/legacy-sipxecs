@@ -40,7 +40,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(TunnelManager.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            ConfigUtils.enableCfengineClass(dir, "sipxtunnel.cfdat", "sipxtunneld", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxtunnel.cfdat", enabled, "sipxtunneld");
             if (enabled) {
                 List<AllowedIncomingTunnel> in = getIncomingTunnels(location, locations);
                 Writer inConfig = new FileWriter(new File(dir, "tunnel-client.conf.cfdat"));
