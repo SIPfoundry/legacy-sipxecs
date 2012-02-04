@@ -9,6 +9,7 @@
 bundle agent sipxregistrar {
   methods:
     sipxregistrar::
+      "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxregistrar_config";
     any::
       "any" usebundle => "sipxregistrar_running";
@@ -74,7 +75,7 @@ bundle agent sipxregistrar_running {
         args => "start",
 	action => track("sipxegistrar start");
 
-    restart_sipxregistrar::
+    sipxregistrar.(restart_sipxregistrar|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
         args => "restart",
 	action => track("sipxegistrar restart");

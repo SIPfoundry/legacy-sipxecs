@@ -8,6 +8,7 @@
 bundle agent sipxproxy {
   methods:
     sipxproxy::
+      "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxproxy_config";
     any::
       "any" usebundle => "sipxproxy_setup";
@@ -99,7 +100,7 @@ bundle agent sipxproxy_running {
         args => "start",
 	action => track("sipxproxy_start");
 
-    restart_sipxproxy::
+    sipxproxy.(restart_sipxproxy|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
         args => "restart",
 	action => track("sipxproxy_restart");
