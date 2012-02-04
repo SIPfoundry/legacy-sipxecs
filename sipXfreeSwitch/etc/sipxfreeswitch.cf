@@ -9,8 +9,8 @@ bundle agent sipxfreeswitch {
   methods:
     sipxfreeswitch::
       "any" usebundle => "sipxfreeswitch_config";
-      "any" usebundle => "sipxfreeswitch_setup";
     any::
+      "any" usebundle => "sipxfreeswitch_setup";
       "any" usebundle => "sipxfreeswitch_running";
 }
 
@@ -135,7 +135,9 @@ any::
 bundle agent sipxfreeswitch_setup {
   methods:
     !src.sipxfreeswitch::
-      "any" usebundle => rh_chkconfig_status("sipxfreeswitch");
+      "any" usebundle => rh_chkconfig_status("sipxfreeswitch on");
+    !src.!sipxfreeswitch::
+      "any" usebundle => rh_chkconfig_status("sipxfreeswitch off");
 }
 
 bundle agent sipxfreeswitch_running {

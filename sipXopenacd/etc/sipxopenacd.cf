@@ -10,8 +10,8 @@ bundle agent sipxopenacd {
   methods:
     sipxopenacd::
       "any" usebundle => "sipxopenacd_config";
-      "any" usebundle => "sipxopenacd_setup";
     any::
+      "any" usebundle => "sipxopenacd_setup";
       "any" usebundle => "sipxopenacd_running";
 }
 
@@ -66,8 +66,10 @@ bundle edit_line sipxopenacd_vm_args() {
 
 bundle agent sipxopenacd_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxopenacd");
+    !src.sipxopenacd::
+      "any" usebundle => rh_chkconfig_status("sipxopenacd on");
+    !src.!sipxopenacd::
+      "any" usebundle => rh_chkconfig_status("sipxopenacd off");
 }
 
 bundle agent sipxopenacd_running {

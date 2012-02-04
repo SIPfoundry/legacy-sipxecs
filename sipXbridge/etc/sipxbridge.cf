@@ -9,8 +9,8 @@ bundle agent sipxbridge {
   methods:
     sipxbridge::
       "any" usebundle => "sipxbridge_config";
-      "any" usebundle => "sipxbridge_setup";
     any::
+      "any" usebundle => "sipxbridge_setup";
       "any" usebundle => "sipxbridge_running";
 }
 
@@ -34,8 +34,10 @@ bundle agent sipxbridge_config {
 
 bundle agent sipxbridge_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxbridge");
+    !src.sipxbridge::
+      "any" usebundle => rh_chkconfig_status("sipxbridge on");
+    !src.!sipxbridge::
+      "any" usebundle => rh_chkconfig_status("sipxbridge off");
 }
 
 bundle agent sipxbridge_running {

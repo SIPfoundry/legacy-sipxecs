@@ -9,8 +9,8 @@ bundle agent sipxacdstatistics {
   methods:
     sipxacdstatistics::
       "any" usebundle => "sipxacdstatistics_config";
-      "any" usebundle => "sipxacdstatistics_setup";
     any::
+      "any" usebundle => "sipxacdstatistics_setup";
       "any" usebundle => "sipxacdstatistics_running";
 }
 

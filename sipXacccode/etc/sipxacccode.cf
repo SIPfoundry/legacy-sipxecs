@@ -9,8 +9,8 @@ bundle agent sipxacccode {
   methods:
     sipxacccode::
       "any" usebundle => "sipxacccode_config";
-      "any" usebundle => "sipxacccode_setup";
     any::
+      "any" usebundle => "sipxacccode_setup";
       "any" usebundle => "sipxacccode_running";
 }
 
@@ -46,7 +46,9 @@ bundle edit_line sipxacccode_properties_contents {
 bundle agent sipxacccode_setup {
   methods:
     !src.sipxacccode::
-      "any" usebundle => rh_chkconfig_status("sipxacccode");
+      "any" usebundle => rh_chkconfig_status("sipxacccode on");
+    !src.!sipxacccode::
+      "any" usebundle => rh_chkconfig_status("sipxacccode off");
 }
 
 bundle agent sipxacccode_running {

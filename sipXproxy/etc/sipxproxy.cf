@@ -9,8 +9,8 @@ bundle agent sipxproxy {
   methods:
     sipxproxy::
       "any" usebundle => "sipxproxy_config";
-      "any" usebundle => "sipxproxy_setup";
     any::
+      "any" usebundle => "sipxproxy_setup";
       "any" usebundle => "sipxproxy_running";
 }
 
@@ -73,8 +73,10 @@ bundle edit_line sipXproxy_config_contents() {
 
 bundle agent sipxproxy_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxproxy");
+    !src.sipxproxy::
+      "any" usebundle => rh_chkconfig_status("sipxproxy on");
+    !src.!sipxproxy::
+      "any" usebundle => rh_chkconfig_status("sipxproxy off");
 }
 
 bundle agent sipxproxy_running {

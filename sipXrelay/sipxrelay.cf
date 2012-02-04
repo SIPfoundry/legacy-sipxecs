@@ -9,8 +9,8 @@ bundle agent sipxrelay {
   methods:
     sipxrelay::
       "any" usebundle => "sipxrelay_config";
-      "any" usebundle => "sipxrelay_setup";
     any::
+      "any" usebundle => "sipxrelay_setup";
       "any" usebundle => "sipxrelay_running";
 }
 
@@ -27,8 +27,10 @@ bundle agent sipxrelay_config {
 
 bundle agent sipxrelay_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxrelay");
+    !src.sipxrelay::
+      "any" usebundle => rh_chkconfig_status("sipxrelay on");
+    !src.!sipxrelay::
+      "any" usebundle => rh_chkconfig_status("sipxrelay off");
 }
 
 bundle agent sipxrelay_running {
