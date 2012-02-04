@@ -40,6 +40,7 @@ bundle common g {
 body common control {
   bundlesequence => { 
     "sipx_module",
+    "sipx_init",
     @(g.bundles)
   };
 

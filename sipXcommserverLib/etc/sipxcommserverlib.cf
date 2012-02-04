@@ -14,7 +14,8 @@ bundle agent sipxcommserverlib {
 
 bundle agent sipxcommserverlib_config {
   classes:
-    "generate_certs" not => fileexists("$(sipx.SIPX_CONFDIR)/ssl/ssl.crt");
+    primary::
+      "generate_certs" not => fileexists("$(sipx.SIPX_CONFDIR)/ssl/ssl.crt");
 
   files:
     primary::

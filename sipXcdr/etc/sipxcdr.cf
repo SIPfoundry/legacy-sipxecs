@@ -8,6 +8,7 @@
 bundle agent sipxcdr {
   methods:
     sipxcdr::
+      "any" usebundle => "postgres";
       "any" usebundle => "sipxcdr_config";
     any::
       "any" usebundle => "sipxcdr_setup";

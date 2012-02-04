@@ -6,8 +6,9 @@ $domain_dat = "@SIPX_CFDATA@/domain.cfdat"
 $root_keydir = "/var/cfengine/ppkeys"
 home_dir = `awk -F : '/@SIPXPBXUSER@/ { print $6 }' /etc/passwd`.chomp
 $user_keydir = "#{home_dir}/.cfagent/ppkeys"
-$primary_dir = "@SIPX_CFDATA@/1"
-$primary_dat = "#{$primary_dir}/primary.cfdat"
+$primary_dat = "@SIPX_CFDATA@/defaults/primary.cfdat"
+$master_dat = "@SIPX_CFDATA@/defaults/master"
+$secondary_dat = "@SIPX_CFDATA@/defaults/secondary.cfdat"
 $location_dat = "@SIPX_CFDATA@/defaults/location_id"
 $log = "@SIPX_LOGDIR@/sipxecs-setup.log"
 $verbose = false
@@ -33,21 +34,39 @@ def set_root_keys
   run_command "/usr/sbin/cf-key"
 end
 
-# PRIMARY ONLY
 def set_nonroot_keys
   #harmless if re-run
   run_command "su - @SIPXPBXUSER@ sh -c '/usr/sbin/cf-key'"
 end
 
-# PRIMARY ONLY
+def set_secondary
+  return true if (File.exists?($secondary_dat) && File.exists?($master_dat))
+  location_id = prompt_required("Enter location id : ")
+  File.open($location_dat,'w') {|f|
+    f.puts location_id
+  }
+  location_dir = "@SIPX_CFDATA@/#{location_id}"
+  Dir.mkdir(location_dir) unless File.directory?(location_dir)  
+  master = prompt_required("Enter address of master server : ")
+  File.open($master_dat,'w') {|f|
+    f.puts master
+  }
+  File.open($secondary_dat,'w') {|f|
+    f.puts "+sipxsupervisor"
+  }
+
+  return true
+end
+
+# Return true or false IF machine is primary, not is anything was done or not
 def set_primary
-  return if File.exists?($primary_dat)
-  return if !prompt_confirm("Configure as primary machine? : [ enter y or n ] ")
+  return false if File.exists?($secondary_dat)
+  return true if File.exists?($primary_dat)
+  return false if !prompt_confirm("Configure as primary machine? : [ enter y or n ] ")
   File.open($location_dat, 'w') {|f|
     f.puts('1')
   }
   puts "Created #{$location_dat}" if $verbose
-  Dir.mkdir($primary_dir) unless File.directory?($primary_dir)
   File.open($primary_dat, 'w') {|f|
     f.puts <<EOF
 +primary
@@ -57,7 +76,7 @@ def set_primary
 EOF
   }
   puts "Created #{$primary_dat}" if $verbose
-  `chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ #{$primary_dir}`
+  return true
 end
 
 def prompt_confirm(msg)
@@ -70,6 +89,16 @@ def prompt_confirm(msg)
   end
 end
 
+def prompt_required(msg)
+  print msg
+  while (true)
+    value = readline.chomp
+    return value unless value.empty?
+    puts "Invalid response, you must specify a value."
+  end
+  return value
+end
+
 def prompt(msg, default)
   print msg
   value = readline.chomp
@@ -80,11 +109,10 @@ end
 def set_domain
   return if File.exists?($domain_dat)
   current_fqdn = `hostname -f`.chomp
-  fqdn = prompt("Enter fully qualified domain name : [ press enter to use #{current_fqdn} ] ", current_fqdn)
-  domain = prompt("Enter SIP domain name : [ press enter to use #{fqdn} ] ", fqdn)
-  realm = prompt("Enter SIP realm : [ press enter to use #{domain} ] ", domain)
+  fqdn = prompt("Enter fully qualified domain name [ press enter for #{current_fqdn} ] : ", current_fqdn)
+  domain = prompt("Enter SIP domain name [ press enter for #{fqdn} ] : ", fqdn)
+  realm = prompt("Enter SIP realm [ press enter for #{domain} ] : ", domain)
   new_secret = `head -c 18 /dev/urandom | base64`.chomp
-  shared_secret = prompt("Enter shared secret : [ press enter to use random value ] ", new_secret) 
   File.open($domain_dat, 'w') { |f|
     f.puts <<EOF
 =domain=#{domain}
@@ -114,6 +142,10 @@ end
 
 def reset
   rm_file($domain_dat)
+  rm_file($master_dat)
+  rm_file($primary_dat)
+  rm_file($secondary_dat)
+  rm_file($location_dat)
 end
 
 def reset_all
@@ -152,10 +184,12 @@ raise 'Must run as root' unless Process.uid == 0
 rm_file($log)
 set_root_keys()
 set_nonroot_keys()
-set_primary()
-set_domain()
+if set_primary()
+  set_domain()
+else
+  set_secondary
+end
 
 print "Configuring system, this may take a few minutes..."
-
-run_command("@SIPX_BINDIR@/sipxagent" + ($verbose ? " -v" : ""))
+run_command("@SIPX_BINDIR@/sipxagent #{'-v' if $verbose}")
 puts "done."

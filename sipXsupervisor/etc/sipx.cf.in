@@ -36,6 +36,9 @@ bundle common sipx {
       "location_id" string => readfile("@SIPX_CFDATA@/defaults/location_id", "100");
       "bind_ip" string => "$(sys.ipv4)";
 
+    !primary::
+      "master" string => readfile("@SIPX_CFDATA@/defaults/master", "100");
+
     SuSE::
       "crontabs" string => "/var/spool/cron/tabs";
 
@@ -131,6 +134,43 @@ bundle agent sipx_module {
         module => "true",
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
 }
+
+bundle agent sipx_init {
+  methods:
+    !primary::
+       "any" usebundle => "replicate_cfdata";
+}
+
+body copy_from master_files(d) {
+  servers => { "$(sipx.master)" };
+  source => "$(d)";
+  trustkey => "true";
+  compare => "digest";
+}
+
+bundle agent replicate_cfdata {
+  files:
+    # root own files only as extra measure against tampering, but not strict requirement
+    "$(sipx.SIPX_CFDATA)"
+      copy_from => master_files("$(sipx.SIPX_CFDATA)"),
+      depth_search => recurse("1"),
+      perms => m("644");
+
+    "$(sipx.SIPX_CFDATA)/$(sipx.location_id)"
+      copy_from => master_files("$(sipx.SIPX_CFDATA)/$(sipx.location_id)"),
+      depth_search => recurse("inf"),
+      perms => m("644");
+
+    "$(sipx.SIPX_CONFDIR)/ssl"
+      copy_from => master_files("$(sipx.SIPX_CONFDIR)/ssl"),
+      depth_search => recurse("inf"),
+      perms => m("644");
+
+  reports:
+    linux::
+     "replicate cdata from $(sipx.master) for location $(sipx.location_id)";
+}
+
 
 #
 # Normal delete single file operation. Doesn't remove containing directory if it's empty
