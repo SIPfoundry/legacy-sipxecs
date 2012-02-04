@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface CdrManager extends FeatureProvider, AddressProvider {
-    public static final LocationFeature FEATURE = new LocationFeature("cdr");
+    public static final LocationFeature FEATURE = new LocationFeature("sipxcdr");
     public static final AddressType CDR_API = new AddressType("cdrApi");
 
     final String CONTEXT_BEAN_NAME = "cdrManager";

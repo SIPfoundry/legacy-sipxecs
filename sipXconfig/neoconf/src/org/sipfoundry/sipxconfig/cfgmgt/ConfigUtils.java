@@ -39,12 +39,14 @@ public final class ConfigUtils {
      *           "Goose is not enabled!";
      *   }
      */
-    public static final void enableCfengineClass(File dir, String file, String property, boolean enabled)
+    public static final void enableCfengineClass(File dir, String file, boolean enabled, String... properties)
         throws IOException {
         Writer w = new FileWriter(new File(dir, file));
         try {
             CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
-            config.writeClass(property, enabled);
+            for (String property : properties) {
+                config.writeClass(property, enabled);
+            }
         } finally {
             IOUtils.closeQuietly(w);
         }

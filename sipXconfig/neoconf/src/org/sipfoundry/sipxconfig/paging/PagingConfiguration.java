@@ -43,7 +43,7 @@ public class PagingConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(PagingContext.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxpage.cfdat", "sipxpage", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxpage.cfdat", enabled, "sipxpage");
             if (!enabled) {
                 continue;
             }

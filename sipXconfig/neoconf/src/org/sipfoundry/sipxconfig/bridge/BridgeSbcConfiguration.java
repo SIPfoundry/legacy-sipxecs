@@ -43,7 +43,7 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
                 Location location = bridge.getLocation();
                 boolean bridgeHere = l.getId().equals(location.getId());
                 File dir = manager.getLocationDataDirectory(location);
-                ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", "sipxbridge", bridgeHere);
+                ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, "sipxbridge");
                 boolean proxyHere = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
                 // Proxy source reads sipxbrige.xml to find how to connect to bridge
                 if (bridgeHere || proxyHere) {

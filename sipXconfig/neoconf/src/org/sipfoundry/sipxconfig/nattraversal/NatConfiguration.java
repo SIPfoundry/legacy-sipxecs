@@ -57,7 +57,7 @@ public class NatConfiguration implements ConfigProvider {
             }
 
             boolean serviceEnabled = (relayEnabled && proxyEnabled);
-            ConfigUtils.enableCfengineClass(dir, "sipxrelay.cfdat", "sipxrelay", serviceEnabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxrelay.cfdat", serviceEnabled, "sipxrelay");
         }
     }
 

@@ -55,7 +55,7 @@ public class IvrConfig implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = featureManager.isFeatureEnabled(Ivr.FEATURE, location);
 
-            ConfigUtils.enableCfengineClass(dir, "sipxivr.cfdat", "sipxivr", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxivr.cfdat", enabled, "sipxivr");
             if (!enabled) {
                 continue;
             }

@@ -44,7 +44,7 @@ public class AuthCodesConfig implements ConfigProvider {
             AuthCodeSettings settings = m_authCodes.getSettings();
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(AuthCodes.FEATURE);
-            ConfigUtils.enableCfengineClass(dir, "sipxacccode.cfdat", "sipxacccode", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxacccode.cfdat", enabled, "sipxacccode");
             Writer flat = new FileWriter(new File(dir, "sipxacccode.properties.part"));
             try {
                 writeConfig(flat, settings, domain, fs.getPort());

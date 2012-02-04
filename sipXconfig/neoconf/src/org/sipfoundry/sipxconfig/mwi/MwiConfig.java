@@ -47,7 +47,7 @@ public class MwiConfig implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(Mwi.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxpublisher.cfdat", "sipxpublisher", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxpublisher.cfdat", enabled, "sipxpublisher");
             if (!enabled) {
                 continue;
             }

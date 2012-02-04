@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -32,21 +33,24 @@ public class CdrConfiguration implements ConfigProvider {
             return;
         }
 
+        Set<Location> locations = request.locations(manager);
         List<Location> proxyLocations = manager.getFeatureManager().getLocationsForEnabledFeature(ProxyManager.FEATURE);
-        if (proxyLocations.isEmpty()) {
-            return;
-        }
-
         CdrSettings settings = m_cdrManager.getSettings();
-        for (Location location : proxyLocations) {
+        for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = proxyLocations.contains(location);
+            String datfile = "sipxcdr.cfdat";
+            if (!enabled) {
+                ConfigUtils.enableCfengineClass(dir, datfile, false, CdrManager.FEATURE.getId());
+                continue;
+            }
+            ConfigUtils.enableCfengineClass(dir, datfile, true, CdrManager.FEATURE.getId(), "postgres");
             FileWriter wtr = new FileWriter(new File(dir, "callresolver-config"));
             try {
                 write(wtr, proxyLocations, settings);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
-            ConfigUtils.enableCfengineClass(dir, "sipxcdr.cfdat", "sipxcdr", true);
         }
     }
 

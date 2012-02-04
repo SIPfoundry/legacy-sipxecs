@@ -50,7 +50,7 @@ public class ConferenceConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxconference.cfdat", "sipxconference", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxconference.cfdat", enabled, "sipxconference");
             if (!enabled) {
                 continue;
             }
