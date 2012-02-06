@@ -1,0 +1,24 @@
+serialno: 1
+sip_protocols: [ udp, tcp, tls ]
+naptr_protocols: [ udp, tcp ]
+domain: x
+proxy_servers: [ 
+ { :name: one, :ipv4: 1.1.1.1 }, 
+ { :name: two, :ipv4: 2.2.2.2 }, 
+ { :name: three, :ipv4: 3.3.3.3 } ]
+registrar_servers: [ 
+ { :name: one, :ipv4: 1.1.1.1 }, 
+ { :name: two, :ipv4: 2.2.2.2 }, 
+ { :name: three, :ipv4: 3.3.3.3 } ]
+dns_servers: [ 
+ { :name: one, :ipv4: 1.1.1.1 }, 
+ { :name: two, :ipv4: 2.2.2.2 }, 
+ { :name: three, :ipv4: 3.3.3.3 } ]
+im_servers: [ 
+ { :name: one, :ipv4: 1.1.1.1 }, 
+ { :name: two, :ipv4: 2.2.2.2 }, 
+ { :name: three, :ipv4: 3.3.3.3 } ]
+all_servers: [ 
+ { :name: one, :ipv4: 1.1.1.1 }, 
+ { :name: two, :ipv4: 2.2.2.2 }, 
+ { :name: three, :ipv4: 3.3.3.3 } ]

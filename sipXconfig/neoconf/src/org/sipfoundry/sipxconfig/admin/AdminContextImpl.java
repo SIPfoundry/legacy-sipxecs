@@ -15,17 +15,19 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Backup provides Java interface to backup scripts
  */
-public class AdminContextImpl extends HibernateDaoSupport implements AdminContext {
+public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
             TFTP_ADDRESS, FTP_ADDRESS);
     private LocationsManager m_locationsManager;

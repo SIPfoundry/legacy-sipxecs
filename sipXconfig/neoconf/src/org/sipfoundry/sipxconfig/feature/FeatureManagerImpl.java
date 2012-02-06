@@ -44,7 +44,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     Collection<FeatureProvider> getFeatureProviders() {
         if (m_providers == null) {
             Map<String, FeatureProvider> beanMap = safeGetListableBeanFactory().getBeansOfType(
-                    FeatureProvider.class, false, true);
+                    FeatureProvider.class, false, false);
             m_providers = new ArrayList<FeatureProvider>(beanMap.values());
         }
 
@@ -61,7 +61,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     Collection<FeatureListener> getFeatureListeners() {
         if (m_listeners == null) {
             Map<String, FeatureListener> beanMap = safeGetListableBeanFactory().getBeansOfType(
-                    FeatureListener.class, false, true);
+                    FeatureListener.class, false, false);
             m_listeners = new ArrayList<FeatureListener>(beanMap.values());
         }
 

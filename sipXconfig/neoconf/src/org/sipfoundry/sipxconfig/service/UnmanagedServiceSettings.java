@@ -7,9 +7,6 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
@@ -17,7 +14,7 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public class UnmanagedServiceSettings extends PersistableSettings {
     private LocationsManager m_locationsManager;
@@ -47,26 +44,7 @@ public class UnmanagedServiceSettings extends PersistableSettings {
     }
 
     public List<Address> getAddresses(String setting) {
-        List<Address> addresses = Collections.emptyList();
-        Setting s = getSettings().getSetting(setting);
-        if (s instanceof SettingSet) {
-            SettingSet set = (SettingSet) getSettings().getSetting(setting);
-            Collection<Setting> values = set.getValues();
-            addresses = new ArrayList<Address>();
-            for (Setting server : values) {
-                String value = server.getValue();
-                if (value != null) {
-                    addresses.add(new Address(value));
-                }
-            }
-        } else {
-            String value = s.getValue();
-            if (value != null) {
-                addresses = Collections.singletonList(new Address(value));
-            }
-        }
-
-        return addresses;
+        return SettingUtil.getAddresses(getSettings(), setting);
     }
 
     @Override

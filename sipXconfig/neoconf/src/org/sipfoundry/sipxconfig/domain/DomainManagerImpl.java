@@ -30,11 +30,20 @@ import org.sipfoundry.sipxconfig.localization.Localization;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
+    private static DomainManagerImpl s_instance;
     private static final String DOMAIN_CONFIG_ERROR = "Unable to load initial domain-config file.";
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
     private static final String SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
     private Domain m_domain;
     private String m_domainConfigFilename;
+
+    public DomainManagerImpl() {
+        s_instance = this;
+    }
+
+    static Domain getDomainInstance() {
+        return s_instance.getDomain();
+    }
 
     /**
      * @return non-null unless test environment

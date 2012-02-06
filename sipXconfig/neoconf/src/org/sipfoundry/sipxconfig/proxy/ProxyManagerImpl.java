@@ -14,16 +14,19 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class ProxyManagerImpl implements ProxyManager {
+public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressProvider, ProcessProvider {
     public static final LocationFeature FEATURE = new LocationFeature("proxy");
     public static final AddressType TCP_ADDRESS = new AddressType("proxyTcp");
     public static final AddressType UDP_ADDRESS = new AddressType("procyUdp");
@@ -74,7 +77,7 @@ public class ProxyManagerImpl implements ProxyManager {
             } else if (type.equals(TLS_ADDRESS)) {
                 address.setPort(5061);
             }
-            address.setAddress("sip:%s:%d");
+            address.setSipFormat();
             addresses.add(address);
         }
 

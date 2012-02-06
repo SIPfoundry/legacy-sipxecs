@@ -12,7 +12,7 @@ import static java.lang.String.format;
 public class Address {
     private String m_address;
     private int m_port;
-    private String m_format = "%s:%d";
+    private String m_format;
 
     public Address() {
     }
@@ -49,7 +49,13 @@ public class Address {
     }
 
     public String toString() {
-        return format(m_format, m_address, m_port);
+        if (m_format != null) {
+            return format(m_format, m_address, m_port);
+        }
+        return m_port == 0 ? m_address : m_address + ':' + m_port;
+    }
+    public void setSipFormat() {
+        setFormat("sip:%s:%d");
     }
 
     public String getFormat() {

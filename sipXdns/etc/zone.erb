@@ -1,0 +1,43 @@
+$TTL 1800
+@       IN     SOA    ns1.<%= domain %>. root.<%= domain %>. (
+                       <%= serialno %> ; serial#
+                       1800            ; refresh, seconds
+                       1800            ; retry, seconds
+                       1800            ; expire, seconds
+                       1800 )          ; minimum TTL, seconds
+<% 
+  dns_servers.each { |server| 
+%><%= domain %>.            IN     NS     <%= server[:name] %>.
+<%}
+
+  naptr_protocols.each { |proto| 
+  protoCode = 'SIP+D2' + proto[0,1].upcase  # SIP+D2T
+%><%= domain %>.               IN      NAPTR   2 0 "s" "<%= protoCode %>" "" _sip._<%= proto %>.<%= domain %>.
+<%} 
+
+  # distribute traffic equally for now to each proxy
+  sip_protocols.each { |proto|
+    proxy_servers.each { |server| 
+%>_sip._<%= proto %>.<%= domain %>.     IN      SRV     1 0 5060 <%= server[:name] %>.
+<%  } 
+  }
+
+  registrar_servers.each { |a|
+    registrar_servers.each { |b|
+      # weight so a proxy will find a local registrar first
+      rr_weight_priority = (a == b ? '1 0' : '2 100') 
+%>sip._tcp.rr.<%= a[:name] %>.     IN      SRV     <%= rr_weight_priority %> 5070 <%= b[:name] %>.
+<%  } 
+  } 
+
+  im_servers.each { |server| 
+%>_xmpp-server._tcp.<%= domain %>.     IN   SRV   1  0  5269  <%= server[:name] %>.
+_xmpp-client._tcp.<%= domain %>.     IN   SRV   1  0  5222  <%= server[:name] %>.
+_xmpp-server._tcp.conference.<%= domain %>.     IN   SRV   1  0  5222  <%= server[:name] %>.
+_xmpp-client._tcp.conference.<%= domain %>.     IN   SRV   1  0  5222  <%= server[:name] %>.
+<%} 
+
+  all_servers.each { |server| 
+%><%= server[:name] %>.           IN      A       <%= server[:ipv4] %>
+<%}
+%>

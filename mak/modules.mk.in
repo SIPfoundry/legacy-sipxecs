@@ -15,6 +15,7 @@ sipx = \
   sipXsnmp \
   sipXpostgres \
   sipXmongo \
+  sipXdns \
   sipXcommons \
   sipXrelay \
   sipXbridge \

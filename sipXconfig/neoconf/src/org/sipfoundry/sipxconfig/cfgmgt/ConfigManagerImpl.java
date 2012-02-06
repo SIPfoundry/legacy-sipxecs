@@ -240,7 +240,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     private Collection<ConfigProvider> getProviders() {
         if (m_providers == null) {
-            Map<String, ConfigProvider> providers = m_beanFactory.getBeansOfType(ConfigProvider.class);
+            Map<String, ConfigProvider> providers = m_beanFactory.getBeansOfType(ConfigProvider.class, false, false);
             m_providers = providers.values();
         }
         return m_providers;

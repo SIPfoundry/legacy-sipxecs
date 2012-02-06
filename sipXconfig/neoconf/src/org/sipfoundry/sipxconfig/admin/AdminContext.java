@@ -9,12 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 
-public interface AdminContext extends AddressProvider, ProcessProvider {
+public interface AdminContext {
     public static final LocationFeature FEATURE = new LocationFeature("admin");
     public static final AddressType HTTP_ADDRESS = new AddressType("adminApi");
     public static final AddressType HTTPS_ADDRESS = new AddressType("secureAdminApi");
