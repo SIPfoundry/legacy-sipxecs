@@ -9,8 +9,8 @@ bundle agent sipxivr {
   methods:
     sipxivr::
       "any" usebundle => "sipxivr_config";
-      "any" usebundle => "sipxivr_setup";
     any::
+      "any" usebundle => "sipxivr_setup";
       "any" usebundle => "sipxivr_running";
 }
 
@@ -64,7 +64,9 @@ bundle edit_line sipxivr_properties_contents {
 bundle agent sipxivr_setup {
   methods:
     !src.sipxivr::
-      "any" usebundle => rh_chkconfig_status("sipxivr");
+      "any" usebundle => rh_chkconfig_status("sipxivr on");
+    !src.!sipxivr::
+      "any" usebundle => rh_chkconfig_status("sipxivr off");
 }
 
 bundle agent sipxivr_running {

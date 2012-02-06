@@ -9,11 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.commserver;
 
+
 import static org.apache.commons.lang.StringUtils.substringBefore;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,9 +25,7 @@ import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 
 public class Location extends BeanWithId implements DeployConfigOnEdit {
     // security role
@@ -335,6 +334,6 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) NatTraversal.FEATURE);
+        return Collections.singleton((Feature) LocationsManager.FEATURE);
     }
 }

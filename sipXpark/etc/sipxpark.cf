@@ -9,8 +9,8 @@ bundle agent sipxpark {
   methods:
     sipxpark::
       "any" usebundle => "sipxpark_config";
-      "any" usebundle => "sipxpark_setup";
     any::
+      "any" usebundle => "sipxpark_setup";
       "any" usebundle => "sipxpark_running";
 }
 
@@ -46,8 +46,10 @@ bundle edit_line sipxpark_config_contents {
 
 bundle agent sipxpark_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxpark");
+    !src.sipxpark::
+      "any" usebundle => rh_chkconfig_status("sipxpark on");
+    !src.!sipxpark::
+      "any" usebundle => rh_chkconfig_status("sipxpark off");
 }
 
 bundle agent sipxpark_running {

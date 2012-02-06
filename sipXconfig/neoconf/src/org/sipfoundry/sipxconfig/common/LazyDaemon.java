@@ -32,8 +32,12 @@ public abstract class LazyDaemon extends Thread {
         try {
             boolean moreWork = true;
             while (moreWork) {
+
+                // initial work added
                 waitForWork();
                 long quietPeriod = 0;
+
+                // loop here for quiet time
                 do {
                     LOG.debug("Waiting for quiet period, ms: " + m_sleepInterval);
                     sleep(m_sleepInterval);

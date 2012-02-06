@@ -39,7 +39,7 @@ public class FreeswitchConfigurationProvider implements ConfigProvider, BeanFact
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(FreeswitchFeature.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxfreeswitch.cfdat", "sipxfreeswitch", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxfreeswitch.cfdat", enabled, "sipxfreeswitch");
             if (!enabled) {
                 continue;
             }

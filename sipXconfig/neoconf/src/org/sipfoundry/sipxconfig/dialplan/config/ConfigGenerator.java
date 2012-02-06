@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
@@ -52,7 +53,7 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
         // other contexts could announce changes in their system affect DialPlanContext.FEATURE
         //
         if (!request.applies(ProxyManager.FEATURE, DialPlanContext.FEATURE, LocalizationContext.FEATURE,
-                PagingContext.FEATURE, Rls.FEATURE, ParkOrbitContext.FEATURE)) {
+                PagingContext.FEATURE, Rls.FEATURE, ParkOrbitContext.FEATURE, LocationsManager.FEATURE)) {
             return;
         }
 

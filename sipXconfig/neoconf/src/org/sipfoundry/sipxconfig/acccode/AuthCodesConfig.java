@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -37,14 +37,14 @@ public class AuthCodesConfig implements ConfigProvider {
             return;
         }
 
-        Collection<Location> locations = manager.getFeatureManager().
-            getLocationsForEnabledFeature(AuthCodes.FEATURE);
+        Set<Location> locations = request.locations(manager);
         Address fs = manager.getAddressManager().getSingleAddress(FreeswitchFeature.ACC_EVENT_ADDRESS);
         Domain domain = manager.getDomainManager().getDomain();
         for (Location location : locations) {
             AuthCodeSettings settings = m_authCodes.getSettings();
             File dir = manager.getLocationDataDirectory(location);
-            ConfigUtils.enableCfengineClass(dir, "sipxacccode.cfdat", "sipxacccode", true);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(AuthCodes.FEATURE);
+            ConfigUtils.enableCfengineClass(dir, "sipxacccode.cfdat", enabled, "sipxacccode");
             Writer flat = new FileWriter(new File(dir, "sipxacccode.properties.part"));
             try {
                 writeConfig(flat, settings, domain, fs.getPort());

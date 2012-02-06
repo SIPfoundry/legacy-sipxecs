@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,16 +27,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class ConfigAgent {
-    private static final Log LOG = LogFactory.getLog(ConfigManagerImpl.class);
+    private static final Log LOG = LogFactory.getLog(ConfigAgent.class);
     private String m_command;
     private String m_logDir;
     private String m_logFile = "sipxagent.log";
     private volatile boolean m_inProgress;
     private LocationsManager m_locationsManager;
-    private JobContext m_jobContext;
     private int m_timeout = 60000;
 
     /**
@@ -46,8 +43,7 @@ public class ConfigAgent {
      */
     public synchronized void run() {
         String hosts = getHostsParams(m_locationsManager.getLocationsList());
-        Serializable job = m_jobContext.schedule("Configuration");
-        run(job, format(m_command, hosts));
+        run(format(m_command, hosts));
     }
 
     String getHostsParams(Collection<Location> locations) {
@@ -101,12 +97,11 @@ public class ConfigAgent {
         return Collections.emptyList();
     }
 
-    void run(Serializable job, String command) {
+    void run(String command) {
         Writer out = null;
         Process exec = null;
         try {
             m_inProgress = true;
-            m_jobContext.start(job);
             LOG.info("Stating agent run " + command);
             exec = Runtime.getRuntime().exec(command);
             out = new FileWriter(m_logDir + '/' + m_logFile);
@@ -125,21 +120,14 @@ public class ConfigAgent {
                 LOG.error("Error logging output stream from agent run", outGobbler.m_error);
             }
             if (code == 0) {
-                m_jobContext.success(job);
                 LOG.info("Finished agent run successfully");
             } else {
-                String msg = "Agent run finshed but returned error code " + code;
-                m_jobContext.warning(job, msg);
-                LOG.info(msg);
+                throw new ConfigException("Agent run finshed but returned error code " + code);
             }
-        } catch (ConfigurationError e) {
-            m_jobContext.failure(job, "Partial configuration complete.", e);
         } catch (InterruptedException e) {
-            m_jobContext.failure(job, "Interrupted error", e);
-            LOG.error("Could not complete agent command", e);
+            throw new ConfigException("Interrupted error. Could not complete agent command");
         } catch (IOException e) {
-            m_jobContext.failure(job, "IO error", e);
-            LOG.error("Could not execute agent", e);
+            throw new ConfigException("IO error. Could not complete agent command");
         } finally {
             m_inProgress = false;
             if (exec != null) {
@@ -175,21 +163,14 @@ public class ConfigAgent {
         }
     }
 
-    @SuppressWarnings("serial")
-    static class ConfigurationError extends Exception {
-        ConfigurationError(String message) {
-            super(message);
-        }
-    }
-
-    private void processResults() throws ConfigurationError {
+    private void processResults() {
         List<String> failedItems = getFailedItems();
         if (failedItems == null || failedItems.size() == 0) {
             return;
         }
 
         String msg = StringUtils.join(failedItems.toArray(), ",");
-        throw new ConfigurationError("Failure in these area(s) : " + msg);
+        throw new ConfigException("Failure in these area(s) : " + msg);
     }
 
     // cfagent script will block unless streams are read
@@ -240,9 +221,5 @@ public class ConfigAgent {
 
     public void setTimeout(int timeout) {
         m_timeout = timeout;
-    }
-
-    public void setJobContext(JobContext jobContext) {
-        m_jobContext = jobContext;
     }
 }

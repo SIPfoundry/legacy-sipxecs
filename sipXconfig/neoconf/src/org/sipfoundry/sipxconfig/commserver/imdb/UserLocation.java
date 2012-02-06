@@ -1,9 +1,9 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
+ * Licensed to the User under the AGPL license.
  *
  * $
  */
@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.ASSISTANT_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.ASSISTANT_PHONE;
+import static org.sipfoundry.commons.mongo.MongoConstants.AVATAR;
 import static org.sipfoundry.commons.mongo.MongoConstants.CELL_PHONE_NUMBER;
 import static org.sipfoundry.commons.mongo.MongoConstants.COMPANY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.FAX_NUMBER;
@@ -68,6 +69,7 @@ public class UserLocation extends AbstractDataSetGenerator {
                 top.put(FAX_NUMBER, abe.getFaxNumber());
                 top.put(HOME_PHONE_NUMBER, abe.getHomePhoneNumber());
                 top.put(CELL_PHONE_NUMBER, abe.getCellPhoneNumber());
+                top.put(AVATAR, abe.getAvatar());
                 top.put(LOCATION, abe.getLocation());
                 // FIXME abe.getOfficeAddress should be accurate enough to get real office address
                 // complete fix should be when XX-8002 gets solved
@@ -94,8 +96,9 @@ public class UserLocation extends AbstractDataSetGenerator {
                     top.put(OFFICE_DESIGNATION, officeAddress.getOfficeDesignation());
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
 }

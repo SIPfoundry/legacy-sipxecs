@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.sbc.SbcRoutes;
@@ -32,7 +33,7 @@ public class NatConfiguration implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(NatTraversal.FEATURE, ProxyManager.FEATURE)) {
+        if (!request.applies(NatTraversal.FEATURE, ProxyManager.FEATURE, LocationsManager.FEATURE)) {
             return;
         }
 
@@ -56,7 +57,7 @@ public class NatConfiguration implements ConfigProvider {
             }
 
             boolean serviceEnabled = (relayEnabled && proxyEnabled);
-            ConfigUtils.enableCfengineClass(dir, "sipxrelay.cfdat", "sipxrelay", serviceEnabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxrelay.cfdat", serviceEnabled, "sipxrelay");
         }
     }
 

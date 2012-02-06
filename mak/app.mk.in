@@ -17,7 +17,6 @@ sf_broken = \
   sipXtools \
   sipXpark \
   sipXpresence \
-  sipXimbot \
   sipXpage \
   sipXprovision \
   sipXrecording \
@@ -40,6 +39,7 @@ sf = \
   sipXsnom \
   sipXunidata \
   sipXgrandstream \
+  sipXimbot \
   sipXexample
 
 lang = \

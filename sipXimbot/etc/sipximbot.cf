@@ -1,0 +1,92 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipximbot configuration and process management
+#
+bundle agent sipximbot {
+  methods:
+    sipximbot::
+      "any" usebundle => "sipximbot_config";
+    any::
+      "any" usebundle => "sipximbot_setup";
+      "any" usebundle => "sipximbot_running";
+}
+
+bundle agent sipximbot_config {
+  vars:    
+    any::
+      "xml_file_norestart" slist => { 
+        "xmpp-account-info.xml"
+      };
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipximbot.properties"
+        create => "true",
+        perms => m("644"),
+	edit_line => sipximbot_properties_contents,
+        classes => if_repaired("restart_sipximbot"),
+	action => track("$(this.promiser)");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)"),
+	action => track("$(this.promiser)");
+
+}
+
+bundle edit_line sipximbot_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipximbot.properties.part"
+        insert_type => "file";
+      "log.file=$(sipx.SIPX_LOGDIR)/sipximbot.log";
+      "imbot.docDirectory=$(sipx.wwwdir)/doc";
+      "imbot.sipxchangeDomainName=$(sipx.domain)";
+      "imbot.realm=$(sipx.realm)";
+  delete_lines:
+    any::
+      ".*";
+}
+
+
+bundle agent sipximbot_setup {
+  methods:
+    !src.sipximbot::
+      "any" usebundle => rh_chkconfig_status("sipximbot on");
+    !src.!sipximbot::
+      "any" usebundle => rh_chkconfig_status("sipximbot off");
+}
+
+bundle agent sipximbot_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipximbot\s.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipximbot_running");
+
+  commands:
+    sipximbot_running.!sipximbot::
+      "$(sipx.SIPX_SERVICEDIR)/sipximbot"
+        args => "stop",
+	action => track("sipximbot stop");
+
+    !sipximbot_running.sipximbot::
+      "$(sipx.SIPX_SERVICEDIR)/sipximbot"
+        args => "start",
+	action => track("sipximbot start");
+
+    restart_sipximbot::
+      "$(sipx.SIPX_SERVICEDIR)/sipximbot"
+        args => "restart",
+	action => track("sipximbot restart");
+}
+
+
+

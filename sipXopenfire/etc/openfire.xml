@@ -42,7 +42,7 @@
       <type refid="requiredNonRootPort"/>
       <value>5064</value>
     </setting>
-    <setting name="log-level" hidden="yes">
+    <setting name="log-level">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
@@ -63,7 +63,7 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
             return;
         }
 
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(OpenAcdContext.FEATURE);
+        Set<Location> locations = request.locations(manager);
         if (locations.isEmpty()) {
             return;
         }
@@ -71,7 +71,8 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
         OpenAcdSettings settings = m_openAcdContext.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            ConfigUtils.enableCfengineClass(dir, "sipxopenacd.cfdat", "sipxopenacd", true);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(OpenAcdContext.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxopenacd.cfdat", enabled, "sipxopenacd");
 
             Writer app = new FileWriter(new File(dir, "app.config"));
             try {

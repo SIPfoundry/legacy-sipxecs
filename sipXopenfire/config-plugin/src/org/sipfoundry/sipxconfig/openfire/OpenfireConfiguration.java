@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
@@ -19,11 +19,13 @@ import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 
 public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
@@ -35,7 +37,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Openfire.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE)) {
+        if (!request.applies(OpenfireImpl.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE)) {
             return;
         }
         
@@ -47,9 +49,11 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             }
         }
         
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(Openfire.FEATURE);
+        Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(OpenfireImpl.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxopenfire.cfdat", enabled, "sipxopenfire");
             Writer sipxopenfire = new FileWriter(new File(dir, "openfire.xml"));
             try {
                 m_config.write(sipxopenfire);
@@ -88,7 +92,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     
     private void checkReplicate(Object entity) {
         if (entity instanceof User || entity instanceof Conference) {
-            m_configManager.configureEverywhere(Openfire.FEATURE);            
+            m_configManager.configureEverywhere(OpenfireImpl.FEATURE);            
         }
     }
 

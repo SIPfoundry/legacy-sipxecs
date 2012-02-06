@@ -16,23 +16,23 @@
 	<resource-list>$resource-list</resource-list>
 	<watcher-address>${location.address}</watcher-address>
 	<watcher-port>${settings.watcherPort}</watcher-port>
-	<log-directory>@SIPX_LOGDIR@</log-directory>
-	<log-level>settings.getSetting('settings/log-level').Value</log-level>
+	<log-directory>${settings.logDir}</log-directory>
+	<log-level>${settings.logLevel}</log-level>
 	<openfire-xml-rpc-port>$settings.xmlRpcPort</openfire-xml-rpc-port>
 	<openfire-host>${location.fqdn}</openfire-host>
-	<locale>$settings.getSetting('settings/locale').Value</locale>
+	<locale>${settings.locale}</locale>
 	<sipxrest-ip-address>$!{restService.address}</sipxrest-ip-address>
 	<sipxrest-https-port>$!{restService.port}</sipxrest-https-port>
 	<sipxrest-external-http-port>$!{restExtAddress.port}</sipxrest-external-http-port>
 	<server-to-server>
-		<enabled>$settings.getSetting('openfire-server-to-server/enabled').Value</enabled>
+		<enabled>${settings.serverToServer}</enabled>
 		<port>${settings.xmppPort}</port>
-		<disconnect-on-idle>$settings.getSetting('openfire-server-to-server/disconnect-on-idle').Value</disconnect-on-idle>
-		<idle-timeout>$settings.getSetting('openfire-server-to-server/idle-timeout').Value</idle-timeout>
-		<any-can-connect>$settings.getSetting('openfire-server-to-server/any-can-connect').Value</any-can-connect>
+		<disconnect-on-idle>${settings.disconnectOnIdle}</disconnect-on-idle>
+		<idle-timeout>${settings.idleTimeout}</idle-timeout>
+		<any-can-connect>${settings.anyCanConnect}</any-can-connect>
 #generate_severs_list($settings.allowedServers, 'allowed-servers')
 #generate_severs_list($settings.disallowedServers, 'disallowed-servers')
 	</server-to-server>
-	<IM-message-logging>$settings.getSetting('message-logging/enabled').Value</IM-message-logging>
-	<IM-message-logging-directory>@SIPX_LOGDIR@</IM-message-logging-directory>
+	<IM-message-logging>${settings.messageLogEnabled}</IM-message-logging>
+	<IM-message-logging-directory>${settings.logDir}</IM-message-logging-directory>
 </sipxopenfire-config>

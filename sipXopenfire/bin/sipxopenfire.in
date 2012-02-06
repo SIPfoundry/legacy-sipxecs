@@ -1,4 +1,5 @@
-#!@BASH@
+#!/bin/bash
+
 # sipxopenfire - Startup script for sipxopenfire
 
 # chkconfig: 35 85 15
@@ -52,7 +53,7 @@ USAGE
 }
 
 Status=0
-JavaCmd=`@bindir@/sipx-config --java`
+JAVACMD=`@bindir@/sipx-config --java`
 OPENFIRE_HOME="@OPENFIRE_HOME@"
 OPENFIRE_LIB="${OPENFIRE_HOME}/lib"
 Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @plugin_PKGS@`
@@ -90,13 +91,24 @@ databaseCommand() {
 # Run Web interface
 start() {
   setupCheck
+
+  # Set the openfire debug level based on the sipxopenfire log level
+  SIPXOPENFIRE_LOGLEVEL=`grep "<log-level>.*<.log-level>" $CONFIG_FILES | cut -f2 -d">" | cut -f1 -d"<"`
+  if [ $SIPXOPENFIRE_LOGLEVEL == "DEBUG" ]
+  then
+    sed -e "s/<enabled>.*<\/enabled>/<enabled>true<\/enabled>/g" "@SIPX_JAVADIR@/sipXopenfire/conf/openfire.xml" > ${OPENFIRE_HOME}/conf/openfire.xml 
+  else
+    sed -e "s/<enabled>.*<\/enabled>/<enabled>false<\/enabled>/g" "@SIPX_JAVADIR@/sipXopenfire/conf/openfire.xml" > ${OPENFIRE_HOME}/conf/openfire.xml      
+  fi
+  # make it writable for openfire
+  chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ @OPENFIRE_HOME@/conf 2> /dev/null
   databaseCommand use-openfire-xml
   if [ -n "${NoFork}" ] ; then
     runuser - @SIPXPBXUSER@ ${OPENFIRE_HOME}/bin/openfire start
   else
     echo -n $"Starting sipxopenfire: "
     runuser - @SIPXPBXUSER@ ${OPENFIRE_HOME}/bin/openfire start >/dev/null 2>&1 &
-    echo $! > ${PidFile}
+    Status=$?
     echo_success
   fi
 }
@@ -115,10 +127,9 @@ setupCheck() {
   if ! databaseCheck
   then
     echo "Initializing openfire database..."
-    databaseCommand create create-tables setup 
+      setup
     # more to do here, see sipxopenacd setup
   fi
-  setup
 }
 
 # simple diagnostics
@@ -134,17 +145,19 @@ configtest() {
 
 stop() {
   echo -n $"Stopping sipxopenfire: "
-  killproc -p "${PidFile}" -t30 -TERM "sipxopenfire"
+  runuser - @SIPXPBXUSER@ ${OPENFIRE_HOME}/bin/openfire stop
   Status=$?
+  if [ $Status -eq 0 ]; then
+    echo_success
+  else
+    echo_failure
+  fi
   echo
-  [ $Status -eq 0 ] && rm -f "${PidFile}"  
 }
 
 restart() {
   stop
-  # sleep for no good reason. Can be disconcerting if stop/start 
-  # switch is too fast IMHO
-  sleep 1 
+  sleep 1
   start
 }
 
@@ -190,10 +203,7 @@ setup() {
    # Removing the soft link solves an inter-package file dependency with file openfire.xml.  
    if [ -h @OPENFIRE_HOME@/conf ] || [ ! -e @OPENFIRE_HOME@/conf ]
    then
-      rm -rf @OPENFIRE_HOME@/conf 2> /dev/null
-      mkdir @OPENFIRE_HOME@/conf 2> /dev/null
       chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ @OPENFIRE_HOME@/conf 2> /dev/null
-      cp -pf "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" @OPENFIRE_HOME@/conf 2> /dev/null
    fi
 
    mkdir -p @SIPX_LOGDIR@/openfire 2> /dev/null
@@ -210,17 +220,16 @@ setup() {
   fi 
 
   # Check if we have created the database. If not create it.
-  chmod u+x @SIPX_BINDIR@/sipxopenfire.sh 2> /dev/null
   rm  @SIPX_TMPDIR@/sipxopenfire.version 2> /dev/null
-  @SIPX_BINDIR@/sipxopenfire.sh --database check 2> /dev/null
+  databaseCommand check 2> /dev/null
   if [ ! -f @SIPX_TMPDIR@/sipxopenfire.version ]  
   then
-    @SIPX_BINDIR@/sipxopenfire.sh --database create 2> /dev/null
-    @SIPX_BINDIR@/sipxopenfire.sh --database create-tables 2> /dev/null
-    @SIPX_BINDIR@/sipxopenfire.sh --database setup -Ddomain=${SIP_DOMAIN_NAME} -Dfqdn=${FQDN} 2> /dev/null
+    databaseCommand create 2> /dev/null
+    databaseCommand create-tables 2> /dev/null
+    databaseCommand setup -Ddomain=${SIP_DOMAIN_NAME} -Dfqdn=${FQDN} 2> /dev/null
   else
-    @SIPX_BINDIR@/sipxopenfire.sh --database setdomain -Ddomain=${SIP_DOMAIN_NAME} 2> /dev/null
-    @SIPX_BINDIR@/sipxopenfire.sh --database setfqdn -Dfqdn=${FQDN} 2> /dev/null
+    databaseCommand setdomain -Ddomain=${SIP_DOMAIN_NAME} 2> /dev/null
+    databaseCommand setfqdn -Dfqdn=${FQDN} 2> /dev/null
   fi
 
   #if openfire service is running stop it.
@@ -245,7 +254,8 @@ case "$1" in
     [ -f ${PidFile} ] && restart || :
     ;;
   status)
-    status -p ${PidFile} sipxopenfire
+    runuser - @SIPXPBXUSER@ ${OPENFIRE_HOME}/bin/openfire status
+    Status=$?
     ;;
   configtest)
     configtest
