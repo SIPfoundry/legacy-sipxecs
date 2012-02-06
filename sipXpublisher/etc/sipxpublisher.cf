@@ -8,6 +8,7 @@
 bundle agent sipxpublisher {
   methods:
     sipxpublisher::
+      "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxpublisher_config";
     any::
       "any" usebundle => "sipxpublisher_setup";
@@ -78,7 +79,7 @@ bundle agent sipxpublisher_running {
         args => "start",
 	action => track("sipxpublisher start");
 
-    restart_sipxpublisher::
+    sipxpublisher.(restart_sipxpublisher|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
         args => "restart",
 	action => track("sipxpublisher restart");

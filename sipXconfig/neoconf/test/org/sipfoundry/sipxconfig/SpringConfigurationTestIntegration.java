@@ -9,13 +9,24 @@
  */
 package org.sipfoundry.sipxconfig;
 
+import java.util.Map;
+
+import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 /**
  * Explicitly exercises the spring configuration
  */
 public class SpringConfigurationTestIntegration extends IntegrationTestCase {
+        
     public void testConfiguration() {
         assertTrue(true);
+    }
+    
+    public void testBeansOfType() {
+        Map<String, AddressProvider> beans = getApplicationContext().getBeansOfType(AddressProvider.class);
+        for (AddressProvider a : beans.values()) {
+            System.out.println(a.toString());            
+        }
     }
 }

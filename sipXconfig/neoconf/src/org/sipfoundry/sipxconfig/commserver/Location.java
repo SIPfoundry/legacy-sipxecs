@@ -13,14 +13,17 @@ package org.sipfoundry.sipxconfig.commserver;
 import static org.apache.commons.lang.StringUtils.substringBefore;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.enums.Enum;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -57,6 +60,18 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
     private int m_publicTlsPort = 5061;
     private int m_startRtpPort = 30000;
     private int m_stopRtpPort = 31000;
+
+    public Location() {
+    }
+
+    public Location(String fqdn) {
+        m_fqdn = fqdn;
+    }
+
+    public Location(String fqdn, String address) {
+        this(fqdn);
+        m_address = address;
+    }
 
     public String getName() {
         return m_name;
@@ -335,5 +350,19 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) LocationsManager.FEATURE);
+    }
+
+    /**
+     * Convenience method to turn collection of locations into addresses
+     */
+    public static Collection<Address> toAddresses(Collection<Location> locations) {
+        if (locations == null || locations.size() == 0) {
+            return Collections.emptyList();
+        }
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location l : locations) {
+            addresses.add(new Address(l.getAddress()));
+        }
+        return addresses;
     }
 }

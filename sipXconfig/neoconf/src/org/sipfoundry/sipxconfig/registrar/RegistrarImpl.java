@@ -85,8 +85,10 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
             address.setAddress(location.getAddress());
             if (type.equals(TCP_ADDRESS)) {
                 address.setPort(settings.getSipTcpPort());
+                address.setSipFormat();
             } else if (type.equals(UDP_ADDRESS)) {
                 address.setPort(settings.getSipUdpPort());
+                address.setSipFormat();
             } else if (type.equals(EVENT_ADDRESS)) {
                 address.setPort(settings.getMonitorPort());
             } else if (type.equals(XMLRPC_ADDRESS)) {

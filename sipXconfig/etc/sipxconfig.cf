@@ -7,7 +7,7 @@
 #
 bundle agent sipxconfig {
   methods:
-    any::
+    primary::
       "any" usebundle => "mongodb";
       "any" usebundle => "postgres";
       "any" usebundle => "sipxcommserverlib";
@@ -34,7 +34,7 @@ bundle agent sipxconfig_running {
         args => "start",
 	action => track("sipxconfig start");
 
-    restart_sipxconfig.primary::
+    primary.(restart_sipxconfig.restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         args => "restart",
 	action => track("sipxconfig restart");

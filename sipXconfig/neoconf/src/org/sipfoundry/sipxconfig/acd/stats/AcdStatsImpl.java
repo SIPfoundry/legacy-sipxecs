@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.springframework.beans.factory.annotation.Required;
 
-public class AcdStatsImpl implements FeatureProvider, AddressProvider, AcdStats {
+public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider {
     private BeanWithSettingsDao<AcdStatsSettings> m_settingsDao;
 
     public AcdStatsSettings getSettings() {

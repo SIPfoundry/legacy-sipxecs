@@ -1,6 +1,6 @@
 [{'OpenACD', [
-	{console_loglevel, critical},
-	{logfiles, [{"full.log", critical}, {"console.log", critical}]},
+	{console_loglevel, notice},
+	{logfiles, [{"full.log", notice}, {"console.log", notice}]},
 	{plugin_dir, "plugin.d"}, {plugins, [sipxplugin]}
 ]},
 {sasl, [

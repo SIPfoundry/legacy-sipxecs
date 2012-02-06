@@ -11,12 +11,11 @@ package org.sipfoundry.sipxconfig.parkorbit;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public interface ParkOrbitContext extends AliasOwner, AddressProvider {
+public interface ParkOrbitContext extends AliasOwner {
     public static final String PARK_ORBIT_GROUP_ID = "park_orbit";
     public static final String CONTEXT_BEAN_NAME = "parkOrbitContext";
     public static LocationFeature FEATURE = new LocationFeature("park");

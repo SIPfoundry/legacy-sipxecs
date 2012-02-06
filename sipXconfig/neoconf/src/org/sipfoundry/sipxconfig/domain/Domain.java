@@ -40,6 +40,10 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit {
         setName(name);
     }
 
+    public static Domain getDomain() {
+        return DomainManagerImpl.getDomainInstance();
+    }
+
     /**
      * Fully qualified host name is NOT using DNS SRV (e.g. myhost.example.com), otherwise use
      * domain name (example.com)

@@ -63,7 +63,7 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     List<AddressProvider> getProviders() {
         if (m_providers == null) {
             Map<String, AddressProvider> beanMap = m_beanFactory.getBeansOfType(
-                    AddressProvider.class, false, true);
+                    AddressProvider.class, false, false);
             m_providers = new ArrayList<AddressProvider>(beanMap.values());
         }
         return m_providers;
