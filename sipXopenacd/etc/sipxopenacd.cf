@@ -75,11 +75,11 @@ bundle agent sipxopenacd_setup {
 bundle agent sipxopenacd_running {
   vars:
     any::
-      "service_command" string => "$(sipx.OPENACD_HOME)/bin/openacd";
+      "service_command" string => ".*\s$(sipx.OPENACD_HOME)/bin/openacd\s.*";
 
   methods:
     any::
-      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxopenacd_running");
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenacd_running");
 
   commands:
     sipxopenacd_running.!sipxopenacd::

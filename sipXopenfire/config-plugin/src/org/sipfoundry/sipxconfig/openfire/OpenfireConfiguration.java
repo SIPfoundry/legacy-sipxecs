@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 
 public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
@@ -36,7 +37,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(OpenfireImpl.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE)) {
+        if (!request.applies(OpenfireImpl.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE)) {
             return;
         }
         

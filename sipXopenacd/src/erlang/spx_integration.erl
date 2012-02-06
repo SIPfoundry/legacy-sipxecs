@@ -329,7 +329,7 @@ handle_call(load_queues, _From, State) ->
 		call_queue_config:destroy_queue(Name),
 		case queue_manager:get_queue(Name) of
 			none -> ok;
-			Pid -> queue_manager:stop(Pid)
+			Pid -> call_queue:stop(Pid)
 		end,
 		?INFO("Destroyed: ~p", [Name])
 	end,
