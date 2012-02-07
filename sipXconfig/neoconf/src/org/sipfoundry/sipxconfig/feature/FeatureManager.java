@@ -20,6 +20,8 @@ public interface FeatureManager {
 
     public Set<GlobalFeature> getEnabledGlobalFeatures();
 
+    public Set<LocationFeature> getEnabledLocationFeatures();
+
     public Set<LocationFeature> getEnabledLocationFeatures(Location location);
 
     public void enableLocationFeature(LocationFeature feature, Location location, boolean enable);
