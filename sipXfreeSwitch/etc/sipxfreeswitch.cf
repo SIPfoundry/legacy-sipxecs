@@ -17,7 +17,7 @@ bundle agent sipxfreeswitch {
 bundle agent sipxfreeswitch_config {
   vars:    
     any::
-      "conference_file" string => "$(sipx.SIPX_CONFDIR)/freeswitch/autoload_configs/conference.conf.xml";
+      "conference_file" string => "$(sipx.SIPX_CONFDIR)/freeswitch/conf/autoload_configs/conference.conf.xml";
 
       "xml_file" slist => { 
         "freeswitch.xml",
