@@ -24,6 +24,9 @@ do
       --auto)
         Action=AUTO_REPAIR
       ;;
+      --obliterate)
+        Action=OBLITERATE
+      ;;
     esac
     shift # always consume 1
 done
@@ -39,7 +42,12 @@ Options:
 
   --auto - Will only repair db if it detects mongod died unexpectingly.  Safe to run this 
            in a cron.  This will restart mongod if it does repair database. 
-  
+
+  --obliterate 
+           Completely wipe mongo db clean.  Will attempt to stop server before dropping db, 
+           and start server after creating a new database. Only run this if you're sure
+	   you know what you're doing.
+
 USAGE
   exit
 fi
@@ -48,6 +56,15 @@ repair_db() {
    echo "repairing database"
    ! test -f $LOCK_FILE || rm -f $LOCK_FILE
    su -- ${MONGO_USER} /usr/bin/mongod --repair
+}
+
+obliterate_db() {
+  echo "obliterating database"
+  /etc/init.d/mongod stop 2>/dev/null
+   ! test -f $LOCK_FILE || rm -f $LOCK_FILE
+  ! test /var/lib/mongo || rm -rf /var/lib/mongo/*
+  chown mongod:mongod /var/lib/mongo
+  /etc/init.d/mongod start
 }
 
 if [ "${Action}" = "AUTO_REPAIR" ]
