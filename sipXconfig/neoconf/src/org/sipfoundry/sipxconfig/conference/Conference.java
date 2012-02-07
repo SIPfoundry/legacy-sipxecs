@@ -15,6 +15,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -340,6 +341,6 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) FreeswitchFeature.FEATURE);
+        return Arrays.asList((Feature) FreeswitchFeature.FEATURE, (Feature) ConferenceBridgeContext.FEATURE);
     }
 }
