@@ -10,9 +10,9 @@ bundle agent firewall {
  vars:
 
   methods:
-    has_systemctl_script::
+    fedora16_or_greater::
       "any" usebundle => "firewall_systemctl_running";
-    !has_systemctl_script::
+    !fedora16_or_greater::
       "any" usebundle => "firewall_sysv_running";
 }
 

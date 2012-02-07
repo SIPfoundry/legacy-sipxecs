@@ -11,9 +11,9 @@ bundle agent postgres {
     postgres::
       "any" usebundle => "postgres_init";
       "any" usebundle => "postgres_config";
-    has_systemctl::
+    fedora16_or_greater::
       "any" usebundle => "postgres_sysctl_running";
-    !has_systemctl::
+    !fedora16_or_greater::
       "any" usebundle => "postgres_sysv_running";
 }
 
@@ -41,11 +41,11 @@ bundle agent postgres_init {
     # starting and stopping server. Although you could call
     # initdb directly there is various other housekeeping that
     # the service script handles so leverage it here.
-    has_systemctl.initdb::
+    fedora16_or_greater.initdb::
       "/usr/bin/postgresql-setup"
         args => "initdb";
 
-    !has_systemctl.initdb::
+    !fedora16_or_greater.initdb::
       "$(sipx.PG_DAEMON)"
         args => "initdb";
 }

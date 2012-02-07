@@ -7,17 +7,17 @@ $root_keydir = "/var/cfengine/ppkeys"
 home_dir = `awk -F : '/@SIPXPBXUSER@/ { print $6 }' /etc/passwd`.chomp
 $user_keydir = "#{home_dir}/.cfagent/ppkeys"
 $primary_dat = "@SIPX_CFDATA@/defaults/primary.cfdat"
-$master_dat = "@SIPX_CFDATA@/defaults/master"
 $secondary_dat = "@SIPX_CFDATA@/defaults/secondary.cfdat"
 $location_dat = "@SIPX_CFDATA@/defaults/location_id"
 $log = "@SIPX_LOGDIR@/sipxecs-setup.log"
 $verbose = false
+$advanced = false
 $cli_options = {}
 $exit_status = 0
 
 def run_command(cmd)
   puts cmd if $verbose
-  ok = system("#{cmd} >> #{$log}")
+  ok = system("#{cmd} >> #{$log} 2>&1")
   if (!ok) 
     puts  "Failure to run command #{cmd}. See #{$log} for details. After you"
     puts  "have addressed the issue, you may rerun this script."
@@ -40,29 +40,45 @@ def set_nonroot_keys
 end
 
 def set_secondary
-  return true if (File.exists?($secondary_dat) && File.exists?($master_dat))
-  location_id = prompt_required("Enter location id : ")
+  return true if File.exists?($secondary_dat)
+  puts "Configuring as an additional server..."
+
+  master = prompt_required("Enter ip address or fully qualified host name of the primary server : ")
+
+  location_id = prompt_required("Enter numeric id this additional server : ")
   File.open($location_dat,'w') {|f|
     f.puts location_id
   }
   location_dir = "@SIPX_CFDATA@/#{location_id}"
   Dir.mkdir(location_dir) unless File.directory?(location_dir)  
-  master = prompt_required("Enter address of master server : ")
-  File.open($master_dat,'w') {|f|
-    f.puts master
-  }
+  
+  master_cfdata = prompt("Enter MASTER_SIPX_CFDATA [ press enter for @SIPX_CFDATA@ ] : ", "/opt/sipx-main/var/sipxdata/cfdata")
+  master_confdir = prompt("Enter MASTER_SIPX_CONFDIR [ press enter for @SIPX_CONFDIR@ ] : ", "/opt/sipx-main/etc/sipxpbx")
   File.open($secondary_dat,'w') {|f|
     f.puts "+sipxsupervisor"
+    f.puts "=master=#{master}"
+    f.puts "=MASTER_SIPX_CFDATA=#{master_cfdata}"
+    f.puts "=MASTER_SIPX_CONFDIR=#{master_confdir}"
   }
 
   return true
+end
+
+def prompt_primary
+  while true
+    v = prompt_required("Is this the primary server or an additional server?  Enter 'p' for primary or 'a' for additional : ")
+    return true if v == 'p'
+    return false if v == 'a'
+    puts "Invalid response."
+  end
 end
 
 # Return true or false IF machine is primary, not is anything was done or not
 def set_primary
   return false if File.exists?($secondary_dat)
   return true if File.exists?($primary_dat)
-  return false if !prompt_confirm("Configure as primary machine? : [ enter y or n ] ")
+  return false unless prompt_primary
+  puts "Configuring as the primary server..."
   File.open($location_dat, 'w') {|f|
     f.puts('1')
   }
@@ -142,7 +158,6 @@ end
 
 def reset
   rm_file($domain_dat)
-  rm_file($master_dat)
   rm_file($primary_dat)
   rm_file($secondary_dat)
   rm_file($location_dat)
@@ -170,6 +185,10 @@ args = OptionParser.new { |opts|
 
   opts.on("--reset-all", "Force reset of all possible settings including ssl keys.") {
     reset_all
+  }
+
+  opts.on("--advanced", "Ask advanced questions.") {
+    $advanced = true
   }
 
   opts.on_tail("--help", "Print options") {
