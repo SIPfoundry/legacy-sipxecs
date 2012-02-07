@@ -11,8 +11,10 @@ bundle agent postgres {
     postgres::
       "any" usebundle => "postgres_init";
       "any" usebundle => "postgres_config";
-    any::
-      "any" usebundle => "postgres_running";
+    has_systemctl::
+      "any" usebundle => "postgres_sysctl_running";
+    !has_systemctl::
+      "any" usebundle => "postgres_sysv_running";
 }
 
 bundle agent postgres_init {
@@ -39,12 +41,14 @@ bundle agent postgres_init {
     # starting and stopping server. Although you could call
     # initdb directly there is various other housekeeping that
     # the service script handles so leverage it here.
-    initdb::
-      "$(sipx.PG_DAEMON)"        
+    has_systemctl.initdb::
+      "/usr/bin/postgresql-setup"
+        args => "initdb";
+
+    !has_systemctl.initdb::
+      "$(sipx.PG_DAEMON)"
         args => "initdb";
 }
-
-
 
 bundle agent define_class(to_be_defined) {
   vars:
@@ -114,8 +118,7 @@ bundle edit_line pg_hba_conf {
     "local.*";
 }
 
-
-bundle agent postgres_running {
+bundle agent postgres_sysv_running {
   vars:
     any::
       "service_command" string => "/usr/bin/postmaster";
@@ -137,6 +140,31 @@ bundle agent postgres_running {
 
     restart_postgres.postgres::
       "$(sipx.PG_DAEMON)"
+        args => "restart",
+	action => track("postgres_restart");  
+}
+
+bundle agent postgres_sysctl_running {
+  vars:
+    any::
+      "service" string => "postgresql.service";
+
+  classes:
+    "postgres_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !postgres.postgres_running::
+      "$(sipx.systemctl)"
+        args => "stop $(service)",
+	action => track("postgres_stop");
+
+    !postgres_running.postgres::
+      "$(sipx.systemctl)"
+        args => "start $(service)",
+	action => track("postgres_start");
+
+    restart_postgres.postgres::
+      "$(sipx.systemctl)"
         args => "restart",
 	action => track("postgres_restart");  
 }
