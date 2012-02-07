@@ -68,8 +68,8 @@ public class DnsConfig implements ConfigProvider {
             }
 
             boolean namedOn = manager.getFeatureManager().isFeatureEnabled(DnsManager.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxdns.cfdat", namedOn, "sipxdns");
             if (!namedOn) {
-                ConfigUtils.enableCfengineClass(dir, "sipxdns.cfdat", namedOn, "sipxdns");
                 continue;
             }
 
@@ -101,7 +101,6 @@ public class DnsConfig implements ConfigProvider {
 
     void writeSettings(Writer w, DnsSettings settings) throws IOException {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
-        config.writeClass(DnsManager.FEATURE.getId(), true);
         String fwders = "";
         List<Address> fwd = settings.getDnsForwarders();
         if (fwd != null && fwd.size() > 0) {
