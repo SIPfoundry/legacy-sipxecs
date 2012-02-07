@@ -35,6 +35,7 @@ bundle common sipx {
     any::
       "location_id" string => readfile("@SIPX_CFDATA@/defaults/location_id", "100");
       "bind_ip" string => "$(sys.ipv4)";
+      "systemctl" string => "/bin/systemctl";
 
     !primary::
       "master" string => readfile("@SIPX_CFDATA@/defaults/master", "100");
@@ -56,6 +57,9 @@ bundle common sipx {
       #
       # comparing where the service directory is seems like a solid test if src based install
       "src" not => strcmp("@SIPX_SERVICEDIR@", "/etc/init.d");
+
+      # Fedora 16 or higher
+      "has_systemctl" expression => fileexists("$(systemctl)");
 }
 
 # add a crontab. Will automaticall reload crontab service
