@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# sipxacccode - Startup script for sipxacccode
+
+# chkconfig: 35 85 15
+# description: sipxacccode is Authorization Code/DISA/Account using FreeSwitch for sipX
+# processname: sipxacccode
+
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 # Contributors retain copyright to elements licensed under a Contributor Agreement.

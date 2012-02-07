@@ -2,7 +2,7 @@
 # sipxivr - Startup script for sipxivr
 
 # chkconfig: 35 85 15
-# description: sipxivr is a SIP proxy for telecommunications
+# description: sipxivr is a IVR subystem that uses FreeSWITCH as a media server
 # processname: sipxivr
 
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
