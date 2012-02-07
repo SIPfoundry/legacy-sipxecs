@@ -40,19 +40,3 @@ $(util_SCRIPTS) $(bin_SCRIPTS) $(setup_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
 CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS) $(util_SCRIPTS)
-
-noinst_PROGRAMS = \
-	sipxconfigrpc \
-	sipxconfigrpcsrv
-
-sipxconfigrpc_SOURCES = \
-	configrpc.cpp
-
-sipxconfigrpcsrv_SOURCES = \
-	configrpcsrv.cpp
-
-sipxconfigrpc_LDADD = \
-	../src/libsipXcommserver.la
-
-sipxconfigrpcsrv_LDADD = \
-	../src/libsipXcommserver.la

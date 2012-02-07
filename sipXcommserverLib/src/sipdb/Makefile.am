@@ -28,7 +28,6 @@ libsipdb_la_CXXFLAGS = \
 
 libsipdb_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
-	-lmongoclient \
 	-lboost_system-mt
 
 libsipdb_la_SOURCES =  \
