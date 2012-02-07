@@ -66,9 +66,4 @@ public class Address {
     public void setFormat(String format) {
         m_format = format;
     }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
 }

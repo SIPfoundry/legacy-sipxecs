@@ -89,7 +89,7 @@ public class DnsConfig implements ConfigProvider {
         }
     }
 
-    void writeResolv(Writer w, final Location l, String domain, final List<Address> dns) throws IOException {
+    void writeResolv(Writer w, Location l, String domain, List<Address> dns) throws IOException {
         // Only write out search if domain is not FQDN
         if (!l.getHostname().equals(domain)) {
             w.write(format("search %s\n", domain));

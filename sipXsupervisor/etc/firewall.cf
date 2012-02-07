@@ -8,18 +8,12 @@
 #
 bundle agent firewall {
  vars:
-   "service" string => "/etc/init.d/iptables";
-   "systemctl" string => "/bin/systemctl";
-
- classes:
-    "has_service_script" expression => fileexists("$(service)");
-    "has_sytemctl" expression => fileexists("$(systemctl)");
 
   methods:
-    has_service_script::
-      "any" usebundle => "firewall_service_running";
-    has_sytemctl::
+    has_systemctl_script::
       "any" usebundle => "firewall_systemctl_running";
+    !has_systemctl_script::
+      "any" usebundle => "firewall_sysv_running";
 }
 
 
@@ -28,30 +22,33 @@ bundle agent firewall_systemctl_running {
     "service" string => "iptables.service";
 
   classes:
-    "iptables_running" expression => returnszero("$(firewall.systemctl) is-active $(service)","noshell");
+    "iptables_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
     # NOTE: Start/stop commands will complain about not being able to open a TTY, but commands
     # to complete their task
     iptables_running.!firewall::
-      "$(firewall.systemctl)"
+      "$(sipx.systemctl)"
         args => "stop $(service)",
 	action => track("$(service) stop");
-      "$(firewall.systemctl)"
+      "$(sipx.systemctl)"
         args => "disable $(service)",
 	action => track("$(service) disable");
 
     !iptables_running.firewall::
-      "$(firewall.systemctl)"
+      "$(sipx.systemctl)"
         args => "start $(service)",
 	action => track("$(service) start");
-      "$(firewall.systemctl)"
+      "$(sipx.systemctl)"
         args => "enable $(service)",
 	action => track("$(service) enable");
 }
 
 
-bundle agent firewall_service_running {
+bundle agent firewall_sysv_running {
+  vars:
+   "service" string => "/etc/init.d/iptables";
+
   classes:
     "iptables_running" expression => returnszero("/sbin/lsmod | grep ip_tables","useshell");
 
@@ -63,18 +60,18 @@ bundle agent firewall_service_running {
 
   commands:
     iptables_running.!firewall::
-      "$(firewall.service)"
+      "$(service)"
         args => "stop",
-	action => track("$(firewall.service) stop");
+	action => track("$(service) stop");
 
     !iptables_running.firewall::
-      "$(firewall.service)"
+      "$(service)"
         args => "start",
-	action => track("$(firewall.service) start");
+	action => track("$(service) start");
 
     restart_iptables::
-      "$(firewall.service)"
+      "$(service)"
         args => "restart",
-	action => track("$(firewall.service) restart");
+	action => track("$(service) restart");
 }
 
