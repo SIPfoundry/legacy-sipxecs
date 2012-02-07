@@ -89,14 +89,23 @@ public class DnsConfig implements ConfigProvider {
         }
     }
 
-    void writeResolv(Writer w, Location l, String domain, List<Address> dns) throws IOException {
+    void writeResolv(Writer w, final Location l, String domain, final List<Address> dns) throws IOException {
         // Only write out search if domain is not FQDN
         if (!l.getHostname().equals(domain)) {
             w.write(format("search %s\n", domain));
         }
+
+        // write local dns server first if it exists
+        StringBuilder nm = new StringBuilder();
         for (Address a : dns) {
-            w.write(format("nameserver %s\n", a.getAddress()));
+            String line = format("nameserver %s\n", a.getAddress());
+            if (l.getAddress().equals(a.getAddress())) {
+                nm.insert(0, line);
+            } else {
+                nm.append(line);
+            }
         }
+        w.write(nm.toString());
     }
 
     void writeSettings(Writer w, DnsSettings settings) throws IOException {

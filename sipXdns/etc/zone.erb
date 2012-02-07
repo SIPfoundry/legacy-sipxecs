@@ -18,8 +18,15 @@ $TTL 1800
   # distribute traffic equally for now to each proxy
   sip_protocols.each { |proto|
     proxy_servers.each { |server| 
+      if proto == 'tls'
+%>_sips._tcp.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
+_sip._tls.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
+<%
+      else
+
 %>_sip._<%= proto %>.<%= domain %>.     IN      SRV     10 10 5060 <%= server[:name] %>.
-<%  } 
+<%    end
+    }
   }
 
   registrar_servers.each { |a|

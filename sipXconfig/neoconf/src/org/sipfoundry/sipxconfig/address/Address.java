@@ -54,6 +54,7 @@ public class Address {
         }
         return m_port == 0 ? m_address : m_address + ':' + m_port;
     }
+
     public void setSipFormat() {
         setFormat("sip:%s:%d");
     }
@@ -64,5 +65,10 @@ public class Address {
 
     public void setFormat(String format) {
         m_format = format;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

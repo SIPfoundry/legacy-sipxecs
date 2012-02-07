@@ -43,6 +43,17 @@ public class DnsConfigTest {
         m_a2 = new Address("2.2.2.2");
         m_a3 = new Address("3.3.3.3");
     }
+    
+    @Test
+    public void resolv() throws IOException {
+        StringWriter actual = new StringWriter();
+        m_config.writeResolv(actual, m_l1, "x", Arrays.asList(m_a1, m_a2));
+        assertEquals("search x\nnameserver 1.1.1.1\nnameserver 2.2.2.2\n", actual.toString());
+        // give priority to local dns server
+        actual = new StringWriter();
+        m_config.writeResolv(actual, m_l2, "x", Arrays.asList(m_a1, m_a2));
+        assertEquals("search x\nnameserver 2.2.2.2\nnameserver 1.1.1.1\n", actual.toString());
+    }
 
     @Test
     public void emptyZone() throws IOException {
