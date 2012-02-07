@@ -18,23 +18,23 @@ $TTL 1800
   # distribute traffic equally for now to each proxy
   sip_protocols.each { |proto|
     proxy_servers.each { |server| 
-%>_sip._<%= proto %>.<%= domain %>.     IN      SRV     1 0 5060 <%= server[:name] %>.
+%>_sip._<%= proto %>.<%= domain %>.     IN      SRV     10 10 5060 <%= server[:name] %>.
 <%  } 
   }
 
   registrar_servers.each { |a|
     registrar_servers.each { |b|
-      # weight so a proxy will find a local registrar first
-      rr_weight_priority = (a == b ? '1 0' : '2 100') 
-%>sip._tcp.rr.<%= a[:name] %>.     IN      SRV     <%= rr_weight_priority %> 5070 <%= b[:name] %>.
+      # give priority to local registrar
+      rr_priority = (a == b ? '10' : '20')
+%>sip._tcp.rr.<%= a[:name] %>.     IN      SRV     <%= rr_priority %> 10 5070 <%= b[:name] %>.
 <%  } 
   } 
 
   im_servers.each { |server| 
-%>_xmpp-server._tcp.<%= domain %>.     IN   SRV   1  0  5269  <%= server[:name] %>.
-_xmpp-client._tcp.<%= domain %>.     IN   SRV   1  0  5222  <%= server[:name] %>.
-_xmpp-server._tcp.conference.<%= domain %>.     IN   SRV   1  0  5222  <%= server[:name] %>.
-_xmpp-client._tcp.conference.<%= domain %>.     IN   SRV   1  0  5222  <%= server[:name] %>.
+%>_xmpp-server._tcp.<%= domain %>.     IN   SRV   10  10  5269  <%= server[:name] %>.
+_xmpp-client._tcp.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
+_xmpp-server._tcp.conference.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
+_xmpp-client._tcp.conference.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
 <%} 
 
   all_servers.each { |server| 
