@@ -198,12 +198,21 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
         return features;
     }
 
+    public Set<LocationFeature> getEnabledLocationFeatures() {
+        List<String> queryForList = m_jdbcTemplate.queryForList("select feature_id from feature_local", String.class);
+        return locationFeatures(queryForList);
+    }
+
     @Override
     public Set<LocationFeature> getEnabledLocationFeatures(Location location) {
         List<String> queryForList = m_jdbcTemplate.queryForList(
                 "select feature_id from feature_local where location_id = ? ", String.class, location.getId());
-        Set<LocationFeature> features = new HashSet<LocationFeature>(queryForList.size());
-        for (String id : queryForList) {
+        return locationFeatures(queryForList);
+    }
+
+    Set<LocationFeature> locationFeatures(List<String> ids) {
+        Set<LocationFeature> features = new HashSet<LocationFeature>(ids.size());
+        for (String id : ids) {
             features.add(new LocationFeature(id));
         }
         return features;

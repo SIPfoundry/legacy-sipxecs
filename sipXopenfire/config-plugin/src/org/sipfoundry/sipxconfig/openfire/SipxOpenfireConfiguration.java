@@ -48,7 +48,9 @@ public class SipxOpenfireConfiguration {
         context.put("password", user.getSipPassword());       
         context.put("resource-list", SpeedDial.getResourceListId(username, true));
         context.put("domainName", m_domainManager.getDomainName());
-        context.put("proxyPort", proxyAddress.getPort());
+        if (proxyAddress != null) {
+            context.put("proxyPort", proxyAddress.getPort());
+        }
         context.put("restAddress", restAddress);
         context.put("restExtAddress", restExtAddress);
         try {

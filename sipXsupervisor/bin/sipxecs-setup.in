@@ -112,7 +112,7 @@ def set_domain
   fqdn = prompt("Enter fully qualified domain name [ press enter for #{current_fqdn} ] : ", current_fqdn)
   domain = prompt("Enter SIP domain name [ press enter for #{fqdn} ] : ", fqdn)
   realm = prompt("Enter SIP realm [ press enter for #{domain} ] : ", domain)
-  new_secret = `head -c 18 /dev/urandom | base64`.chomp
+  shared_secret = `head -c 18 /dev/urandom | base64`.chomp
   File.open($domain_dat, 'w') { |f|
     f.puts <<EOF
 =domain=#{domain}
