@@ -153,17 +153,17 @@ bundle agent replicate_cfdata {
   files:
     # root own files only as extra measure against tampering, but not strict requirement
     "$(sipx.SIPX_CFDATA)"
-      copy_from => master_files("$(sipx.SIPX_CFDATA)"),
+      copy_from => master_files("$(sipx.MASTER_SIPX_CFDATA)"),
       depth_search => recurse("1"),
       perms => m("644");
 
     "$(sipx.SIPX_CFDATA)/$(sipx.location_id)"
-      copy_from => master_files("$(sipx.SIPX_CFDATA)/$(sipx.location_id)"),
+      copy_from => master_files("$(sipx.MASTER_SIPX_CFDATA)/$(sipx.location_id)"),
       depth_search => recurse("inf"),
       perms => m("644");
 
     "$(sipx.SIPX_CONFDIR)/ssl"
-      copy_from => master_files("$(sipx.SIPX_CONFDIR)/ssl"),
+      copy_from => master_files("$(sipx.MASTER_SIPX_CONFDIR)/ssl"),
       depth_search => recurse("inf"),
       perms => m("644");
 
