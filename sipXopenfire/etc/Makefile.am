@@ -21,7 +21,7 @@ dist_db_DATA = \
 	sipxopenfire-initdb.sql
 
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
-cfdefaults_DATA = \
+dist_cfdefaults_DATA = \
 	sipxopenfire.cfdat
 
 cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
