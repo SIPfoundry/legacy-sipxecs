@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# sipximbot - Startup script for sipximbot
+
+# chkconfig: 35 85 15
+# description: sipximbot is an IM Bot subystem that uses FreeSWITCH as a media server.
+# processname: sipximbot
+
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 # Contributors retain copyright to elements licensed under a Contributor Agreement.

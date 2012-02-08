@@ -3,7 +3,7 @@
 
 # chkconfig: 35 85 15
 # description: sipxconfig is an administration server
-# processname: sipxivr
+# processname: sipxconfig
 
 . /etc/rc.d/init.d/functions || exit 1
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1

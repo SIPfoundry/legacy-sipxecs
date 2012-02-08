@@ -52,8 +52,12 @@ def set_secondary
   location_dir = "@SIPX_CFDATA@/#{location_id}"
   Dir.mkdir(location_dir) unless File.directory?(location_dir)  
   
-  master_cfdata = prompt("Enter MASTER_SIPX_CFDATA [ press enter for @SIPX_CFDATA@ ] : ", "/opt/sipx-main/var/sipxdata/cfdata")
-  master_confdir = prompt("Enter MASTER_SIPX_CONFDIR [ press enter for @SIPX_CONFDIR@ ] : ", "/opt/sipx-main/etc/sipxpbx")
+  master_cfdata = "@SIPX_CFDATA@"
+  master_confdir = "@SIPX_CONFDIR@"
+  if $advanced
+    master_cfdata = prompt("Enter SIPX_CFDATA directory on master [ press enter for #{master_cfdata} ] : ", master_cfdata)
+    master_confdir = prompt("Enter SIPX_CONFDIR directory on master [ press enter for #{master_confdir} ] : ", master_confdir)
+  end
   File.open($secondary_dat,'w') {|f|
     f.puts "+sipxsupervisor"
     f.puts "=master=#{master}"

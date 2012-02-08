@@ -1,4 +1,11 @@
 #!/bin/bash
+
+# sipxcdr - Startup script for sipxcdr
+
+# chkconfig: 35 85 15
+# description: sipxcdr is a CDR (Call Distribution Record) aggregration
+# processname: sipxcdr
+
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
