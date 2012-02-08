@@ -5,5 +5,4 @@ SUBDIRS = \
    src \
    test \
    bin \
-   etc \
-   meta
+   etc

@@ -16,6 +16,5 @@ AC_CONFIG_FILES([
   test/Makefile
   bin/Makefile
   etc/Makefile
-  meta/Makefile
 ])
 AC_OUTPUT

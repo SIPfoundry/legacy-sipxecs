@@ -9,4 +9,4 @@ sipxacc_PKGS = \
 	mongo \
 	sipxcommons
 
-sipxacc_JAVAROOT = $(abspath $(top_builddir)/src/main/java/classes)
+sipxacc_JAVAROOT = $(abspath $(top_builddir)/src/classes)
