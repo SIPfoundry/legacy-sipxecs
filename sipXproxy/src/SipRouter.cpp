@@ -434,7 +434,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
    //
    Url fromUrl;
    sipRequest.getFromUrl(fromUrl);
-   if (fromUrl.getScheme() == UnknownUrlScheme)
+   if (fromUrl.getScheme() == Url::UnknownUrlScheme)
    {
      //
      //  Reject this request with a 400
