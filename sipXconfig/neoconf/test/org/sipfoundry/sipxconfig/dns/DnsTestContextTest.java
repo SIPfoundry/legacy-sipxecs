@@ -52,10 +52,10 @@ public class DnsTestContextTest extends TestCase {
         List<Location> locations = Arrays.asList(l1, l2);
         
         Address[][] addresses = new Address[][] { 
-                new Address[] { new Address("tcp1", 5061), new Address("tcp2", 5061)},
-                new Address[] { new Address("udp1", 5061), new Address("udp2", 5061)},
-                new Address[] { new Address("tls1", 5062), new Address("tls2", 5062)},
-                new Address[] { new Address("xmpp1", 106), new Address("xmpp2", 106)}
+                new Address[] { new Address(ProxyManager.TCP_ADDRESS, "tcp1", 5061), new Address(ProxyManager.TCP_ADDRESS, "tcp2", 5061)},
+                new Address[] { new Address(ProxyManager.UDP_ADDRESS, "udp1", 5061), new Address(ProxyManager.UDP_ADDRESS, "udp2", 5061)},
+                new Address[] { new Address(ProxyManager.TLS_ADDRESS, "tls1", 5062), new Address(ProxyManager.TLS_ADDRESS, "tls2", 5062)},
+                new Address[] { new Address(ImManager.XMPP_ADDRESS, "xmpp1", 106), new Address(ImManager.XMPP_ADDRESS, "xmpp2", 106)}
         };
         
         AddressManager addressManager = createMock(AddressManager.class);

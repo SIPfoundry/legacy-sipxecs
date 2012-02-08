@@ -7,29 +7,25 @@
  */
 package org.sipfoundry.sipxconfig.address;
 
-import static java.lang.String.format;
+import org.apache.commons.lang.builder.EqualsBuilder;
 
 public class Address {
     private String m_address;
     private int m_port;
-    private String m_format;
+    private AddressType m_type;
 
-    public Address() {
+    public Address(AddressType t) {
+        m_type = t;
     }
 
-    public Address(String address) {
+    public Address(AddressType t, String address) {
+        this(t);
         m_address = address;
     }
 
-    public Address(String address, int port) {
-        m_address = address;
+    public Address(AddressType t, String address, int port) {
+        this(t, address);
         m_port = port;
-    }
-
-    public Address(String address, int port, String format) {
-        m_address = address;
-        m_port = port;
-        m_format = format;
     }
 
     public String getAddress() {
@@ -49,21 +45,28 @@ public class Address {
     }
 
     public String toString() {
-        if (m_format != null) {
-            return format(m_format, m_address, m_port);
+        return m_type.format(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
         }
-        return m_port == 0 ? m_address : m_address + ':' + m_port;
-    }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        Address rhs = (Address) obj;
+        return new EqualsBuilder().append(m_address, rhs.m_address)
+                .append(m_port, rhs.m_port).append(m_type, rhs.m_type).isEquals();
 
-    public void setSipFormat() {
-        setFormat("sip:%s:%d");
-    }
-
-    public String getFormat() {
-        return m_format;
-    }
-
-    public void setFormat(String format) {
-        m_format = format;
     }
 }

@@ -68,13 +68,13 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         m_addressManager = createMock(AddressManager.class);
         m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS);
-        expectLastCall().andReturn(new Address("proxy.example.org", 9901)).once();
+        expectLastCall().andReturn(new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 9901)).once();
         m_addressManager.getSingleAddress(Mwi.SIP_TCP);
-        expectLastCall().andReturn(new Address("mwi.example.org", 9902)).once();
+        expectLastCall().andReturn(new Address(Mwi.SIP_TCP, "mwi.example.org", 9902)).once();
         m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS);
-        expectLastCall().andReturn(new Address("regevent.example.org", 9903)).once();
+        expectLastCall().andReturn(new Address(Registrar.EVENT_ADDRESS, "regevent.example.org", 9903)).once();
         m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS);        
-        expectLastCall().andReturn(new Address("reg.example.org", 9904)).once();
+        expectLastCall().andReturn(new Address(Registrar.TCP_ADDRESS, "reg.example.org", 9904)).once();
         replay(m_addressManager);
 
         m_statusLocation = new Location();

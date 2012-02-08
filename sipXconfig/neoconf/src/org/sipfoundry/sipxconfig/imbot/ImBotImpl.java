@@ -51,20 +51,17 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot {
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (type.equals(XML_RPC)) {
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-            List<Address> addresses = new ArrayList<Address>(locations.size());
-            ImBotSettings settings = getSettings();
-            for (Location location : locations) {
-                Address address = new Address();
-                address.setAddress(location.getAddress());
-                address.setPort(settings.getHttpPort());
-                address.setFormat("http://%s:%d/IM");
-                addresses.add(address);
-            }
-            return addresses;
+        if (!type.equals(XML_RPC)) {
+            return null;
         }
-        return null;
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        ImBotSettings settings = getSettings();
+        for (Location location : locations) {
+            Address address = new Address(XML_RPC, location.getAddress(), settings.getHttpPort());
+            addresses.add(address);
+        }
+        return addresses;
     }
 
     public void setSettingsDao(BeanWithSettingsDao<ImBotSettings> settingsDao) {

@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressType;
 
 public final class SettingUtil {
     private SettingUtil() {
@@ -111,7 +112,7 @@ public final class SettingUtil {
      *   SettingUtil.getAddresses(getSettings(), "named/forwarders");
      *
      */
-    public static List<Address> getAddresses(Setting base, String setting) {
+    public static List<Address> getAddresses(AddressType t, Setting base, String setting) {
         List<Address> addresses = Collections.emptyList();
         Setting s = base.getSetting(setting);
         if (s instanceof SettingSet) {
@@ -121,13 +122,13 @@ public final class SettingUtil {
             for (Setting server : values) {
                 String value = server.getValue();
                 if (value != null) {
-                    addresses.add(new Address(value));
+                    addresses.add(new Address(t, value));
                 }
             }
         } else {
             String value = s.getValue();
             if (value != null) {
-                addresses = Collections.singletonList(new Address(value));
+                addresses = Collections.singletonList(new Address(t, value));
             }
         }
 

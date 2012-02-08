@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -355,13 +356,13 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
     /**
      * Convenience method to turn collection of locations into addresses
      */
-    public static Collection<Address> toAddresses(Collection<Location> locations) {
+    public static List<Address> toAddresses(AddressType t, Collection<Location> locations) {
         if (locations == null || locations.size() == 0) {
             return Collections.emptyList();
         }
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location l : locations) {
-            addresses.add(new Address(l.getAddress()));
+            addresses.add(new Address(t, l.getAddress()));
         }
         return addresses;
     }

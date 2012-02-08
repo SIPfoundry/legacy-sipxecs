@@ -44,11 +44,11 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService 
 
         UnmanagedServiceSettings settings = getSettings();
         if (type.equals(NTP)) {
-            return settings.getAddresses("services/ntp");
+            return settings.getAddresses(NTP, "services/ntp");
         } else if (type.equals(SYSLOG)) {
-            return settings.getAddresses("services/syslog");
+            return settings.getAddresses(SYSLOG, "services/syslog");
         } else if (type.equals(DNS)) {
-            return settings.getAddresses("services/dns");
+            return settings.getAddresses(DNS, "services/dns");
         }
 
         return null;

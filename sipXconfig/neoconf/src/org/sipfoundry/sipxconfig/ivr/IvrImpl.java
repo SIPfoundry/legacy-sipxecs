@@ -68,22 +68,16 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr {
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (type.equals(REST_API)) {
-            IvrSettings settings = getSettings();
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-            List<Address> addresses = new ArrayList<Address>(locations.size());
-            for (Location location : locations) {
-                Address address = new Address();
-                address.setAddress(location.getFqdn());
-                if (type.equals(REST_API)) {
-                    address.setPort(settings.getHttpsPort());
-                    address.setFormat("https://%s:%d");
-                }
-                addresses.add(address);
-            }
-            return addresses;
+        if (!type.equals(REST_API)) {
+            return null;
         }
-        return null;
+        IvrSettings settings = getSettings();
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            addresses.add(new Address(REST_API, location.getFqdn(), settings.getHttpsPort()));
+        }
+        return addresses;
     }
 
     public void setPilotSettingsDao(BeanWithSettingsDao<CallPilotSettings> pilotSettingsDao) {

@@ -55,24 +55,22 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Object requester) {
-        List<Address> addresses = null;
-        if (ADDRESSES.contains(type)) {
-            RestServerSettings settings = getSettings();
-            Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-            addresses = new ArrayList<Address>(locations.size());
-            for (Location location : locations) {
-                Address address = new Address();
-                address.setAddress(location.getAddress());
-                if (type.equals(HTTPS_API)) {
-                    address.setPort(settings.getHttpsPort());
-                    address.setFormat("https://%s:%d");
-                } else if (type.equals(EXTERNAL_API)) {
-                    address.setPort(settings.getExternalPort());
-                } else if (type.equals(SIP_TCP)) {
-                    address.setPort(settings.getSipPort());
-                }
-                addresses.add(address);
+        if (!ADDRESSES.contains(type)) {
+            return null;
+        }
+        RestServerSettings settings = getSettings();
+        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            Address address = null;
+            if (type.equals(HTTPS_API)) {
+                address = new Address(HTTPS_API, location.getAddress(), settings.getHttpsPort());
+            } else if (type.equals(EXTERNAL_API)) {
+                address = new Address(EXTERNAL_API, location.getAddress(), settings.getExternalPort());
+            } else if (type.equals(SIP_TCP)) {
+                address = new Address(SIP_TCP, location.getAddress(), settings.getSipPort());
             }
+            addresses.add(address);
         }
 
         return addresses;

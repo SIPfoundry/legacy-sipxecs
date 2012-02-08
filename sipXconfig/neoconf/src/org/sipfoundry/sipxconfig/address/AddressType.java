@@ -7,15 +7,35 @@
  */
 package org.sipfoundry.sipxconfig.address;
 
+
 public class AddressType {
     private String m_id;
+    private String m_format;
 
     public AddressType(String uniqueId) {
         m_id = uniqueId;
     }
 
+    public AddressType(String uniqueId, String format) {
+        m_id = uniqueId;
+    }
+
+    /**
+     * Convenience method to format address as a sip type address
+     */
+    public static AddressType sip(String uniqueId) {
+        return new AddressType(uniqueId, "sip:%s:%d");
+    }
+
     public String getId() {
         return m_id;
+    }
+
+    public String format(Address address) {
+        if (m_format != null) {
+            return String.format(m_format, address.getAddress(), address.getPort());
+        }
+        return address.getPort() == 0 ? address.getAddress() : address.getAddress() + ':' + address.getPort();
     }
 
     @Override
@@ -42,5 +62,9 @@ public class AddressType {
             }
         }
         return false;
+    }
+
+    public String getFormat() {
+        return m_format;
     }
 }

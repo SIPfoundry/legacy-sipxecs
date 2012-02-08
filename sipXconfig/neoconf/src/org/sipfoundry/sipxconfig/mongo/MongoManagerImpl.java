@@ -46,7 +46,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
         Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE_ID);
         Collection<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            addresses.add(new Address(location.getAddress(), 27017));
+            addresses.add(new Address(ADDRESS_ID, location.getAddress(), 27017));
         }
         return addresses;
     }

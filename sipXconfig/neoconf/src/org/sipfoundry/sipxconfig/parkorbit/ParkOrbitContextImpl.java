@@ -176,14 +176,15 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         ParkSettings settings = getSettings();
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            Address address = new Address(location.getAddress());
+            Address address = null;
             if (type.equals(SIP_TCP_PORT)) {
-                address.setPort(settings.getSipTcpPort());
+                address = new Address(SIP_TCP_PORT, location.getAddress(), settings.getSipTcpPort());
             } else if (type.equals(SIP_UDP_PORT)) {
-                address.setPort(settings.getSipUdpPort());
+                address = new Address(SIP_UDP_PORT, location.getAddress(), settings.getSipUdpPort());
             } else if (type.equals(SIP_RTP_PORT)) {
-                address.setPort(settings.getRtpPort());
+                address = new Address(SIP_RTP_PORT, location.getAddress(), settings.getRtpPort());
             }
+            addresses.add(address);
         }
         return addresses;
     }

@@ -13,7 +13,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface Provision {
     public static final LocationFeature FEATURE = new LocationFeature("provision");
-    public static final AddressType PROVISION_SERVICE = new AddressType("provisionService");
+    public static final AddressType PROVISION_SERVICE = new AddressType("provisionService", "http://%s:%d/");
 
     public ProvisionSettings getSettings();
 

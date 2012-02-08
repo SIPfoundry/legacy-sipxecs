@@ -9,16 +9,17 @@ package org.sipfoundry.sipxconfig.address;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
 public interface AddressManager {
     public Address getSingleAddress(AddressType type);
 
-    public Address getSingleAddress(AddressType type, Object requester);
+    public Address getSingleAddress(AddressType type, Location requester);
 
     public List<Address> getAddresses(AddressType type);
 
-    public List<Address> getAddresses(AddressType type, Object requester);
+    public List<Address> getAddresses(AddressType type, Location requester);
 
     public FeatureManager getFeatureManager();
 }

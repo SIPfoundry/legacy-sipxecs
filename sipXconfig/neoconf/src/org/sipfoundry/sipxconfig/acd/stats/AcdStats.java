@@ -12,7 +12,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface AcdStats {
     public static final LocationFeature FEATURE = new LocationFeature("acdStats");
-    public static final AddressType API_ADDRESS = new AddressType("acdStatsApi");
+    public static final AddressType API_ADDRESS = new AddressType("acdStatsApi", "http://%s:%d");
 
     public AcdStatsSettings getSettings();
 

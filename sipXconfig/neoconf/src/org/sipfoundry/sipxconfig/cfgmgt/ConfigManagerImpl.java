@@ -231,11 +231,11 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (type.equals(SUPERVISOR_ADDRESS)) {
-            // this will eventually phase out in favor of sipxsupervisor-lite
-            return Collections.singleton(new Address(null, 8092));
+        if (!type.equals(SUPERVISOR_ADDRESS)) {
+            return null;
         }
-        return null;
+        // this will eventually phase out in favor of sipxsupervisor-lite
+        return Collections.singleton(new Address(SUPERVISOR_ADDRESS, null, 8092));
     }
 
     private Collection<ConfigProvider> getProviders() {

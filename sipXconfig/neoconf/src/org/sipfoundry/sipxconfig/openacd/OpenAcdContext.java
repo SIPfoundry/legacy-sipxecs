@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
 
 public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner {
     public static final LocationFeature FEATURE = new LocationFeature("openacd");
-    public static final AddressType REST_API = new AddressType("openacdRestApi");
+    public static final AddressType REST_API = new AddressType("openacdRestApi", "http://%s:%d/");
     public static final String MAGIC_SKILL_GROUP_NAME = "Magic";
     public static final String GROUP_NAME_DEFAULT = "Default";
 

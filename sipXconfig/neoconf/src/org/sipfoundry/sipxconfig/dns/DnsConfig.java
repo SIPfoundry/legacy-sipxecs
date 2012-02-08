@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -43,10 +42,6 @@ public class DnsConfig implements ConfigProvider {
         }
 
         AddressManager am = manager.getAddressManager();
-        List<Address> proxy = am.getAddresses(ProxyManager.TCP_ADDRESS, this);
-        List<Address> reg = am.getAddresses(Registrar.TCP_ADDRESS, this);
-        List<Address> im = am.getAddresses(ImManager.XMPP_ADDRESS, this);
-        List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, this);
         String domain = manager.getDomainManager().getDomainName();
         List<Location> all = manager.getLocationManager().getLocationsList();
         DnsSettings settings = m_dnsManager.getSettings();
@@ -54,6 +49,7 @@ public class DnsConfig implements ConfigProvider {
         long serNo = System.currentTimeMillis();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, location);
 
             // If there are no dns servers define, there is no reason to touch resolv.conf
             boolean resolvOn = dns.size() > 0;
@@ -80,6 +76,9 @@ public class DnsConfig implements ConfigProvider {
                 IOUtils.closeQuietly(dat);
             }
 
+            List<Address> proxy = am.getAddresses(ProxyManager.TCP_ADDRESS, location);
+            List<Address> reg = am.getAddresses(Registrar.TCP_ADDRESS, location);
+            List<Address> im = am.getAddresses(ImManager.XMPP_ADDRESS, location);
             Writer zone = new FileWriter(new File(dir, "zone.yaml"));
             try {
                 writeZoneConfig(zone, domain, all, proxy, reg, im, dns, serNo);
@@ -128,15 +127,7 @@ public class DnsConfig implements ConfigProvider {
         writeServerYaml(w, all, "registrar_servers", reg);
         writeServerYaml(w, all, "dns_servers", dns);
         writeServerYaml(w, all, "im_servers", im);
-        writeServerYaml(w, all, "all_servers", toAddresses(all));
-    }
-
-    List<Address> toAddresses(List<Location> locations) {
-        List<Address> addresses = new ArrayList<Address>(locations.size());
-        for (Location l : locations) {
-            addresses.add(new Address(l.getAddress()));
-        }
-        return addresses;
+        writeServerYaml(w, all, "all_servers", Location.toAddresses(DnsManager.DNS_ADDRESS, all));
     }
 
     /**

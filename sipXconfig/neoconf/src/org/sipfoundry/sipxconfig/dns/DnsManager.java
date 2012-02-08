@@ -7,7 +7,12 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
+
+import java.util.Collection;
+
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface DnsManager {
@@ -17,4 +22,6 @@ public interface DnsManager {
     public DnsSettings getSettings();
 
     public void saveSettings(DnsSettings settings);
+
+    public Address getSingleAddress(AddressType t, Collection<Address> addresses, Location whoIsAsking);
 }

@@ -47,8 +47,8 @@ public class BridgeSbcStatisticsTest {
         replay(configManager);
 
         AddressManager addressManager = createMock(AddressManager.class);
-        addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS, BridgeSbcContext.FEATURE);
-        expectLastCall().andReturn(new Address("bridge.example.org", 9999)).anyTimes();
+        addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS);
+        expectLastCall().andReturn(new Address(BridgeSbcContext.XMLRPC_ADDRESS, "bridge.example.org", 9999)).anyTimes();
         replay(addressManager);
         
         m_sbc = new BridgeSbc();

@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class MwiConfigTest {
@@ -43,7 +44,7 @@ public class MwiConfigTest {
         config.setVelocityEngine(TestHelper.getVelocityEngine());
         StringWriter actual = new StringWriter();
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-status-plugin-config"));        
-        config.writePlugin(actual, new Address("ivr.example.org", 100, "https://%s:%d"));
+        config.writePlugin(actual, new Address(Ivr.REST_API, "ivr.example.org", 100));
         assertEquals(expected, actual.toString());
     }
 }

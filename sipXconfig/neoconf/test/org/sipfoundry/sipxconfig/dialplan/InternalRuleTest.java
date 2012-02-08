@@ -70,7 +70,7 @@ public class InternalRuleTest extends TestCase {
         m_mediaServer = new FreeswitchMediaServer();
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-        expectLastCall().andReturn(new Address("192.168.1.1")).anyTimes();
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "192.168.1.1")).anyTimes();
         replay(addressManager);
         m_mediaServer.setAddressManager(addressManager);
 

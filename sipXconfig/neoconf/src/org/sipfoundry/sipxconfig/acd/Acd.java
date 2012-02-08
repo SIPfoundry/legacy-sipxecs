@@ -65,10 +65,9 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
             addresses = new ArrayList<Address>();
             for (Location location : locations) {
                 AcdServer server = m_acdContext.getAcdServerForLocationId(location.getId());
-                Address address = new Address();
-                address.setAddress(location.getAddress());
+                Address address = null;
                 if (type.equals(CONFIG_ADDRESS)) {
-                    address.setPort(server.getPort());
+                    address = new Address(CONFIG_ADDRESS, location.getAddress(), server.getPort());
                 } else if (type.equals(TCP_SIP_ADDRESS)) {
                     address.setPort(server.getSipPort());
                 } else if (type.equals(UDP_SIP_ADDRESS)) {
@@ -78,6 +77,7 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
                 } else if (type.equals(MONITOR_ADDRESS)) {
                     address.setPort(server.getMonitorPort());
                 }
+                addresses.add(address);
             }
         }
         return addresses;

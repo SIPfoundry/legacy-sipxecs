@@ -68,12 +68,11 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls {
         RlsSettings settings = getSettings();
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            Address address = new Address();
-            address.setAddress(location.getAddress());
+            Address address;
             if (type.equals(UDP_SIP)) {
-                address.setPort(settings.getUdpPort());
+                address = new Address(UDP_SIP, location.getAddress(), settings.getUdpPort());
             } else {
-                address.setPort(settings.getTcpPort());
+                address = new Address(TCP_SIP, location.getAddress(), settings.getTcpPort());
             }
             addresses.add(address);
         }

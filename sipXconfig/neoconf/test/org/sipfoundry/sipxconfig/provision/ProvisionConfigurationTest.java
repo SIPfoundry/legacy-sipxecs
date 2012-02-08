@@ -42,7 +42,7 @@ public class ProvisionConfigurationTest {
         replay(coreContext);
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getSingleAddress(AdminContext.HTTPS_ADDRESS);
-        expectLastCall().andReturn(new Address("admin.example.org", 100)).once();
+        expectLastCall().andReturn(new Address(AdminContext.HTTPS_ADDRESS, "admin.example.org", 100)).once();
         replay(addressManager);        
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         settings.setAddressManager(addressManager);

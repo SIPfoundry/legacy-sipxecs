@@ -94,19 +94,15 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (type.equals(REST_API)) {
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-            List<Address> addresses = new ArrayList<Address>(locations.size());
-            for (Location location : locations) {
-                Address address = new Address();
-                address.setAddress(location.getAddress());
-                address.setPort(5050);
-                address.setFormat("http://%s:%d/");
-                addresses.add(address);
-            }
-            return addresses;
+        if (!type.equals(REST_API)) {
+            return null;
         }
-        return null;
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            addresses.add(new Address(REST_API, location.getAddress(), 5050));
+        }
+        return addresses;
     }
 
     public OpenAcdSettings getSettings() {

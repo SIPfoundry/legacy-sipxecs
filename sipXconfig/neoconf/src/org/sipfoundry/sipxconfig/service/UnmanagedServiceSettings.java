@@ -10,6 +10,7 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -43,8 +44,8 @@ public class UnmanagedServiceSettings extends PersistableSettings {
         return getSettingValue("services/syslog");
     }
 
-    public List<Address> getAddresses(String setting) {
-        return SettingUtil.getAddresses(getSettings(), setting);
+    public List<Address> getAddresses(AddressType t, String setting) {
+        return SettingUtil.getAddresses(t, getSettings(), setting);
     }
 
     @Override

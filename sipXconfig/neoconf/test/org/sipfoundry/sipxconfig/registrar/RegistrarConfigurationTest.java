@@ -16,6 +16,10 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.im.ImManager;
+import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
+import org.sipfoundry.sipxconfig.presence.PresenceServer;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
@@ -29,10 +33,10 @@ public class RegistrarConfigurationTest {
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         Domain domain = new Domain("example.org");
         domain.setSipRealm("grapefruit");        
-        Address imApi = new Address("im.example.org", 100);
-        Address presenceApi = new Address("presence.example.org", 101);
-        Address park = new Address("park.example.org", 102);
-        Address proxy = new Address("proxy.example.org", 103);
+        Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
+        Address presenceApi = new Address(PresenceServer.HTTP_ADDRESS, "presence.example.org", 101);
+        Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
+        Address proxy = new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 103);
         Location location = TestHelper.createDefaultLocation();
         config.write(actual, settings, domain, location, proxy, imApi, presenceApi, park);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-registrar-config"));

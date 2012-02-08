@@ -32,7 +32,7 @@ public class FreeswitchMediaServerTest extends TestCase {
         m_addressManager = createMock(AddressManager.class);
         m_mediaServer.setAddressManager(m_addressManager);
         m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-        expectLastCall().andReturn(new Address("ivr.example.org", 3333)).anyTimes();
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "ivr.example.org", 3333)).anyTimes();
         replay(m_addressManager);
 
         LocationsManager locationsManager = createMock(LocationsManager.class);

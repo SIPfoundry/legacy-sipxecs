@@ -246,16 +246,17 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location l : locations) {
-            Address address = new Address(l.getAddress());
+            Address address = null;
             if (type.equals(SIP_TCP)) {
-                address.setPort(settings.getSipTcpPort());
+                address = new Address(SIP_TCP, l.getAddress(), settings.getSipTcpPort());
             } else if (type.equals(SIP_UDP)) {
-                address.setPort(settings.getSipUdpPort());
+                address = new Address(SIP_UDP, l.getAddress(), settings.getSipUdpPort());
             } else if (type.equals(SIP_TLS)) {
-                address.setPort(settings.getSipTlsPort());
+                address = new Address(SIP_TLS, l.getAddress(), settings.getSipTlsPort());
             } else if (type.equals(RTP_PORT)) {
-                address.setPort(settings.getRtpPort());
+                address = new Address(RTP_PORT, l.getAddress(), settings.getRtpPort());
             }
+            addresses.add(address);
         }
 
         return addresses;

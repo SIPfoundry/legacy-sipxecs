@@ -7,12 +7,13 @@
  */
 package org.sipfoundry.sipxconfig.address;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -24,18 +25,19 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     private List<AddressProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
     private FeatureManager m_featureManager;
+    private DnsManager m_dnsManager;
 
     public Address getSingleAddress(AddressType type) {
         return getSingleAddress(type, null);
     }
 
-    public Address getSingleAddress(AddressType type, Object requester) {
-        // TODO: Consult DNS provider to return SRV addresses when appropriate to return
-        // a single address that is really a combination of addresses
+    public Address getSingleAddress(AddressType type, Location requester) {
         for (AddressProvider provider : getProviders()) {
             Collection<Address> addresses = provider.getAvailableAddresses(this, type, requester);
             if (addresses != null && addresses.size() > 0) {
-                return addresses.iterator().next();
+                // Consult DNS provider to return SRV addresses when appropriate to return
+                // a single address that is really a combination of addresses
+                return m_dnsManager.getSingleAddress(type, addresses, requester);
             }
         }
 
@@ -46,9 +48,7 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
         return getAddresses(type, null);
     }
 
-    public List<Address> getAddresses(AddressType type, Object requester) {
-        // TODO: Consult DNS provider to return SRV addresses when appropriate to return
-        // a single address that is really a combination of addresses
+    public List<Address> getAddresses(AddressType type, Location requester) {
         List<Address> addresses = new ArrayList<Address>();
         for (AddressProvider provider : getProviders()) {
             Collection<Address> some = provider.getAvailableAddresses(this, type, requester);
@@ -81,5 +81,9 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     @Required
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    public void setDnsManager(DnsManager dnsManager) {
+        m_dnsManager = dnsManager;
     }
 }

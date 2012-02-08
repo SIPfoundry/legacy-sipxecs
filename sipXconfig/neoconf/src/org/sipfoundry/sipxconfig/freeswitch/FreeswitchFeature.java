@@ -38,8 +38,8 @@ import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 public class FreeswitchFeature implements Replicable, ReplicableProvider, FeatureProvider, AliasOwner,
         AddressProvider {
     public static final LocationFeature FEATURE = new LocationFeature("freeSwitch");
-    public static final AddressType SIP_ADDRESS = new AddressType("freeswitch-sip");
-    public static final AddressType XMLRPC_ADDRESS = new AddressType("freeswitch-xmlrpc");
+    public static final AddressType SIP_ADDRESS = AddressType.sip("freeswitch-sip");
+    public static final AddressType XMLRPC_ADDRESS = new AddressType("freeswitch-xmlrpc", "http://%s:%d/RPC2");
     public static final AddressType EVENT_ADDRESS = new AddressType("freeswitch-event");
     public static final AddressType ACC_EVENT_ADDRESS = new AddressType("acc-freeswitch-event");
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_ADDRESS, XMLRPC_ADDRESS,
@@ -166,17 +166,15 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
         List<Address> addresses = new ArrayList<Address>();
         for (Location location : locations) {
             FreeswitchSettings settings = getSettings(location);
-            Address address = new Address();
-            address.setAddress(location.getAddress());
+            Address address = null;
             if (type.equals(XMLRPC_ADDRESS)) {
-                address.setFormat("http://%s:%d/RPC2");
-                address.setPort(settings.getXmlRpcPort());
+                address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
             } else if (type.equals(EVENT_ADDRESS)) {
-                address.setPort(settings.getEventSocketPort());
+                address = new Address(EVENT_ADDRESS, location.getAddress(), settings.getEventSocketPort());
             } else if (type.equals(ACC_EVENT_ADDRESS)) {
-                address.setPort(settings.getAccEventSocketPort());
+                address = new Address(ACC_EVENT_ADDRESS, location.getAddress(), settings.getAccEventSocketPort());
             } else if (type.equals(SIP_ADDRESS)) {
-                address.setPort(settings.getFreeswitchSipPort());
+                address = new Address(SIP_ADDRESS, location.getAddress(), settings.getFreeswitchSipPort());
             }
             addresses.add(address);
         }

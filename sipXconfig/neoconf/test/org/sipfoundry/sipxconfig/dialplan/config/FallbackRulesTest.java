@@ -60,12 +60,12 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out = new FallbackRules();
         m_out.setDomainName("example.org");
         AddressManager addressManager = createMock(AddressManager.class);
-        addressManager.getSingleAddress(Rls.TCP_SIP, DialPlanContext.FEATURE);
-        expectLastCall().andReturn(new Address("rls.example.org", 100));
-        addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, DialPlanContext.FEATURE);
-        expectLastCall().andReturn(new Address("park.example.org", 101));        
-        addressManager.getSingleAddress(PagingContext.SIP_TCP, DialPlanContext.FEATURE);
-        expectLastCall().andReturn(new Address("page.example.org", 102));        
+        addressManager.getSingleAddress(Rls.TCP_SIP);
+        expectLastCall().andReturn(new Address(Rls.TCP_SIP, "rls.example.org", 100));
+        addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT);
+        expectLastCall().andReturn(new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 101));        
+        addressManager.getSingleAddress(PagingContext.SIP_TCP);
+        expectLastCall().andReturn(new Address(PagingContext.SIP_TCP, "page.example.org", 102));        
         replay(addressManager);
         m_out.setAddressManager(addressManager);
     }

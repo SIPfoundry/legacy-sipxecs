@@ -81,21 +81,17 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
         Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            Address address = new Address();
-            address.setAddress(location.getAddress());
+            Address address = null;
             if (type.equals(TCP_ADDRESS)) {
-                address.setPort(settings.getSipTcpPort());
-                address.setSipFormat();
+                address = new Address(TCP_ADDRESS, location.getAddress(), settings.getSipTcpPort());
             } else if (type.equals(UDP_ADDRESS)) {
-                address.setPort(settings.getSipUdpPort());
-                address.setSipFormat();
+                address = new Address(UDP_ADDRESS, location.getAddress(), settings.getSipUdpPort());
             } else if (type.equals(EVENT_ADDRESS)) {
-                address.setPort(settings.getMonitorPort());
+                address = new Address(EVENT_ADDRESS, location.getAddress(), settings.getMonitorPort());
             } else if (type.equals(XMLRPC_ADDRESS)) {
-                address.setPort(settings.getXmlRpcPort());
+                address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
             } else if (type.equals(PRESENCE_MONITOR_ADDRESS)) {
-                address.setPort(settings.getPresencePort());
-                address.setFormat("http://%s:%d/RPC2");
+                address = new Address(PRESENCE_MONITOR_ADDRESS, location.getAddress(), settings.getPresencePort());
             }
             addresses.add(address);
         }

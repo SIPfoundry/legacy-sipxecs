@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 
 public class BridgeSbcContext implements FeatureProvider, AddressProvider {
     public static final LocationFeature FEATURE = new LocationFeature("sbcBridge");
-    public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc");
+    public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc", "https://%s:%d");
     private SbcDeviceManager m_sbcDeviceManager;
 
     @Override
@@ -44,13 +44,10 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider {
     }
 
     private Address newSbcAddress(BridgeSbc bridge, AddressType type) {
-        Address address = new Address();
-        address.setAddress(bridge.getAddress());
-        if (type.equals(XMLRPC_ADDRESS)) {
-            address.setPort(bridge.getXmlRpcPort());
-            address.setFormat("https://%s:%d");
+        if (!type.equals(XMLRPC_ADDRESS)) {
+            return null;
         }
-        return address;
+        return new Address(XMLRPC_ADDRESS, bridge.getAddress(), bridge.getXmlRpcPort());
     }
 
     @Override

@@ -41,7 +41,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 public class PresenceServerImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, FeatureListener,
         PresenceServer {
     public static final LocationFeature FEATURE = new LocationFeature("acdPresence");
-    public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi");
+    public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi", "http://%s:%d/RPC2");
     public static final AddressType SIP_TCP_ADDRESS = new AddressType("acdPresenceTcp");
     public static final AddressType SIP_UDP_ADDRESS = new AddressType("acdPresenceUdp");
     public static final String OBJECT_CLASS_KEY = "object-class";
@@ -188,15 +188,13 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
         List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            Address address = new Address();
-            address.setAddress(location.getAddress());
+            Address address = null;
             if (type.equals(HTTP_ADDRESS)) {
-                address.setPort(settings.getApiPort());
-                address.setFormat("http://%s:%d/RPC2");
+                address = new Address(HTTP_ADDRESS, location.getAddress(), settings.getApiPort());
             } else if (type.equals(SIP_TCP_ADDRESS)) {
-                address.setPort(settings.getSipTcpPort());
+                address = new Address(SIP_TCP_ADDRESS, location.getAddress(), settings.getSipTcpPort());
             } else if (type.equals(SIP_UDP_ADDRESS)) {
-                address.setPort(settings.getSipUdpPort());
+                address = new Address(SIP_UDP_ADDRESS, location.getAddress(), settings.getSipUdpPort());
             }
             addresses.add(address);
         }

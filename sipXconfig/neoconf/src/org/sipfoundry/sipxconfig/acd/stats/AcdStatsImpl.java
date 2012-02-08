@@ -62,7 +62,7 @@ public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider 
             AcdStatsSettings settings = getSettings();
             addresses = new ArrayList<Address>(locations.size());
             for (Location location : locations) {
-                addresses.add(new Address(location.getAddress(), settings.getAcdStatsPort(), "http://%s:%d"));
+                addresses.add(new Address(API_ADDRESS, location.getAddress(), settings.getAcdStatsPort()));
             }
         }
         return addresses;

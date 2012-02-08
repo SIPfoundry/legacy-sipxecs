@@ -28,9 +28,9 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressProvider, ProcessProvider {
     public static final LocationFeature FEATURE = new LocationFeature("proxy");
-    public static final AddressType TCP_ADDRESS = new AddressType("proxyTcp");
-    public static final AddressType UDP_ADDRESS = new AddressType("procyUdp");
-    public static final AddressType TLS_ADDRESS = new AddressType("proxyTls");
+    public static final AddressType TCP_ADDRESS = AddressType.sip("proxyTcp");
+    public static final AddressType UDP_ADDRESS = AddressType.sip("procyUdp");
+    public static final AddressType TLS_ADDRESS = AddressType.sip("proxyTls");
     private static final Collection<AddressType> ADDRESS_TYPES = Arrays.asList(new AddressType[] {
         TCP_ADDRESS, UDP_ADDRESS, TLS_ADDRESS
     });
@@ -70,14 +70,14 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         Collection<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
         addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            Address address = new Address();
-            address.setAddress(location.getAddress());
-            if (type.equals(TCP_ADDRESS) || type.equals(UDP_ADDRESS)) {
-                address.setPort(5060);
+            Address address = null;
+            if (type.equals(TCP_ADDRESS)) {
+                address = new Address(TCP_ADDRESS, location.getAddress(), 5060);
+            } else if (type.equals(UDP_ADDRESS)) {
+                address = new Address(UDP_ADDRESS, location.getAddress(), 5060);
             } else if (type.equals(TLS_ADDRESS)) {
-                address.setPort(5061);
+                address = new Address(UDP_ADDRESS, location.getAddress(), 5061);
             }
-            address.setSipFormat();
             addresses.add(address);
         }
 

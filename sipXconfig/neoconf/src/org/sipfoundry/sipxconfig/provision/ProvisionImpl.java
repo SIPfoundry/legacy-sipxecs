@@ -50,7 +50,7 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+        if (!type.equals(PROVISION_SERVICE)) {
             return null;
         }
 
@@ -58,7 +58,7 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            addresses.add(new Address(location.getAddress(), settings.getPort(), "http://%s:%d/"));
+            addresses.add(new Address(PROVISION_SERVICE, location.getAddress(), settings.getPort()));
         }
 
         return addresses;

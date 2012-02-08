@@ -32,7 +32,7 @@ public class DnsSettings extends PersistableSettings implements DeployConfigOnEd
     }
 
     public List<Address> getDnsForwarders() {
-        return SettingUtil.getAddresses(getSettings(), "named-config/dnsForwarders");
+        return SettingUtil.getAddresses(DnsManager.DNS_ADDRESS, getSettings(), "named-config/dnsForwarders");
     }
 
     @Override

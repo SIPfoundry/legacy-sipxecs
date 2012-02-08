@@ -39,9 +39,9 @@ public class DnsConfigTest {
         m_l2 = new Location("two", "2.2.2.2");
         m_l3 = new Location("three", "3.3.3.3");
         m_locations = Arrays.asList(m_l1, m_l2, m_l3);
-        m_a1 = new Address("1.1.1.1");
-        m_a2 = new Address("2.2.2.2");
-        m_a3 = new Address("3.3.3.3");
+        m_a1 = new Address(DnsManager.DNS_ADDRESS, "1.1.1.1");
+        m_a2 = new Address(DnsManager.DNS_ADDRESS, "2.2.2.2");
+        m_a3 = new Address(DnsManager.DNS_ADDRESS, "3.3.3.3");
     }
     
     @Test

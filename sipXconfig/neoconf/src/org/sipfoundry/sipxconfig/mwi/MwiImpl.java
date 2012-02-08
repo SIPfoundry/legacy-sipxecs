@@ -60,15 +60,13 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi {
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            Address address = new Address();
-            address.setAddress(location.getAddress());
+            Address address;
             if (type.equals(HTTP_API)) {
-                address.setPort(settings.getHttpApiPort());
-                address.setFormat("https://%s:%d/cgi/StatusEvent.cgi");
+                address = new Address(HTTP_API, location.getAddress(), settings.getHttpApiPort());
             } else if (type.equals(SIP_UDP)) {
-                address.setPort(settings.getUdpPort());
+                address = new Address(SIP_UDP, location.getAddress(), settings.getUdpPort());
             } else {
-                address.setPort(settings.getTcp());
+                address = new Address(SIP_TCP, location.getAddress(), settings.getTcp());
             }
             addresses.add(address);
         }

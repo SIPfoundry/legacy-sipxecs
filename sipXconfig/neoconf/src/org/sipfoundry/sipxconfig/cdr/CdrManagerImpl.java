@@ -533,7 +533,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         }
 
         CdrSettings settings = getSettings();
-        return Collections.singleton(new Address(locations.get(0).getAddress(), settings.getAgentPort()));
+        return Collections.singleton(new Address(CDR_API, locations.get(0).getAddress(), settings.getAgentPort()));
     }
 
     public void setAddressManager(AddressManager addressManager) {
