@@ -55,6 +55,9 @@ bundle common sipx {
       # comparing where the service directory is seems like a solid test if src based install
       "src" not => strcmp("@SIPX_SERVICEDIR@", "/etc/init.d");
 
+      # established assumption
+      "primary" expression => strcmp("$(location_id)", "1");
+
     fedora::
       "fedora16_or_greater" expression => "fedora_16|fedora_17|fedora_18|fedora_19|fedora_20";
 }
@@ -136,40 +139,47 @@ bundle agent sipx_module {
 	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
 }
 
-bundle agent sipx_init {
-  methods:
-    !primary::
-       "any" usebundle => "replicate_cfdata";
-}
-
-body copy_from master_files(d) {
-  servers => { "$(sipx.master)" };
-  source => "$(d)";
+body copy_from master_files(server,dir) {
+  servers => { "$(server)" };
+  source => "$(dir)";
   trustkey => "true";
   compare => "digest";
 }
 
-bundle agent replicate_cfdata {
+bundle agent sipx_init {
+  methods:
+    !primary::
+      "update" usebundle => "update_from_master";
+}
+
+bundle agent update_from_master {
+  # here we go to "great lengths" to avoid using $(sipx. variables and classes 
+  # because we have not pulled down a fresh copy of cfdata yet and they could change.
+  # location_id is safe because it's loaded differently and not allowed to change
+  vars:
+    "dim_master" int => readstringarray("master","@SIPX_CFDATA@/defaults/master", "#[^\n]*", "=", 10, 4000);
+    "server" string => "$(master[address][1])";
+
   files:
     # root own files only as extra measure against tampering, but not strict requirement
-    "$(sipx.SIPX_CFDATA)"
-      copy_from => master_files("$(sipx.MASTER_SIPX_CFDATA)"),
+    "@SIPX_CFDATA@"
+      copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])"),
       depth_search => recurse("1"),
       perms => m("644");
 
-    "$(sipx.SIPX_CFDATA)/$(sipx.location_id)"
-      copy_from => master_files("$(sipx.MASTER_SIPX_CFDATA)/$(sipx.location_id)"),
+    "@SIPX_CFDATA@/$(sipx.location_id)"
+      copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])/$(sipx.location_id)"),
       depth_search => recurse("inf"),
       perms => m("644");
 
-    "$(sipx.SIPX_CONFDIR)/ssl"
-      copy_from => master_files("$(sipx.MASTER_SIPX_CONFDIR)/ssl"),
+    "@SIPX_CONFDIR@/ssl"
+      copy_from => master_files("$(server)","$(master[SIPX_CONFDIR][1])/ssl"),
       depth_search => recurse("inf"),
       perms => m("644");
 
   reports:
-    linux::
-     "replicate cdata from $(sipx.master) for location $(sipx.location_id)";
+    !primary::
+      "Replication from $(server)";
 }
 
 

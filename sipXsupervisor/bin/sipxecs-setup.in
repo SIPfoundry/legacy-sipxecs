@@ -8,6 +8,7 @@ home_dir = `awk -F : '/@SIPXPBXUSER@/ { print $6 }' /etc/passwd`.chomp
 $user_keydir = "#{home_dir}/.cfagent/ppkeys"
 $primary_dat = "@SIPX_CFDATA@/defaults/primary.cfdat"
 $secondary_dat = "@SIPX_CFDATA@/defaults/secondary.cfdat"
+$master_dat= "@SIPX_CFDATA@/defaults/master"
 $location_dat = "@SIPX_CFDATA@/defaults/location_id"
 $log = "@SIPX_LOGDIR@/sipxecs-setup.log"
 $verbose = false
@@ -19,6 +20,7 @@ def run_command(cmd)
   puts cmd if $verbose
   ok = system("#{cmd} >> #{$log} 2>&1")
   if (!ok) 
+    puts
     puts  "Failure to run command #{cmd}. See #{$log} for details. After you"
     puts  "have addressed the issue, you may rerun this script."
     puts
@@ -43,7 +45,7 @@ def set_secondary
   return true if File.exists?($secondary_dat)
   puts "Configuring as an additional server..."
 
-  master = prompt_required("Enter ip address or fully qualified host name of the primary server : ")
+  master_address = prompt_required("Enter ip address or fully qualified host name of the primary server : ")
 
   location_id = prompt_required("Enter numeric id this additional server : ")
   File.open($location_dat,'w') {|f|
@@ -58,11 +60,14 @@ def set_secondary
     master_cfdata = prompt("Enter SIPX_CFDATA directory on master [ press enter for #{master_cfdata} ] : ", master_cfdata)
     master_confdir = prompt("Enter SIPX_CONFDIR directory on master [ press enter for #{master_confdir} ] : ", master_confdir)
   end
+  File.open($master_dat,'w') {|f|
+    f.puts "address=#{master_address}"
+    f.puts "SIPX_CFDATA=#{master_cfdata}"
+    f.puts "SIPX_CONFDIR=#{master_confdir}"
+  }
+
   File.open($secondary_dat,'w') {|f|
     f.puts "+sipxsupervisor"
-    f.puts "=master=#{master}"
-    f.puts "=MASTER_SIPX_CFDATA=#{master_cfdata}"
-    f.puts "=MASTER_SIPX_CONFDIR=#{master_confdir}"
   }
 
   return true
@@ -164,6 +169,7 @@ def reset
   rm_file($domain_dat)
   rm_file($primary_dat)
   rm_file($secondary_dat)
+  rm_file($master_dat)
   rm_file($location_dat)
 end
 
