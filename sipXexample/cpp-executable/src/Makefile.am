@@ -6,6 +6,7 @@ sipxexample_CXXFLAGS = \
 	-I$(srdir)
 
 sipxexample_LDADD = \
+	-lmongoclient \
 	@SIPXCOMMSERVER_LIBS@
 
 noinst_HEADERS = \

@@ -5,7 +5,7 @@ dist_cfinputs_DATA = \
 	sipxopenacd.cf
 
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
-cfdefaults_DATA = \
+dist_cfdefaults_DATA = \
 	sipxopenacd.cfdat
 
 DISTCLEANFILES = $(cfdefaults_DATA)
