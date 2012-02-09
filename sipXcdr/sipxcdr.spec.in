@@ -12,6 +12,8 @@ Url:      http://www.sipfoundry.org
 BuildRequires: automake
 BuildRequires: rubygems
 BuildRequires: ruby
+# not really, but accomdates a persnickety autoconf macro
+BuildRequires: unixODBC-devel
 
 Source:   %name-%version.tar.gz
 
