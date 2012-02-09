@@ -373,9 +373,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void deleteAgent(OpenAcdAgent agent) {
-        OpenAcdAgentGroup group = agent.getGroup();
-        group.removeAgent(agent);
-        getHibernateTemplate().save(group);
         getHibernateTemplate().delete(agent);
     }
 
