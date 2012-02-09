@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
@@ -35,6 +36,7 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
         "openfire-server-to-server/disallowed-servers";
     private static final int XMPP_PORT = 5269; // not configurable
     private static final String MESSAGE_LOG_ENABLED = "message-logging/enabled";
+    private static final AddressType GENERIC_ADDRESS = new AddressType("generic");
     private LocalizationContext m_localizationContext;
     private String m_logDir;
 
@@ -113,7 +115,7 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
         String[] strServers = StringUtils.split(value, ',');
         for (String strServer : strServers) {
             String[] hostPort = StringUtils.split(strServer, ':');
-            Address address = new Address(hostPort[0]);
+            Address address = new Address(GENERIC_ADDRESS, hostPort[0]);
             if (hostPort.length < 2) {
                 address.setPort(getXmppPort());
             } else {
