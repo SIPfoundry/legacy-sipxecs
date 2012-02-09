@@ -69,5 +69,8 @@
     <property name="tmpDirectory" value="${sysdir.tmp}"/>
     <property name="binDirectory" value="${sysdir.libexec}"/>
   </bean>
+  
+  <bean id="locationsConfig" class="org.sipfoundry.sipxconfig.commserver.LocationsConfig">  
+  </bean>
 
 </beans>

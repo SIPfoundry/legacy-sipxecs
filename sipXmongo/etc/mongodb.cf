@@ -45,8 +45,8 @@ bundle edit_line mongo_client_config {
 
     # should only be for very first run
     !has_config::
-       "connectionUrl=mongodb://$(sys.fqhost):27017/?slaveOk=true";
-       "connectionString=$(sys.fqhost):27017";
+       "connectionUrl=mongodb://$(sipx.host).$(sipx.net_domain):27017/?slaveOk=true";
+       "connectionString=$(sipx.host).$(sipx.net_domain):27017";
 
   delete_lines:
     ".*";
