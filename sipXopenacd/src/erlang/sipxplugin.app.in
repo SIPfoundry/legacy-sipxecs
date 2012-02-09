@@ -6,6 +6,7 @@
 	sipxplugin_sup,
 	sipxplugin_poller,
 	spx_autoloader,
+	spx_freeswitchmedia_loader,
 	spx_integration,
 	spx_util]},
 {registered, [
