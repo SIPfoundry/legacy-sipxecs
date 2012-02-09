@@ -71,8 +71,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
             Address address = null;
-            address.setAddress();
-            if (type.equals()) {
+            if (type.equals(XMPP_ADDRESS)) {
 		address = new Address(XMPP_ADDRESS, location.getAddress(), settings.getXmppPort());
             } else if (type.equals(XMLRPC_ADDRESS)) {
 		address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
