@@ -41,11 +41,13 @@ body common control {
   bundlesequence => { 
     "sipx_init",
     "sipx_module",
+    "hostname",
     @(g.bundles)
   };
 
   inputs => { 
     "@SIPX_CFINPUTS@/sipx.cf",
+    "@SIPX_CFINPUTS@/hostname.cf",
     "@SIPX_CFINPUTS@/cfengine_stdlib.cf",
     @(g.plugins)
   };

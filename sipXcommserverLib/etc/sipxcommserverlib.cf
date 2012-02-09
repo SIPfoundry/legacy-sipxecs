@@ -70,8 +70,8 @@ bundle edit_line SSL_DEFAULTS {
     "caName=\"ca.$(sipx.domain)\"";
     "caEmail=\"root@$(sipx.domain)\"";
     "sipDomainName=\"$(sipx.domain)\"";
-    "server=\"$(sys.fqhost)\"";
-    "serverEmail=\"root@$(sys.fqhost)\"";
+    "server=\"$(sipx.host).$(sipx.net_domain)\"";
+    "serverEmail=\"root@$(sipx.host).$(sipx.net_domain)\"";
     
   delete_lines:
     ".*";
@@ -93,7 +93,7 @@ bundle edit_line domain_config {
         insert_type => "file";
     !part_exists::
        "SIP_DOMAIN_ALIASES : $(sys.ipv4) $(sipx.domain)";
-       "CONFIG_HOSTS : $(sys.fqhost)";
+       "CONFIG_HOSTS : $(sipx.host).$(sipx.net_domain)";
 
   delete_lines:
     any::

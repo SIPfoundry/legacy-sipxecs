@@ -33,6 +33,7 @@ dist_cfplugins_DATA = \
 cfinputs_PROMISES = \
 	sipxsupervisord.cf \
 	sipx.cf \
+	hostname.cf \
 	promises.cf \
 	sipxagent.cf
 
