@@ -746,19 +746,6 @@ PresenceRoutingUserPreferences::PresenceRoutingUserPreferences() :
 OsStatus PresenceRoutingUserPreferences::initialize()
 {
    OsStatus currentStatus = OS_SUCCESS;
-   TiXmlDocument* pDoc = new TiXmlDocument( mFileName.data() );
-
-   if( !pDoc->LoadFile() )
-   {
-      UtlString parseError = pDoc->ErrorDesc();
-      Os::Logger::instance().log( FAC_NAT, PRI_ERR, "PresenceRoutingFileReader: ERROR parsing  '%s': %s"
-                    ,mFileName.data(), parseError.data());
-      currentStatus = OS_NOT_FOUND;
-   }
-   else
-   {
-      currentStatus = parseDocument();
-   }
    return currentStatus;
 }
 

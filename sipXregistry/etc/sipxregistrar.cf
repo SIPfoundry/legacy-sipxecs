@@ -34,7 +34,6 @@ bundle edit_line registrar_config_contents() {
       "SIP_REDIRECT.100-PICKUP.ORBIT_FILENAME : $(sipx.SIPX_CONFDIR)/orbits.xml";
       "SIP_REDIRECT.130-MAPPING.MAPPING_RULES_FILENAME : $(sipx.SIPX_CONFDIR)/mappingrules.xml";
       "SIP_REDIRECT.140-FALLBACK.MAPPING_RULES_FILENAME : $(sipx.SIPX_CONFDIR)/fallbackrules.xml";
-      "SIP_REDIRECT.900-PRESENCE.USER_PREFS_FILE : $(sipx.SIPX_CONFDIR)/presencerouting-prefs.xml";
       "SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM : $(sipx.SIPX_LIBDIR)/libRedirectorUserParam.so";
       "SIP_REDIRECT_HOOK_LIBRARY.100-PICKUP : $(sipx.SIPX_LIBDIR)/libRedirectorPickUp.so";
       "SIP_REDIRECT_HOOK_LIBRARY.110-REG : $(sipx.SIPX_LIBDIR)/libRedirectorRegDB.so";
