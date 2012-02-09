@@ -17,7 +17,8 @@ public class AddressType {
     }
 
     public AddressType(String uniqueId, String format) {
-        m_id = uniqueId;
+        this(uniqueId);
+        m_format = format;
     }
 
     /**

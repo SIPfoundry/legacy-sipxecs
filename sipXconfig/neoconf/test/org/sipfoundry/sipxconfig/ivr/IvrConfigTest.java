@@ -48,7 +48,7 @@ public class IvrConfigTest {
         m_domain.setSipRealm("grapefruit");
         m_settings = new IvrSettings();
         m_settings.setModelFilesContext(TestHelper.getModelFilesContext());
-        m_mwiApi = new Address(Mwi.SIP_TCP, "mwi.example.org", 100);
+        m_mwiApi = new Address(Mwi.HTTP_API, "mwi.example.org", 100);
         m_restApi = new Address(RestServer.HTTPS_API, "rest.example.org", 101);
         m_adminApi = new Address(AdminContext.HTTPS_ADDRESS, "admin.example.org", 102);
         m_imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 103);

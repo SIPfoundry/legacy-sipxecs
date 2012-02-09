@@ -48,6 +48,26 @@ public class Address {
         return m_type.format(this);
     }
 
+    /**
+     * @return address:port  or just address if port is 0
+     */
+    public String addressColonPort() {
+        return m_port == 0 ? m_address : m_address + ':' + m_port;
+    }
+
+    /**
+     * If there is a protocol at the front of toString, remove it
+     *
+     * foo:2  -> foo:2
+     * http://foo:2/x/y  -> foo:2/x/y
+     * sip:foo:2;a=b  -> foo:2;a=b
+     *
+     * @return
+     */
+    public String stripProtocol() {
+        return toString().replaceFirst("^\\w{1,}:/{0,2}", "");
+    }
+
     @Override
     public int hashCode() {
         return super.hashCode();

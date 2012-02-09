@@ -89,7 +89,7 @@ public class FreeswitchMediaServer extends MediaServer {
         if (fs == null) {
             throw new ConfigException("Freeswitch is not enabled but media services is required");
         }
-        return m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS).toString();
+        return m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS).addressColonPort();
     }
 
     private void appendLocale(Formatter f) {
