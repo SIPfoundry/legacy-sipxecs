@@ -83,7 +83,7 @@ public class CounterpathPhoneTest extends TestCase {
 
         AddressManager addressManager = EasyMock.createMock(AddressManager.class);
         addressManager.getSingleAddress(ImManager.XMPP_ADDRESS);
-        EasyMock.expectLastCall().andReturn(new Address("fqdn.im.test.box")).anyTimes();
+        EasyMock.expectLastCall().andReturn(new Address(ImManager.XMPP_ADDRESS, "fqdn.im.test.box")).anyTimes();
         EasyMock.replay(addressManager);
         m_phone.setAddressManager(addressManager);
 
@@ -241,7 +241,7 @@ public class CounterpathPhoneTest extends TestCase {
 
         AddressManager addressManager = EasyMock.createMock(AddressManager.class);
         addressManager.getSingleAddress(ImManager.XMPP_ADDRESS);
-        EasyMock.expectLastCall().andReturn(new Address("fqdn.im.test.box")).anyTimes();
+        EasyMock.expectLastCall().andReturn(new Address(ImManager.XMPP_ADDRESS, "fqdn.im.test.box")).anyTimes();
         EasyMock.replay(addressManager);
         m_phone.setAddressManager(addressManager);
 
