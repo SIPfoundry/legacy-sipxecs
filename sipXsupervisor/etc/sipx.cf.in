@@ -162,10 +162,11 @@ bundle agent update_from_master {
       depth_search => recurse("inf"),
       perms => m("644");
 
+    # relay for some reason needs r/w.  Ideally just read is nec.
     "@SIPX_CONFDIR@/ssl"
       copy_from => master_files("$(server)","$(master[SIPX_CONFDIR][1])/ssl"),
       depth_search => recurse("inf"),
-      perms => m("644");
+      perms => mog("600","@SIPXPBXUSER@","@SIPXPBXGROUP@");
 
   reports:
     !primary::

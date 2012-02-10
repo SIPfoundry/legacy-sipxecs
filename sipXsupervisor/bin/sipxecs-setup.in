@@ -156,19 +156,26 @@ def set_domain
 =realm=#{realm}
 =secret=#{shared_secret}
 =lang=en
-=net_domain=#{domain}
 EOF
   }
   puts "Created #{$domain_dat}" if $verbose
   FileUtils.chown($user, $group, $domain_dat)
 
-  host_dat = "#{$cfdatadir}/1/host.cfdat"
+  File.open("#{$cfdatadir}/network.cfdat", 'w') { |f|
+    f.puts <<EOF
+=net_domain=#{domain}
+EOF
+  }
+
+  location_dir = "#{$cfdatadir}/1"
+  Dir.mkdir(location_dir) unless File.directory?(location_dir)
+  host_dat = "#{location_dir}/host.cfdat"
   File.open(host_dat, 'w') { |f|
     f.puts <<EOF
 =host=#{host}
 EOF
   }  
-  FileUtils.chown($user, $group, host_dat)
+  FileUtils.chown_R($user, $group, location_dir)
 end
 
 def rm_files(d)
