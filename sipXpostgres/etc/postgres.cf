@@ -15,6 +15,7 @@ bundle agent postgres {
       "any" usebundle => "postgres_sysctl_running";
     !fedora16_or_greater::
       "any" usebundle => "postgres_sysv_running";
+      "any" usebundle => "postgres_setup";
 }
 
 bundle agent postgres_init {
@@ -116,6 +117,14 @@ bundle edit_line pg_hba_conf {
   delete_lines:
     "host.*";
     "local.*";
+}
+
+bundle agent postgres_setup {
+  methods:
+    !src.postgres::
+      "any" usebundle => rh_chkconfig_status("postgresql on");
+    !src.!postgres::
+      "any" usebundle => rh_chkconfig_status("postgresql off");
 }
 
 bundle agent postgres_sysv_running {

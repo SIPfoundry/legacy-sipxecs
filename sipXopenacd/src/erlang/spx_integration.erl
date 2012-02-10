@@ -212,8 +212,8 @@ handle_call({get_client, Key, Value}, _From, State) ->
 		{ok, []} -> none;
 		{ok, Client} ->
 			Rec = props_to_client(Client, #client{}),
-			Id = Rec#agent_profile.id,
-			Label = Rec#agent_profile.name,
+			Id = Rec#client.id,
+			Label = Rec#client.label,
 			Options = [], %% TODO restore configurable client opts
 			{ok, Id, Label, Options}
 	end,
@@ -305,15 +305,15 @@ handle_call(load_profiles, _From, State) ->
 	{reply, Reply, State};
 
 handle_call(load_queue_groups, _From, State) ->
-	Type = <<"openacdagentgroup">>,
+	Type = <<"openacdqueuegroup">>,
 	Now = util:now(),
 	
-	GetLoaded = fun() -> agent_auth:get_profiles() end,
-	PropsToRec = fun(X) -> props_to_profile(X, #agent_profile{name = "",
-		skills = [], timestamp = Now}) end,
-	GetKey = fun(#agent_profile{name=Name}) -> Name end,
-	Destroy = fun(#agent_profile{name=Name}) -> agent_auth:destroy_profile(Name) end,
-	Save = fun(Profile)-> mnesia:dirty_write(Profile) end,
+	GetLoaded = fun() -> call_queue_config:get_queue_groups() end,
+	PropsToRec = fun(X) -> props_to_queue_group(X, #queue_group{name = "",
+		timestamp = Now}) end,
+	GetKey = fun(#queue_group{name=Name}) -> Name end,
+	Destroy = fun(#queue_group{name=Name}) -> call_queue_config:destroy_queue_group(Name) end,
+	Save = fun(Group)-> mnesia:dirty_write(Group) end,
 	Reply = load_helper(Type, GetLoaded, PropsToRec, GetKey, Destroy, Save),
 	{reply, Reply, State};
 

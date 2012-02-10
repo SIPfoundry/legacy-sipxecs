@@ -12,23 +12,6 @@
   <li jwcid="@If" condition="ognl:isOn('page')">
 	  <a jwcid="@PageLink" page="paging/PagingGroupsPage"><span key="menu.paging.featureMenu"/></a>
   </li>
-</span>
-<span jwcid="InternalPluginsSystemBottom@Block">
-  <li jwcid="@If" condition="ognl:isOn('sipxdns')">
-	  <a jwcid="@PageLink" page="dns/EditDns"><span key="menu.dns.featureMenu"/></a>
-  </li>
-  <li jwcid="@If" condition="ognl:isOn('proxy')">
-	  <a jwcid="@PageLink" page="proxy/EditProxy"><span key="menu.proxy.featureMenu"/></a>
-  </li>
-  <li jwcid="@If" condition="ognl:isOn('registrar')">
-	  <a jwcid="@PageLink" page="registrar/EditRegistrar"><span key="menu.registrar.featureMenu"/></a>
-  </li>
-  <li jwcid="@If" condition="ognl:isOn('natTraversal')">
-	  <a jwcid="@PageLink" page="nat/EditNatTraversal"><span key="menu.nat.featureMenu"/></a>
-  </li>
-  <li jwcid="@If" condition="ognl:isOn('imbot')">
-    <a jwcid="@PageLink" page="imbot/EditIMBot"><span key="menu.imbot.featureMenu"/></a>
-  </li>
   <li jwcid="@If" condition="ognl:isOn('acd')">
 	<a jwcid="@PageLink" id="menu.acd" page="acd/ListAcdServers"><span key="menu.acd">ACD</span></a>
   </li>
@@ -57,7 +40,26 @@
    <li jwcid="@If" condition="ognl:isOn('authCode')">     
      <a jwcid="@PageLink" id="menu.authcodes" page="admin/AuthCodes"><span key="menu.authcodes">Authorization Codes</span></a>
    </li>
-   <li><a jwcid="@PageLink" id="menu.phonebook" page="phonebook/ManagePhonebooks" ><span key="menu.phonebook">Phonebooks</span></a></li>
+   <li>
+     <a jwcid="@PageLink" id="menu.phonebook" page="phonebook/ManagePhonebooks" ><span key="menu.phonebook">Phonebooks</span></a>
+   </li>
+  <li jwcid="@If" condition="ognl:isOn('imbot')">
+    <a jwcid="@PageLink" page="imbot/EditIMBot"><span key="menu.imbot.featureMenu"/></a>
+  </li>
+</span>
+<span jwcid="InternalPluginsSystemBottom@Block">
+  <li jwcid="@If" condition="ognl:isOn('sipxdns')">
+	  <a jwcid="@PageLink" page="dns/EditDns"><span key="menu.dns.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('proxy')">
+	  <a jwcid="@PageLink" page="proxy/EditProxy"><span key="menu.proxy.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('registrar')">
+	  <a jwcid="@PageLink" page="registrar/EditRegistrar"><span key="menu.registrar.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('natTraversal')">
+	  <a jwcid="@PageLink" page="nat/EditNatTraversal"><span key="menu.nat.featureMenu"/></a>
+  </li>
 </span>
 <span jwcid="InternalPluginsDiagnosticsTop@Block">
 	<li jwcid="@If" condition="ognl:isOn('registrar')">

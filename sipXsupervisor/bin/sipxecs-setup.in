@@ -123,8 +123,8 @@ def prompt_confirm(msg)
 end
 
 def prompt_required(msg)
-  print msg
   while (true)
+    print msg
     value = readline.chomp
     return value unless value.empty?
     puts "Invalid response, you must specify a value."
