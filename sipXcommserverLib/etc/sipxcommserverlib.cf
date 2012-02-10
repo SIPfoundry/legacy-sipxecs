@@ -24,14 +24,15 @@ bundle agent sipxcommserverlib_config {
         perms => m("644"),
         edit_line => SSL_DEFAULTS,
         classes => if_repaired("generate_certs"),
-	action => track("$(this.promiser)");      
+  	    action => track("$(this.promiser)");
 
+    any::
       "$(sipx.SIPX_CONFDIR)/domain-config"
         create => "true",
         perms => m("644"),
         edit_line => domain_config,
         classes => if_repaired("restart_sipxecs"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 
   methods:
     generate_certs::
