@@ -12,6 +12,15 @@ bundle agent sipxconfig {
       "any" usebundle => "postgres";
       "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxconfig_running";
+      "any" usebundle => "sipxconfig_setup";
+}
+
+bundle agent sipxconfig_setup {
+  methods:
+    !src.primary::
+      "any" usebundle => rh_chkconfig_status("sipxconfig on");
+    !src.!primary::
+      "any" usebundle => rh_chkconfig_status("sipxconfig off");
 }
 
 bundle agent sipxconfig_running {

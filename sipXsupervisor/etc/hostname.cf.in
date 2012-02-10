@@ -30,5 +30,5 @@ bundle edit_line hosts_contents {
 
   delete_lines:
     # safest to delete all in case ip or hostname changes.
-    "*.";
+    ".*";
 }
