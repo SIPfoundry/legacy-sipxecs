@@ -23,7 +23,7 @@
 #end	    
     <methodMatch>
       <methodPattern>SUBSCRIBE</methodPattern>
-#if("" != ${statusAddress.address})
+#if(null != ${statusAddress})
 
       <!-- Message waiting indication events -->
       <fieldMatch fieldName="Event">

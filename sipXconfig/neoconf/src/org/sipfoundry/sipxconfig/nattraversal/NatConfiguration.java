@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -40,8 +41,8 @@ public class NatConfiguration implements ConfigProvider {
         boolean relayEnabled = manager.getFeatureManager().isFeatureEnabled(NatTraversal.FEATURE);
         Set<Location> locations = request.locations(manager);
         NatSettings settings = m_nat.getSettings();
-        int proxyTcpPort = manager.getAddressManager().getSingleAddress(ProxyManager.TCP_ADDRESS).getPort();
-        int proxyTlsPort = manager.getAddressManager().getSingleAddress(ProxyManager.TLS_ADDRESS).getPort();
+        Address proxyTcp = manager.getAddressManager().getSingleAddress(ProxyManager.TCP_ADDRESS);
+        Address proxyTls = manager.getAddressManager().getSingleAddress(ProxyManager.TLS_ADDRESS);
         SbcRoutes routes = m_sbcManager.getRoutes();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
@@ -50,7 +51,7 @@ public class NatConfiguration implements ConfigProvider {
             if (configEnabled) {
                 Writer writer = new FileWriter(new File(dir, "nattraversalrules.xml"));
                 try {
-                    write(writer, settings, location, routes, proxyTcpPort, proxyTlsPort);
+                    write(writer, settings, location, routes, proxyTcp.getPort(), proxyTls.getPort());
                 } finally {
                     IOUtils.closeQuietly(writer);
                 }
