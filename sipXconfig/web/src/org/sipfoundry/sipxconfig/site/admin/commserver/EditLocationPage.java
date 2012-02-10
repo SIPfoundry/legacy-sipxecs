@@ -66,6 +66,7 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
             // make sure we have correct bean ID persisted
             if (!location.isNew()) {
                 setLocationId(location.getId());
+                setTab(CONFIG_TAB);
             }
             return;
         }

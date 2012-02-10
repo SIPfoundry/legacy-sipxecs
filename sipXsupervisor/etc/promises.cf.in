@@ -35,6 +35,18 @@ bundle common g {
 }
 
 #
+# As soon as a bundle defines this, script is stopped
+#  Example:
+#    classes => if_notkept("fatal_error"),
+#
+body agent control {
+  abortclasses => {
+    "fatal_error"
+  };
+}
+
+
+#
 # Load and run cfengine agent scripts.
 #
 body common control {

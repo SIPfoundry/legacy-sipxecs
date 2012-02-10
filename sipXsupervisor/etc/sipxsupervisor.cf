@@ -26,13 +26,14 @@ bundle agent sipxsupervisor_config {
         create => "true",
         perms => m("644"),
         edit_line => sipxsupervisor_allowed_addrs,
-	action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxsupervisor"),
+        action => track("$(this.promiser)");
 
       "$(sipx.SIPX_CONFDIR)/sipxsupervisor-allowed-users.ini"
         create => "true",
         perms => m("644"),
         edit_line => sipxsupervisor_allowed_users,
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 }
 
 bundle edit_line sipxsupervisor_allowed_addrs {
