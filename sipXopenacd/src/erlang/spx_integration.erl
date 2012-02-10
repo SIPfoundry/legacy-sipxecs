@@ -212,8 +212,8 @@ handle_call({get_client, Key, Value}, _From, State) ->
 		{ok, []} -> none;
 		{ok, Client} ->
 			Rec = props_to_client(Client, #client{}),
-			Id = Rec#agent_profile.id,
-			Label = Rec#agent_profile.name,
+			Id = Rec#client.id,
+			Label = Rec#client.label,
 			Options = [], %% TODO restore configurable client opts
 			{ok, Id, Label, Options}
 	end,
