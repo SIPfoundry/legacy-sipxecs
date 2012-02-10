@@ -155,12 +155,14 @@ bundle agent update_from_master {
     "@SIPX_CFDATA@"
       copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])"),
       depth_search => recurse("1"),
-      perms => m("644");
+      perms => m("644"),
+      classes => if_notkept("fatal_error");
 
     "@SIPX_CFDATA@/$(sipx.location_id)"
       copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])/$(sipx.location_id)"),
       depth_search => recurse("inf"),
-      perms => m("644");
+      perms => m("644"),
+      classes => if_notkept("fatal_error");
 
     # relay for some reason needs r/w.  Ideally just read is nec.
     "@SIPX_CONFDIR@/ssl"
