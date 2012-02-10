@@ -79,13 +79,6 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
     public void onSave(Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.replicateEntity((Replicable) entity);
-            if (entity instanceof OpenAcdAgentGroup) {
-                OpenAcdAgentGroup aggr = (OpenAcdAgentGroup) entity;
-                getHibernateTemplate().flush();
-                for (OpenAcdAgent agent : aggr.getAgents()) {
-                    m_replicationManager.replicateEntity(agent);
-                }
-            }
         } else if (entity instanceof Group) {
             //flush is necessary here in order to get consistent data
             getHibernateTemplate().flush();
@@ -113,7 +106,6 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
                 }
             } else if (entity instanceof OpenAcdAgentGroup) {
                 OpenAcdAgentGroup aggr = (OpenAcdAgentGroup) entity;
-                getHibernateTemplate().flush();
                 for (OpenAcdAgent agent : aggr.getAgents()) {
                     m_replicationManager.removeEntity(agent);
                 }

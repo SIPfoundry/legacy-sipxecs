@@ -1,19 +1,28 @@
 #!/usr/bin/ruby
 
 require 'optparse'
+require 'fileutils'
 
-$domain_dat = "@SIPX_CFDATA@/domain.cfdat"
+# using only @VAR@ style vars in this section only helps make this maintainable when integrating
+# patches.
+$cfdatadir = "@SIPX_CFDATA@"
+$logdir = "@SIPX_LOGDIR@"
+$confdir = "@SIPX_CONFDIR@"
+$bindir = "@SIPX_BINDIR@"
+$user = "@SIPXPBXUSER@"
+$group = "@SIPXPBXGROUP@"
+
+$domain_dat = "#{$cfdatadir}/domain.cfdat"
 $root_keydir = "/var/cfengine/ppkeys"
-home_dir = `awk -F : '/@SIPXPBXUSER@/ { print $6 }' /etc/passwd`.chomp
+home_dir = `awk -F : '/#{$user}/ { print $6 }' /etc/passwd`.chomp
 $user_keydir = "#{home_dir}/.cfagent/ppkeys"
-$primary_dat = "@SIPX_CFDATA@/defaults/primary.cfdat"
-$secondary_dat = "@SIPX_CFDATA@/defaults/secondary.cfdat"
-$master_dat= "@SIPX_CFDATA@/defaults/master"
-$location_dat = "@SIPX_CFDATA@/defaults/location_id"
-$log = "@SIPX_LOGDIR@/sipxecs-setup.log"
+$primary_dat = "#{$cfdatadir}/defaults/primary.cfdat"
+$secondary_dat = "#{$cfdatadir}/defaults/secondary.cfdat"
+$master_dat= "#{$cfdatadir}/defaults/master"
+$location_dat = "#{$cfdatadir}/defaults/location_id"
+$log = "#{$logdir}/sipxecs-setup.log"
 $verbose = false
 $advanced = false
-$cli_options = {}
 $exit_status = 0
 
 def run_command(cmd)
@@ -38,7 +47,7 @@ end
 
 def set_nonroot_keys
   #harmless if re-run
-  run_command "su - @SIPXPBXUSER@ sh -c '/usr/sbin/cf-key'"
+  run_command "su - #{$user} sh -c '/usr/sbin/cf-key'"
 end
 
 def set_secondary
@@ -51,21 +60,20 @@ def set_secondary
   File.open($location_dat,'w') {|f|
     f.puts location_id
   }
-  location_dir = "@SIPX_CFDATA@/#{location_id}"
+  location_dir = "#{$cfdatadir}/#{location_id}"
   Dir.mkdir(location_dir) unless File.directory?(location_dir)  
   
-  master_cfdata = "@SIPX_CFDATA@"
-  master_confdir = "@SIPX_CONFDIR@"
+  master_cfdata = "#{$cfdatadir}"
+  master_confdir = "#{$confdir}"
   if $advanced
-    master_cfdata = prompt("Enter SIPX_CFDATA directory on master [ press enter for #{master_cfdata} ] : ", master_cfdata)
-    master_confdir = prompt("Enter SIPX_CONFDIR directory on master [ press enter for #{master_confdir} ] : ", master_confdir)
+    master_cfdata = prompt("Enter SIPX_CFDATA directory on master [ press enter for '#{master_cfdata}' ] : ", master_cfdata)
+    master_confdir = prompt("Enter SIPX_CONFDIR directory on master [ press enter for '#{master_confdir}' ] : ", master_confdir)
   end
   File.open($master_dat,'w') {|f|
     f.puts "address=#{master_address}"
     f.puts "SIPX_CFDATA=#{master_cfdata}"
     f.puts "SIPX_CONFDIR=#{master_confdir}"
   }
-
   File.open($secondary_dat,'w') {|f|
     f.puts "+sipxsupervisor"
   }
@@ -133,21 +141,41 @@ end
 # PRIMARY ONLY
 def set_domain
   return if File.exists?($domain_dat)
-  current_fqdn = `hostname -f`.chomp
-  fqdn = prompt("Enter fully qualified domain name [ press enter for #{current_fqdn} ] : ", current_fqdn)
-  domain = prompt("Enter SIP domain name [ press enter for #{fqdn} ] : ", fqdn)
-  realm = prompt("Enter SIP realm [ press enter for #{domain} ] : ", domain)
+  current_host = `hostname -s`.chomp
+  current_domain = `hostname -d`.chomp
+  host = prompt("Enter system host name [ press enter for '#{current_host}' ] : ", current_host)
+  domain = prompt("Enter domain name [ press enter for '#{current_domain}' ] : ", current_domain)
+  fqdn = "#{host}.#{domain}"
+  sip_domain = prompt("Enter SIP domain name [ press enter for '#{fqdn}' ] : ", fqdn)
+  realm = prompt("Enter SIP realm [ press enter for '#{sip_domain}' ] : ", domain)
+  # shared secret is not really used anymore, but some servers still read it
   shared_secret = `head -c 18 /dev/urandom | base64`.chomp
   File.open($domain_dat, 'w') { |f|
     f.puts <<EOF
-=domain=#{domain}
+=domain=#{sip_domain}
 =realm=#{realm}
 =secret=#{shared_secret}
 =lang=en
 EOF
   }
   puts "Created #{$domain_dat}" if $verbose
-  `chown @SIPXPBXUSER@:@SIPXPBXGROUP@ #{$domain_dat}`
+  FileUtils.chown($user, $group, $domain_dat)
+
+  File.open("#{$cfdatadir}/network.cfdat", 'w') { |f|
+    f.puts <<EOF
+=net_domain=#{domain}
+EOF
+  }
+
+  location_dir = "#{$cfdatadir}/1"
+  Dir.mkdir(location_dir) unless File.directory?(location_dir)
+  host_dat = "#{location_dir}/host.cfdat"
+  File.open(host_dat, 'w') { |f|
+    f.puts <<EOF
+=host=#{host}
+EOF
+  }  
+  FileUtils.chown_R($user, $group, location_dir)
 end
 
 def rm_files(d)
@@ -220,5 +248,5 @@ else
 end
 
 print "Configuring system, this may take a few minutes..."
-run_command("@SIPX_BINDIR@/sipxagent #{'-v' if $verbose}")
+run_command("#{$bindir}/sipxagent #{'-v' if $verbose}")
 puts "done."

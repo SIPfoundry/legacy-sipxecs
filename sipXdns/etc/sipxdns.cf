@@ -106,10 +106,13 @@ bundle agent sipxdns_running {
       "any" usebundle => find_service_by_command("$(service_command)", "sipxdns_running", "named");
 
   commands:
-    !sipxdns.sipxdns_running::
-      "$(service)"
-        args => "stop",
-	action => track("sipxdns stop");
+    # NOTE : Not shutting off  explicit stop function because we cannot tell if
+    # admin is configuring and managing DNS on their own (which is the 
+    # case for a lot of ezuce developers anyway)
+    !src.!unmanaged_dns.!sipxdns.sipxdns_running::
+     "$(service)"
+       args => "stop",
+	   action => track("sipxdns stop");
 
     sipxdns.!sipxdns_running::
       "$(service)"

@@ -1,0 +1,34 @@
+bundle agent hostname {
+  files:
+    "/etc/hosts"
+      perms => m("644"),
+      edit_line => hosts_contents;
+
+    "/etc/sysconfig/network"
+      perms => m("644"),
+      edit_line => sysconfig_network;
+
+  commands:
+    "/bin/hostname"
+      args => "$(sipx.host).$(sipx.net_domain)";
+}
+
+bundle edit_line sysconfig_network {
+  insert_lines:
+    "HOSTNAME=$(sipx.host).$(sipx.net_domain)";
+  delete_lines:
+    "HOSTNAME=.*";
+}
+
+bundle edit_line hosts_contents {
+  
+  # ipv6 not supported, but ipv6 style host names shouldn't hurt.
+  insert_lines:
+"$(sys.ipv4) $(sipx.host).$(sipx.net_domain) $(sipx.host)";
+"127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4";
+"::1         localhost localhost.localdomain localhost6 localhost6.localdomain6";
+
+  delete_lines:
+    # safest to delete all in case ip or hostname changes.
+    "*.";
+}

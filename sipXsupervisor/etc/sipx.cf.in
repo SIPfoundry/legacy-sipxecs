@@ -113,9 +113,6 @@ bundle agent sipx_module {
     "kept_log" string => "@SIPX_LOGDIR@/sipxagent-kept.log";
     "logs" slist => { "$(failed_log)", "$(repaired_log)", "$(kept_log)" };
 
-  classes:
-    "domain_init" not => fileexists("@SIPX_CFDATA@/domain.cfdat");
-
   files:
     any::
       "$(logs)"
@@ -123,20 +120,13 @@ bundle agent sipx_module {
     
       "$(logs)"
         create => "true",
-	perms => m(644);
-
-    domain_init::
-      "@SIPX_CFDATA@/domain.cfdat"
-        create => "true",
-	perms => mog(644,"@SIPXPBXUSER@","@SIPXPBXGROUP@"),
-	edit_line => domain_cfdat();
+        perms => m(644);
 
   commands:
     any::
       "@SIPX_CFMODULES@/sipx"
         args => "$(sipx.location_id)",
-        module => "true",
-	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
+        module => "true";
 }
 
 body copy_from master_files(server,dir) {
@@ -172,10 +162,11 @@ bundle agent update_from_master {
       depth_search => recurse("inf"),
       perms => m("644");
 
+    # relay for some reason needs r/w.  Ideally just read is nec.
     "@SIPX_CONFDIR@/ssl"
       copy_from => master_files("$(server)","$(master[SIPX_CONFDIR][1])/ssl"),
       depth_search => recurse("inf"),
-      perms => m("644");
+      perms => mog("600","@SIPXPBXUSER@","@SIPXPBXGROUP@");
 
   reports:
     !primary::
@@ -193,25 +184,6 @@ bundle agent update_from_master {
 #
 body delete unlink {
   rmdirs => "false";
-}
-
-bundle edit_line domain_cfdat {
-# TODO: decide if we really need shared secret. Until then stick in a 
-# static value. The code below to generate on works, but has strange
-# side affects where it inserts multiple lines probably because the value
-# is different each time cfengine resolves the vars
-#
-#  vars:
-#    "SharedSecret" string => execresult("/usr/bin/head -c 18 /dev/urandom | /usr/bin/base64", "useshell");
-
-  insert_lines:
-    "=domain=$(sys.fqhost)";
-    "=realm=$(sys.fqhost)";
-    "=lang=en";
-    "=secret=Y4bguaywt2sNB8eKwFRgTeMN";
-
-  delete_lines:
-    ".*";
 }
 
 #
