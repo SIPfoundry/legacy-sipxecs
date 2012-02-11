@@ -1,0 +1,102 @@
+#!/usr/bin/ruby
+
+# Parse cfengine output and interpret results. Parse for potential erros
+# and ignore common ones.
+
+def token(token, match, block)
+  block.call(token, match[1]) unless match.nil? || match.size < 2
+end
+
+def parse(input, &block)
+  while line = input.gets
+    token(:handle, /\s+Promise handle:\s(.*)/.match(line).to_a, block)
+    token(:info, /\s+\*\* Information:\s(.*)/.match(line).to_a, block)
+    token(:warning, /\s+!!\s(.*)/.match(line).to_a, block)
+    token(:error, /\s+!!!\s(.*)/.match(line).to_a, block)
+  end
+end
+
+def digest(input)
+  err = false
+  warn = false
+  msg = ''
+  handle = ''
+  parse(input) {|tok, value|
+    case tok
+    when :info
+      msg << value << "\n"
+    when :warning
+      warn = true
+      msg << value << "\n"
+    when :error
+      err = true
+      msg << value << "\n"
+    when :handle
+      # clear any outstanding errors/warning
+      if err
+        msg = (handle.empty? ? "*** Error\n" : "*** Error in #{handle}\n") << msg
+        yield :warning, msg
+      elsif warn
+        msg = (handle.empty? ? "*** Warning\n" : "*** Warning in #{handle}\n") << msg
+        yield :error, msg
+      end
+      err = warn = false
+      msg = ''
+      handle = value
+    else
+      raise "script error: unrecognized #{tok} #{value}"
+    end
+  }
+end
+
+def analyze(input,verbose)
+  benign = [
+
+    # java creates really long process lines and cfengine is warning
+    # it couldn't read it all. that's why we put process identifier in first parth
+    /Unacceptable model uncertainty examining processes/,
+
+    # We reverse expected process count to detect running process
+    /Process count for '.*' was out of promised range/,
+
+    # just detection cfengine needs to pull a file from master
+    /Image file .* has a wrong digest\/checksum/
+  ]
+
+  ok = true
+  digest(input) { |level, msg|
+    next if benign.find {|ignore|
+      ignore.match(msg)
+    }
+    puts msg if (level == :error || (level == :warning && verbose))
+    ok = false if (level == :error)
+  }
+
+  return ok
+end
+
+if __FILE__ == $0
+  require 'optparse'
+  verbose = true
+  args = OptionParser.new { |opts|
+    opts.banner = "Usage : sipxagent-log-parser [options] < cfengine-log-file"
+
+    opts.separator ""
+    opts.separator "Options:"
+
+    opts.on("--verbose", "Send extra details to console.") {
+      verbose = true
+    }
+
+    opts.on_tail("--help", "Print options") {
+      puts opts
+      exit
+    }
+  }
+
+  args.parse!
+
+  status = analyze(STDIN, verbose)
+  exit status
+  # Do something.. run tests, call a method, etc. We're direct.
+end
