@@ -33,21 +33,18 @@ def run_command(cmd)
     puts  "Failure to run command #{cmd}. See #{$log} for details. After you"
     puts  "have addressed the issue, you may rerun this script."
     puts
-    if $verbose
-      system "cat #{$log}"
-    end
-    exit 1
   end
+  return ok
 end
 
 def set_root_keys
   #harmless if re-run  
-  run_command "/usr/sbin/cf-key"
+  exit 1 unless run_command "/usr/sbin/cf-key"
 end
 
 def set_nonroot_keys
   #harmless if re-run
-  run_command "su - #{$user} sh -c '/usr/sbin/cf-key'"
+  exit 1 unless run_command "su - #{$user} sh -c '/usr/sbin/cf-key'"
 end
 
 def set_secondary
@@ -56,7 +53,7 @@ def set_secondary
 
   master_address = prompt_required("Enter ip address or fully qualified host name of the primary server : ")
 
-  location_id = prompt_required("Enter numeric id this additional server : ")
+  location_id = prompt_required("Enter the numeric id assigned to this server by the administration server : ")
   File.open($location_dat,'w') {|f|
     f.puts location_id
   }
@@ -66,8 +63,8 @@ def set_secondary
   master_cfdata = "#{$cfdatadir}"
   master_confdir = "#{$confdir}"
   if $advanced
-    master_cfdata = prompt("Enter SIPX_CFDATA directory on master [ press enter for '#{master_cfdata}' ] : ", master_cfdata)
-    master_confdir = prompt("Enter SIPX_CONFDIR directory on master [ press enter for '#{master_confdir}' ] : ", master_confdir)
+    master_cfdata = prompt_default("Enter SIPX_CFDATA directory on master", master_cfdata)
+    master_confdir = prompt_default("Enter SIPX_CONFDIR directory on master", master_confdir)
   end
   File.open($master_dat,'w') {|f|
     f.puts "address=#{master_address}"
@@ -81,20 +78,11 @@ def set_secondary
   return true
 end
 
-def prompt_primary
-  while true
-    v = prompt_required("Is this the primary server or an additional server?  Enter 'p' for primary or 'a' for additional : ")
-    return true if v == 'p'
-    return false if v == 'a'
-    puts "Invalid response."
-  end
-end
-
 # Return true or false IF machine is primary, not is anything was done or not
 def set_primary
   return false if File.exists?($secondary_dat)
   return true if File.exists?($primary_dat)
-  return false unless prompt_primary
+  return false unless prompt_confirm("Is this first server in your cluster?")
   puts "Configuring as the primary server..."
   File.open($location_dat, 'w') {|f|
     f.puts('1')
@@ -113,41 +101,58 @@ EOF
 end
 
 def prompt_confirm(msg)
-  while (true)
+  return prompt(msg + " [ enter 'y' or 'n' ] : ", "Invalid response. Please use 'y' or 'n'.") {|v|
+    case v.downcase
+    when 'y'
+      true
+    when 'n' 
+      false
+    else 
+      nil
+    end
+  }
+end
+
+def prompt(msg, err_msg = "Invalid answer")
+  while true
     print msg
-    value = readline.chomp.downcase
-    return false if value == 'n'
-    return true if value == 'y'
-    puts "Invalid response. Please use 'y' or 'n'."
+    value = readline.chomp
+    answer = yield(value)
+    return answer unless answer.nil?
+    puts err_msg
   end
+end
+
+def prompt_default(msg, default)
+  prompt(msg << " [ press enter for '#{default}' ] : ") {|v|
+    v.empty? ? default : v
+  }
+
 end
 
 def prompt_required(msg)
-  while (true)
-    print msg
-    value = readline.chomp
-    return value unless value.empty?
-    puts "Invalid response, you must specify a value."
-  end
-  return value
+  return prompt(msg, "You must specify a value") {|v|
+    v.empty? ? nil : v
+  }
 end
 
-def prompt(msg, default)
-  print msg
-  value = readline.chomp
-  return value.empty? ? default : value
-end
+#def prompt(msg, default)
+#  print msg
+#  value = readline.chomp
+#  return value.empty? ? default : value
+#end
 
 # PRIMARY ONLY
 def set_domain
   return if File.exists?($domain_dat)
   current_host = `hostname -s`.chomp
   current_domain = `hostname -d`.chomp
-  host = prompt("Enter system host name [ press enter for '#{current_host}' ] : ", current_host)
-  domain = prompt("Enter domain name [ press enter for '#{current_domain}' ] : ", current_domain)
-  fqdn = "#{host}.#{domain}"
-  sip_domain = prompt("Enter SIP domain name [ press enter for '#{fqdn}' ] : ", fqdn)
-  realm = prompt("Enter SIP realm [ press enter for '#{sip_domain}' ] : ", domain)
+  cluster = prompt_confirm("Will you be setting up a additional servers later?")
+  host = prompt_default("Enter system host name", current_host)
+  domain = prompt_default("Enter domain name", current_domain)
+  current_sip_domain = cluster ? domain : "#{host}.#{domain}"
+  sip_domain = prompt_default("Enter SIP domain name", current_sip_domain)
+  realm = prompt_default("Enter SIP realm", sip_domain)
   # shared secret is not really used anymore, but some servers still read it
   shared_secret = `head -c 18 /dev/urandom | base64`.chomp
   File.open($domain_dat, 'w') { |f|
@@ -247,6 +252,13 @@ else
   set_secondary
 end
 
-print "Configuring system, this may take a few minutes..."
-run_command("#{$bindir}/sipxagent #{'-v' if $verbose}")
-puts "done."
+puts "Configuring system, this may take a few minutes..."
+ok = run_command("#{$bindir}/sipxagent -v")
+ok = system("#{$bindir}/sipxagent-log-reader #{'-v' if $verbose} < #{$log}") && ok
+if !ok
+  puts "failed."
+  exit 1
+else
+  puts "done."
+  exit 0
+end

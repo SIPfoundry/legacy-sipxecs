@@ -35,7 +35,9 @@ public class ConfigAgent {
     private String m_logFile = "sipxagent.log";
     private volatile boolean m_inProgress;
     private LocationsManager m_locationsManager;
-    private int m_timeout = 60000;
+    // 5 min. initial setup can take awhile depending on what the server is configured
+    // to do
+    private int m_timeout = 300000;
 
     /**
      * synchronized to ensure cf-agent is run before last one finished, but did not
@@ -102,7 +104,7 @@ public class ConfigAgent {
         Process exec = null;
         try {
             m_inProgress = true;
-            LOG.info("Stating agent run " + command);
+            LOG.info("Starting agent run " + command);
             exec = Runtime.getRuntime().exec(command);
             out = new FileWriter(m_logDir + '/' + m_logFile);
             // nothing goes to stderr, so just eat it
@@ -125,7 +127,8 @@ public class ConfigAgent {
                 throw new ConfigException("Agent run finshed but returned error code " + code);
             }
         } catch (InterruptedException e) {
-            throw new ConfigException("Interrupted error. Could not complete agent command");
+            String msg = format("Interrupted error. Could not complete agent command in %d ms.", m_timeout);
+            throw new ConfigException(msg);
         } catch (IOException e) {
             throw new ConfigException("IO error. Could not complete agent command");
         } finally {
