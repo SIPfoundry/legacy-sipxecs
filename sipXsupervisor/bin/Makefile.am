@@ -7,6 +7,7 @@ EXTRA_DIST = \
 
 bin_SCRIPTS = \
 	sipxagent \
+	sipxagent-log-reader \
 	sipxecs-setup
 
 cfmoddir = @SIPX_CFMODULES@

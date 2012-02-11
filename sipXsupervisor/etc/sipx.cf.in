@@ -139,7 +139,8 @@ body copy_from master_files(server,dir) {
 bundle agent sipx_init {
   methods:
     !primary::
-      "update" usebundle => "update_from_master";
+      "update" 
+        usebundle => "update_from_master";
 }
 
 bundle agent update_from_master {
@@ -147,28 +148,33 @@ bundle agent update_from_master {
   # because we have not pulled down a fresh copy of cfdata yet and they could change.
   # location_id is safe because it's loaded differently and not allowed to change
   vars:
-    "dim_master" int => readstringarray("master","@SIPX_CFDATA@/defaults/master", "#[^\n]*", "=", 10, 4000);
-    "server" string => "$(master[address][1])";
+    !primary::
+      "dim_master" int => readstringarray("master","@SIPX_CFDATA@/defaults/master", "#[^\n]*", "=", 10, 4000);
+      "server" string => "$(master[address][1])";
 
   files:
-    # root own files only as extra measure against tampering, but not strict requirement
-    "@SIPX_CFDATA@"
-      copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])"),
-      depth_search => recurse("1"),
-      perms => m("644"),
-      classes => if_notkept("fatal_error");
+    !primary::
+      # root own files only as extra measure against tampering, but not strict requirement
+      "@SIPX_CFDATA@"
+        handle => "$(this.promiser)",
+        copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])"),
+        depth_search => recurse("1"),
+        perms => m("644"),
+        classes => if_notkept("fatal_error");
 
-    "@SIPX_CFDATA@/$(sipx.location_id)"
-      copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])/$(sipx.location_id)"),
-      depth_search => recurse("inf"),
-      perms => m("644"),
-      classes => if_notkept("fatal_error");
+      "@SIPX_CFDATA@/$(sipx.location_id)"
+        handle => "$(this.promiser)",
+        copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])/$(sipx.location_id)"),
+        depth_search => recurse("inf"),
+        perms => m("644"),
+        classes => if_notkept("fatal_error");
 
-    # relay for some reason needs r/w.  Ideally just read is nec.
-    "@SIPX_CONFDIR@/ssl"
-      copy_from => master_files("$(server)","$(master[SIPX_CONFDIR][1])/ssl"),
-      depth_search => recurse("inf"),
-      perms => mog("600","@SIPXPBXUSER@","@SIPXPBXGROUP@");
+      # relay for some reason needs r/w.  Ideally just read is nec.
+      "@SIPX_CONFDIR@/ssl"
+        handle => "$(this.promiser)",
+        copy_from => master_files("$(server)","$(master[SIPX_CONFDIR][1])/ssl"),
+        depth_search => recurse("inf"),
+        perms => mog("600","@SIPXPBXUSER@","@SIPXPBXGROUP@");
 
   reports:
     !primary::

@@ -46,10 +46,9 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
             return;
         }
 
-        if (feature.equals(OpenAcdContext.FEATURE)) {
-            if (event == FeatureEvent.PRE_ENABLE) {
-                OpenAcdSettings settings = m_openAcdContext.getSettings();
-            }
+        if (event == FeatureEvent.PRE_ENABLE) {
+            // this actually doesn't do anything there is no db update.
+            OpenAcdSettings settings = m_openAcdContext.getSettings();
         }
     }
 
@@ -73,6 +72,11 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(OpenAcdContext.FEATURE, location);
             ConfigUtils.enableCfengineClass(dir, "sipxopenacd.cfdat", enabled, "sipxopenacd");
+
+            if (!enabled) {
+                // no need to create config is openacd is not installed
+                continue;
+            }
 
             Writer app = new FileWriter(new File(dir, "app.config"));
             try {

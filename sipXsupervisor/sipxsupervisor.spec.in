@@ -81,6 +81,7 @@ fi
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/sipxagent
+%attr(755,root,root) %{_bindir}/sipxagent-log-reader
 %attr(755,root,root) %{_bindir}/sipxecs-setup
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxsupervisor
 %{_datadir}/sipxecs/cfinputs/*.cf
