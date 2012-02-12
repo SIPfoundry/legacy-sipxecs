@@ -82,8 +82,8 @@ end
 def set_primary
   return false if File.exists?($secondary_dat)
   return true if File.exists?($primary_dat)
-  return false unless prompt_confirm("Is this first server in your cluster?")
-  puts "Configuring as the primary server..."
+  return false unless prompt_confirm("Is this the \e[0;31mfirst\e[m server in your cluster?")
+  puts "Configuring as the first server..."
   File.open($location_dat, 'w') {|f|
     f.puts('1')
   }
@@ -124,7 +124,7 @@ def prompt(msg, err_msg = "Invalid answer")
 end
 
 def prompt_default(msg, default)
-  prompt(msg << " [ press enter for '#{default}' ] : ") {|v|
+  prompt(msg << " [ press enter for '\e[0;31m#{default}\e[m' ] : ") {|v|
     v.empty? ? default : v
   }
 
@@ -147,11 +147,13 @@ def set_domain
   return if File.exists?($domain_dat)
   current_host = `hostname -s`.chomp
   current_domain = `hostname -d`.chomp
-  cluster = prompt_confirm("Will you be setting up a additional servers later?")
   host = prompt_default("Enter system host name", current_host)
   domain = prompt_default("Enter domain name", current_domain)
-  current_sip_domain = cluster ? domain : "#{host}.#{domain}"
-  sip_domain = prompt_default("Enter SIP domain name", current_sip_domain)
+  puts <<EOF
+\e[0;31mTip:\e[m Use '\e[0;31m#{host}.#{domain}\e[m' as your SIP domain if you are setting up for the first
+time. This can make configuration easier.  You can always change the value later.
+EOF
+  sip_domain = prompt_default("Enter SIP domain name", domain)
   realm = prompt_default("Enter SIP realm", sip_domain)
   # shared secret is not really used anymore, but some servers still read it
   shared_secret = `head -c 18 /dev/urandom | base64`.chomp
