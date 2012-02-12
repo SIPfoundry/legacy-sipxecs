@@ -7,6 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.commserver;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,6 +30,15 @@ public class LocationsConfig implements ConfigProvider {
         }
 
         Set<Location> locations = request.locations(manager);
+        File gdir = manager.getGlobalDataDirectory();
+
+        Writer servers = new FileWriter(new File(gdir, "servers"));
+        try {
+            writeServers(servers, locations);
+        } finally {
+            IOUtils.closeQuietly(servers);
+        }
+
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             Writer host = new FileWriter(new File(dir, "host.cfdat"));
@@ -36,11 +47,23 @@ public class LocationsConfig implements ConfigProvider {
             } finally {
                 IOUtils.closeQuietly(host);
             }
-
         }
     }
 
-    private void writeHosts(Writer w, Location l) throws IOException {
+    /**
+     * legend of all servers and their ip addresses and ids
+     */
+    void writeServers(Writer w, Set<Location> locations) throws IOException {
+        for (Location l : locations) {
+            String line = format("%s=%d %s end\n", l.getName(), l.getId(), l.getAddress());
+            w.write(line);
+        }
+    }
+
+    /**
+     * host name the server should use
+     */
+    void writeHosts(Writer w, Location l) throws IOException {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.write("host", l.getHostname());
     }

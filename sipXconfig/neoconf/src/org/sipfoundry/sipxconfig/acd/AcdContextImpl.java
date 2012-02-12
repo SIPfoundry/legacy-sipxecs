@@ -539,7 +539,6 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     }
 
     private void onLocationDelete(Location location) {
-        getHibernateTemplate().update(location);
         AcdServer server = getAcdServerForLocationId(location.getId());
         if (server != null) {
             getHibernateTemplate().delete(server);

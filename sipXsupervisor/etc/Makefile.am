@@ -34,6 +34,7 @@ cfinputs_PROMISES = \
 	sipxsupervisord.cf \
 	sipx.cf \
 	hostname.cf \
+	upload.cf \
 	promises.cf \
 	sipxagent.cf
 

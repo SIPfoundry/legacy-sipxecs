@@ -66,8 +66,10 @@ bundle common sipx {
 bundle agent add_crontab(regex,line) {
   files:
     "$(sipx.cron)"
+      handle => "add_cron",
       edit_line => add_crontab_line("$(regex)","$(line)"),
-      classes => if_repaired("reload_crontab");
+      classes => if_repaired("reload_crontab"),
+      action => track("$(this.handle) $(this.promiser)");
       
   processes:
     reload_crontab::
@@ -106,7 +108,7 @@ bundle edit_line add_crontab_line(regex,value) {
 # NOTE: Cannot use $(sipx. here because it's not loaded yet. Instead
 # use @SIPX.
 # 
-bundle agent sipx_module {
+bundle agent sipx_init_tracker {
   vars:
     "failed_log" string => "@SIPX_LOGDIR@/sipxagent-failed.log";
     "repaired_log" string => "@SIPX_LOGDIR@/sipxagent-repaired.log";
@@ -121,7 +123,9 @@ bundle agent sipx_module {
       "$(logs)"
         create => "true",
         perms => m(644);
+}
 
+bundle agent sipx_module {
   commands:
     any::
       "@SIPX_CFMODULES@/sipx"
@@ -156,14 +160,14 @@ bundle agent update_from_master {
     !primary::
       # root own files only as extra measure against tampering, but not strict requirement
       "@SIPX_CFDATA@"
-        handle => "$(this.promiser)",
+        handle => "update_global",
         copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])"),
         depth_search => recurse("1"),
         perms => m("644"),
         classes => if_notkept("fatal_error");
 
       "@SIPX_CFDATA@/$(sipx.location_id)"
-        handle => "$(this.promiser)",
+        handle => "update_location",
         copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])/$(sipx.location_id)"),
         depth_search => recurse("inf"),
         perms => m("644"),
@@ -171,7 +175,7 @@ bundle agent update_from_master {
 
       # relay for some reason needs r/w.  Ideally just read is nec.
       "@SIPX_CONFDIR@/ssl"
-        handle => "$(this.promiser)",
+        handle => "update_ssl",
         copy_from => master_files("$(server)","$(master[SIPX_CONFDIR][1])/ssl"),
         depth_search => recurse("inf"),
         perms => mog("600","@SIPXPBXUSER@","@SIPXPBXGROUP@");

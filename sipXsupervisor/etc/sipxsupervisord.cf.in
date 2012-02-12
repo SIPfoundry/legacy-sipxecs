@@ -43,15 +43,19 @@ bundle server access_rules {
   access:
     "/usr/sbin/cf-agent"
         admit => { @(sipx.allowed_addrs) },
-	maproot => { @(sipx.allowed_addrs) };
+        maproot => { @(sipx.allowed_addrs) };
       
     "@SIPX_CFDATA@"
         admit => { @(sipx.allowed_addrs) },
-	maproot => { @(sipx.allowed_addrs) };
+        maproot => { @(sipx.allowed_addrs) };
+
+    "@SIPX_LOGDIR@"
+        admit => { @(sipx.allowed_addrs) },
+        maproot => { @(sipx.allowed_addrs) };
 
     "@SIPX_CONFDIR@/ssl"
         admit => { @(sipx.allowed_addrs) },
-	maproot => { @(sipx.allowed_addrs) };
+        maproot => { @(sipx.allowed_addrs) };
 
     roles:
         ".*"

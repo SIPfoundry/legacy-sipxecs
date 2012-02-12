@@ -1,10 +1,12 @@
 bundle agent hostname {
   files:
     "/etc/hosts"
+      handle => "etc_hosts",
       perms => m("644"),
       edit_line => hosts_contents;
 
     "/etc/sysconfig/network"
+      handle => "etc_sysconfig_network",
       perms => m("644"),
       edit_line => sysconfig_network;
 
