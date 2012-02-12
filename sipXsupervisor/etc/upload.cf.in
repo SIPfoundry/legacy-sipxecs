@@ -1,0 +1,44 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# Pull cfengine log files from each server
+#
+
+bundle agent upload {
+  vars:
+    "server" slist => readstringlist("@SIPX_CFDATA@/1/servers", "=(.*?)end", "\n", 100, 4000);
+    "dim_servers" int => readstringarray("info", "@SIPX_CFDATA@/1/servers", "#[^\n]*", "[\s=]", 100, 4000);
+
+  files:
+    "@SIPX_LOGDIR@/sipxagent/$(info[$(server)][1])"
+      handle => "upload",
+      create => "true",
+      copy_from => master_files("$(info[$(server)][2])", "@SIPX_LOGDIR@"),
+      file_select => sipxagent_logs,
+      depth_search => recurse("1");
+
+  reports:
+    linux::
+      "Uploading from $(info[$(server)][0])";
+}
+
+body file_select sipxagent_logs {
+  leaf_name => {
+    "sipxagent*\.log"
+  };
+  file_result => "leaf_name";
+}
+
+body common control {
+  bundlesequence => { 
+    "sipx_module",
+    "upload",
+  };
+
+  inputs => { 
+    "@SIPX_CFINPUTS@/sipx.cf",
+    "@SIPX_CFINPUTS@/cfengine_stdlib.cf"
+  };
+}
