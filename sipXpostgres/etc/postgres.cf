@@ -155,7 +155,7 @@ bundle agent postgres_sysv_running {
 
 bundle agent postgres_sysctl_running {
   vars:
-    any::
+    fedora16_or_greater::
       "service" string => "postgresql.service";
 
   classes:
