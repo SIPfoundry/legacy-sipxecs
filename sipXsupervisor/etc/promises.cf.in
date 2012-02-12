@@ -52,6 +52,7 @@ body agent control {
 body common control {
   bundlesequence => { 
     "sipx_init",
+    "sipx_init_tracker",
     "sipx_module",
     "hostname",
     @(g.bundles)

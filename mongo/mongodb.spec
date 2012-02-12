@@ -7,6 +7,7 @@ URL: http://www.mongodb.org
 Group: Applications/Databases
 
 Source0: %{name}-src-r%{version}.tar.gz
+Patch: boost-fsv2-compiler-err.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: js-devel, readline-devel, boost-devel, pcre-devel
 BuildRequires: gcc-c++, scons
@@ -43,6 +44,7 @@ to develop mongo client software.
 
 %prep
 %setup -n mongodb-src-r%{version}
+%patch -p2
 
 %build
 scons --prefix=$RPM_BUILD_ROOT/usr --sharedclient --full all

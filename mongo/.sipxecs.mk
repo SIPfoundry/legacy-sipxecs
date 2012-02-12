@@ -8,7 +8,8 @@ mongo_SPEC = $(SRC)/$(PROJ)/mongodb.spec
 #   http://jira.mongodb.org/browse/SERVER-4181
 # but assumption is these will be applied upstream and we won't have to maintain these patches.
 mongo_SOURCES = \
-	mongodb-src-r$(mongo_VER).tar.gz
+	mongodb-src-r$(mongo_VER).tar.gz \
+	$(SRC)/$(PROJ)/boost-fsv2-compiler-err.patch
 
 # targets not defined, nothing to do
 mongo.autoreconf mongo.configure mongo.dist :;
