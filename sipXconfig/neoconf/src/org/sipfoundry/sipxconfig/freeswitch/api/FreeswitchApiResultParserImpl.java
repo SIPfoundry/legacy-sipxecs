@@ -188,6 +188,8 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         member.setCanHear(permissions.contains("hear"));
         member.setCanSpeak(permissions.contains("speak"));
 
+        member.setCallerIdName(callerIdName);
+
         member.setName(callerIdName + " (" + sipAddress + ")");
 
         member.setVolumeIn(scan.nextInt());

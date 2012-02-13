@@ -13,6 +13,7 @@ import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
 public class ActiveConferenceMember implements PrimaryKeySource {
     private int m_id;
+    private String m_callerIdName;
     private String m_name;
     private String m_uuid;
     private int m_volumeIn;
@@ -24,6 +25,16 @@ public class ActiveConferenceMember implements PrimaryKeySource {
     public int getId() {
         return m_id;
     }
+
+    public String getCallerIdName() {
+        return m_callerIdName;
+    }
+
+    public void setCallerIdName(String callerIdName) {
+        m_callerIdName = callerIdName;
+    }
+
+
 
     public void setId(int id) {
         m_id = id;

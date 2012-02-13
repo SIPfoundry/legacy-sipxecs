@@ -40,7 +40,6 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.apache.commons.lang.StringUtils.substringBefore;
 import static org.restlet.data.MediaType.APPLICATION_JSON;
 import static org.restlet.data.MediaType.TEXT_XML;
 
@@ -85,14 +84,10 @@ public class UserConferenceDetailsResource extends UserResource {
         User user = null;
         Member reprMember = null;
         for (ActiveConferenceMember member : members) {
-            //FreeswitchApiResultParser sets memberName like this:
-            //member.setName(callerIdName + " (" + sipAddress + ")");
-            //Ideally we should add callerId as member in ActiveConferenceMember, but we are in 4.4 and
-            //we don't want to change too many classes
-            String callerIdName = substringBefore(member.getName(), " ");
-            user = getCoreContext().loadUserByUserName(callerIdName);
+            String callerIdName = member.getCallerIdName();
+            user = getCoreContext().loadUserByUserNameOrAlias(callerIdName);
             reprMember = new Member(member.getId(), callerIdName);
-            reprMember.setImId(user.getImId());
+            reprMember.setImId(user != null ? user.getImId() : null);
             reprMember.setUuid(member.getUuid());
             reprMember.setCanHear(member.getCanHear());
             reprMember.setCanSpeak(member.getCanSpeak());

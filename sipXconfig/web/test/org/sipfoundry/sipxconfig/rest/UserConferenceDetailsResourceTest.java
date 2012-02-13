@@ -140,9 +140,9 @@ public class UserConferenceDetailsResourceTest extends TestCase {
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.loadUser(m_user.getId());
         expectLastCall().andReturn(m_user).anyTimes();
-        m_coreContext.loadUserByUserName("200");
+        m_coreContext.loadUserByUserNameOrAlias("200");
         expectLastCall().andReturn(getUser1()).once();
-        m_coreContext.loadUserByUserName("201");
+        m_coreContext.loadUserByUserNameOrAlias("201");
         expectLastCall().andReturn(getUser2()).once();
         replay(m_coreContext);
         m_resource.setCoreContext(m_coreContext);
@@ -172,9 +172,9 @@ public class UserConferenceDetailsResourceTest extends TestCase {
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.loadUser(m_user.getId());
         expectLastCall().andReturn(m_user).anyTimes();
-        m_coreContext.loadUserByUserName("200");
+        m_coreContext.loadUserByUserNameOrAlias("200");
         expectLastCall().andReturn(getUser1()).once();
-        m_coreContext.loadUserByUserName("201");
+        m_coreContext.loadUserByUserNameOrAlias("201");
         expectLastCall().andReturn(getUser2()).once();
         replay(m_coreContext);
         m_resource.setCoreContext(m_coreContext);
@@ -199,6 +199,7 @@ public class UserConferenceDetailsResourceTest extends TestCase {
         member1.setCanSpeak(true);
         member1.setEnergyLevel(30);
         member1.setId(1);
+        member1.setCallerIdName("200");
         member1.setName("200 (200@ex.example.org)");
         member1.setUuid("33ee33ee");
         member1.setVolumeIn(0);
@@ -208,6 +209,7 @@ public class UserConferenceDetailsResourceTest extends TestCase {
         member2.setCanSpeak(false);
         member2.setEnergyLevel(30);
         member2.setId(1);
+        member2.setCallerIdName("201");
         member2.setName("201 (201@ex.example.org)");
         member2.setUuid("333eee333");
         member2.setVolumeIn(0);
