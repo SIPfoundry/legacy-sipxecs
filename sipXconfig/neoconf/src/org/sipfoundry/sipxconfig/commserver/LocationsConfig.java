@@ -55,7 +55,7 @@ public class LocationsConfig implements ConfigProvider {
      */
     void writeServers(Writer w, Set<Location> locations) throws IOException {
         for (Location l : locations) {
-            String line = format("%s=%d %s end\n", l.getName(), l.getId(), l.getAddress());
+            String line = format("%s=%d %s end\n", l.getFqdn(), l.getId(), l.getAddress());
             w.write(line);
         }
     }

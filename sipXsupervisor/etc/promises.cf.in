@@ -61,6 +61,7 @@ body common control {
   inputs => { 
     "@SIPX_CFINPUTS@/sipx.cf",
     "@SIPX_CFINPUTS@/hostname.cf",
+    "@SIPX_CFINPUTS@/upload.cf",
     "@SIPX_CFINPUTS@/cfengine_stdlib.cf",
     @(g.plugins)
   };

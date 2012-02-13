@@ -7,14 +7,27 @@
 #
 
 bundle agent upload {
+  methods:
+    any::
+      "any" usebundle => "sipx_module";
+      "any" usebundle => "upload_logs";
+}
+
+bundle agent upload_logs {
   vars:
-    "server" slist => readstringlist("@SIPX_CFDATA@/1/servers", "=(.*?)end", "\n", 100, 4000);
-    "dim_servers" int => readstringarray("info", "@SIPX_CFDATA@/1/servers", "#[^\n]*", "[\s=]", 100, 4000);
+    "server" slist => readstringlist("@SIPX_CFDATA@/servers", "=(.*?)end", "\n", 100, 4000);
+    "dim_servers" int => readstringarray("info", "@SIPX_CFDATA@/servers", "#[^\n]*", "[\s=]", 100, 4000);
 
   files:
+    "@SIPX_LOGDIR@/sipxagent/$(info[$(server)][1])/."
+      handle => "upload_dir",
+      create => "true",
+      perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@");
+
     "@SIPX_LOGDIR@/sipxagent/$(info[$(server)][1])"
       handle => "upload",
       create => "true",
+      perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@"),
       copy_from => master_files("$(info[$(server)][2])", "@SIPX_LOGDIR@"),
       file_select => sipxagent_logs,
       depth_search => recurse("1");
@@ -26,19 +39,11 @@ bundle agent upload {
 
 body file_select sipxagent_logs {
   leaf_name => {
-    "sipxagent*\.log"
+    "sipxagent-.*\.log"
+  };
+  file_types => { 
+    "plain",
+    "reg"
   };
   file_result => "leaf_name";
-}
-
-body common control {
-  bundlesequence => { 
-    "sipx_module",
-    "upload",
-  };
-
-  inputs => { 
-    "@SIPX_CFINPUTS@/sipx.cf",
-    "@SIPX_CFINPUTS@/cfengine_stdlib.cf"
-  };
 }
