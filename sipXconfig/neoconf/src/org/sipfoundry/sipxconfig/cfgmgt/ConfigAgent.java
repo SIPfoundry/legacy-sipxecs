@@ -20,6 +20,6 @@ public class ConfigAgent extends AgentRunner {
      */
     public synchronized void run() {
         Collection<Location> all = getLocationsManager().getLocationsList();
-        run(all, "Configuration deployment", "", "sipxagent.log");
+        run(all, "Configuration deployment", "");
     }
 }

@@ -7,9 +7,9 @@
  */
 package org.sipfoundry.sipxconfig.cfgmgt;
 
+import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Before;
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ConfigAgentTest {
     private ConfigAgent m_agent;
@@ -21,14 +21,12 @@ public class ConfigAgentTest {
     
     @Test
     public void run() {
-        m_agent.setLogDir(TestHelper.getTestOutputDirectory());
-        m_agent.run("/bin/echo hello", "test.log");
+        m_agent.run("/bin/echo hello", new NullOutputStream());
     }
 
     @Test(expected=ConfigException.class)
     public void timeout() {
         m_agent.setTimeout(250); // in millis
-        m_agent.setLogDir(TestHelper.getTestOutputDirectory());
-        m_agent.run("/bin/sleep 3", "test.log");
+        m_agent.run("/bin/sleep 3", new NullOutputStream());
     }
 }

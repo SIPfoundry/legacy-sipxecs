@@ -12,8 +12,7 @@
     <property name="configAgent" ref="configAgent"/>
     <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
     <property name="jobContext" ref="jobContext"/>    
-    <property name="logDir" value="$(sysdir.log)"/>
-    <property name="cfDataDir" value="$(sysdir.log)/cfdata"/>
+    <property name="cfDataDir" value="${sysdir.var}/cfdata"/>
   </bean>
   
   <alias alias="configManager" name="configManagerImpl"/>
@@ -24,8 +23,8 @@
   
   <bean id="cfAgent" abstract="true">
     <property name="locationsManager" ref="locationsManager"/>
-    <property name="logDir" value="$(sysdir.log)/sipxagent"/>
-    <property name="command" value="$(sysdir.bin)/sipxagent"/>  
+    <property name="command" value="${sysdir.bin}/sipxagent"/>  
+    <property name="jobContext" ref="jobContext"/>    
   </bean>
     
   <bean id="configAgent" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigAgent" parent="cfAgent"/>
