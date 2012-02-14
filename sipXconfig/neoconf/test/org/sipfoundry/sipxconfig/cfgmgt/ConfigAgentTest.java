@@ -22,13 +22,13 @@ public class ConfigAgentTest {
     @Test
     public void run() {
         m_agent.setLogDir(TestHelper.getTestOutputDirectory());
-        m_agent.run("/bin/echo hello");
+        m_agent.run("/bin/echo hello", "test.log");
     }
 
     @Test(expected=ConfigException.class)
     public void timeout() {
         m_agent.setTimeout(250); // in millis
         m_agent.setLogDir(TestHelper.getTestOutputDirectory());
-        m_agent.run("/bin/sleep 3");
+        m_agent.run("/bin/sleep 3", "test.log");
     }
 }

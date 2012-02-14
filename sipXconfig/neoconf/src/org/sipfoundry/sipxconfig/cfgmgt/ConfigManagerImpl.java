@@ -51,6 +51,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private Set<Feature> m_affectedFeatures = new HashSet<Feature>();
     private boolean m_allFeaturesAffected;
     private ConfigAgent m_configAgent;
+    private RunBundleAgent m_runAgent;
     private SipxReplicationContext m_sipxReplicationContext;
     private JobContext m_jobContext;
 
@@ -283,5 +284,19 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     public void setJobContext(JobContext jobContext) {
         m_jobContext = jobContext;
+    }
+
+    @Override
+    public void run(RunRequest request) {
+        LOG.info("Running " + request.getLabel());
+        Serializable job = m_jobContext.schedule(request.getLabel());
+        m_jobContext.start(job);
+        List<Exception> errors = new ArrayList<Exception>();
+        try {
+            m_runAgent.run(request.getLocations(), request.getLabel(), request.getBundles(), request.getDefines());
+            m_jobContext.success(job);
+        } catch (Exception e) {
+            m_jobContext.failure(job, getErrorMessage(errors), new RuntimeException());
+        }
     }
 }

@@ -10,6 +10,7 @@ end
 def parse(input, &block)
   while line = input.gets
     token(:handle, /\s+Promise handle:\s(.*)/.match(line).to_a, block)
+    token(:comment, /\s+Comment:  (.*)$/.match(line).to_a, block)
     token(:info, /\s+\*\* Information:\s(.*)/.match(line).to_a, block)
     token(:warning, /\s+!!\s(.*)/.match(line).to_a, block)
     token(:error, /\s+!!!\s(.*)/.match(line).to_a, block)
@@ -27,6 +28,8 @@ def digest(input)
       msg << value << "\n"
     when :warning
       warn = true
+      msg << value << "\n"
+    when :comment
       msg << value << "\n"
     when :error
       err = true
