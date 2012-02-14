@@ -4,7 +4,7 @@ bundle agent selinux {
       # vsftp is just one of the known incompatibilies with selinux. There may be others
       "/etc/selinux/config"
         comment => "Disable SELinux on next boot",
-        create => "false",
+        create => "true",
         perms => m(644),
         edit_line => disable_selinux,
         classes => if_repaired("disable_selinux_until_reboot");
