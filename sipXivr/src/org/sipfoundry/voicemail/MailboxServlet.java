@@ -118,7 +118,7 @@ public class MailboxServlet extends HttpServlet {
             if (trustedSource) {
                 if (method.equals(METHOD_PUT)) {
                     try {
-                        mailboxManager.deleteMailbox(user);
+                        mailboxManager.deleteMailbox(mailboxString);
                     } catch (Exception ex) {
                         response.sendError(500);
                     }
