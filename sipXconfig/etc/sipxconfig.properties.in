@@ -85,8 +85,4 @@ mailboxManagerImpl.stdpromptDirectory=@wwwdir@/doc/stdprompts
 
 # yum command exists on system?
 packageUpdateManager.yumCapable=@YUM_EXISTS@
-
-configManagerImpl.cfDataDir=@SIPX_VARDIR@/cfdata
-configAgent.command=@SIPX_BINDIR@/sipxagent %s
-configAgent.logDir=@SIPX_LOGDIR@
 # ======= BEGIN NEW INSTALLATION SETTINGS =================

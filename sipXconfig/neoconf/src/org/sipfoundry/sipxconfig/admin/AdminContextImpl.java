@@ -48,7 +48,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         if (type.equals(HTTP_ADDRESS)) {
             address = new Address(HTTP_ADDRESS, location.getFqdn(), 12000);
         } else {
-            address = new Address(HTTP_ADDRESS, location.getFqdn(), 8443);
+            address = new Address(HTTPS_ADDRESS, location.getFqdn(), 8443);
         }
         // else ftp and tftp won't have ports defines, 0 means it's assumed to be default
         // also, this assumed admin ui is also tftp and ftp server, which is a correct assumption

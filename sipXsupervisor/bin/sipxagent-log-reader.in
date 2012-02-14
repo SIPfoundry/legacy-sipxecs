@@ -3,16 +3,22 @@
 # Parse cfengine output and interpret results. Parse for potential erros
 # and ignore common ones.
 
+require 'optparse'
+
+$verbose = false
+
 def token(token, match, block)
-  block.call(token, match[1]) unless match.nil? || match.size < 2
+  found = !match.nil? && match.size >= 2
+  block.call(token, match[1]) if found
 end
 
 def parse(input, &block)
   while line = input.gets
-    token(:handle, /\s+Promise handle:\s(.*)/.match(line).to_a, block)
-    token(:info, /\s+\*\* Information:\s(.*)/.match(line).to_a, block)
-    token(:warning, /\s+!!\s(.*)/.match(line).to_a, block)
-    token(:error, /\s+!!!\s(.*)/.match(line).to_a, block)
+    token(:handle, /\s+Promise handle:\s+(.*)/.match(line).to_a, block)
+    token(:comment, /\s+Comment:\s+(.*)$/.match(line).to_a, block)
+    token(:info, /\s+\*\* Information:\s+(.*)/.match(line).to_a, block)
+    token(:warning, /\s+!!\s+(.*)/.match(line).to_a, block)
+    token(:error, /\s+!!!\s+(.*)/.match(line).to_a, block)
   end
 end
 
@@ -24,21 +30,23 @@ def digest(input)
   parse(input) {|tok, value|
     case tok
     when :info
-      msg << value << "\n"
+      msg << '. ' << value
     when :warning
       warn = true
-      msg << value << "\n"
+      msg << '. ' << value
+    when :comment
+     msg << ' attempting \'' << value  << '\''
     when :error
       err = true
-      msg << value << "\n"
+      msg << '. ' << value
     when :handle
       # clear any outstanding errors/warning
       if err
-        msg = (handle.empty? ? "*** Error\n" : "*** Error in #{handle}\n") << msg
-        yield :warning, msg
-      elsif warn
-        msg = (handle.empty? ? "*** Warning\n" : "*** Warning in #{handle}\n") << msg
+        msg = (handle.empty? ? "Error" : "Error in #{handle}") << msg
         yield :error, msg
+      elsif warn
+        msg = (handle.empty? ? "Warning" : "Warning in #{handle}") << msg
+        yield :warning, msg
       end
       err = warn = false
       msg = ''
@@ -49,7 +57,7 @@ def digest(input)
   }
 end
 
-def analyze(input,verbose)
+def analyze(input)
   benign = [
 
     # java creates really long process lines and cfengine is warning
@@ -68,35 +76,30 @@ def analyze(input,verbose)
     next if benign.find {|ignore|
       ignore.match(msg)
     }
-    puts msg if (level == :error || (level == :warning && verbose))
+    $stderr.puts(msg) if (level == :error || (level == :warning && $verbose))
     ok = false if (level == :error)
   }
 
   return ok
 end
 
-if __FILE__ == $0
-  require 'optparse'
-  verbose = true
-  args = OptionParser.new { |opts|
-    opts.banner = "Usage : sipxagent-log-parser [options] < cfengine-log-file"
+args = OptionParser.new { |opts|
+  opts.banner = "Usage : sipxagent-log-parser [options] < cfengine-log-file"
 
-    opts.separator ""
-    opts.separator "Options:"
+  opts.separator ""
+  opts.separator "Options:"
 
-    opts.on("--verbose", "Send extra details to console.") {
-      verbose = true
-    }
-
-    opts.on_tail("--help", "Print options") {
-      puts opts
-      exit
-    }
+  opts.on("--verbose", "Send extra details to console.") {
+    $verbose = true
   }
 
-  args.parse!
+  opts.on_tail("--help", "Print options") {
+    puts opts
+    exit
+  }
+}
 
-  status = analyze(STDIN, verbose)
-  exit status
-  # Do something.. run tests, call a method, etc. We're direct.
-end
+args.parse!
+
+status = analyze($stdin)
+exit status
