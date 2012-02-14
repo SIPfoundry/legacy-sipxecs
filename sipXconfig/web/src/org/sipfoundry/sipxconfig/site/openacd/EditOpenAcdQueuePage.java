@@ -198,6 +198,10 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
         return new NamedValuesSelectionModel(types2Labels);
     }
 
+    public String getActionHelpText() {
+        return getMessages().getMessage("description." + getRecipeStepBean().getRecipeStep().getAction().getAction());
+    }
+
     public IPropertySelectionModel getFrequencyModel() {
         Map<String, String> types2Labels = new LinkedHashMap<String, String>();
         for (FREQUENCY value : FREQUENCY.values()) {
