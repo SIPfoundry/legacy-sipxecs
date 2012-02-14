@@ -20,10 +20,10 @@ public class AgentResultsTest {
     AgentResults m_results = new AgentResults();
     
     @Test
-    public void parse() {
+    public void parse() throws InterruptedException {
         InputStream dat = new ByteArrayInputStream("hello".getBytes()); 
-        m_results.parseInput(dat);
-        List<String> results = m_results.getResults();
+        m_results.parse(dat);
+        List<String> results = m_results.getResults(1000);
         assertEquals(1, results.size());
         assertEquals("hello", results.get(0));
     }

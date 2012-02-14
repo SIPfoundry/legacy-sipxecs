@@ -20,15 +20,16 @@ import org.apache.commons.logging.LogFactory;
 public class AgentResults {
     private static final Log LOG = LogFactory.getLog(AgentResults.class);
     private List<String> m_errors;
+    private Thread m_runner;
 
     public void parse(final InputStream in) {
-        Thread t = new Thread(new Runnable() {
+        m_runner = new Thread("sipxagent error reader") {
             @Override
             public void run() {
                 parseInput(in);
             }
-        });
-        t.start();
+        };
+        m_runner.start();
     }
 
     void parseInput(InputStream in) {
@@ -47,7 +48,8 @@ public class AgentResults {
         }
     }
 
-    public List<String> getResults() {
+    public List<String> getResults(long timeout) throws InterruptedException {
+        m_runner.join(timeout);
         return m_errors;
     }
 }

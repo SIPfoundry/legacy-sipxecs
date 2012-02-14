@@ -253,7 +253,7 @@ else
 end
 
 puts "Configuring system, this may take a few minutes..."
-ok = run_command("#{$bindir}/sipxagent #{'-v' if $verbose}")
+ok = run_command("#{$bindir}/sipxagent #{'-v ' if $verbose}")
 if !ok
   puts "failed."
   exit 1

@@ -35,36 +35,41 @@ public class AgentRunner {
     private int m_timeout = 300000;
     private JobContext m_jobContext;
 
-    protected synchronized void run(Collection<Location> locations, String label, String command) {
+
+    /**
+     * Entry point for subclasses to all sipxagent command with a generic CFEngine task
+     * @param locations all the locations to run this command
+     * @param label what should show in job table
+     * @param subCommand does not include path to sipxagent command or host parameter
+     */
+    protected synchronized void run(Collection<Location> locations, String label, String subCommand) {
         try {
             m_inProgress = true;
             List<Location> ok = new ArrayList<Location>(locations.size());
             for (Location l : locations) {
-                run(l, label, command);
+                String address = l.isPrimary() ? "127.0.0.1" : l.getAddress();
+                String command = format("%s --host %s %s", getCommand(), address, subCommand);
+                runJob(l, label, command);
             }
         } finally {
             m_inProgress = false;
         }
     }
 
-    void run(Location location, String label, String subCommand) {
-        String address = location.isPrimary() ? "127.0.0.1" : location.getAddress();
-        String command = format("%s --host %s %s", getCommand(), address, subCommand);
-        OutputStream log = null;
+    /**
+     * Run a full job at a location. Update job table for any failures in either
+     * running the command or errors in stderr
+     */
+    void runJob(Location location, String label, String command) {
+        PipedOutputStream log = null;
         Serializable job = m_jobContext.schedule(label, location);
+        AgentResults results = new AgentResults();
         try {
             m_jobContext.start(job);
-            PipedInputStream in = new PipedInputStream();
-            log = new PipedOutputStream(in);
-            AgentResults results = new AgentResults();
+            log = new PipedOutputStream();
+            PipedInputStream in = new PipedInputStream(log);
             results.parse(in);
-            run(command, log);
-            List<String> errs = results.getResults();
-            for (String err : errs) {
-                // No sense showing job unless there was a problem
-                m_jobContext.start(job);
-                m_jobContext.failure(job, err, new RuntimeException());
-            }
+            runCommand(command, log);
             m_jobContext.success(job);
         } catch (ConfigException e) {
             m_jobContext.failure(job, e.getMessage(), new RuntimeException());
@@ -73,9 +78,24 @@ public class AgentRunner {
         } finally {
             IOUtils.closeQuietly(log);
         }
+        List<String> errs;
+        try {
+            errs = results.getResults(1000);
+            for (String err : errs) {
+                // Tricky alert - show additional errors as new jobs
+                Serializable jobErr = m_jobContext.schedule(label, location);
+                m_jobContext.start(jobErr);
+                ConfigManagerImpl.fail(m_jobContext, jobErr, new ConfigException(err));
+            }
+        } catch (InterruptedException e) {
+            LOG.error(e);
+        }
     }
 
-    void run(String command, OutputStream log) {
+    /**
+     * Run a command and pipe io streams accordingly
+     */
+    void runCommand(String command, OutputStream log) {
         Process exec = null;
         try {
             LOG.info("Starting agent run " + command);
@@ -84,11 +104,13 @@ public class AgentRunner {
             // nothing goes to stdout, so just eat it
             StreamGobbler outGobbler = new StreamGobbler(exec.getInputStream());
             Worker worker = new Worker(exec);
-            new Thread(errGobbler).start();
+            Thread err = new Thread(errGobbler);
+            err.start();
             new Thread(outGobbler).start();
             Thread work = new Thread(worker);
             work.start();
             work.join(m_timeout);
+            err.join(1000);
             int code = worker.getExitCode();
             if (outGobbler.m_error != null) {
                 LOG.error("Error logging output stream from agent run", outGobbler.m_error);

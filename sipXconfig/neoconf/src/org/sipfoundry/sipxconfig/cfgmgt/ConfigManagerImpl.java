@@ -131,23 +131,24 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         if (errors.size() == 0) {
             m_jobContext.success(job);
         } else {
-            fail(job, errors.pop());
+            fail(m_jobContext, job, errors.pop());
+            // Tricky alert - show additional errors as new jobs
             while (!errors.empty()) {
                 Serializable jobError = m_jobContext.schedule(jobLabel);
                 m_jobContext.start(jobError);
-                fail(jobError, errors.pop());
+                fail(m_jobContext, jobError, errors.pop());
             }
         }
 
         m_configAgent.run();
     }
 
-    void fail(Serializable job, Exception e) {
+    static void fail(JobContext jc, Serializable job, Exception e) {
         // ConfigException's error message is useful to user, otherwise emit raw error
         if (e instanceof ConfigException) {
-            m_jobContext.failure(job, e.getMessage(), new RuntimeException());
+            jc.failure(job, e.getMessage(), new RuntimeException());
         } else {
-            m_jobContext.failure(job, "Internal Error", e);
+            jc.failure(job, "Internal Error", e);
         }
     }
 
