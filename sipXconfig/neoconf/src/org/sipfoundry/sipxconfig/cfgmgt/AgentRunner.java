@@ -80,9 +80,9 @@ public class AgentRunner {
         try {
             LOG.info("Starting agent run " + command);
             exec = Runtime.getRuntime().exec(command);
-            // nothing goes to stderr, so just eat it
-            StreamGobbler errGobbler = new StreamGobbler(exec.getErrorStream());
-            StreamGobbler outGobbler = new StreamGobbler(exec.getInputStream(), log);
+            StreamGobbler errGobbler = new StreamGobbler(exec.getErrorStream(), log);
+            // nothing goes to stdout, so just eat it
+            StreamGobbler outGobbler = new StreamGobbler(exec.getInputStream());
             Worker worker = new Worker(exec);
             new Thread(errGobbler).start();
             new Thread(outGobbler).start();

@@ -7,35 +7,47 @@
  */
 package org.sipfoundry.sipxconfig.cfgmgt;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class AgentResults {
     private static final Log LOG = LogFactory.getLog(AgentResults.class);
+    private List<String> m_errors;
 
     public void parse(final InputStream in) {
         Thread t = new Thread(new Runnable() {
-
             @Override
             public void run() {
-                try {
-                    IOUtils.copy(in, new NullOutputStream());
-                } catch (IOException e) {
-                    LOG.fatal("Could not read agent results", e);
-                }
+                parseInput(in);
             }
         });
         t.start();
     }
 
+    void parseInput(InputStream in) {
+        m_errors = new ArrayList<String>();
+        try {
+            BufferedReader r = new BufferedReader(new InputStreamReader(in));
+            while (true) {
+                String line = r.readLine();
+                if (line == null) {
+                    break;
+                }
+                m_errors.add(line);
+            }
+        } catch (IOException e) {
+            LOG.fatal("Could not read agent results", e);
+        }
+    }
+
     public List<String> getResults() {
-        return Collections.emptyList();
+        return m_errors;
     }
 }

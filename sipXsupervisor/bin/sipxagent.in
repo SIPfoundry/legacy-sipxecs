@@ -16,7 +16,7 @@ def cmd(verbose, cmd)
   return system(cmd)
 end
 
-def run(verbose, is_remote, hosts, defines, bundles)
+def run(verbose, is_remote, is_raw, hosts, defines, bundles)
   
   if (Process.uid == 0 && is_remote) # uid == 0 for root?
     #
@@ -36,25 +36,29 @@ def run(verbose, is_remote, hosts, defines, bundles)
     bstr = (bundles.empty? ? '' : "-b " + bundles.join(' -b '))
     hstr = (hosts.empty? ? '' : "-H " + hosts.join(' -H '))
     vstr = (verbose ? '-v' : '')
+    analyzer = (is_raw ? '' : "| #{$bindir}/sipxagent-log-reader #{vstr}")
+    # analyzer needs verbose output to analyze log
+    agentvstr = (is_raw || verbose ? '-v' : '')
     if (is_remote || Process.uid != 0)
-      ok = cmd(verbose, "cf-runagent #{vstr} #{hstr} -f #{$cfinputs}/sipxagent.cf -o \"#{vstr} #{dstr} #{bstr} -K\" | tee -a #{$logfile}")
+      ok = cmd(verbose, "cf-runagent #{vstr} #{hstr} -f #{$cfinputs}/sipxagent.cf -o \"#{agentvstr} #{dstr} #{bstr} -K\" | tee -a #{$logfile} #{analyzer}")
     else 
       # Short-cut - If you're root and you're not remote, do not bother going thru 
       # sipxsupervisor.  This is handy if supervisor is dead or in the very initial
       # call to sipxecs-setup on primary when nothing is running yet
-      ok = cmd(verbose, "cf-agent #{vstr} #{dstr} #{bstr} -IKf #{$cfinputs}/promises.cf");
+      ok = cmd(verbose, "cf-agent #{agentvstr} #{dstr} #{bstr} -IKf #{$cfinputs}/promises.cf #{analyzer}");
     end
   end
   exit(ok ? 0 : 1)
 end  
 
 
-verbose = true
+verbose = false
 hosts = [ '127.0.0.1' ]
 defines = []
 bundles = []
 # assume this is a local run
 is_remote = false
+is_raw = false
 
 args = OptionParser.new { |opts|
   opts.banner = "Usage : sipxagent [options]"
@@ -64,6 +68,10 @@ args = OptionParser.new { |opts|
 
   opts.on("--verbose", "Send extra details to console.") {
     verbose = true
+  }
+
+  opts.on_tail("-r", "--raw", "Show raw output fron CFEngine") {|v|
+    is_raw = true
   }
 
   opts.on_tail("-h host", "--host host", <<EOF
@@ -98,5 +106,5 @@ EOF
 }
 args.parse!
 
-status = run(verbose, is_remote, hosts, defines, bundles)
+status = run(verbose, is_remote, is_raw, hosts, defines, bundles)
 exit status

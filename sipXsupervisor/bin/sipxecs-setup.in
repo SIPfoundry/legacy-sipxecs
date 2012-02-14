@@ -6,7 +6,6 @@ require 'fileutils'
 # using only @VAR@ style vars in this section only helps make this maintainable when integrating
 # patches.
 $cfdatadir = "@SIPX_CFDATA@"
-$logdir = "@SIPX_LOGDIR@"
 $confdir = "@SIPX_CONFDIR@"
 $bindir = "@SIPX_BINDIR@"
 $user = "@SIPXPBXUSER@"
@@ -20,14 +19,14 @@ $primary_dat = "#{$cfdatadir}/defaults/primary.cfdat"
 $secondary_dat = "#{$cfdatadir}/defaults/secondary.cfdat"
 $master_dat= "#{$cfdatadir}/defaults/master"
 $location_dat = "#{$cfdatadir}/defaults/location_id"
-$log = "#{$logdir}/sipxecs-setup.log"
+$log = "#{$logdir}/sipxagent.log"
 $verbose = false
 $advanced = false
 $exit_status = 0
 
 def run_command(cmd)
   puts cmd if $verbose
-  ok = system("#{cmd} >> #{$log} 2>&1")
+  ok = system("#{cmd} #{' >/dev/null' unless $verbose}")
   if (!ok) 
     puts
     puts  "Failure to run command #{cmd}. See #{$log} for details. After you"
@@ -245,7 +244,6 @@ args = OptionParser.new { |opts|
 args.parse!
 
 raise 'Must run as root' unless Process.uid == 0
-rm_file($log)
 set_root_keys()
 set_nonroot_keys()
 if set_primary()
@@ -255,8 +253,7 @@ else
 end
 
 puts "Configuring system, this may take a few minutes..."
-ok = run_command("#{$bindir}/sipxagent -v")
-ok = system("#{$bindir}/sipxagent-log-reader #{'-v' if $verbose} < #{$log}") && ok
+ok = run_command("#{$bindir}/sipxagent #{'-v' if $verbose}")
 if !ok
   puts "failed."
   exit 1

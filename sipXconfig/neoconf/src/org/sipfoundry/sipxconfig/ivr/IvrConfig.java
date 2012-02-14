@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -78,16 +79,16 @@ public class IvrConfig implements ConfigProvider {
         // potential bug: name "operator" could be changed by admin. this should be configurable
         // and linked with vm dialing rule
         config.write("ivr.operatorAddr", "sip:operator@" + domain.getName());
-        config.write("ivr.configAddress", adminApi.getAddress());
 
         // required services
         if (mwiApi == null) {
-            throw new IllegalStateException("MWI feature needs to be enabled. No addresses found.");
+            throw new ConfigException("MWI feature needs to be enabled. No addresses found.");
         }
         config.write("ivr.mwiUrl", mwiApi.toString());
         if (adminApi == null) {
-            throw new IllegalStateException("Admin feature needs to be enabled. No addresses found.");
+            throw new ConfigException("Admin feature needs to be enabled. No addresses found.");
         }
+        config.write("ivr.configAddress", adminApi.getAddress());
         config.write("ivr.configUrl", adminApi.toString());
 
         // optional services

@@ -1,12 +1,14 @@
 bundle agent hostname {
   files:
     "/etc/hosts"
-      handle => "etc_hosts",
+      create => "true",
+      comment => "Edit $(this.promiser)",
       perms => m("644"),
       edit_line => hosts_contents;
 
     "/etc/sysconfig/network"
-      handle => "etc_sysconfig_network",
+      create => "true",
+      comment => "Edit $(this.promiser)",
       perms => m("644"),
       edit_line => sysconfig_network;
 
@@ -32,5 +34,12 @@ bundle edit_line hosts_contents {
 
   delete_lines:
     # safest to delete all in case ip or hostname changes.
-    ".*";
+    !src::
+      ".*";
+
+    src::
+     "$(sys.ipv4)\s(.*)";
+     "127\.0\.0\.1\s(.*)";
+     "::1\s(.*)";
+      
 }

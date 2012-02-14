@@ -50,7 +50,7 @@ public class MongoReplicaSetManager implements FeatureListener {
             String cmd = format(INIT_COMMAND, fqdn);
             MongoUtil.runCommand(m_localDb.getDb(), cmd);
         } catch (UnknownHostException e) {
-            throw new IllegalStateException("Cannot it FQDN to initialize mongo.");
+            throw new IllegalStateException("Cannot get FQDN to initialize mongo.");
         }
     }
 

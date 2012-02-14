@@ -7,8 +7,9 @@ def token(token, match, block)
   block.call(token, match[1]) unless match.nil? || match.size < 2
 end
 
-def parse(input, &block)
+def parse(input, verbose, &block)
   while line = input.gets
+    puts line if verbose
     token(:handle, /\s+Promise handle:\s(.*)/.match(line).to_a, block)
     token(:comment, /\s+Comment:  (.*)$/.match(line).to_a, block)
     token(:info, /\s+\*\* Information:\s(.*)/.match(line).to_a, block)
@@ -17,30 +18,30 @@ def parse(input, &block)
   end
 end
 
-def digest(input)
+def digest(input, verbose)
   err = false
   warn = false
   msg = ''
   handle = ''
-  parse(input) {|tok, value|
+  parse(input, verbose) {|tok, value|
     case tok
     when :info
-      msg << value << "\n"
+      msg << '. ' << value
     when :warning
       warn = true
-      msg << value << "\n"
+      msg << '. ' << value
     when :comment
-      msg << value << "\n"
+     msg << ' attempting \'' << value  << '\''
     when :error
       err = true
-      msg << value << "\n"
+      msg << '. ' << value
     when :handle
       # clear any outstanding errors/warning
       if err
-        msg = (handle.empty? ? "*** Error\n" : "*** Error in #{handle}\n") << msg
+        msg = (handle.empty? ? "Error" : "Error in #{handle}") << msg
         yield :warning, msg
       elsif warn
-        msg = (handle.empty? ? "*** Warning\n" : "*** Warning in #{handle}\n") << msg
+        msg = (handle.empty? ? "Warning" : "Warning in #{handle}") << msg
         yield :error, msg
       end
       err = warn = false
@@ -52,7 +53,7 @@ def digest(input)
   }
 end
 
-def analyze(input,verbose)
+def analyze(input, verbose)
   benign = [
 
     # java creates really long process lines and cfengine is warning
@@ -67,11 +68,11 @@ def analyze(input,verbose)
   ]
 
   ok = true
-  digest(input) { |level, msg|
+  digest(input, verbose) { |level, msg|
     next if benign.find {|ignore|
       ignore.match(msg)
     }
-    puts msg if (level == :error || (level == :warning && verbose))
+    STDERR.puts msg if (level == :error || (level == :warning && verbose))
     ok = false if (level == :error)
   }
 
@@ -80,7 +81,7 @@ end
 
 if __FILE__ == $0
   require 'optparse'
-  verbose = true
+  verbose = false
   args = OptionParser.new { |opts|
     opts.banner = "Usage : sipxagent-log-parser [options] < cfengine-log-file"
 

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,25 +114,40 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     // not synchronized so new incoming work can accumulate.
     public void doWork(ConfigRequest request) {
         LOG.info("Configuration work to do. Notifying providers.");
-        Serializable job = m_jobContext.schedule("Configuration");
+        String jobLabel = "Configuration";
+        Serializable job = m_jobContext.schedule(jobLabel);
         m_jobContext.start(job);
-        List<Exception> errors = new ArrayList<Exception>();
+        Stack<Exception> errors = new Stack<Exception>();
         for (ConfigProvider provider : getProviders()) {
             try {
                 provider.replicate(this, request);
             } catch (Exception e) {
-                errors.add(e);
+                errors.push(e);
             }
         }
-        try {
-            m_configAgent.run();
-        } catch (ConfigException e) {
-            errors.add(e);
-        }
-        if (errors.size() > 0) {
-            m_jobContext.failure(job, getErrorMessage(errors), new RuntimeException());
-        } else {
+
+        // even though there are errors, proceed to deploy phase. May want to
+        // reevaluate this decision --Douglas
+        if (errors.size() == 0) {
             m_jobContext.success(job);
+        } else {
+            fail(job, errors.pop());
+            while (!errors.empty()) {
+                Serializable jobError = m_jobContext.schedule(jobLabel);
+                m_jobContext.start(jobError);
+                fail(jobError, errors.pop());
+            }
+        }
+
+        m_configAgent.run();
+    }
+
+    void fail(Serializable job, Exception e) {
+        // ConfigException's error message is useful to user, otherwise emit raw error
+        if (e instanceof ConfigException) {
+            m_jobContext.failure(job, e.getMessage(), new RuntimeException());
+        } else {
+            m_jobContext.failure(job, "Internal Error", e);
         }
     }
 
