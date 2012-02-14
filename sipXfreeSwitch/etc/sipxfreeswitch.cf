@@ -19,9 +19,12 @@ bundle agent sipxfreeswitch_config {
     any::
       "conference_file" string => "$(sipx.SIPX_CONFDIR)/freeswitch/conf/autoload_configs/conference.conf.xml";
 
+      "xml_file_reload_only" slist => { 
+	"dialplan/sipX_context.xml"
+      };
+
       "xml_file" slist => { 
         "freeswitch.xml",
-	"dialplan/sipX_context.xml",
 	"sip_profiles/sipX_profile.xml",
         "autoload_configs/xml_rpc.conf.xml",
  	"autoload_configs/switch.conf.xml",
@@ -33,7 +36,7 @@ bundle agent sipxfreeswitch_config {
     !sipxconference::
       "$(conference_file)"
         delete => unlink,
-        classes => if_repaired("reload_freeswitch"),
+        classes => if_repaired("reload_sipxfreeswitch"),
 	action => track("$(this.promiser)");
 
     sipxconference::
@@ -41,7 +44,7 @@ bundle agent sipxfreeswitch_config {
         create => "true",
         perms => m("644"),
 	copy_from => copy_from_cfdata("$(sipx.location_id)/conference.conf.xml"),
-        classes => if_repaired("reload_freeswitch"),
+        classes => if_repaired("reload_sipxfreeswitch"),
 	action => track("$(this.promiser)");
 
     any::
@@ -51,6 +54,14 @@ bundle agent sipxfreeswitch_config {
 	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxfreeswitch"),
 	action => track("$(xml_file)");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/freeswitch/conf/$(xml_file_reload_only)"
+        create => "true",
+        perms => m("644"),
+	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_reload_only)"),
+        classes => if_repaired("reload_sipxfreeswitch"),
+	action => track("$(xml_file_reload_only)");
 
     any::
       "$(sipx.SIPX_CONFDIR)/freeswitch/conf/autoload_configs/modules.conf.xml"
@@ -160,11 +171,10 @@ bundle agent sipxfreeswitch_running {
         args => "start",
 	action => track("sipxfreeswitch start");
 
-    # TODO: only reload freeswitch, not restart
-    reload_freeswitch::
+    reload_sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
-        args => "restart",
-	action => track("sipxfreeswitch restart");
+        args => "reload",
+	action => track("sipxfreeswitch reload");
 
     restart_sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
