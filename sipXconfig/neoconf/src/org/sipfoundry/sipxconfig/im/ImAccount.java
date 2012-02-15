@@ -20,7 +20,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  * services
  */
 public class ImAccount {
-    private static final String IM_ACCOUNT = "im/im-account";
+    public static final String IM_ACCOUNT = "im/im-account";
 
     private final User m_user;
 
