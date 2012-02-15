@@ -29,6 +29,7 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.callback.PageCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdClient;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdLine;
 
@@ -63,6 +64,19 @@ public abstract class OpenAcdLines extends BaseComponent {
             }
         }
         return "";
+    }
+
+    public String getClient() {
+        List<FreeswitchAction> actions = getCurrentRow().getLineActions();
+        for (FreeswitchAction action : actions) {
+            String data = action.getData();
+            if (StringUtils.contains(data, OpenAcdLine.BRAND)) {
+                String clientIdentity = StringUtils.removeStart(data, OpenAcdLine.BRAND);
+                OpenAcdClient client = getOpenAcdContext().getClientByIdentity(clientIdentity);
+                return client.getName();
+            }
+        }
+        return StringUtils.EMPTY;
     }
 
     public IPage editLine(int id) {
