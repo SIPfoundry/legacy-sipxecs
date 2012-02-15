@@ -9,6 +9,7 @@ $verbose = false
 
 def token(token, match, block)
   found = !match.nil? && match.size >= 2
+  puts "Token - #{token}:#{match[1]}" if ($verbose && found)
   block.call(token, match[1]) if found
 end
 
@@ -20,6 +21,7 @@ def parse(input, &block)
     token(:warning, /\s+!!\s+(.*)/.match(line).to_a, block)
     token(:error, /\s+!!!\s+(.*)/.match(line).to_a, block)
   end
+  block.call(:finished, nil)
 end
 
 def digest(input)
@@ -28,6 +30,7 @@ def digest(input)
   msg = ''
   handle = ''
   parse(input) {|tok, value|
+    puts "Digester - #{tok}:#{value}" if $verbose
     case tok
     when :info
       msg << '. ' << value
@@ -39,7 +42,7 @@ def digest(input)
     when :error
       err = true
       msg << '. ' << value
-    when :handle
+    when :handle, :finished
       # clear any outstanding errors/warning
       if err
         msg = (handle.empty? ? "Error" : "Error in #{handle}") << msg
@@ -73,6 +76,7 @@ def analyze(input)
 
   ok = true
   digest(input) { |level, msg|
+    puts "Analyzer - #{level} #{msg}" if $verbose
     next if benign.find {|ignore|
       ignore.match(msg)
     }

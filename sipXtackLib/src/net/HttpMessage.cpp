@@ -836,7 +836,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                     // No bytes were read .. if this is a persistent connection
                     // and it failed on retry mark it unused
                     // in the connection map. Set socket to NULL
-                    Os::Logger::instance().log(FAC_HTTP, PRI_ERR,
+                    Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                                   "HttpMessage::get[4] "
                                   "Receiving failed on persistent connection on try %d",
                                   sendTries);

@@ -18,6 +18,7 @@ public interface AdminContext {
     public static final AddressType HTTPS_ADDRESS = new AddressType("secureAdminApi", "https://%s:%d");
     public static final AddressType TFTP_ADDRESS = new AddressType("tftp");
     public static final AddressType FTP_ADDRESS = new AddressType("ftp");
+    public static final AddressType PRIMARY_IP_ADDRESS = new AddressType("ipAddress");
 
     final String CONTEXT_BEAN_NAME = "adminContext";
 

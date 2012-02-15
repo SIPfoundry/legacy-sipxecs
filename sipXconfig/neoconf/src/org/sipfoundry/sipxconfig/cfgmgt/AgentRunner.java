@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Stack;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -28,16 +29,16 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class AgentRunner {
-    private static final Log LOG = LogFactory.getLog(ConfigAgent.class);
+    private static final Log LOG = LogFactory.getLog(AgentRunner.class);
     private String m_command;
     private volatile boolean m_inProgress;
     private LocationsManager m_locationsManager;
     private int m_timeout = 300000;
     private JobContext m_jobContext;
 
-
     /**
      * Entry point for subclasses to all sipxagent command with a generic CFEngine task
+     *
      * @param locations all the locations to run this command
      * @param label what should show in job table
      * @param subCommand does not include path to sipxagent command or host parameter
@@ -57,45 +58,46 @@ public class AgentRunner {
     }
 
     /**
-     * Run a full job at a location. Update job table for any failures in either
-     * running the command or errors in stderr
+     * Run a full job at a location. Update job table for any failures in either running the
+     * command or errors in stderr
      */
     void runJob(Location location, String label, String command) {
         PipedOutputStream log = null;
         Serializable job = m_jobContext.schedule(label, location);
         AgentResults results = new AgentResults();
+        Stack<String> errs;
         try {
             m_jobContext.start(job);
             log = new PipedOutputStream();
             PipedInputStream in = new PipedInputStream(log);
             results.parse(in);
-            runCommand(command, log);
-            m_jobContext.success(job);
-        } catch (ConfigException e) {
-            m_jobContext.failure(job, e.getMessage(), new RuntimeException());
+            int status = runCommand(command, log);
+            errs = results.getResults(1000);
+            if (errs.size() > 0) {
+                ConfigManagerImpl.fail(m_jobContext, label, job, new ConfigException(errs.pop()));
+                while (!errs.empty()) {
+                    // Tricky alert - show additional errors as new jobs
+                    Serializable jobErr = m_jobContext.schedule(label, location);
+                    m_jobContext.start(jobErr);
+                    ConfigManagerImpl.fail(m_jobContext, label, jobErr, new ConfigException(errs.pop()));
+                }
+            } else if (status != 0 && errs.size() == 0) {
+                String msg = "Agent run finshed but returned error code " + status;
+                ConfigManagerImpl.fail(m_jobContext, label, job, new ConfigException(msg));
+            } else {
+                m_jobContext.success(job);
+            }
         } catch (Exception e) {
-            m_jobContext.failure(job, "Internal error", e);
+            ConfigManagerImpl.fail(m_jobContext, label, job, e);
         } finally {
             IOUtils.closeQuietly(log);
-        }
-        List<String> errs;
-        try {
-            errs = results.getResults(1000);
-            for (String err : errs) {
-                // Tricky alert - show additional errors as new jobs
-                Serializable jobErr = m_jobContext.schedule(label, location);
-                m_jobContext.start(jobErr);
-                ConfigManagerImpl.fail(m_jobContext, jobErr, new ConfigException(err));
-            }
-        } catch (InterruptedException e) {
-            LOG.error(e);
         }
     }
 
     /**
      * Run a command and pipe io streams accordingly
      */
-    void runCommand(String command, OutputStream log) {
+    int runCommand(String command, OutputStream log) {
         Process exec = null;
         try {
             LOG.info("Starting agent run " + command);
@@ -111,15 +113,10 @@ public class AgentRunner {
             work.start();
             work.join(m_timeout);
             err.join(1000);
-            int code = worker.getExitCode();
-            if (outGobbler.m_error != null) {
+            if (errGobbler.m_error != null) {
                 LOG.error("Error logging output stream from agent run", outGobbler.m_error);
             }
-            if (code == 0) {
-                LOG.info("Finished agent run successfully");
-            } else {
-                throw new ConfigException("Agent run finshed but returned error code " + code);
-            }
+            return worker.getExitCode();
         } catch (InterruptedException e) {
             throw new ConfigException(format("Interrupted error. Could not complete agent command in %d ms.",
                     m_timeout));
@@ -152,9 +149,11 @@ public class AgentRunner {
         private Process m_process;
         private Integer m_exitCode;
         private InterruptedException m_error;
+
         Worker(Process process) {
             m_process = process;
         }
+
         public void run() {
             try {
                 m_exitCode = m_process.waitFor();
@@ -180,6 +179,7 @@ public class AgentRunner {
         private InputStream m_in;
         private OutputStream m_out;
         private IOException m_error;
+
         StreamGobbler(InputStream in) {
             m_in = in;
             m_out = new NullOutputStream();

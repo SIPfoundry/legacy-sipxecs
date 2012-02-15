@@ -86,11 +86,11 @@
     </setting>
   </group>
   <group name="relay-config">
-    <setting name="SIP_RELAY_LOG_LEVEL" hidden="yes">
+    <setting name="SIP_RELAY_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="xml-rpc-port" hidden="yes">
+    <setting name="xml-rpc-port">
       <type>
         <integer />
       </type>

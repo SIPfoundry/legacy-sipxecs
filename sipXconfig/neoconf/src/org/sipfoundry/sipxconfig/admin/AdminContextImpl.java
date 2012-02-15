@@ -29,7 +29,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
-            TFTP_ADDRESS, FTP_ADDRESS);
+            PRIMARY_IP_ADDRESS, TFTP_ADDRESS, FTP_ADDRESS);
     private LocationsManager m_locationsManager;
 
     @Override
@@ -45,7 +45,9 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
         Location location = m_locationsManager.getPrimaryLocation();
         Address address;
-        if (type.equals(HTTP_ADDRESS)) {
+        if (type.equals(PRIMARY_IP_ADDRESS)) {
+            address = new Address(PRIMARY_IP_ADDRESS, location.getAddress());
+        } else if (type.equals(HTTP_ADDRESS)) {
             address = new Address(HTTP_ADDRESS, location.getFqdn(), 12000);
         } else {
             address = new Address(HTTPS_ADDRESS, location.getFqdn(), 8443);
