@@ -8,15 +8,14 @@
 package org.sipfoundry.sipxconfig.cfgmgt;
 
 
-import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
@@ -50,12 +49,8 @@ public class AgentRunnerTest {
     @Test
     public void err() {
         ByteArrayOutputStream actual = new ByteArrayOutputStream();
-        try {
-          m_agent.runCommand("/bin/ls /completely/bogus/dir", actual);
-          fail("supposed to fail");
-        } catch (ConfigException expected) {
-            assertTrue(true);
-        }
+        int rc = m_agent.runCommand("/bin/ls /completely/bogus/dir", actual);
+        assertEquals(2, rc);
         assertTrue("Got " + actual.toString(), actual.toString().contains("/completely/bogus/dir"));
     }
     
@@ -87,15 +82,7 @@ public class AgentRunnerTest {
         expectLastCall().andReturn(job1).once();
         jobc.start(job1);
         expectLastCall().once();
-        jobc.failure(eq(job1), eq("Agent run finshed but returned error code 2"), isA(RuntimeException.class));
-        expectLastCall().once();
-
-        Serializable job2 = new Job("1");        
-        jobc.schedule("test", l);
-        expectLastCall().andReturn(job2).once();
-        jobc.start(job2);
-        expectLastCall().once();
-        jobc.failure(eq(job2), isA(String.class), isA(RuntimeException.class));
+        jobc.failure(eq(job1), isA(String.class), isA(RuntimeException.class));
         expectLastCall().once();
         
         replay(jobc);

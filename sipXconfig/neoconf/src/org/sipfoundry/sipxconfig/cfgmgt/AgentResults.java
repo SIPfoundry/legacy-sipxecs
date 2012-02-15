@@ -11,15 +11,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class AgentResults {
     private static final Log LOG = LogFactory.getLog(AgentResults.class);
-    private List<String> m_errors;
+    private Stack<String> m_errors;
     private Thread m_runner;
 
     public void parse(final InputStream in) {
@@ -33,7 +32,7 @@ public class AgentResults {
     }
 
     void parseInput(InputStream in) {
-        m_errors = new ArrayList<String>();
+        m_errors = new Stack<String>();
         try {
             BufferedReader r = new BufferedReader(new InputStreamReader(in));
             while (true) {
@@ -41,14 +40,14 @@ public class AgentResults {
                 if (line == null) {
                     break;
                 }
-                m_errors.add(line);
+                m_errors.push(line);
             }
         } catch (IOException e) {
             LOG.fatal("Could not read agent results", e);
         }
     }
 
-    public List<String> getResults(long timeout) throws InterruptedException {
+    public Stack<String> getResults(long timeout) throws InterruptedException {
         m_runner.join(timeout);
         return m_errors;
     }

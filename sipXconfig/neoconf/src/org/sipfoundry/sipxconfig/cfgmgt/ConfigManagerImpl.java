@@ -9,11 +9,9 @@ package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -150,22 +148,6 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         } else {
             jc.failure(job, "Internal Error", e);
         }
-    }
-
-    String getErrorMessage(List<Exception> errors) {
-        StringBuilder msg = new StringBuilder();
-        for (Exception err : errors) {
-            if (msg.length() != 0) {
-                msg.append("\n");
-            }
-            if (err instanceof ConfigException) {
-                msg.append(err.getMessage());
-            } else {
-                msg.append("Internal error (" + err + ")");
-            }
-            LOG.error("Configuration Error", err);
-        }
-        return msg.toString();
     }
 
     public String getCfDataDir() {
@@ -306,14 +288,6 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     @Override
     public void run(RunRequest request) {
         LOG.info("Running " + request.getLabel());
-        Serializable job = m_jobContext.schedule(request.getLabel());
-        m_jobContext.start(job);
-        List<Exception> errors = new ArrayList<Exception>();
-        try {
-            m_runAgent.run(request.getLocations(), request.getLabel(), request.getBundles(), request.getDefines());
-            m_jobContext.success(job);
-        } catch (Exception e) {
-            m_jobContext.failure(job, getErrorMessage(errors), new RuntimeException());
-        }
+        m_runAgent.run(request.getLocations(), request.getLabel(), request.getBundles(), request.getDefines());
     }
 }
