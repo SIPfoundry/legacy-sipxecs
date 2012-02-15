@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class AgentRunner {
-    private static final Log LOG = LogFactory.getLog(ConfigAgent.class);
+    private static final Log LOG = LogFactory.getLog(AgentRunner.class);
     private String m_command;
     private volatile boolean m_inProgress;
     private LocationsManager m_locationsManager;
@@ -74,21 +74,21 @@ public class AgentRunner {
             int status = runCommand(command, log);
             errs = results.getResults(1000);
             if (errs.size() > 0) {
-                ConfigManagerImpl.fail(m_jobContext, job, new ConfigException(errs.pop()));
+                ConfigManagerImpl.fail(m_jobContext, label, job, new ConfigException(errs.pop()));
                 while (!errs.empty()) {
                     // Tricky alert - show additional errors as new jobs
                     Serializable jobErr = m_jobContext.schedule(label, location);
                     m_jobContext.start(jobErr);
-                    ConfigManagerImpl.fail(m_jobContext, jobErr, new ConfigException(errs.pop()));
+                    ConfigManagerImpl.fail(m_jobContext, label, jobErr, new ConfigException(errs.pop()));
                 }
             } else if (status != 0 && errs.size() == 0) {
                 String msg = "Agent run finshed but returned error code " + status;
-                ConfigManagerImpl.fail(m_jobContext, job, new ConfigException(msg));
+                ConfigManagerImpl.fail(m_jobContext, label, job, new ConfigException(msg));
             } else {
                 m_jobContext.success(job);
             }
         } catch (Exception e) {
-            ConfigManagerImpl.fail(m_jobContext, job, e);
+            ConfigManagerImpl.fail(m_jobContext, label, job, e);
         } finally {
             IOUtils.closeQuietly(log);
         }

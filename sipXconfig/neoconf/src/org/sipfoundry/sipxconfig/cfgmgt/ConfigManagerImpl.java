@@ -120,6 +120,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             try {
                 provider.replicate(this, request);
             } catch (Exception e) {
+                LOG.error(jobLabel, e);
                 errors.push(e);
             }
         }
@@ -129,20 +130,21 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         if (errors.size() == 0) {
             m_jobContext.success(job);
         } else {
-            fail(m_jobContext, job, errors.pop());
+            fail(m_jobContext, jobLabel, job, errors.pop());
             // Tricky alert - show additional errors as new jobs
             while (!errors.empty()) {
                 Serializable jobError = m_jobContext.schedule(jobLabel);
                 m_jobContext.start(jobError);
-                fail(m_jobContext, jobError, errors.pop());
+                fail(m_jobContext, jobLabel, jobError, errors.pop());
             }
         }
 
         m_configAgent.run();
     }
 
-    static void fail(JobContext jc, Serializable job, Exception e) {
+    static void fail(JobContext jc, String label, Serializable job, Exception e) {
         // ConfigException's error message is useful to user, otherwise emit raw error
+        LOG.error(label, e);
         if (e instanceof ConfigException) {
             jc.failure(job, e.getMessage(), new RuntimeException());
         } else {
