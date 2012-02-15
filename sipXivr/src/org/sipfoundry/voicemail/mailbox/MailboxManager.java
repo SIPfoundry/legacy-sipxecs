@@ -70,7 +70,7 @@ public interface MailboxManager {
 
     void moveMessageToFolder(User user, String messageId, String destination);
 
-    void deleteMailbox(User user);
+    void deleteMailbox(String username);
 
     void renameMailbox(User user, String oldUser);
 

@@ -546,12 +546,12 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     }
 
     @Override
-    public void deleteMailbox(User user) {
+    public void deleteMailbox(String username) {
         try {
-            File mailbox = getUserDirectory(user.getUserName());
+            File mailbox = getUserDirectory(username);
             FileUtils.deleteDirectory(mailbox);
         } catch (IOException ex) {
-            LOG.error(String.format("failed to delete mailbox for user %s", user.getUserName()), ex);
+            LOG.error(String.format("failed to delete mailbox for user %s", username), ex);
         }
     }
 
