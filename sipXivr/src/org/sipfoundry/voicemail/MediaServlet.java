@@ -102,6 +102,7 @@ public class MediaServlet extends HttpServlet {
                 } finally {
                     IOUtils.closeQuietly(stream);
                     IOUtils.closeQuietly(responseOutputStream);
+                    message.cleanup();
                 }
             } else {
                 response.sendError(405);
