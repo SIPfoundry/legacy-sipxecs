@@ -61,7 +61,7 @@
   </bean>
 
   <bean id="itspVoxitas" parent="sipTrunkItsp">
-    <property name="itspName" value="Voxitas" />
+    <property name="itspName" value="Appia/Voxitas" />
     <property name="itspTemplate" value="voxitas.xml" />
   </bean>
 

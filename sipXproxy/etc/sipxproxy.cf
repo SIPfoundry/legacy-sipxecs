@@ -33,19 +33,19 @@ bundle agent sipxproxy_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipXproxy-config"
+        comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => sipXproxy_config_contents(),
-        classes => if_repaired("restart_sipxproxy"),
-	action => track("sipXproxy-config");
+        classes => if_repaired("restart_sipxproxy");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxproxy"),
-	action => track("$(xml_file)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxproxy");
 }
 
 bundle edit_line sipXproxy_config_contents() {
@@ -90,19 +90,19 @@ bundle agent sipxproxy_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxproxy_running");
 
   commands:
-    sipxproxy_running.!sipxproxy::
+    !sipxproxy.sipxproxy_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        args => "stop",
-	action => track("sipxproxy_stop");
+        comment => "stop sipxproxy",
+        args => "stop";
 
-    !sipxproxy_running.sipxproxy::
+    sipxproxy.!sipxproxy_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        args => "start",
-	action => track("sipxproxy_start");
+        comment => "start sipxproxy",
+        args => "start";
 
-    sipxproxy.(restart_sipxproxy|restart_sipxecs)::
+    sipxproxy.sipxproxy_running.(restart_sipxproxy|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        args => "restart",
-	action => track("sipxproxy_restart");
+        comment => "restart sipxproxy",
+        args => "restart";
 }
 
