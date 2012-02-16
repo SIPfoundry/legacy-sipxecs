@@ -28,15 +28,15 @@ bundle agent sipxpublisher_config {
         perms => m("644"),
         edit_line => sipstatus_config_contents(),
         classes => if_repaired("restart_sipxpublisher"),
-	action => track("status-config");
+        action => track("status-config");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxpublisher"),
-	action => track("$(xml_file)");
+        action => track("$(xml_file)");
 }
 
 bundle edit_line sipstatus_config_contents() {
@@ -72,16 +72,16 @@ bundle agent sipxpublisher_running {
     sipxpublisher_running.!sipxpublisher::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
         args => "stop",
-	action => track("sipxpublisher stop");
+        action => track("sipxpublisher stop");
 
     !sipxpublisher_running.sipxpublisher::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
         args => "start",
-	action => track("sipxpublisher start");
+        action => track("sipxpublisher start");
 
     sipxpublisher.(restart_sipxpublisher|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
         args => "restart",
-	action => track("sipxpublisher restart");
+        action => track("sipxpublisher restart");
 }
 

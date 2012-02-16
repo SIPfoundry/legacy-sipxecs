@@ -20,9 +20,9 @@ bundle agent sipxrelay_config {
       "$(sipx.SIPX_CONFDIR)/nattraversalrules.xml"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/nattraversalrules.xml"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/nattraversalrules.xml"),
         classes => if_repaired("restart_sipxrelay"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 }
 
 bundle agent sipxrelay_setup {
@@ -46,15 +46,15 @@ bundle agent sipxrelay_running {
     sipxrelay_running.!sipxrelay::
       "$(sipx.SIPX_SERVICEDIR)/sipxrelay"
         args => "stop",
-	action => track("sipxrelay_stop");
+        action => track("sipxrelay_stop");
 
     !sipxrelay_running.sipxrelay::
       "$(sipx.SIPX_SERVICEDIR)/sipxrelay"
         args => "start",
-	action => track("sipxrelay_start");
+        action => track("sipxrelay_start");
 
     restart_sipxrelay::
       "$(sipx.SIPX_SERVICEDIR)/sipxrelay"
         args => "restart",
-	action => track("sipxrelay_restart");
+        action => track("sipxrelay_restart");
 }

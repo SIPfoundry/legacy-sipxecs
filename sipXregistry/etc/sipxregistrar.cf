@@ -12,6 +12,7 @@ bundle agent sipxregistrar {
       "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxregistrar_config";
     any::
+      "any" usebundle => "sipxregistrar_setup";
       "any" usebundle => "sipxregistrar_running";
 }
 
@@ -23,7 +24,7 @@ bundle agent sipxregistrar_config {
         perms => m("644"),
         edit_line => registrar_config_contents(),
         classes => if_repaired("restart_sipxregistrar"),
-	action => track("registrar-config");
+        action => track("registrar-config");
 }
 
 bundle edit_line registrar_config_contents() {
@@ -54,6 +55,14 @@ bundle edit_line registrar_config_contents() {
       ".*";
 }
 
+bundle agent sipxregistrar_setup {
+  methods:
+    !src.sipxregistrar::
+      "any" usebundle => rh_chkconfig_status("sipxregistrar on");
+    !src.!sipxregistrar::
+      "any" usebundle => rh_chkconfig_status("sipxregistrar off");
+}
+
 bundle agent sipxregistrar_running {
   vars:
     any::
@@ -67,15 +76,15 @@ bundle agent sipxregistrar_running {
     sipxregistrar_running.!sipxregistrar::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
         args => "stop",
-	action => track("sipxegistrar stop");
+        action => track("sipxegistrar stop");
 
     !sipxregistrar_running.sipxregistrar::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
         args => "start",
-	action => track("sipxegistrar start");
+        action => track("sipxegistrar start");
 
     sipxregistrar.(restart_sipxregistrar|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
         args => "restart",
-	action => track("sipxegistrar restart");
+        action => track("sipxegistrar restart");
 }

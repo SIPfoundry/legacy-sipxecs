@@ -21,9 +21,9 @@ bundle agent sipxacccode_config {
       "$(sipx.SIPX_CONFDIR)/sipxacccode.properties"
         create => "true",
         perms => m("644"),
-	edit_line => sipxacccode_properties_contents,
+        edit_line => sipxacccode_properties_contents,
         classes => if_repaired("restart_sipxacccode"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 
 }
 
@@ -64,17 +64,17 @@ bundle agent sipxacccode_running {
     sipxacccode_running.!sipxacccode::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
         args => "stop",
-	action => track("sipxacccode stop");
+        action => track("sipxacccode stop");
 
     !sipxacccode_running.sipxacccode::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
         args => "start",
-	action => track("sipxacccode start");
+        action => track("sipxacccode start");
 
     restart_sipxacccode::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
         args => "restart",
-	action => track("sipxacccode restart");
+        action => track("sipxacccode restart");
 }
 
 

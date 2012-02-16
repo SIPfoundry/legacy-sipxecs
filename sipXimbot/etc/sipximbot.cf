@@ -26,16 +26,16 @@ bundle agent sipximbot_config {
       "$(sipx.SIPX_CONFDIR)/sipximbot.properties"
         create => "true",
         perms => m("644"),
-	edit_line => sipximbot_properties_contents,
+        edit_line => sipximbot_properties_contents,
         classes => if_repaired("restart_sipximbot"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)"),
+        action => track("$(this.promiser)");
 
 }
 
@@ -75,17 +75,17 @@ bundle agent sipximbot_running {
     sipximbot_running.!sipximbot::
       "$(sipx.SIPX_SERVICEDIR)/sipximbot"
         args => "stop",
-	action => track("sipximbot stop");
+        action => track("sipximbot stop");
 
     !sipximbot_running.sipximbot::
       "$(sipx.SIPX_SERVICEDIR)/sipximbot"
         args => "start",
-	action => track("sipximbot start");
+        action => track("sipximbot start");
 
     restart_sipximbot::
       "$(sipx.SIPX_SERVICEDIR)/sipximbot"
         args => "restart",
-	action => track("sipximbot restart");
+        action => track("sipximbot restart");
 }
 
 

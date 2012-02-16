@@ -99,16 +99,16 @@ bundle agent sipxsupervisor_running {
     sipxsupervisor_running.!sipxsupervisor::
       "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
         args => "stop",
-	action => track("sipxsupervisor_stop");
+        action => track("sipxsupervisor_stop");
 
     !sipxsupervisor_running.sipxsupervisor::
       "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
         args => "start",
-	action => track("sipxsupervisor_start");
+        action => track("sipxsupervisor_start");
 
     restart_sipxsupervisor::
       "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
         args => "restart",
-	action => track("sipxsupervisor_restart");
+        action => track("sipxsupervisor_restart");
 }
 

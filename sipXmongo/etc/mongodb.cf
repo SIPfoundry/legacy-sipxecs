@@ -67,17 +67,17 @@ bundle agent mongodb_running {
     mongodb_running.!mongod::
       "$(service)"
         args => "stop",
-	action => track("mongodb_stop");
+        action => track("mongodb_stop");
 
     (restart_mongodb|!mongodb_running).mongod::
       "$(service)"
         args => "start",
-	action => track("mongodb_start");
+        action => track("mongodb_start");
 
     mongodb_running.restart_mongodb.mongod::
       "$(service)"
         args => "restart",
-	action => track("mongodb_restart");  
+        action => track("mongodb_restart");  
 }
 
 # Not working at the momemnt.  Mongod is not creating a pid file
@@ -86,7 +86,7 @@ bundle agent mongodb_repair {
     any::
       "$(sipx.crontabs)/root"
         create => "true",
-	perms => m("0600"),
+        perms => m("0600"),
         edit_line => mongodb_auto_repair("$(this.promiser)");
 }
 
@@ -112,7 +112,7 @@ bundle agent mongodb_client {
       "$(sipx.SIPX_CONFDIR)/mongo-client.ini",
         create => "true",
         perms => m("644"),
-	edit_line => mongo_client_config,
+        edit_line => mongo_client_config,
         classes => if_repaired("mongodb_client_reconnect"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 }

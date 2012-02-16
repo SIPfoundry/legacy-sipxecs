@@ -31,33 +31,33 @@ bundle agent sipxopenfire_config {
       "$(sipx.SIPX_JAVADIR)/sipXopenfire/conf/openfire.xml"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
         classes => if_repaired("restart_sipxopenfire"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 
     any::
       # Write out the config information so the plugin can read it.
       "/tmp/sipx.properties"
         create => "true",
         perms => m("644"),
-	edit_line => sipxopenfire_sipx_properties,
+        edit_line => sipxopenfire_sipx_properties,
         classes => if_repaired("restart_sipxopenfire"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file_restart)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_restart)"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_restart)"),
         classes => if_repaired("restart_sipxopenfire"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)"),
+        action => track("$(this.promiser)");
 }
 
 bundle edit_line sipxopenfire_sipx_properties {
@@ -91,17 +91,17 @@ bundle agent sipxopenfire_running {
     sipxopenfire_running.!sipxopenfire::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
         args => "stop",
-	action => track("sipxopenfire stop");
+        action => track("sipxopenfire stop");
 
     !sipxopenfire_running.sipxopenfire::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
         args => "start",
-	action => track("sipxopenfire start");
+        action => track("sipxopenfire start");
 
     restart_sipxopenfire::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
         args => "restart",
-	action => track("sipxopenfire restart");
+        action => track("sipxopenfire restart");
 }
 
 

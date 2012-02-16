@@ -30,18 +30,18 @@ bundle agent firewall_systemctl_running {
     iptables_running.!firewall::
       "$(sipx.systemctl)"
         args => "stop $(service)",
-	action => track("$(service) stop");
+        action => track("$(service) stop");
       "$(sipx.systemctl)"
         args => "disable $(service)",
-	action => track("$(service) disable");
+        action => track("$(service) disable");
 
     !iptables_running.firewall::
       "$(sipx.systemctl)"
         args => "start $(service)",
-	action => track("$(service) start");
+        action => track("$(service) start");
       "$(sipx.systemctl)"
         args => "enable $(service)",
-	action => track("$(service) enable");
+        action => track("$(service) enable");
 }
 
 
@@ -62,16 +62,16 @@ bundle agent firewall_sysv_running {
     iptables_running.!firewall::
       "$(service)"
         args => "stop",
-	action => track("$(service) stop");
+        action => track("$(service) stop");
 
     !iptables_running.firewall::
       "$(service)"
         args => "start",
-	action => track("$(service) start");
+        action => track("$(service) start");
 
     restart_iptables::
       "$(service)"
         args => "restart",
-	action => track("$(service) restart");
+        action => track("$(service) restart");
 }
 

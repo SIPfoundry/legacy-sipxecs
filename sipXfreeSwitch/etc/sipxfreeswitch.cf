@@ -20,16 +20,16 @@ bundle agent sipxfreeswitch_config {
       "conference_file" string => "$(sipx.SIPX_CONFDIR)/freeswitch/conf/autoload_configs/conference.conf.xml";
 
       "xml_file_reload_only" slist => { 
-	"dialplan/sipX_context.xml"
+        "dialplan/sipX_context.xml"
       };
 
       "xml_file" slist => { 
         "freeswitch.xml",
-	"sip_profiles/sipX_profile.xml",
+        "sip_profiles/sipX_profile.xml",
         "autoload_configs/xml_rpc.conf.xml",
- 	"autoload_configs/switch.conf.xml",
- 	"autoload_configs/logfile.conf.xml",
- 	"autoload_configs/local_stream.conf.xml"
+         "autoload_configs/switch.conf.xml",
+         "autoload_configs/logfile.conf.xml",
+         "autoload_configs/local_stream.conf.xml"
       };
 
   files:
@@ -37,39 +37,39 @@ bundle agent sipxfreeswitch_config {
       "$(conference_file)"
         delete => unlink,
         classes => if_repaired("reload_sipxfreeswitch"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 
     sipxconference::
       "$(conference_file)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/conference.conf.xml"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/conference.conf.xml"),
         classes => if_repaired("reload_sipxfreeswitch"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 
     any::
       "$(sipx.SIPX_CONFDIR)/freeswitch/conf/$(xml_file)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxfreeswitch"),
-	action => track("$(xml_file)");
+        action => track("$(xml_file)");
 
     any::
       "$(sipx.SIPX_CONFDIR)/freeswitch/conf/$(xml_file_reload_only)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_reload_only)"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_reload_only)"),
         classes => if_repaired("reload_sipxfreeswitch"),
-	action => track("$(xml_file_reload_only)");
+        action => track("$(xml_file_reload_only)");
 
     any::
       "$(sipx.SIPX_CONFDIR)/freeswitch/conf/autoload_configs/modules.conf.xml"
         create => "true",
         perms => m("644"),
-	edit_line => sipxfreeswitch_modules,
+        edit_line => sipxfreeswitch_modules,
         classes => if_repaired("restart_sipxfreeswitch"),
-	action => track("$(xml_file)");        
+        action => track("$(xml_file)");        
 }
 
 bundle edit_line sipxfreeswitch_modules {
@@ -164,22 +164,22 @@ bundle agent sipxfreeswitch_running {
     sipxfreeswitch_running.!sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
         args => "stop",
-	action => track("sipxfreeswitch stop");
+        action => track("sipxfreeswitch stop");
 
     !sipxfreeswitch_running.sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
         args => "start",
-	action => track("sipxfreeswitch start");
+        action => track("sipxfreeswitch start");
 
     reload_sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
         args => "reload",
-	action => track("sipxfreeswitch reload");
+        action => track("sipxfreeswitch reload");
 
     restart_sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
         args => "restart",
-	action => track("sipxfreeswitch restart");
+        action => track("sipxfreeswitch restart");
 }
 
 

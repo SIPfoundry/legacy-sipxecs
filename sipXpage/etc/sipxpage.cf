@@ -22,7 +22,7 @@ bundle agent sipxpage_config {
         perms => m("644"),
         edit_line => sipxpage_properties,
         classes => if_repaired("restart_sipxpage"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 }
 
 bundle edit_line sipxpage_properties {
@@ -59,15 +59,15 @@ bundle agent sipxpage_running {
     sipxpage_running.!sipxpage::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
         args => "stop",
-	action => track("sipxpage_stop");
+        action => track("sipxpage_stop");
 
     !sipxpage_running.sipxpage::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
         args => "start",
-	action => track("sipxpage_start");
+        action => track("sipxpage_start");
 
     restart_sipxpage::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
         args => "restart",
-	action => track("sipxpage_restart");
+        action => track("sipxpage_restart");
 }

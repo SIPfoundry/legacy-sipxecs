@@ -36,17 +36,17 @@ bundle agent sipxconfig_running {
     sipxconfig_running.!primary::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         args => "stop",
-	action => track("sipxconfig stop");
+        action => track("sipxconfig stop");
 
     !sipxconfig_running.primary::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         args => "start",
-	action => track("sipxconfig start");
+        action => track("sipxconfig start");
 
     primary.(restart_sipxconfig.restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         args => "restart",
-	action => track("sipxconfig restart");
+        action => track("sipxconfig restart");
 }
 
 

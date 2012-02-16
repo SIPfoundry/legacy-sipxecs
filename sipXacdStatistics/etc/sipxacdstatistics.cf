@@ -25,14 +25,14 @@ bundle agent sipxacdstatistics_config {
         create => "true",
         perms => m("644"),
         edit_line => sipxacdstatistics_report_config,
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 
       "$(sipx.SIPX_CONFDIR)/config-agent.properties"
         create => "true",
         perms => m("644"),
         edit_line => set_variable_values("sipxacdstatistics_config.agent"),
-	classes => if_repaired("restart_sipxacdstatistics"),
-	action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxacdstatistics"),
+        action => track("$(this.promiser)");
 }
 
 bundle edit_line sipxacdstatistics_report_config {
@@ -78,16 +78,16 @@ bundle agent sipxacdstatistics_running {
     sipxacdstatistics_running.!sipxacdstatistics::
       "$(service)"
         args => "stop",
-	action => track("sipxacdstatistics_stop");
+        action => track("sipxacdstatistics_stop");
 
     !sipxacdstatistics_running.sipxacdstatistics::
       "$(service)"
         args => "start",
-	action => track("sipxacdstatistics_start");
+        action => track("sipxacdstatistics_start");
 
     restart_sipxacdstatistics::
       "$(service)"
         args => "restart",
-	action => track("sipxacdstatistics_restart");
+        action => track("sipxacdstatistics_restart");
 }
 

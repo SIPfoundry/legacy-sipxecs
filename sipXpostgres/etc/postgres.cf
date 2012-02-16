@@ -30,11 +30,11 @@ bundle agent postgres_init {
     initdb::
       "$(sipx.PGDATA)"
         file_select => days_old("0"),
-	depth_search => recurse("inf"),
+        depth_search => recurse("inf"),
         delete => tidy;
 
       "$(sipx.PGDATA)/."
-	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)");
+        perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)");
 
   commands:
     # Most distributions use a separate command "initdb"
@@ -62,22 +62,22 @@ bundle agent postgres_config {
     postgres::
       "$(sipx.PGDATA)/pg_hba.conf"
         create => "false",
-	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
- 	# only reload is nec. but not bothering to support this atm
+        perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+         # only reload is nec. but not bothering to support this atm
         classes => if_repaired("restart_postgres"),
-	edit_line => pg_hba_conf;
+        edit_line => pg_hba_conf;
 
       "$(sipx.PGDATA)/postgresql.conf"
         create => "true",
-	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+        perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
         classes => if_repaired("restart_postgres"),
-	edit_line => postgresql_conf;
+        edit_line => postgresql_conf;
 
       "$(sipx.PGDATA)/postmaster.opts.default"
         create => "true",
-	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+        perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
         classes => if_repaired("restart_postgres"),
-	edit_line => replace_contents("-i");
+        edit_line => replace_contents("-i");
 }
 
 bundle edit_line postgresql_conf {
@@ -140,17 +140,17 @@ bundle agent postgres_sysv_running {
     postgres_running.!postgres::
       "$(sipx.PG_DAEMON)"
         args => "stop",
-	action => track("postgres_stop");
+        action => track("postgres_stop");
 
     !postgres_running.postgres::
       "$(sipx.PG_DAEMON)"
         args => "start",
-	action => track("postgres_start");
+        action => track("postgres_start");
 
     restart_postgres.postgres::
       "$(sipx.PG_DAEMON)"
         args => "restart",
-	action => track("postgres_restart");  
+        action => track("postgres_restart");  
 }
 
 bundle agent postgres_sysctl_running {
@@ -165,15 +165,15 @@ bundle agent postgres_sysctl_running {
     !postgres.postgres_running::
       "$(sipx.systemctl)"
         args => "stop $(service)",
-	action => track("postgres_stop");
+        action => track("postgres_stop");
 
     !postgres_running.postgres::
       "$(sipx.systemctl)"
         args => "start $(service)",
-	action => track("postgres_start");
+        action => track("postgres_start");
 
     restart_postgres.postgres::
       "$(sipx.systemctl)"
         args => "restart",
-	action => track("postgres_restart");  
+        action => track("postgres_restart");  
 }

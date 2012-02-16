@@ -27,9 +27,9 @@ bundle agent sipxcdr_config {
       "$(sipx.SIPX_CONFDIR)/$(conf_file)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(conf_file)"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(conf_file)"),
         classes => if_repaired("restart_sipxcdr"),
-	action => track("$(conf_file)");
+        action => track("$(conf_file)");
 }
 
 bundle agent sipxcdr_setup {
@@ -53,15 +53,15 @@ bundle agent sipxcdr_running {
     sipxcdr_running.!sipxcdr::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
         args => "stop",
-	action => track("sipxcdr stop");
+        action => track("sipxcdr stop");
 
     !sipxcdr_running.sipxcdr::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
         args => "start",
-	action => track("sipxcdr start");
+        action => track("sipxcdr start");
 
     restart_sipxcdr::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
         args => "restart",
-	action => track("sipxcdr restart");
+        action => track("sipxcdr restart");
 }

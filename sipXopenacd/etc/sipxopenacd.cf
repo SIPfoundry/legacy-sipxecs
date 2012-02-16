@@ -21,15 +21,15 @@ bundle agent sipxopenacd_config {
       "$(sipx.OPENACD_HOME)/etc/vm.args"
         create => "true",
         perms => m("644"),
-	edit_line => sipxopenacd_vm_args,
-	action => track("$(this.promiser)");
+        edit_line => sipxopenacd_vm_args,
+        action => track("$(this.promiser)");
 
     any::
       "$(sipx.OPENACD_HOME)/etc/app.config"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/app.config"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/app.config"),
+        action => track("$(this.promiser)");
 }
 
 bundle edit_line sipxopenacd_vm_args() {
@@ -85,15 +85,15 @@ bundle agent sipxopenacd_running {
     sipxopenacd_running.!sipxopenacd::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
         args => "stop",
-	action => track("sipxopenacd stop");
+        action => track("sipxopenacd stop");
 
     !sipxopenacd_running.sipxopenacd::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
         args => "start",
-	action => track("sipxopenacd start");
+        action => track("sipxopenacd start");
 
     restart_sipxopenacd::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
         args => "restart",
-	action => track("sipxopenacd restart");
+        action => track("sipxopenacd restart");
 }

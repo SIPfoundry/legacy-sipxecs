@@ -13,6 +13,7 @@ bundle agent sipxdns {
     resolv::
       "any" usebundle => "sipxdns_resolv";
     any::
+      "any" usebundle => "sipxdns_setup";
       "any" usebundle => "sipxdns_running";
 }
 
@@ -23,7 +24,7 @@ bundle agent sipxdns_resolv {
          create => "true",
          perms => m(644),
          edit_line => resolv_conf,
-	 edit_defaults => std_defs;
+    edit_defaults => std_defs;
 }
 
 bundle agent sipxdns_config {
@@ -38,15 +39,15 @@ bundle agent sipxdns_config {
          create => "true",
          perms => mog(600, "named", "root"),
          edit_line => named_conf,
-	 edit_defaults => empty,
-	 classes => if_repaired("reload_sipxdns");
+    edit_defaults => empty,
+    classes => if_repaired("reload_sipxdns");
         
     update_zone::
       "/var/named/$(sipx.domain).zone"
         create => "true",
         perms => mog(600, "named", "named"),
         transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-dns-zone-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/zone.yaml --out /var/named/$(sipx.domain).zone",
-	classes => if_repaired("reload_sipxdns");
+        classes => if_repaired("reload_sipxdns");
 
     reports:
       update_zone::
@@ -73,7 +74,7 @@ options {
         dump-file \"/var/named/data/cache_dump.db\";
         statistics-file \"/var/named/data/named_stats.txt\";
         forwarders {
-		$(sipx.dnsForwarders)
+        $(sipx.dnsForwarders)
         };
 };
 
@@ -95,6 +96,14 @@ bundle edit_line resolv_conf {
     ".*";
 }
 
+bundle agent sipxdns_setup {
+  methods:
+    !src.sipxdns::
+      "any" usebundle => rh_chkconfig_status("named on");
+    !src.!sipxdns::
+      "any" usebundle => rh_chkconfig_status("named off");
+}
+
 bundle agent sipxdns_running {
   vars:
     any::
@@ -112,20 +121,20 @@ bundle agent sipxdns_running {
     !src.!unmanaged_dns.!sipxdns.sipxdns_running::
      "$(service)"
        args => "stop",
-	   action => track("sipxdns stop");
+      action => track("sipxdns stop");
 
     sipxdns.!sipxdns_running::
       "$(service)"
         args => "start",
-	action => track("sipxdns start");
+        action => track("sipxdns start");
 
     sipxdns.restart_sipxdns::
       "$(service)"
         args => "restart",
-	action => track("sipxdns restart");
+        action => track("sipxdns restart");
 
     sipxdns.reload_sipxdns::
       "$(service)"
         args => "reload",
-	action => track("sipxdns reload");
+        action => track("sipxdns reload");
 }

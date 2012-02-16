@@ -19,7 +19,7 @@ bundle agent sipxbridge_config {
     any::
       "xml_file" slist => {
         "sipxbridge.xml",
-	"peeridentities.xml"
+        "peeridentities.xml"
       };
 
   files:
@@ -27,9 +27,9 @@ bundle agent sipxbridge_config {
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxbridge"),
-	action => track("$(this.promiser)");
+        action => track("$(this.promiser)");
 }
 
 bundle agent sipxbridge_setup {
@@ -53,15 +53,15 @@ bundle agent sipxbridge_running {
     sipxbridge_running.!sipxbridge::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
         args => "stop",
-	action => track("sipxbridge_stop");
+        action => track("sipxbridge_stop");
 
     !sipxbridge_running.sipxbridge::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
         args => "start",
-	action => track("sipxbridge_start");
+        action => track("sipxbridge_start");
 
     restart_sipxbridge::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
         args => "restart",
-	action => track("sipxbridge_restart");
+        action => track("sipxbridge_restart");
 }

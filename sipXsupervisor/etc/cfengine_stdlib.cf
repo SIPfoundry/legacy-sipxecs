@@ -67,20 +67,20 @@ bundle edit_line comment_lines_matching(regex,comment)
 
 {
 replace_patterns:
-	 
+    
  "^($(regex))$" 
 
      replace_with => comment("$(comment)"),
           comment => "Search and replace string";
 }
-	 
+    
 ##
-	 
+    
 bundle edit_line uncomment_lines_matching(regex,comment)
-	 
+    
  # Uncomment lines of a file where the regex matches
  # the text after the comment string
-	 
+    
 {
 replace_patterns:
  
@@ -89,7 +89,7 @@ replace_patterns:
        replace_with => uncomment,
             comment => "Uncomment lines matching a regular expression";
 }
-	 
+    
 ##
 
 bundle edit_line comment_lines_containing(regex,comment)
@@ -104,14 +104,14 @@ replace_patterns:
      replace_with => comment("$(comment)"),
           comment => "Comment out lines in a file";
 }
-	 
+    
 ##
-	 
+    
 bundle edit_line uncomment_lines_containing(regex,comment)
-	 
+    
  # Uncomment lines of a file where the regex matches
  # the text after the comment string
-	 
+    
 {
 replace_patterns:
  
@@ -1024,7 +1024,7 @@ package_list_name_regex    => "ii\s+([^\s]+).*";
 package_list_version_regex => "ii\s+[^\s]+\s+([^\s]+).*";
 package_installed_regex => ".*"; # all reported are installed
 package_name_convention => "$(name)";
-package_list_update_ifelapsed => "240";		# 4 hours
+package_list_update_ifelapsed => "240";        # 4 hours
 
 have_aptitude::
    package_add_command => "/usr/bin/aptitude --assume-yes install";
@@ -1244,7 +1244,7 @@ debian::
  package_list_version_regex => "ii\s+[^\s]+\s+([^\s]+).*";
  package_installed_regex => ".*"; # all reported are installed
  package_name_convention => "$(name)";
- package_list_update_ifelapsed => "240";		# 4 hours
+ package_list_update_ifelapsed => "240";        # 4 hours
 
 debian.have_aptitude::
    package_add_command => "/usr/bin/aptitude --assume-yes install";
