@@ -84,9 +84,9 @@ public class UserConferenceDetailsResource extends UserResource {
         User user = null;
         Member reprMember = null;
         for (ActiveConferenceMember member : members) {
-            String callerIdName = member.getCallerIdName();
-            user = getCoreContext().loadUserByUserNameOrAlias(callerIdName);
-            reprMember = new Member(member.getId(), callerIdName);
+            String number = member.getNumber();
+            user = getCoreContext().loadUserByUserNameOrAlias(number);
+            reprMember = new Member(member.getId(), number);
             reprMember.setImId(user != null ? user.getImId() : null);
             reprMember.setUuid(member.getUuid());
             reprMember.setCanHear(member.getCanHear());

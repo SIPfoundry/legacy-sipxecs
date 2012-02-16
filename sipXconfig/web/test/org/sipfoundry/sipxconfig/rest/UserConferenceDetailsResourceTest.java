@@ -199,7 +199,7 @@ public class UserConferenceDetailsResourceTest extends TestCase {
         member1.setCanSpeak(true);
         member1.setEnergyLevel(30);
         member1.setId(1);
-        member1.setCallerIdName("200");
+        member1.setNumber("200");
         member1.setName("200 (200@ex.example.org)");
         member1.setUuid("33ee33ee");
         member1.setVolumeIn(0);
@@ -209,7 +209,7 @@ public class UserConferenceDetailsResourceTest extends TestCase {
         member2.setCanSpeak(false);
         member2.setEnergyLevel(30);
         member2.setId(1);
-        member2.setCallerIdName("201");
+        member2.setNumber("201");
         member2.setName("201 (201@ex.example.org)");
         member2.setUuid("333eee333");
         member2.setVolumeIn(0);
