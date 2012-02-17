@@ -19,11 +19,12 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.cfgmgt.PostConfigListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
-public class MongoConfig implements ConfigProvider {
+public class MongoConfig implements ConfigProvider, PostConfigListener {
     private MongoManager m_mongoManager;
     private MongoReplicaSetManager m_mongoReplicaSetManager;
 
@@ -35,14 +36,13 @@ public class MongoConfig implements ConfigProvider {
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
         //TODO  - get firewall/encryption details from system
-        boolean firewall = true;
         boolean encrypt = false;
         List<Location> secondary = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
         Location primary = manager.getLocationManager().getPrimaryLocation();
         MongoSettings settings = m_mongoManager.getSettings();
         int port = settings.getPort();
-        String connStr = getConnectionString(primary, secondary, port, firewall, encrypt);
-        String connUrl = getConnectionUrl(primary, secondary, port, firewall, encrypt);
+        String connStr = getConnectionString(primary, secondary, port, encrypt);
+        String connUrl = getConnectionUrl(primary, secondary, port, encrypt);
         for (Location location : all) {
 
             // CLIENT
@@ -58,22 +58,29 @@ public class MongoConfig implements ConfigProvider {
             boolean enabled = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
             FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
             try {
-                writeServerConfig(server, enabled, firewall, encrypt);
+                writeServerConfig(server, enabled,  encrypt);
             } finally {
                 IOUtils.closeQuietly(server);
             }
+        }
+    }
+
+
+    @Override
+    public void postReplicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE)) {
+            return;
         }
 
         // NOTE:  live updating of mongo settings.
         m_mongoReplicaSetManager.checkMembers();
     }
 
-    void writeServerConfig(Writer w, boolean enabled, boolean firewall, boolean encrypt) throws IOException {
+    void writeServerConfig(Writer w, boolean enabled, boolean encrypt) throws IOException {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.writeClass("mongod", enabled);
-        // TODO: consider stunnel/encrypt
-        config.write("mongoBindIp", firewall ? "0.0.0.0" : "127.0.0.1");
-        config.write("mongoPort", "27017");
+        config.write("mongoBindIp", "0.0.0.0");
+        config.write("mongoPort", MongoSettings.SERVER_PORT);
     }
 
     void writeClientConfig(Writer w, String connStr, String connUrl) throws IOException {
@@ -82,11 +89,8 @@ public class MongoConfig implements ConfigProvider {
         config.write("connectionString", connStr);
     }
 
-    String getConnectionString(Location primary, List<Location> secondary, int port, boolean firewall,
+    String getConnectionString(Location primary, List<Location> secondary, int port,
             boolean encrypt) {
-        if (!firewall) {
-            return "sipxecs/127.0.0.1:" + port;
-        }
         StringBuilder r = new StringBuilder("sipxecs/").append(primary.getFqdn()).append(':').append(port);
         if (secondary != null) {
             for (Location location : secondary) {
@@ -96,10 +100,7 @@ public class MongoConfig implements ConfigProvider {
         return r.toString();
     }
 
-    String getConnectionUrl(Location primary, List<Location> secondary, int port, boolean firewall, boolean encrypt) {
-        if (!firewall) {
-            return "mongodb://127.0.0.1:" + port + "/?slaveOk=true";
-        }
+    String getConnectionUrl(Location primary, List<Location> secondary, int port, boolean encrypt) {
         StringBuilder r = new StringBuilder("mongodb://").append(primary.getFqdn());
         r.append(':').append(port);
         if (secondary != null) {

@@ -44,15 +44,13 @@ import com.mongodb.DBObject;
 public class MongoReplicaSetManager implements FeatureListener {
     private static final Log LOG = LogFactory.getLog(MongoReplicaSetManager.class);
     private static final String REPLSET = "sipxecs";
-    private static final int SERVER_PORT = 27017;
-    private static final int ARBITER_PORT = 27018;
     private static final String CHECK_COMMAND = "rs.config()";
     private static final String INIT_COMMAND = "rs.initiate({\"_id\" : \"sipxecs\", \"version\" : 1, \"members\" : "
             + "[ { \"_id\" : 0, \"host\" : \"%s:%d\" } ] })";
     private static final String ADD_SERVER_COMMAND = "rs.add(\"%s:%d\")";
     private static final String REMOVE_SERVER_COMMAND = "rs.remove(\"%s:%d\")";
     private static final String ADD_ARBITER_COMMAND = "rs.addArb(\"%s:%d\")";
-    private static final String REMOVE_ARBITER_COMMAND = "rs.removeArb(\"%s:%d\")";
+    private static final String REMOVE_ARBITER_COMMAND = REMOVE_SERVER_COMMAND;
     private MongoTemplate m_localDb;
     private JdbcTemplate m_jdbcTemplate;
 
@@ -68,7 +66,7 @@ public class MongoReplicaSetManager implements FeatureListener {
         try {
             String fqdn = InetAddress.getLocalHost().getHostName();
             LOG.info("initializing mongo replicaset to host " + fqdn);
-            String cmd = format(INIT_COMMAND, fqdn, SERVER_PORT);
+            String cmd = format(INIT_COMMAND, fqdn, MongoSettings.SERVER_PORT);
             MongoUtil.runCommand(m_localDb.getDb(), cmd);
         } catch (UnknownHostException e) {
             throw new IllegalStateException("Cannot get FQDN to initialize mongo.");
@@ -93,22 +91,22 @@ public class MongoReplicaSetManager implements FeatureListener {
         List<String> commands = new ArrayList<String>();
         Collection<String> missingServers = CollectionUtils.subtract(mongoMembers, postgresMembers);
         for (String add : missingServers) {
-            String cmd = format(ADD_SERVER_COMMAND, add, SERVER_PORT);
+            String cmd = format(ADD_SERVER_COMMAND, add, MongoSettings.SERVER_PORT);
             commands.add(cmd);
         }
         Collection<String> additionalServers = CollectionUtils.subtract(postgresMembers, mongoMembers);
         for (String remove : additionalServers) {
-            String cmd = format(REMOVE_SERVER_COMMAND, remove, SERVER_PORT);
+            String cmd = format(REMOVE_SERVER_COMMAND, remove, MongoSettings.SERVER_PORT);
             commands.add(cmd);
         }
         Collection<String> missingArbiters = CollectionUtils.subtract(mongoArbiters, postgresArbiters);
         for (String add : missingArbiters) {
-            String cmd = format(ADD_ARBITER_COMMAND, add, ARBITER_PORT);
+            String cmd = format(ADD_ARBITER_COMMAND, add, MongoSettings.ARBITER_PORT);
             commands.add(cmd);
         }
         Collection<String> additionaArbiters = CollectionUtils.subtract(postgresArbiters, mongoArbiters);
         for (String remove : additionaArbiters) {
-            String cmd = format(REMOVE_ARBITER_COMMAND, remove, ARBITER_PORT);
+            String cmd = format(REMOVE_ARBITER_COMMAND, remove, MongoSettings.ARBITER_PORT);
             commands.add(cmd);
         }
         return commands;
@@ -121,14 +119,14 @@ public class MongoReplicaSetManager implements FeatureListener {
             boolean arbiter = MongoManager.ARBITER_FEATURE.getId().equals(line.get("feature_id"));
             String host = (String) line.get("fqdn");
             if (arbiter) {
-                arbiters.add(host + ':' + ARBITER_PORT);
+                arbiters.add(host + ':' + MongoSettings.ARBITER_PORT);
             } else {
-                members.add(host + ':' + SERVER_PORT);
+                members.add(host + ':' + MongoSettings.SERVER_PORT);
             }
         }
         String primary = m_jdbcTemplate.queryForObject("select fqdn from location where primary_location = true",
                 String.class);
-        members.add(primary + ':' + SERVER_PORT);
+        members.add(primary + ':' + MongoSettings.SERVER_PORT);
     }
 
     void getMongoMembers(Set<String> members, Set<String> arbiters) {

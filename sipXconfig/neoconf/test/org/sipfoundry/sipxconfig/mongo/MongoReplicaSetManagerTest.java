@@ -35,8 +35,8 @@ public class MongoReplicaSetManagerTest {
         Set<String> a = Collections.singleton("a");
         Set<String> b = Collections.singleton("b");
         assertEquals("[]", m.updateMembersAndArbitors(none, a, none, a).toString());
-        assertEquals("[rs.add(\"a:27018\")]", m.updateMembersAndArbitors(none, a, none, none).toString());
+        assertEquals("[rs.addArb(\"a:27018\")]", m.updateMembersAndArbitors(none, a, none, none).toString());
         assertEquals("[rs.remove(\"a:27018\")]", m.updateMembersAndArbitors(none, none, none, a).toString());
-        assertEquals("[rs.add(\"a:27018\"), rs.remove(\"b:27018\")]", m.updateMembersAndArbitors(none, a, none, b).toString());
+        assertEquals("[rs.addArb(\"a:27018\"), rs.remove(\"b:27018\")]", m.updateMembersAndArbitors(none, a, none, b).toString());
     }
 }
