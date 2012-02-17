@@ -36,6 +36,8 @@ softwware, default configuration files, and init.d scripts.
 Summary: Headers and libraries for mongo development. 
 Group: Applications/Databases
 
+Provides: mongodb-devel-fsv2-patch
+
 %description devel
 Mongo (from "huMONGOus") is a schema-free document-oriented database.
 
