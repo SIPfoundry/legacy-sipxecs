@@ -66,4 +66,8 @@ public class VmMessage {
         return m_urgent;
     }
 
+    public void cleanup() {
+        
+    }
+
 }

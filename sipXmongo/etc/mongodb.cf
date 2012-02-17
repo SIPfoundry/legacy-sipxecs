@@ -25,6 +25,7 @@ bundle agent mongodb_config {
   files:
     any::
       "/etc/mongod.conf"
+        comment => "install mongo config $(this.promiser)",
         create => "false",
         perms => m("644"),
         edit_line => set_variable_values("mongodb_config.server"),
@@ -46,7 +47,7 @@ bundle edit_line mongo_client_config {
     # should only be for very first run
     !has_config::
        "connectionUrl=mongodb://$(sipx.host).$(sipx.net_domain):27017/?slaveOk=true";
-       "connectionString=$(sipx.host).$(sipx.net_domain):27017";
+       "connectionString=sipxecs/$(sipx.host).$(sipx.net_domain):27017";
 
   delete_lines:
     ".*";
@@ -64,20 +65,20 @@ bundle agent mongodb_running {
       "any" usebundle => find_service_by_command("$(service_command)", "mongodb_running","mongod");
 
   commands:
-    mongodb_running.!mongod::
+    !mongod.mongodb_running::
       "$(service)"
-        args => "stop",
-	action => track("mongodb_stop");
+        comment => "stop mongo",
+        args => "stop";
 
-    (restart_mongodb|!mongodb_running).mongod::
+    mongod.!mongodb_running::
       "$(service)"
-        args => "start",
-	action => track("mongodb_start");
+        comment => "start mongo",
+        args => "start";
 
-    mongodb_running.restart_mongodb.mongod::
+    mongod.mongodb_running.restart_mongodb::
       "$(service)"
-        args => "restart",
-	action => track("mongodb_restart");  
+        comment => "restart mongo",
+        args => "restart";
 }
 
 # Not working at the momemnt.  Mongod is not creating a pid file
@@ -85,8 +86,9 @@ bundle agent mongodb_repair {
   files:
     any::
       "$(sipx.crontabs)/root"
+        comment => "install cron to repair mongo on failure $(this.promiser)",
         create => "true",
-	perms => m("0600"),
+        perms => m("0600"),
         edit_line => mongodb_auto_repair("$(this.promiser)");
 }
 
@@ -110,9 +112,9 @@ bundle agent mongodb_client {
       # file it generates has the same checksum as the original or not generate
       # ini file in cfdata unless it's different.
       "$(sipx.SIPX_CONFDIR)/mongo-client.ini",
+        comment => "install mongo client config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	edit_line => mongo_client_config,
-        classes => if_repaired("mongodb_client_reconnect"),
-	action => track("$(this.promiser)");
+        edit_line => mongo_client_config,
+        classes => if_repaired("mongodb_client_reconnect");
 }

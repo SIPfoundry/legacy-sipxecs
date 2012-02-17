@@ -25,11 +25,11 @@ bundle agent sipxcdr_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/$(conf_file)"
+        comment => "install CDR config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(conf_file)"),
-        classes => if_repaired("restart_sipxcdr"),
-	action => track("$(conf_file)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(conf_file)"),
+        classes => if_repaired("restart_sipxcdr");
 }
 
 bundle agent sipxcdr_setup {
@@ -50,18 +50,18 @@ bundle agent sipxcdr_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxcdr_running");
 
   commands:
-    sipxcdr_running.!sipxcdr::
+    !sipxcdr.sipxcdr_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
-        args => "stop",
-	action => track("sipxcdr stop");
+        comment => "stop sipxcdr",
+        args => "stop";
 
-    !sipxcdr_running.sipxcdr::
+    sipxcdr.!sipxcdr_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
-        args => "start",
-	action => track("sipxcdr start");
+        comment => "start sipxcdr",
+        args => "start";
 
-    restart_sipxcdr::
+    sipxcdr.sipxcdr_running.(restart_sipxecs|restart_sipxcdr)::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
-        args => "restart",
-	action => track("sipxcdr restart");
+        comment => "restart sipxcdr",
+        args => "restart";
 }

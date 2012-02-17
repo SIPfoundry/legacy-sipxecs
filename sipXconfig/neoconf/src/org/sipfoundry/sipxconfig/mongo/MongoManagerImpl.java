@@ -7,7 +7,9 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -46,7 +48,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
         Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE_ID);
         Collection<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            addresses.add(new Address(ADDRESS_ID, location.getAddress(), 27017));
+            addresses.add(new Address(ADDRESS_ID, location.getAddress(), MongoSettings.SERVER_PORT));
         }
         return addresses;
     }
@@ -59,9 +61,9 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         if (l.isPrimary()) {
-            return null;
+            return Collections.singleton(ARBITER_FEATURE);
         }
-        return Collections.singleton(FEATURE_ID);
+        return Arrays.asList(FEATURE_ID, ARBITER_FEATURE);
     }
 
     public void setSettingsDao(BeanWithSettingsDao<MongoSettings> settingsDao) {

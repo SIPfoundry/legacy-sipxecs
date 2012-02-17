@@ -16,27 +16,22 @@ bundle agent sipxpublisher {
 }
 
 bundle agent sipxpublisher_config {
-  vars:
-    any::
-      "xml_file" slist => {
-        "status-plugin.xml"
-      };
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/status-config"
+        comment => "install MWI config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => sipstatus_config_contents(),
-        classes => if_repaired("restart_sipxpublisher"),
-	action => track("status-config");
+        classes => if_repaired("restart_sipxpublisher");
 
     any::
-      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+      "$(sipx.SIPX_CONFDIR)/status-plugin.xml"
+        comment => "install MWI plugin config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxpublisher"),
-	action => track("$(xml_file)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/status-plugin.xml"),
+        classes => if_repaired("restart_sipxpublisher");
 }
 
 bundle edit_line sipstatus_config_contents() {
@@ -69,19 +64,19 @@ bundle agent sipxpublisher_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpublisher_running");
 
   commands:
-    sipxpublisher_running.!sipxpublisher::
+    !sipxpublisher.sipxpublisher_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
-        args => "stop",
-	action => track("sipxpublisher stop");
+        comment => "stop sipxpublisher",
+        args => "stop";
 
-    !sipxpublisher_running.sipxpublisher::
+    sipxpublisher.!sipxpublisher_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
-        args => "start",
-	action => track("sipxpublisher start");
+        comment => "start sipxpublisher",
+        args => "start";
 
-    sipxpublisher.(restart_sipxpublisher|restart_sipxecs)::
+    sipxpublisher.sipxpublisher_running.(restart_sipxpublisher|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
-        args => "restart",
-	action => track("sipxpublisher restart");
+        comment => "restart sipxpublisher",
+        args => "restart";
 }
 

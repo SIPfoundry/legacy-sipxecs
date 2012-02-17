@@ -19,17 +19,17 @@ bundle agent sipxbridge_config {
     any::
       "xml_file" slist => {
         "sipxbridge.xml",
-	"peeridentities.xml"
+        "peeridentities.xml"
       };
 
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        comment => "install sipxbridge config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxbridge"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxbridge");
 }
 
 bundle agent sipxbridge_setup {
@@ -50,18 +50,18 @@ bundle agent sipxbridge_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxbridge_running");
 
   commands:
-    sipxbridge_running.!sipxbridge::
+    !sipxbridge.sipxbridge_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
-        args => "stop",
-	action => track("sipxbridge_stop");
+        comment => "stop sipxbridge",
+        args => "stop";
 
-    !sipxbridge_running.sipxbridge::
+    sipxbridge.!sipxbridge_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
-        args => "start",
-	action => track("sipxbridge_start");
+        comment => "start sipxbridge",
+        args => "start";
 
-    restart_sipxbridge::
+    sipxbridge.sipxbridge_running.(restart_sipxecs|restart_sipxbridge)::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
-        args => "restart",
-	action => track("sipxbridge_restart");
+        comment => "restart sipxbridge",
+        args => "restart";
 }

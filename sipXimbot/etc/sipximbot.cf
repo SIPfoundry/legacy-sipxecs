@@ -24,18 +24,18 @@ bundle agent sipximbot_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipximbot.properties"
+        comment => "install imbot config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	edit_line => sipximbot_properties_contents,
-        classes => if_repaired("restart_sipximbot"),
-	action => track("$(this.promiser)");
+        edit_line => sipximbot_properties_contents,
+        classes => if_repaired("restart_sipximbot");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
+        comment => "install imbot config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)");
 
 }
 
@@ -72,20 +72,20 @@ bundle agent sipximbot_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipximbot_running");
 
   commands:
-    sipximbot_running.!sipximbot::
+    !sipximbot.sipximbot_running::
       "$(sipx.SIPX_SERVICEDIR)/sipximbot"
-        args => "stop",
-	action => track("sipximbot stop");
+        comment => "stop sipximbot",
+        args => "stop";
 
-    !sipximbot_running.sipximbot::
+    sipximbot.!sipximbot_running::
       "$(sipx.SIPX_SERVICEDIR)/sipximbot"
-        args => "start",
-	action => track("sipximbot start");
+        comment => "start sipximbot",
+        args => "start";
 
-    restart_sipximbot::
+    sipximbot.sipximbot_running.(restart_sipxecs|restart_sipximbot)::
       "$(sipx.SIPX_SERVICEDIR)/sipximbot"
-        args => "restart",
-	action => track("sipximbot restart");
+        comment => "restart sipximbot",
+        args => "restart";
 }
 
 

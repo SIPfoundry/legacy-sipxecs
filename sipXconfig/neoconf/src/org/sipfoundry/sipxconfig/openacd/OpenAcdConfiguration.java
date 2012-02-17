@@ -23,38 +23,14 @@ import java.io.Writer;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
-    private VelocityEngine m_velocityEngine;
+public class OpenAcdConfiguration implements ConfigProvider {
     private OpenAcdContext m_openAcdContext;
-
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!feature.equals(OpenAcdContext.FEATURE)) {
-            return;
-        }
-
-        if (event == FeatureEvent.PRE_ENABLE) {
-            // this actually doesn't do anything there is no db update.
-            OpenAcdSettings settings = m_openAcdContext.getSettings();
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -71,34 +47,15 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(OpenAcdContext.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxopenacd.cfdat", enabled, "sipxopenacd");
-
-            if (!enabled) {
-                // no need to create config is openacd is not installed
-                continue;
-            }
-
-            Writer app = new FileWriter(new File(dir, "app.config"));
+            Writer w = new FileWriter(new File(dir, "sipxopenacd.cfdat"));
             try {
-                writeAppConfig(app, settings);
+                CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
+                config.writeClass("sipxopenacd", enabled);
+                config.write("OPENACD_LOG_LEVEl", settings.getLogLevel());
             } finally {
-                IOUtils.closeQuietly(app);
+                IOUtils.closeQuietly(w);
             }
         }
-    }
-
-    void writeAppConfig(Writer wtr, OpenAcdSettings settings) throws IOException {
-        VelocityContext context = new VelocityContext();
-        context.put("log_level", settings.getLogLevel());
-        try {
-            m_velocityEngine.mergeTemplate("openacd/app.config.vm", context, wtr);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-    }
-
-    public void setVelocityEngine(VelocityEngine velocityEngine) {
-        m_velocityEngine = velocityEngine;
     }
 
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {

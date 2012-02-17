@@ -140,6 +140,19 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         }
 
         m_configAgent.run();
+
+        // After config has rolled out
+        for (ConfigProvider provider : getProviders()) {
+            try {
+                if (provider instanceof PostConfigListener) {
+                    ((PostConfigListener) provider).postReplicate(this, request);
+                }
+            } catch (Exception e) {
+                Serializable jobError = m_jobContext.schedule(jobLabel);
+                m_jobContext.start(jobError);
+                fail(m_jobContext, jobLabel, jobError, e);
+            }
+        }
     }
 
     static void fail(JobContext jc, String label, Serializable job, Exception e) {

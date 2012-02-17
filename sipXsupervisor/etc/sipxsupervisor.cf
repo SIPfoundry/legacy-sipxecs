@@ -23,17 +23,17 @@ bundle agent sipxsupervisor_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxsupervisor-allowed-addrs.ini"
+        comment => "add allowed addresses to sipxsupervisor",
         create => "true",
         perms => m("644"),
         edit_line => sipxsupervisor_allowed_addrs,
-        classes => if_repaired("restart_sipxsupervisor"),
-        action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxsupervisor");
 
       "$(sipx.SIPX_CONFDIR)/sipxsupervisor-allowed-users.ini"
+        comment => "add allowed users to sipxsupervisor",
         create => "true",
         perms => m("644"),
-        edit_line => sipxsupervisor_allowed_users,
-        action => track("$(this.promiser)");
+        edit_line => sipxsupervisor_allowed_users;
 }
 
 bundle edit_line sipxsupervisor_allowed_addrs {
@@ -96,19 +96,21 @@ bundle agent sipxsupervisor_running {
       "any" usebundle => find_service_by_command("$(service_command)","sipxsupervisor_running","root");
 
   commands:
-    sipxsupervisor_running.!sipxsupervisor::
+    !sipxsupervisor.sipxsupervisor_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
-        args => "stop",
-	action => track("sipxsupervisor_stop");
+        comment => "stop sipxsupervisor",
+        args => "stop";
 
-    !sipxsupervisor_running.sipxsupervisor::
+    sipxsupervisor.!sipxsupervisor_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
-        args => "start",
-	action => track("sipxsupervisor_start");
+        comment => "start sipxsupervisor",
+        args => "start";
 
-    restart_sipxsupervisor::
+    # NOTE: supervisor doen't restart on "restart_sipxecs" because often
+    # supervisor is coordinating the restart command.
+    sipxsupervisor.sipxsupervisor_running.restart_sipxsupervisor::
       "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
-        args => "restart",
-	action => track("sipxsupervisor_restart");
+        comment => "restart sipxsupervisor",
+        args => "restart";
 }
 

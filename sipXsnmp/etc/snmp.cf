@@ -19,9 +19,9 @@ bundle agent snmp_config {
     snmp::
       "/etc/snmp/snmpd.conf"
         create => "false",
-	perms => m("644"),
+        perms => m("644"),
         classes => if_repaired("reload_snmp"),
-	edit_line => snmpd_conf;
+        edit_line => snmpd_conf;
 }
 
 bundle edit_line snmpd_conf {
@@ -61,18 +61,18 @@ bundle agent snmp_running {
       "any" usebundle => find_service_by_command("$(service_command)", "snmp_running","root");
 
   commands:
-    snmp_running.!snmp::
+    !snmp.snmp_running::
       "$(service)"
-        args => "stop",
-	action => track("snmp_stop");
+        comment => "stop snmp",
+        args => "stop";
 
-    !snmp_running.snmp::
+    snmp.!snmp_running::
       "$(service)"
-        args => "start",
-	action => track("snmp_start");
+        comment => "start snmp",
+        args => "start";
 
-    reload_snmp.snmp::
+    snmp.snmp_running.reload_snmp::
       "$(service)"
-        args => "reload",
-	action => track("snmp_restart");  
+        comment => "reload snmp",
+        args => "reload";
 }

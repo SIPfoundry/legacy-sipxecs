@@ -27,6 +27,7 @@
   
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfig">
     <property name="mongoManager" ref="mongoManager"/>
+    <property name="mongoReplicaSetManager" ref="mongoReplicaSetManager"/>
   </bean>
 
   <bean id="mongoSettings" class="org.sipfoundry.sipxconfig.mongo.MongoSettings" parent="settingsBean">
@@ -40,6 +41,7 @@
   
   <bean id="mongoReplicaSetManager" class="org.sipfoundry.sipxconfig.mongo.MongoReplicaSetManager" init-method="checkState">
     <property name="localDb" ref="localDb"/>
+    <property name="jdbcTemplate" ref="configJdbcTemplate"/>
   </bean>
   
 </beans>
