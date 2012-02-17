@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
@@ -76,6 +77,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<OpenAcdSettings> m_settingsDao;
     private ListableBeanFactory m_beanFactory;
+    private CoreContext m_coreContext;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
@@ -359,6 +361,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         checkAgent(agent);
         getHibernateTemplate().saveOrUpdate(agent);
         agent.setOldName(agent.getName());
+        m_coreContext.saveUserToAgentGroup(agent.getUser());
     }
 
     private void checkAgent(OpenAcdAgent agent) {
@@ -374,6 +377,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public void deleteAgent(OpenAcdAgent agent) {
         getHibernateTemplate().delete(agent);
+        m_coreContext.saveRemoveUserFromAgentGroup(agent.getUser());
     }
 
     @Override
@@ -930,4 +934,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         m_settingsDao = settingsDao;
     }
 
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
 }

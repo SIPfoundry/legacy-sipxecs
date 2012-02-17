@@ -25,6 +25,7 @@
         </property>
       </bean>
     </property>
+    <property name="coreContext" ref="coreContext" />
   </bean>
   
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
