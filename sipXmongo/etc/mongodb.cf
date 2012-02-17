@@ -14,7 +14,26 @@ bundle agent mongodb {
       "any" usebundle => "mongodb_client";
 }
 
+# 10gen and fedora mongo mainatain cannot settle on right file names or
+# package names for that matter. Support both at this time. 
 bundle agent mongodb_config {
+  vars:
+    "config_redhat" string => "/etc/mongodb.conf";
+    "config_10gen" string => "/etc/mongod.conf";
+
+  classes:
+    any::
+      "from_redhat" expression => fileexists("$(config_redhat)");
+
+   methods:
+     from_redhat::
+       "config" usebundle => mongodb_config_file("$(config_redhat)")
+
+     !from_redhat::
+       "config" usebundle => mongodb_config_file("$(config_10gen)")
+}
+
+bundle agent mongodb_config_file(file) {
   vars:
     any::
       # consider stunnel
@@ -24,7 +43,7 @@ bundle agent mongodb_config {
 
   files:
     any::
-      "/etc/mongod.conf"
+      "$(file)"
         create => "false",
         perms => m("644"),
         edit_line => set_variable_values("mongodb_config.server"),
