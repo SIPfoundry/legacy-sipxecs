@@ -145,6 +145,7 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
         props.put(MongoConstants.OLD_NAME, getOldName());
         props.put(MongoConstants.SECURITY, getSecurity());
         props.put(MongoConstants.AGENT_GROUP, getAgentGroup());
+        props.put(MongoConstants.CONTACT, getUser().getIdentity(domain));
 
         return props;
     }

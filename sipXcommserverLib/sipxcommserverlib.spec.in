@@ -16,12 +16,18 @@ BuildRequires: pcre-devel >= 4.5
 BuildRequires: unixODBC-devel >= 2.2
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
-BuildRequires: mongodb-devel >= 2.0.0
 BuildRequires: glibc-headers
 %if %{_vendor} == redhat
 BuildRequires: httpd-devel
 BuildRequires: xerces-c-devel >= 2.6.0
 BuildRequires: shadow-utils
+%endif
+
+%if 0%{?fedora} >= 15
+# sipXproxy compile fails, but this is first time it's referenced
+BuildRequires: mongodb-devel-fsv2-patch >= 2.0.2
+%else
+BuildRequires: mongodb-devel >= 2.0.2
 %endif
 
 Source: %name-%version.tar.gz

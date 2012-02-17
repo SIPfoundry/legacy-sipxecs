@@ -37,12 +37,20 @@ public final class MongoUtil {
      *  BasicBSONObject ret = MongoUtil.runCommand(m_db, "rs.config()");
      */
     public static BasicBSONObject runCommand(DB db, String command) {
-        CommandResult status = db.doEval(command);
+        CommandResult status = db.doEval(command);        
         if (!status.ok()) {
             String msg = format("Cannot run command '%s'. Result '%s'.", command, status);
             throw new MongoCommandException(msg);
         }
         return getObject(status, "retval");
+    }
+    
+    public static void checkForError(BasicBSONObject o) {
+        int ok = o.getInt("ok");
+        if (ok == 0) {
+            String what = o.getString("assertion");
+            throw new MongoCommandException(what);
+        }
     }
 
     /**

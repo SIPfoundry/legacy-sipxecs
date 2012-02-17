@@ -30,7 +30,7 @@ public class MongoConfig implements ConfigProvider, PostConfigListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE)) {
+        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE, MongoManager.ARBITER_FEATURE)) {
             return;
         }
         FeatureManager fm = manager.getFeatureManager();
@@ -54,11 +54,12 @@ public class MongoConfig implements ConfigProvider, PostConfigListener {
                 IOUtils.closeQuietly(client);
             }
 
-            // SERVER
-            boolean enabled = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
+            // SERVERS
+            boolean mongod = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
+            boolean arbiter = fm.isFeatureEnabled(MongoManager.ARBITER_FEATURE, location);
             FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
             try {
-                writeServerConfig(server, enabled,  encrypt);
+                writeServerConfig(server, mongod, arbiter);
             } finally {
                 IOUtils.closeQuietly(server);
             }
@@ -68,7 +69,7 @@ public class MongoConfig implements ConfigProvider, PostConfigListener {
 
     @Override
     public void postReplicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE)) {
+        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE, MongoManager.ARBITER_FEATURE)) {
             return;
         }
 
@@ -76,11 +77,15 @@ public class MongoConfig implements ConfigProvider, PostConfigListener {
         m_mongoReplicaSetManager.checkMembers();
     }
 
-    void writeServerConfig(Writer w, boolean enabled, boolean encrypt) throws IOException {
+    void writeServerConfig(Writer w, boolean mongod, boolean arbiter) throws IOException {
+        String bindToAll = "0.0.0.0";
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
-        config.writeClass("mongod", enabled);
-        config.write("mongoBindIp", "0.0.0.0");
+        config.writeClass("mongod", mongod);
+        config.write("mongoBindIp", bindToAll);
         config.write("mongoPort", MongoSettings.SERVER_PORT);
+        config.writeClass("mongod_arbiter", arbiter);
+        config.write("mongoArbiterBindIp", bindToAll);
+        config.write("mongoArbiterPort", MongoSettings.ARBITER_PORT);
     }
 
     void writeClientConfig(Writer w, String connStr, String connUrl) throws IOException {
