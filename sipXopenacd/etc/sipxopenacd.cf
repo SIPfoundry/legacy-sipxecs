@@ -29,7 +29,7 @@ bundle agent sipxopenacd_config {
         comment => "install openacd config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/app.config");
+        edit_line => sipxopenacd_app_config;
 }
 
 bundle edit_line sipxopenacd_vm_args() {
@@ -56,8 +56,27 @@ bundle edit_line sipxopenacd_vm_args() {
 -mnesia dir '\"$(sipx.OPENACD_HOME)/run/Mnesia.openacd@$(sys.fqhost)\"'
 
 ## Tweak GC to run more often
--env ERL_FULLSWEEP_AFTER 10
-";
+-env ERL_FULLSWEEP_AFTER 10"
+;
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle edit_line sipxopenacd_app_config() {
+  insert_lines:
+    any::
+"
+[{'OpenACD', [
+	{console_loglevel, $(sipx.OPENACD_LOG_LEVEl)},
+	{logfiles, [{\"full.log\", $(sipx.OPENACD_LOG_LEVEl)}, {\"console.log\", $(sipx.OPENACD_LOG_LEVEl)}]},
+	{plugin_dir, \"plugin.d\"}, {plugins, [sipxplugin]}
+]},
+{sasl, [
+	{errlog_type, error} % disable SASL progress reports
+]}]."
+;
 
   delete_lines:
     any::
