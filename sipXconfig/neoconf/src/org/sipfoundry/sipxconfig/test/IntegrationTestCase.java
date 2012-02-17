@@ -265,7 +265,7 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         m_daoEventPublisher.stopDivertingEvents();
     }
 
-    public void setDaoEventPublisher(DaoEventPublisherImpl daoEventPublisher) {
+    public void setDaoEventPublisherImpl(DaoEventPublisherImpl daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
     }
 

@@ -85,7 +85,6 @@
   </bean>
   
   <bean id="openAcdConfig" class="org.sipfoundry.sipxconfig.openacd.OpenAcdConfiguration">
-    <property name="velocityEngine" ref="velocityEngine" />
     <property name="openAcdContext" ref="openAcdContext" />
   </bean>
   

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the AGPL license.
  *
@@ -24,24 +24,22 @@ public class MongoConfigTest {
     @Before
     public void setUp() {
         m_config = new MongoConfig();
-        m_primary = new Location();
-        m_primary.setAddress("primary");
-        m_secondary = Arrays.asList(new Location(), new Location());
-        m_secondary.get(0).setAddress("one");
-        m_secondary.get(1).setAddress("two");
+        m_primary = new Location("primary");
+        m_primary.setAddress("1.1.1.0");
+        m_secondary = Arrays.asList(new Location("one"), new Location("two"));
+        m_secondary.get(0).setAddress("1.1.1.1");
+        m_secondary.get(1).setAddress("1.1.1.2");
     }
     
     @Test
     public void connString() {
-        assertEquals("127.0.0.1:1", m_config.getConnectionString(m_primary, null, 1, false, false));
-        assertEquals("primary:1", m_config.getConnectionString(m_primary, null, 1, true, false));
-        assertEquals("primary:1,one:1,two:1", m_config.getConnectionString(m_primary, m_secondary, 1, true, false));
+        assertEquals("sipxecs/primary:1", m_config.getConnectionString(m_primary, null, 1, false));
+        assertEquals("sipxecs/primary:1,one:1,two:1", m_config.getConnectionString(m_primary, m_secondary, 1, false));
     }
 
     @Test
     public void connUrl() {
-        assertEquals("mongodb://127.0.0.1:1/?slaveOk=true", m_config.getConnectionUrl(m_primary, null, 1, false, false));
-        assertEquals("mongodb://primary:1/?slaveOk=true", m_config.getConnectionUrl(m_primary, null, 1, true, false));
-        assertEquals("mongodb://primary:1,one:1,two:1/?slaveOk=true", m_config.getConnectionUrl(m_primary, m_secondary, 1, true, false));
+        assertEquals("mongodb://primary:1/?slaveOk=true", m_config.getConnectionUrl(m_primary, null, 1, false));
+        assertEquals("mongodb://primary:1,one:1,two:1/?slaveOk=true", m_config.getConnectionUrl(m_primary, m_secondary, 1, false));
     }
 }

@@ -74,15 +74,17 @@ public class AgentRunner {
             int status = runCommand(command, log);
             errs = results.getResults(1000);
             if (errs.size() > 0) {
-                ConfigManagerImpl.fail(m_jobContext, label, job, new ConfigException(errs.pop()));
+                String err = location.getFqdn() + ':' + errs.pop();
+                ConfigManagerImpl.fail(m_jobContext, label, job, new ConfigException(err));
                 while (!errs.empty()) {
                     // Tricky alert - show additional errors as new jobs
                     Serializable jobErr = m_jobContext.schedule(label, location);
                     m_jobContext.start(jobErr);
-                    ConfigManagerImpl.fail(m_jobContext, label, jobErr, new ConfigException(errs.pop()));
+                    err = location.getFqdn() + ':' + errs.pop();
+                    ConfigManagerImpl.fail(m_jobContext, label, jobErr, new ConfigException(err));
                 }
             } else if (status != 0 && errs.size() == 0) {
-                String msg = "Agent run finshed but returned error code " + status;
+                String msg = format("Agent run on %s finshed but returned error code %d", location.getFqdn(), status);
                 ConfigManagerImpl.fail(m_jobContext, label, job, new ConfigException(msg));
             } else {
                 m_jobContext.success(job);
