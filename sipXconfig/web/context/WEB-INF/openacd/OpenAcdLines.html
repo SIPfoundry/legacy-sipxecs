@@ -7,7 +7,7 @@
     </li>
   </ul>
   <table jwcid="tableView@common/Table" id="openacd:lines"
-		columns="literal:* name, extension, regex, queue"
+		columns="literal:* name, extension, regex, queue, client"
 		source="ognl:openAcdlines"
 		row="ognl:currentRow"
 		selections="bean:selections">
@@ -23,6 +23,9 @@
 	</span>
 	<span jwcid="queueColumnValue@Block">
 	  <td jwcid="@Insert" value="ognl:queue"/>
+	</span>
+	<span jwcid="clientColumnValue@Block">
+	  <td jwcid="@Insert" value="ognl:client"/>
 	</span>
   </table>
   <input jwcid="delete@Submit" type="submit" id="queue:delete"

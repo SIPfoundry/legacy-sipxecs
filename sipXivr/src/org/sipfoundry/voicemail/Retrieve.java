@@ -253,187 +253,191 @@ public class Retrieve extends AbstractVmAction {
             org.sipfoundry.voicemail.mailbox.VmMessage message = m_mailboxManager.getVmMessage(getCurrentUser()
                     .getUserName(), folder, messageId, true);
 
-            for (;;) {
-                messagePl = getPromptList();
-                prePromptPl = getPromptList();
-                // {the message}
-                messagePl.addPrompts(message.getAudioFile().getPath());
-                // Determine if the message is from a known user
-                String from = ValidUsers.getUserPart(message.getDescriptor().getFromUri());
-                User user = getValidUser(from);
-                if (user != null) {
-                    // If user doesn't have voicemail, don't allow reply
-                    if (!user.hasVoicemail()) {
-                        user = null;
-                    }
-                }
-
-                switch (folder) {
-                case INBOX:
-                    LOG.info("Retrieve::playMessages INBOX " + getCurrentUser().getUserName());
-
-                    validDigits = "1234579#";
+            try {
+                for (;;) {
+                    messagePl = getPromptList();
+                    prePromptPl = getPromptList();
+                    // {the message}
+                    messagePl.addPrompts(message.getAudioFile().getPath());
+                    // Determine if the message is from a known user
+                    String from = ValidUsers.getUserPart(message.getDescriptor().getFromUri());
+                    User user = getValidUser(from);
                     if (user != null) {
-                        menuFragment = "msg_inbox_options_reply";
-                        validDigits += "6";
-                    } else {
-                        menuFragment = "msg_inbox_options";
+                        // If user doesn't have voicemail, don't allow reply
+                        if (!user.hasVoicemail()) {
+                            user = null;
+                        }
                     }
-                    // "To play information about this message, press 1."
-                    // "To replay press 2."
-                    // "To save, press 3."
-                    // "To delete press 4."
-                    // "To forward to another inbox, press 5."
-                    // {if from sipXuser} "To reply, press 6."
-                    // "To play the next message, press #."
-                    // "To return to the main menu, press *."
-                    // "To fast forward message press 9."
-                    // "To rewind message press 7."
-                    break;
-                case SAVED:
-                    LOG.info("Retrieve::playMessages SAVED " + getCurrentUser().getUserName());
 
-                    validDigits = "124579#";
-                    if (user != null) {
-                        menuFragment = "msg_saved_options_reply";
-                        validDigits += "6";
-                    } else {
-                        menuFragment = "msg_saved_options";
+                    switch (folder) {
+                    case INBOX:
+                        LOG.info("Retrieve::playMessages INBOX " + getCurrentUser().getUserName());
+
+                        validDigits = "1234579#";
+                        if (user != null) {
+                            menuFragment = "msg_inbox_options_reply";
+                            validDigits += "6";
+                        } else {
+                            menuFragment = "msg_inbox_options";
+                        }
+                        // "To play information about this message, press 1."
+                        // "To replay press 2."
+                        // "To save, press 3."
+                        // "To delete press 4."
+                        // "To forward to another inbox, press 5."
+                        // {if from sipXuser} "To reply, press 6."
+                        // "To play the next message, press #."
+                        // "To return to the main menu, press *."
+                        // "To fast forward message press 9."
+                        // "To rewind message press 7."
+                        break;
+                    case SAVED:
+                        LOG.info("Retrieve::playMessages SAVED " + getCurrentUser().getUserName());
+
+                        validDigits = "124579#";
+                        if (user != null) {
+                            menuFragment = "msg_saved_options_reply";
+                            validDigits += "6";
+                        } else {
+                            menuFragment = "msg_saved_options";
+                        }
+                        // "To play information about this message, press 1."
+                        // "To replay press 2."
+                        // "To delete press 4."
+                        // "To forward to another inbox, press 5."
+                        // {if from sipXuser} "To reply, press 6."
+                        // "To play the next message, press #."
+                        // "To return to the main menu, press *."
+                        // "To fast forward message press 9."
+                        // "To rewind message press 7."
+                        break;
+                    case DELETED:
+                        LOG.info("Retrieve::playMessages DELETED " + getCurrentUser().getUserName());
+
+                        validDigits = "1234579#";
+                        if (user != null) {
+                            menuFragment = "msg_deleted_options_reply";
+                            validDigits += "6";
+                        } else {
+                            menuFragment = "msg_deleted_options";
+                        }
+                        // "To play information about this message, press 1."
+                        // "To replay press 2."
+                        // "To restore to inbox, press 3."
+                        // "To delete permanently press 4."
+                        // "To forward to another inbox, press 5."
+                        // {if from sipXuser} "To reply, press 6."
+                        // "To play the next message, press #."
+                        // "To return to the main menu, press *."
+                        // "To fast forward message press 9."
+                        // "To rewind message press 7."
+                        break;
                     }
-                    // "To play information about this message, press 1."
-                    // "To replay press 2."
-                    // "To delete press 4."
-                    // "To forward to another inbox, press 5."
-                    // {if from sipXuser} "To reply, press 6."
-                    // "To play the next message, press #."
-                    // "To return to the main menu, press *."
-                    // "To fast forward message press 9."
-                    // "To rewind message press 7."
-                    break;
-                case DELETED:
-                    LOG.info("Retrieve::playMessages DELETED " + getCurrentUser().getUserName());
 
-                    validDigits = "1234579#";
-                    if (user != null) {
-                        menuFragment = "msg_deleted_options_reply";
-                        validDigits += "6";
-                    } else {
-                        menuFragment = "msg_deleted_options";
+                    // If we need to play the message, add it as a prePrompt to the menu.
+                    // This is so we can barge it with a digit press and act on the digit in the menu.
+                    if (playMessage) {
+                        prePromptPl.addPrompts(messagePl);
+                        prePromptPl.setOffset(startPos);
+                        playMessage = false;
                     }
-                    // "To play information about this message, press 1."
-                    // "To replay press 2."
-                    // "To restore to inbox, press 3."
-                    // "To delete permanently press 4."
-                    // "To forward to another inbox, press 5."
-                    // {if from sipXuser} "To reply, press 6."
-                    // "To play the next message, press #."
-                    // "To return to the main menu, press *."
-                    // "To fast forward message press 9."
-                    // "To rewind message press 7."
-                    break;
-                }
-
-                // If we need to play the message, add it as a prePrompt to the menu.
-                // This is so we can barge it with a digit press and act on the digit in the menu.
-                if (playMessage) {
-                    prePromptPl.addPrompts(messagePl);
-                    prePromptPl.setOffset(startPos);
-                    playMessage = false;
-                }
-                // Same with the message info.
-                if (playInfo) {
-                    prePromptPl.addPrompts(messageInfo(message.getDescriptor()));
-                    playInfo = false;
-                }
-
-                VmDialog vmd = createVmDialog(menuFragment);
-                vmd.setPrePromptList(prePromptPl);
-                vmd.setSpeakCanceled(false);
-
-                // Mark the message heard (if it wasn't before)
-                m_mailboxManager.markMessageHeard(getCurrentUser(), message);
-
-                long playStart = System.currentTimeMillis();
-                String digit = vmd.collectDigit(validDigits); // message starts playing here
-                duration = (int) ((System.currentTimeMillis() - playStart) / 1000);
-
-                if (digit == null) {
-                    // Timeout, cancel, or errors
-                    return;
-                }
-
-                if (digit.equals("1")) {
-                    playInfo = true;
-                    startPos = 0;
-                    continue;
-                }
-                if (digit.equals("2")) {
-                    playMessage = true;
-                    startPos = 0;
-                    continue;
-                }
-                if (digit.equals("3")) {
-                    // If in inbox, moved to saved. If deleted move to inbox.
-                    m_mailboxManager.saveMessage(getCurrentUser(), message);
-                    if (folder == Folder.INBOX) {
-                        play("msg_saved", "");
-                    } else {
-                        play("msg_restored", "");
+                    // Same with the message info.
+                    if (playInfo) {
+                        prePromptPl.addPrompts(messageInfo(message.getDescriptor()));
+                        playInfo = false;
                     }
-                    startPos = 0;
-                    break;
-                }
-                if (digit.equals("4")) {
-                    // If in inbox or saved, moved to deleted. If in deleted, destroy
-                    m_mailboxManager.deleteMessage(getCurrentUser(), message);
-                    if (folder == Folder.DELETED) {
-                        play("msg_destroyed", "");
-                    } else {
-                        play("msg_deleted", "");
+
+                    VmDialog vmd = createVmDialog(menuFragment);
+                    vmd.setPrePromptList(prePromptPl);
+                    vmd.setSpeakCanceled(false);
+
+                    // Mark the message heard (if it wasn't before)
+                    m_mailboxManager.markMessageHeard(getCurrentUser(), message);
+
+                    long playStart = System.currentTimeMillis();
+                    String digit = vmd.collectDigit(validDigits); // message starts playing here
+                    duration = (int) ((System.currentTimeMillis() - playStart) / 1000);
+
+                    if (digit == null) {
+                        // Timeout, cancel, or errors
+                        return;
                     }
-                    startPos = 0;
-                    break;
-                }
-                if (digit.equals("5")) {
-                    forward(message);
-                    startPos = 0;
-                    continue;
-                }
-                if (digit.equals("6")) {
-                    reply(message, user);
-                    startPos = 0;
-                    continue;
-                }
-                if (digit.equals("#")) {
-                    startPos = 0;
-                    break;
-                }
-                long msgDuration = message.getDescriptor().getDurationSecsLong();
-                // press '7' to rewind the message
-                if (digit.equals("7")) {
-                    startPos = startPos + duration - SKIPDURATION_SEC;
-                    if (startPos >= msgDuration) {
-                        startPos = (int) msgDuration - DURATION_TO_END_SEC;
-                    } else if (startPos < 0) {
+
+                    if (digit.equals("1")) {
+                        playInfo = true;
                         startPos = 0;
+                        continue;
                     }
-                    if (prePromptPl != null) {
+                    if (digit.equals("2")) {
                         playMessage = true;
+                        startPos = 0;
+                        continue;
                     }
-                    continue;
-                }
+                    if (digit.equals("3")) {
+                        // If in inbox, moved to saved. If deleted move to inbox.
+                        m_mailboxManager.saveMessage(getCurrentUser(), message);
+                        if (folder == Folder.INBOX) {
+                            play("msg_saved", "");
+                        } else {
+                            play("msg_restored", "");
+                        }
+                        startPos = 0;
+                        break;
+                    }
+                    if (digit.equals("4")) {
+                        // If in inbox or saved, moved to deleted. If in deleted, destroy
+                        m_mailboxManager.deleteMessage(getCurrentUser(), message);
+                        if (folder == Folder.DELETED) {
+                            play("msg_destroyed", "");
+                        } else {
+                            play("msg_deleted", "");
+                        }
+                        startPos = 0;
+                        break;
+                    }
+                    if (digit.equals("5")) {
+                        forward(message);
+                        startPos = 0;
+                        continue;
+                    }
+                    if (digit.equals("6")) {
+                        reply(message, user);
+                        startPos = 0;
+                        continue;
+                    }
+                    if (digit.equals("#")) {
+                        startPos = 0;
+                        break;
+                    }
+                    long msgDuration = message.getDescriptor().getDurationSecsLong();
+                    // press '7' to rewind the message
+                    if (digit.equals("7")) {
+                        startPos = startPos + duration - SKIPDURATION_SEC;
+                        if (startPos >= msgDuration) {
+                            startPos = (int) msgDuration - DURATION_TO_END_SEC;
+                        } else if (startPos < 0) {
+                            startPos = 0;
+                        }
+                        if (prePromptPl != null) {
+                            playMessage = true;
+                        }
+                        continue;
+                    }
 
-                // press '9'to fast forward the message
-                if (digit.equals("9")) {
-                    startPos = startPos + duration + SKIPDURATION_SEC;
-                    if (startPos >= msgDuration) {
-                        startPos = (int) msgDuration - DURATION_TO_END_SEC;
+                    // press '9'to fast forward the message
+                    if (digit.equals("9")) {
+                        startPos = startPos + duration + SKIPDURATION_SEC;
+                        if (startPos >= msgDuration) {
+                            startPos = (int) msgDuration - DURATION_TO_END_SEC;
+                        }
+                        if (prePromptPl != null) {
+                            playMessage = true;
+                        }
+                        continue;
                     }
-                    if (prePromptPl != null) {
-                        playMessage = true;
-                    }
-                    continue;
                 }
+            } finally {
+                message.cleanup();
             }
         }
         // "End of messages.
