@@ -23,9 +23,9 @@ public class MongoReplicaSetManagerTest {
         Set<String> a = Collections.singleton("a");
         Set<String> b = Collections.singleton("b");
         assertEquals("[]", m.updateMembersAndArbitors(a, none, a, none).toString());
-        assertEquals("[rs.add(\"a:27017\")]", m.updateMembersAndArbitors(a, none, none, none).toString());
-        assertEquals("[rs.remove(\"a:27017\")]", m.updateMembersAndArbitors(none, none, a, none).toString());
-        assertEquals("[rs.add(\"a:27017\"), rs.remove(\"b:27017\")]", m.updateMembersAndArbitors(a, none, b, none).toString());
+        assertEquals("[rs.add(\"a\")]", m.updateMembersAndArbitors(none, none, a, none).toString());
+        assertEquals("[rs.remove(\"a\")]", m.updateMembersAndArbitors(a, none, none, none).toString());
+        assertEquals("[rs.add(\"b\"), rs.remove(\"a\")]", m.updateMembersAndArbitors(a, none, b, none).toString());
     }
 
     @Test
@@ -35,8 +35,8 @@ public class MongoReplicaSetManagerTest {
         Set<String> a = Collections.singleton("a");
         Set<String> b = Collections.singleton("b");
         assertEquals("[]", m.updateMembersAndArbitors(none, a, none, a).toString());
-        assertEquals("[rs.addArb(\"a:27018\")]", m.updateMembersAndArbitors(none, a, none, none).toString());
-        assertEquals("[rs.remove(\"a:27018\")]", m.updateMembersAndArbitors(none, none, none, a).toString());
-        assertEquals("[rs.addArb(\"a:27018\"), rs.remove(\"b:27018\")]", m.updateMembersAndArbitors(none, a, none, b).toString());
+        assertEquals("[rs.addArb(\"a\")]", m.updateMembersAndArbitors(none, none, none, a).toString());
+        assertEquals("[rs.remove(\"a\")]", m.updateMembersAndArbitors(none, a, none, none).toString());
+        assertEquals("[rs.addArb(\"b\"), rs.remove(\"a\")]", m.updateMembersAndArbitors(none, a, none, b).toString());
     }
 }

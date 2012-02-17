@@ -47,9 +47,9 @@ public class MongoReplicaSetManager implements FeatureListener {
     private static final String CHECK_COMMAND = "rs.config()";
     private static final String INIT_COMMAND = "rs.initiate({\"_id\" : \"sipxecs\", \"version\" : 1, \"members\" : "
             + "[ { \"_id\" : 0, \"host\" : \"%s:%d\" } ] })";
-    private static final String ADD_SERVER_COMMAND = "rs.add(\"%s:%d\")";
-    private static final String REMOVE_SERVER_COMMAND = "rs.remove(\"%s:%d\")";
-    private static final String ADD_ARBITER_COMMAND = "rs.addArb(\"%s:%d\")";
+    private static final String ADD_SERVER_COMMAND = "rs.add(\"%s\")";
+    private static final String REMOVE_SERVER_COMMAND = "rs.remove(\"%s\")";
+    private static final String ADD_ARBITER_COMMAND = "rs.addArb(\"%s\")";
     private static final String REMOVE_ARBITER_COMMAND = REMOVE_SERVER_COMMAND;
     private MongoTemplate m_localDb;
     private JdbcTemplate m_jdbcTemplate;
@@ -82,31 +82,32 @@ public class MongoReplicaSetManager implements FeatureListener {
         getPostgresMembers(postgresMembers, postgresArbiters);
         List<String> cmds = updateMembersAndArbitors(mongoMembers, mongoArbiters, postgresMembers, postgresArbiters);
         for (String cmd : cmds) {
-            MongoUtil.runCommand(m_localDb.getDb(), cmd);
+            BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
+            MongoUtil.checkForError(result);
         }
     }
 
     List<String> updateMembersAndArbitors(Set<String> mongoMembers, Set<String> mongoArbiters,
             Set<String> postgresMembers, Set<String> postgresArbiters) {
         List<String> commands = new ArrayList<String>();
-        Collection<String> missingServers = CollectionUtils.subtract(mongoMembers, postgresMembers);
+        Collection<String> missingServers = CollectionUtils.subtract(postgresMembers, mongoMembers);
         for (String add : missingServers) {
-            String cmd = format(ADD_SERVER_COMMAND, add, MongoSettings.SERVER_PORT);
+            String cmd = format(ADD_SERVER_COMMAND, add);
             commands.add(cmd);
         }
-        Collection<String> additionalServers = CollectionUtils.subtract(postgresMembers, mongoMembers);
+        Collection<String> additionalServers = CollectionUtils.subtract(mongoMembers, postgresMembers);
         for (String remove : additionalServers) {
-            String cmd = format(REMOVE_SERVER_COMMAND, remove, MongoSettings.SERVER_PORT);
+            String cmd = format(REMOVE_SERVER_COMMAND, remove);
             commands.add(cmd);
         }
-        Collection<String> missingArbiters = CollectionUtils.subtract(mongoArbiters, postgresArbiters);
+        Collection<String> missingArbiters = CollectionUtils.subtract(postgresArbiters, mongoArbiters);
         for (String add : missingArbiters) {
-            String cmd = format(ADD_ARBITER_COMMAND, add, MongoSettings.ARBITER_PORT);
+            String cmd = format(ADD_ARBITER_COMMAND, add);
             commands.add(cmd);
         }
-        Collection<String> additionaArbiters = CollectionUtils.subtract(postgresArbiters, mongoArbiters);
+        Collection<String> additionaArbiters = CollectionUtils.subtract(mongoArbiters, postgresArbiters);
         for (String remove : additionaArbiters) {
-            String cmd = format(REMOVE_ARBITER_COMMAND, remove, MongoSettings.ARBITER_PORT);
+            String cmd = format(REMOVE_ARBITER_COMMAND, remove);
             commands.add(cmd);
         }
         return commands;
