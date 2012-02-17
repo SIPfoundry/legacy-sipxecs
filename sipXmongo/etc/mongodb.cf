@@ -4,46 +4,85 @@
 
 # Mongo configuration for sipXecs
 
+bundle common mongo {
+  classes:
+    # 10gen and fedora mongo mainatain cannot settle on right file names or
+    # package names for that matter. Support both at this time. 
+    any::
+      "mongodb_redhat" expression => fileexists("/etc/mongodb.conf");
+      "mongodb_10gen" not => "from_redhat";
+      "mongodb_sysv" expression => "!fedora16_or_greater|from_10gen";
+      "mongodb_sysctl" expression => "fedora16_or_greater.from_redhat";
+}
+
 bundle agent mongodb {
+  vars:
+    any::
+      "config_arbiter" string => "/etc/mongod-arbiter.conf";
+
+    mongodb_redhat::
+      "config" string => "/etc/mongodb.conf";
+      "user" string => "mongodb";
+
+    mongodb_10gen::
+      "config" string => "/etc/mongod.conf";
+      "user" string => "mongod";
+
   methods:
     mongod::
-      "any" usebundle => "mongodb_config";
+      "any" usebundle => mongodb_config;
+
+    mongod_arbiter::
+      "any" usebundle => mongodb_arbiter_config;
+
+    mongodb_sysctl::
+      "any" usebundle => mongodb_systemctl_running;
+
+    mongodb_sysv::
+      "any" usebundle => mongodb_sysv_running;
+
     any::
-      "any" usebundle => "mongodb_running";
+      "any" usebundle => mongodb_arbiter_running;
+      "any" usebundle => mongodb_setup;
+
+    any::
       # at this moment, all setups get mongo client config
       "any" usebundle => "mongodb_client";
 }
 
-# 10gen and fedora mongo mainatain cannot settle on right file names or
-# package names for that matter. Support both at this time. 
-bundle agent mongodb_config {
-  vars:
-    "config_redhat" string => "/etc/mongodb.conf";
-    "config_10gen" string => "/etc/mongod.conf";
-
-  classes:
-    any::
-      "from_redhat" expression => fileexists("$(config_redhat)");
-
-   methods:
-     from_redhat::
-       "config" usebundle => mongodb_config_file("$(config_redhat)")
-
-     !from_redhat::
-       "config" usebundle => mongodb_config_file("$(config_10gen)")
-}
-
-bundle agent mongodb_config_file(file) {
+bundle agent mongodb_arbiter_config {
   vars:
     any::
-      # consider stunnel
-       "server[replSet]" string => "sipxecs";
-       "server[bind_ip]" string => "0.0.0.0";
-       "server[port]" string => "27017";
+      "server[replSet]" string => "sipxecs";
+      "server[bind_ip]" string => "$(sipx.mongoArbiterBindIp)";
+      "server[port]" string => "$(sipx.mongoArbiterPort)";
+      "server[logpath]" string => "/var/log/mongodb/mongodb-arbiter.log";
+      "server[fork]" string => "true";
+      "server[pidfilepath]" string => "/var/run/mongodb/mongodb-arbiter.pid";
+      "server[journal]" string => "true";
+      "server[nohttpinterface]" string => "true";
+      "server[dbpath]" string => "/var/lib/mongodb-arbiter";
 
   files:
     any::
-      "$(file)"
+      "$(mongodb.config_arbiter)"
+        comment => "install mongo arbiter config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => set_variable_values("mongodb_arbiter_config.server"),
+        classes => if_repaired("restart_mongodb_arbiter");
+}
+
+bundle agent mongodb_config {
+  vars:
+    any::
+      "server[replSet]" string => "sipxecs";
+      "server[bind_ip]" string => "0.0.0.0";
+      "server[port]" string => "27017";
+
+  files:
+    any::
+      "$(mongodb.config)"
         comment => "install mongo config $(this.promiser)",
         create => "false",
         perms => m("644"),
@@ -72,12 +111,50 @@ bundle edit_line mongo_client_config {
     ".*";
 }
 
-# not meant to replace monitoring service that will restart crashed mongo
-# this just ensures it's running incase it was shutdown for some reason
-bundle agent mongodb_running {
+bundle agent mongodb_setup {
+  methods:
+    mongod.mongodb_sysv::
+      "any" usebundle => rh_chkconfig_status("mongod on");
+    !mongod.mongodb_sysv::
+      "any" usebundle => rh_chkconfig_status("mongod off");
+    mongod_arbiter.!src::
+      "any" usebundle => rh_chkconfig_status("mongod-arbiter on");
+    !mongod_arbiter.!src::
+      "any" usebundle => rh_chkconfig_status("mongod-arbiter off");
+}
+
+bundle agent mongodb_arbiter_running {
+  vars:
+    any::
+      "service" string => "$(sipx.SIPX_SERVICEDIR)/mongod-arbiter";
+      "service_command" string => "/usr/bin/mongod -f $(mongodb.config_arbiter)";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "mongodb_arbiter_running", "$(mongodb.user)");
+
+  commands:
+    !mongod_arbiter.mongodb_arbiter_running::
+      "$(service)"
+        comment => "stop mongo arbiter",
+        args => "stop";
+
+    mongod_arbiter.!mongodb_arbiter_running::
+      "$(service)"
+        comment => "start mongo arbiter",
+        args => "start";
+
+    mongod_arbiter.mongodb_arbiter_running.restart_mongodb_arbiter::
+      "$(service)"
+        comment => "restart mongo arbiter",
+        args => "restart";
+}
+
+bundle agent mongodb_sysv_running {
   vars:
     any::
       "service" string => "/etc/init.d/mongod";
+      "service_command" string => "/usr/bin/mongod -f $(mongodb.config)";
 
   methods:
     any::
@@ -98,6 +175,39 @@ bundle agent mongodb_running {
       "$(service)"
         comment => "restart mongo",
         args => "restart";
+}
+
+bundle agent mongodb_systemctl_running {
+  vars:
+    any::
+      "service" string => "mongod.service";
+
+  classes:
+    "mongodb_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !mongod.mongodb_running::
+      "$(sipx.systemctl)"
+        comment => "stop mongo",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable mongo",
+        args => "disable $(service)";
+
+    mongod.!mongodb_running::
+      "$(sipx.systemctl)"
+        comment => "start mongo",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable iptables",
+        args => "enable $(service)";
+
+    mongod.mongodb_running.restart_mongodb::
+      "$(sipx.systemctl)"
+        comment => "restart mongo",
+        args => "restart $(service)";
 }
 
 # Not working at the momemnt.  Mongod is not creating a pid file

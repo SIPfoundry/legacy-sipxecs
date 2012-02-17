@@ -6,7 +6,11 @@ EXTRA_DIST = \
 bin_SCRIPTS = \
 	mongodb-repair
 
-$(bin_SCRIPTS) : % : %.in
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+	mongod-arbiter
+
+$(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(bin_SCRIPTS)
+CLEANFILES = $(initd_SCRIPTS) $(bin_SCRIPTS)
