@@ -19,17 +19,17 @@ bundle agent sipxopenacd_config {
   files:
     any::
       "$(sipx.OPENACD_HOME)/etc/vm.args"
+        comment => "install openacd config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_line => sipxopenacd_vm_args,
-        action => track("$(this.promiser)");
+        edit_line => sipxopenacd_vm_args;
 
     any::
       "$(sipx.OPENACD_HOME)/etc/app.config"
+        comment => "install openacd config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/app.config"),
-        action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/app.config");
 }
 
 bundle edit_line sipxopenacd_vm_args() {
@@ -82,18 +82,18 @@ bundle agent sipxopenacd_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenacd_running");
 
   commands:
-    sipxopenacd_running.!sipxopenacd::
+    !sipxopenacd.sipxopenacd_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
-        args => "stop",
-        action => track("sipxopenacd stop");
+        comment => "stop sipxopenacd",
+        args => "stop";
 
-    !sipxopenacd_running.sipxopenacd::
+    sipxopenacd.!sipxopenacd_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
-        args => "start",
-        action => track("sipxopenacd start");
+        comment => "start sipxopenacd",
+        args => "start";
 
-    restart_sipxopenacd::
+    sipxopenacd.sipxopenacd_running.(restart_sipxecs|restart_sipxopenacd)::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
-        args => "restart",
-        action => track("sipxopenacd restart");
+        comment => "restart sipxopenacd",
+        args => "restart";
 }

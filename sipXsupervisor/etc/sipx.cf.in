@@ -67,13 +67,15 @@ bundle agent add_crontab(regex,line) {
   files:
     "$(sipx.cron)"
       handle => "add_cron",
+      comment => "add cron $(this.promiser) - $(line)",
       edit_line => add_crontab_line("$(regex)","$(line)"),
-      classes => if_repaired("reload_crontab"),
-      action => track("$(this.handle) $(this.promiser)");
+      classes => if_repaired("reload_crontab");
       
   processes:
     reload_crontab::
-      "cron" signals => { "hup" };
+      "cron" 
+        comment => "reload cron",
+        signals => { "hup" };
   
 }
 
@@ -102,29 +104,6 @@ bundle edit_line add_crontab_line(regex,value) {
     "$(regex)";
 }
 
-#
-# imports all the variables into $(sipx.*) from *.cfdat files
-#
-# NOTE: Cannot use $(sipx. here because it's not loaded yet. Instead
-# use @SIPX.
-# 
-bundle agent sipx_init_tracker {
-  vars:
-    "failed_log" string => "@SIPX_LOGDIR@/sipxagent-failed.log";
-    "repaired_log" string => "@SIPX_LOGDIR@/sipxagent-repaired.log";
-    "kept_log" string => "@SIPX_LOGDIR@/sipxagent-kept.log";
-    "logs" slist => { "$(failed_log)", "$(repaired_log)", "$(kept_log)" };
-
-  files:
-    any::
-      "$(logs)"
-        delete => tidy;
-    
-      "$(logs)"
-        create => "true",
-        perms => m(644);
-}
-
 bundle agent sipx_module {
   commands:
     any::
@@ -143,8 +122,7 @@ body copy_from master_files(server,dir) {
 bundle agent sipx_init {
   methods:
     !primary::
-      "update" 
-        usebundle => "update_from_master";
+      "update" usebundle => "update_from_master";
 }
 
 bundle agent update_from_master {
@@ -219,15 +197,6 @@ body contain su(user) {
 body copy_from copy_from_cfdata(filename) {
   source => "$(sipx.SIPX_CFDATA)/$(filename)";
   compare => "digest";
-}
-
-# identify essentially all promises with this to surface issues in sipxconfig ui
-body action track(id) {
-  log_failed => "$(sipx_module.failed_log)";
-  log_repaired => "$(sipx_module.repaired_log)";
-  # bug, w/o a log_kept entry, cfengine will segfault. Tested up to 3.3.0 r3779.
-  log_kept => "$(sipx_module.kept_log)";
-  log_string => "$(id)";
 }
 
 #

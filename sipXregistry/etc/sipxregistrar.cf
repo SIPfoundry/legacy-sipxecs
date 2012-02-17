@@ -20,11 +20,11 @@ bundle agent sipxregistrar_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/registrar-config"
+        comment => "registrar config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => registrar_config_contents(),
-        classes => if_repaired("restart_sipxregistrar"),
-        action => track("registrar-config");
+        classes => if_repaired("restart_sipxregistrar");
 }
 
 bundle edit_line registrar_config_contents() {
@@ -75,16 +75,16 @@ bundle agent sipxregistrar_running {
   commands:
     sipxregistrar_running.!sipxregistrar::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        args => "stop",
-        action => track("sipxegistrar stop");
+        comment => "stop sipxregistrar",
+        args => "stop";
 
     !sipxregistrar_running.sipxregistrar::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        args => "start",
-        action => track("sipxegistrar start");
+        comment => "start sipxregistrar",
+        args => "start";
 
     sipxregistrar.(restart_sipxregistrar|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        args => "restart",
-        action => track("sipxegistrar restart");
+        comment => "restart sipxregistrar",
+        args => "restart";
 }

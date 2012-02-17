@@ -20,19 +20,19 @@ bundle agent sipxcommserverlib_config {
   files:
     primary::
       "$(sipx.SIPX_CONFDIR)/SSL_DEFAULTS"
+        comment => "install SSL info $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => SSL_DEFAULTS,
-        classes => if_repaired("generate_certs"),
-         action => track("$(this.promiser)");
+        classes => if_repaired("generate_certs");
 
     any::
       "$(sipx.SIPX_CONFDIR)/domain-config"
+        comment => "install domain info $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => domain_config,
-        classes => if_repaired("restart_sipxecs"),
-        action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxecs");
 
   methods:
     generate_certs::
@@ -40,25 +40,29 @@ bundle agent sipxcommserverlib_config {
 }
 
 bundle agent generate_certs {
+  vars:
+    any::
+      "tempssl" string => "$(sipx.SIPX_VARDIR)/temp/cert-temp";
+       
   files:
     any::
-      "$(sipx.SIPX_VARDIR)/temp/cert-temp/."
+      "$(tempssl)/."
          create => "true";
 
   commands:
     any::
       "$(sipx.SIPX_BINDIR)/ssl-cert/gen-ssl-keys.sh"
+        comment => "generate ssl keys",
         args => "-d -p $(sipx.SIPX_CONFDIR)/SSL_DEFAULTS",
-        contain => sipxcommserverlib_cert_cmd,
-        action => track("gen-ssl-keys");
+        contain => sipxcommserverlib_cert_cmd("$(tempssl)");
 
       "$(sipx.SIPX_BINDIR)/ssl-cert/install-cert.sh",
-        contain => sipxcommserverlib_cert_cmd,
-        action => track("install-cert");
+        comment => "install ssl keys",
+        contain => sipxcommserverlib_cert_cmd("$(tempssl)");
 }
 
-body contain sipxcommserverlib_cert_cmd {
-  chdir => "$(sipx.SIPX_VARDIR)/temp/cert-temp";
+body contain sipxcommserverlib_cert_cmd(d) {
+  chdir => "$(d)";
 }
 
 bundle edit_line SSL_DEFAULTS {

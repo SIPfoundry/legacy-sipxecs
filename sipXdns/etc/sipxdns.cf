@@ -21,39 +21,37 @@ bundle agent sipxdns_resolv {
   files:
     any::
       "/etc/resolv.conf"
-         create => "true",
-         perms => m(644),
-         edit_line => resolv_conf,
-    edit_defaults => std_defs;
+        comment => "add nameservers to $(this.promiser)",
+        create => "true",
+        perms => m(644),
+        edit_line => resolv_conf,
+        edit_defaults => std_defs;
 }
 
 bundle agent sipxdns_config {
   files:
     any::
       "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/zone.yaml"
+        comment => "check for updates in DNS zone info file $(this.promiser)",
         changes => repair_on_change,
         classes => if_repaired("update_zone"),
         action => fix;
 
       "/etc/named.conf"
-         create => "true",
-         perms => mog(600, "named", "root"),
-         edit_line => named_conf,
-    edit_defaults => empty,
-    classes => if_repaired("reload_sipxdns");
+        comment => "install DNS config file $(this.promiser)",
+        create => "true",
+        perms => mog(600, "named", "root"),
+        edit_line => named_conf,
+        edit_defaults => empty,
+        classes => if_repaired("reload_sipxdns");
         
     update_zone::
       "/var/named/$(sipx.domain).zone"
+        comment => "install DNS zone file $(this.promiser)",
         create => "true",
         perms => mog(600, "named", "named"),
         transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-dns-zone-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/zone.yaml --out /var/named/$(sipx.domain).zone",
         classes => if_repaired("reload_sipxdns");
-
-    reports:
-      update_zone::
-        "updating zone";
-      !update_zone::
-        "NOT updating zone";
 }
 
 body changes repair_on_change {
@@ -70,12 +68,12 @@ bundle edit_line named_conf {
   insert_lines:
     "
 options {
-        directory  \"/var/named\";
-        dump-file \"/var/named/data/cache_dump.db\";
-        statistics-file \"/var/named/data/named_stats.txt\";
-        forwarders {
-        $(sipx.dnsForwarders)
-        };
+    directory  \"/var/named\";
+    dump-file \"/var/named/data/cache_dump.db\";
+    statistics-file \"/var/named/data/named_stats.txt\";
+    forwarders {
+      $(sipx.dnsForwarders)
+    };
 };
 
 zone \"$(sipx.domain)\"  IN  {
@@ -118,23 +116,23 @@ bundle agent sipxdns_running {
     # NOTE : Not shutting off  explicit stop function because we cannot tell if
     # admin is configuring and managing DNS on their own (which is the 
     # case for a lot of ezuce developers anyway)
-    !src.!unmanaged_dns.!sipxdns.sipxdns_running::
-     "$(service)"
-       args => "stop",
-      action => track("sipxdns stop");
+    !sipxdns.!src.!unmanaged_dns.sipxdns_running::
+      "$(service)"
+        comment => "stop named",
+        args => "stop";
 
     sipxdns.!sipxdns_running::
       "$(service)"
-        args => "start",
-        action => track("sipxdns start");
+        comment => "start named",
+        args => "start";
 
-    sipxdns.restart_sipxdns::
+    sipxdns.sipxdns_running.restart_sipxdns::
       "$(service)"
-        args => "restart",
-        action => track("sipxdns restart");
+        comment => "restart named",
+        args => "restart";
 
-    sipxdns.reload_sipxdns::
+    sipxdns.sipxdns_running.reload_sipxdns::
       "$(service)"
-        args => "reload",
-        action => track("sipxdns reload");
+        comment => "reload named",
+        args => "reload";
 }

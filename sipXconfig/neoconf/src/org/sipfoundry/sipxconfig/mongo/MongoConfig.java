@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
 public class MongoConfig implements ConfigProvider {
     private MongoManager m_mongoManager;
+    private MongoReplicaSetManager m_mongoReplicaSetManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -62,6 +63,9 @@ public class MongoConfig implements ConfigProvider {
                 IOUtils.closeQuietly(server);
             }
         }
+
+        // NOTE:  live updating of mongo settings.
+        m_mongoReplicaSetManager.checkMembers();
     }
 
     void writeServerConfig(Writer w, boolean enabled, boolean firewall, boolean encrypt) throws IOException {
@@ -81,12 +85,12 @@ public class MongoConfig implements ConfigProvider {
     String getConnectionString(Location primary, List<Location> secondary, int port, boolean firewall,
             boolean encrypt) {
         if (!firewall) {
-            return "127.0.0.1:" + port;
+            return "sipxecs/127.0.0.1:" + port;
         }
-        StringBuilder r = new StringBuilder(primary.getAddress()).append(':').append(port);
+        StringBuilder r = new StringBuilder("sipxecs/").append(primary.getFqdn()).append(':').append(port);
         if (secondary != null) {
             for (Location location : secondary) {
-                r.append(',').append(location.getAddress()).append(':').append(port);
+                r.append(',').append(location.getFqdn()).append(':').append(port);
             }
         }
         return r.toString();
@@ -96,11 +100,11 @@ public class MongoConfig implements ConfigProvider {
         if (!firewall) {
             return "mongodb://127.0.0.1:" + port + "/?slaveOk=true";
         }
-        StringBuilder r = new StringBuilder("mongodb://").append(primary.getAddress());
+        StringBuilder r = new StringBuilder("mongodb://").append(primary.getFqdn());
         r.append(':').append(port);
         if (secondary != null) {
             for (Location location : secondary) {
-                r.append(',').append(location.getAddress()).append(':').append(port);
+                r.append(',').append(location.getFqdn()).append(':').append(port);
             }
         }
         r.append("/?slaveOk=true");
@@ -109,5 +113,9 @@ public class MongoConfig implements ConfigProvider {
 
     public void setMongoManager(MongoManager mongoManager) {
         m_mongoManager = mongoManager;
+    }
+
+    public void setMongoReplicaSetManager(MongoReplicaSetManager mongoReplicaSetManager) {
+        m_mongoReplicaSetManager = mongoReplicaSetManager;
     }
 }

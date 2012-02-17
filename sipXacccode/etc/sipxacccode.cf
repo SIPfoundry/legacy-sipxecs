@@ -19,11 +19,11 @@ bundle agent sipxacccode_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxacccode.properties"
+        comment => "install auth codes config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => sipxacccode_properties_contents,
-        classes => if_repaired("restart_sipxacccode"),
-        action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxacccode");
 
 }
 
@@ -61,20 +61,20 @@ bundle agent sipxacccode_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxacccode_running");
 
   commands:
-    sipxacccode_running.!sipxacccode::
+    !sipxacccode.sipxacccode_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
-        args => "stop",
-        action => track("sipxacccode stop");
+        comment => "stop sipxacccode",
+        args => "stop";
 
-    !sipxacccode_running.sipxacccode::
+    sipxacccode.!sipxacccode_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
-        args => "start",
-        action => track("sipxacccode start");
+        comment => "start sipxacccode",
+        args => "start";
 
-    restart_sipxacccode::
+    sipxacccode.sipxacccode_running.(restart_sipxecs|restart_sipxacccode)::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
-        args => "restart",
-        action => track("sipxacccode restart");
+        comment => "restart sipxacccode",
+        args => "restart";
 }
 
 

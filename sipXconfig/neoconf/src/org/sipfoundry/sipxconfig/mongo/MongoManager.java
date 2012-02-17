@@ -14,6 +14,7 @@ public interface MongoManager {
     public static final String BEAN_ID = "mongo";
     public static final AddressType ADDRESS_ID = new AddressType(BEAN_ID);
     public static final LocationFeature FEATURE_ID = new LocationFeature(BEAN_ID);
+    public static final LocationFeature ARBITER_FEATURE = new LocationFeature("mongoArbiter");
 
     public MongoSettings getSettings();
 

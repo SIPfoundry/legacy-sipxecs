@@ -22,17 +22,17 @@ bundle agent sipxacdstatistics_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxconfig-report-config"
+        comment => "installing ACD config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_line => sipxacdstatistics_report_config,
-        action => track("$(this.promiser)");
+        edit_line => sipxacdstatistics_report_config;
 
       "$(sipx.SIPX_CONFDIR)/config-agent.properties"
+        comment => "installing ACD config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => set_variable_values("sipxacdstatistics_config.agent"),
-        classes => if_repaired("restart_sipxacdstatistics"),
-        action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxacdstatistics");
 }
 
 bundle edit_line sipxacdstatistics_report_config {
@@ -75,19 +75,19 @@ bundle agent sipxacdstatistics_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxacdstatistics_running");
 
   commands:
-    sipxacdstatistics_running.!sipxacdstatistics::
+    !sipxacdstatistics.sipxacdstatistics_running::
       "$(service)"
-        args => "stop",
-        action => track("sipxacdstatistics_stop");
+        comment => "stop sipxacdstatistics",
+        args => "stop";
 
-    !sipxacdstatistics_running.sipxacdstatistics::
+    sipxacdstatistics.!sipxacdstatistics_running::
       "$(service)"
-        args => "start",
-        action => track("sipxacdstatistics_start");
+        comment => "start sipxacdstatistics",
+        args => "start";
 
-    restart_sipxacdstatistics::
+    sipxacdstatistics.sipxacdstatistics_running.(restart_sipxecs|restart_sipxacdstatistics)::
       "$(service)"
-        args => "restart",
-        action => track("sipxacdstatistics_restart");
+        comment => "restart sipxacdstatistics",
+        args => "restart";
 }
 
