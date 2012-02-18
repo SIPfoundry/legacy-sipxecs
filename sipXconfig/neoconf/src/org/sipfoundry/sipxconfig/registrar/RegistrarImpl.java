@@ -19,7 +19,9 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsProvider;
 import org.sipfoundry.sipxconfig.dns.ResourceRecords;
@@ -40,6 +42,7 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
     });
     private BeanWithSettingsDao<RegistrarSettings> m_settingsDao;
     private ListableBeanFactory m_beanFactory;
+    private ConfigManager m_configManager;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
@@ -117,13 +120,23 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
     @Override
     public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
             Location location) {
-        if (feature.equals(Registrar.FEATURE)) {
-            if (event == FeatureEvent.PRE_ENABLE) {
-                RegistrarSettings settings = getSettings();
-                if (settings.isNew()) {
-                    saveSettings(settings);
-                }
+        if (!feature.equals(Registrar.FEATURE)) {
+            return;
+        }
+
+        switch (event) {
+        case PRE_ENABLE:
+            RegistrarSettings settings = getSettings();
+            if (settings.isNew()) {
+                saveSettings(settings);
             }
+            break;
+        case POST_DISABLE:
+        case POST_ENABLE:
+            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
+            break;
+        default:
+            break;
         }
     }
 
@@ -147,5 +160,9 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
         Collection<Address> addresses = getAvailableAddresses(manager.getAddressManager(), TCP_ADDRESS, whoIsAsking);
         rr.addAddresses(addresses);
         return rr;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

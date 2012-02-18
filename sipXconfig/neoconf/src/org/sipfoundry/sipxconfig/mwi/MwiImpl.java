@@ -7,6 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.mwi;
 
+import static java.lang.String.format;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,15 +19,23 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dns.DnsManager;
+import org.sipfoundry.sipxconfig.dns.DnsProvider;
+import org.sipfoundry.sipxconfig.dns.ResourceRecords;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
-public class MwiImpl implements AddressProvider, FeatureProvider, Mwi {
+public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvider, FeatureListener {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_UDP, SIP_TCP, HTTP_API);
     private BeanWithSettingsDao<MwiSettings> m_settingsDao;
+    private ConfigManager m_configManager;
 
     public MwiSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -75,5 +85,48 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi {
 
     public void setSettingsDao(BeanWithSettingsDao<MwiSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
+        if (!t.equals(SIP_TCP)) {
+            return null;
+        }
+
+        // NOTE: drop port, it's in DNS resource records
+        return new Address(t, format("mwi.%s", whoIsAsking.getFqdn()));
+    }
+
+    @Override
+    public ResourceRecords getResourceRecords(DnsManager manager, Location whoIsAsking) {
+        ResourceRecords rr = new ResourceRecords("_sip._tcp", "mwi");
+        Collection<Address> addresses = getAvailableAddresses(manager.getAddressManager(), SIP_TCP, whoIsAsking);
+        rr.addAddresses(addresses);
+        return rr;
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        if (!feature.equals(FEATURE)) {
+            return;
+        }
+
+        switch (event) {
+        case POST_DISABLE:
+        case POST_ENABLE:
+            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
+            break;
+        default:
+            break;
+        }
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

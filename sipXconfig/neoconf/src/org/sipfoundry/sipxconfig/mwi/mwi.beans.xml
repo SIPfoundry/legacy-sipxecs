@@ -17,6 +17,7 @@
         </property>
       </bean>
     </property>
+    <property name="configManager" ref="configManager" />
   </bean>
   
   <bean id="mwiConfig" class="org.sipfoundry.sipxconfig.mwi.MwiConfig">

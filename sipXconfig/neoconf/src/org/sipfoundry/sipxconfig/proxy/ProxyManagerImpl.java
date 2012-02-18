@@ -16,7 +16,11 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dns.DnsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -26,7 +30,8 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressProvider, ProcessProvider {
+public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressProvider, ProcessProvider,
+    FeatureListener {
     public static final LocationFeature FEATURE = new LocationFeature("proxy");
     public static final AddressType TCP_ADDRESS = AddressType.sip("proxyTcp");
     public static final AddressType UDP_ADDRESS = AddressType.sip("procyUdp");
@@ -36,6 +41,7 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
     });
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<ProxySettings> m_settingsDao;
+    private ConfigManager m_configManager;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
@@ -96,5 +102,30 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = m_featureManager.isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(new ProcessDefinition("sipXproxy")) : null);
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        if (!feature.equals(FEATURE)) {
+            return;
+        }
+
+        switch (event) {
+        case POST_DISABLE:
+        case POST_ENABLE:
+            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
+            break;
+        default:
+            break;
+        }
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

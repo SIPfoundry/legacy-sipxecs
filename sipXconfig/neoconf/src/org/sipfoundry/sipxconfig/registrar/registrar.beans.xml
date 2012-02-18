@@ -21,6 +21,7 @@
         </property>
       </bean>
     </property>
+    <property name="configManager" ref="configManager" />
   </bean>
 
   <bean id="registrarConfiguration" class="org.sipfoundry.sipxconfig.registrar.RegistrarConfiguration">

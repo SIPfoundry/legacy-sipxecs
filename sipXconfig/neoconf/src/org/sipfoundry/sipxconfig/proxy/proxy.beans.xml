@@ -21,6 +21,7 @@
       </bean>
     </property>
     <property name="featureManager" ref="featureManager" />
+    <property name="configManager" ref="configManager" />
   </bean>
 
   <bean id="proxyConfiguration" class="org.sipfoundry.sipxconfig.proxy.ProxyConfiguration">

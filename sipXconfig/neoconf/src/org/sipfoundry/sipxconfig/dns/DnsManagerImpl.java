@@ -135,4 +135,8 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
     }
+
+    void setProviders(List<DnsProvider> providers) {
+        m_providers = providers;
+    }
 }

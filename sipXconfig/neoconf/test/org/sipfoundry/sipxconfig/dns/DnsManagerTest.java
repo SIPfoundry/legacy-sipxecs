@@ -7,47 +7,76 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
+import java.util.Collection;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
 
-
-public class DnsManagerTest {
-    private DnsManagerImpl dns = new DnsManagerImpl();    
-    private AddressType any = new AddressType("any");
-    private Location l1 = new Location("one", "1");
-    private Location l2 = new Location("two", "2");
-    private Location l3 = new Location("three", "3");
-    private Address a1 = new Address(any, "1");
-    private Address a2 = new Address(any, "2");
-    private Address a3 = new Address(any, "3");    
+public class DnsManagerTest implements DnsProvider {
+    private DnsManagerImpl m_dns;
+    private AddressType m_any = new AddressType("any");
+    private Location m_l1 = new Location("one", "1");
+    private Location m_l2 = new Location("two", "2");
+    private Location m_l3 = new Location("three", "3");
+    private Address m_a1 = new Address(m_any, "1");
+    private Address m_a2 = new Address(m_any, "2");
+    private Address m_a3 = new Address(m_any, "3");
+    private DnsProvider m_dummyProvider = this;
+    
+    @Before
+    public void setUp() {
+        m_dns = new DnsManagerImpl();
+        m_dns.setProviders(Arrays.asList(m_dummyProvider));
+    }
     
     @Test
     public void singleAddress() {
-        assertNull(dns.getSingleAddress(any, null, l1));
-        assertEquals(a1, dns.getSingleAddress(any, Arrays.asList(a1), l1));
-        assertEquals(a1, dns.getSingleAddress(any, Arrays.asList(a1), l2));
-        assertEquals(a1, dns.getSingleAddress(any, Arrays.asList(a1, a2, a3), null));
-        assertEquals(a1, dns.getSingleAddress(any, Arrays.asList(a1, a2, a3), l1));
-        assertEquals(a2, dns.getSingleAddress(any, Arrays.asList(a1, a2, a3), l2));
-        assertEquals(a1, dns.getSingleAddress(any, Arrays.asList(a1, a2), l3));
+        assertNull(m_dns.getSingleAddress(m_any, null, m_l1));
+        assertEquals(m_a1, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1), m_l1));
+        assertEquals(m_a1, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1), m_l2));
+        assertEquals(m_a1, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1, m_a2, m_a3), null));
+        assertEquals(m_a1, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1, m_a2, m_a3), m_l1));
+        assertEquals(m_a2, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1, m_a2, m_a3), m_l2));
+        assertEquals(m_a1, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1, m_a2), m_l3));
     }
     
     @Test
     public void singleRRAddress() {
-        Address a1 = new Address(Registrar.TCP_ADDRESS, "1");
-        Address a2 = new Address(Registrar.TCP_ADDRESS, "2");
-        Address a3 = new Address(Registrar.TCP_ADDRESS, "3");
-        assertNull(dns.getSingleAddress(Registrar.TCP_ADDRESS, null, l1));
-        assertEquals(a1, dns.getSingleAddress(Registrar.TCP_ADDRESS, Arrays.asList(a1), l1));
-        assertEquals(a1, dns.getSingleAddress(Registrar.TCP_ADDRESS, Arrays.asList(a1), l2));
-        assertEquals(new Address(Registrar.TCP_ADDRESS, "rr.one"), dns.getSingleAddress(Registrar.TCP_ADDRESS, Arrays.asList(a1, a2, a3), l1));
+        DnsProvider provider = new DnsProvider() {
+
+            @Override
+            public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses,
+                    Location whoIsAsking) {
+                return m_a3;
+            }
+
+            @Override
+            public ResourceRecords getResourceRecords(DnsManager manager, Location whoIsAsking) {
+                return null;
+            }
+        };            
+        m_dns.setProviders(Arrays.asList(provider));
+        assertNull(m_dns.getSingleAddress(m_any, null, m_l1));
+        assertEquals(m_a1, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1), m_l1));
+        assertEquals(m_a3, m_dns.getSingleAddress(Registrar.TCP_ADDRESS, Arrays.asList(m_a1, m_a2), m_l2));
+    }
+
+    @Override
+    public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
+        return null;
+    }
+
+    @Override
+    public ResourceRecords getResourceRecords(DnsManager manager, Location whoIsAsking) {
+        return null;
     }
 }
