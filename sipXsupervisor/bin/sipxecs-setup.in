@@ -81,7 +81,7 @@ end
 def set_primary
   return false if File.exists?($secondary_dat)
   return true if File.exists?($primary_dat)
-  return false unless prompt_confirm("Is this the \e[0;31mfirst\e[m server in your cluster?")
+  return false unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
   puts "Configuring as the first server..."
   File.open($location_dat, 'w') {|f|
     f.puts('1')
@@ -146,14 +146,15 @@ def set_domain
   return if File.exists?($domain_dat)
   current_host = `hostname -s`.chomp
   current_domain = `hostname -d`.chomp
-  host = prompt_default("Enter system host name", current_host)
-  domain = prompt_default("Enter domain name", current_domain)
+  host = prompt_default("Enter system \e[0;31mhost name without the domain\e[m name", current_host)
+  domain = prompt_default("Enter \e[0;31mdomain\e[m name", current_domain)
   puts <<EOF
 \e[0;31mTip:\e[m Use '\e[0;31m#{host}.#{domain}\e[m' as your SIP domain if you are setting up for the first
-time. This can make configuration easier.  You can always change the value later.
+time or if you know you are only going to setup one server. This can make configuration
+easier.  You can always change the value later.
 EOF
-  sip_domain = prompt_default("Enter SIP domain name", domain)
-  realm = prompt_default("Enter SIP realm", sip_domain)
+  sip_domain = prompt_default("Enter \e[0;31mSIP domain\e[m name", domain)
+  realm = prompt_default("Enter \e[0;31mSIP realm\e[m", sip_domain)
   # shared secret is not really used anymore, but some servers still read it
   shared_secret = `head -c 18 /dev/urandom | base64`.chomp
   File.open($domain_dat, 'w') { |f|
