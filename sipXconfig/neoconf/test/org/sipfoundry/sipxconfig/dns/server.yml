@@ -1,0 +1,7 @@
+robin:
+ - :name: one
+   :ipv4: 1.1.1.1
+   :port: 0
+ - :name: two
+   :ipv4: 2.2.2.2
+   :port: 0

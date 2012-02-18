@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
@@ -77,11 +78,11 @@ public class DnsConfig implements ConfigProvider {
             }
 
             List<Address> proxy = am.getAddresses(ProxyManager.TCP_ADDRESS, location);
-            List<Address> reg = am.getAddresses(Registrar.TCP_ADDRESS, location);
+            List<ResourceRecords> rrs = m_dnsManager.getResourceRecords(location);
             List<Address> im = am.getAddresses(ImManager.XMPP_ADDRESS, location);
             Writer zone = new FileWriter(new File(dir, "zone.yaml"));
             try {
-                writeZoneConfig(zone, domain, all, proxy, reg, im, dns, serNo);
+                writeZoneConfig(zone, domain, all, proxy, im, dns, rrs, serNo);
             } finally {
                 IOUtils.closeQuietly(zone);
             }
@@ -117,35 +118,57 @@ public class DnsConfig implements ConfigProvider {
         config.write("dnsForwarders", fwders);
     }
 
-    void writeZoneConfig(Writer w, String domain, List<Location> all, List<Address> proxy, List<Address> reg,
-            List<Address> im, List<Address> dns, long serNo) throws IOException {
-        w.write(format("serialno: %d\n", serNo));
-        w.write("sip_protocols: [ udp, tcp, tls ]\n");
-        w.write("naptr_protocols: [ udp, tcp ]\n");
-        w.write(format("domain: %s\n", domain));
-        writeServerYaml(w, all, "proxy_servers", proxy);
-        writeServerYaml(w, all, "registrar_servers", reg);
-        writeServerYaml(w, all, "dns_servers", dns);
-        writeServerYaml(w, all, "im_servers", im);
-        writeServerYaml(w, all, "all_servers", Location.toAddresses(DnsManager.DNS_ADDRESS, all));
+    void writeZoneConfig(Writer w, String domain, List<Location> all, List<Address> proxy,
+            List<Address> im, List<Address> dns, List<ResourceRecords> rrs, long serNo) throws IOException {
+        YamlConfiguration c = new YamlConfiguration(w);
+        c.write("serialno", serNo);
+        c.write("sip_protocols", "[ udp, tcp, tls ]");
+        c.write("naptr_protocols", "[ udp, tcp ]");
+        c.write("domain", domain);
+        writeServerYaml(c, all, "proxy_servers", proxy);
+        c.startStruct("resource_records");
+        if (rrs != null) {
+            for (ResourceRecords rr : rrs) {
+                c.nextStruct();
+                writeResourceRecords(c, all, rr);
+            }
+        }
+        c.endStruct();
+        writeServerYaml(c, all, "dns_servers", dns);
+        writeServerYaml(c, all, "im_servers", im);
+        writeServerYaml(c, all, "all_servers", Location.toAddresses(DnsManager.DNS_ADDRESS, all));
     }
 
     /**
      * my-id : [ { :name: my-fqdn, :ipv4: 1.1.1.1 }, ... ]
      */
-    void writeServerYaml(Writer w, List<Location> locations, String id, List<Address> addresses) throws IOException {
-        w.write(format("%s: [ ", id));
-        int i = 0;
+    void writeServerYaml(YamlConfiguration c, List<Location> all, String id, List<Address> addresses)
+        throws IOException {
+        c.startStruct(id);
         if (addresses != null) {
-            for (Address address : addresses) {
-                if (i++ != 0) {
-                    w.write(", ");
-                }
-                String name = getHostname(locations, address.getAddress());
-                w.write(format("\n { :name: %s, :ipv4: %s }", name, address.getAddress()));
+            for (Address a : addresses) {
+                c.nextStruct();
+                writeAddress(c, all, a.getAddress(), a.getPort());
             }
         }
-        w.write(" ]\n");
+        c.endStruct();
+    }
+
+    void writeAddress(YamlConfiguration c, List<Location> all, String address, int port) throws IOException {
+        c.write(":name", getHostname(all, address));
+        c.write(":ipv4", address);
+        c.write(":port", port);
+    }
+
+    void writeResourceRecords(YamlConfiguration c, List<Location> all, ResourceRecords rr) throws IOException {
+        c.write(":proto", rr.getProto());
+        c.write(":resource", rr.getResource());
+        c.startStruct(":records");
+        for (DnsRecord r : rr.getRecords()) {
+            c.nextStruct();
+            writeAddress(c, all, r.getAddress(), r.getPort());
+        }
+        c.endStruct();
     }
 
     String getHostname(List<Location> locations, String ip) {

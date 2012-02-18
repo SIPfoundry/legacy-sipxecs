@@ -20,6 +20,7 @@
         </property>
       </bean>
     </property>
+    <property name="addressManager" ref="addressManager"/>
   </bean>
 
   <bean id="dnsConfig" class="org.sipfoundry.sipxconfig.dns.DnsConfig">

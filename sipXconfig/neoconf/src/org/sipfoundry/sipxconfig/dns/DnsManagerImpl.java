@@ -7,12 +7,12 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-import static java.lang.String.format;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -22,11 +22,16 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 
-public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvider {
+public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvider, BeanFactoryAware {
     private BeanWithSettingsDao<DnsSettings> m_settingsDao;
+    private List<DnsProvider> m_providers;
+    private ListableBeanFactory m_beanFactory;
+    private AddressManager m_addressManager;
 
     @Override
     public Address getSingleAddress(AddressType t, Collection<Address> addresses, Location whoIsAsking) {
@@ -40,11 +45,11 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
             return first;
         }
 
-        // registrar is only service that supports resource records so hardcode
-        // that logic in here. make this pluggable at some point.
-        if (t.equals(Registrar.TCP_ADDRESS)) {
-            // NOTE: drop port, it's in DNS
-            return new Address(t, format("rr.%s", whoIsAsking.getFqdn()));
+        for (DnsProvider p : getProviders()) {
+            Address rewrite = p.getAddress(this, t, addresses, whoIsAsking);
+            if (rewrite != null) {
+                return rewrite;
+            }
         }
 
         // return the address local to who is asking if available
@@ -58,6 +63,18 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
 
         // first is as good as any other
         return first;
+    }
+
+    @Override
+    public List<ResourceRecords> getResourceRecords(Location whoIsAsking) {
+        List<ResourceRecords> rrs = new ArrayList<ResourceRecords>();
+        for (DnsProvider p : getProviders()) {
+            ResourceRecords rr = p.getResourceRecords(this, whoIsAsking);
+            if (rr != null) {
+                rrs.add(rr);
+            }
+        }
+        return rrs;
     }
 
     @Override
@@ -96,5 +113,26 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
 
     public void setSettingsDao(BeanWithSettingsDao<DnsSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    List<DnsProvider> getProviders() {
+        if (m_providers == null) {
+            Map<String, DnsProvider> beanMap = m_beanFactory.getBeansOfType(DnsProvider.class, false, false);
+            m_providers = new ArrayList<DnsProvider>(beanMap.values());
+        }
+        return m_providers;
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+
+    public AddressManager getAddressManager() {
+        return m_addressManager;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

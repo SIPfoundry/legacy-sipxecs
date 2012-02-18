@@ -7,6 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.registrar;
 
+import static java.lang.String.format;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,6 +20,9 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dns.DnsManager;
+import org.sipfoundry.sipxconfig.dns.DnsProvider;
+import org.sipfoundry.sipxconfig.dns.ResourceRecords;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -28,7 +33,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, Registrar, FeatureListener {
+public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, Registrar,
+        FeatureListener, DnsProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         TCP_ADDRESS, UDP_ADDRESS, PRESENCE_MONITOR_ADDRESS, EVENT_ADDRESS
     });
@@ -123,5 +129,23 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
 
     @Override
     public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+    }
+
+    @Override
+    public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
+        if (!t.equals(Registrar.TCP_ADDRESS)) {
+            return null;
+        }
+
+        // NOTE: drop port, it's in DNS resource records
+        return new Address(t, format("rr.%s", whoIsAsking.getFqdn()));
+    }
+
+    @Override
+    public ResourceRecords getResourceRecords(DnsManager manager, Location whoIsAsking) {
+        ResourceRecords rr = new ResourceRecords("_sip._tcp", "rr");
+        Collection<Address> addresses = getAvailableAddresses(manager.getAddressManager(), TCP_ADDRESS, whoIsAsking);
+        rr.addAddresses(addresses);
+        return rr;
     }
 }
