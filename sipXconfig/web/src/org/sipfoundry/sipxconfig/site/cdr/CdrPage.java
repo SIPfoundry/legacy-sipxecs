@@ -58,9 +58,8 @@ public abstract class CdrPage extends UserBasePage {
 
     @Override
     public void pageBeginRender(PageEvent event) {
-        setCallResolverInstalled(
-                getFeatureManager().isFeatureEnabled(CdrManager.FEATURE) &&
-                getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE));
+        setCallResolverInstalled(getFeatureManager().isFeatureEnabled(CdrManager.FEATURE)
+                && getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE));
         if (!isCallResolverInstalled() && getTab().equals(ACTIVE_TAB)) {
             setTab(HISTORIC_TAB);
         }

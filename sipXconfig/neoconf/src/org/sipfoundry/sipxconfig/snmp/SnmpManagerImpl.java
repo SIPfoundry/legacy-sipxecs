@@ -8,11 +8,13 @@
 package org.sipfoundry.sipxconfig.snmp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -54,5 +56,12 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager {
 
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    @Override
+    public List<ServiceStatus> getServicesStatuses(Location location) {
+        ServiceStatus fake1 = new ServiceStatus("fake1", ServiceStatus.Status.Running, false, false);
+        ServiceStatus fake2 = new ServiceStatus("fake2", ServiceStatus.Status.Running, false, false);
+        return Arrays.asList(fake1, fake2);
     }
 }

@@ -142,5 +142,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/mongo-2.7.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-mongodb-1.0.0.M5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-commons-core-1.2.0.M2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/snmp4j-2.0.3.jar" sourcepath="/home/dhubler/Downloads/temp/snmp4j-2.0.3/src"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

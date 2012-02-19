@@ -73,6 +73,7 @@ neoconf_PKGS = \
 	saxpath \
 	serializer \
 	sipxcommons \
+	snmp4j \
 	spring-data-commons-core \
 	spring-data-mongodb \
 	spring-ldap \

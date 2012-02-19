@@ -217,7 +217,8 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
 
     }
 
-    private IPage setupWaitingPage(Restore restore, boolean restoreConfig, boolean restoreVoicemail, boolean restoreCdr) {
+    private IPage setupWaitingPage(Restore restore, boolean restoreConfig, boolean restoreVoicemail,
+        boolean restoreCdr) {
         if (restoreConfig) {
             // sets the waiting listener: it'll be notified by waiting page when this is
             // requested by the client (browser) - after it loads the waiting page
