@@ -7,10 +7,15 @@
  */
 package org.sipfoundry.sipxconfig.mwi;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class MwiSettings extends PersistableSettings {
+public class MwiSettings extends PersistableSettings implements DeployConfigOnEdit {
 
     @Override
     protected Setting loadSettings() {
@@ -36,5 +41,10 @@ public class MwiSettings extends PersistableSettings {
     @Override
     public String getBeanId() {
         return "mwiSettings";
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) Mwi.FEATURE);
     }
 }
