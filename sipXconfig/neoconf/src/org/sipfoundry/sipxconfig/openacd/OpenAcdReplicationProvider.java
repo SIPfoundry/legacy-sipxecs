@@ -58,14 +58,11 @@ public class OpenAcdReplicationProvider implements ReplicableProvider {
             replicables.add(skill);
         }
         OpenAcdSettings settings = m_openAcdContext.getSettings();
-        replicables.add(new FreeswitchMediaCommand(
-                settings.isEnabled(),
-                settings.getCNode(),
-                settings.getDialString()));
-        replicables.add(new OpenAcdAgentConfigCommand(
-                settings.getDialPlanListener()));
-        replicables.add(new OpenAcdLogConfigCommand(settings.getLogLevel(),
-                settings.getLogDir()));
+        replicables.add(new FreeswitchMediaCommand(settings.isEnabled(), settings.getCNode(), settings
+                .getDialString()));
+        replicables.add(new OpenAcdAgentConfigCommand(settings.getDialPlanListener()));
+        replicables.add(new OpenAcdLogConfigCommand(settings.getLogLevel(), settings.getLogDir()
+                + OpenAcdContext.OPENACD_LOG));
         return replicables;
     }
 

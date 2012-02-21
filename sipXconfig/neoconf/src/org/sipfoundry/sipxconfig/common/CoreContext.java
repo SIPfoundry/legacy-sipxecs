@@ -172,7 +172,7 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner {
      * Named save in order to be intercepted (for mongo replication)
      * @param user
      */
-    void saveUserToAgentGroup(User user);
+    void saveUserToAgentsGroup(User user);
 
     /**
      * Removes a user from all agents group.

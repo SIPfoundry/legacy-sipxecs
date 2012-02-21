@@ -32,6 +32,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     public static final AddressType REST_API = new AddressType("openacdRestApi", "http://%s:%d/");
     public static final String MAGIC_SKILL_GROUP_NAME = "Magic";
     public static final String GROUP_NAME_DEFAULT = "Default";
+    public static final String OPENACD_LOG = "/full.log";
 
     OpenAcdSettings getSettings();
 

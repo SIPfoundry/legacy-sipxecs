@@ -591,7 +591,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         saveUser(admin);
     }
 
-    private void createAgentGroup() {
+    private void createAgentsGroup() {
         Group agentGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, AGENT_GROUP_NAME);
         if (agentGroup == null) {
             agentGroup = new Group();
@@ -604,12 +604,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
-    public void saveUserToAgentGroup(User user) {
-        createAgentGroup();
-        Group agentGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, AGENT_GROUP_NAME);
-        if (agentGroup != null) {
-            user.addGroup(agentGroup);
-            saveUser(user);
+    public void saveUserToAgentsGroup(User user) {
+        createAgentsGroup();
+        Group allAgentsGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, AGENT_GROUP_NAME);
+        if (allAgentsGroup != null) {
+            user.getGroups().add(allAgentsGroup);
+            getHibernateTemplate().merge(user);
         }
     }
 

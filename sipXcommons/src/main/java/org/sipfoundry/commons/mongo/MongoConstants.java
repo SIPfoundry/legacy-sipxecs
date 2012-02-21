@@ -148,7 +148,7 @@ public interface MongoConstants {
     static final String DIAL_STRING = "dlst";
     static final String LISTENER_ENABLED = "lstenbl";
     static final String LOG_LEVEL = "lglvl";
-    static final String LOG_DIR = "lgdir";
+    static final String LOG_FILE = "lgfile";
     static final String ATOM = "atom";
     static final String GROUP_NAME = "grpnm";
     static final String DESCRIPTION = "dscr";

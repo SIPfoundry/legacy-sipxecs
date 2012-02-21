@@ -212,7 +212,7 @@ try_do(Name, Action, Fun, Conf, NConf) ->
 			?WARNING("Error occured while ~p ~p: ~p", [Name, Action, Err]),
 			Conf;
 		_ ->
-			?INFO("~p doing ~p", [Name, Action]),
+			?DEBUG("~p doing ~p", [Name, Action]),
 			NConf
 	end.
 

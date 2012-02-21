@@ -361,7 +361,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         checkAgent(agent);
         getHibernateTemplate().saveOrUpdate(agent);
         agent.setOldName(agent.getName());
-        m_coreContext.saveUserToAgentGroup(agent.getUser());
+        m_coreContext.saveUserToAgentsGroup(agent.getUser());
     }
 
     private void checkAgent(OpenAcdAgent agent) {
