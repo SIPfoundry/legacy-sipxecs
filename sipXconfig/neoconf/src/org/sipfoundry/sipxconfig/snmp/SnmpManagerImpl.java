@@ -7,20 +7,25 @@
  */
 package org.sipfoundry.sipxconfig.snmp;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager {
+public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeatureProvider {
     private ListableBeanFactory m_beanFactory;
     private FeatureManager m_featureManager;
     private Collection<ProcessProvider> m_processProviders;
@@ -60,8 +65,22 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager {
 
     @Override
     public List<ServiceStatus> getServicesStatuses(Location location) {
-        ServiceStatus fake1 = new ServiceStatus("fake1", ServiceStatus.Status.Running, false, false);
-        ServiceStatus fake2 = new ServiceStatus("fake2", ServiceStatus.Status.Running, false, false);
-        return Arrays.asList(fake1, fake2);
+        ProcessSnmpReader reader = new ProcessSnmpReader();
+        try {
+            List<ServiceStatus> statuses = reader.read(location.getAddress());
+            return statuses;
+        } catch (IOException e) {
+            throw new UserException("Could not get SNMP data", e);
+        }
+    }
+
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return Collections.singleton(FEATURE);
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return null;
     }
 }

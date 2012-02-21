@@ -123,5 +123,6 @@ define sipxconfig_properties
 	acdHistoryDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST
 	mongoDbFactory.connectionUrl=mongodb://127.0.0.1:27017
 	sysdir.mongo_ns=_TEST
+	setupManagerImpl.enabled=false
 endef
 export sipxconfig_properties

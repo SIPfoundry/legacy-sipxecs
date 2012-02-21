@@ -23,7 +23,6 @@ import org.springframework.context.ApplicationListener;
 
 public class FirstRunTask implements ApplicationListener {
     private static final Log LOG = LogFactory.getLog(FirstRunTask.class);
-
     private CoreContext m_coreContext;
     private AdminContext m_adminContext;
     private DomainManager m_domainManager;

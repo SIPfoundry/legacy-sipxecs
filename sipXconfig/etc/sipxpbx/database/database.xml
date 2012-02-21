@@ -407,6 +407,7 @@
     <antcall target="migrate_services" />
     <antcall target="settings_with_location" />
   	<antcall target="remove-personal-att-oper" />
+  	<antcall target="setup-ids" />
   </target>
 
   <target name="plugin-patches">
@@ -1273,6 +1274,9 @@
   </target>
   <target name="remove-personal-att-oper" unless="remove-personal-att-oper">
     <db-patch patch="remove-personal-att-oper" />
+  </target>
+  <target name="setup-ids" unless="setup-ids">
+    <db-patch patch="setup-ids" />
   </target>
 
   <!--

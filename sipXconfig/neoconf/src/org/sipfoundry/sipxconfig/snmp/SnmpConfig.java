@@ -18,15 +18,26 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 
-public class SnmpConfig implements ConfigProvider, FeatureListener {
+public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListener {
     private SnmpManager m_snmp;
     private ConfigManager m_configManager;
+
+    public void setup(SetupManager manager) {
+        if (!manager.isSetup(SnmpManager.FEATURE.getId())) {
+            // SNMP is pretty core to the system, enable it by default
+            manager.getFeatureManager().enableGlobalFeature(SnmpManager.FEATURE, true);
+            manager.setSetup(SnmpManager.FEATURE.getId());
+        }
+    }
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -34,14 +45,19 @@ public class SnmpConfig implements ConfigProvider, FeatureListener {
             return;
         }
         Set<Location> locations = request.locations(manager);
-        for (Location location : locations) {
-            File dir = manager.getLocationDataDirectory(location);
-            List<ProcessDefinition> defs = m_snmp.getProcessDefinitions(location);
-            Writer wtr = new FileWriter(new File(dir, "snmpd.conf.part"));
-            try {
-                writeProcesses(wtr, defs);
-            } finally {
-                IOUtils.closeQuietly(wtr);
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(SnmpManager.FEATURE);
+        File gdir = manager.getGlobalDataDirectory();
+        ConfigUtils.enableCfengineClass(gdir, "snmpd.cfdat", enabled, SnmpManager.FEATURE.getId());
+        if (enabled) {
+            for (Location location : locations) {
+                File dir = manager.getLocationDataDirectory(location);
+                List<ProcessDefinition> defs = m_snmp.getProcessDefinitions(location);
+                Writer wtr = new FileWriter(new File(dir, "snmpd.conf.part"));
+                try {
+                    writeProcesses(wtr, defs);
+                } finally {
+                    IOUtils.closeQuietly(wtr);
+                }
             }
         }
     }
