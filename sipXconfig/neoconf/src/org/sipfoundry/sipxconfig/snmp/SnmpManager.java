@@ -11,10 +11,13 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
 public interface SnmpManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("snmp");
+
+    public FeatureManager getFeatureManager();
 
     public List<ProcessDefinition> getProcessDefinitions(Location location);
 

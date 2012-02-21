@@ -25,7 +25,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeatureProvider {
+public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeatureProvider, ProcessProvider {
     private ListableBeanFactory m_beanFactory;
     private FeatureManager m_featureManager;
     private Collection<ProcessProvider> m_processProviders;
@@ -82,5 +82,11 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return null;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
+        return (enabled ? Collections.singleton(new ProcessDefinition("snmpd")) : null);
     }
 }

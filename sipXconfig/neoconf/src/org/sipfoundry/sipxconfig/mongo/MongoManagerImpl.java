@@ -22,8 +22,11 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager {
+public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider {
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
 
     public MongoSettings getSettings() {
@@ -68,5 +71,11 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     public void setSettingsDao(BeanWithSettingsDao<MongoSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE_ID, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("mongod")) : null);
     }
 }

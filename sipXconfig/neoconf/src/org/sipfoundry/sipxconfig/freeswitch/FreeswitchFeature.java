@@ -34,9 +34,12 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings.SystemMohSetting;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class FreeswitchFeature implements Replicable, ReplicableProvider, FeatureProvider, AliasOwner,
-        AddressProvider {
+        AddressProvider, ProcessProvider {
     public static final LocationFeature FEATURE = new LocationFeature("freeSwitch");
     public static final AddressType SIP_ADDRESS = AddressType.sip("freeswitch-sip");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("freeswitch-xmlrpc", "http://%s:%d/RPC2");
@@ -198,5 +201,11 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
 
     public void setSettingsDao(SettingsWithLocationDao<FreeswitchSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition(m_name)) : null);
     }
 }

@@ -23,11 +23,14 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvider, BeanFactoryAware {
+public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvider, BeanFactoryAware, ProcessProvider {
     private BeanWithSettingsDao<DnsSettings> m_settingsDao;
     private List<DnsProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
@@ -138,5 +141,11 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
 
     void setProviders(List<DnsProvider> providers) {
         m_providers = providers;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("named")) : null);
     }
 }

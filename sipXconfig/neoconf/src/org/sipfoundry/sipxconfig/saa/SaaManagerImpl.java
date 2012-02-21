@@ -15,8 +15,11 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class SaaManagerImpl implements FeatureProvider, SaaManager {
+public class SaaManagerImpl implements FeatureProvider, SaaManager, ProcessProvider {
     private BeanWithSettingsDao<SaaSettings> m_settingsDao;
 
     @Override
@@ -41,5 +44,11 @@ public class SaaManagerImpl implements FeatureProvider, SaaManager {
 
     public void setSettingsDao(BeanWithSettingsDao<SaaSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxsaa")) : null);
     }
 }

@@ -31,8 +31,11 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvider, FeatureListener {
+public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvider, FeatureListener, ProcessProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_UDP, SIP_TCP, HTTP_API);
     private BeanWithSettingsDao<MwiSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -128,5 +131,11 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipstatus")) : null);
     }
 }
