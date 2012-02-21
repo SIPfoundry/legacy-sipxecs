@@ -273,11 +273,11 @@ then
 
   # Configuration files.
   mkdir -p @SIPX_VARDIR@/upload
-  mkdir -p @SIPX_CONFDIR@/openacd
+  mkdir -p @OPENACD_HOME@/run
   echo -n "Restoring configuration files..."
   tar xzvC / --exclude $DB_TAR < $CONFIGURATION_PATH
   chown -R @SIPXPBXUSER@ @SIPX_VARDIR@/upload
-  chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ @SIPX_CONFDIR@/openacd
+  chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ @OPENACD_HOME@/run
   echo "done."
 
   # Re-install the local SSL files - it's always a safe thing to do.

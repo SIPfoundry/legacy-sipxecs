@@ -5,7 +5,7 @@
 parkConfig.audioDirectory=@SIPX_VARDIR@/sipxpage/music
 pagingConfiguration.audioDirectory=@SIPX_VARDIR@/sipxpage/music
 openAcdSettings.audioDirectory=@SIPX_VARDIR@/configserver/phone/acd/audio
-openAcdSettings.logDirectory=/opt/OpenACD/log
+openAcdSettings.logDirectory=@OPENACD_HOME@/log
 
 sipImpl.port=5180
 
