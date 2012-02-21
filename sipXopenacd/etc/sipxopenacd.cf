@@ -70,7 +70,7 @@ bundle edit_line sipxopenacd_app_config() {
 "
 [{'OpenACD', [
 	{console_loglevel, $(sipx.OPENACD_LOG_LEVEl)},
-	{logfiles, [{\"full.log\", $(sipx.OPENACD_LOG_LEVEl)}, {\"console.log\", $(sipx.OPENACD_LOG_LEVEl)}]},
+	{logfiles, [{\"$(sipx.OPENACD_HOME)/log/full.log\", $(sipx.OPENACD_LOG_LEVEl)}]},
 	{plugin_dir, \"plugin.d\"}, {plugins, [sipxplugin]}
 ]},
 {sasl, [
