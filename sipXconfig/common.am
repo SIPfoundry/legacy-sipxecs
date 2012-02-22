@@ -11,7 +11,8 @@ EXTRA_REPLACE = \
 	YUM_EXISTS \
 	MRTG_ENABLED \
 	IS_TEST_MODE \
-	POSTGRESQL_USER
+	POSTGRESQL_USER \
+	OPENACD_HOME
 
 neoconf_JAVAROOT = $(abspath $(top_builddir)/neoconf/src/classes)
 neoconf_JAR = $(abspath $(top_builddir)/neoconf/src/sipxconfig-neoconf.jar)

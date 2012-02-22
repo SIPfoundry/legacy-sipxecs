@@ -35,8 +35,11 @@ import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdLogConfigCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdSettings;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSkillGroup;
 import org.sipfoundry.sipxconfig.permission.Permission;
@@ -91,6 +94,10 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements Appli
             replicateEntityGroup(new BranchWorker(entity));
         } else if (entity instanceof Permission) {
             generatePermission((Permission) entity);
+        } else if (entity instanceof OpenAcdSettings) {
+            OpenAcdSettings settings = (OpenAcdSettings) entity;
+            m_replicationManager.replicateEntity(new OpenAcdLogConfigCommand(settings.getLogLevel(), settings
+                    .getLogDir() + OpenAcdContext.OPENACD_LOG));
         }
     }
 

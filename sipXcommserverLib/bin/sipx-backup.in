@@ -148,7 +148,7 @@ then
     @SIPX_VXMLDATADIR@/moh/* \
     @SIPX_VXMLDATADIR@/prompts/* \
     @SIPX_VARDIR@/sipxpage/music/* \
-    @SIPX_CONFDIR@/openacd/Mnesia*/* \
+    @OPENACD_HOME@/run/Mnesia*/* \
     $SIPX_CERTDB_DIR/* \
     "
 
