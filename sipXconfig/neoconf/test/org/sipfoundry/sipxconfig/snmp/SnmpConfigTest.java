@@ -21,9 +21,9 @@ public class SnmpConfigTest {
     @Test
     public void config() throws IOException {
         SnmpConfig config = new SnmpConfig();
-        List<ProcessDefinition> defs = Arrays.asList(new ProcessDefinition("jay"), new ProcessDefinition("robin"));
+        List<ProcessDefinition> defs = Arrays.asList(new ProcessDefinition("jay"), new ProcessDefinition("robin", ".*whatever.*"));
         StringWriter actual = new StringWriter();
         config.writeProcesses(actual, defs);
-        assertEquals("proc jay\nproc robin\n", actual.toString());
+        assertEquals("regexp_proc jay\nregexp_proc robin 0 1 .*whatever.*\n", actual.toString());
     }
 }

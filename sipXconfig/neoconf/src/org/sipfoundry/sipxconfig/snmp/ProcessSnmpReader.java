@@ -36,15 +36,24 @@ import org.snmp4j.util.TableListener;
 import org.snmp4j.util.TableUtils;
 
 public class ProcessSnmpReader {
-    private static final OID PROCESS_NAME = new OID("1.3.6.1.4.1.2021.2.1.2");
-    private static final OID PROCESS_COUNT = new OID("1.3.6.1.4.1.2021.2.1.5");
+    private static final int[] BASE_OID = new int[] {
+        1, 3, 6, 1, 4, 1, 8072, 2, 4, 1, 1, 3, 0
+    };
+    private static final OID GET = new OID(BASE_OID);
+
+    private static final OID PROCESS_NAME = new OID(BASE_OID, new int[] {
+        2
+    });
+    private static final OID PROCESS_COUNT = new OID(BASE_OID, new int[] {
+        5
+    });
     private static final Log LOG = LogFactory.getLog(ProcessSnmpReader.class);
     private List<ServiceStatus> m_statuses;
 
     public List<ServiceStatus> read(String address) throws IOException {
         m_statuses = new ArrayList<ServiceStatus>();
         LOG.info(format("Connecting to %s to get SNMP information", address));
-        Address targetAddress = GenericAddress.parse(format("udp:127.0.0.1/161", address));
+        Address targetAddress = GenericAddress.parse(format("udp:%s/161", address));
         TransportMapping< ? > transport = new DefaultUdpTransportMapping();
         Snmp snmp = new Snmp(transport);
         transport.listen();
@@ -60,8 +69,7 @@ public class ProcessSnmpReader {
         target.setSecurityLevel(SecurityLevel.NOAUTH_NOPRIV);
 
         PDU pdu = new PDU();
-        String procOid = "1.3.6.1.4.1.2021.2";
-        VariableBinding vb = new VariableBinding(new OID(procOid));
+        VariableBinding vb = new VariableBinding(GET);
         pdu.add(vb);
         pdu.setType(PDU.GETNEXT);
 

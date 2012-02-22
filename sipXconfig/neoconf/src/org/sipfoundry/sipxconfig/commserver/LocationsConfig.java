@@ -30,6 +30,7 @@ public class LocationsConfig implements ConfigProvider {
         }
 
         Set<Location> locations = request.locations(manager);
+        Location primary = manager.getLocationManager().getPrimaryLocation();
         File gdir = manager.getGlobalDataDirectory();
 
         Writer servers = new FileWriter(new File(gdir, "servers"));
@@ -43,7 +44,7 @@ public class LocationsConfig implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(location);
             Writer host = new FileWriter(new File(dir, "host.cfdat"));
             try {
-                writeHosts(host, location);
+                writeHosts(host, location, primary);
             } finally {
                 IOUtils.closeQuietly(host);
             }
@@ -63,8 +64,10 @@ public class LocationsConfig implements ConfigProvider {
     /**
      * host name the server should use
      */
-    void writeHosts(Writer w, Location l) throws IOException {
+    void writeHosts(Writer w, Location l, Location primary) throws IOException {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.write("host", l.getHostname());
+        config.write("master_address", primary.getAddress());
+        config.write("master_fqdn", primary.getFqdn());
     }
 }

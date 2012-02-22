@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -64,8 +65,14 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
 
     void writeProcesses(Writer w, List<ProcessDefinition> defs) throws IOException {
         for (ProcessDefinition def : defs) {
-            w.write("proc ");
+            w.write("regexp_proc ");
             w.write(def.getProcess());
+            String regexp = def.getRegexp();
+            if (StringUtils.isNotBlank(regexp)) {
+                // max min  (max of 0 means unlimited)
+                w.write(" 0 1 ");
+                w.write(regexp);
+            }
             w.write("\n");
         }
     }

@@ -30,7 +30,8 @@ bundle edit_line snmpd_conf {
 
   insert_lines:
     any::
-"com2sec local  localhost       public
+"com2sec local  localhost  public
+com2sec local  $(sipx.master_address) public
 group   rwgroup v1           local
 group   rwgroup v2c           local
 view    all    included   .1  80
@@ -38,11 +39,11 @@ access  rwgroup \"\"      any       noauth    exact  all none none
 syslocation Unknown
 syscontact Root <root@localhost>
 dontLogTCPWrappersConnects yes
+dlmod regexp_proc $(sipx.SIPX_LIBDIR)/snmpagent/regexp_proc.so
 ";
 
    "$(part)"
-     insert_type => "file",
-     ifvarclass => canonify(fileexists("$(part)"));
+     insert_type => "file";
 
   delete_lines:
     any::
