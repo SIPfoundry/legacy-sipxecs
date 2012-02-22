@@ -23,6 +23,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.DidInUseException;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -102,6 +103,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     public void validate(Conference conference) {
         String name = conference.getName();
         String extension = conference.getExtension();
+        String did = conference.getDid();
         if (name == null) {
             throw new UserException("A conference must have a name");
         }
@@ -115,8 +117,11 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         if (!m_aliasManager.canObjectUseAlias(conference, extension)) {
             throw new ExtensionInUseException(CONFERENCE, extension);
         }
-        if (!m_aliasManager.canObjectUseAlias(conference, conference.getDid())) {
-            throw new ExtensionInUseException(CONFERENCE, conference.getDid());
+        if (!m_aliasManager.canObjectUseAlias(conference, did)) {
+            throw new ExtensionInUseException(CONFERENCE, did);
+        }
+        if (did.equals(extension)) {
+            throw new DidInUseException(CONFERENCE, did);
         }
     }
 
