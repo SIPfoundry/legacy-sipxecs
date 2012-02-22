@@ -1,0 +1,16 @@
+742678: libnetsnmpmibs.so.30 is linked against libperl.so
+
+add perl rpath to libnetsnmpmibs.so
+
+diff -up net-snmp-5.7.1/agent/Makefile.in.orig net-snmp-5.7.1/agent/Makefile.in
+--- net-snmp-5.7.1/agent/Makefile.in.orig	2011-10-04 09:49:26.762027506 +0200
++++ net-snmp-5.7.1/agent/Makefile.in	2011-10-04 10:31:48.092899541 +0200
+@@ -302,7 +302,7 @@ libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VE
+ 	$(RANLIB) $(AGENTLIB)
+ 
+ libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION): ${LMIBOBJS} $(AGENTLIB) $(USELIBS)
+-	$(LIB_LD_CMD) $(MIBLIB) ${LMIBOBJS} $(AGENTLIB) $(USELIBS) @LD_NO_UNDEFINED@ $(LDFLAGS) ${LMIBLIBS} $(LIB_LD_LIBS) @AGENTLIBS@
++	$(LIB_LD_CMD) $(MIBLIB) ${LMIBOBJS} $(AGENTLIB) $(USELIBS) @LD_NO_UNDEFINED@ $(LDFLAGS) ${LMIBLIBS} $(PERLLDOPTS_FOR_LIBS) $(LIB_LD_LIBS) @AGENTLIBS@
+ 	$(RANLIB) $(MIBLIB)
+ 
+ agentlib: $(AGENTLIB)

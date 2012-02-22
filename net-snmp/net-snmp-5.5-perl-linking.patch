@@ -1,0 +1,16 @@
+554747 - net-snmp-config should not contain perl options
+
+Remove rpath from net-snmp-config --agent-libs output.
+
+diff -up net-snmp-5.7/net-snmp-config.in.perl-linking net-snmp-5.7/net-snmp-config.in
+--- net-snmp-5.7/net-snmp-config.in.perl-linking	2011-07-02 00:35:46.000000000 +0200
++++ net-snmp-5.7/net-snmp-config.in	2011-07-07 13:30:01.635798817 +0200
+@@ -50,7 +50,7 @@ NSC_LDFLAGS="@LDFLAGS@"
+ 
+ NSC_LIBS="@LIBS@"
+ NSC_LNETSNMPLIBS="@LNETSNMPLIBS@"
+-NSC_LAGENTLIBS="@LAGENTLIBS@ @PERLLDOPTS_FOR_APPS@"
++NSC_LAGENTLIBS="@LAGENTLIBS@"
+ NSC_LMIBLIBS="@LMIBLIBS@"
+ 
+ NSC_INCLUDEDIR=${includedir}

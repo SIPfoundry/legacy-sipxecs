@@ -1,0 +1,14 @@
+Fix a typo in libtool, seems to be related to bug #742678
+
+diff -up net-snmp-5.7.1/ltmain.sh.orig net-snmp-5.7.1/ltmain.sh
+--- net-snmp-5.7.1/ltmain.sh.orig	2011-09-28 06:53:47.000000000 +0200
++++ net-snmp-5.7.1/ltmain.sh	2011-10-04 09:48:11.022131513 +0200
+@@ -8051,7 +8051,7 @@ EOF
+ 	    elif test -n "$runpath_var"; then
+ 	      case "$perm_rpath " in
+ 	      *" $libdir "*) ;;
+-	      *) func_apped perm_rpath " $libdir" ;;
++	      *) func_append perm_rpath " $libdir" ;;
+ 	      esac
+ 	    fi
+ 	  done
