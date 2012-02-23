@@ -413,9 +413,7 @@ swrun_count_processes_by_regex(pcre *regexp)
         // need to assemble full command back so regexps can get full picture
         sprintf(fullCommand, "%s %s", entry->hrSWRunPath, entry->hrSWRunParameters);
         found = pcre_exec(regexp, NULL, fullCommand, strlen(fullCommand), 0, 0, found_ndx, 30);
-        DEBUGMSGTL(("ucd-snmp/regexp_proc", "cmdline %s, found %d\n", fullCommand, found));
         if (found > 0) {
-            DEBUGMSGTL(("ucd-snmp/regexp_proc", "Found %s\n", fullCommand, found));
             i++;
         }
     }
