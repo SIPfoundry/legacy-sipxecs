@@ -27,17 +27,20 @@ import java.util.Set;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
-import org.sipfoundry.sipxconfig.freeswitch.config.DefaultContextConfigurationTest;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.ClientInUseException;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.mongo.MongoTestIntegration;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.DefaultAgentGroupDeleteException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.QueueGroupInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.QueueInUseException;
@@ -45,17 +48,12 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.SkillInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeAction.ACTION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition.CONDITION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep.FREQUENCY;
-import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.dao.support.DataAccessUtils;
 
-import com.mongodb.Mongo;
+import com.mongodb.DBCollection;
 
-/**
- * Disabled - There were many errors. I need to discuss changes w/OpenACD group. -- Douglas
- */
-public class OpenAcdContextTestDisabled extends IntegrationTestCase {
-/*    private OpenAcdContext m_openAcdContext;
+public class OpenAcdContextTestIntegration extends MongoTestIntegration {
+    private OpenAcdContext m_openAcdContext;
     private static String[][] ACTIONS = {
         {
             "answer", ""
@@ -75,20 +73,22 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
             "erlang", "freeswitch_media_manager:! testme@192.168.1.1"
         },
     };
-    private OpenAcdContextImpl m_openAcdContextImpl;
-
     private CoreContext m_coreContext;
-    private LocationsManager m_locationsManager;
     private OpenAcdSkillGroupMigrationContext m_migrationContext;
+    private FeatureManager m_featureManager;
+
+    private DBCollection getEntityCollection() {
+        return getImdb().getCollection("entity");
+    }
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         loadDataSetXml("domain/DomainSeed.xml");
         m_migrationContext.migrateSkillGroup();
         getEntityCollection().drop();
     }
-    
+
     public static OpenAcdLine createOpenAcdLine(String extensionName) {
         OpenAcdLine extension = new OpenAcdLine();
         extension.setName(extensionName);
@@ -104,12 +104,20 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
             action.setData(ACTIONS[i][1]);
             condition.addAction(action);
         }
+        Address address = new Address(FreeswitchFeature.SIP_ADDRESS, "127.0.0.1", 1234);
+        AddressManager mockAddressManager = EasyMock.createMock(AddressManager.class);
+        mockAddressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        EasyMock.expectLastCall().andReturn(address).anyTimes();
+
+        EasyMock.replay(mockAddressManager);
+
+        extension.setAddressManager(mockAddressManager);
         return extension;
-    }    
+    }
 
     // test save open acd extension
     public void testOpenAcdLineCrud() throws Exception {
-        assertEquals(0, m_openAcdContextImpl.getLines().size());
+        assertEquals(0, m_openAcdContext.getLines().size());
         OpenAcdLine extension = createOpenAcdLine("example");
         extension.setAlias("alias");
         extension.setDid("1234567890");
@@ -216,120 +224,19 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         assertEquals(0, m_openAcdContext.getLines().size());
     }
 
-    public void testOpenAcdCommandCrud() throws Exception {
-        // test existing 'login', 'logout', 'go available' and 'release' default commands
-        assertEquals(4, m_openAcdContext.getCommands().size());
-
-
-        loadDataSetXml("commserver/seedLocations.xml");
-        loadDataSetXml("domain/DomainSeed.xml");
-
-        // test save open acd extension
-        OpenAcdCommand command = new OpenAcdCommand();
-        command.setName("test");
-        FreeswitchCondition fscondition = new FreeswitchCondition();
-        fscondition.setField("destination_number");
-        fscondition.setExpression("^*98$");
-        //fscondition.getActions().addAll((OpenAcdCommand.getDefaultActions(location)));
-        command.addCondition(fscondition);
-        m_openAcdContext.saveExtension(command);
-        assertEquals(5, m_openAcdContext.getCommands().size());
-
-        // test save extension with same name
-        try {
-            OpenAcdCommand sameNameExtension = new OpenAcdCommand();
-            sameNameExtension.setName("test");
-            FreeswitchCondition condition1 = new FreeswitchCondition();
-            condition1.setField("destination_number");
-            condition1.setExpression("^*99$");
-            sameNameExtension.addCondition(condition1);
-            m_openAcdContext.saveExtension(sameNameExtension);
-            fail();
-        } catch (NameInUseException ex) {
-        }
-
-        try {
-            OpenAcdExtension extension = new OpenAcdExtension();
-            extension.setName("tralala");
-            FreeswitchCondition condition1 = new FreeswitchCondition();
-            condition1.setField("destination_number");
-            condition1.setExpression("^*98$");
-            extension.addCondition(condition1);
-            m_openAcdContext.saveExtension(extension);
-            fail();
-        } catch (ExtensionInUseException ex) {
-        }
-
-        // test get extension by name
-        OpenAcdCommand savedExtension = (OpenAcdCommand) m_openAcdContext.getExtensionByName("test");
-        assertNotNull(command);
-        assertEquals("test", savedExtension.getName());
-        // test modify extension without changing name
-        try {
-            m_openAcdContext.saveExtension(savedExtension);
-        } catch (NameInUseException ex) {
-            fail();
-        }
-
-        // test get extension by id
-        Integer id = savedExtension.getId();
-        OpenAcdCommand extensionById = (OpenAcdCommand) m_openAcdContext.getExtensionById(id);
-        assertNotNull(extensionById);
-        assertEquals("test", extensionById.getName());
-
-        // test saved conditions and actions
-        Set<FreeswitchCondition> conditions = extensionById.getConditions();
-        assertEquals(1, conditions.size());
-        for (FreeswitchCondition condition : conditions) {
-            assertEquals(4, condition.getActions().size());
-            List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
-            actions.addAll(condition.getActions());
-            assertEquals("erlang_sendmsg", actions.get(0).getApplication());
-            assertEquals("agent_dialplan_listener  openacd@" + location.getFqdn()
-                    + " agent_login ${sip_from_user} pstn ${sip_from_uri}", actions.get(0).getData());
-            assertEquals("answer", actions.get(1).getApplication());
-            assertNull(actions.get(1).getData());
-            assertEquals("sleep", actions.get(2).getApplication());
-            assertEquals("2000", actions.get(2).getData());
-            assertEquals("hangup", actions.get(3).getApplication());
-            assertEquals("NORMAL_CLEARING", actions.get(3).getData());
-        }
-
-        // test remove extension
-        assertEquals(5, m_openAcdContext.getCommands().size());
-        m_openAcdContext.deleteExtension(extensionById);
-        assertEquals(4, m_openAcdContext.getCommands().size());
-    }
-
     public void testOpenAcdExtensionAliasProvider() throws Exception {
 
         OpenAcdLine extension = createOpenAcdLine("sales");
-        m_openAcdContextImpl.saveExtension(extension);
-        assertEquals(1, m_openAcdContextImpl.getBeanIdsOfObjectsWithAlias("sales").size());
-        assertFalse(m_openAcdContextImpl.isAliasInUse("test"));
-        assertTrue(m_openAcdContextImpl.isAliasInUse("sales"));
-        assertTrue(m_openAcdContextImpl.isAliasInUse("300"));
-
-        SipxFreeswitchService service = new MockSipxFreeswitchService();
-        service.setBeanId(SipxFreeswitchService.BEAN_ID);
-        service.setLocationsManager(m_locationsManager);
-
-        SipxServiceManager sm = TestHelper.getMockSipxServiceManager(true, service);
-        m_openAcdContext.setSipxServiceManager(sm);
-
-        OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("sales");
-
         m_openAcdContext.saveExtension(extension);
-
         assertEquals(1, m_openAcdContext.getBeanIdsOfObjectsWithAlias("sales").size());
         assertFalse(m_openAcdContext.isAliasInUse("test"));
         assertTrue(m_openAcdContext.isAliasInUse("sales"));
         assertTrue(m_openAcdContext.isAliasInUse("300"));
 
-
     }
 
     public void testOpenAcdAgentGroupCrud() throws Exception {
+        m_featureManager.enableLocationFeature(OpenAcdContext.FEATURE, new Location("localhost", "127.0.0.1"), true);
         // 'Default' agent group
         assertEquals(1, m_openAcdContext.getAgentGroups().size());
 
@@ -352,8 +259,11 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         group.setDescription("Group description");
         m_openAcdContext.saveAgentGroup(group);
         assertEquals(2, m_openAcdContext.getAgentGroups().size());
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME}, new String[]{"openacdagentgroup", "Group"});
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdagentgroup", "Group"
+        });
 
         // test save agent group with agents
         loadDataSet("common/SampleUsersSeed.xml");
@@ -363,6 +273,7 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         supervisor.setUser(alpha);
         supervisor.setPin("123456");
         supervisor.setSecurity(OpenAcdAgent.Security.SUPERVISOR.toString());
+        m_openAcdContext.saveAgent(supervisor);
 
         User beta = m_coreContext.loadUser(1002);
         OpenAcdAgent agent = new OpenAcdAgent();
@@ -370,19 +281,24 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         agent.setUser(beta);
         agent.setPin("123457");
         agent.setSecurity(OpenAcdAgent.Security.AGENT.toString());
+        m_openAcdContext.saveAgent(agent);
 
         assertEquals(0, group.getAgents().size());
-        List<OpenAcdAgent> agents = new ArrayList<OpenAcdAgent>(2);
-        agents.add(supervisor);
-        agents.add(agent);
-        m_openAcdContext.addAgentsToGroup(group, agents);
+        group.addAgent(agent);
+        group.addAgent(supervisor);
+        m_openAcdContext.saveAgentGroup(group);
+
         assertEquals(2, group.getAgents().size());
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP},
-                new String[]{"openacdagent", "alpha", "Group"});
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP},
-                new String[]{"openacdagent", "beta", "Group"});
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+        }, new String[] {
+            "openacdagent", "alpha", "Group"
+        });
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+        }, new String[] {
+            "openacdagent", "beta", "Group"
+        });
         // test save agent group with same name
         try {
             OpenAcdAgentGroup sameAgentGroupName = new OpenAcdAgentGroup();
@@ -422,23 +338,30 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         } catch (DefaultAgentGroupDeleteException e) {
         }
         m_openAcdContext.deleteAgentGroup(group);
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(),
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME}, new String[]{"openacdagentgroup", "Group"});
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP},
-                new String[]{"openacdagent", "alpha", "Group"});
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP},
-                new String[]{"openacdagent", "beta", "Group"});
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdagentgroup", "Group"
+        });
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+        }, new String[] {
+            "openacdagent", "alpha", "Group"
+        });
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+        }, new String[] {
+            "openacdagent", "beta", "Group"
+        });
         m_openAcdContext.deleteAgentGroup(anotherGroup);
         assertEquals(1, m_openAcdContext.getAgentGroups().size());
     }
 
     public void testOpenAcdAgentCrud() throws Exception {
         loadDataSet("common/SampleUsersSeed.xml");
-
         loadDataSetXml("commserver/seedLocations.xml");
         loadDataSetXml("domain/DomainSeed.xml");
+
         User charlie = m_coreContext.loadUser(1003);
 
         OpenAcdAgentGroup group = new OpenAcdAgentGroup();
@@ -451,13 +374,17 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         agent.setUser(charlie);
         agent.setPin("123456");
         m_openAcdContext.saveAgent(agent);
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP},
-                new String[]{"openacdagent", "charlie", "Group"});        
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+        }, new String[] {
+            "openacdagent", "charlie", "Group"
+        });
         group.addAgent(agent);
         m_openAcdContext.saveAgentGroup(group);
+
         assertEquals(1, m_openAcdContext.getAgents().size());
         assertEquals(1, group.getAgents().size());
+
         Set<OpenAcdAgent> agents = group.getAgents();
         OpenAcdAgent savedAgent = DataAccessUtils.singleResult(agents);
         assertEquals(charlie, savedAgent.getUser());
@@ -475,44 +402,64 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         // test add agents to group
         User delta = m_coreContext.loadUser(1004);
         User elephant = m_coreContext.loadUser(1005);
+
         OpenAcdAgentGroup newGroup = new OpenAcdAgentGroup();
         newGroup.setName("NewGroup");
-        OpenAcdAgent agent1 = new OpenAcdAgent();
-        agent1.setGroup(newGroup);
-        agent1.setPin("1234");
-        agent1.setUser(delta);
-        OpenAcdAgent agent2 = new OpenAcdAgent();
-        agent2.setGroup(newGroup);
-        agent2.setPin("123433");
-        agent2.setUser(elephant);
-        newGroup.addAgent(agent1);
-        newGroup.addAgent(agent2);
         m_openAcdContext.saveAgentGroup(newGroup);
 
         OpenAcdAgentGroup grp = m_openAcdContext.getAgentGroupByName("NewGroup");
-        assertEquals(2, grp.getAgents().size());
+
+        OpenAcdAgent agent1 = new OpenAcdAgent();
+        agent1.setGroup(grp);
+        agent1.setPin("1234");
+        agent1.setUser(delta);
+        m_openAcdContext.saveAgent(agent1);
+
+        OpenAcdAgent agent2 = new OpenAcdAgent();
+        agent2.setGroup(grp);
+        agent2.setPin("123433");
+        agent2.setUser(elephant);
+        m_openAcdContext.saveAgent(agent2);
+
+        getHibernateTemplate().flush();
+
+        /*m_openAcdContext.addAgentsToGroup(newGroup, Arrays.asList(new OpenAcdAgent[] {
+            agent1, agent2
+        }));*/
+        grp.addAgent(agent1);
+        grp.addAgent(agent2);
+        m_openAcdContext.saveAgentGroup(newGroup);
+
+        OpenAcdAgentGroup grp1 = m_openAcdContext.getAgentGroupByName("NewGroup");
+        assertEquals(2, grp1.getAgents().size());
         assertEquals(3, m_openAcdContext.getAgents().size());
 
-        // test remove agents from group
-        grp.removeAgent(agent1);
-        m_openAcdContext.saveAgentGroup(grp);
-        assertEquals(1, grp.getAgents().size());
-        
-         * here it should really be 3, but merging the group will cascade into the agent being deleted.
-         * maybe this should be fixed, but, the only place this is used is when an agent is deleted.  
-         
-        assertEquals(2, m_openAcdContext.getAgents().size());
-        //Also in this scenario, agent is not removed from mongo
-        //MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-        //        new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-        //        new String[]{"openacdagent", "delta"});  
+        // test remove agents from group -
+        // grp.removeAgent(agent1);
+        // m_openAcdContext.saveAgentGroup(grp);
+        // assertEquals(1, grp.getAgents().size());
+
+        // here it should really be 3, but merging the group will cascade into the agent being
+        // deleted.
+        // maybe this should be fixed, but, the only place this is used is when an agent is
+        // deleted.
+        // assertEquals(2, m_openAcdContext.getAgents().size());
+        // Also in this scenario, agent is not removed from mongo
+        // MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(),
+        // new String[]{MongoConstants.TYPE, MongoConstants.NAME},
+        // new String[]{"openacdagent", "delta"});
 
         // remove agents
+        newGroup.getAgents().remove(agent2);
+        m_openAcdContext.saveAgentGroup(newGroup);
         m_openAcdContext.deleteAgent(agent2);
-        assertEquals(1, m_openAcdContext.getAgents().size());
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdagent", "elephant"}); 
+
+        assertEquals(2, m_openAcdContext.getAgents().size());
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdagent", "elephant"
+        });
 
         // remove user should remove also associated agent
         User newAgent = m_coreContext.newUser();
@@ -522,10 +469,24 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         agent3.setGroup(newGroup);
         agent3.setPin("123433");
         agent3.setUser(newAgent);
-        m_openAcdContext.addAgentsToGroup(newGroup, Collections.singletonList(agent3));
-        assertEquals(2, m_openAcdContext.getAgents().size());
+        // m_openAcdContext.addAgentsToGroup(newGroup, Collections.singletonList(agent3));
+        m_openAcdContext.saveAgent(agent3);
+        assertEquals(3, m_openAcdContext.getAgents().size());
+
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdagent", "test"
+        });
+
         m_coreContext.deleteUser(newAgent);
-        assertEquals(1, m_openAcdContext.getAgents().size());
+
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdagent", "test"
+        });
+        assertEquals(2, m_openAcdContext.getAgents().size());
 
         // remove groups
         Collection<Integer> agentGroupIds = new ArrayList<Integer>();
@@ -667,9 +628,11 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         assertEquals(8, m_openAcdContext.getSkills().size());
         m_openAcdContext.saveSkill(newSkill);
         assertEquals(9, m_openAcdContext.getSkills().size());
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.GROUP_NAME},
-                new String[]{"openacdskill", "TestSkill", "Group"});
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.GROUP_NAME
+        }, new String[] {
+            "openacdskill", "TestSkill", "Group"
+        });
 
         // test remove skills but prevent 'magic' skills deletion
         assertEquals(9, m_openAcdContext.getSkills().size());
@@ -680,23 +643,29 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         }
         m_openAcdContext.deleteSkill(newSkill);
         assertEquals(8, m_openAcdContext.getSkills().size());
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP},
-                new String[]{"openacdskill", "TestSkill", "Group"});
-        
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+        }, new String[] {
+            "openacdskill", "TestSkill", "Group"
+        });
+
         OpenAcdSkill newSkill1 = new OpenAcdSkill();
         newSkill1.setName("TestSkill1");
         newSkill1.setAtom("_atom");
         newSkill1.setGroup(skillGroup);
         m_openAcdContext.saveSkill(newSkill1);
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.GROUP_NAME},
-                new String[]{"openacdskill", "TestSkill1", "Group"});
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.GROUP_NAME
+        }, new String[] {
+            "openacdskill", "TestSkill1", "Group"
+        });
         m_openAcdContext.removeSkillGroups(Collections.singletonList(skillGroup.getId()));
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP},
-                new String[]{"openacdskill", "TestSkill1", "Group"});
-        
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+        }, new String[] {
+            "openacdskill", "TestSkill1", "Group"
+        });
+
     }
 
     public void testManageAgentGroupWithSkill() throws Exception {
@@ -713,8 +682,7 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         try {
             m_openAcdContext.deleteSkill(englishSkill);
             fail();
-        }
-        catch (SkillInUseException e) {
+        } catch (SkillInUseException e) {
         }
         m_openAcdContext.deleteSkill(germanSkill);
         assertEquals(7, m_openAcdContext.getSkills().size());
@@ -743,8 +711,7 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         try {
             m_openAcdContext.deleteSkill(englishSkill);
             fail();
-        }
-        catch (SkillInUseException e) {
+        } catch (SkillInUseException e) {
         }
         m_openAcdContext.deleteSkill(germanSkill);
         assertEquals(7, m_openAcdContext.getSkills().size());
@@ -764,8 +731,7 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         try {
             m_openAcdContext.deleteSkill(englishSkill);
             fail();
-        }
-        catch (SkillInUseException e) {
+        } catch (SkillInUseException e) {
         }
         m_openAcdContext.deleteSkill(germanSkill);
         assertEquals(7, m_openAcdContext.getSkills().size());
@@ -788,8 +754,7 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         try {
             m_openAcdContext.deleteSkill(englishSkill);
             fail();
-        }
-        catch (SkillInUseException e) {
+        } catch (SkillInUseException e) {
         }
         m_openAcdContext.deleteSkill(germanSkill);
         assertEquals(7, m_openAcdContext.getSkills().size());
@@ -850,21 +815,13 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
     }
 
     public void testOpenAcdClient() throws Exception {
-        // get 'Demo Client' client
-        assertEquals(1, m_openAcdContext.getClients().size());
-
-        // test get client by name
-        OpenAcdClient defaultClient = m_openAcdContext.getClientByName("Demo Client");
-        assertNotNull(defaultClient);
-        assertEquals("Demo Client", defaultClient.getName());
-        assertEquals("00990099", defaultClient.getIdentity());
-
         // test save client
+        assertEquals(0, m_openAcdContext.getClients().size());
         OpenAcdClient client = new OpenAcdClient();
         client.setName("client");
         client.setIdentity("10101");
         m_openAcdContext.saveClient(client);
-        assertEquals(2, m_openAcdContext.getClients().size());
+        assertEquals(1, m_openAcdContext.getClients().size());
 
         // test save client with the same name
         OpenAcdClient anotherClient = new OpenAcdClient();
@@ -883,27 +840,25 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
             fail();
         } catch (UserException ex) {
         }
+
         anotherClient.setIdentity("11111");
         m_openAcdContext.saveClient(anotherClient);
-        assertEquals(3, m_openAcdContext.getClients().size());
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdclient", "client"});
-        // test remove clients but prevent 'Demo Client' deletion
-        try {
-            m_openAcdContext.deleteClient(defaultClient);
-            fail();
-        } catch (ClientInUseException e) {
-        }
+        assertEquals(2, m_openAcdContext.getClients().size());
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdclient", "client"
+        });
+
+        // test remove clients
         m_openAcdContext.deleteClient(client);
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdclient", "client"});
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdclient", "client"
+        });
         m_openAcdContext.deleteClient(anotherClient);
-        assertEquals(1, m_openAcdContext.getClients().size());
-        assertNotNull(m_openAcdContext.getClientByName("Demo Client"));
-        assertEquals("Demo Client", m_openAcdContext.getClientById(defaultClient.getId()).getName());
-        assertEquals("Demo Client", m_openAcdContext.getClientByIdentity(defaultClient.getIdentity()).getName());
+        assertEquals(0, m_openAcdContext.getClients().size());
     }
 
     public void testOpenAcdQueueGroupCrud() throws Exception {
@@ -927,10 +882,12 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         group.setName("QueueGroup");
         m_openAcdContext.saveQueueGroup(group);
         assertEquals(2, m_openAcdContext.getQueueGroups().size());
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdqueuegroup", "QueueGroup"});
-        
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdqueuegroup", "QueueGroup"
+        });
+
         // test get queue group by id
         OpenAcdQueueGroup existingQueueGroup = m_openAcdContext.getQueueGroupById(group.getId());
         assertNotNull(existingQueueGroup);
@@ -969,9 +926,11 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         } catch (QueueGroupInUseException e) {
         }
         m_openAcdContext.deleteQueueGroup(group);
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdqueuegroup", "QueueGroup"});        
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdqueuegroup", "QueueGroup"
+        });
         m_openAcdContext.deleteQueueGroup(groupWithSkills);
         assertEquals(1, m_openAcdContext.getQueueGroups().size());
         assertNotNull(m_openAcdContext.getQueueGroupByName("Default"));
@@ -1002,9 +961,11 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         queue.setGroup(defaultQueueGroup);
         m_openAcdContext.saveQueue(queue);
         assertEquals(2, m_openAcdContext.getQueues().size());
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdqueue", "Queue1"});        
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdqueue", "Queue1"
+        });
 
         // test get queue by id
         OpenAcdQueue existingQueue = m_openAcdContext.getQueueById(queue.getId());
@@ -1093,17 +1054,19 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         queueIds.add(queue.getId());
         queueIds.add(queueWithSkills.getId());
         try {
-            m_openAcdContext.deleteQueue(defaultQueue);    
+            m_openAcdContext.deleteQueue(defaultQueue);
             fail();
         } catch (QueueInUseException e) {
         }
         m_openAcdContext.deleteQueue(queue);
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdqueue", "Queue1"});  
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdqueue", "Queue1"
+        });
         m_openAcdContext.deleteQueue(queueWithSkills);
         assertEquals(1, m_openAcdContext.getQueues().size());
-        
+
         OpenAcdQueueGroup group = new OpenAcdQueueGroup();
         group.setName("QueueGroup");
         group.addQueue(anotherQueue);
@@ -1111,13 +1074,17 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         anotherQueue.setGroup(group);
         m_openAcdContext.saveQueueGroup(group);
         m_openAcdContext.saveQueue(anotherQueue);
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdqueue", "q2"}); 
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdqueue", "q2"
+        });
         m_openAcdContext.deleteQueueGroup(group);
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), 
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdqueue", "q2"}); 
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdqueue", "q2"
+        });
     }
 
     public void testGroupedSkills() throws Exception {
@@ -1151,11 +1118,11 @@ public class OpenAcdContextTestDisabled extends IntegrationTestCase {
         m_coreContext = coreContext;
     }
 
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
     public void setOpenAcdSkillGroupMigrationContext(OpenAcdSkillGroupMigrationContext migrationContext) {
         m_migrationContext = migrationContext;
-    }*/
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
 }

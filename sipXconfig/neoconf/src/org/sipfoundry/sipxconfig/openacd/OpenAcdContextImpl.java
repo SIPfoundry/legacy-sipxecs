@@ -40,7 +40,9 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -54,7 +56,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
-        FeatureProvider, AddressProvider {
+        FeatureProvider, AddressProvider, DaoEventListener {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -70,7 +72,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
     private static final String DEFAULT_QUEUE = "default_queue";
-    private static final String DEFAULT_CLIENT = "Demo Client";
     private static final String FS_ACTIONS_WITH_DATA = "freeswitchActionsWithData";
 
     private AliasManager m_aliasManager;
@@ -78,6 +79,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private BeanWithSettingsDao<OpenAcdSettings> m_settingsDao;
     private ListableBeanFactory m_beanFactory;
     private CoreContext m_coreContext;
+    private ReplicationManager m_replicationManager;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
@@ -328,14 +330,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     public class DefaultAgentGroupDeleteException extends UserException {
-    }
-
-    public void addAgentsToGroup(OpenAcdAgentGroup agentGroup, Collection<OpenAcdAgent> agents) {
-        for (OpenAcdAgent agent : agents) {
-            agentGroup.addAgent(agent);
-            agent.setGroup(agentGroup);
-        }
-        saveAgentGroup(agentGroup);
     }
 
     public List<OpenAcdAgent> getAgents() {
@@ -629,14 +623,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (client.isNew()) {
             getHibernateTemplate().save(client);
         } else {
-            if (isNameChanged(client)) {
-                // don't rename the default client
-                OpenAcdClient defaultClient = getClientByName(DEFAULT_CLIENT);
-                if (defaultClient != null && defaultClient.getId().equals(client.getId())) {
-                    throw new UserException("&msg.err.defaultClientRename");
-                }
-            }
-
             getHibernateTemplate().merge(client);
         }
     }
@@ -680,7 +666,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void deleteClient(OpenAcdClient client) {
-        if (client.getName().equals(DEFAULT_CLIENT) || isUsedByLine(OpenAcdLine.BRAND + client.getIdentity())) {
+        if (isUsedByLine(OpenAcdLine.BRAND + client.getIdentity())) {
             throw new ClientInUseException();
         } else {
             getHibernateTemplate().delete(client);
@@ -898,7 +884,11 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     public void onSave(Object entity) {
-
+        if (entity instanceof OpenAcdSettings) {
+            OpenAcdSettings settings = (OpenAcdSettings) entity;
+            m_replicationManager.replicateEntity(new OpenAcdLogConfigCommand(settings.getLogLevel(), settings
+                    .getLogDir() + OpenAcdContext.OPENACD_LOG));
+        }
     }
 
     public void onDelete(Object entity) {
@@ -906,8 +896,29 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             User user = (User) entity;
             OpenAcdAgent agent = getAgentByUser(user);
             if (agent != null) {
-                deleteAgent(agent);
-                getHibernateTemplate().flush();
+                //must manually de-associate group-agent
+                agent.getGroup().removeAgent(agent);
+                getDaoEventPublisher().publishDelete(agent);
+                //do not call deleteAgent here b/c it will re-insert user into mongo
+                //(we don't care about user-group association update since the user is deleted anyway)
+                getHibernateTemplate().delete(agent);
+            }
+        } else if (entity instanceof OpenAcdQueueGroup) {
+            getHibernateTemplate().flush();
+            OpenAcdQueueGroup qgr = (OpenAcdQueueGroup) entity;
+            for (OpenAcdQueue q : qgr.getQueues()) {
+                m_replicationManager.removeEntity(q);
+            }
+        } else if (entity instanceof OpenAcdAgentGroup) {
+            OpenAcdAgentGroup aggr = (OpenAcdAgentGroup) entity;
+            for (OpenAcdAgent agent : aggr.getAgents()) {
+                m_replicationManager.removeEntity(agent);
+            }
+        } else if (entity instanceof OpenAcdSkillGroup) {
+            getHibernateTemplate().flush();
+            OpenAcdSkillGroup skillGroup = (OpenAcdSkillGroup) entity;
+            for (OpenAcdSkill skill : skillGroup.getSkills()) {
+                m_replicationManager.removeEntity(skill);
             }
         }
     }
@@ -936,5 +947,9 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
     }
 }

@@ -16,6 +16,7 @@
   <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl" parent="abstractDaoImpl">
     <property name="aliasManager" ref="aliasManager" />
     <property name="featureManager" ref="featureManager" />
+    <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">

@@ -26,6 +26,7 @@
      <!-- 4.4 feature compatibility -->
      <packagereq type="mandatory">sipxconfig-ftp</packagereq>
      <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <packagereq type="mandatory">sipxsnmp</packagereq>
    </packagelist>
   </group>
   <group>
@@ -44,6 +45,7 @@
      <packagereq type="mandatory">sipxopenfire</packagereq>
      <packagereq type="mandatory">sipxfreeswitch</packagereq>
      <packagereq type="mandatory">sipxdns</packagereq>
+     <packagereq type="mandatory">sipxsnmp</packagereq>
    </packagelist>
   </group>
 </comps>
