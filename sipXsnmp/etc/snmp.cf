@@ -72,8 +72,10 @@ bundle agent snmp_running {
         comment => "start snmp",
         args => "start";
 
+    # reload (-HUP) seems to kill snmpd process and not
+    # start it back up again. 
     snmp.snmp_running.reload_snmp::
       "$(service)"
-        comment => "reload snmp",
-        args => "reload";
+        comment => "restart snmp",
+        args => "restart";
 }

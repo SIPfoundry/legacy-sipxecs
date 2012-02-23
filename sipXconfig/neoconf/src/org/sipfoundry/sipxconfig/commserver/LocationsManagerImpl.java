@@ -24,10 +24,12 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
+public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager, SetupListener {
     public static final Log LOG = LogFactory.getLog(LocationsManagerImpl.class);
     private static final String LOCATION_PROP_NAME = "fqdn";
     private static final String LOCATION_PROP_PRIMARY = "primary";
@@ -162,5 +164,14 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public void setup(SetupManager manager) {
+        if (!manager.isSetup(LocationsManager.FEATURE.getId())) {
+            // Need that host.cfdat file for at least snmpd
+            manager.getFeatureManager().enableGlobalFeature(LocationsManager.FEATURE, true);
+            manager.setSetup(LocationsManager.FEATURE.getId());
+        }
     }
 }
