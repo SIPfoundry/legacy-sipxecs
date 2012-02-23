@@ -21,8 +21,11 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot {
+public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, ProcessProvider {
     private BeanWithSettingsDao<ImBotSettings> m_settingsDao;
 
     public ImBotSettings getSettings() {
@@ -66,5 +69,12 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot {
 
     public void setSettingsDao(BeanWithSettingsDao<ImBotSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipximbot",
+                ".*\\s-Dprocname=sipximbot\\s.*")) : null);
     }
 }

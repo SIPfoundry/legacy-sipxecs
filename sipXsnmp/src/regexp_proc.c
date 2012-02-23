@@ -219,6 +219,7 @@ regexp_proc_parse_config(const char *token, char *cptr)
             (*procp)->min = atoi(cptr);
             cptr = skip_not_white(cptr);
             if ((cptr = skip_white(cptr))) {
+                DEBUGMSGTL(("ucd-snmp/regexp_proc", "Loading regex %s\n", cptr));
                 (*procp)->regexp = pcre_compile(cptr, 0,  &pcre_error, &pcre_error_offset, NULL);
                 if ((*procp)->regexp == NULL) {
                     config_perror(pcre_error);
@@ -383,7 +384,6 @@ sh_count_regexp_procs(char *procname, pcre *regexp)
 {
     int count;
     if (regexp != NULL) {
-        DEBUGMSGTL(("ucd-snmp/regexp_proc", "search for %s by regex %d\n", procname, regexp));
         count = swrun_count_processes_by_regex( regexp );
     } else {
         count = swrun_count_processes_by_name( procname );
@@ -400,6 +400,7 @@ swrun_count_processes_by_regex(pcre *regexp)
     int i = 0;
     int found_ndx[30];
     int found;
+    char fullCommand[64 + 128 + 128 + 3];
 
     netsnmp_cache *swrun_cache = netsnmp_swrun_cache();
     netsnmp_container *swrun_container = netsnmp_swrun_container();
@@ -409,11 +410,14 @@ swrun_count_processes_by_regex(pcre *regexp)
 
     it = CONTAINER_ITERATOR( swrun_container );
     while ((entry = (netsnmp_swrun_entry*)ITERATOR_NEXT( it )) != NULL) {
-        found = pcre_exec(regexp, NULL, entry->hrSWRunParameters,
-                entry->hrSWRunParameters_len, 0, 0, found_ndx, 30);
-        DEBUGMSGTL(("ucd-snmp/regexp_proc", "cmdline %s, found %d\n", entry->hrSWRunParameters, found));
-        if (found > 0)
+        // need to assemble full command back so regexps can get full picture
+        sprintf(fullCommand, "%s %s", entry->hrSWRunPath, entry->hrSWRunParameters);
+        found = pcre_exec(regexp, NULL, fullCommand, strlen(fullCommand), 0, 0, found_ndx, 30);
+        DEBUGMSGTL(("ucd-snmp/regexp_proc", "cmdline %s, found %d\n", fullCommand, found));
+        if (found > 0) {
+            DEBUGMSGTL(("ucd-snmp/regexp_proc", "Found %s\n", fullCommand, found));
             i++;
+        }
     }
     ITERATOR_RELEASE( it );
 

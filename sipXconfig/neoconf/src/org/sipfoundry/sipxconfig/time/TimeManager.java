@@ -11,7 +11,10 @@ package org.sipfoundry.sipxconfig.time;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+
 public interface TimeManager {
+    static final GlobalFeature FEATURE = new GlobalFeature("ntpd");
     static final String CONTEXT_BEAN_NAME = "timeManager";
 
     void setSystemDate(String dateString);

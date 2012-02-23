@@ -21,8 +21,11 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class ProvisionImpl implements FeatureProvider, AddressProvider, Provision {
+public class ProvisionImpl implements FeatureProvider, AddressProvider, Provision, ProcessProvider {
     private BeanWithSettingsDao<ProvisionSettings> m_settingsDao;
 
     public ProvisionSettings getSettings() {
@@ -66,5 +69,12 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
 
     public void setSettingsDao(BeanWithSettingsDao<ProvisionSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxprovision",
+            ".*-Dprocname=sipxprovision.*")) : null);
     }
 }

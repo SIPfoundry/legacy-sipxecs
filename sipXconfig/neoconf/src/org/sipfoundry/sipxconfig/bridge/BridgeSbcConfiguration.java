@@ -9,6 +9,8 @@ package org.sipfoundry.sipxconfig.bridge;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -24,9 +26,14 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
 
-public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
+public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener, ProcessProvider {
+    // uses of this definition are not related, just defined in one place to avoid checkstyle err
+    private static final String SIPXBRIDGE = "sipxbridge";
     private SbcDeviceManager m_sbcDeviceManager;
 
     @Override
@@ -43,7 +50,7 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
                 Location location = bridge.getLocation();
                 boolean bridgeHere = l.getId().equals(location.getId());
                 File dir = manager.getLocationDataDirectory(location);
-                ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, "sipxbridge");
+                ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, SIPXBRIDGE);
                 boolean proxyHere = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
                 // Proxy source reads sipxbrige.xml to find how to connect to bridge
                 if (bridgeHere || proxyHere) {
@@ -86,5 +93,12 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
 
     public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
         m_sbcDeviceManager = sbcDeviceManager;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition(SIPXBRIDGE,
+                ".*\\s-Dprocname=sipxbridge\\s.*")) : null);
     }
 }

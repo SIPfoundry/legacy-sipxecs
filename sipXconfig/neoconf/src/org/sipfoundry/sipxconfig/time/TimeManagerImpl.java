@@ -16,6 +16,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -24,8 +26,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class TimeManagerImpl implements TimeManager {
+public class TimeManagerImpl implements TimeManager, ProcessProvider {
     private static final String SIPX_SUDO_TIME = "sipx-sudo-time-manager";
     private static final String SIPX_TIME = "sipx-time-manager";
     private static final String TIMEZONE_BINARY = "sipx-sudo-timezone";
@@ -271,5 +277,11 @@ public class TimeManagerImpl implements TimeManager {
         public String getErrorOutput() {
             return m_errorOutput;
         }
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
+        return (enabled ? Collections.singleton(new ProcessDefinition("ntpd")) : null);
     }
 }

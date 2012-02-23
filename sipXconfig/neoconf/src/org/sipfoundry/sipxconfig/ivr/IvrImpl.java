@@ -21,8 +21,11 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class IvrImpl implements FeatureProvider, AddressProvider, Ivr {
+public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessProvider {
     private BeanWithSettingsDao<IvrSettings> m_settingsDao;
     private BeanWithSettingsDao<CallPilotSettings> m_pilotSettingsDao;
 
@@ -84,4 +87,10 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr {
         m_pilotSettingsDao = pilotSettingsDao;
     }
 
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxivr",
+            ".*\\s-Dprocname=sipxivr\\s.*")) : null);
+    }
 }

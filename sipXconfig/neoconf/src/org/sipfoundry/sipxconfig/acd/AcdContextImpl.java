@@ -40,13 +40,17 @@ import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware, DaoEventListener {
+public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
+        DaoEventListener, ProcessProvider {
     public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);
     private static final String NAME_PROPERTY = "name";
     private static final String SERVER_PARAM = "acdServer";
@@ -543,5 +547,11 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         if (server != null) {
             getHibernateTemplate().delete(server);
         }
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(Acd.FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxacd")) : null);
     }
 }

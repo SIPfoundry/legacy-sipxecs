@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -26,8 +28,12 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class FtpContextImpl implements FtpContext {
+public class FtpContextImpl implements FtpContext, ProcessProvider {
     private static final Log LOG = LogFactory.getLog(FtpContextImpl.class);
 
     private static final String UP = "..";
@@ -235,5 +241,10 @@ public class FtpContextImpl implements FtpContext {
 
     public void setUserId(String userId) {
         m_userId = userId;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        return (location.isPrimary() ? Collections.singleton(new ProcessDefinition("vsftpd")) : null);
     }
 }

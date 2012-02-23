@@ -22,8 +22,11 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class RestServerImpl implements FeatureProvider, AddressProvider, RestServer {
+public class RestServerImpl implements FeatureProvider, AddressProvider, RestServer, ProcessProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTPS_API, EXTERNAL_API, SIP_TCP);
     private BeanWithSettingsDao<RestServerSettings> m_settingsDao;
 
@@ -78,5 +81,12 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
 
     public void setSettingsDao(BeanWithSettingsDao<RestServerSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxrest", ".*\\s-Dprocname=sipxrest\\s.*"))
+                : null);
     }
 }

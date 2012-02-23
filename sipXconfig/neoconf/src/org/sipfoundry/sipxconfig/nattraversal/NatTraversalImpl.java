@@ -17,9 +17,13 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureProvider {
+public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureProvider, ProcessProvider {
     private BeanWithSettingsDao<NatSettings> m_settingsDao;
 
     public NatSettings getSettings() {
@@ -66,5 +70,13 @@ public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureP
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return null;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean relayEnabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
+        boolean proxyEnabled = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
+        return (relayEnabled && proxyEnabled ? Collections.singleton(new ProcessDefinition("sipxrelay",
+            ".*\\s-Dprocname=sipxrelay\\s.*")) : null);
     }
 }
