@@ -17,7 +17,6 @@
 package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -42,7 +41,6 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.mongo.MongoTestIntegration;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.ClientInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.DefaultAgentGroupDeleteException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.QueueGroupInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.QueueInUseException;
@@ -289,7 +287,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         group.addAgent(agent);
         group.addAgent(supervisor);
         m_openAcdContext.saveAgentGroup(group);
-        
+
         assertEquals(2, group.getAgents().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
             MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
@@ -408,7 +406,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         OpenAcdAgentGroup newGroup = new OpenAcdAgentGroup();
         newGroup.setName("NewGroup");
         m_openAcdContext.saveAgentGroup(newGroup);
-        
+
         OpenAcdAgentGroup grp = m_openAcdContext.getAgentGroupByName("NewGroup");
 
         OpenAcdAgent agent1 = new OpenAcdAgent();
@@ -817,21 +815,13 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
     }
 
     public void testOpenAcdClient() throws Exception {
-        // get 'Demo Client' client
-        assertEquals(1, m_openAcdContext.getClients().size());
-
-        // test get client by name
-        OpenAcdClient defaultClient = m_openAcdContext.getClientByName("Demo Client");
-        assertNotNull(defaultClient);
-        assertEquals("Demo Client", defaultClient.getName());
-        assertEquals("00990099", defaultClient.getIdentity());
-
         // test save client
+        assertEquals(0, m_openAcdContext.getClients().size());
         OpenAcdClient client = new OpenAcdClient();
         client.setName("client");
         client.setIdentity("10101");
         m_openAcdContext.saveClient(client);
-        assertEquals(2, m_openAcdContext.getClients().size());
+        assertEquals(1, m_openAcdContext.getClients().size());
 
         // test save client with the same name
         OpenAcdClient anotherClient = new OpenAcdClient();
@@ -850,20 +840,17 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
             fail();
         } catch (UserException ex) {
         }
+
         anotherClient.setIdentity("11111");
         m_openAcdContext.saveClient(anotherClient);
-        assertEquals(3, m_openAcdContext.getClients().size());
+        assertEquals(2, m_openAcdContext.getClients().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
             MongoConstants.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdclient", "client"
         });
-        // test remove clients but prevent 'Demo Client' deletion
-        try {
-            m_openAcdContext.deleteClient(defaultClient);
-            fail();
-        } catch (ClientInUseException e) {
-        }
+
+        // test remove clients
         m_openAcdContext.deleteClient(client);
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
             MongoConstants.TYPE, MongoConstants.NAME
@@ -871,10 +858,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
             "openacdclient", "client"
         });
         m_openAcdContext.deleteClient(anotherClient);
-        assertEquals(1, m_openAcdContext.getClients().size());
-        assertNotNull(m_openAcdContext.getClientByName("Demo Client"));
-        assertEquals("Demo Client", m_openAcdContext.getClientById(defaultClient.getId()).getName());
-        assertEquals("Demo Client", m_openAcdContext.getClientByIdentity(defaultClient.getIdentity()).getName());
+        assertEquals(0, m_openAcdContext.getClients().size());
     }
 
     public void testOpenAcdQueueGroupCrud() throws Exception {

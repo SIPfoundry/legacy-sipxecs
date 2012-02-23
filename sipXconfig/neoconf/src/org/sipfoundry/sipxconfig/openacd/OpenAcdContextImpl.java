@@ -72,7 +72,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
     private static final String DEFAULT_QUEUE = "default_queue";
-    private static final String DEFAULT_CLIENT = "Demo Client";
     private static final String FS_ACTIONS_WITH_DATA = "freeswitchActionsWithData";
 
     private AliasManager m_aliasManager;
@@ -624,14 +623,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (client.isNew()) {
             getHibernateTemplate().save(client);
         } else {
-            if (isNameChanged(client)) {
-                // don't rename the default client
-                OpenAcdClient defaultClient = getClientByName(DEFAULT_CLIENT);
-                if (defaultClient != null && defaultClient.getId().equals(client.getId())) {
-                    throw new UserException("&msg.err.defaultClientRename");
-                }
-            }
-
             getHibernateTemplate().merge(client);
         }
     }
@@ -675,7 +666,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void deleteClient(OpenAcdClient client) {
-        if (client.getName().equals(DEFAULT_CLIENT) || isUsedByLine(OpenAcdLine.BRAND + client.getIdentity())) {
+        if (isUsedByLine(OpenAcdLine.BRAND + client.getIdentity())) {
             throw new ClientInUseException();
         } else {
             getHibernateTemplate().delete(client);
