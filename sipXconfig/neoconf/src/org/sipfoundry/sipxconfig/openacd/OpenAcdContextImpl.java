@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -79,6 +80,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private BeanWithSettingsDao<OpenAcdSettings> m_settingsDao;
     private ListableBeanFactory m_beanFactory;
     private CoreContext m_coreContext;
+    private ReplicationManager m_replicationManager;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
@@ -891,7 +893,11 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     public void onSave(Object entity) {
-
+        if (entity instanceof OpenAcdSettings) {
+            OpenAcdSettings settings = (OpenAcdSettings) entity;
+            m_replicationManager.replicateEntity(new OpenAcdLogConfigCommand(settings.getLogLevel(), settings
+                    .getLogDir() + OpenAcdContext.OPENACD_LOG));
+        }
     }
 
     public void onDelete(Object entity) {
@@ -905,6 +911,23 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
                 //do not call deleteAgent here b/c it will re-insert user into mongo
                 //(we don't care about user-group association update since the user is deleted anyway)
                 getHibernateTemplate().delete(agent);
+            }
+        } else if (entity instanceof OpenAcdQueueGroup) {
+            getHibernateTemplate().flush();
+            OpenAcdQueueGroup qgr = (OpenAcdQueueGroup) entity;
+            for (OpenAcdQueue q : qgr.getQueues()) {
+                m_replicationManager.removeEntity(q);
+            }
+        } else if (entity instanceof OpenAcdAgentGroup) {
+            OpenAcdAgentGroup aggr = (OpenAcdAgentGroup) entity;
+            for (OpenAcdAgent agent : aggr.getAgents()) {
+                m_replicationManager.removeEntity(agent);
+            }
+        } else if (entity instanceof OpenAcdSkillGroup) {
+            getHibernateTemplate().flush();
+            OpenAcdSkillGroup skillGroup = (OpenAcdSkillGroup) entity;
+            for (OpenAcdSkill skill : skillGroup.getSkills()) {
+                m_replicationManager.removeEntity(skill);
             }
         }
     }
@@ -935,4 +958,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         m_coreContext = coreContext;
     }
 
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
+    }
 }
