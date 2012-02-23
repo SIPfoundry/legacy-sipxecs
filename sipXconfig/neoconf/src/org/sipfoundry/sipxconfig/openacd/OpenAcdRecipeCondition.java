@@ -75,6 +75,16 @@ public class OpenAcdRecipeCondition implements Serializable {
             public String toString() {
                 return "client_calls_queued";
             }
+        },
+        CALLER_ID {
+            public String toString() {
+                return "caller_id";
+            }
+        },
+        CALLER_NAME {
+            public String toString() {
+                return "caller_name";
+            }
         }
     }
 

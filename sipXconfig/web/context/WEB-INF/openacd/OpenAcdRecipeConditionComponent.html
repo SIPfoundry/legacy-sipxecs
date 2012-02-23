@@ -44,9 +44,17 @@
 		        value="ognl:hour" translator="translator:date,pattern=HH"/>
 	        </span>
 	        <span jwcid="@Else">
-		      <span jwcid="@PropertySelection" id="ognl:'conditionValue_' + index"
-		        model="ognl:selectMediaTypeModel"
-		        value="ognl:mediaType" />
+	          <span jwcid="@If" condition="ognl:mediaTypeComponent">
+		        <span jwcid="@PropertySelection" id="ognl:'conditionValue_' + index"
+		          model="ognl:selectMediaTypeModel"
+		          value="ognl:mediaType" />
+		      </span>
+		      <span jwcid="@Else">
+		        <span jwcid="@TextField" id="ognl:'conditionValue_' + index" size="8"
+		          value="ognl:recipeCondition.valueCondition"
+		          validators="validators:required"
+		          displayName="message:condition.value" />
+		      </span>
 	        </span>
 	      </span>
 	    </span>
