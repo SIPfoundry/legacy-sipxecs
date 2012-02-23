@@ -68,7 +68,9 @@ BuildRequires: mysql-devel
 BuildRequires: net-tools
 # for make test
 BuildRequires: perl(TAP::Harness)
+%if  0%{?fedora} >= 15
 BuildRequires: systemd-units
+%endif
 %ifnarch s390 s390x
 BuildRequires: lm_sensors-devel >= 3
 %endif

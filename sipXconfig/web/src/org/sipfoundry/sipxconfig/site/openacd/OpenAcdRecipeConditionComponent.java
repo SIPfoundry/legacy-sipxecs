@@ -178,7 +178,9 @@ public abstract class OpenAcdRecipeConditionComponent extends BaseComponent {
         Map<String, String> types2Labels = new LinkedHashMap<String, String>();
         types2Labels.put(RELATION.IS.toString(), getMessages().getMessage(RELATION.IS.toString()));
 
-        if (condition.equals(CONDITION.CLIENT.toString()) || condition.equals(CONDITION.MEDIA_TYPE.toString())) {
+        if (condition.equals(CONDITION.CLIENT.toString()) || condition.equals(CONDITION.MEDIA_TYPE.toString())
+                || condition.equals(CONDITION.CALLER_NAME.toString())
+                || condition.equals(CONDITION.CALLER_ID.toString())) {
             types2Labels.put(RELATION.NOT.toString(), getMessages().getMessage(RELATION.NOT.toString()));
         } else {
             if (!condition.equals(CONDITION.TICK_INTERVAL.toString())) {
@@ -203,8 +205,6 @@ public abstract class OpenAcdRecipeConditionComponent extends BaseComponent {
 
     public boolean isNumberComponent() {
         String condition = getRecipeCondition().getCondition();
-        // TODO
-        //return !(condition.equals(CONDITION.CLIENT.toString()) || condition.equals(CONDITION.MEDIA_TYPE.toString()));
         return (condition.equals(CONDITION.TICK_INTERVAL.toString())
                 || condition.equals(CONDITION.AGENTS_AVAILABLE.toString())
                 || condition.equals(CONDITION.AGENTS_ELIGIBLE.toString())
