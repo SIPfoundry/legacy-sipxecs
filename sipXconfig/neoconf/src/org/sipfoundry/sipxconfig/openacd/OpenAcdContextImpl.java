@@ -40,6 +40,7 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -54,7 +55,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
-        FeatureProvider, AddressProvider {
+        FeatureProvider, AddressProvider, DaoEventListener {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -330,6 +331,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     public class DefaultAgentGroupDeleteException extends UserException {
     }
 
+    @Deprecated
     public void addAgentsToGroup(OpenAcdAgentGroup agentGroup, Collection<OpenAcdAgent> agents) {
         for (OpenAcdAgent agent : agents) {
             agentGroup.addAgent(agent);
@@ -906,8 +908,12 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             User user = (User) entity;
             OpenAcdAgent agent = getAgentByUser(user);
             if (agent != null) {
-                deleteAgent(agent);
-                getHibernateTemplate().flush();
+                //must manually de-associate group-agent
+                agent.getGroup().removeAgent(agent);
+                getDaoEventPublisher().publishDelete(agent);
+                //do not call deleteAgent here b/c it will re-insert user into mongo
+                //(we don't care about user-group association update since the user is deleted anyway)
+                getHibernateTemplate().delete(agent);
             }
         }
     }
@@ -937,4 +943,5 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
+
 }
