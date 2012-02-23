@@ -67,15 +67,18 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
             // make sure we have correct bean ID persisted
             if (!location.isNew()) {
                 setLocationId(location.getId());
-                setTab(CONFIG_TAB);
             }
             return;
         }
         if (getLocationId() != null) {
             location = getLocationsManager().getLocation(getLocationId());
             setRegistered(location.isRegistered());
+            if (!location.isRegistered()) {
+                setTab(CONFIG_TAB);
+            }
         } else {
             location = new Location();
+            setTab(CONFIG_TAB);
         }
         setLocationBean(location);
     }
