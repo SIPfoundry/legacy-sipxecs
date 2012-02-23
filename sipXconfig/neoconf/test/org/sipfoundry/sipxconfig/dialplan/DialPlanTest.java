@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
+
 import junit.framework.TestCase;
 
 public class DialPlanTest extends TestCase {
@@ -71,7 +73,7 @@ public class DialPlanTest extends TestCase {
         // VoicemailRedirect rule should always be present and be last in the
         // list of rules
         DialPlan out = new DialPlan();
-        List<DialingRule> defaultRules = out.getGenerationRules();
+        List<DialingRule> defaultRules = out.getGenerationRules(new Location());
         assertTrue(defaultRules.size() > 0);
         assertTrue(defaultRules.get(defaultRules.size() - 1) instanceof VoicemailRedirectRule);
     }

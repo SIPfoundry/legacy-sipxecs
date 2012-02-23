@@ -101,11 +101,11 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
     }
 
     @Override
-    public ResourceRecords getResourceRecords(DnsManager manager, Location whoIsAsking) {
+    public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
         ResourceRecords rr = new ResourceRecords("_sip._tcp", "mwi");
         Collection<Address> addresses = getAvailableAddresses(manager.getAddressManager(), SIP_TCP, whoIsAsking);
         rr.addAddresses(addresses);
-        return rr;
+        return Collections.singletonList(rr);
     }
 
     @Override

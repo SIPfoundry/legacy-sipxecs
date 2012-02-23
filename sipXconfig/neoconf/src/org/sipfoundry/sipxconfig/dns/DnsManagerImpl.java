@@ -72,9 +72,9 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     public List<ResourceRecords> getResourceRecords(Location whoIsAsking) {
         List<ResourceRecords> rrs = new ArrayList<ResourceRecords>();
         for (DnsProvider p : getProviders()) {
-            ResourceRecords rr = p.getResourceRecords(this, whoIsAsking);
-            if (rr != null) {
-                rrs.add(rr);
+            List<ResourceRecords> rRecords = p.getResourceRecords(this, whoIsAsking);
+            if (rRecords != null) {
+                rrs.addAll(rRecords);
             }
         }
         return rrs;

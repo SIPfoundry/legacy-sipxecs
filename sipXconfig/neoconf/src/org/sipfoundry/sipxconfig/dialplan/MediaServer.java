@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
@@ -37,6 +38,8 @@ public abstract class MediaServer {
      * User visible label of for this media server.
      */
     private String m_label;
+
+    private Location m_location;
 
     /**
      * Localization hint for media server
@@ -98,7 +101,7 @@ public abstract class MediaServer {
      *
      * @return The hostname of this server
      */
-    public String getHostname() {
+    public String getHostname(Operation operation) {
         return m_hostname;
     }
 
@@ -117,6 +120,14 @@ public abstract class MediaServer {
 
     public void setLabel(String label) {
         m_label = label;
+    }
+
+    public Location getLocation() {
+        return m_location;
+    }
+
+    public void setLocation(Location location) {
+        m_location = location;
     }
 
     /**
@@ -179,7 +190,7 @@ public abstract class MediaServer {
     private String buildUrl(CallDigits userDigits, Operation operation, String fieldParams) {
         String uriParams = getUriParameterStringForOperation(operation, userDigits, null);
         String headerParams = getHeaderParameterStringForOperation(operation, userDigits);
-        String hostname = getHostname();
+        String hostname = getHostname(Operation.VoicemailDeposit);
         String digits = getDigitStringForOperation(operation, userDigits);
         return MappingRule.buildUrl(digits, hostname, uriParams, headerParams, fieldParams);
     }
@@ -194,7 +205,7 @@ public abstract class MediaServer {
         String uriParams = getUriParameterStringForOperation(Operation.Autoattendant, CallDigits.FIXED_DIGITS,
                 params);
         String headerParams = getHeaderParameterStringForOperation(Operation.Autoattendant, CallDigits.FIXED_DIGITS);
-        String hostname = getHostname();
+        String hostname = getHostname(Operation.Autoattendant);
         String digits = getDigitStringForOperation(Operation.Autoattendant, CallDigits.FIXED_DIGITS);
         return MappingRule.buildUrl(digits, hostname, uriParams, headerParams, null);
     }

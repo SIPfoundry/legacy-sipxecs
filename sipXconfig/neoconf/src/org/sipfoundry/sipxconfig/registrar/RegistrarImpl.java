@@ -158,11 +158,11 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
     }
 
     @Override
-    public ResourceRecords getResourceRecords(DnsManager manager, Location whoIsAsking) {
+    public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
         ResourceRecords rr = new ResourceRecords("_sip._tcp", "rr");
         Collection<Address> addresses = getAvailableAddresses(manager.getAddressManager(), TCP_ADDRESS, whoIsAsking);
         rr.addAddresses(addresses);
-        return rr;
+        return Collections.singletonList(rr);
     }
 
     public void setConfigManager(ConfigManager configManager) {

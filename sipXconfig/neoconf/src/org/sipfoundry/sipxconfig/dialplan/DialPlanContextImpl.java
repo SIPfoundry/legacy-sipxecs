@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
@@ -234,9 +235,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
-    public List<DialingRule> getGenerationRules() {
+    public List<DialingRule> getGenerationRules(Location location) {
         DialPlan dialPlan = getDialPlan();
-        return dialPlan.getGenerationRules();
+        return dialPlan.getGenerationRules(location);
     }
 
     public List<AttendantRule> getAttendantRules() {

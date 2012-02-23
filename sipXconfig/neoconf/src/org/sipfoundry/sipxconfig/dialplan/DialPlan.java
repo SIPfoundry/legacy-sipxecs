@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 public class DialPlan extends BeanWithId implements DeployConfigOnEdit {
@@ -84,9 +85,10 @@ public class DialPlan extends BeanWithId implements DeployConfigOnEdit {
         DataCollectionUtil.moveByPrimaryKey(m_rules, selectedRows.toArray(), step);
     }
 
-    public List<DialingRule> getGenerationRules() {
+    public List<DialingRule> getGenerationRules(Location location) {
         List<DialingRule> generationRules = new ArrayList<DialingRule>();
         for (DialingRule rule : getRules()) {
+            rule.setLocation(location);
             rule.appendToGenerationRules(generationRules);
         }
 

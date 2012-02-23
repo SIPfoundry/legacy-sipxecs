@@ -18,8 +18,6 @@ dist_cfinputs_DATA = \
 DISTCLEANFILES = $(cfdefaults_DATA)
 
 fscfgdir = @SIPX_CONFDIR@/freeswitch/conf
-dist_fscfg_DATA = \
-	vars.xml
 
 autoloadcfgdir = @SIPX_CONFDIR@/freeswitch/conf/autoload_configs
 dist_autoloadcfg_DATA = \

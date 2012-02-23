@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +61,7 @@ public class DnsManagerTest implements DnsProvider {
             }
 
             @Override
-            public ResourceRecords getResourceRecords(DnsManager manager, Location whoIsAsking) {
+            public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
                 return null;
             }
         };            
@@ -76,7 +77,7 @@ public class DnsManagerTest implements DnsProvider {
     }
 
     @Override
-    public ResourceRecords getResourceRecords(DnsManager manager, Location whoIsAsking) {
+    public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
         return null;
     }
 }

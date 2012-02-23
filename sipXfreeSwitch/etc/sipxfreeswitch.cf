@@ -25,6 +25,7 @@ bundle agent sipxfreeswitch_config {
 
       "xml_file" slist => { 
         "freeswitch.xml",
+        "vars.xml",
         "sip_profiles/sipX_profile.xml",
         "autoload_configs/xml_rpc.conf.xml",
          "autoload_configs/switch.conf.xml",

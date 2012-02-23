@@ -84,7 +84,7 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
                     file.setDomainName(domainName);
                 }
 
-                generateXml(files);
+                generateXml(files, location);
 
                 for (int i = 0; i < files.length; i++) {
                     files[i].write(writers[i]);
@@ -98,13 +98,13 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
         }
     }
 
-    private void generateXml(RulesFile[] files) {
+    private void generateXml(RulesFile[] files, Location location) {
         // Get rules from dialing rule providers and the dial plan
         List<IDialingRule> rules = new ArrayList<IDialingRule>();
         if (m_dialingRuleProvider != null) {
             rules.addAll(m_dialingRuleProvider.getDialingRules());
         }
-        rules.addAll(m_planContext.getGenerationRules());
+        rules.addAll(m_planContext.getGenerationRules(location));
 
         for (RulesFile file : files) {
             file.begin();

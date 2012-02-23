@@ -9,13 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
-
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 import javax.xml.transform.Source;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -27,9 +31,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.backup.BackupBean;
 import org.sipfoundry.sipxconfig.backup.Restore;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.xml.xpath.NodeMapper;
@@ -73,7 +80,9 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     private List<Voicemail> retrieveVoicemails(String url, final String userId, final String folder) {
         try {
-            Source voicemails = m_restTemplate.getForObject(url, Source.class, getHost(), getPort(), userId, folder);
+            Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+            Source voicemails = m_restTemplate.getForObject(url, Source.class, ivrAddress.getAddress(),
+                    ivrAddress.getPort(), userId, folder);
             List<Voicemail> voicemailList = m_xPathTemplate.evaluate("//message", voicemails,
                     new NodeMapper<Voicemail>() {
                         @Override
@@ -89,33 +98,40 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     @Override
     public void deleteMailbox(String userId) {
-        put(DELETE_MAILBOX_URL, null, getHost(), getPort(), userId);
+        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(DELETE_MAILBOX_URL, null, ivrAddress.getAddress(), ivrAddress.getPort(), userId);
     }
 
     @Override
     public void renameMailbox(String oldUserId, String newUserId) {
-        put(RENAME_MAILBOX_URL, null, getHost(), getPort(), newUserId, oldUserId);
+        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(RENAME_MAILBOX_URL, null, ivrAddress.getAddress(), ivrAddress.getPort(), newUserId, oldUserId);
     }
 
     @Override
     public void markRead(String userId, String messageId) {
-        put(MESSAGE_READ_URL, null, getHost(), getPort(), userId, messageId);
+        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(MESSAGE_READ_URL, null, ivrAddress.getAddress(), ivrAddress.getPort(), userId, messageId);
     }
 
     @Override
     public void move(String userId, Voicemail voicemail, String destinationFolderId) {
-        put(MOVE_MSG, null, getHost(), getPort(), userId, voicemail.getMessageId(), destinationFolderId);
+        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(MOVE_MSG, null, ivrAddress.getAddress(), ivrAddress.getPort(), userId, voicemail.getMessageId(),
+                destinationFolderId);
     }
 
     @Override
     public void delete(String userId, Voicemail voicemail) {
-        put(DEL_MSG_URL, null, getHost(), getPort(), userId, voicemail.getMessageId());
+        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(DEL_MSG_URL, null, ivrAddress.getAddress(), ivrAddress.getPort(), userId, voicemail.getMessageId());
     }
 
     @Override
     public void save(Voicemail voicemail) {
-        put(SAVE_SUBJECT, voicemail.getSubject(), getHost(), getPort(), voicemail.getUserId(),
-                voicemail.getMessageId());
+        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(SAVE_SUBJECT, voicemail.getSubject(), ivrAddress.getAddress(), ivrAddress.getPort(),
+                voicemail.getUserId(), voicemail.getMessageId());
     }
 
     @Override
@@ -147,7 +163,9 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
             File vmArchive = new File(archive.getPath());
             PutMethod method = new PutMethod(getMailboxServerUrl() + "/manage/restore");
             try {
-                Part[] parts = {new FilePart(vmArchive.getName(), vmArchive)};
+                Part[] parts = {
+                    new FilePart(vmArchive.getName(), vmArchive)
+                };
                 method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));
                 HttpClient client = new HttpClient();
                 client.executeMethod(method);
@@ -162,9 +180,12 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     @Override
     public String getMailboxRestoreLog() {
+        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
         StringBuilder log = new StringBuilder();
-        log.append(String.format("\n\n:::: Voicemail restore log on remote server %s ::::\n\n", getHost()));
-        log.append(m_restTemplate.getForObject(RESTORE_LOG_URL, String.class, getHost(), getPort()));
+        log.append(String.format("\n\n:::: Voicemail restore log on remote server %s ::::\n\n",
+                ivrAddress.getAddress()));
+        log.append(m_restTemplate.getForObject(RESTORE_LOG_URL, String.class, ivrAddress.getAddress(),
+                ivrAddress.getPort()));
         return log.toString();
     }
 
@@ -173,6 +194,9 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     }
 
     public void setRestTemplate(RestTemplate restTemplate) {
+        HostnameVerifier verifier = new NullHostnameVerifier();
+        VmSimpleClientHttpRequestFactory factory = new VmSimpleClientHttpRequestFactory(verifier);
+        restTemplate.setRequestFactory(factory);
         m_restTemplate = restTemplate;
     }
 
@@ -185,7 +209,32 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     }
 
     private UserException createUserException(String message) {
-        return new UserException("&error.ivr.server", getHost(), message);
+        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        return new UserException("&error.ivr.server", ivrAddress.getAddress(), message);
+    }
+
+    private static class NullHostnameVerifier implements HostnameVerifier {
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }
+    }
+
+    private static class VmSimpleClientHttpRequestFactory extends SimpleClientHttpRequestFactory {
+
+        private final HostnameVerifier m_verifier;
+
+        public VmSimpleClientHttpRequestFactory(HostnameVerifier verifier) {
+            m_verifier = verifier;
+        }
+
+        @Override
+        protected void prepareConnection(HttpURLConnection connection, String httpMethod) throws IOException {
+            if (connection instanceof HttpsURLConnection) {
+                ((HttpsURLConnection) connection).setHostnameVerifier(m_verifier);
+            }
+            super.prepareConnection(connection, httpMethod);
+        }
+
     }
 
 }

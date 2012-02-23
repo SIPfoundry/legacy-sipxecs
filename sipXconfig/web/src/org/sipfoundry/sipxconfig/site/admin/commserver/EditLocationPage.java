@@ -73,9 +73,6 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
         if (getLocationId() != null) {
             location = getLocationsManager().getLocation(getLocationId());
             setRegistered(location.isRegistered());
-            if (!location.isRegistered()) {
-                setTab(CONFIG_TAB);
-            }
         } else {
             location = new Location();
             setTab(CONFIG_TAB);

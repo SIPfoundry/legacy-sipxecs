@@ -9,14 +9,18 @@ package org.sipfoundry.sipxconfig.freeswitch;
 
 
 import java.util.Formatter;
+import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.dialplan.MediaServer;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
@@ -35,6 +39,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 public class FreeswitchMediaServer extends MediaServer {
     private static final String USER_PART = "IVR";
     private AddressManager m_addressManager;
+    private FeatureManager m_featureManager;
 
     @Override
     public String getDigitStringForOperation(Operation operation, CallDigits userDigits) {
@@ -79,17 +84,30 @@ public class FreeswitchMediaServer extends MediaServer {
         Formatter f = new Formatter(params);
         f.format(";schedule_id=%s", attendantName);
         appendLocale(f);
-        return MappingRule.buildUrl(USER_PART, getHostname(), params.toString(), null, null);
+        return MappingRule.buildUrl(USER_PART, getHostname(Operation.Autoattendant), params.toString(), null, null);
     }
 
     @Override
-    public String getHostname() {
-        // wrong: need to select FS by location
+    public String getHostname(Operation operation) {
+        if (getLocation() != null) {
+            if (m_featureManager.isFeatureEnabled(Ivr.FEATURE, getLocation())) {
+                return String.format("vm.%s", getLocation().getFqdn());
+            } else {
+                List<Location> vms = m_featureManager.getLocationsForEnabledFeature(Ivr.FEATURE);
+                if (vms != null && vms.size() > 0) {
+                    return String.format("vm.%s", vms.get(0).getFqdn());
+                }
+            }
+        }
+        return getRegularHostname();
+    }
+
+    public String getRegularHostname() {
         Address fs = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
         if (fs == null) {
             throw new ConfigException("Freeswitch is not enabled but media services is required");
         }
-        return m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS).addressColonPort();
+        return fs.addressColonPort();
     }
 
     private void appendLocale(Formatter f) {
@@ -101,5 +119,9 @@ public class FreeswitchMediaServer extends MediaServer {
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }
