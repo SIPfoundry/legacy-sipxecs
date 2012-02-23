@@ -101,8 +101,7 @@ init_regexp_proc(void)
      * Define the OID pointer to the top of the mib tree that we're
      * registering underneath 
      */
-    //oid             proc_variables_oid[] = { NETSNMP_UCDAVIS_MIB, NETSNMP_PROCMIBNUM, 1 };
-    oid             proc_variables_oid[] = { 1, 3, 6, 1, 4, 1, 8072, 2, 4, 1, 1, 3, 0 };
+    oid             proc_variables_oid[] = { 1, 3, 6, 1, 4, 1, 7142, 100, 1, 10 };
 
     /*
      * register ourselves with the agent to handle our mib tree 
@@ -207,6 +206,7 @@ regexp_proc_parse_config(const char *token, char *cptr)
     if (*procp == NULL)
         return;                 /* memory alloc error */
     numprocs++;
+    (*procp)->regexp = NULL;
     /*
      * not blank and not a comment 
      */

@@ -37,7 +37,7 @@ import org.snmp4j.util.TableUtils;
 
 public class ProcessSnmpReader {
     private static final int[] BASE_OID = new int[] {
-        1, 3, 6, 1, 4, 1, 8072, 2, 4, 1, 1, 3, 0
+        1, 3, 6, 1, 4, 1, 7142, 100, 1, 10
     };
     private static final OID GET = new OID(BASE_OID);
 
