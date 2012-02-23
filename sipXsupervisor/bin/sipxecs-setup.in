@@ -123,10 +123,10 @@ def prompt(msg, err_msg = "Invalid answer")
 end
 
 def prompt_default(msg, default)
-  prompt(msg << " [ press enter for '\e[0;31m#{default}\e[m' ] : ") {|v|
-    v.empty? ? default : v
+  prompt(msg << (default.empty? ? ' : ' : " [ press enter for '\e[0;31m#{default}\e[m' ] : ")) {|v|
+    s = v.empty? ? default : v
+    s.empty? ? nil : s
   }
-
 end
 
 def prompt_required(msg)
@@ -144,8 +144,8 @@ end
 # PRIMARY ONLY
 def set_domain
   return if File.exists?($domain_dat)
-  current_host = `hostname -s`.chomp
-  current_domain = `hostname -d`.chomp
+  current_host = `hostname -s 2>/dev/null`.chomp
+  current_domain = `hostname -d 2>/dev/null`.chomp
   host = prompt_default("Enter system \e[0;31mhost name without the domain\e[m name", current_host)
   domain = prompt_default("Enter \e[0;31mdomain\e[m name", current_domain)
   puts <<EOF
