@@ -64,8 +64,6 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
 
     void deleteAgentGroup(OpenAcdAgentGroup group);
 
-    void addAgentsToGroup(OpenAcdAgentGroup agentGroup, Collection<OpenAcdAgent> agents);
-
     List<OpenAcdAgent> getAgents();
 
     OpenAcdAgent getAgentById(Integer agentId);

@@ -30,20 +30,17 @@ import org.easymock.EasyMock;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
-import org.sipfoundry.sipxconfig.freeswitch.config.DefaultContextConfigurationTest;
 import org.sipfoundry.sipxconfig.mongo.MongoTestIntegration;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.ClientInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.DefaultAgentGroupDeleteException;
@@ -53,16 +50,10 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.SkillInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeAction.ACTION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition.CONDITION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep.FREQUENCY;
-import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.dao.support.DataAccessUtils;
 
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
 
-/**
- * Disabled - There were many errors. I need to discuss changes w/OpenACD group. -- Douglas
- */
 public class OpenAcdContextTestIntegration extends MongoTestIntegration {
     private OpenAcdContext m_openAcdContext;
     private static String[][] ACTIONS = {
@@ -295,10 +286,10 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveAgent(agent);
 
         assertEquals(0, group.getAgents().size());
-        List<OpenAcdAgent> agents = new ArrayList<OpenAcdAgent>(2);
-        agents.add(supervisor);
-        agents.add(agent);
-        m_openAcdContext.addAgentsToGroup(group, agents);
+        group.addAgent(agent);
+        group.addAgent(supervisor);
+        m_openAcdContext.saveAgentGroup(group);
+        
         assertEquals(2, group.getAgents().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
             MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
@@ -392,10 +383,10 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         });
         group.addAgent(agent);
         m_openAcdContext.saveAgentGroup(group);
-        
+
         assertEquals(1, m_openAcdContext.getAgents().size());
         assertEquals(1, group.getAgents().size());
-        
+
         Set<OpenAcdAgent> agents = group.getAgents();
         OpenAcdAgent savedAgent = DataAccessUtils.singleResult(agents);
         assertEquals(charlie, savedAgent.getUser());
@@ -417,36 +408,44 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         OpenAcdAgentGroup newGroup = new OpenAcdAgentGroup();
         newGroup.setName("NewGroup");
         m_openAcdContext.saveAgentGroup(newGroup);
+        
+        OpenAcdAgentGroup grp = m_openAcdContext.getAgentGroupByName("NewGroup");
 
         OpenAcdAgent agent1 = new OpenAcdAgent();
-        agent1.setGroup(newGroup);
+        agent1.setGroup(grp);
         agent1.setPin("1234");
         agent1.setUser(delta);
         m_openAcdContext.saveAgent(agent1);
 
         OpenAcdAgent agent2 = new OpenAcdAgent();
-        agent2.setGroup(newGroup);
+        agent2.setGroup(grp);
         agent2.setPin("123433");
         agent2.setUser(elephant);
         m_openAcdContext.saveAgent(agent2);
 
-        m_openAcdContext.addAgentsToGroup(newGroup, Arrays.asList(new OpenAcdAgent[]{agent1,agent2}));
+        getHibernateTemplate().flush();
+
+        /*m_openAcdContext.addAgentsToGroup(newGroup, Arrays.asList(new OpenAcdAgent[] {
+            agent1, agent2
+        }));*/
+        grp.addAgent(agent1);
+        grp.addAgent(agent2);
         m_openAcdContext.saveAgentGroup(newGroup);
 
-        OpenAcdAgentGroup grp = m_openAcdContext.getAgentGroupByName("NewGroup");
-        assertEquals(2, grp.getAgents().size());
+        OpenAcdAgentGroup grp1 = m_openAcdContext.getAgentGroupByName("NewGroup");
+        assertEquals(2, grp1.getAgents().size());
         assertEquals(3, m_openAcdContext.getAgents().size());
 
-        // test remove agents from group - 
-        //grp.removeAgent(agent1);
-        //m_openAcdContext.saveAgentGroup(grp);
-        //assertEquals(1, grp.getAgents().size());
+        // test remove agents from group -
+        // grp.removeAgent(agent1);
+        // m_openAcdContext.saveAgentGroup(grp);
+        // assertEquals(1, grp.getAgents().size());
 
         // here it should really be 3, but merging the group will cascade into the agent being
         // deleted.
         // maybe this should be fixed, but, the only place this is used is when an agent is
         // deleted.
-        //assertEquals(2, m_openAcdContext.getAgents().size());
+        // assertEquals(2, m_openAcdContext.getAgents().size());
         // Also in this scenario, agent is not removed from mongo
         // MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(),
         // new String[]{MongoConstants.TYPE, MongoConstants.NAME},
@@ -472,19 +471,23 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         agent3.setGroup(newGroup);
         agent3.setPin("123433");
         agent3.setUser(newAgent);
-        //m_openAcdContext.addAgentsToGroup(newGroup, Collections.singletonList(agent3));
+        // m_openAcdContext.addAgentsToGroup(newGroup, Collections.singletonList(agent3));
         m_openAcdContext.saveAgent(agent3);
         assertEquals(3, m_openAcdContext.getAgents().size());
-        
-        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(),
-                new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-                new String[]{"openacdagent", "test"});
-        
+
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdagent", "test"
+        });
+
         m_coreContext.deleteUser(newAgent);
 
-        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(),
-           new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-           new String[]{"openacdagent", "test"});
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.NAME
+        }, new String[] {
+            "openacdagent", "test"
+        });
         assertEquals(2, m_openAcdContext.getAgents().size());
 
         // remove groups

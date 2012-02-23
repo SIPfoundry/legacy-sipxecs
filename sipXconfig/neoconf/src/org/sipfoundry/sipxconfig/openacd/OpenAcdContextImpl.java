@@ -331,15 +331,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     public class DefaultAgentGroupDeleteException extends UserException {
     }
 
-    @Deprecated
-    public void addAgentsToGroup(OpenAcdAgentGroup agentGroup, Collection<OpenAcdAgent> agents) {
-        for (OpenAcdAgent agent : agents) {
-            agentGroup.addAgent(agent);
-            agent.setGroup(agentGroup);
-        }
-        saveAgentGroup(agentGroup);
-    }
-
     public List<OpenAcdAgent> getAgents() {
         return getHibernateTemplate().loadAll(OpenAcdAgent.class);
     }
