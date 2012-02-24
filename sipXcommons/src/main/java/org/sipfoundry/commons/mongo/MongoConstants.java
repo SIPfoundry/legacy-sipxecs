@@ -154,4 +154,6 @@ public interface MongoConstants {
     static final String DESCRIPTION = "dscr";
     static final String UUID = "uuid";
     static final String TYPE = "type";
+    static final String LABEL = "lbl";
+    static final String BIAS = "bias";
 }

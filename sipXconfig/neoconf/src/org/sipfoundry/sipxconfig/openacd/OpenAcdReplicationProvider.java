@@ -39,24 +39,13 @@ public class OpenAcdReplicationProvider implements ReplicableProvider {
                 replicables.add(ext);
             }
         }
-        for (OpenAcdQueue q : m_openAcdContext.getQueues()) {
-            replicables.add(q);
-        }
-        for (OpenAcdAgent agent : m_openAcdContext.getAgents()) {
-            replicables.add(agent);
-        }
-        for (OpenAcdAgentGroup agentGroup : m_openAcdContext.getAgentGroups()) {
-            replicables.add(agentGroup);
-        }
-        for (OpenAcdClient client : m_openAcdContext.getClients()) {
-            replicables.add(client);
-        }
-        for (OpenAcdQueueGroup qgr : m_openAcdContext.getQueueGroups()) {
-            replicables.add(qgr);
-        }
-        for (OpenAcdSkill skill : m_openAcdContext.getSkills()) {
-            replicables.add(skill);
-        }
+        replicables.addAll(m_openAcdContext.getClients());
+        replicables.addAll(m_openAcdContext.getQueueGroups());
+        replicables.addAll(m_openAcdContext.getQueues());
+        replicables.addAll(m_openAcdContext.getAgentGroups());
+        replicables.addAll(m_openAcdContext.getAgents());
+        replicables.addAll(m_openAcdContext.getReleaseCodes());
+        replicables.addAll(m_openAcdContext.getSkills());
         OpenAcdSettings settings = m_openAcdContext.getSettings();
         replicables.add(new FreeswitchMediaCommand(settings.isEnabled(), settings.getCNode(), settings
                 .getDialString()));
@@ -73,5 +62,4 @@ public class OpenAcdReplicationProvider implements ReplicableProvider {
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }
-
 }

@@ -76,6 +76,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
     private static final String DEFAULT_QUEUE = "default_queue";
     private static final String FS_ACTIONS_WITH_DATA = "freeswitchActionsWithData";
+    private static final String OPEN_ACD_RELEASE_CODE_WITH_LABEL = "openAcdClientReleaseCodeWithLabel";
 
     private AliasManager m_aliasManager;
     private FeatureManager m_featureManager;
@@ -884,6 +885,59 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public OpenAcdRecipeStep getRecipeStepById(Integer recipeStepId) {
         return getHibernateTemplate().load(OpenAcdRecipeStep.class, recipeStepId);
+    }
+
+    @Override
+    public List<OpenAcdReleaseCode> getReleaseCodes() {
+        return getHibernateTemplate().loadAll(OpenAcdReleaseCode.class);
+    }
+
+    @Override
+    public OpenAcdReleaseCode getReleaseCodeById(Integer id) {
+        return getHibernateTemplate().load(OpenAcdReleaseCode.class, id);
+    }
+
+    @Override
+    public void saveReleaseCode(OpenAcdReleaseCode code) {
+        // Check for duplicate labels
+        if (code.isNew() || (!code.isNew() && isLabelChanged(code))) {
+            checkForDuplicateLabel(code);
+        }
+
+        if (code.isNew()) {
+            getHibernateTemplate().save(code);
+        } else {
+            getHibernateTemplate().merge(code);
+        }
+    }
+
+    private boolean isLabelChanged(OpenAcdReleaseCode code) {
+        return !getReleaseCodeById(code.getId()).getLabel().equals(code.getLabel());
+    }
+
+    private void checkForDuplicateLabel(OpenAcdReleaseCode code) {
+        String labelCode = code.getLabel();
+        OpenAcdReleaseCode existingCode = getReleaseCodeByLabel(labelCode);
+        if (existingCode != null) {
+            throw new UserException("&duplicate.codeLabel.error", existingCode);
+        }
+    }
+
+    private OpenAcdReleaseCode getReleaseCodeByLabel(String label) {
+        List<OpenAcdReleaseCode> codes = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                OPEN_ACD_RELEASE_CODE_WITH_LABEL, VALUE, label);
+        return DataAccessUtils.singleResult(codes);
+    }
+
+    @Override
+    public void removeReleaseCodes(Collection<Integer> codesId) {
+        List<OpenAcdReleaseCode> codes = new ArrayList<OpenAcdReleaseCode>();
+        for (Integer id : codesId) {
+            OpenAcdReleaseCode code = getReleaseCodeById(id);
+            codes.add(code);
+        }
+        getDaoEventPublisher().publishDeleteCollection(codes);
+        getHibernateTemplate().deleteAll(codes);
     }
 
     public void onSave(Object entity) {

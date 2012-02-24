@@ -1110,6 +1110,53 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         assertTrue(queueSkills.contains(all));
     }
 
+    public void testOpenAcdReleaseCodes() throws Exception {
+        // test save release code
+        assertEquals(0, m_openAcdContext.getReleaseCodes().size());
+        OpenAcdReleaseCode code = new OpenAcdReleaseCode();
+        code.setLabel("negative label");
+        code.setBias(-1);
+        code.setDescription("negative description");
+        m_openAcdContext.saveReleaseCode(code);
+        assertEquals(1, m_openAcdContext.getReleaseCodes().size());
+
+        // test save release code with the same label
+        OpenAcdReleaseCode anotherCode = new OpenAcdReleaseCode();
+        anotherCode.setLabel("negative label");
+        try {
+            m_openAcdContext.saveReleaseCode(anotherCode);
+            fail();
+        } catch (UserException ex) {
+        }
+
+        anotherCode.setLabel("positive label");
+        anotherCode.setBias(1);
+        m_openAcdContext.saveReleaseCode(anotherCode);
+        assertEquals(2, m_openAcdContext.getReleaseCodes().size());
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.LABEL
+        }, new String[] {
+            "openacdreleasecode", "positive label"
+        });
+
+        // test remove release codes
+        Collection<Integer> codeIds = new ArrayList<Integer>();
+        codeIds.add(code.getId());
+        codeIds.add(anotherCode.getId());
+        m_openAcdContext.removeReleaseCodes(codeIds);
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.LABEL
+        }, new String[] {
+            "openacdreleasecode", "negative label"
+        });
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
+            MongoConstants.TYPE, MongoConstants.LABEL
+        }, new String[] {
+            "openacdreleasecode", "positive label"
+        });
+        assertEquals(0, m_openAcdContext.getReleaseCodes().size());
+    }
+
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {
         m_openAcdContext = openAcdContext;
     }
