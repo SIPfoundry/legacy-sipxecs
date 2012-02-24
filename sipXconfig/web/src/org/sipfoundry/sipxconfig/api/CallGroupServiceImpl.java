@@ -31,7 +31,7 @@ public class CallGroupServiceImpl implements CallGroupService {
         org.sipfoundry.sipxconfig.callgroup.CallGroup myCg =
             new org.sipfoundry.sipxconfig.callgroup.CallGroup();
         ApiBeanUtil.toMyObject(m_builder, myCg, apiCg);
-        m_context.storeCallGroup(myCg);
+        m_context.saveCallGroup(myCg);
     }
 
     public void removeCallGroup(RemoveCallGroup cg) throws RemoteException {

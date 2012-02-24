@@ -21,7 +21,7 @@ public interface CallGroupContext extends AliasOwner {
 
     List<CallGroup> getCallGroups();
 
-    void storeCallGroup(CallGroup callGroup);
+    void saveCallGroup(CallGroup callGroup);
 
     void removeCallGroups(Collection<Integer> ids);
 

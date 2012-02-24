@@ -67,7 +67,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     }
 
     @Override
-    public void storeCallGroup(CallGroup callGroup) {
+    public void saveCallGroup(CallGroup callGroup) {
         // Check for duplicate names or extensions before saving the call group
         String name = callGroup.getName();
         String extension = callGroup.getExtension();
@@ -81,7 +81,6 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         if (!m_aliasManager.canObjectUseAlias(callGroup, callGroup.getDid())) {
             throw new ExtensionInUseException(huntGroupTypeName, callGroup.getDid());
         }
-        getDaoEventPublisher().publishSave(callGroup);
         getHibernateTemplate().saveOrUpdate(callGroup);
         // activate call groups every time the call group is saved
         m_replicationContext.generate(callGroup);
@@ -169,7 +168,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             groupDup.setDid(null);
 
             groupDup.setEnabled(false);
-            storeCallGroup(groupDup);
+            saveCallGroup(groupDup);
             getDaoEventPublisher().publishSave(groupDup);
         }
     }
@@ -222,7 +221,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             User user = m_coreContext.loadUser(userId);
             callGroup.insertRingForUser(user);
         }
-        storeCallGroup(callGroup);
+        saveCallGroup(callGroup);
     }
 
     @Override
