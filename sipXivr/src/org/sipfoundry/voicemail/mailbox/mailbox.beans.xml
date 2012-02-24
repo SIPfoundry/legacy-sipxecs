@@ -7,6 +7,7 @@
     <property name="promptsDirectory" value="${ivr.promptsDirectory}" />
     <property name="operatorAddr" value="${ivr.operatorAddr}" />
     <property name="configUrl" value="${ivr.configUrl}" />
+    <property name="ivrIdentity" value="${ivr.identity}" />
     <property name="secret" value="${SHARED_SECRET}" />
     <property name="messageDescriptorWriter" ref="messageDescriptorWriter" />
     <property name="messageDescriptorReader" ref="messageDescriptorReader" />

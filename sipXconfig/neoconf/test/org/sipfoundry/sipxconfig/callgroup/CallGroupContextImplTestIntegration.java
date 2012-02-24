@@ -88,7 +88,7 @@ public class CallGroupContextImplTestIntegration extends IntegrationTestCase {
         group.setExtension("202");
         group.setEnabled(true);
         group.setVoicemailFallback(true);
-        m_callGroupContext.storeCallGroup(group);
+        m_callGroupContext.saveCallGroup(group);
         commit();
         // table should have additional row now - 3
         assertEquals(3, countRowsInTable("call_group"));
@@ -101,7 +101,7 @@ public class CallGroupContextImplTestIntegration extends IntegrationTestCase {
         group.setEnabled(true);
 
         try {
-            m_callGroupContext.storeCallGroup(group);
+            m_callGroupContext.saveCallGroup(group);
             fail("NameInUseException should be thrown");
         } catch (UserException e) {
             assertTrue(e.getMessage().indexOf("sales") > 0);
@@ -116,7 +116,7 @@ public class CallGroupContextImplTestIntegration extends IntegrationTestCase {
         group.setExtension("401");
         group.setEnabled(true);
         try {
-            m_callGroupContext.storeCallGroup(group);
+            m_callGroupContext.saveCallGroup(group);
             fail("ExtensionInUseException should be thrown");
         } catch (UserException e) {
             assertTrue(e.getMessage().indexOf("401") > 0);
@@ -171,7 +171,7 @@ public class CallGroupContextImplTestIntegration extends IntegrationTestCase {
         UserRing ring = (UserRing) userRings.get(0);
         ring.setExpiration(testExpiration.intValue());
         ring.setType(AbstractRing.Type.IMMEDIATE);
-        m_callGroupContext.storeCallGroup(callGroup);
+        m_callGroupContext.saveCallGroup(callGroup);
         commit();
         assertEquals(1, countRowsInTable("user_ring"));
         Map<String, Object> actual = db().queryForMap("select * from user_ring");

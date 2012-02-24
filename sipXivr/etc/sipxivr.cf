@@ -48,6 +48,7 @@ bundle edit_line sipxivr_properties_contents {
       "ivr.realm=$(sipx.realm)";
       "log.file=$(sipx.SIPX_LOGDIR)/sipxivr.log";
       "ivr.dataDirectory=$(sipx.SIPX_IVRDATADIR)";
+      "ivr.identity=$(sipx.location_id)";
       "ivr.mailstoreDirectory=$(sipx.SIPX_IVRDATADIR)/mailstore";
       "ivr.promptsDirectory=$(sipx.SIPX_IVRDATADIR)/prompts";
       "ivr.scriptsDirectory=$(sipx.wwwdir)/doc/aa_vxml";
