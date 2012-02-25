@@ -20,7 +20,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.sipfoundry.sipxconfig.alarm.AlarmContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -46,8 +45,6 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
 
     /** The available updated sipx version. */
     private String m_updatedVersion;
-
-    private AlarmContext m_alarmContext;
 
     private boolean m_yumCapable;
 
@@ -138,7 +135,7 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
                 } else {
                     m_state = UpdaterState.UPDATES_AVAILABLE;
                     String alarmData = buildAvailablePackagesString();
-                    m_alarmContext.raiseAlarm("SOFTWARE_UPDATE_AVAILABLE", alarmData);
+                    //m_alarmContext.raiseAlarm("SOFTWARE_UPDATE_AVAILABLE", alarmData);
                 }
 
                 for (PackageUpdate update : m_availablePackages) {
@@ -159,11 +156,6 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
     @Required
     public void setUpdateApi(UpdateApi updateApi) {
         m_updateApi = updateApi;
-    }
-
-    @Required
-    public void setAlarmContext(AlarmContext alarmContext) {
-        m_alarmContext = alarmContext;
     }
 
     public void setYumCapable(boolean yumCapable) {

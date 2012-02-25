@@ -10,18 +10,48 @@ bundle agent snmp {
   methods:
     snmp::
       "any" usebundle => "snmp_config";
+      "any" usebundle => "snmptrap_config";
     any::
       "any" usebundle => "snmp_running";
+      "any" usebundle => "snmptrap_running";
 }
 
 bundle agent snmp_config {
   files:
     snmp::
       "/etc/snmp/snmpd.conf"
-        create => "false",
+        create => "true",
         perms => m("644"),
         classes => if_repaired("reload_snmp"),
         edit_line => snmpd_conf;
+}
+
+
+bundle agent snmptrap_config {
+  files:
+      "/etc/snmp/snmptrapd.conf"
+        create => "true",
+        perms => m("644"),
+        classes => if_repaired("reload_snmptrapd"),
+        edit_line => snmptrapd_conf;
+
+    snmp.src::
+      "/usr/share/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt"
+        create => "true",
+        perms => m("644"),
+        classes => if_repaired("reload_snmp"),
+        copy_from => local_cp("$(sipx.datadir)/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt");
+}
+
+bundle edit_line snmptrapd_conf {
+  insert_lines:
+    any::
+"authCommunity   log,execute,net public
+traphandle SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.SIPX_LIBEXECDIR)/sipxtrap-handler sipxecs-alarm";
+
+  delete_lines:
+    any::
+      ".*";
 }
 
 bundle edit_line snmpd_conf {
@@ -78,4 +108,31 @@ bundle agent snmp_running {
       "$(service)"
         comment => "restart snmp",
         args => "restart";
+}
+
+bundle agent snmptrap_running {
+  vars:
+    any::
+      "service" string => "/etc/init.d/snmptrapd";
+      "service_command" string => "/usr/sbin/snmptrapd";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "snmptrap_running","root");
+
+  commands:
+    !snmp.snmptrap_running::
+      "$(service)"
+        comment => "stop snmptrap",
+        args => "stop";
+
+    snmp.!snmptrap_running::
+      "$(service)"
+        comment => "start snmptrap",
+        args => "start";
+
+    snmp.snmptrap_running.reload_snmptrap::
+      "$(service)"
+        comment => "reload snmptrap",
+        args => "reload";
 }

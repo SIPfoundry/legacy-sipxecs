@@ -25,6 +25,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.springframework.beans.factory.annotation.Required;
@@ -39,21 +40,18 @@ public class AlarmConfiguration implements ConfigProvider {
             return;
         }
 
-        if (!manager.getFeatureManager().isFeatureEnabled(Alarms.FEATURE)) {
-            return;
-        }
-        List<Alarm> alarms = m_alarmServerManager.getAlarmTypes();
+        List<Alarm> alarms = m_alarmServerManager.getAlarms();
         AlarmServer alarmServer = m_alarmServerManager.getAlarmServer();
         String host = m_alarmServerManager.getHost();
         Location[] locations = manager.getLocationManager().getLocations();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
 
-            Writer alarmsXml = new FileWriter(new File(dir, "sipXalarms-config.xml"));
+            Writer yml = new FileWriter(new File(dir, "alarms.yaml"));
             try {
-                writeAlarmsXml(alarmsXml, alarms);
+                writeAlarms(yml, alarms);
             } finally {
-                IOUtils.closeQuietly(alarmsXml);
+                IOUtils.closeQuietly(yml);
             }
 
             Writer alarmsGroupsXml = new FileWriter(new File(dir, "alarm-groups.xml"));
@@ -74,10 +72,14 @@ public class AlarmConfiguration implements ConfigProvider {
         }
     }
 
-    void writeAlarmsXml(Writer wtr, List<Alarm> alarms) throws IOException {
-        VelocityContext context = new VelocityContext();
-        context.put("alarms", alarms);
-        write(wtr, context, "alarms/sipXalarms-config.vm");
+    void writeAlarms(Writer w, List<Alarm> alarms) throws IOException {
+        YamlConfiguration c = new YamlConfiguration(w);
+        for (Alarm a : alarms) {
+            c.startStruct(a.getAlarmDefinition().getId());
+            c.write(":groupName", a.getGroupName());
+            c.write(":minThreshold", a.getMinThreshold());
+            c.endStruct();
+        }
     }
 
     void writeAlarmGroupsXml(Writer wtr, List<AlarmGroup> groups) throws IOException {

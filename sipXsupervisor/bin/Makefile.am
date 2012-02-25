@@ -3,7 +3,12 @@ include $(top_srcdir)/config/utility.am
 EXTRA_DIST = \
 	$(initd_SCRIPTS:=.in) \
 	$(bin_SCRIPTS:=.in) \
-	$(cfmod_SCRIPTS:=.in)
+	$(cfmod_SCRIPTS:=.in) \
+	$(libexec_SCRIPTS:=.in)
+
+libexecdir = @SIPX_LIBEXECDIR@
+libexec_SCRIPTS = \
+	sipxlogwatcher-maker
 
 bin_SCRIPTS = \
 	sipxagent \
@@ -17,9 +22,10 @@ cfmod_SCRIPTS = \
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
-	sipxsupervisor
+	sipxsupervisor \
+	sipxlogwatcher
 
-$(cfmod_SCRIPTS) $(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
+$(libexec_SCRIPTS) $(cfmod_SCRIPTS) $(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(bin_SCRIPTS) $(initd_SCRIPTS)
+CLEANFILES = $(bin_SCRIPTS) $(initd_SCRIPTS) $(libexec_SCRIPTS) $(cfmod_SCRIPTS)

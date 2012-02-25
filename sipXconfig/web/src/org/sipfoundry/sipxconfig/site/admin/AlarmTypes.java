@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -21,8 +20,10 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 @ComponentClass
 public abstract class AlarmTypes extends BaseComponent {
-    @Bean
-    public abstract AlarmSqueezeAdapter getAlarmConverter();
+
+    public AlarmSqueezeAdapter getAlarmConverter() {
+        return new AlarmSqueezeAdapter(getAlarms());
+    }
 
     @Parameter
     public abstract SipxValidationDelegate getValidator();

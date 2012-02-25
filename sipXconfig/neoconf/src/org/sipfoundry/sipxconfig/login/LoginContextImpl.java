@@ -25,7 +25,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.alarm.AlarmContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
@@ -38,7 +37,6 @@ public class LoginContextImpl implements LoginContext, ApplicationListener {
 
     private static final Log LOG = LogFactory.getLog("login");
 
-    private AlarmContext m_alarmContext;
     private CoreContext m_coreContext;
 
     private String m_logDirectory;
@@ -122,10 +120,6 @@ public class LoginContextImpl implements LoginContext, ApplicationListener {
         return contents.toArray(new LoginEvent[contents.size()]);
     }
 
-    public void setAlarmContext(AlarmContext alarmContext) {
-        m_alarmContext = alarmContext;
-    }
-
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
@@ -146,9 +140,6 @@ public class LoginContextImpl implements LoginContext, ApplicationListener {
         AbstractAuthenticationEvent authEvent = (AbstractAuthenticationEvent) event;
         final String username = authEvent.getAuthentication().getName();
         final boolean success = event instanceof InteractiveAuthenticationSuccessEvent;
-        if (!success) {
-            m_alarmContext.raiseAlarm("LOGIN_FAILED", username);
-        }
 
         Object details = authEvent.getAuthentication().getDetails();
         if (details instanceof WebAuthenticationDetails) {

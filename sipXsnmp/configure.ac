@@ -12,6 +12,7 @@ AX_COMPILER_VENDOR
 AC_PROG_CC
 AC_CONFIG_FILES([
     Makefile
+    bin/Makefile
     etc/Makefile
     src/Makefile
 ])

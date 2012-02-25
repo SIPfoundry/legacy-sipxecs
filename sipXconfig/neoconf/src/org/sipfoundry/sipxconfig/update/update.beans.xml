@@ -8,7 +8,6 @@
   </bean>
 
   <bean id="packageUpdateManager" class="org.sipfoundry.sipxconfig.update.PackageUpdateManagerImpl">
-    <property name="alarmContext" ref="alarmContext" />
     <property name="updateApi" ref="updateApi" />
   </bean>
 

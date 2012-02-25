@@ -126,14 +126,14 @@ public class DnsConfig implements ConfigProvider {
         c.write("naptr_protocols", "[ udp, tcp ]");
         c.write("domain", domain);
         writeServerYaml(c, all, "proxy_servers", proxy);
-        c.startStruct("resource_records");
+        c.startArray("resource_records");
         if (rrs != null) {
             for (ResourceRecords rr : rrs) {
-                c.nextStruct();
+                c.nextElement();
                 writeResourceRecords(c, all, rr);
             }
         }
-        c.endStruct();
+        c.endArray();
         writeServerYaml(c, all, "dns_servers", dns);
         writeServerYaml(c, all, "im_servers", im);
         writeServerYaml(c, all, "all_servers", Location.toAddresses(DnsManager.DNS_ADDRESS, all));
@@ -144,14 +144,14 @@ public class DnsConfig implements ConfigProvider {
      */
     void writeServerYaml(YamlConfiguration c, List<Location> all, String id, List<Address> addresses)
         throws IOException {
-        c.startStruct(id);
+        c.startArray(id);
         if (addresses != null) {
             for (Address a : addresses) {
-                c.nextStruct();
+                c.nextElement();
                 writeAddress(c, all, a.getAddress(), a.getPort());
             }
         }
-        c.endStruct();
+        c.endArray();
     }
 
     void writeAddress(YamlConfiguration c, List<Location> all, String address, int port) throws IOException {
@@ -163,12 +163,12 @@ public class DnsConfig implements ConfigProvider {
     void writeResourceRecords(YamlConfiguration c, List<Location> all, ResourceRecords rr) throws IOException {
         c.write(":proto", rr.getProto());
         c.write(":resource", rr.getResource());
-        c.startStruct(":records");
+        c.startArray(":records");
         for (DnsRecord r : rr.getRecords()) {
-            c.nextStruct();
+            c.nextElement();
             writeAddress(c, all, r.getAddress(), r.getPort());
         }
-        c.endStruct();
+        c.endArray();
     }
 
     String getHostname(List<Location> locations, String ip) {

@@ -1,9 +1,15 @@
   <table jwcid="@common/Table" id="alarm:list"
-      columns="code,!description:shortTitle,!severity,!groupName,!threshold"
+      columns="label,!description,!groupName,!threshold"
       source="ognl:alarms"
       row="ognl:currentRow"
       selections="ognl:selections"
-      converter="bean:alarmConverter">
+      converter="ognl:alarmConverter">
+    <span jwcid="labelColumnValue@Block">
+      <span jwcid="@Insert" value="ognl:messages.getMessage('alarm.'+currentRow.alarmDefinition.id)"/>
+    </span>
+    <span jwcid="descriptionColumnValue@Block">
+      <span jwcid="@Insert" value="ognl:messages.getMessage('alarm.'+currentRow.alarmDefinition.id+'.description')"/>
+    </span>
     <span jwcid="groupNameColumnValue@Block">
       <input jwcid="@PropertySelection" model="ognl:alarmGroupModel" value="ognl:currentRow.groupName" validators="validators:required" />
     </span>

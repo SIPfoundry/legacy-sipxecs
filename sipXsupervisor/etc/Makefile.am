@@ -13,7 +13,13 @@ dirvars = \
 	$(filter SIPX%DIR,$(.VARIABLES)) \
 	$(filter SIPX_CF%,$(.VARIABLES)) \
 	$(filter SIPXPBX%,$(.VARIABLES)) \
-	wwwdir
+	wwwdir \
+	datadir \
+	libexecdir \
+	sysconfdir \
+	localstatedir \
+	libdir \
+	bindir
 
 dirs.cfdat : Makefile
 	! test -f $@ || rm $@
@@ -28,7 +34,8 @@ cfpluginsdir = $(SIPX_CFINPUTS)/plugin.d
 dist_cfplugins_DATA = \
 	sipxsupervisor.cf \
 	selinux.cf \
-	firewall.cf
+	firewall.cf \
+	zz_sipxlogwatcher.cf
 
 cfinputs_PROMISES = \
 	sipxsupervisord.cf \

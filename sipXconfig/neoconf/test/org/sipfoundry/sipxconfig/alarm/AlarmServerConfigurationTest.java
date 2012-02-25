@@ -9,13 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
+
 import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class AlarmServerConfigurationTest {
@@ -31,5 +35,14 @@ public class AlarmServerConfigurationTest {
         alarmServerConf.writeAlarmConfigXml(actual, server, host);       
         InputStream expected = getClass().getResourceAsStream("alarm-config-test.xml");
         assertEquals(IOUtils.toString(expected), actual.toString());
+    }
+    
+    @Test
+    public void testAlarmYml() throws Exception {
+        StringWriter actual = new StringWriter();
+        AlarmConfiguration c = new AlarmConfiguration();
+        List<Alarm> alarms = Arrays.asList(new Alarm(AdminContext.ALARM_LOGIN_FAILED));
+        c.writeAlarms(actual, alarms);
+        assertEquals("LOGIN_FAILED:\n - :groupName: disabled\n   :minThreshold: 3\n", actual.toString());
     }
 }

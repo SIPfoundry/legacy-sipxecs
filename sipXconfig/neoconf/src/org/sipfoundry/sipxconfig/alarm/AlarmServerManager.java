@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.alarm;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface AlarmServerManager {
     AlarmServer getAlarmServer();
@@ -28,11 +29,11 @@ public interface AlarmServerManager {
 
     void saveAlarmGroup(AlarmGroup group);
 
-    void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms);
+    void saveAlarmServer(AlarmServer server);
 
-    void deployAlarms();
+    void saveAlarms(List<Alarm> alarms);
 
-    List<Alarm> getAlarmTypes();
+    List<Alarm> getAlarms();
 
     String getLogDirectory();
 
@@ -41,4 +42,10 @@ public interface AlarmServerManager {
     String getMibsDirectory();
 
     String getAlarmNotificationMibFileName();
+
+    /**
+     * key is alarm definition id
+     * @return
+     */
+    Map<String, AlarmDefinition> getAlarmDefinitions();
 }
