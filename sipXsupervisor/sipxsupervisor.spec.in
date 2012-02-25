@@ -26,6 +26,8 @@ BuildRequires: net-snmp-devel >= 5.3.1
 BuildRequires: net-snmp-devel >= 5.3.1
 Requires: net-snmp-libs >= 5.3.1
 %endif
+# log watcher
+Requires: sec
 
 # sending email - an smtp listener must be running on localhost
 %if %{_vendor} == redhat

@@ -1,0 +1,307 @@
+# General log events, unix systems. From various sources
+#
+# Copyright (C) 2003-2009 Jim Brown
+# This is free software. You may redistribute copies of it under the terms of 
+# the GNU General Public License version 2.
+# There is NO WARRANTY, to the extent permitted by law.
+#
+#   Bad su 
+# ----------- 
+#
+type=Single
+ptype=RegExp 
+desc=$0 
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+su: BAD SU (\S+) to (\S+) on (\S+)
+action=pipe '$2 failed SU to $3 on $1 at %t' /usr/bin/mail -s "USER: $2 Failed SU on $1" alerts@example.com
+
+type=Single
+ptype=RegExp
+desc=$0
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+su: BAD SU (\S+) to (\S+) on (\S+)
+action=pipe '$2 failed SU to $3 on $1 at %t' /usr/bin/mail -s "USER: $2 Failed SU on $1" alerts@example.com 
+
+
+# MONITOR.conf - SEC rules to pick up disruptive monitoring
+# events.
+#
+#Logs involving syslogd disabled or unusual promiscuous mode (MONITOR)
+#----------------------------------------------------------------------
+#Nov 15 20:02:48 foohost syslogd: exiting on signal 15
+#Nov 22 02:00:02 foohost syslogd: restart
+#Nov 11 15:58:55 foohost /kernel: de0: promiscuous mode enabled
+#Nov 11 15:58:57 foohost /kernel: de0: promiscuous mode disabled
+#
+
+#
+# Syslog Exit
+# -----------
+#
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+syslogd: exiting on signal (\d+)
+desc=$0
+action=write - MONITOR: $1 syslog exit on signal $2 at %t
+
+#
+# Syslog Restart
+# ---------------
+#
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+syslogd: restart
+desc=$0
+action=write - MONITOR: $1 syslog restart at %t
+
+#
+# Syslog Exit
+# -----------
+#
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+/kernel: (\S+) promiscuous mode (\S+)
+desc=$0
+action=write - MONITOR: $1 $2 promiscuous mode $3 at %t
+
+
+#
+# sshd Problems
+# --------------
+#
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+sshd\[\d+\]: (fatal|Bad)(.*)
+desc=$0
+action=write - USERACT: $1 sshd $2 problem, text: $3 at %t
+
+#
+# sshd Accepted
+# --------------
+#
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+sshd\[\d+\]: Accepted (.*)
+desc=$0
+action=write - USERACT: $1 sshd accepted login, text: $2 at %t
+
+#
+# login FAILURES
+# ---------------
+#
+#type=Single
+#ptype=RegExp
+#pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+login: (.*?FAILURE.)(.*?ON) (.*)
+#desc=$0
+#action=write - USERACT: $1 login $2 on $4 at %t
+
+
+#SSH Auth failure on bsd 5
+#type=Single
+#ptype=RegExp
+#pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+sshd\[\d+\]: error: PAM: authentication error for (/S+) from (/S+)
+#desc=$0
+#action=pipe 'SSHD: 1 $1 2 $2 3 $3 to 4 $4 on 5 $5 at %t' /usr/bin/mail -s "SSHD: $1 $2 $3 to $4 on $5 at %t' alerts@example.com
+
+#
+# su  bad
+# -----------------
+#
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+su: (BAD SU) (\S+) to (\S+) on (\S+)
+desc=$0
+action=pipe 'USER: $1 SU: $2 $3 to $4 on $5 at %t' /usr/bin/mail -s "USERACT: $1 su: $2 $3 to $4 on $5 at %t' alerts@example.com
+
+#Nov 10 19:40:03 foohost su: jpb to root on /dev/ttyp0
+#Nov 18 09:37:38 foohost su: BAD SU jpb to root on /dev/ttyp3
+#Nov 22 12:26:44 foohost su: BAD SU badboy to root on /dev/ttyp0
+#
+#
+# su  good to root
+# -----------------
+#
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+su: (\S+) to root on (\S+)
+desc=$0
+action=pipe 'USER: $1 GOOD SU: $2 $3 to $4 on $5 at %t' /usr/bin/mail -s "USERACT: $1 su: $2 $3 to $4 on $5 at %t' alerts@example.com  
+#action=write - USERACT: $1 su: $2 to ROOT on $4  at %t
+
+#
+# Cabling Problem
+# ----------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+/kernel: (\S+)\s+(.*?:) cable problem
+desc=$0
+action=event 0 $1 PHYSMOD:ORANGE  cable problem on $2, text: $3 at %t
+
+
+
+# USERACT - Events concerning user activities.
+#
+# Sample BSD logs involving logins, change of UID and privilege escalations.
+#---------------------------------------------------------------------------
+#Nov 14 12:14:58 foohost sshd[3388]: fatal: Timeout before authentication for 192.168.1.1
+#Nov 14 19:58:34 foohost sshd[6597]: Bad protocol version identification '^B^S^D^Q^L' from 192.168.1.100
+#Oct 18 06:16:53 foohost sshd[131]: Accepted keyboard-interactive/pam for foouser from 192.168.1.1 port 1077 ssh2
+#Nov 15 04:02:24 foohost login: 1 LOGIN FAILURE ON ttyp2
+#Nov 15 04:02:24 foohost login: 1 LOGIN FAILURE ON ttyp2, mysql
+#Oct 18 03:20:46 foohost login: 2 LOGIN FAILURES ON ttyv0
+#Oct 18 02:52:04 foohost login: ROOT LOGIN (root) ON ttyv1
+#Oct 18 06:11:11 foohost login: login on ttyv0 as root
+#Nov 10 19:40:03 foohost su: foouser to root on /dev/ttyp0
+#Nov 18 09:37:38 foohost su: BAD SU foouser to root on /dev/ttyp3
+#Nov 22 12:26:44 foohost su: BAD SU goodboy to root on /dev/ttyp0
+#
+
+#
+# sshd Problems
+# --------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+sshd\[\d+\]: (fatal|Bad)(.*)
+desc=$0
+action=pipe 'USER: $1 su: $2 $3 to $4 on $5 at %t' /usr/bin/mail -s "USERACT: $1 su: $2 $3 to $4 on $5 at %t' alerts@example.com   
+#action=event 0 $1 USERACT:YELLOW  sshd $2 problem, text: $3 at %t
+
+#
+# login FAILURES
+# ---------------
+# ORANGE
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+(sshd|login): (.*?FAILURE.)(.*?ON) (.*)
+desc=$0
+action=pipe 'USER: $1: Login Failure $2 on $4 at %t' /usr/bin/mail -s "USER: $1 su: $2 $3 to $4 on $5 at %t' alerts@example.com   
+#action=event 0 $1 USERACT:YELLOW  login $2 on $4 at %t
+
+
+# NETWACT - SEC rules to pick up suspicious network events.
+#
+# Sample BSD logs involving odd or suspicious network activity.
+#--------------------------------------------------------------
+#Jun  3 17:46:24 foohost named[38298]: client 10.12.127.176#3714: request has invalid signature: tsig verify failure
+#Apr 14 16:23:08 foohost /kernel: arp: 10.10.152.12 moved from 00:90:27:37:35:cf to 00:d0:59:aa:61:11 on de0
+#Apr  1 11:23:39 sixshooter /kernel: Limiting closed port RST response from 368 to 200 packets per second
+
+
+#
+# named Dynamic DNS Update rejection
+# ----------------------------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+named\[\d+\]: client (\S+): request has invalid signature:(.*)
+desc=$0
+action=pipe 'NET: $1 dyndns attempt from $2' /usr/bin/mail -s "NET: $1 dyndns attempt from $2, text: $3 at %t" alerts@example.com
+
+#
+# MAC address moved
+# -----------------
+# ORANGE
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+/kernel: arp: (\S+) moved from (\S+) to (\S+) on (\S+)
+desc=$0
+action=pipe 'NET: $1 arp moved on $2' /usr/bin/mail -s "NET: $1 arp moved on $2 from: $3 to $4 on $5 at %t" alerts@example.com
+
+#
+# DoS RST rate limit
+# ------------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+/kernel: Limiting closed port RST response from (\d+) to (\d+)
+desc=$0
+action=pipe 'NET: $1 RST limit enforced: $2 to $3 at %t' /usr/bin/mail =s "NET: $1 RST limit enforced: $2 to $3" alerts@example.com
+
+
+
+# COMPROM - SEC rules to pick up potential system compromise events.
+#
+# Sample BSD logs involving potential system compromise.
+#-------------------------------------------------------
+#May 25 18:09:55 foohost ntpd[1325]: ntpd exiting on signal 11
+#Jul 21 18:33:16 foohost /kernel: pid 55454 (ftpd), uid 1001: exited on signal 8
+#Apr  9 12:57:06 foohost /kernel: pid 28039 (telnet), uid 0: exited on signal 3 (core dumped)
+
+#
+# ntpd crash
+# ------------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+ntpd\[\d+\]: ntpd exiting on signal (\d+)
+desc=$0
+action=pipe 'CRASH: $1 ntpd crashed on signal $2 at %t' /usr/bin/mail -s "CRASH: $1 ntpd crashed" alerts@example.com
+
+#
+# Process crash
+# ------------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+/kernel: pid \d+ \(\S+\), uid (\d+): exited on signal (\d+)
+desc=$0
+action=pipe 'CRASH: $1 $2 crashed on signal $4, uid $3 at %t' /usr/bin/mail -s "CRASH: $1 $2 crashed" alerts@example.com
+
+
+
+# PROCESS - SEC rules to pick up suspicious process events.
+#
+# Sample BSD logs involving unusual processes.
+#---------------------------------------------
+#Mar 23 08:05:52 foohost thttpd[126]: thttpd/2.25b 29dec2003 starting on port 8090
+
+#
+# Suspicious processes
+# --------------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+(thttpd)\[(\d+)\]:(.*) 
+desc=$0
+action=pipe 'SUSPROC: $1 suspicious process  $2 pid $3, text: $4 at %t' /usr/bin/mail -s "SUSPROC: $1 suspicious process  $2" alerts@example.com
+
+
+
+# SHUTRST - SEC rules to pick up system shutdown, restart events.
+#
+# Sample BSD logs involving system shutdown and reset.
+#-----------------------------------------------------
+#Mar  6 16:28:13 foohost reboot: rebooted by foouser 
+#Jul 15 17:35:49 foohost halt: halted by root
+#Mar  6 16:29:17 foohost /kernel: Copyright (c) 1992-2003 The FreeBSD Project.
+
+#
+# Reboot message
+# --------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+reboot: rebooted by (\S+)
+desc=$0
+action=pipe 'REBOOT: $1 rebooted by $2' /usr/bin/mail -s "REBOOT: $1 rebooted by $2" alerts@example.com
+
+#
+# Halt message
+# --------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+halt: halted by (\S+)
+desc=$0
+action=pipe 'HALT: $1 halted by $2' /usr/bin/mail -s "HALT: $1 halted by $2" alerts@example.com
+
+#
+# Restart message
+# --------------
+#
+type=Single
+ptype=RegExp
+pattern=^\S+\s+\d+\s+\S+\s+(\S+)\s+/kernel: Copyright \(c\) (\S+) The FreeBSD Project
+desc=$0
+action=pipe 'RESTART: $1 restart message at %t' /usr/bin/mail -s "RESTART: $1 restart message" alerts@example.com
+

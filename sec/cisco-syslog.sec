@@ -1,0 +1,477 @@
+#############################################################################
+# SEC rules for processing Cisco syslog messages
+#
+# Copyright (C) 2008-2009 Omer Ben-Shalom, Risto Vaarandi
+# This is free software. You may redistribute copies of it under the terms of 
+# the GNU General Public License version 2.
+# There is NO WARRANTY, to the extent permitted by law.
+#############################################################################
+
+# ----- Process system configuration events -----
+
+# System configuration events
+# suppressed because we don't care about it
+#
+type=suppress
+ptype=substr
+pattern=%SYS-5-CONFIG_I:
+desc=device configuration
+
+# System configuration sync to standby router
+# suppressed because we don't care about it
+#
+type=suppress
+ptype=substr
+pattern=%PFINIT-SP-5-CONFIG_SYNC:
+desc=config sync
+
+# ----- Process reload and restart events -----
+
+# Looks for a reload 
+# 
+type=single
+continue=takeNext
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%SYS-5-RELOAD: (.*)
+desc=(WARNING) reload requested for $1
+action=pipe '%s details:$2' mail -s 'cisco event' root@example.com
+
+# Looks for a reload followed by a restart event
+# 
+type=pairWithWindow
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%SYS-5-RELOAD:
+desc=(CRITICAL) $1 RELOAD_PROBLEM
+action=pipe '%s' mail -s 'cisco event' root@example.com
+ptype2=regexp
+pattern2=($1).*?%SYS-5-RESTART:
+desc2=(NOTICE) $1 RELOAD_OK
+action2=pipe '%s' mail -s 'cisco event' root@example.com
+window=300
+
+# Looks for a restart without reload command
+# 
+type=single
+ptype=regexp
+pattern=(\S+) \d+:.*?%SYS-5-RESTART:
+desc=(CRITICAL) $1 restart without reload command
+action=pipe '%s' mail -s 'cisco event' root@example.com
+
+# ----- process SNMP authentication failure events -----
+
+# this rule handles the SNMP authentication failures
+# only one notification is sent for each source that is doing this per day
+#
+type=singleWithSuppress
+ptype=regexp
+pattern=(\S+) \d+:.*?%SNMP-3-AUTHFAIL: Authentication failure for SNMP req from host (\S+)
+desc=(WARNING) Auth fail coming from $2
+action=pipe '%s' mail -s 'cisco event' root@example.com
+window=86400
+
+# ----- process OSPF neighbor change events -----
+
+# This rule handles OSPF neighbor changes
+#
+type=single
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%OSPF-5-ADJCHG:.*?Nbr (\S+) on (\S+) from (\S+) to (\S+), (.*)
+desc=(MINOR) OSPF adjacency change: Router $1 reports that the neighbor on $3 ($2) changed from state $4 to state $5 detail:$6
+action=event %s; pipe '%s' mail -s 'cisco event' root@example.com
+
+# This rule escalates to CRITICAL if there are more than 5 neighbor changes 
+# in 5 seconds
+# 
+type=SingleWithThreshold
+ptype=substr
+pattern=(MINOR) OSPF adjacency change
+desc=(CRITICAL) More than 5 OSPF neighbor changes in 5 seconds
+action=pipe '%s' mail -s 'cisco event' root@example.com
+thresh=5
+window=5
+
+# ----- process HSRP events -----
+
+# This rule assembles together all HSRP events
+# 
+type=single
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%STANDBY-6-STATECHANGE: (\S+).*?state (\S+) -> (\S+)
+desc=HSRP change for $1 interface $2 - changed from $3 to $4
+action=add HSRP_$1 %t: %s; set HSRP_$1 5 (report HSRP_$1 mail -s 'cisco events' root@example.com)
+
+# ----- process duplex mismatch events -----
+
+# this rule handles the duplex mismatch event
+# only one notification is sent for each port that has duplex mismatch 
+# reported per day
+#
+type=singleWithSuppress
+ptype=regexp
+pattern=(\S+) \d+:.*?%CDP-4-DUPLEX_MISMATCH: duplex mismatch discovered on (not \S+) \((.*?)\), with (\S+) (\S+) \((.*?)\)
+desc=(WARNING) Duplex mismatch between $1 port $2 ($3), other side is $4 port $5 ($6)
+action=pipe '%s' mail -s 'cisco event' root@example.com
+window=86400
+
+# ----- process link down and link up events -----
+
+# This rule deals with link down events
+# 
+type=PairWithWindow
+ptype=RegExp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%LINK-3-UPDOWN: Interface (\S+), changed state to down
+desc=(MINOR) $1 INTERFACE $2 DOWN and not up in one minute
+action=pipe '%s' mail -s 'cisco event' root@example.com
+ptype2=RegExp
+pattern2=($1)\s+\d+:.*?%LINK-3-UPDOWN: Interface ($2), changed state to up
+desc2=(WARNING) %1 INTERFACE %2 BOUNCE
+action2=event %s
+window=60
+
+# when the first bounce event is seen, create a reporting trigger 
+#
+type=Single
+continue=TakeNext
+ptype=regexp
+pattern=(\S+) INTERFACE \S+ BOUNCE
+context=!INTERFACE_BOUNCE_WAIT_$1
+desc=interface bounce summary event for router $1
+action=create INTERFACE_BOUNCE_WAIT_$1 10 (report INTERFACE_BOUNCE_$1 mail -s 'cisco events' root@example.com; delete INTERFACE_BOUNCE_$1)
+
+# accumulate all interface bounce events into a context
+#
+type=Single
+ptype=regexp
+pattern=(\S+) INTERFACE (\S+) BOUNCE
+desc=interface bounce for router $1 interface $2 detected
+action=add INTERFACE_BOUNCE_$1 %t: %s
+
+# ----- process line protocol down and line protocol up events -----
+
+# This rule deals with protocol up/down events
+#
+type=PairWithWindow
+ptype=RegExp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%LINEPROTO-5-UPDOWN: Line protocol on Interface (\S+), changed state to down
+desc=(MINOR) $1 INTERFACE $2 line protocol DOWN and not up in one minute
+action=pipe '%s' mail -s 'cisco event' root@example.com
+ptype2=RegExp
+pattern2=($1)\s+\d+:.*?%LINEPROTO-5-UPDOWN: Line protocol on Interface ($2), changed state to up
+desc2=(WARNING) %1 INTERFACE %2 line protocol BOUNCE
+action2=event %s
+window=60
+
+# when the first bounce event is seen, create a reporting trigger 
+#
+type=Single
+continue=TakeNext
+ptype=regexp
+pattern=(\S+) INTERFACE \S+ line protocol BOUNCE
+context=!LINE_PROTOCOL_BOUNCE_WAIT_$1
+desc=line protocol bounce for router $1
+action=create LINE_PROTOCOL_BOUNCE_WAIT_$1 10 (report LINE_PROTOCOL_BOUNCE_$1 mail -s 'cisco events' root@example.com; delete LINE_PROTOCOL_BOUNCE_$1)
+
+# accumulate all line protocol bounce events into a context
+#
+type=Single
+ptype=regexp
+pattern=(\S+) INTERFACE (\S+) line protocol BOUNCE
+desc=line protocol bounce for router $1 interface $2 detected
+action=add LINE_PROTOCOL_BOUNCE_$1 %t: %s
+
+# ----- process late collision events -----
+
+# Late collision alerts 
+# 
+type=SingleWithThreshold
+ptype=RegExp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%PM_SCP-SP-4-LCP_FW_ABLC: Late collision message from module (\d+), port:(\d+)
+desc=(MINOR) Multiple late collision events on $1 module $2 port $3
+action=pipe '%s' mail -s 'cisco event' root@example.com
+window=3600
+thresh=5
+
+# ----- process host flap events -----
+
+# host flapping on single vlan 
+# 
+type=SingleWithThreshold
+continue=TakeNext
+ptype=RegExp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%C4K_EBM-4-HOSTFLAPPING: Host (\S+) in vlan (\S+) is flapping between port (\S+) and port (\S+)
+desc=(MINOR) multiple hosts flapping between ports $4 and $5 in $1 vlan $3
+action=pipe '%s' mail -s 'cisco event' root@example.com
+window=300
+thresh=5
+
+# host flapping on multiple vlans 
+# 
+type=SingleWithThreshold
+continue=TakeNext
+ptype=RegExp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%C4K_EBM-4-HOSTFLAPPING: Host (\S+) in vlan (\S+) is flapping between port (\S+) and port (\S+)
+desc=(MINOR) multiple hosts are flapping between ports $4 and $5 in $1 (potentially on multiple VLANs)
+action=pipe '%s' mail -s 'cisco event' root@example.com
+window=300
+thresh=20
+
+# ----- process misc hw events -----
+
+# %FILESYS-SP-STDBY-5-DEV:# flash disk removal
+#
+type=single
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%FILESYS-SP-STDBY-5-DEV:.*?PCMCIA flash card removed from (\S+)
+desc=(WARNING) Flash card removed from $1 $2
+action=pipe '%s' mail -s 'cisco event' root@example.com
+
+# %OIR-SP-STDBY-6-CONSOLE
+#
+type=suppress
+ptype=substr
+pattern=%OIR-SP-STDBY-6-CONSOLE
+desc=console access to route processor changed
+
+# %OIR-SP-6-INSCARD:  - card inserted 
+#
+type=single
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%OIR-SP-6-INSCARD: Card inserted in slot (\d+), (.*)
+desc=(HARMLESS) card inserted in $1 slot $2 status:$3
+action=pipe '%s' mail -s 'cisco event' root@example.com 
+
+# ----- process module events -----
+
+# %DIAG-SP-3-TEST_FAIL - diagnostics failed on a module
+#
+type=single
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%DIAG-SP-3-TEST_FAIL: Module (\d+): (.*)
+desc=(WARNING) diagnostics failed for $1 module $2 detail:$3
+action=pipe '%s' mail -s 'cisco event' root@example.com
+
+# %SNMP-5-MODULETRAP
+# Looks for a module down followed by module up event
+# 
+type=pairWithWindow
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%SNMP-5-MODULETRAP: Module (\d+) [Down] Trap
+desc=(MINOR) $1 Module DOWN (not back up in a minute)
+action=pipe '%s' mail -s 'cisco event' root@example.com
+ptype2=regexp
+pattern2=($1) .*? %SNMP-5-MODULETRAP: Module ($2) [Up] Trap
+desc2=(WARNING) $1 Module $2 BOUNCE (down and back up within a minute)
+action2=pipe '%s' mail -s 'cisco event' root@example.com
+window=60
+
+# ----- process irrelevant events (by suppressing) -----
+
+# %SYS-SP-STDBY-5-RESTART - system restarted part of the boot - interesting?
+# 
+type=suppress
+ptype=substr
+pattern=SYS-SP-STDBY-5-RESTART
+desc=system restarted
+
+# %DIAG-SP-6-TEST_RUNNING - Running system test
+# 
+type=suppress
+ptype=substr
+pattern=%DIAG-SP-6-TEST_RUNNING
+desc=running diagnostics on a module
+
+# %FABRIC-SP-5-FABRIC_MODULE_BACKUP - module changed to backup state
+# 
+type=suppress
+ptype=substr
+pattern=%FABRIC-SP-5-FABRIC_MODULE_BACKUP
+desc=module became backup
+
+# %DIAG-SP-6-RUN_MINIMUM - diagnostics are run
+# 
+type=suppress
+ptype=substr
+pattern=%DIAG-SP-6-RUN_MINIMUM
+desc=diagnostics running on switch
+
+# %DIAG-SP-6-DIAG_OK - diagnostics results are OK
+# 
+type=suppress
+ptype=substr
+pattern=%DIAG-SP-6-DIAG_OK
+desc=diagnostics results are OK
+
+# %PFREDUN-SP-STDBY-6-STANDBY - SSO events
+# 
+type=suppress
+ptype=substr
+pattern=%PFREDUN-SP-STDBY-6-STANDBY
+desc=SSO event (startup)
+
+# %PFREDUN-SP-STDBY-6-STANDBY - SSO events
+# 
+type=suppress
+ptype=substr
+pattern=%PFREDUN-SP-6-ACTIVE
+desc=SSO event (startup)
+
+# %FABRIC-SP-5-FABRIC_MODULE_BACKUP: - secondary sup is up and is secondary
+# 
+type=suppress
+ptype=substr
+pattern=%FABRIC-SP-5-FABRIC_MODULE_BACKUP:
+desc=secondary sup is up and is secondary
+
+# %PFINIT-SP-5-CONFIG_SYNC - startup config on standby router sync
+# 
+type=suppress
+ptype=substr
+pattern=%PFINIT-SP-5-CONFIG_SYNC
+desc=startup config on standby router sync
+
+# %C4K_REDUNDANCY - Cayt 4K configuration/vlan database succesful sync
+# the success match is to allow fails in sync to not be suppress
+# 
+type=suppress
+ptype=regexp
+pattern=%C4K_REDUNDANCY.*?success
+desc=config sync with standby supervisor
+
+# %SCP-SP-5-ASYNC_WATERMARK: SCP long queue wait
+# the success match is to allow fails in sync to not be suppress
+# 
+type=suppress
+ptype=substr
+pattern=%SCP-SP-5-ASYNC_WATERMARK:
+desc=SCP control protocol pending queue is longer than notification threshold
+
+# %MLS_RATE-4-DISABLING: - Layer2 Rate Limiters have been disabled. Is this interesting?
+#
+type=suppress
+ptype=substr
+pattern=%MLS_RATE-4-DISABLING:
+desc=Layer2 Rate Limiters have been disabled
+
+# ----- process native VLAN mismatch events -----
+
+# %CDP-4-NATIVE_VLAN_MISMATCH: - native VLAN mismatch between switches, will repeat every minute until fixed
+#
+type=singleWithSuppress
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered on (\S+) \((\d+)\), with (\S+) (\S+) \((\d+)\)
+desc=(MINOR) A native VLAN mistmatch reported between $1 interface $2 (native VLAN $3) and host $4 interface $5 (native VLAN $6)
+action=pipe '%s' mail -s 'cisco event' root@example.com
+window=60
+
+# ----- process snmp trapblock messages -----
+
+# %SNMP-3-TRAPBLOCK - A process tried to create a trap it is not entitled to create
+# See Cisco http://www.cisco.com/cgi-bin/Support/Errordecoder/index.cgi?action=search&counter=0&paging=5&query=SNMP-3-TRAPBLOCK
+# 
+type=suppress
+ptype=substr
+pattern=%SNMP-3-TRAPBLOCK
+desc=a process tried to create a trap it is not entitled to create
+
+# ----- process chassis alarm events -----
+
+# %SNMP-5-CHASSISALARM - this rule handles the tmpAlarm
+#
+type=pairWithWindow
+continue=takeNext
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%SNMP-5-CHASSISALARM: Chassis Alarm Trap: tmpAlarm\(ON\)
+desc=(MINOR) $1 temprature alarm signaled and not cleared in five minutes
+action=pipe '%s' mail -s 'cisco event' root@example.com
+continue2=takeNext
+ptype2=regexp
+pattern2=\d+:\d+:\d+.*?($1)\s+\d+:.*%SNMP-5-CHASSISALARM: Chassis Alarm Trap: tmpAlarm\(OFF\)
+desc2=(WARNING) $1 temprature alarm went on and was cleared in under five minutes
+action2=pipe '%s' mail -s 'cisco event' root@example.com
+window=300
+
+# %SNMP-5-CHASSISALARM - this rule handles the minorAlarm
+#
+type=pairWithWindow
+continue=takeNext
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%SNMP-5-CHASSISALARM: Chassis Alarm Trap: .*? minorAlarm\(ON\)
+desc=(MINOR) $1 minor alarm reported and not cleared in three minutes
+action=pipe '%s' mail -s 'cisco event' root@example.com
+continue2=takeNext
+desc2=(WARNING) $1 minor alarm went on and was cleared in under three minutes
+ptype2=regexp
+pattern2=\d+:\d+:\d+.*?($1)\s+\d+:.*?%SNMP-5-CHASSISALARM: Chassis Alarm Trap: .*? minorAlarm\(OFF\)
+action2=pipe '%s' mail -s 'cisco event' root@example.com
+window=180	
+
+# %SNMP-5-CHASSISALARM - this rule handles the majorAlarm
+#
+type=pairWithWindow
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%SNMP-5-CHASSISALARM: Chassis Alarm Trap: .*? majorAlarm\(ON\)
+desc=(MINOR) $1 major alarm signaled and not cleared in two minutes
+action=pipe '%s' mail -s 'cisco event' root@example.com
+ptype2=regexp
+pattern2=\d+:\d+:\d+.*?($1)\s+\d+:.*?%SNMP-5-CHASSISALARM: Chassis Alarm Trap: .*? majorAlarm\(OFF\)
+desc2=(WARNING) $1 major alarm went on and was cleared in under two minutes
+action2=pipe '%s' mail -s 'cisco event' root@example.com
+window=120
+
+# ----- process power supply related events -----
+
+# %C4K_IOSMODPORTMAN events - this one is about power supplies only 
+#
+type=pairWithWindow
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%C4K_IOSMODPORTMAN-4-POWERSUPPLYBAD: Power Supply (\d+) has failed or been turned off
+desc=(MINOR) $1 power supply $2 reported bad and event not cleared in two minutes
+action=pipe '%s' mail -s 'cisco event' root@example.com
+ptype2=regexp
+pattern2=($1) .*? %C4K_IOSMODPORTMAN-6-POWERSUPPLYGOOD: Power Supply ($2) is Okay
+desc2=(WARNING) $1 power supply $2 alarm went on and was cleared in under two minutes
+action2=pipe '%s' mail -s 'cisco event' root@example.com
+window=120
+
+# ----- process neighbor down and neighbor up events -----
+
+# %DVMRP-5-NBRDOWN
+#
+type=pairWithWindow
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%DVMRP-5-NBRDOWN: Neighbor (\S+) went down on (\S+)
+desc=(MINOR) $1 lost DVMRP neighbor $2 on interface $3 and it did not come up in two minutes
+action=pipe '%s' mail -s 'cisco event' root@example.com
+ptype2=regexp
+pattern2=($1) .*? %DVMRP-5-NBRUP: Neighbor ($2) is up on ($3)
+desc2=(WARNING) $1 lost DVMRP neighbor $2 on interface $3 but id come up within two minutes
+action2=pipe '%s' mail -s 'cisco event' root@example.com
+window=120
+
+# ----- process fan power supply failure/ok events -----
+
+# %C6KENV-SP-4-PSFANF events - this one is about fan failures
+#
+type=pairWithWindow
+ptype=regexp
+pattern=\d+:\d+:\d+.*?(\S+)\s+\d+:.*?%C6KENV-SP-4-PSFANFAILED: the fan in power supply (\d+) has failed
+desc=(MINOR) $1 fan in power supply $2 was reported bad and event not cleared in two minutes
+action=pipe '%s' mail -s 'cisco event' root@example.com
+ptype2=regexp
+pattern2=($1) .*? %C6KENV-SP-4-PSFANOK: the fan in power supply (\d+) is OK
+desc2=(WARNING) $1 fan in power supply $2 alarm went on and was cleared in under two minutes
+action2=pipe '%s' mail -s 'cisco event' root@example.com
+window=120
+
+# ----- process events that have not been matched by any of above rules -----
+
+# Default match
+# this rule will match anything not previously matched but allows only 
+# one notification per day for each new event class seen
+#
+type=singleWithSuppress
+ptype=regexp
+pattern=(%.*?:)
+desc=$1
+action=pipe '$0' mail -s 'cisco event' root@example.com
+window=86400
