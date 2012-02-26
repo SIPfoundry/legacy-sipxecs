@@ -8,6 +8,7 @@
 package org.sipfoundry.sipxconfig.proxy;
 
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface ProxyManager {
@@ -15,6 +16,7 @@ public interface ProxyManager {
     public static final AddressType TCP_ADDRESS = new AddressType("proxyTcp");
     public static final AddressType UDP_ADDRESS = new AddressType("procyUdp");
     public static final AddressType TLS_ADDRESS = new AddressType("proxyTls");
+    public static final AlarmDefinition EMERG_NUMBER_DIALED = new AlarmDefinition("EMERG_NUMBER_DIALED");
 
     public ProxySettings getSettings();
 

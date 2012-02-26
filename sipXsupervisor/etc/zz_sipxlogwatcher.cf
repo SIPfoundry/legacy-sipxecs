@@ -1,4 +1,10 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
 # SEC - Simple Event Correlator to filter log file entries
+# Named zz_sipxlogwatcher so it gets run after all other promises have
+# setup their logwatcher *.sec files and toggled reload_logwatcher class
 
 bundle agent zz_sipxlogwatcher {
   methods:
@@ -6,6 +12,7 @@ bundle agent zz_sipxlogwatcher {
       "any" usebundle => "sipxlogwatcher_config";
     any::
       "any" usebundle => "sipxlogwatcher_running";
+      "any" usebundle => "sipxlogwatcher_setup";
 }
 
 bundle agent sipxlogwatcher_config {
@@ -29,11 +36,19 @@ bundle edit_line sipxlogwatcher_config_contents {
       ".*";
 }
 
+bundle agent sipxlogwatcher_setup {
+  methods:
+    !src.sipxlogwatcher::
+      "any" usebundle => rh_chkconfig_status("sipxlogwatcher on");
+    !src.!sipxlogwatcher::
+      "any" usebundle => rh_chkconfig_status("sipxlogwatcher off");
+}
+
 bundle agent sipxlogwatcher_running {
   vars:
     any::
       "service" string => "/etc/init.d/sipxlogwatcher";
-      "service_command" string => "/usr/sbin/sec";
+      "service_command" string => "/usr/bin/perl -w /usr/bin/sec";
 
   methods:
     any::

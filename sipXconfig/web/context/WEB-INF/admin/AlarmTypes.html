@@ -1,14 +1,11 @@
   <table jwcid="@common/Table" id="alarm:list"
-      columns="label,!description,!groupName,!threshold"
+      columns="code:alarmDefinition.id,!description,!groupName,!threshold"
       source="ognl:alarms"
       row="ognl:currentRow"
       selections="ognl:selections"
       converter="ognl:alarmConverter">
-    <span jwcid="labelColumnValue@Block">
-      <span jwcid="@Insert" value="ognl:messages.getMessage('alarm.'+currentRow.alarmDefinition.id)"/>
-    </span>
     <span jwcid="descriptionColumnValue@Block">
-      <span jwcid="@Insert" value="ognl:messages.getMessage('alarm.'+currentRow.alarmDefinition.id+'.description')"/>
+      <span jwcid="@Insert" value="ognl:messages.getMessage('alarm.'+currentRow.alarmDefinition.id)"/>
     </span>
     <span jwcid="groupNameColumnValue@Block">
       <input jwcid="@PropertySelection" model="ognl:alarmGroupModel" value="ognl:currentRow.groupName" validators="validators:required" />

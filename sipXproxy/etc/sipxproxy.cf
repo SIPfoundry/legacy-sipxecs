@@ -13,6 +13,18 @@ bundle agent sipxproxy {
     any::
       "any" usebundle => "sipxproxy_setup";
       "any" usebundle => "sipxproxy_running";
+    sipxlogwatcher::
+      "any" usebundle => "sipxproxy_logwatcher";
+}
+
+bundle agent sipxproxy_logwatcher {
+  files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxproxy.sec"
+      comment => "sipxproxy log watcher",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxproxy/sipxproxy.sec.erb --out $(this.promiser)",
+      classes => if_repaired("reload_sipxlogwatcher");
 }
 
 bundle agent sipxproxy_config {
