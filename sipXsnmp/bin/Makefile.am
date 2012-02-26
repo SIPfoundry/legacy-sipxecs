@@ -1,7 +1,8 @@
 include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-	$(bin_SCRIPTS:=.in)
+	$(bin_SCRIPTS:=.in) \
+	$(libexec_SCRIPTS:=.in)
 
 bin_SCRIPTS = \
 	sipxtrap
