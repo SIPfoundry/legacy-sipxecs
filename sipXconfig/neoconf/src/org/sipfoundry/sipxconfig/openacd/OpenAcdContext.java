@@ -146,4 +146,12 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     boolean containsUsedSkills(OpenAcdSkillGroup skillGroup);
 
     OpenAcdClient getClientByName(String string);
+
+    List<OpenAcdReleaseCode> getReleaseCodes();
+
+    OpenAcdReleaseCode getReleaseCodeById(Integer id);
+
+    void saveReleaseCode(OpenAcdReleaseCode code);
+
+    void removeReleaseCodes(Collection<Integer> codesId);
 }

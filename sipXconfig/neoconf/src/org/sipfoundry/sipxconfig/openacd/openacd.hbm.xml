@@ -176,6 +176,17 @@
     <property name="description"/>
   </class>
 
+  <class name="OpenAcdReleaseCode" table="openacd_release_codes">
+    <id name="id" column="openacd_code_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_release_codes_seq</param>
+      </generator>
+	</id>
+    <property name="label"/>
+    <property name="bias"/>
+    <property name="description"/>
+  </class>
+
   <subclass name="OpenAcdExtension" extends="org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension" discriminator-value="O">
   </subclass>
 
@@ -243,6 +254,10 @@
 
   <query name="openAcdSkillGroupWithName">
     <![CDATA[from OpenAcdSkillGroup skillGroup where skillGroup.name = :value]]>
+  </query>
+
+  <query name="openAcdClientReleaseCodeWithLabel">
+    <![CDATA[from OpenAcdReleaseCode code where code.label = :value]]>
   </query>
 
   <sql-query name="allSkills">
