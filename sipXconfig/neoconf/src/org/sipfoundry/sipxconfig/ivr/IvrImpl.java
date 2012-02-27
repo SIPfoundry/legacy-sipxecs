@@ -40,6 +40,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         REST_API, SIP_ADDRESS
     });
+    private static final String VM = "vm";
     private BeanWithSettingsDao<IvrSettings> m_settingsDao;
     private BeanWithSettingsDao<CallPilotSettings> m_pilotSettingsDao;
     private ConfigManager m_configManager;
@@ -147,8 +148,8 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
 
     @Override
     public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
-        ResourceRecords tcpRecords = new ResourceRecords("_sip._tcp", "vm");
-        ResourceRecords udpRecords = new ResourceRecords("_sip._udp", "vm");
+        ResourceRecords tcpRecords = new ResourceRecords("_sip._tcp", VM);
+        ResourceRecords udpRecords = new ResourceRecords("_sip._udp", VM);
         List<ResourceRecords> records = new LinkedList<ResourceRecords>();
         Collection<Address> addresses = getAvailableAddresses(manager.getAddressManager(), SIP_ADDRESS, whoIsAsking);
         if (addresses != null && addresses.isEmpty()) {

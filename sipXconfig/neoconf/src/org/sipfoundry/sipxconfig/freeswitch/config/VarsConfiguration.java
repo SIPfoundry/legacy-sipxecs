@@ -37,7 +37,7 @@ public class VarsConfiguration extends AbstractFreeswitchConfiguration {
 
     private String getFsDomain(Location location) {
         if (m_featureManager.isFeatureEnabled(Ivr.FEATURE, location)) {
-            return "vm."+location.getFqdn();
+            return "vm." + location.getFqdn();
         }
         return "$${local_ip_v4}";
     }

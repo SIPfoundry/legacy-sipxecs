@@ -38,6 +38,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  */
 public class FreeswitchMediaServer extends MediaServer {
     private static final String USER_PART = "IVR";
+    private static final String VM = "vm.%s";
     private AddressManager m_addressManager;
     private FeatureManager m_featureManager;
 
@@ -91,11 +92,11 @@ public class FreeswitchMediaServer extends MediaServer {
     public String getHostname(Operation operation) {
         if (getLocation() != null) {
             if (m_featureManager.isFeatureEnabled(Ivr.FEATURE, getLocation())) {
-                return String.format("vm.%s", getLocation().getFqdn());
+                return String.format(VM, getLocation().getFqdn());
             } else {
                 List<Location> vms = m_featureManager.getLocationsForEnabledFeature(Ivr.FEATURE);
                 if (vms != null && vms.size() > 0) {
-                    return String.format("vm.%s", vms.get(0).getFqdn());
+                    return String.format(VM, vms.get(0).getFqdn());
                 }
             }
         }
