@@ -23,12 +23,12 @@ syslog_device=
 
 [fedora]
 name=fedora
-@FEDORA_BASE_URL_ON@baseurl=@FEDORA_BASE_URL@/releases/14/Everything/x86_64/os/
+@FEDORA_BASE_URL_ON@baseurl=@FEDORA_ARCHIVE_BASE_URL@/releases/14/Everything/x86_64/os/
 @FEDORA_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-14&arch=x86_64
 
 [updates]
 name=updates
-@FEDORA_BASE_URL_ON@baseurl=@FEDORA_BASE_URL@/updates/14/x86_64/
+@FEDORA_BASE_URL_ON@baseurl=@FEDORA_ARCHIVE_BASE_URL@/updates/14/x86_64/
 @FEDORA_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f14&arch=x86_64
 
 [local]
