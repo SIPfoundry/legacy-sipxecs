@@ -5,8 +5,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.logwatcher;
-
+package org.sipfoundry.sipxconfig.mail;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +20,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvider, FeatureProvider {
+public class MailManagerImpl implements MailManager, SetupListener, FeatureProvider, ProcessProvider {
 
     @Override
     public void setup(SetupManager manager) {
@@ -36,11 +35,6 @@ public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvide
     }
 
     @Override
-    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        return Collections.singleton(SERVICE);
-    }
-
-    @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
         return Collections.singleton(FEATURE);
     }
@@ -48,5 +42,10 @@ public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvide
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return null;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        return Collections.singleton(SERVICE);
     }
 }

@@ -35,6 +35,7 @@ dist_cfplugins_DATA = \
 	sipxsupervisor.cf \
 	selinux.cf \
 	firewall.cf \
+	sendmail.cf \
 	zz_sipxlogwatcher.cf
 
 cfinputs_PROMISES = \
