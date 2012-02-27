@@ -78,8 +78,14 @@ Requires: xerces-c-devel >= 2.6.0
 %endif
 Requires: sipxportlib-devel >= %version
 Requires: sipxtacklib-devel >= %version
-Requires: mongodb-devel >= 2.0.0
 Requires: unixODBC-devel >= 2.2
+
+%if 0%{?fedora} >= 15
+# sipXproxy compile fails, but this is first time it's referenced
+Requires: mongodb-devel-fsv2-patch >= 2.0.2
+%else
+Requires: mongodb-devel >= 2.0.2
+%endif
 
 Group: Development/Libraries
 Vendor: SIPfoundry
