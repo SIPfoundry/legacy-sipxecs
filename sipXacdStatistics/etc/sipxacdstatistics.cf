@@ -75,7 +75,7 @@ bundle agent sipxacdstatistics_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxacdstatistics_running");
 
   commands:
-    !sipxacdstatistics.sipxacdstatistics_running::
+    (!sipxacdstatistics|stop_sipxecs).sipxacdstatistics_running::
       "$(service)"
         comment => "stop sipxacdstatistics",
         args => "stop";

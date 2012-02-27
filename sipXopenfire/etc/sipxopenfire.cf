@@ -88,7 +88,7 @@ bundle agent sipxopenfire_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenfire_running");
 
   commands:
-    !sipxopenfire.sipxopenfire_running::
+    (!sipxopenfire|stop_sipxecs).sipxopenfire_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
         comment => "stop sipxopenfire",
         args => "stop";

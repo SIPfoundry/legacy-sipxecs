@@ -32,7 +32,7 @@ def run(verbose, is_remote, is_raw, hosts, defines, bundles)
     ok = cmd(verbose, "su - #{$user} sh -c \"#{$bindir}/sipxagent #{$args.join(' ')}\"")
 
   else
-    dstr = (defines.empty? ? '' : "-d " + defines.join(' -d '))
+    dstr = (defines.empty? ? '' : "-D " + defines.join(' -D '))
     bstr = (bundles.empty? ? '' : "-b " + bundles.join(' -b '))
     hstr = (hosts.empty? ? '' : "-H " + hosts.join(' -H '))
     vstr = (verbose ? '-v' : '')
@@ -83,16 +83,6 @@ EOF
     is_remote = true
   }
 
-  opts.on_tail("-d class", "--define class", <<EOF
-Define a CFEngine 'class' to be sent to remote machine.
-Can be used multiple times. A 'class' is like a boolean and can be used to denote a
-command, state or multitude of things, it's really up to how the promises were written.
-
-EOF
-               ) {|v|
-    defines << v
-  }
-
   opts.on_tail("-b bundle", "--bundle bundle", <<EOF
 Specify a CFEngine 'bundle' that will execute on remote 
 machine instead of the standard one that runs through config files. 
@@ -101,6 +91,22 @@ EOF
                ) {|v|
     bundles << v
   }
+
+  opts.on_tail("-d class", "--define class", <<EOF
+Define a CFEngine 'class' to be sent to remote machine.
+Can be used multiple times. A 'class' is like a boolean and can be used to denote a
+command, state or multitude of things, it's really up to how the promises were written.
+
+Common Defines:
+
+ stop_sipxecs        - Stop all sipxecs related processes
+ restart_sipxecs     - Restart all sipxecs related processes
+
+EOF
+               ) {|v|
+    defines << v
+  }
+
 }
 args.parse!
 

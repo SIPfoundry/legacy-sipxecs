@@ -64,7 +64,7 @@ bundle agent sipxpublisher_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpublisher_running");
 
   commands:
-    !sipxpublisher.sipxpublisher_running::
+    (!sipxpublisher|stop_sipxecs).sipxpublisher_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
         comment => "stop sipxpublisher",
         args => "stop";

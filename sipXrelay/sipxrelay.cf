@@ -43,7 +43,7 @@ bundle agent sipxrelay_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxrelay_running");
 
   commands:
-    !sipxrelay.sipxrelay_running::
+    (!sipxrelay|stop_sipxecs).sipxrelay_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxrelay"
         comment => "stop sipxrelay",
         args => "stop";

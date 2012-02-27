@@ -162,7 +162,7 @@ bundle agent sipxfreeswitch_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxfreeswitch_running");
 
   commands:
-    !sipxfreeswitch.sipxfreeswitch_running::
+    (!sipxfreeswitch|stop_sipxecs).sipxfreeswitch_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
         comment => "stop freeswitch",
         args => "stop";

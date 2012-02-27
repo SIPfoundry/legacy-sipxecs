@@ -56,7 +56,7 @@ bundle agent sipxpage_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpage_running");
 
   commands:
-    !sipxpage.sipxpage_running::
+    (!sipxpage|stop_sipxecs).sipxpage_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
         comment => "stop sipxpage",
         args => "stop";
@@ -66,7 +66,7 @@ bundle agent sipxpage_running {
         comment => "start sipxpage",
         args => "start";
 
-    sipxpage.sipxpage_running.restart_sipxpage::
+    sipxpage.sipxpage_running.(restart_sipxpage|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
         comment => "restart sipxpage",
         args => "restart";

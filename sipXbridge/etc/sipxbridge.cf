@@ -50,7 +50,7 @@ bundle agent sipxbridge_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxbridge_running");
 
   commands:
-    !sipxbridge.sipxbridge_running::
+    (!sipxbridge|stop_sipxecs).sipxbridge_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
         comment => "stop sipxbridge",
         args => "stop";

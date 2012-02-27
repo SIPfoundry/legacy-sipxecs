@@ -102,7 +102,7 @@ bundle agent sipxproxy_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxproxy_running");
 
   commands:
-    !sipxproxy.sipxproxy_running::
+    (!sipxproxy|stop_sipxecs).sipxproxy_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
         comment => "stop sipxproxy",
         args => "stop";

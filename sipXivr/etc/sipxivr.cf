@@ -80,7 +80,7 @@ bundle agent sipxivr_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxivr_running");
 
   commands:
-    !sipxivr.sipxivr_running::
+    (!sipxivr|stop_sipxecs).sipxivr_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxivr"
         comment => "stop sipxivr",
         args => "stop";

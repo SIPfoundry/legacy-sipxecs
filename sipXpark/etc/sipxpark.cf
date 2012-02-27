@@ -62,7 +62,7 @@ bundle agent sipxpark_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpark_running");
 
   commands:
-    !sipxpark.sipxpark_running::
+    (!sipxpark|stop_sipxecs).sipxpark_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpark"
         comment => "stop sipxpark",
         args => "stop";

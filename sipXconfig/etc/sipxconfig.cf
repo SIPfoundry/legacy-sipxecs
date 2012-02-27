@@ -46,7 +46,7 @@ bundle agent sipxconfig_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxconfig_running");
 
   commands:
-    !primary.sipxconfig_running::
+    (!primary|stop_sipxecs).sipxconfig_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         comment => "stop sipxconfig",
         args => "stop";

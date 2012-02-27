@@ -72,7 +72,7 @@ bundle agent sipximbot_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipximbot_running");
 
   commands:
-    !sipximbot.sipximbot_running::
+    (!sipximbot|stop_sipxecs).sipximbot_running::
       "$(sipx.SIPX_SERVICEDIR)/sipximbot"
         comment => "stop sipximbot",
         args => "stop";

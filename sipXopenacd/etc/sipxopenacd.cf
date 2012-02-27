@@ -101,7 +101,7 @@ bundle agent sipxopenacd_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenacd_running");
 
   commands:
-    !sipxopenacd.sipxopenacd_running::
+    (!sipxopenacd|stop_sipxecs).sipxopenacd_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
         comment => "stop sipxopenacd",
         args => "stop";

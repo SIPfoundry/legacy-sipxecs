@@ -73,12 +73,12 @@ bundle agent sipxregistrar_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxregistrar_running");
 
   commands:
-    sipxregistrar_running.!sipxregistrar::
+    (!sipxregistrar|stop_sipxecs).sipxregistrar_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
         comment => "stop sipxregistrar",
         args => "stop";
 
-    !sipxregistrar_running.sipxregistrar::
+    sipxregistrar.!sipxregistrar_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
         comment => "start sipxregistrar",
         args => "start";
