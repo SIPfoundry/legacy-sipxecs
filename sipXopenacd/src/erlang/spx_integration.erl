@@ -108,13 +108,17 @@ load_queue_groups() ->
 load_skills() ->
 	gen_server:call(integration, load_skills).
 
+load_release_opts() ->
+	gen_server:call(integration, load_release_opts).
+
 load() ->
 	load_skills(),
 	load_profiles(),
 	load_agents(),
 	load_clients(),
 	load_queue_groups(),
-	load_queues().
+	load_queues(),
+	load_release_opts().
 
 %%====================================================================
 %% gen_server callbacks
@@ -368,6 +372,21 @@ handle_call(load_skills, _From, State) ->
 	Reply = load_helper(Type, GetLoaded, PropsToRec, GetKey, Destroy, Save, IsProtected),
 	{reply, Reply, State};
 
+handle_call(load_release_opts, _From, State) ->
+	Type = <<"openacdreleasecode">>,
+	Now = util:now(),
+	
+	GetLoaded = fun() -> agent_auth:get_releases() end,
+	PropsToRec = fun(X) -> props_to_release(X, #release_opt{timestamp = Now}) end,
+	GetKey = fun(#release_opt{id=Id}) -> Id end,
+	Destroy = fun(#release_opt{id=Id}) -> agent_auth:destroy_release(id, Id) end,
+	Save = fun(Release)-> agent_auth:new_release(Release) end,
+	IsProtected = fun(_) -> false end,
+	Reply = load_helper(Type, GetLoaded, PropsToRec, GetKey, Destroy, Save, IsProtected),
+	{reply, Reply, State};
+
+
+
 handle_call(_Request, _From, State) ->
     Reply = invalid,
     {reply, Reply, State}.
@@ -516,6 +535,17 @@ props_to_skill([{<<"grpnm">>, Group} | T], Rec) ->
 	props_to_skill(T, Rec#skill_rec{group = binary_to_list(Group)});
 props_to_skill([_ | T], Rec) ->
 	props_to_skill(T, Rec).
+
+props_to_release([], Rec) ->
+	Rec;
+props_to_release([{<<"_id">>, Id} | T], Rec) ->
+	props_to_release(T, Rec#release_opt{id=binary_to_list(Id)});
+props_to_release([{<<"lbl">>, Label} | T], Rec) ->
+	props_to_release(T, Rec#release_opt{label=binary_to_list(Label)});
+props_to_release([{<<"bias">>, Bias} | T], Rec) ->
+	props_to_release(T, Rec#release_opt{bias=Bias});
+props_to_release([_|T], Rec) ->
+	props_to_release(T, Rec).
 
 props_to_queue([], Rec) ->
 	Rec;
