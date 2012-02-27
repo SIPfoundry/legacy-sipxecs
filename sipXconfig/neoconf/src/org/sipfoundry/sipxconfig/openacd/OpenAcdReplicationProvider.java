@@ -22,7 +22,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
 public class OpenAcdReplicationProvider implements ReplicableProvider {
     private OpenAcdContext m_openAcdContext;
@@ -31,7 +30,7 @@ public class OpenAcdReplicationProvider implements ReplicableProvider {
     @Override
     public List<Replicable> getReplicables() {
         List<Replicable> replicables = new ArrayList<Replicable>();
-        if (!m_featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE)) {
+        if (!m_featureManager.isFeatureEnabled(OpenAcdContext.FEATURE)) {
             return replicables;
         }
         for (OpenAcdExtension ext : m_openAcdContext.getFreeswitchExtensions()) {

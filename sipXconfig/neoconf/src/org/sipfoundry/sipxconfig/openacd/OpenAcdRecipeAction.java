@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.commons.mongo.MongoConstants;
 
 import com.mongodb.BasicDBObject;
 
@@ -103,12 +104,12 @@ public class OpenAcdRecipeAction extends OpenAcdQueueWithSkills implements Seria
         action.put("action", m_action);
         String actionValue = "";
         if (m_action.equals(ACTION.ADD_SKILLS.toString()) || m_action.equals(ACTION.REMOVE_SKILLS.toString())) {
-            actionValue = getSkillsAtoms();
+            action.put(MongoConstants.ACTION_VALUE, getSkillsAtoms());
         } else if (m_action.equals(ACTION.SET_PRIORITY.toString())
                 || m_action.equals(ACTION.MEDIA_ANNOUCE.toString())) {
             actionValue = getActionValue();
+            action.put(MongoConstants.ACTION_VALUE, actionValue);
         }
-        action.put("actionValue", actionValue);
         return action;
     }
 }

@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,12 +63,12 @@ public abstract class OpenAcdQueueWithSkills extends BeanWithId {
         m_agentGroups.remove(group);
     }
 
-    public String getSkillsAtoms() {
+    public Collection<String> getSkillsAtoms() {
         List<String> atoms = new ArrayList<String>();
         for (OpenAcdSkill skill : m_skills) {
             atoms.add(skill.getAtom());
         }
-        return StringUtils.join(atoms, DELIM);
+        return atoms;
     }
 
     public String getProfiles() {

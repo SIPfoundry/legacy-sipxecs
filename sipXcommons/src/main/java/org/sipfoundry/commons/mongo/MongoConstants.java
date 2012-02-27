@@ -129,6 +129,7 @@ public interface MongoConstants {
     static final String WEIGHT = "wht";
     static final String OLD_NAME = "oldnm";
     static final String ACTION = "actn";
+    static final String ACTION_VALUE = "actionValue";
     static final String CONDITION = "cndt";
     static final String FREQUENCY = "frq";
     static final String STEP_NAME = "stpnm";

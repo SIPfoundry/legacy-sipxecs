@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -52,6 +53,9 @@ import org.springframework.dao.support.DataAccessUtils;
 
 import com.mongodb.DBCollection;
 
+/*
+ * included here tests for the replication provider (OpenAcdReplicationProvider)
+ */
 public class OpenAcdContextTestIntegration extends MongoTestIntegration {
     private OpenAcdContext m_openAcdContext;
     private static String[][] ACTIONS = {
@@ -76,6 +80,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
     private CoreContext m_coreContext;
     private OpenAcdSkillGroupMigrationContext m_migrationContext;
     private FeatureManager m_featureManager;
+    private OpenAcdReplicationProvider m_openAcdReplicationProvider;
 
     private DBCollection getEntityCollection() {
         return getImdb().getCollection("entity");
@@ -87,6 +92,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         loadDataSetXml("domain/DomainSeed.xml");
         m_migrationContext.migrateSkillGroup();
         getEntityCollection().drop();
+        m_featureManager.enableLocationFeature(OpenAcdContext.FEATURE, new Location("localhost", "127.0.0.1"), true);
     }
 
     public static OpenAcdLine createOpenAcdLine(String extensionName) {
@@ -236,7 +242,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
     }
 
     public void testOpenAcdAgentGroupCrud() throws Exception {
-        m_featureManager.enableLocationFeature(OpenAcdContext.FEATURE, new Location("localhost", "127.0.0.1"), true);
         // 'Default' agent group
         assertEquals(1, m_openAcdContext.getAgentGroups().size());
 
@@ -382,6 +387,10 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         group.addAgent(agent);
         m_openAcdContext.saveAgentGroup(group);
 
+        List<Replicable> replicables = m_openAcdReplicationProvider.getReplicables();
+        assertTrue(replicables.contains(agent));
+        assertTrue(replicables.contains(group));
+
         assertEquals(1, m_openAcdContext.getAgents().size());
         assertEquals(1, group.getAgents().size());
 
@@ -423,9 +432,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
         getHibernateTemplate().flush();
 
-        /*m_openAcdContext.addAgentsToGroup(newGroup, Arrays.asList(new OpenAcdAgent[] {
-            agent1, agent2
-        }));*/
         grp.addAgent(agent1);
         grp.addAgent(agent2);
         m_openAcdContext.saveAgentGroup(newGroup);
@@ -433,21 +439,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         OpenAcdAgentGroup grp1 = m_openAcdContext.getAgentGroupByName("NewGroup");
         assertEquals(2, grp1.getAgents().size());
         assertEquals(3, m_openAcdContext.getAgents().size());
-
-        // test remove agents from group -
-        // grp.removeAgent(agent1);
-        // m_openAcdContext.saveAgentGroup(grp);
-        // assertEquals(1, grp.getAgents().size());
-
-        // here it should really be 3, but merging the group will cascade into the agent being
-        // deleted.
-        // maybe this should be fixed, but, the only place this is used is when an agent is
-        // deleted.
-        // assertEquals(2, m_openAcdContext.getAgents().size());
-        // Also in this scenario, agent is not removed from mongo
-        // MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(),
-        // new String[]{MongoConstants.TYPE, MongoConstants.NAME},
-        // new String[]{"openacdagent", "delta"});
 
         // remove agents
         newGroup.getAgents().remove(agent2);
@@ -469,7 +460,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         agent3.setGroup(newGroup);
         agent3.setPin("123433");
         agent3.setUser(newAgent);
-        // m_openAcdContext.addAgentsToGroup(newGroup, Collections.singletonList(agent3));
         m_openAcdContext.saveAgent(agent3);
         assertEquals(3, m_openAcdContext.getAgents().size());
 
@@ -624,6 +614,11 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         skillGroup.setName("Group");
         m_openAcdContext.saveSkillGroup(skillGroup);
         newSkill.setGroup(skillGroup);
+
+        List<Replicable> replicables = m_openAcdReplicationProvider.getReplicables();
+        for (OpenAcdSkill skill : m_openAcdContext.getSkills()) {
+            assertTrue(replicables.contains(skill));
+        }
 
         assertEquals(8, m_openAcdContext.getSkills().size());
         m_openAcdContext.saveSkill(newSkill);
@@ -823,6 +818,9 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveClient(client);
         assertEquals(1, m_openAcdContext.getClients().size());
 
+        List<Replicable> replicables = m_openAcdReplicationProvider.getReplicables();
+        assertTrue(replicables.contains(client));
+
         // test save client with the same name
         OpenAcdClient anotherClient = new OpenAcdClient();
         anotherClient.setName("client");
@@ -915,6 +913,9 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveQueueGroup(groupWithSkills);
         assertEquals(3, m_openAcdContext.getQueueGroups().size());
 
+        List<Replicable> replicables = m_openAcdReplicationProvider.getReplicables();
+        assertTrue(replicables.contains(groupWithSkills));
+        assertTrue(replicables.contains(defaultQueueGroup));
         // test remove queue group but prevent 'Default' queue group deletion
         Collection<Integer> queueGroupIds = new ArrayList<Integer>();
         queueGroupIds.add(defaultQueueGroup.getId());
@@ -995,6 +996,10 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         queueWithSkills.setSkills(skills);
         m_openAcdContext.saveQueue(queueWithSkills);
         assertEquals(3, m_openAcdContext.getQueues().size());
+
+        List<Replicable> replicables = m_openAcdReplicationProvider.getReplicables();
+        assertTrue(replicables.contains(queueWithSkills));
+        assertTrue(replicables.contains(defaultQueue));
 
         // test save queue with recipe steps
         OpenAcdRecipeAction recipeAction1 = new OpenAcdRecipeAction();
@@ -1138,6 +1143,8 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         }, new String[] {
             "openacdreleasecode", "positive label"
         });
+        List<Replicable> replicables = m_openAcdReplicationProvider.getReplicables();
+        assertTrue(replicables.contains(anotherCode));
 
         // test remove release codes
         Collection<Integer> codeIds = new ArrayList<Integer>();
@@ -1155,6 +1162,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
             "openacdreleasecode", "positive label"
         });
         assertEquals(0, m_openAcdContext.getReleaseCodes().size());
+
     }
 
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {
@@ -1171,5 +1179,9 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    public void setOpenAcdReplicationProviderImpl(OpenAcdReplicationProvider openAcdReplicationProvider) {
+        m_openAcdReplicationProvider = openAcdReplicationProvider;
     }
 }
