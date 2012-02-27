@@ -2,36 +2,55 @@ dnl Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 dnl Licensed to the User under the LGPL license.
 dnl
 
-AC_ARG_VAR(CENTOS_BASE_URL, [Where to find CentOS distribution. Example: http://centos.aol.com])
-AC_ARG_VAR(FEDORA_BASE_URL, [Where to find Fedora distribution. Example: http://mirrors.kernel.org/fedora])
-AC_ARG_VAR(EPEL_BASE_URL, [Where to find EPEL distribution. Example: http://mirrors.kernel.org/epel])
 AC_ARG_VAR(MIRROR_SITE, [Single place to find CentOS, Redhat and EPEL. Example: http://mirrors.kernel.org])
-if test -n "$MIRROR_SITE"; then
-  CENTOS_BASE_URL=$MIRROR_SITE/centos
-  FEDORA_BASE_URL=$MIRROR_SITE/fedora/linux
-  EPEL_BASE_URL=$MIRROR_SITE/epel
-fi
 
 AC_ARG_WITH(yum-proxy, [--with-yum-proxy send downloads thru caching proxy like squid to speed downloads], [
   AC_SUBST(DOWNLOAD_PROXY,$withval)
   AC_SUBST(DOWNLOAD_PROXY_CONFIG_LINE,"proxy=$withval")
   AC_SUBST(WGET_PROXY_OPTS,"http_proxy=$withval")
 
-  # Require BASE URL otherwise download proxy will be useless  
-  if test -z "$CENTOS_BASE_URL"; then
+# Require BASE URL otherwise download proxy will be useless  
+AC_ARG_VAR(CENTOS_BASE_URL, [Where to find CentOS distribution. Example: http://centos.aol.com])
+if test -z "$CENTOS_BASE_URL"; then
+  if test -n "$MIRROR_SITE"; then 
+    CENTOS_BASE_URL=$MIRROR_SITE/centos
+  else
     AC_MSG_ERROR([You must provide a value for CENTOS_BASE_URL if you are using a download proxy.\
  See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
   fi
+fi
 
-  if test -z "$FEDORA_BASE_URL"; then
+AC_ARG_VAR(FEDORA_BASE_URL, [Where to find Fedora distribution. Example: http://mirrors.kernel.org/fedora/linux])
+if test -z "$FEDORA_BASE_URL"; then
+  if test -n "$MIRROR_SITE"; then 
+    FEDORA_BASE_URL=$MIRROR_SITE/fedora/linux
+  else
     AC_MSG_ERROR([You must provide a value for FEDORA_BASE_URL if you are using a download proxy.\
  See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
   fi
+fi
 
-  if test -z "$EPEL_BASE_URL"; then
+AC_ARG_VAR(FEDORA_ARCHIVE_BASE_URL, [Where to find Fedora archives. Example: http://mirrors.kernel.org/archive/fedora/linux])
+if test -z "$FEDORA_ARCHIVE_BASE_URL"; then
+  if test -n "$MIRROR_SITE"; then 
+    FEDORA_ARCHIVE_BASE_URL=$MIRROR_SITE/archive/fedora/linux
+  else
+    AC_MSG_ERROR([You must provide a value for FEDORA_ARCHIVE_BASE_URL if you are using a download proxy.\
+ See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
+  fi
+fi
+
+AC_ARG_VAR(EPEL_BASE_URL, [Where to find EPEL distribution. Example: http://mirrors.kernel.org/epel])
+if test -z "$EPEL_BASE_URL"; then
+  if test -n "$MIRROR_SITE"; then 
+    EPEL_BASE_URL=$MIRROR_SITE/epel
+  else
     AC_MSG_ERROR([You must provide a value for EPEL_BASE_URL if you are using a download proxy.\
  See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
   fi
+fi
+
+
 ],)
 
 dnl NOTE: To support non-rpm based distos, write equivalent of this that defines DISTRO_* vars
