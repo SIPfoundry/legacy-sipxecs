@@ -13,6 +13,19 @@ bundle agent sipxconfig {
       "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxconfig_running";
       "any" usebundle => "sipxconfig_setup";
+    sipxlogwatcher::
+      "any" usebundle => "sipxconfig_logwatcher";
+}
+
+bundle agent sipxconfig_logwatcher {
+  files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxconfig.sec"
+      comment => "sipxconfig log watcher",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxconfig/sipxconfig.sec.erb --out $(this.promiser)",
+      classes => if_repaired("reload_sipxlogwatcher");
+      
 }
 
 bundle agent sipxconfig_setup {

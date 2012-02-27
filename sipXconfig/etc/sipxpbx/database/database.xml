@@ -409,6 +409,8 @@
   	<antcall target="remove-personal-att-oper" />
   	<antcall target="setup-ids" />
 	<antcall target="openacd-remove-default-client" />
+	<antcall target="openacd-add-release-codes" />
+	<antcall target="alarm-drop-pkey" />
   </target>
 
   <target name="plugin-patches">
@@ -1281,6 +1283,12 @@
   </target>
   <target name="openacd-remove-default-client" unless="openacd-remove-default-client">
 	<db-patch patch="openacd-remove-default-client" />
+  </target>
+  <target name="openacd-add-release-codes" unless="openacd-add-release-codes">
+	<db-patch patch="openacd-add-release-codes" />
+  </target>
+  <target name="alarm-drop-pkey" unless="alarm-drop-pkey">
+	<db-patch patch="alarm-drop-pkey" />
   </target>
 
   <!--

@@ -1,0 +1,10 @@
+This is the SEC configuration directory. Because SEC usage varies so widely
+from user to user, this package is configured by default to not run.
+
+The commented-out default settings in /etc/sysconfig/sec will load any file in
+this directory with a .sec suffix. Please look through the example files
+included in /usr/share/doc/sec-<version>/examples/ and install the ones you
+want here (taking into account that the examples are generic and some of them
+may need to be tweaked to work with your setup). You should also read the SEC
+man page so you have at least a basic understanding of the SEC configuration
+commands.

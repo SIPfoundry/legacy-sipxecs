@@ -17,6 +17,7 @@ import org.restlet.Filter;
 import org.restlet.data.ChallengeRequest;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
+import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Parameter;
 import org.restlet.data.Protocol;
@@ -36,7 +37,7 @@ public class DigestAuthenticationFilter extends Filter {
 
     /**
      * Defined in rfc 2617 as KD(secret, data) = H(concat(secret, ":", data))
-     * 
+     *
      * @param data data
      * @param secret secret
      * @return H(concat(secret, ":", data));
@@ -45,16 +46,32 @@ public class DigestAuthenticationFilter extends Filter {
         return Util.H(secret + ":" + data);
     }
 
-  
+
     public DigestAuthenticationFilter(Plugin plugin) {
         this.plugin = plugin;
     }
 
-   
+
 
     @Override
     protected int beforeHandle(Request request, Response response) {
         String remoteAddr = request.getClientInfo().getAddress();
+        if(remoteAddr.equals(RestServer.TRUSTED_SOURCE)) {
+            logger.debug("Request from trusted source: "+RestServer.TRUSTED_SOURCE);
+            Form headers = (Form) request.getAttributes().get("org.restlet.http.headers");
+            String requestedUser = headers.getFirstValue("sipx-user");
+            String agentName = plugin.getAgent(request);
+            if (requestedUser != null && agentName != null) {
+                if (requestedUser.equals(agentName)) {
+                    return Filter.CONTINUE;
+                } else {
+                    response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+                    response.setEntity("user missmatch ", MediaType.TEXT_PLAIN);
+                    return Filter.STOP;
+                }
+            }
+        }
+
         int httpPort = request.getHostRef().getHostPort();
         try {
             String proxyDomain = RestServer.getRestServerConfig().getSipxProxyDomain();
@@ -159,7 +176,7 @@ public class DigestAuthenticationFilter extends Filter {
                     String entity_digest = response.getEntity().getDigest().toString();
 
                     A2 = method + ":" + uri + ":" + RestServer.getRealm();
-                }                
+                }
                 String pintoken = user.getPintoken();
                 String expectedValue = null;
 
@@ -173,7 +190,7 @@ public class DigestAuthenticationFilter extends Filter {
                 } else {
                     expectedValue = KD(pintoken, nonce + ":" + Util.H(A2));
                 }
-                
+
                 if (expectedValue.equals(response_param)) {
                     logger.debug("Digest authentication succeeded");
                     return Filter.CONTINUE;
@@ -184,7 +201,7 @@ public class DigestAuthenticationFilter extends Filter {
                     response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
                     return Filter.STOP;
                 }
-            } 
+            }
         } catch (Exception ex) {
             logger.error("Exception in processing request", ex);
             response.setEntity("Processing Error " + ex.getMessage(), MediaType.TEXT_PLAIN);

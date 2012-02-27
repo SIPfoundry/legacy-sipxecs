@@ -48,11 +48,14 @@ lib_common = \
   ruby-postgres \
   cfengine
 
-$(foreach V,11 12 13 14 15 16 17 18 19 20,$(eval lib_fedora_$(V) = $(lib_common)))
+$(foreach V,11 12 13 14 15 16,$(eval lib_fedora_$(V) = $(lib_common) sec))
+
+$(foreach V,17 18 19 20,$(eval lib_fedora_$(V) = $(lib_common)))
 
 lib_centos_6 = \
   epel-release \
   $(lib_common) \
+  sec \
   nsis \
   nsis-data
 

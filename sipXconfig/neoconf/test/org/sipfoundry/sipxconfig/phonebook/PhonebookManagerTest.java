@@ -49,11 +49,14 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.UserPhonebookEnt
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.PhonebookTestHelper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class PhonebookManagerTest extends BeanWithSettingsTestCase {
     GeneralPhonebookSettings settings;
     HibernateTemplate m_hibernateTemplate;
+    JdbcTemplate m_jdbcTemplate;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -66,6 +69,7 @@ public class PhonebookManagerTest extends BeanWithSettingsTestCase {
         m_hibernateTemplate.loadAll(GeneralPhonebookSettings.class);
         expectLastCall().andReturn(settingsList);
         replay(m_hibernateTemplate);
+        m_jdbcTemplate = createMock(JdbcTemplate.class);
     }
 
     public void testGetEmptyPhonebookRows() {
@@ -76,26 +80,18 @@ public class PhonebookManagerTest extends BeanWithSettingsTestCase {
 
     public void testGetRows() {
         Phonebook phonebook = new Phonebook();
-        Group group = new Group();
-        User user = new User();
-        user.setFirstName("Tweety");
-        user.setLastName("Bird");
-        user.setUserName("tbird");
-        phonebook.setMembers(singleton(group));
-        Collection<User> users = singleton(user);
+
         IMocksControl coreContextControl = EasyMock.createControl();
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
-        coreContext.getGroupMembers(group);
-        coreContextControl.andReturn(users);
         coreContextControl.replay();
-
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         context.setCoreContext(coreContext);
         context.setHibernateTemplate(m_hibernateTemplate);
-        Collection<PhonebookEntry> entries = context.getEntries(phonebook);
-        assertEquals(1, entries.size());
-        PhonebookEntry entry = entries.iterator().next();
-        assertEquals("Tweety", entry.getFirstName());
+        context.setConfigJdbcTemplate(m_jdbcTemplate);
+
+        //This just performs DATABASE query - see PhonebookManagerTestIntegration. Here we can
+        //just test that m_jdbcTemplate is used
+        context.getEntries(phonebook);
 
         coreContextControl.verify();
     }
@@ -376,30 +372,6 @@ public class PhonebookManagerTest extends BeanWithSettingsTestCase {
 
         out.search(singletonList(new Phonebook()), "300", userPortal);
         out.search(singletonList(new Phonebook()), "nulluser", userPortal);
-    }
-
-    public void testUserPhoneBookEntry() throws Exception {
-        User user = new MockUser(Boolean.TRUE);
-        AddressBookEntry abe = new AddressBookEntry();
-        abe.setImId("test");
-        user.setAddressBookEntry(abe);
-        UserPhonebookEntry entry = new PhonebookManagerImpl.UserPhonebookEntry(user);
-
-        assertEquals("test", entry.getAddressBookEntry().getImId());
-
-        user.setUserName("500");
-        assertEquals("500", entry.getNumber());
-
-        user.setUserName("abcd");
-        assertEquals("abcd", entry.getNumber());
-
-        user.setAliasesString("501");
-        assertEquals("501", entry.getNumber());
-
-        user = new MockUser(Boolean.FALSE);
-        user.setAddressBookEntry(abe);
-        entry = new PhonebookManagerImpl.UserPhonebookEntry(user);
-        assertEquals("", entry.getAddressBookEntry().getImId());
     }
 
     private class MockUser extends User {

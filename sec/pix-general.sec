@@ -1,0 +1,1046 @@
+####################################################################
+#                SEC ruleset for Cisco PIX 6.x, 7.x, FWSM 2.x
+#
+# Copyright (C) 2003-2009 Colin Hudler
+# This is free software. You may redistribute copies of it under the terms of 
+# the GNU General Public License version 2.
+# There is NO WARRANTY, to the extent permitted by law.
+####################################################################
+
+# Process various events from PIX syslog output
+# 
+# TODO -- A few FWSM log lines will not match.
+
+# Setup our variables -- not the right way to do this?  Needs tweaking for your log lines
+type=Single
+ptype=RegExp
+pattern=^(.* [0-9].:[0-9].:[0-9].) (.*)\.yourdomain\.edu.*?%(PIX|FWSM)-[0-9]-.*?:(.*)
+desc=PIXLOG $2^ $1 $4
+action=event %s
+
+# 106001
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Inbound TCP connection denied from (\d+.\d+.\d+.\d+\/\d+) to (\d+.\d+.\d+.\d+\/\d+).*
+desc=PIX $1 TCP connection denid HAMMER $2 to $3
+action=create ham1_$1; add ham1_$1 %t; add ham1_$1 %s;add ham1_$1 %s; add ham1_$1 $0; report ham1_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham1_$1
+window=10
+thresh=6
+
+# 106006
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Connection denied by outbound list.*src (\d+.\d+.\d+.\d+) dest (\d+.\d+.\d+.\d+)
+desc=PIX $1 denied by list HAMMER $2 to $3
+action=create ham2_$1; add ham2_$1 %t; add ham2_$1 %s; add ham2_$1 $0; report ham2_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham2_$1
+window=10
+thresh=6
+
+# 106007
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny inbound UDP from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+) due to DNS.*
+desc=PIX $1 Denied inbound UDP HAMMER $2 to $3
+action=create ham3_$1; add ham3_$1 %t; add ham3_$1 %s; add ham3_$1 $0; report ham3_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham3_$1
+window=10
+thresh=6
+
+# 106010
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny inbound.*src.*:(\d+.\d+.\d+.\d+\/\d+) dst.*:(\d+.\d+.\d+.\d+\/\d+).*
+desc=PIX $1 Denied inbound HAMMER $2 to $3
+action=create ham4_$1; add ham4_$1 %t; add ham4_$1 %s; add ham4_$1 $0; report ham4_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham4_$1
+window=10
+thresh=6
+
+# 106012
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny IP from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+), IP options.*
+desc=PIX $1 Denied IP Options HAMMER $2 to $3
+action=create ham5_$1; add ham5_$1 %t; add ham5_$1 %s; add ham5_$1 $0; report ham5_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham5_$1
+window=10
+thresh=6
+
+# 106013
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Dropping echo request from (\d+.\d+.\d+.\d+) to PAT address 
+desc=PIX $1 Echo HAMMER $2 to PAT Address
+action=create ham6_$1; add ham6_$1 %t; add ham6_$1 %s; add ham6_$1 $0; report ham7_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham8_$1
+window=10
+thresh=6
+
+# 106014
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny inbound icmp src.*: (\d+.\d+.\d+.\d+) dst.*: (\d+.\d+.\d+.\d+)
+desc=PIX $1 Deny inbound ICMP HAMMER $2 to $3
+action=create ham9_$1; add ham9_$1 %t; add ham9_$1 %s; add ham9_$1 $0; report ham9_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham9_$1
+window=10
+thresh=6
+
+# 106015
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny.*\(no connection\) from (\d+.\d+.\d+.\d+\/\d+) to (\d+.\d+.\d+.\d+\/\d+)
+desc=PIX $1 Deny (no connection) HAMMER $2 to $3
+action=create ham10_$1; add ham10_$1 %t; add ham10_$1 %s; add ham10_$1 $0; report ham10_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham10_$1
+window=10
+thresh=30
+
+# 106016,106017,106020,106021,106022 is further down this list...
+
+# 106018
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*ICMP packet type.*denied by outbound list.*src (\d+.\d+.\d+.\d+) dest (\d+.\d+.\d+.\d+)
+desc=PIX $1 Deny ICMP type HAMMER $2 to $3
+action=create ham11_$1; add ham11_$1 %t; add ham11_$1 %s; add ham11_$1 $0; report ham11_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham11_$1
+window=10
+thresh=6
+
+# 106023
+#Deny udp src outside:128.135.93.11/137 dst inside:128.135.211.65/137 by access-group "inward"
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny.*src.*:(\d+.\d+.\d+.\d+\/\d+) dst.*:(\d+.\d+.\d+.\d+\/\d+) by .*
+desc=PIX $1 Deny by ACL HAMMER $2 to $3
+action=create ham12_$1; add ham12_$1 %t; add ham12_$1 %s; add ham12_$1 $0; report ham12_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ham12_$1
+window=10
+thresh=32
+
+# This is broken... still fix? TODO
+# 106001 -- Report
+#type=SingleWithThreshold
+#continue=takenext
+#ptype=RegExp
+#pattern=^PIXLOG (\S+)\^ .*(Inbound TCP connection denied from (\d+.\d+.\d+.\d+\/\d+) to (\d+.\d+.\d+.\d+\/\d+).*)|\
+#(Connection denied by outbound list.*src (\d+.\d+.\d+.\d+) dest (\d+.\d+.\d+.\d+))|\
+#(Deny inbound UDP from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+) due to DNS)|\
+#(Deny inbound.*src.*:(\d+.\d+.\d+.\d+\/\d+) dst.*:(\d+.\d+.\d+.\d+\/\d+))|\
+#(Deny IP from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+), IP options)|\
+#(Dropping echo request from (\d+.\d+.\d+.\d+) to PAT address)|\
+#(Deny inbound icmp src.*: (\d+.\d+.\d+.\d+) dst.*: (\d+.\d+.\d+.\d+))|\
+#(Deny.*\(no connection\) from (\d+.\d+.\d+.\d+\/\d+) to (\d+.\d+.\d+.\d+\/\d+))|\
+#(ICMP packet type.*denied by outbound list.*src (\d+.\d+.\d+.\d+) dest (\d+.\d+.\d+.\d+))|\
+#(Deny.*src.*:(\d+.\d+.\d+.\d+\/\d+) dst.*:(\d+.\d+.\d+.\d+\/\d+) by )
+#desc=PIX Conn Denied 10 times from $2
+#action=create rpt_$1; add rpt_$1 %t; add rpt_$1 %s;add rpt_$1 %s; add rpt_$1 $0; report rpt_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rpt_$1
+#window=10
+#thresh=30
+
+# 101002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Bad failover cable.
+desc=PIX $1 Bad Failover Cable
+action=create bfc_$1; add bfc_$1 %t; add bfc_$1 %s; add bfc_$1 $0; report bfc_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete bfc_$1
+
+# 101003/4
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Failover cable not connected
+desc=PIX $1 Failover cable gone
+action=create nfc_$1; add nfc_$1 %t; add nfc_$1 %s; add nfc_$1 $0; report nfc_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete nfc_$1
+
+# 101005
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Error reading failover cable status
+desc=PIX $1 Failover cable ERROR
+action=create fce_$1; add fce_$1 %t; add fce_$1 %s; add fce_$1 $0; report fce_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fce_$1
+
+# 102001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Power failure/System reload
+desc=PIX $1 Peer Lost Power
+action=create fpp_$1; add fpp_$1 %t; add fpp_$1 %s; add fpp_$1 $0; report fpp_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fpp_$1
+
+# 103001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*No response from other firewall
+desc=PIX $1 Peer Gone Away
+action=create fnp_$1; add fnp_$1 %t; add fnp_$1 %s; add fnp_$1 $0; report fnp_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fnp_$1
+
+# 103003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Other firewall network interface (\S+) failed
+desc=PIX $1 Peer interface $2 died
+action=create fpi_$1; add fpi_$1 %t; add fpi_$1 %s; add fpi_$1 $0; report fpi_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fpi_$1
+
+# 103004
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Other firewall reports this firewall failed
+desc=PIX $1 Peer says I failed
+action=create fif_$1; add fif_$1 %t; add fif_$1 %s; add fif_$1 $0; report fif_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fif_$1
+
+# 103005
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Other firewall reporting failure
+desc=PIX $1 Peer reports failure
+action=create fpf_$1; add fpf_$1 %t; add fpf_$1 %s; add fpf_$1 $0; report fpf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fpf_$1
+
+# 104001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*(Primary|Secondary) Switching to ACTIVE \(cause: (.*)\)
+desc=PIX $1 FAILOVER! Becoming ACTIVE because $2
+action=create fba_$1; add fba_$1 %t; add fba_$1 %s; add fba_$1 $0; report fba_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fba_$1
+
+# 104002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*(Primary|Secondary) Switching to STNDBY \(cause: (.*)\)
+desc=PIX $1 FAILOVER! Becoming STNDBY because $2
+action=create fbs_$1; add fbs_$1 %t; add fbs_$1 %s; add fsb_$1 $0; report fbs_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fbs_$1
+
+# 104003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Switching to FAILED
+desc=PIX $1 IN FAILED STATE!
+action=create ffs_$1; add ffs_$1 %t; add ffs_$1 %s; add ffs_$1 $0; report ffs_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ffs_$1
+
+# 104004
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Switching to OK.
+desc=PIX $1 Failed Unit is ok
+action=create ffs_$1; add ffs_$1 %t; add ffs_$1 %s; add ffs_$1 $0; report ffs_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ffs_$1
+
+# 105005
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Lost Failover communications with mate on interface
+desc=PIX $1 Peer Gone Away
+action=create fnp_$1; add fnp_$1 %t; add fnp_$1 %s; add fnp_$1 $0; report fnp_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fnp_$1
+
+# 105007
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Link status \'Down\' on interface (\S+).*
+desc=PIX $1 interface $2 is DOWN
+action=create ind_$1; add ind_$1 %t; add ind_$1 %s; add ind_$1 $0; report ind_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ind_$1
+
+# 105011
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Failover cable communication failure
+desc=PIX $1 Failver cable failed
+action=create fcf_$1; add fcf_$1 %t; add fcf_$1 %s; add fcf_$1 $0; report fcf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fcf_$1
+
+# 105021
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Standby unit failed to sync due to a locked (\S+) config. Lock held by (\S+)
+desc=PIX $1 Failover Sync failed because $2 is locked by $3
+action=create lck_$1; add fcf_$1 %t; add fcf_$1 %s; add lck_$1 $0; report lck_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete lck_$1
+
+# 10532
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LAN Failover interface is down
+desc=PIX $1 Failover interface is down
+action=create fin_$1; add fin_$1 %t; add fin_$1 %s; add fin_$1 $0; report fin_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fin_$1
+
+# 10535
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Receive a LAN failover interface down msg from peer.
+desc=PIX $1 Failover Peer reports LAN interface down
+action=create fin_$1; add fin_$1 %t; add fin_$1 %s; add fin_$1 $0; report fin_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fin_$1
+
+# 10536
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*dropped a LAN Failover command message.
+desc=PIX $1 Failover Dropped a LAN packet
+action=create fdr_$1; add fdr_$1 %t; add fdr_$1 %s; add fdr_$1 $0; report fdr_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fdr_$1
+
+# 10537
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*The primary and standby units are switching back 
+desc=PIX $1 Failover: primary and standby units are switching back
+action=create fsw_$1; add fsw_$1 %t; add fsw_$1 %s; add fsw_$1 $0; report fsw_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fsw_$1
+
+# 10543
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Failover interface failed
+desc=PIX $1 Failover LAN Interface is down!
+action=create fin_$1; add fin_$1 %t; add fin_$1 %s; add fin_$1 $0; report fin_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fin_$1
+
+# messages from 106001 moved to top
+
+# 106011
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny inbound (No xlate).*
+desc=PIX $1 Same-Side Traffic Attack
+action=create sst_$1; add sst_$1 %t; add sst_$1 %s; add sst_$1 $0; report sst_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete sst_$1
+
+# 106016
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny IP spoof from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+) on interface 
+desc=PIX $1 IP Spoof from $2 to $3
+action=create spf_$1; add spf_$1 %t; add spf_$1 %s; add spf_$1 $0; report spf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete spf_$1
+
+# 106017
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny IP due to Land Attack from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+)
+desc=PIX $1 IP LAND Attack
+action=create lnd_$1; add lnd_$1 %t; add lnd_$1 %s; add lnd_$1 $0; report lnd_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete lnd_$1
+
+# 106020
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny IP teardrop fragment.*from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+)
+desc=PIX $1 Teardrop Attack
+action=create tdr_$1; add tdr_$1 %t; add tdr_$1 %s; add tdr_$1 $0; report tdr_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete tdr_$1
+
+# 106021
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny.*reverse path check from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+).*
+desc=PIX $1 Reverse Path Check Attack from $2 to $3
+action=create rpc_$1; add rpc_$1 %t; add rpc_$1 %s; add rpc_$1 $0; report rpc_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rpc_$1
+
+# 106022
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Deny.*connection spoof from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+).*
+desc=PIX $1 Connection Spoof Attack from $2 to $3
+action=create spf_$1; add spf_$1 %t; add spf_$1 %s; add spf_$1 $0; report spf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete spf_$1
+
+# 106024
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Access rules memory exhausted
+desc=PIX $1 Out of ACL Memory!
+action=create ame_$1; add ame_$1 %t; add ame_$1 %s; add ame_$1 $0; report ame_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ame_$1
+
+# 106025/6
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Failed to determine the security context for the packet:(\S+):(\d+.\d+.\d+.\d+) (\d+.\d+.\d+.\d+) (\d+) (\d+).*
+desc=PIX $1 failed getting context for vlan $2 $3:$4 to $5:$6
+action=create ctx_$1; add ctx_$1 %t; add ctx_$1 %s; add ctx_$1 $0; report ctx_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ctx_$1
+
+# 107001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*RIP auth failed from (\d+.\d+.\d+.\d+).*
+desc=PIX $1 RIP Auth Attack from $2
+action=create rip_$1; add rip_$1 %t; add rip_$1 %s; add rip_$1 $0; report rip_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rip_$1
+
+# 107002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*RIP pkt failed from (\d+.\d+.\d+.\d+).*
+desc=PIX $1 Invalid RIP Packet from $2
+action=create rpk_$1; add rpk_$1 %t; add rpk_$1 %s; add rpk_$1 $0; report rpk_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rpk_$1
+
+# 109003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Auth from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+\/\d+) failed \(all servers failed\).*
+desc=PIX $1 All AAA Failed from $2 to $3
+action=create aaa_$1; add aaa_$1 %t; add aaa_$1 %s; add aaa_$1 $0; report aaa_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete aaa_$1
+
+# 109006/8
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*(Authentication|Authorization) (failed|denied) for user \'(\S+)\' from (\d+.\d+.\d+.\d+\/\d+) to (\d+.\d+.\d+.\d+\/\d+)
+desc=PIX $1 Auth Guessing Attack by $2 from $3 to $4
+action=create brt_$1; add brt_$1 %t; add brt_$1 %s; add brt_$1 $0; report brt_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete brt_$1
+window=10
+thresh=6
+
+# 109010
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Auth from (\d+.\d+.\d+.\d+\/\d+) to (\d+.\d+.\d+.\d+\/\d+) failed \(too many pending auths\).*
+desc=PIX $1 Max Auths Reached for $2 to $3
+action=create mth_$1; add mth_$1 %t; add mth_$1 %s; add mth_$1 $0; report mth_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete mth_$1
+
+# 109017
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*User at (\d+.\d+.\d+.\d+) exceeded auth proxy connection 
+desc=PIX $1 $2 has opened to many proxy conns
+action=create pcn_$1; add pcn_$1 %t; add pcn_$1 %s; add pcn_$1 $0; report pcn_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete pcn_$1
+
+# 109024
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Authorization denied.*for user \'(\S+)\' from (\d+.\d+.\d+.\d+\/\d+) to (\d+.\d+.\d+.\d+\/\d+)
+desc=PIX $1 Authorization Denied HAMMER $2 from $3 to $4
+action=create uhm_$1; add uhm_$1 %t; add uhm_$1 %s; add uhm_$1 $0; report uhm_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete uhm_$1
+window=10
+thresh=6
+
+# 109025
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Authorization denied \(acl=.*\) for user \'(\S+)\' from (\d+.\d+.\d+.\d+\/\d+) to (\d+.\d+.\d+.\d+\/\d+) on interface.*
+desc=PIX $1 Authorization Denied  HAMMER $2 from $3 to $4
+action=create uhm_$1; add uhm_$1 %t; add uhm_$1 %s; add uhm_$1 $0; report uhm_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete uhm_$1
+window=10
+thresh=6
+
+# 111001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Begin configuration: (\d+.\d+.\d+.\d+) writing to (\S+)
+desc=PIX $1 Config saved to $3 by $2
+action=create sav_$1; add sav_$1 %t; add sav_$1 %s; add sav_$1 $0; report sav_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete sav_$1
+
+# 111002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Begin configuration: (\d+.\d+.\d+.\d+) reading from (\S+)
+desc=PIX $1 Config read from $3 by $2
+action=create sav_$1; add sav_$1 %t; add sav_$1 %s; add sav_$1 $0; report sav_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete sav_$1
+
+# 111003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*(\d+.\d+.\d+.\d+) Erase configuration
+desc=PIX $1 WRITE ERASE WAS ISSUED $2
+action=create ers_$1; add ers_$1 %t; add ers_$1 %s; add ers_$1 $0; report ers_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ers_$1
+
+# 111004
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*(\d+.\d+.\d+.\d+) end configuration: \[FAILED\]
+desc=PIX $1 FAILED CONFIGURING $2
+action=create cff_$1; add cff_$1 %t; add cff_$1 %s; add cff_$1 $0; report cff_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cff_$1
+
+# 111008
+type=Single
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*User \'(\S+)\' executed the command (.*)
+desc=PIX $1 $2 executed: $3
+action=add CMD_REPORT $2 : $3
+#create cff_$1; add cff_$1 %t; add cff_$1 %s; add cff_$1 $0; report cff_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cff_$1
+
+# FIXME -- Add syslog number
+# FSWM Style
+type=Single
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*User \'(\S+)\' executed the \'(.*)\' command.*
+desc=PIX $1 $2 executed: $3
+action=add CMD_REPORT $2 : $3
+#action=create cff_$1; add cff_$1 %t; add cff_$1 %s; add cff_$1 $0; report cff_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cff_$1
+
+
+# 111008
+type=Single
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*User (\S+) executed cmd:(.*)
+desc=PIX $1 $2 executed: $3
+action=add CMD_REPORT $2 : $3
+#action=create cff_$1; add cff_$1 %t; add cff_$1 %s; add cff_$1 $0; report cff_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cff_$1
+#action=create cff_$1; add cff_$1 %t; add cff_$1 %s; add cff_$1 $0; report cff_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cff_$1
+
+# 113001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Unable to open AAA session. Session limit
+desc=PIX $1 AAA Reached session limit
+action=create cff_$1; add cff_$1 %t; add cff_$1 %s; add cff_$1 $0; report cff_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cff_$1
+
+# 113005
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*AAA user authentication Rejected: reason = (.*) server = .* User = (\S+).*
+desc=PIX $1 IPSEC: User Auth Attack: $2 for $3
+action=create cff_$1; add cff_$1 %t; add cff_$1 %s; add cff_$1 $0; report cff_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cff_$1
+window=10
+thresh=6
+
+# 113006
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*User (\S+) locked out on exceeding number successive failed authentication attempts
+desc=PIX $1 User Locked out: $2
+action=create cff_$1; add cff_$1 %t; add cff_$1 %s; add cff_$1 $0; report cff_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cff_$1
+
+# 113020
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Kerberos error : Clock skew with server (\d+.\d+.\d+.\d+).*
+desc=PIX $1 User Locked out: $2
+action=create cff_$1; add cff_$1 %t; add cff_$1 %s; add cff_$1 $0; report cff_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cff_$1
+
+# Might be only 6.x
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Console Login from user at (\d+.\d+.\d+.\d+)
+desc=PIX $1 Console Login from $2
+action=create con_$1; add con_$1 %t; add con_$1 %s; add con_$1 $0; report con_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete con_$1
+
+# 112001 
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*clear (finished|complete)\.
+desc=PIX $1 Clear Command Executed
+action=create clr_$1; add clr_$1 %t; add clr_$1 %s; add clr_$1 $0; report clr_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete clr_$1
+
+# 199002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*[rR]eload command executed from.*(\d+.\d+.\d+.\d+)
+desc=PIX $1 Reloaded by $2
+action=create rld_$1; add rld_$1 %t; add rld_$1 %s; add rld_$1 $0; report rld_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rld_$1
+
+# 199002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Orderly reload started at.*by (\S+). Reload.*
+desc=PIX $1 Reloaded by $2
+action=create rld_$1; add rld_$1 %t; add rld_$1 %s; add rld_$1 $0; report rld_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rld_$1
+
+# 201002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+).*Too many.*connections on (static|xlate) (\d+.\d+.\d+.\d+)
+desc=PIX $1 Max Embryonics to $3 (not attack)
+action=create max_$1; add max_$1 %t; add max_$1 %s; add max_$1 $0; report max_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete max_$1
+
+# 201003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Embryonic limit exceeded.*for (\d+.\d+.\d+.\d+\/\d+) \((\d+.\d+.\d+.\d+)\) (\d+.\d+.\d+.\d+\/\d+)
+desc=PIX $1 Max Embryonics from $2 to $3 ($4) Attack
+action=create emb_$1; add emb_$1 %t; add emb_$1 %s; add emb_$1 $0; report emb_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete emb_$1
+
+# 201008
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*The PIX is disallowing new connections.
+desc=PIX $1 No longer allowing connections!
+action=create stp_$1; add stp_$1 %t; add stp_$1 %s; add stp_$1 $0; report stp_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete stp_$1
+
+# 202001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Out of address translation slots!
+desc=PIX $1 Out of NAT Slots
+action=create nnt_$1; add nnt_$1 %t; add nnt_$1 %s; add nnt_$1 $0; report nnt_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete nnt_$1
+
+# 209003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Fragment database limit of.*exceeded: src = (\d+.\d+.\d+.\d+), dest = (\d+.\d+.\d+.\d+).*
+desc=PIX $1 No room to assemble more frags from $2 to $3
+action=create frg_$1; add frg_$1 %t; add frg_$1 %s; add frg_$1 $0; report frg_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete frg_$1
+
+# 209004
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Invalid IP fragment, size =.*exceeds maximum size =.*src = (\d+.\d+.\d+.\d+), dest = (\d+.\d+.\d+.\d+).*
+desc=PIX $1 Frag is invalid from $2 to $3
+action=create lrg_$1; add lrg_$1 %t; add lrg_$1 %s; add lrg_$1 $0; report lrg_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete lrg_$1
+
+# 209005
+# FIXME -- Cisco log message doesnt match this
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Discard IP fragment set with more than.*elements:src = (\d+.\d+.\d+.\d+), dest = (\d+.\d+.\d+.\d+).*
+desc=PIX $1 To many frags from $2 to $3
+action=create _$1; add _$1 %t; add _$1 %s; add _$1 $0; report _$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete _$1
+
+# 210002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LU allocate block .* failed.
+desc=PIX $1 Failover Block Alocation Failed
+action=create fba_$1; add fba_$1 %t; add fba_$1 %s; add fba_$1 $0; report fba_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fba_$1
+
+# 210005
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LU allocate connection failed
+desc=PIX $1 Failover Connection Failed
+action=create fcf_$1; add fcf_$1 %t; add fcf_$1 %s; add fcf_$1 $0; report fcf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fcf_$1
+
+# 210003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Unknown LU Object.*
+desc=PIX $1 Failover: Unknown LU Object
+action=create ulu_$1; add ulu_$1 %t; add ulu_$1 %s; add ulu_$1 $0; report ulu_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ulu_$1
+
+# 210006
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LU look NAT for (\d+.\d+.\d+.\d+) failed
+desc=PIX $1 Failover NAT Sync failed for $2
+action=create fns_$1; add fns_$1 %t; add fns_$1 %s; add fns_$1 $0; report fns_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fns_$1
+
+# 210007
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LU allocate xlate failed
+desc=PIX $1 Failover xlate Sync Failed
+action=create fxs_$1; add fxs_$1 %t; add fxs_$1 %s; add fxs_$1 $0; report fxs_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fxs_$1
+
+# 210008
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LU no xlate for (\d+.\d+.\d+.\d+\/\d+) (\d+.\d+.\d+.\d+\/\d+)
+desc=PIX $1 Failover xlate Sync Failure for $2 to $3
+action=create fxs_$1; add fxs_$1 %t; add fxs_$1 %s; add fxs_$1 $0; report fxs_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fxs_$1
+
+# 210010
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LU make UDP connection for (\d+.\d+.\d+.\d+:\d+) (\d+.\d+.\d+.\d+:\d+) failed
+desc=PIX $1 Failover UDP Conn sync failure for $2 to $3
+action=create fus_$1; add fus_$1 %t; add fus_$1 %s; add fus_$1 $0; report fus_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fus_$1
+
+# 210020
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LU PAT port (\d+) reserve failed
+desc=PIX $1 Failover PAT Sync for $2 failed
+action=create fps_$1; add fps_$1 %t; add fps_$1 %s; add fps_$1 $0; report fps_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fps_$1
+
+# 210021
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LU create static xlate (\d+.\d+.\d+.\d+).*failed
+desc=PIX $1 Failover Static xlate failed for $2
+action=create fxf_$1; add fxf_$1 %t; add fxf_$1 %s; add fxf_$1 $0; report fxf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fxf_$1
+
+# 210022
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*LU missed (\d+) updates
+desc=PIX $1 Failover Sync failed for $2 updates
+action=create fsf_$1; add fsf_$1 %t; add fsf_$1 %s; add fsf_$1 $0; report fsf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fsf_$1
+
+# 211001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Memory allocation Error
+desc=PIX $1 Memory allocation Error!
+action=create mae_$1; add mae_$1 %t; add mae_$1 %s; add mae_$1 $0; report mae_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete mae_$1
+
+# 211003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*CPU utilization for (\d+) seconds = (.*)
+desc=PIX $1 CPU high ($2) for $3 secs
+action=create cpu_$1; add cpu_$1 %t; add cpu_$1 %s; add cpu_$1 $0; report cpu_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete cpu_$1
+
+# 211003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Dropping SNMP request from (\d+.\d+.\d+.\d+\/\d+) to.*:(\d+.\d+.\d+.\d+\/\d+).*
+desc=PIX $1 SNMP Attempt from $2 to $3
+action=create snp_$1; add snp_$1 %t; add snp_$1 %s; add snp_$1 $0; report snp_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete snp_$1
+
+# 213001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*PPTP control daemon socket io.*errno = (\d+)
+desc=PIX $1 PPTP Error $2
+action=create ppt_$1; add ppt_$1 %t; add ppt_$1 %s; add ppt_$1 $0; report ppt_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ppt_$1
+
+# 213002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*PPTP tunnel hashtable insert failed, peer = (\d+.\d+.\d+.\d+)
+desc=PIX $1 PPTP hash table insert failed for $2
+action=create pht_$1; add pht_$1 %t; add pht_$1 %s; add pht_$1 $0; report pht_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete pht_$1
+
+# 213003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*PPP virtual interface (\S+) isn't opened.
+desc=PIX $1 PPP Virtual Int $2 failed to close
+action=create ppp_$1; add ppp_$1 %t; add ppp_$1 %s; add ppp_$1 $0; report ppp_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ppp_$1
+
+# 213004
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*PPP virtual interface (\S+) client ip allocation failed.
+desc=PIX $1 PPP Virutal interface $2 failure (pool depleted)
+action=create ppl_$1; add ppl_$1 %t; add ppl_$1 %s; add ppl_$1 $0; report ppl_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ppl_$1
+
+#
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Denied Telnet login session from (\d+.\d+.\d+.\d+) on interface (int_name).
+desc=PIX $1 Denid Telnet from $2 ($3) !!
+action=create tel_$1; add tel_$1 %t; add tel_$1 %s; add tel_$1 $0; report tel_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete tel_$1
+
+#
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Permitted Telnet login session from (\d+.\d+.\d+.\d+)
+desc=PIX $1 Permitted Telnet from $2 !
+action=create tel_$1; add tel_$1 %t; add tel_$1 %s; add tel_$1 $0; report tel_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete tel_$1
+
+#
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*telnet login session failed from (\d+.\d+.\d+.\d+).*
+desc=PIX $1 Telnet login guessing attack
+action=create tel_$1; add tel_$1 %t; add tel_$1 %s; add tel_$1 $0; report tel_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete tel_$1
+
+# 308001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*PIX console enable password incorrect for (num) tries \(from (\d+.\d+.\d+.\d+)\).
+desc=PIX $1 Many Enable Password failures for $3
+action=create enb_$1; add enb_$1 %t; add enb_$1 %s; add enb_$1 $0; report enb_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete enb_$1
+
+# 315011
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*SSH session from (\d+.\d+.\d+.\d+) on interface.*for user (\S+) disconnected by SSH server, reason:.*
+desc=PIX $1 SSH Auth Attach from $2 ($3)
+action=create ssh_$1; add ssh_$1 %t; add ssh_$1 %s; add ssh_$1 $0; report ssh_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ssh_$1
+window=10
+thresh=6
+
+#
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Denied manager connection from (\d+.\d+.\d+.\d+).
+desc=PIX $1 Denied Manager from $2
+action=create nmg_$1; add nmg_$1 %t; add nmg_$1 %s; add nmg_$1 $0; report nmg_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete nmg_$1
+
+# FIXME -- Add log code FWSM
+type=Single
+continue=takenext
+ptype=RegExp
+pattern==^PIXLOG (\S+)\^ .*Denied SSH session from (\d+.\d+.\d+.\d+) on interface.*
+desc=PIX $1 Denied SSH from $2
+action=create ssh_$1; add ssh_$1 %t; add ssh_$1 %s; add ssh_$1 $0; report ssh_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ssh_$1
+
+#
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Permitted manager connection from (IP_addar).
+desc=PIX $1 Allowed Manager from $2
+action=create ymg_$1; add ymg_$1 %t; add ymg_$1 %s; add ymg_$1 $0; report ymg_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ymg_$1
+
+# FIXME
+# SET \d+.\d+.\d+.\d+ TO ! 128.135.0.x
+#type=Single
+#continue=takenext
+#ptype=RegExp
+#pattern=^PIXLOG (\S+)\^ .*Permitted SSH session from (\d+.\d+.\d+.\d+) on interface.*for user "user_id"
+#desc=PIX $1 Permitted ssh $3 from $2
+#action=create fsh_$1; add fsh_$1 %t; add fsh_$1 %s; add fsh_$1 $0; report fsh_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete fsh_$1
+
+#
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*SSH login session failed from (\d+.\d+.\d+.\d+) on \((num) attempts\) on interface.*by user "(\S+)"
+desc=PIX $1 SSH $3 Failures from $2 by $4
+action=create lsh_$1; add lsh_$1 %t; add lsh_$1 %s; add lsh_$1 $0; report lsh_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete lsh_$1
+
+# 402101
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*decaps: rec\'d IPSEC packet has invalid spi for destaddr=(\d+.\d+.\d+.\d+).*
+desc=PIX $1 IPSEC: Invalid SPI in packet from $2 (possible attack)
+action=create spi_$1; add spi_$1 %t; add spi_$1 %s; add spi_$1 $0; report spi_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete spi_$1
+
+# 402101
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*decapsulate: packet missing (.*), destadr=(\d+.\d+.\d+.\d+)
+desc=PIX $1 IPSEC:  Packet to $3 did not have type $2 (possible attack)
+action=create itp_$1; add itp_$1 %t; add itp_$1 %s; add itp_$1 $0; report itp_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete itp_$1
+
+# 402103
+# FIXME -- This is messy
+#type=Single
+#continue=takenext
+#ptype=RegExp
+#pattern=^PIXLOG (\S+)\^ .*dentity doesn't match negotiated identity \((ip)\) dest_addr= (\d+.\d+.\d+.\d+), src_addr= (\d+.\d+.\d+.\d+), prot= protocol, \((ident)\) local=(\d+.\d+.\d+.\d+), remote=(\d+.\d+.\d+.\d+), local_proxy=(\d+.\d+.\d+.\d+/\d+.\d+.\d+.\d+/port/port), remote_proxy=(\d+.\d+.\d+.\d+/\d+.\d+.\d+.\d+/port/port)
+#desc=PIX $1 IPSEC:  Peer $2 is attempting to send other packets through us $3 $4 $5 $6 $7
+#action=create per_$1; add per_$1 %t; add per_$1 %s; add per_$1 $0; report per_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete per_$1
+
+# 402115
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Received a packet from (\d+.\d+.\d+.\d+) to (\d+.\d+.\d+.\d+) containing.*data instead of.*data.
+desc=PIX $1 IPSEC: packet from $2 to $3 doesn't match negotiated proto
+action=create ipx_$1; add ipx_$1 %t; add ipx_$1 %s; add ipx_$1 $0; report ipx_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ipx_$1
+
+# 402115
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Received an.*packet.*from (\d+.\d+.\d+.\d+).*to (\d+.\d+.\d+.\d+).*The decapsulated inner packet doesn't match the negotiated policy in the SA
+desc=PIX $1 IPSEC: packet from $2 to $3 is encapsulated with unexpected data.
+action=create enc_$1; add enc_$1 %t; add enc_$1 %s; add enc_$1 $0; report enc_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete enc_$1
+
+# 402118
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Received an.*packet.*from (\d+.\d+.\d+.\d+).*to (\d+.\d+.\d+.\d+) containing an illegal IP fragment.*
+desc=PIX $1 IPSEC: packet from $2 to $3 has invalid fragment
+action=create enc_$1; add enc_$1 %t; add enc_$1 %s; add enc_$1 $0; report enc_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete enc_$1
+
+# 403103
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*PPP virtual interface max connections reached.
+desc=PIX $1  PPP interfaces exhausted
+action=create pie_$1; add pie_$1 %t; add pie_$1 %s; add pie_$1 $0; report pie_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete pie_$1
+
+# 403109
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Rec\'d packet not an PPTP packet. \(.*\) dest_addr= (\d+.\d+.\d+.\d+), src_addr= (\d+.\d+.\d+.\d+).*
+desc=PIX $1 Spoofed PPTP Packet from $3 to $2
+action=create spp_$1; add spp_$1 %t; add spp_$1 %s; add spp_$1 $0; report spp_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete spp_$1
+
+# 404101
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*ISAKMP: Failed to allocate address for client from pool (\S+)
+desc=PIX $1 IPSEC: Failed to allocate addr from $2
+action=create faa_$1; add faa_$1 %t; add faa_$1 %s; add faa_$1 $0; report faa_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete faa_$1
+
+# 405001
+#type=Single
+#continue=takenext
+#ptype=RegExp
+#pattern=PIXLOG (\S+)\^ .*Received ARP.*collision from (\d+.\d+.\d+.\d+\/....\.....\.....) on.*
+#desc=PIX $1 ARP Collision: $2
+#action=create mac_$1; add mac_$1 %t; add mac_$1 %s;add mac_$1 %s; add mac_$1 $0; report mac_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete mac_$1
+
+#
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Configuration replication failed for command (\S+)
+desc=PIX $1 Failover replication command $2 failed
+action=create rcf_$1; add rcf_$1 %t; add rcf_$1 %s; add rcf_$1 $0; report rcf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rcf_$1
+
+# 709001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*FO replication failed: cmd=(.*) returned=.*
+desc=PIX $1 Failover: Command replication failed for Peer: $2
+action=create rcf_$1; add rcf_$1 %t; add rcf_$1 %s; add rcf_$1 $0; report rcf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rcf_$1
+
+# 316001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Denied new tunnel to (\d+.\d+.\d+.\d+). VPN peer limit.*exceeded.*
+desc=PIX $1 VPN Peer limit exceeded for $2
+action=create plm_$1; add plm_$1 %t; add plm_$1 %s; add plm_$1 $0; report plm_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete plm_$1
+
+# 317003
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*IP routing table creation failure - (.*)
+desc=PIX $1 Route table Error: $2
+action=create rte_$1; add rte_$1 %t; add rte_$1 %s; add rte_$1 $0; report rte_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rte_$1
+
+# 317004
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*IP routing table limit warning
+desc=PIX $1 Routing table limit reached
+action=create rtl_$1; add rtl_$1 %t; add rtl_$1 %s; add rtl_$1 $0; report rtl_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rtl_$1
+
+# 317005
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*IP routing table limit exceeded - (.*), (\d+.\d+.\d+.\d+).*
+desc=PIX $1 Route table limit breached by $3:  $2
+action=create rtb_$1; add rtb_$1 %t; add rtb_$1 %s; add rtb_$1 $0; report rtb_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rtb_$1
+
+# 323005
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Module in slot (\S+) can not be powered on completely
+desc=PIX $1 Slot $2 will not power on
+action=create slp_$1; add slp_$1 %t; add slp_$1 %s; add slp_$1 $0; report slp_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete slp_$1
+
+# 411002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Line protocol on interface (\S+) changed state to down
+desc=PIX $1 Interface $2 is DOWN!
+action=create lpd_$1; add ldp_$1 %t; add ldp_$1 %s; add lpd_$1 $0; report lpd_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete lpd_$1
+
+# 412002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Detected bridge table full while inserting MAC (....\.....\.....) on interface .*
+desc=PIX $1 MAC Address table is FULL!
+action=create brf_$1; add brf_$1 %t; add brf_$1 %s; add brf_$1 $0; report brf_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete brf_$1
+
+# 505001
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Module in slot (\S+) is shutting down.  Please.*
+desc=PIX $1 Slot $2 is shutting down!
+action=create sht_$1; add sht_$1 %t; add sht_$1 %s; add sht_$1 $0; report sht_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete sht_$1
+
+# 505002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Module in slot (\S+) is reloading. Please.*
+desc=PIX $1 Slot $2 is reloading!
+action=create rld_$1; add rld_$1 %t; add rld_$1 %s; add rld_$1 $0; report rld_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete rld_$1
+
+# 605004
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*Login denied from (.*) to (.*) for user "(\S+)"
+desc=PIX $1 Auth Attack from $2 to $3 ($4)
+action=create ath_$1; add ath_$1 %t; add ath_$1 %s; add ath_$1 $0; report ath_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ath_$1
+window=10
+thresh=6
+
+# 611102
+type=SingleWithThreshold
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*User authentication failed: Uname: (\S+)
+desc=PIX $1 Auth Attach from $2
+action=create ath_$1; add ath_$1 %t; add ath_$1 %s; add ath_$1 $0; report ath_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete ath_$1
+window=10
+thresh=6
+
+# 615002
+type=Single
+continue=takenext
+ptype=RegExp
+pattern=^PIXLOG (\S+)\^ .*vlan number not available for firewall interface
+desc=PIX $1 VLAN Error for FWSM
+action=create vln_$1; add vln_$1 %t; add vln_$1 %s; add vln_$1 $0; report vln_$1 /bin/mailx -s "Syslog Watcher [ALERT]" user@example.com; delete vln_$1
+
+#

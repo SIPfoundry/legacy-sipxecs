@@ -23,7 +23,6 @@ import java.util.concurrent.Future;
 import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.alarm.AlarmContext;
 import org.sipfoundry.sipxconfig.update.PackageUpdateManager.UpdaterState;
 
 public class PackageUpdateManagerImplTest {
@@ -51,27 +50,22 @@ public class PackageUpdateManagerImplTest {
     public void testCheckForUpdates() throws Exception {
         PackageUpdate update = new PackageUpdate("sipxecs", "3.11.7", "3.11.8-013967");
 
-        // Make sure we start in NO_UPDATES_AVAILABLE state
-        AlarmContext alarmContext = createMock(AlarmContext.class);
-        alarmContext.raiseAlarm("SOFTWARE_UPDATE_AVAILABLE",
-                "Package Name|Installed Version|Updated Version\nsipxecs|3.11.7|3.11.8-013967\n");
 
         UpdateApi updateApi = createMock(UpdateApi.class);
         updateApi.getAvailableUpdates();
         expectLastCall().andReturn(Arrays.asList(update));
 
-        replay(alarmContext, updateApi);
+        replay(updateApi);
 
         PackageUpdateManagerImpl updater = new PackageUpdateManagerImpl();
         assertEquals(UpdaterState.UPDATES_NOT_CHECKED, updater.getState());
-        updater.setAlarmContext(alarmContext);
         updater.setUpdateApi(updateApi);
 
         // Do the update check.
         Future<Boolean> future = updater.checkForUpdates();
         assertTrue(future.get());
 
-        verify(alarmContext, updateApi);
+        verify(updateApi);
 
         assertEquals(UpdaterState.UPDATES_AVAILABLE, updater.getState());
         assertEquals(1, updater.getAvailablePackages().size());

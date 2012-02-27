@@ -9,25 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
-public class Alarm extends BeanWithId implements Comparable, Serializable, DeployConfigOnEdit {
+public class Alarm extends BeanWithId implements DeployConfigOnEdit {
     static final Collection<Feature> AFFECTED_FEATURES_ON_CHANGE = Collections.singleton((Feature) Alarms.FEATURE);
-    private String m_alarmId;
 
-    private String m_code;
-
-    private String m_severity;
-
-    private String m_component;
+    private AlarmDefinition m_definition;
 
     private boolean m_logEnabled = true;
 
@@ -35,42 +27,13 @@ public class Alarm extends BeanWithId implements Comparable, Serializable, Deplo
 
     private int m_minThreshold;
 
-    private String m_shortTitle;
-
-    private String m_description;
-
-    private String m_resolution;
-
-    public String getAlarmId() {
-        return m_alarmId;
+    public Alarm(AlarmDefinition def) {
+        m_definition = def;
+        m_minThreshold = def.getDefaultMinimumThreshold();
     }
 
-    public void setAlarmId(String alarmId) {
-        m_alarmId = alarmId;
-    }
-
-    public String getCode() {
-        return m_code;
-    }
-
-    public void setCode(String code) {
-        m_code = code;
-    }
-
-    public String getComponent() {
-        return m_component;
-    }
-
-    public void setComponent(String component) {
-        m_component = component;
-    }
-
-    public String getDescription() {
-        return m_description;
-    }
-
-    public void setDescription(String description) {
-        m_description = description;
+    public AlarmDefinition getAlarmDefinition() {
+        return m_definition;
     }
 
     public String getGroupName() {
@@ -95,60 +58,6 @@ public class Alarm extends BeanWithId implements Comparable, Serializable, Deplo
 
     public void setMinThreshold(int minThreshold) {
         m_minThreshold = minThreshold;
-    }
-
-    public String getResolution() {
-        return m_resolution;
-    }
-
-    public void setResolution(String resolution) {
-        m_resolution = resolution;
-    }
-
-    public String getSeverity() {
-        return m_severity;
-    }
-
-    public void setSeverity(String severity) {
-        m_severity = severity;
-    }
-
-    public String getShortTitle() {
-        return m_shortTitle;
-    }
-
-    public void setShortTitle(String shortTitle) {
-        m_shortTitle = shortTitle;
-    }
-
-    public int compareTo(Object alarm) {
-        return getAlarmId().compareTo(((Alarm) alarm).getAlarmId());
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(m_alarmId).toHashCode();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof Alarm)) {
-            return false;
-        }
-        if (this == other) {
-            return true;
-        }
-        Alarm alarm = (Alarm) other;
-        return new EqualsBuilder().append(m_alarmId, alarm.m_alarmId).isEquals();
-    }
-
-    @Override
-    public String toString() {
-        return "Alarm: " + m_alarmId;
-    }
-
-    public Object getPrimaryKey() {
-        return this;
     }
 
     @Override

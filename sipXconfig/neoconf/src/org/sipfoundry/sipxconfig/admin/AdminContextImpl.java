@@ -17,6 +17,9 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
@@ -27,7 +30,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * Backup provides Java interface to backup scripts
  */
-public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider {
+public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider,
+    AlarmProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
             PRIMARY_IP_ADDRESS, TFTP_ADDRESS, FTP_ADDRESS);
     private LocationsManager m_locationsManager;
@@ -86,5 +90,10 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         return (location.isPrimary() ? Collections.singleton(new ProcessDefinition("sipxconfig",
                 ".*-Dprocname=sipxconfig.*")) : null);
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        return Collections.singleton(ALARM_LOGIN_FAILED);
     }
 }

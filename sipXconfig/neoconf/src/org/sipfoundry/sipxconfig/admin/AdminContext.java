@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface AdminContext {
@@ -19,6 +20,7 @@ public interface AdminContext {
     public static final AddressType TFTP_ADDRESS = new AddressType("tftp");
     public static final AddressType FTP_ADDRESS = new AddressType("ftp");
     public static final AddressType PRIMARY_IP_ADDRESS = new AddressType("ipAddress");
+    public static final AlarmDefinition ALARM_LOGIN_FAILED = new AlarmDefinition("LOGIN_FAILED", 3);
 
     final String CONTEXT_BEAN_NAME = "adminContext";
 

@@ -1,0 +1,44 @@
+#############################################################################
+# Windows events
+#
+# Copyright (C) 2003-2009 Matt Jonkman
+# This is free software. You may redistribute copies of it under the terms of 
+# the GNU General Public License version 2.
+# There is NO WARRANTY, to the extent permitted by law.
+#############################################################################
+
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+ESE: N/A: Information Store \(\d+\) Online defragmentation (.*)
+desc=$0
+action=add GENERAL_REPORT EXCHANGE DEFRAG%t: %s;
+
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+Userenv: NT AUTHORITY\\SYSTEM: Windows cannot determine the user or computer name\. Return value \(1326\).
+desc=$0
+action=add GENERAL_REPORT %t: %s
+
+
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+Security: \\Everyone: User Account Locked Out: Target Account Name: (\S+) .*
+desc=$0
+action=pipe '$1 Windows Account Lockout: %s' /usr/bin/mail -s "Windows Account Locked on $1" alerts@example.com
+
+
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+Security: \\Everyone: User Account Changed: (/S+)\. .*
+desc=$0
+action=pipe '$1 Windows Account Change: %s' /usr/bin/mail -s "Windows Account Changed on $1: $2" alerts@example.com
+
+
+type=Single
+ptype=RegExp
+pattern=\S+\s+\d+\s+\S+\s+(\S+)\s+NetBT: N\/A: A duplicate name has been detected on the TCP network\. .*
+desc=$0
+action=pipe '$1 Duplicate Netbios Name Detected: %s' /usr/bin/mail -s "Duplicate Netbios Name on $1" alerts@example.com
+
+
+

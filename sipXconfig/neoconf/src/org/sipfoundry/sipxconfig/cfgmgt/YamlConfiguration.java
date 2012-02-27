@@ -65,14 +65,22 @@ public class YamlConfiguration extends AbstractConfigurationFile {
     public void startStruct(String key) throws IOException {
         m_out.write(up());
         m_out.write(format("%s:\n", key));
+    }
+
+    public void startArray(String key) throws IOException {
+        startStruct(key);
         m_newStruct = true;
     }
 
-    public void nextStruct() throws IOException {
+    public void nextElement() throws IOException {
         m_newStruct = true;
     }
 
     public void endStruct() throws IOException {
+        endArray();
+    }
+
+    public void endArray() throws IOException {
         down();
         m_newStruct = false;
     }

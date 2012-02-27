@@ -36,17 +36,26 @@ public class YamlConfigurationTest {
         m_config.startStruct("bird");
         m_config.write("name", "robin");
         m_config.write("species", "thrush");
-        m_config.endStruct();
+        m_config.endArray();
+        assertEquals("bird:\n   name: robin\n   species: thrush\n", m_actual.toString());
+    }
+
+    @Test
+    public void array() throws IOException {
+        m_config.startArray("bird");
+        m_config.write("name", "robin");
+        m_config.write("species", "thrush");
+        m_config.endArray();
         assertEquals("bird:\n - name: robin\n   species: thrush\n", m_actual.toString());
     }
 
     @Test
     public void table() throws IOException {
-        m_config.startStruct("birds");
+        m_config.startArray("birds");
         m_config.write("name", "robin");
-        m_config.nextStruct();
+        m_config.nextElement();
         m_config.write("name", "bluejay");
-        m_config.endStruct();
+        m_config.endArray();
         String expected = "birds:\n - name: robin\n - name: bluejay\n";
         assertEquals(expected, m_actual.toString());
     }

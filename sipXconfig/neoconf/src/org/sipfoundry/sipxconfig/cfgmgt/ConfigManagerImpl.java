@@ -7,8 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.cfgmgt;
 
+
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,6 +24,9 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -35,7 +40,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFactoryAware {
+public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFactoryAware, AlarmProvider {
     private static final Log LOG = LogFactory.getLog(ConfigManagerImpl.class);
     private File m_cfDataDir;
     private DomainManager m_domainManager;
@@ -304,5 +309,10 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     public void run(RunRequest request) {
         LOG.info("Running " + request.getLabel());
         m_runAgent.run(request.getLocations(), request.getLabel(), request.getBundles(), request.getDefines());
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        return Arrays.asList(PROCESS_FAILED, PROCESS_RESTARTED, PROCESS_STARTED);
     }
 }

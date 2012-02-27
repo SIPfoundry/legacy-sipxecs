@@ -1,0 +1,29 @@
+{"conference": {
+  "extension": "555",
+  "description": "desc",
+  "locked": false,
+  "members": [
+    {
+      "id": 1,
+      "name": "200",
+      "imId": "200im",
+      "uuid": "33ee33ee",
+      "volumeIn": 0,
+      "volumeOut": 0,
+      "energyLevel": 30,
+      "canHear": true,
+      "canSpeak": true
+    },
+    {
+      "id": 1,
+      "name": "201",
+      "imId": "201im",
+      "uuid": "333eee333",
+      "volumeIn": 0,
+      "volumeOut": 0,
+      "energyLevel": 30,
+      "canHear": true,
+      "canSpeak": false
+    }
+  ]
+}}

@@ -1,0 +1,61 @@
+#!/usr/bin/ruby
+
+#
+# Generated an SEC file from data file with know server name and addresses
+#
+
+require 'optparse'
+require 'erb'
+require 'yaml'
+
+args = OptionParser.new { |opts|
+  opts.banner = "Usage : sipxlogwatcher-maker [options]"
+
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on("--help", "Print this help message.") {
+    puts opts
+    exit
+  }
+
+  opts.on("--example", "Print an example alarm YAML file") {
+puts <<EOF
+LOGIN_FAILED:
+ - :groupName: disabled
+   :minThreshold: 3
+PROCESS_DIED:
+ - :groupName: default
+   :minThreshold: 0
+EOF
+  exit
+  }
+
+  opts.on("--template FILE", "ERB formated template. Default is #{$template}") {|f|
+    $template = f
+  }
+
+  opts.on("--in FILE", "YAML formated file for servers. Default is #{$yaml}") {|f|
+    $yaml = f
+  }
+
+  $out = STDOUT
+  opts.on("--out FILE", "Write to file, otherwise output is sent to stdout") {|f|
+    $out = File.open(f, 'w')
+  }
+}
+args.parse!
+
+raise '--template [ERB FILE] missing' if $template.nil?
+raise '--in [YAML FILE] missing' if $template.nil?
+
+data = YAML::load_file($yaml)
+
+var = binding
+data.each_key { |x|
+  eval "#{x} = data['#{x}']", var
+}
+
+erb = ERB.new(File.read($template))
+erb.filename = $template
+$out.puts erb.result(var)

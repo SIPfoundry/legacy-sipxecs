@@ -1,0 +1,73 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+# SEC - Simple Event Correlator to filter log file entries
+# Named zz_sipxlogwatcher so it gets run after all other promises have
+# setup their logwatcher *.sec files and toggled reload_logwatcher class
+
+bundle agent zz_sipxlogwatcher {
+  methods:
+    sipxlogwatcher::
+      "any" usebundle => "sipxlogwatcher_config";
+    any::
+      "any" usebundle => "sipxlogwatcher_running";
+      "any" usebundle => "sipxlogwatcher_setup";
+}
+
+bundle agent sipxlogwatcher_config {
+  files:
+    sipxlogwatcher::
+      "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc"
+        comment => "Config SIPXLOGWATCHER service",
+        create => "true",
+        perms => m(644),
+        edit_line => sipxlogwatcher_config_contents,
+        classes => if_repaired("reload_sipxlogwatcher");
+}
+
+bundle edit_line sipxlogwatcher_config_contents {
+  insert_lines:
+    any::
+      "SEC_ARGS=\"--detach --conf=$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/*.sec --input=$(sipx.SIPX_LOGDIR)/*.log --input=/var/log/messages --pid=$(sipx.SIPX_RUNDIR)/sipxlogwatcher.pid\"";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxlogwatcher_setup {
+  methods:
+    !src.sipxlogwatcher::
+      "any" usebundle => rh_chkconfig_status("sipxlogwatcher on");
+    !src.!sipxlogwatcher::
+      "any" usebundle => rh_chkconfig_status("sipxlogwatcher off");
+}
+
+bundle agent sipxlogwatcher_running {
+  vars:
+    any::
+      "service" string => "/etc/init.d/sipxlogwatcher";
+      "service_command" string => "/usr/bin/perl -w /usr/bin/sec";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "sipxlogwatcher_running","root");
+
+  commands:
+    !sipxlogwatcher.sipxlogwatcher_running::
+      "$(service)"
+        comment => "stop sipxlogwatcher",
+        args => "stop";
+
+    sipxlogwatcher.!sipxlogwatcher_running::
+      "$(service)"
+        comment => "start sipxlogwatcher",
+        args => "start";
+
+    sipxlogwatcher.sipxlogwatcher_running.reload_sipxlogwatcher::
+      "$(service)"
+        comment => "reload sipxlogwatcher",
+        args => "reload";
+}
+

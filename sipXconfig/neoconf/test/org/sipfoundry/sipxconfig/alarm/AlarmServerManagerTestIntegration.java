@@ -9,13 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -32,11 +37,35 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
+    
+    private static Map<AlarmDefinition,Alarm> index(List<Alarm> list) {
+        Map<AlarmDefinition,Alarm> map = new HashMap<AlarmDefinition,Alarm>(list.size());
+        for (Alarm a : list) {
+            map.put(a.getAlarmDefinition(), a);
+        }
+        return map;
+    }
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
         loadDataSet("alarm/alarm.db.xml");
         loadDataSet("alarm/user-alarm.db.xml");
+    }
+    
+    public void testGetAlarms() throws Exception {
+        clear();
+        sql("alarm/alarm-seed.sql");
+        Map<AlarmDefinition,Alarm> alarms = index(m_alarmServerManager.getAlarms());
+        assertEquals(4, alarms.get(AdminContext.ALARM_LOGIN_FAILED).getMinThreshold());
+    }
+    
+    public void testSaveAlarms() throws Exception {
+        clear();
+        Alarm a = new Alarm(AdminContext.ALARM_LOGIN_FAILED);
+        a.setMinThreshold(5);
+        m_alarmServerManager.saveAlarms(Collections.singletonList(a));
+        int actual = db().queryForInt("select min_threshold from alarm_code where alarm_code_id = 'LOGIN_FAILED'");
+        assertEquals(5, actual);
     }
 
     public void testGetAlarmServer() throws Exception {
@@ -114,7 +143,7 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
         }
 
         // Try to delete them all, only the default group should remain.
-        m_alarmServerManager.removeAlarmGroups(groupsIds, m_alarmServerManager.getAlarmTypes());
+        m_alarmServerManager.removeAlarmGroups(groupsIds, m_alarmServerManager.getAlarms());
         assertEquals(1, m_alarmServerManager.getAlarmGroups().size());
     }
 }

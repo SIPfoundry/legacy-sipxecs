@@ -13,6 +13,7 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -21,6 +22,10 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
 public interface ConfigManager {
     public static final AddressType SUPERVISOR_ADDRESS = new AddressType("supervisorXmlRpc");
+    public static final AlarmDefinition PROCESS_RESTARTED = new AlarmDefinition("PROCESS_RESTARTED");
+    public static final AlarmDefinition PROCESS_STARTED = new AlarmDefinition("PROCESS_STARTED");
+    public static final AlarmDefinition PROCESS_FAILED = new AlarmDefinition("PROCESS_FAILED");
+
     public enum ConfigStatus {
         OK, IN_PROGRESS, FAILED
     }

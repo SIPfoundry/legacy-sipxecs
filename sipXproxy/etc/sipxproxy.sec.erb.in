@@ -1,0 +1,11 @@
+<% 
+  if EMERG_NUMBER_DIALED[:groupName] != 'disabled'
+%>
+type=Single
+ptype=RegExp
+pattern=".*(Emergency dial rule .* was invoked .*$)"
+desc=$1
+action=shellcmd @SIPX_BINDIR@/sipxtrap EMERG_NUMBER_DIALED '%s'
+<% 
+  end 
+%>

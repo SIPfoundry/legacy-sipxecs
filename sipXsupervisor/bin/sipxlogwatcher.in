@@ -1,0 +1,103 @@
+#!/bin/bash
+#
+# sipxlogwatcher   Start and stop sipxecs logwatch based on SEC tool
+#
+# chkconfig:    - 20 80
+# description:  Simple Event Correlator script to filter log file entries
+
+. /etc/rc.d/init.d/functions
+
+prog="sec"
+exec="/usr/bin/sec"
+lockfile="/var/lock/subsys/sec"
+rc=@SIPX_CONFDIR@/sipxlogwatcher-rc
+
+[ -e $rc ] && . $rc
+
+start() {
+	[ -x $exec ] || exit 5
+	for n in `seq 0 $((${#SEC_ARGS[*]} - 1))`; do
+		echo -n $"Starting sipxlogwatcher instance "$(($n + 1))": "
+		daemon $exec ${SEC_ARGS[$n]}
+		RETVAL=$?
+		echo
+		[ $RETVAL -ne 0 ] && return $RETVAL
+	done
+	touch $lockfile
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Stopping sipxlogwatcher: "
+	killproc $prog
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f $lockfile
+	return $RETVAL
+}
+
+restart() {
+	stop
+	start
+}
+
+reload() {
+	echo -n $"Reloading sipxlogwatcher: "
+	killproc $prog -HUP
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+force_reload() {
+	restart
+}
+
+rh_status() {
+	status $prog
+}
+
+rh_status_q() {
+	rh_status >/dev/null 2>&1
+}
+
+dump() {
+	echo -n $"Dumping state of sipxlogwatcher in /tmp/sec.dump: "
+	killproc $prog -USR1
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	restart
+	;;
+  condrestart|try-restart)
+	rh_status_q || exit 0
+	restart
+	;;
+  reload)
+	reload
+	;;
+  force-reload)
+	force_reload
+	;;
+  status)
+	rh_status
+	;;
+  dump)
+	dump
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart|condrestart|try-restart|reload|force-reload|status|dump}"
+	exit 2
+esac
+
+exit $?
