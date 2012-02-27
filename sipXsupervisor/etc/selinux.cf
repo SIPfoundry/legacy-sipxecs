@@ -5,6 +5,16 @@
 # Manage SELinux configuration
 
 bundle agent selinux {
+  vars:
+    any::
+      # use execresult instead of readfile because it's a mounted FS, file size
+      # is zero and CF refuses to read
+      "selinux_state" string => execresult("/bin/cat /selinux/enforce", "noshell");
+
+  classes:
+    any::
+      "selinux_on" expression => strcmp("$(selinux_state)", "1");
+
   files:
     any::
       # vsftp is just one of the known incompatibilies with selinux. There may be others
@@ -12,16 +22,14 @@ bundle agent selinux {
         comment => "Disable SELinux on next boot",
         create => "true",
         perms => m(644),
-        edit_line => disable_selinux,
-        classes => if_repaired("disable_selinux_until_reboot");
+        edit_line => disable_selinux;
 
+  commands:
     # only works until reboot so do this after selinux conf is updates
-    disable_selinux_until_reboot::
-      "/selinux/enforce"
+    selinux_on::
+      "/usr/sbin/setenforce"
         comment => "Disable SELinux for current session",
-        create => "true",
-        perms => m(644),
-        edit_line => replace_contents("0");
+        args => "0";
 }
 
 bundle edit_line disable_selinux {
