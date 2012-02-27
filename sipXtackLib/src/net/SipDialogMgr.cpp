@@ -204,8 +204,11 @@ UtlBoolean SipDialogMgr::setNextLocalCseq(const UtlString& dialogHandleString,
    if (dialog)
    {
       // If we could find the dialog, set its next local CSeq.
-      dialog->setLastLocalCseq(nextLocalCseq);
-      ret = TRUE;
+     if (dialog->getLastLocalCseq() < nextLocalCseq)
+       dialog->setLastLocalCseq(nextLocalCseq);
+     else if (dialog->getLastLocalCseq() == nextLocalCseq)
+       dialog->setLastLocalCseq(++nextLocalCseq);
+     ret = TRUE;
    }
    else
    {
