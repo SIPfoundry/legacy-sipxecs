@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
@@ -100,15 +99,15 @@ public class OpenAcdAgentGroup extends OpenAcdAgentWithSkills implements Replica
         for (OpenAcdSkill skill : getSkills()) {
             skills.add(skill.getAtom());
         }
-        props.put(MongoConstants.SKILLS, skills);
+        props.put(OpenAcdContext.SKILLS, skills);
 
-        props.put(MongoConstants.OLD_NAME, getOldName());
+        props.put(OpenAcdContext.OLD_NAME, getOldName());
 
         List<String> queues = new ArrayList<String>();
         for (OpenAcdQueue queue : getQueues()) {
             queues.add(queue.getName());
         }
-        props.put(MongoConstants.QUEUES, queues);
+        props.put(OpenAcdContext.QUEUES, queues);
         return props;
     }
 

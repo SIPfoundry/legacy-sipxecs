@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
@@ -49,8 +48,8 @@ public class OpenAcdLogConfigCommand extends BeanWithId implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(MongoConstants.LOG_LEVEL, getLogLevel());
-        props.put(MongoConstants.LOG_FILE, getLogFile());
+        props.put(OpenAcdContext.LOG_LEVEL, getLogLevel());
+        props.put(OpenAcdContext.LOG_FILE, getLogFile());
         return props;
     }
 

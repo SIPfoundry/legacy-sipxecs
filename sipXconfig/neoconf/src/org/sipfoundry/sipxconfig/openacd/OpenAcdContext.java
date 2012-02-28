@@ -35,7 +35,40 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     public static final String MAGIC_SKILL_GROUP_NAME = "Magic";
     public static final String GROUP_NAME_DEFAULT = "Default";
     public static final String OPENACD_LOG = "/full.log";
+    static final String QUEUE_GROUP = "qgrp";
+    static final String SKILLS = "skl";
+    static final String PROFILES = "prfl";
+    static final String WEIGHT = "wht";
+    static final String OLD_NAME = "oldnm";
+    static final String ACTION = "actn";
+    static final String ACTION_VALUE = "actionValue";
+    static final String CONDITION = "cndt";
+    static final String FREQUENCY = "frq";
+    static final String STEP_NAME = "stpnm";
+    static final String RECIPES = "rcps";
 
+    static final String PIN = "pin";
+    static final String AGENT_GROUP = "aggrp";
+    static final String SKILLS_ATOM = "sklatm";
+    static final String QUEUES = "qs";
+    static final String CLIENTS = "clns";
+    static final String FIRST_NAME = "fnm";
+    static final String LAST_NAME = "lnm";
+    static final String SECURITY = "scrty";
+
+    static final String VALUE = "vlu";
+    static final String NODE = "nd";
+    static final String DIAL_STRING = "dlst";
+    static final String LISTENER_ENABLED = "lstenbl";
+    static final String LOG_LEVEL = "lglvl";
+    static final String LOG_FILE = "lgfile";
+    static final String ATOM = "atom";
+    static final String GROUP_NAME = "grpnm";
+    static final String DESCRIPTION = "dscr";
+    static final String UUID = "uuid";
+    static final String TYPE = "type";
+    static final String LABEL = "lbl";
+    static final String BIAS = "bias";
     OpenAcdSettings getSettings();
 
     void saveSettings(OpenAcdSettings settings);
