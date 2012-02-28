@@ -163,7 +163,7 @@ public class OpenAcdRecipeCondition implements Serializable {
         if (m_condition.equals(CONDITION.MEDIA_TYPE.toString())) {
             conditionValue = "type";
         }
-        condition.put(MongoConstants.CONDITION, conditionValue);
+        condition.put(OpenAcdContext.CONDITION, conditionValue);
         String relation = "=";
         if (m_relation.equals(RELATION.NOT.toString())) {
             relation = "!=";
@@ -177,9 +177,9 @@ public class OpenAcdRecipeCondition implements Serializable {
         //note that in most cases this is a number
         try {
             Integer value = new Integer(m_valueCondition);
-            condition.put(MongoConstants.VALUE, value);
+            condition.put(OpenAcdContext.VALUE, value);
         } catch (NumberFormatException e) {
-            condition.put(MongoConstants.VALUE, m_valueCondition);
+            condition.put(OpenAcdContext.VALUE, m_valueCondition);
         }
         return condition;
     }

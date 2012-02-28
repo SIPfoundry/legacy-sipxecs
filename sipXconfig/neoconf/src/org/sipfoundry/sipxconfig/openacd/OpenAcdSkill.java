@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
@@ -122,9 +121,9 @@ public class OpenAcdSkill extends BeanWithId implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(MongoConstants.ATOM, getAtom());
-        props.put(MongoConstants.GROUP_NAME, getGroupName());
-        props.put(MongoConstants.DESCRIPTION, getDescription());
+        props.put(OpenAcdContext.ATOM, getAtom());
+        props.put(OpenAcdContext.GROUP_NAME, getGroupName());
+        props.put(OpenAcdContext.DESCRIPTION, getDescription());
         return props;
     }
 }
