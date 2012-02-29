@@ -82,9 +82,11 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
             sqlUpdates.add("delete from branch where branch_id=" + id);
             getHibernateTemplate().evict(branch);
         }
-        m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
-        for (Branch branch : branches) {
-            getDaoEventPublisher().publishDelete(branch);
+        if (!sqlUpdates.isEmpty()) {
+            m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
+            for (Branch branch : branches) {
+                getDaoEventPublisher().publishDelete(branch);
+            }
         }
     }
 
