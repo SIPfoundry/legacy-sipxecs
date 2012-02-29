@@ -7,6 +7,7 @@ require 'fileutils'
 # patches.
 $cfdatadir = "@SIPX_CFDATA@"
 $confdir = "@SIPX_CONFDIR@"
+$logdir = "@SIPX_LOGDIR@"
 $bindir = "@SIPX_BINDIR@"
 $user = "@SIPXPBXUSER@"
 $group = "@SIPXPBXGROUP@"
