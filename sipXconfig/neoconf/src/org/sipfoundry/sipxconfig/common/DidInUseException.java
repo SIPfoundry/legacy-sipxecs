@@ -1,8 +1,7 @@
 /*
- *
- *
- * Copyright (C) 2012 Karel Electronics Corp.
- * All rights reserved.
+ * Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the AGPL license.
  *
  * $
  */
