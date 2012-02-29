@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -42,7 +43,7 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(SnmpManager.FEATURE)) {
+        if (!request.applies(SnmpManager.FEATURE, LocationsManager.FEATURE)) {
             return;
         }
         Set<Location> locations = request.locations(manager);
