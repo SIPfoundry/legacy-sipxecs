@@ -51,12 +51,8 @@ void SubscribeDB::upsert (
     unsigned int version)
 {
     mongo::BSONObj query = BSON(
-              Subscription::toUri_fld() << toUri.str() <<
-              Subscription::fromUri_fld() << fromUri.str() <<
-              Subscription::callId_fld() << callId.str() <<
-              Subscription::eventTypeKey_fld() << eventTypeKey.str() <<
-              Subscription::id_fld() << id.str() <<
-              Subscription::subscribeCseq_fld() << BSON_LESS_THAN(subscribeCseq));
+        "key" << key.str() <<
+        "contact" << contact.str());
 
     mongo::BSONObj update = BSON("$set" << BSON(
         Subscription::component_fld() << component.str() <<
