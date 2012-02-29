@@ -24,6 +24,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
+import org.sipfoundry.sipxconfig.common.DidInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -78,6 +79,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     public void validate(Conference conference) {
         String name = conference.getName();
         String extension = conference.getExtension();
+        String did = conference.getDid();
         if (name == null) {
             throw new UserException("A conference must have a name");
         }
@@ -98,8 +100,11 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         if (!m_aliasManager.canObjectUseAlias(conference, extension)) {
             throw new ExtensionInUseException(CONFERENCE, extension);
         }
-        if (!m_aliasManager.canObjectUseAlias(conference, conference.getDid())) {
-            throw new ExtensionInUseException(CONFERENCE, conference.getDid());
+        if (!m_aliasManager.canObjectUseAlias(conference, did)) {
+            throw new ExtensionInUseException(CONFERENCE, did);
+        }
+        if (did.equals(extension)) {
+            throw new DidInUseException(CONFERENCE, did);
         }
     }
 
