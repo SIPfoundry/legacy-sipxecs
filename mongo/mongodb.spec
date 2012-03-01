@@ -1,6 +1,6 @@
 Name: mongodb
 Version: 2.0.2
-Release: 1%{?dist}
+Release: 99%{?dist}
 Summary: mongo client shell and tools
 License: AGPL 3.0
 URL: http://www.mongodb.org
