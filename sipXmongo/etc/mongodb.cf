@@ -9,10 +9,10 @@ bundle common mongo {
     # 10gen and fedora mongo mainatain cannot settle on right file names or
     # package names for that matter. Support both at this time. 
     any::
-      "mongodb_redhat" expression => fileexists("/etc/mongodb.conf");
-      "mongodb_10gen" not => "from_redhat";
-      "mongodb_sysv" expression => "!fedora16_or_greater|from_10gen";
-      "mongodb_sysctl" expression => "fedora16_or_greater.from_redhat";
+      "mongodb_10gen" expression => fileexists("/etc/mongod.conf");
+      "mongodb_redhat" not => "mongodb_10gen";
+      "mongodb_sysv" expression => "mongodb_10gen";
+      "mongodb_sysctl" expression => "mongodb_redhat";
 }
 
 bundle agent mongodb {
