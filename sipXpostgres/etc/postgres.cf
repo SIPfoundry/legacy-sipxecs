@@ -15,7 +15,6 @@ bundle agent postgres {
       "any" usebundle => "postgres_sysctl_running";
     !fedora16_or_greater::
       "any" usebundle => "postgres_sysv_running";
-      "any" usebundle => "postgres_setup";
 }
 
 bundle agent postgres_init {
@@ -126,14 +125,6 @@ bundle edit_line pg_hba_conf {
     "local.*";
 }
 
-bundle agent postgres_setup {
-  methods:
-    !src.postgres::
-      "any" usebundle => rh_chkconfig_status("postgresql on");
-    !src.!postgres::
-      "any" usebundle => rh_chkconfig_status("postgresql off");
-}
-
 bundle agent postgres_sysv_running {
   vars:
     any::
@@ -142,6 +133,10 @@ bundle agent postgres_sysv_running {
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "postgres_running","$(sipx.POSTGRESQL_USER)");
+    postgres::
+      "any" usebundle => rh_chkconfig_status("postgresql on");
+    !postgres::
+      "any" usebundle => rh_chkconfig_status("postgresql off");
 
   commands:
     !postgres.postgres_running::
@@ -174,10 +169,18 @@ bundle agent postgres_sysctl_running {
         comment => "stop postgres",
         args => "stop $(service)";
 
+      "$(sipx.systemctl)"
+        comment => "disable postgres",
+        args => "disable $(service)";
+
     postgres.!postgres_running::
       "$(sipx.systemctl)"
         comment => "start postgres",
         args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable postgres",
+        args => "enable $(service)";
 
     postgres.postgres_running.restart_postgres::
       "$(sipx.systemctl)"
