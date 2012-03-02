@@ -106,11 +106,11 @@ bundle agent sipxsupervisor_running {
         comment => "start sipxsupervisor",
         args => "start";
 
-    # NOTE: supervisor doen't restart on "restart_sipxecs" because often
-    # supervisor is coordinating the restart command.
-    sipxsupervisor.sipxsupervisor_running.restart_sipxsupervisor::
-      "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
-        comment => "restart sipxsupervisor",
-        args => "restart";
+    # NOTE: Restart in background because often supervisor is coordinating the restart command.
+    # Delay 60 seconds but not tested as being optimal value. -- Douglas
+    sipxsupervisor.sipxsupervisor_running.(restart_sipxecs|restart_sipxsupervisor)::
+      "$(sipx.SIPX_CFMODULES)/run-later"
+        comment => "restart sipxsupervisor in background",
+        args => "60 $(sipx.SIPX_SERVICEDIR)/sipxsupervisor restart";
 }
 

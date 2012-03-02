@@ -18,7 +18,8 @@ bin_SCRIPTS = \
 cfmoddir = @SIPX_CFMODULES@
 cfmod_SCRIPTS = \
 	sipx \
-	readfile-if-exists
+	readfile-if-exists \
+	run-later
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
