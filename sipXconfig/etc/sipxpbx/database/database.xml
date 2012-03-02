@@ -1007,17 +1007,6 @@
   </target>
 
   <!--
-    Patches that use the SQL Procedural Language (PL/pgSQL) should depend on this task to ensure
-    the language is created.  Because 'failonerror' is 'false', it can be run without problem even
-    when the language is already created.
-  -->
-  <target name="createlang-plpgsql">
-    <exec executable="createlang" failonerror="false">
-      <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}" />
-    </exec>
-  </target>
-
-  <!--
     - version1 patches
   -->
   <!-- 
@@ -1108,8 +1097,11 @@
   <target name="gateway-enabled" unless="gateway-enabled">
     <db-patch patch="gateway-enabled"/>
   </target>
-  <target name="migrate-pregroup-alarm-contacts" depends="createlang-plpgsql" unless="migrate-pregroup-alarm-contacts">
-    <db-patch patch="migrate-pregroup-alarm-contacts"/>
+  <target name="createlang-plpgsql" unless="createlang-plpgsql">
+    <db-patch patch="createlang-plpgsql"/>
+  </target>
+  <target name="migrate-pregroup-alarm-contacts" unless="migrate-pregroup-alarm-contacts">
+    <plsql-patch patch="migrate-pregroup-alarm-contacts"/>
   </target>
   <target name="tls_peer" unless="tls_peer">
     <db-patch patch="tls_peer"/>
@@ -1174,8 +1166,8 @@
   <target name="sbc-addressPort" unless="sbc-addressPort">
     <db-patch patch="sbc-addressPort"/>
   </target>
-  <target name="migrate-sbcs" depends="createlang-plpgsql" unless="migrate-sbcs">
-    <db-patch patch="migrate-sbcs"/>
+  <target name="migrate-sbcs" unless="migrate-sbcs">
+    <plsql-patch patch="migrate-sbcs"/>
   </target>
   <target name="location-add-tls-port" unless="location-add-tls-port">
     <db-patch patch="location-add-tls-port"/>
