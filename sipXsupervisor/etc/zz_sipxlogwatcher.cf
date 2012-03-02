@@ -47,7 +47,7 @@ bundle agent sipxlogwatcher_setup {
 bundle agent sipxlogwatcher_running {
   vars:
     any::
-      "service" string => "/etc/init.d/sipxlogwatcher";
+      "service" string => "$(sipx.SIPX_SERVICEDIR)/sipxlogwatcher";
       "service_command" string => "/usr/bin/perl -w /usr/bin/sec";
 
   methods:
