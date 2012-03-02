@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class AlarmConfiguration implements ConfigProvider {
@@ -36,7 +37,7 @@ public class AlarmConfiguration implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Alarms.FEATURE)) {
+        if (!request.applies(Alarms.FEATURE, SnmpManager.FEATURE)) {
             return;
         }
 

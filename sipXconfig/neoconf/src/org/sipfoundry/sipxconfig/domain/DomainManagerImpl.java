@@ -9,11 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -125,9 +127,9 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
             domainConfig.load(domainConfigInputStream);
             Domain domain = new Domain();
             parseDomainConfig(domain, domainConfig);
-            domain.initSecret();
             saveDomain(domain);
-            getDaoEventPublisher().publishSave(domain);
+            // Do not publish as there should not be a change
+            // getDaoEventPublisher().publishSave(domain);
         } catch (FileNotFoundException fnfe) {
             LOG.fatal(DOMAIN_CONFIG_ERROR, fnfe);
         } catch (IOException ioe) {
@@ -151,16 +153,8 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     private Set<String> getAlliasesFromDomainConfig(Properties domainConfig) {
-        Set<String> aliases = new LinkedHashSet<String>();
         String[] domainConfigAliases = StringUtils.split(domainConfig.getProperty("SIP_DOMAIN_ALIASES"), ' ');
-        if (domainConfigAliases != null) {
-            for (String alias : domainConfigAliases) {
-                if (!alias.equals(domainConfig.getProperty(SIP_DOMAIN_NAME))) {
-                    aliases.add(alias);
-                }
-            }
-        }
-
+        Set<String> aliases = new LinkedHashSet<String>(Arrays.asList(domainConfigAliases));
         return aliases;
     }
 
