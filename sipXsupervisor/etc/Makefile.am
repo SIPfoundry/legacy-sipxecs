@@ -1,8 +1,8 @@
 include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-	$(schema_DATA:=.in) \
 	$(cfinputs_PROMISES:=.in) \
+	$(cflib_DATA:=.in) \
 	cfengine_stdlib.cf
 
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
@@ -38,6 +38,10 @@ dist_cfplugins_DATA = \
 	sendmail.cf \
 	zz_sipxlogwatcher.cf
 
+cflibdir =  $(SIPX_CFINPUTS)/plugin.d/lib
+cflib_DATA = \
+	commands.cf
+
 cfinputs_PROMISES = \
 	sipxsupervisord.cf \
 	sipx.cf \
@@ -53,7 +57,7 @@ $(emptydirs) :
 
 install-data-hook : $(emptydirs)
 
-$(cfinputs_PROMISES) : % : %.in Makefile
+$(cflib_DATA) $(cfinputs_PROMISES) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)
 
-CLEANFILES = $(schema_DATA) $(cfinputs_PROMISES) $(cfdefaults_DATA)
+CLEANFILES = $(cfinputs_PROMISES) $(cfdefaults_DATA) $(cflib_DATA)

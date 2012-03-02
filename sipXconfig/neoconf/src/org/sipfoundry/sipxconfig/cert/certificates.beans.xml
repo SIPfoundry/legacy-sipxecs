@@ -22,5 +22,6 @@
 	<property name="locationsManager" ref="locationsManager" />
 	<property name="softwareAdminApiProvider" ref="softwareAdminApiProvider" />
     <property name="configManager" ref="configManager" />    
+    <property name="configCommands" ref="configCommands" />    
   </bean>
 </beans>

@@ -18,8 +18,7 @@ public class ConfigAgent extends AgentRunner {
      * synchronized to ensure cf-agent is run before last one finished, but did not
      * verify this is a strict requirement --Douglas
      */
-    public synchronized void run() {
-        Collection<Location> all = getLocationsManager().getLocationsList();
-        run(all, "Configuration deployment", "");
+    public synchronized void run(Collection<Location> locations) {
+        run(locations, "Configuration deployment", "");
     }
 }

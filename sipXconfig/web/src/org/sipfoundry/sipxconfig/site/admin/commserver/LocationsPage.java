@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
@@ -31,7 +33,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.Location.State;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
@@ -84,6 +85,10 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
 
     public abstract Collection<Location> getLocations();
 
+    public abstract Set<Location> getRegisteredLocations();
+
+    public abstract void setRegisteredLocations(Set<Location> locations);
+
     public abstract void setLocations(Collection<Location> locations);
 
     public abstract Collection<Integer> getRowsToDelete();
@@ -108,16 +113,9 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
 
     public String getStatusLabel() {
         Location currentLocation = getCurrentRow();
-        State state = currentLocation.getState();
-        int percent = getAuditLogContext().getProgressPercent(currentLocation);
-        String percentStr = BLANK;
-        String key = state.getName();
-        if (currentLocation.isInNotFinishedState()) {
-            key = "ATTEMPT_NOT_FINISHED";
-        } else if (currentLocation.isInProgressState()) {
-            percentStr = (percent > 0) ? " " + percent + " % " : BLANK;
-        }
-        return getMessages().getMessage(key) + percentStr;
+        boolean registered = getRegisteredLocations().contains(currentLocation);
+        String key = registered ? "CONFIGURED" : "UNINITIALIZED";
+        return getMessages().getMessage(key);
     }
 
     public Collection getAllSelected() {
@@ -128,6 +126,10 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
     public void pageBeginRender(PageEvent event) {
         if (getLocations() == null) {
             setLocations(Arrays.asList(getLocationsManager().getLocations()));
+        }
+        if (getRegisteredLocations() == null) {
+            Collection<Location> reg = getConfigManager().getRegisteredLocations(getLocations());
+            setRegisteredLocations(new HashSet<Location>(reg));
         }
         if (getUnmanagedServiceSettings() == null) {
             setUnmanagedServiceSettings(getUnmanagedService().getSettings());

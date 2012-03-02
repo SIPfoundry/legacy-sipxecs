@@ -35,6 +35,10 @@ import org.snmp4j.util.PDUFactory;
 import org.snmp4j.util.TableListener;
 import org.snmp4j.util.TableUtils;
 
+/**
+ * Tip: to read you can run
+ *   snmpwalk -v 2c -c public localhost 1.3.6.1.4.1.7142.100.1
+ */
 public class ProcessSnmpReader {
     private static final int[] BASE_OID = new int[] {
         1, 3, 6, 1, 4, 1, 7142, 100, 1, 10

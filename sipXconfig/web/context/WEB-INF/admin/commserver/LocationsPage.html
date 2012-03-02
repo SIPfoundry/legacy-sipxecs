@@ -4,7 +4,6 @@
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
-  <div 
   <div jwcid="locationsTab@Block">    
 	<div jwcid="@common/QuickLinks">
 	  <ul>
@@ -24,7 +23,7 @@
 	  </ul>
 	  <table jwcid="@common/Table" id="locations:list"
 	    source="ognl:locations"
-	    columns="* name, id, address, description:name, status, lastAttempt"
+	    columns="* name, id, address, description:name, status"
 	    row="ognl:currentRow"
 	    selections="bean:selections">
 	    <span jwcid="nameColumnValue@Block">
@@ -38,14 +37,7 @@
 	    </span>
 	    <span jwcid="statusColumnValue@Block">
 			<span jwcid="@Insert" value="ognl:statusLabel" renderTag="false" raw="true"/>
-			<span jwcid="@If" condition="ognl:failedState " renderTag="false">
-			  [<a jwcid="@DirectLink" listener="listener:seeState" parameters="ognl:{currentRow}">
-			  <span key="link.seeState" /></a>]
-			</span>
 	    </span>	    
-	    <span jwcid="lastAttemptColumnValue@Block">
-	      <span jwcid="@Insert" value="ognl:lastAttempt"/>
-	    </span>
 	  </table>
 	  <ul class="component-submit">
 	    <li>

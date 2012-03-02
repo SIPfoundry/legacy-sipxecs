@@ -34,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigCommands;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -95,6 +96,8 @@ public class CertificateManagerImpl implements CertificateManager {
     private LocationsManager m_locationsManager;
 
     private ConfigManager m_configManager;
+
+    private ConfigCommands m_configCommands;
 
     public void setBinCertDirectory(String binCertDirectory) {
         m_binCertDirectory = binCertDirectory;
@@ -310,7 +313,7 @@ public class CertificateManagerImpl implements CertificateManager {
     public void generateKeyStores() {
         try {
             runCommand(getKeyStoreGenCommand());
-            m_configManager.restartAllJavaProcesses();
+            m_configCommands.restartServices();
         } catch (RuntimeException ex) {
             throw new UserException("&error.regenstore");
         }
@@ -563,5 +566,9 @@ public class CertificateManagerImpl implements CertificateManager {
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    public void setConfigCommands(ConfigCommands configCommands) {
+        m_configCommands = configCommands;
     }
 }

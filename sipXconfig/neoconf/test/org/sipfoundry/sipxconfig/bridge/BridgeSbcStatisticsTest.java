@@ -22,8 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager.ConfigStatus;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -40,11 +38,6 @@ public class BridgeSbcStatisticsTest {
         location.setUniqueId();
         location.setAddress("98.65.1.5");
         location.setFqdn("sipx.example.org");
-
-        ConfigManager configManager = createMock(ConfigManager.class);
-        configManager.getStatus(location, BridgeSbcContext.FEATURE.toString());
-        expectLastCall().andReturn(ConfigStatus.OK).anyTimes();
-        replay(configManager);
 
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS);
@@ -78,7 +71,6 @@ public class BridgeSbcStatisticsTest {
 
         m_sbcStats = new BridgeSbcStatistics();
         m_sbcStats.setBridgeSbcApiProvider(provider);
-        m_sbcStats.setConfigManager(configManager);
         m_sbcStats.setAddressManager(addressManager);
     }
 

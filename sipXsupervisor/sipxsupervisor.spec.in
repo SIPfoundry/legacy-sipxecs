@@ -81,11 +81,12 @@ fi
 %attr(755,root,root) %{_bindir}/sipxecs-setup
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxsupervisor
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxlogwatcher
-%{_datadir}/sipxecs/cfinputs/*.cf
 %attr(755,root,root) %{_datadir}/sipxecs/cfmodules/sipx
 %attr(755,root,root) %{_datadir}/sipxecs/cfmodules/readfile-if-exists
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipxlogwatcher-maker
+%{_datadir}/sipxecs/cfinputs/*.cf
 %{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
+%{_datadir}/sipxecs/cfinputs/plugin.d/lib/*.cf
 # where sipxconfig writes data, sipx user needs r/w access
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 # defaults are static, only root should write

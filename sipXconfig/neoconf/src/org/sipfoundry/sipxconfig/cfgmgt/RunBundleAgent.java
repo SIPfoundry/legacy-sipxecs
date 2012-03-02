@@ -7,8 +7,6 @@
  */
 package org.sipfoundry.sipxconfig.cfgmgt;
 
-import static java.lang.String.format;
-
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,10 +24,9 @@ public class RunBundleAgent extends AgentRunner {
      * verify this is a strict requirement --Douglas
      */
     public synchronized void run(Collection<Location> locations, String label, String[] cfbundles, String[] cfclasses) {
-        String bstr = param(" --bundles ", cfbundles);
+        String bstr = param(" --bundle ", cfbundles);
         String cstr = param(" --define ", cfclasses);
-        String cmd = format("%s %s %s %s", getCommand(), bstr, cstr);
-        run(locations, label, cmd);
+        run(locations, label, bstr + ' ' + cstr);
     }
 
     String param(String delim, String[] data) {

@@ -40,7 +40,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFactoryAware, AlarmProvider {
+public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFactoryAware, AlarmProvider,
+    ConfigCommands {
     private static final Log LOG = LogFactory.getLog(ConfigManagerImpl.class);
     private File m_cfDataDir;
     private DomainManager m_domainManager;
@@ -58,6 +59,8 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private RunBundleAgent m_runAgent;
     private SipxReplicationContext m_sipxReplicationContext;
     private JobContext m_jobContext;
+    private String m_uploadDir;
+    private Set<String> m_registeredIps;
 
     public void init() {
         m_worker = new ConfigWorker();
@@ -114,6 +117,19 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         return work;
     }
 
+    public Collection<Location> getRegisteredLocations() {
+        return getRegisteredLocations(m_locationManager.getLocationsList());
+    }
+
+
+    public Collection<Location> getRegisteredLocations(Collection<Location> locations) {
+        File csv = new File(m_uploadDir + "/lastseen.csv");
+        RegisteredLocationResolver resolver = new RegisteredLocationResolver(this, m_registeredIps, csv);
+        Collection<Location> registered = resolver.getRegisteredLocations(locations);
+        m_registeredIps = resolver.getRegisteredIps();
+        return registered;
+    }
+
     // not synchronized so new incoming work can accumulate.
     public void doWork(ConfigRequest request) {
         LOG.info("Configuration work to do. Notifying providers.");
@@ -144,7 +160,9 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             }
         }
 
-        m_configAgent.run();
+        Collection<Location> all = m_locationManager.getLocationsList();
+        Collection<Location> registered = getRegisteredLocations(all);
+        m_configAgent.run(registered);
 
         // After config has rolled out
         for (ConfigProvider provider : getProviders()) {
@@ -190,21 +208,6 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             d.mkdirs();
         }
         return d;
-    }
-
-    @Override
-    public ConfigStatus getStatus(Location location, String key) {
-        return ConfigStatus.OK;
-    }
-
-    @Override
-    public void restartAllJavaProcesses() {
-        // TODO
-    }
-
-    @Override
-    public void restartService(Location location, String service) {
-        // TODO
     }
 
     @Override
@@ -314,5 +317,38 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     @Override
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
         return Arrays.asList(PROCESS_FAILED, PROCESS_RESTARTED, PROCESS_STARTED);
+    }
+
+    @Override
+    public void restartServices() {
+        restartServices(getRegisteredLocations());
+    }
+
+    @Override
+    public void restartServices(Collection<Location> locations) {
+        RunRequest r = new RunRequest("restart services", locations);
+        r.setDefines("restart_sipxecs");
+        run(r);
+    }
+
+    @Override
+    public void lastSeen() {
+        Location primary = m_locationManager.getPrimaryLocation();
+        RunRequest r = new RunRequest("registration check", Collections.singleton(primary));
+        r.setBundles("last_seen");
+        run(r);
+    }
+
+    @Override
+    public ConfigCommands getConfigCommands() {
+        return this;
+    }
+
+    public void setRunAgent(RunBundleAgent runAgent) {
+        m_runAgent = runAgent;
+    }
+
+    public void setUploadDir(String uploadDir) {
+        m_uploadDir = uploadDir;
     }
 }

@@ -14,15 +14,11 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager.ConfigStatus;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.springframework.beans.factory.annotation.Required;
 
 public class BridgeSbcStatistics {
     private ApiProvider<BridgeSbcXmlRpcApi> m_bridgeSbcApiProvider;
-    private ConfigManager m_configManager;
     private AddressManager m_addressManager;
 
     /**
@@ -37,9 +33,8 @@ public class BridgeSbcStatistics {
     }
 
     boolean isOk(BridgeSbc bridgeSbc) {
-        Location location = bridgeSbc.getLocation();
-        ConfigStatus status = m_configManager.getStatus(location, BridgeSbcContext.FEATURE.toString());
-        return status == ConfigStatus.OK;
+        // Not sure what to check? process configed? running? ---Douglas
+        return true;
     }
 
     BridgeSbcXmlRpcApi getApi(BridgeSbc bridgeSbc) {
@@ -79,11 +74,6 @@ public class BridgeSbcStatistics {
         }
 
         return registrationRecords;
-    }
-
-    @Required
-    public void setConfigManager(ConfigManager configManager) {
-        m_configManager = configManager;
     }
 
     @Required

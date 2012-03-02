@@ -40,6 +40,16 @@ public interface ConfigManager {
     public void configureEverywhere(Feature ... features);
 
     /**
+     * Given a list of locations, filter out the unregistered ones
+     */
+    public Collection<Location> getRegisteredLocations(Collection<Location> locations);
+
+    /**
+     * Of all the locations, only return the registered ones
+     */
+    public Collection<Location> getRegisteredLocations();
+
+    /**
      * Full resync everywhere. Not to be called frivolously.
      */
     public void configureAllFeaturesEverywhere();
@@ -52,23 +62,6 @@ public interface ConfigManager {
 
     public File getLocationDataDirectory(Location location);
 
-    /**
-     * cfengine promises can emit an unbounded lists of health status identified by a unique key
-     * controlled within the promise itself.
-     */
-    public ConfigStatus getStatus(Location location, String key);
-
-    /**
-     * Denote something has changed that would affect all java related services (e.g. certificate
-     * change)
-     */
-    public void restartAllJavaProcesses();
-
-    /**
-     * For whatever reason, you want to explicitly restart a particular service
-     */
-    public void restartService(Location location, String service);
-
     public DomainManager getDomainManager();
 
     public FeatureManager getFeatureManager();
@@ -76,6 +69,8 @@ public interface ConfigManager {
     public AddressManager getAddressManager();
 
     public LocationsManager getLocationManager();
+
+    public ConfigCommands getConfigCommands();
 
     void regenerateMongo(Collection<Location> locations);
 

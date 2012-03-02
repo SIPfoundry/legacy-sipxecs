@@ -13,40 +13,29 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class RunRequest {
     private String m_label;
-    private String[] m_bundles;
-    private String[] m_defines;
+    private String[] m_bundles = new String[0];
+    private String[] m_defines = new String[0];
     private Collection<Location> m_locations;
 
-    public RunRequest(String label, String... bundles) {
+    public RunRequest(String label, Collection<Location> locations) {
         m_label = label;
-        m_bundles = bundles;
-    }
-
-    public RunRequest(String label, String[] defines, String... bundles) {
-        this(label, bundles);
-        m_defines = defines;
-    }
-
-    public RunRequest(String label, Collection<Location> locations, String... bundles) {
-        this(label, bundles);
         m_locations = locations;
-    }
-
-    public RunRequest(String label, Collection<Location> locations, String[] defines, String... bundles) {
-        this(label, locations, bundles);
-        m_defines = defines;
     }
 
     public String[] getDefines() {
         return m_defines;
     }
 
-    public void setDefines(String[] defines) {
+    public void setDefines(String... defines) {
         m_defines = defines;
     }
 
     public String getLabel() {
         return m_label;
+    }
+
+    public void setBundles(String... bundles) {
+        m_bundles = bundles;
     }
 
     public String[] getBundles() {
