@@ -32,7 +32,11 @@ bundle agent sipxcommserverlib_config {
         create => "true",
         perms => m("644"),
         edit_line => domain_config,
-        classes => if_repaired("restart_sipxecs");
+        classes => if_repaired("restart_sipxproxy");
+
+        # do not call this, it restarts too much,
+        # need to get DOMAIN_ALIASES out of the config file
+        # classes => if_repaired("restart_sipxecs");
 
   methods:
     generate_certs::
