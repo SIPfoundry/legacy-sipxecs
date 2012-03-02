@@ -9,10 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -134,17 +132,6 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
         if (getUnmanagedServiceSettings() == null) {
             setUnmanagedServiceSettings(getUnmanagedService().getSettings());
         }
-    }
-
-    public String getLastAttempt() {
-        if (getCurrentRow().getLastAttempt() == null) {
-            return BLANK;
-        }
-        long lastAttempt = getCurrentRow().getLastAttempt().getTime();
-        Calendar c = Calendar.getInstance(getPage().getLocale());
-        c.setTimeInMillis(lastAttempt);
-        return new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z").format(c
-                .getTime());
     }
 
     public IPage seeState(Location location) {
