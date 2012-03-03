@@ -53,7 +53,11 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     public Domain getDomain() {
         Domain domain = getExistingDomain();
         if (domain == null) {
-            throw new DomainNotInitializedException();
+            initializeDomain();
+            domain = getExistingDomain();
+            if (domain == null) {
+                throw new DomainNotInitializedException();
+            }
         }
 
         return domain;
