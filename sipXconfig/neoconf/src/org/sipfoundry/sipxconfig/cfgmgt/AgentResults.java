@@ -13,11 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class AgentResults {
-    private static final Log LOG = LogFactory.getLog(AgentResults.class);
     private Stack<String> m_errors;
     private Thread m_runner;
 
@@ -43,7 +39,7 @@ public class AgentResults {
                 m_errors.push(line);
             }
         } catch (IOException e) {
-            LOG.fatal("Could not read agent results", e);
+            m_errors.push("Could not read agent results. " + e.getMessage());
         }
     }
 
