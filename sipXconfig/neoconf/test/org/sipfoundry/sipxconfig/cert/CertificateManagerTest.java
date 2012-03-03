@@ -14,7 +14,6 @@ import static org.easymock.classextension.EasyMock.replay;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
 
@@ -27,7 +26,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigCommands;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -222,7 +221,7 @@ public class CertificateManagerTest extends TestCase {
         locationsManager.getPrimaryLocation();
         EasyMock.expectLastCall().andReturn(m_primaryLocation).atLeastOnce();
         
-        m_manager.setConfigManager(org.easymock.classextension.EasyMock.createNiceMock(ConfigManager.class));
+        m_manager.setConfigCommands(org.easymock.classextension.EasyMock.createNiceMock(ConfigCommands.class));
 //
 //        SipxProcessContext processContext = EasyMock.createMock(SipxProcessContext.class);
 //        processContext.markServicesForRestart(EasyMock.eq(m_primaryLocation), (Collection) EasyMock.anyObject());

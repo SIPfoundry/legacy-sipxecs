@@ -43,6 +43,6 @@ public class AlarmServerConfigurationTest {
         AlarmConfiguration c = new AlarmConfiguration();
         List<Alarm> alarms = Arrays.asList(new Alarm(AdminContext.ALARM_LOGIN_FAILED));
         c.writeAlarms(actual, alarms);
-        assertEquals("LOGIN_FAILED:\n - :groupName: disabled\n   :minThreshold: 3\n", actual.toString());
+        assertEquals("LOGIN_FAILED:\n   :groupName: disabled\n   :minThreshold: 3\n", actual.toString());
     }
 }

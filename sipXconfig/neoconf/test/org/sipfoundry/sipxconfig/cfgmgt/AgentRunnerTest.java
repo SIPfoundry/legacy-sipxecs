@@ -79,11 +79,11 @@ public class AgentRunnerTest {
         // expect 2 errors:  exit code and stderr results 
         Serializable job1 = new Job("1");        
         jobc.schedule("test", l);
-        expectLastCall().andReturn(job1).once();
+        expectLastCall().andReturn(job1).times(2);
         jobc.start(job1);
-        expectLastCall().once();
+        expectLastCall().times(2);
         jobc.failure(eq(job1), isA(String.class), isA(RuntimeException.class));
-        expectLastCall().once();
+        expectLastCall().times(2);
         
         replay(jobc);
         
