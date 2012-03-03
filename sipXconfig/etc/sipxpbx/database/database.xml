@@ -391,6 +391,7 @@
 	<antcall target="call-rate-limit" />
 	<antcall target="openacd-add-default-client" />
 	<antcall target="migrate-regionid-to-beanid" />
+    <antcall target="createlang-plpgsql"/>
     <antcall target="migrate-gw-calleralias-info" />
 	<antcall target="openacd-queue-remove-sort" />
 	<antcall target="openacd-add-skill-groups" />
@@ -1098,7 +1099,7 @@
     <db-patch patch="gateway-enabled"/>
   </target>
   <target name="createlang-plpgsql" unless="createlang-plpgsql">
-    <db-patch patch="createlang-plpgsql"/>
+    <plsql-patch patch="createlang-plpgsql"/>
   </target>
   <target name="migrate-pregroup-alarm-contacts" unless="migrate-pregroup-alarm-contacts">
     <plsql-patch patch="migrate-pregroup-alarm-contacts"/>
