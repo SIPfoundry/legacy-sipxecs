@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.BasicBSONObject;
 import org.sipfoundry.commons.mongo.MongoUtil;
+import org.sipfoundry.commons.mongo.MongoUtil.MongoCommandException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -82,8 +83,23 @@ public class MongoReplicaSetManager implements FeatureListener {
         getPostgresMembers(postgresMembers, postgresArbiters);
         List<String> cmds = updateMembersAndArbitors(mongoMembers, mongoArbiters, postgresMembers, postgresArbiters);
         for (String cmd : cmds) {
-            BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
-            MongoUtil.checkForError(result);
+            boolean complete = false;
+            // A new mongo server takes a while before it will accept connections
+            // hang out until it's available
+            for (int i = 0; !complete || i < 3; i++) {
+                try {
+                    BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
+                    MongoUtil.checkForError(result);
+                    complete = true;
+                } catch (MongoCommandException e) {
+                    try {
+                        Thread.sleep((i + 1) * 10000);
+                        i++;
+                    } catch (InterruptedException ignore) {
+                        i++;
+                    }
+                }
+            }
         }
     }
 
@@ -114,8 +130,10 @@ public class MongoReplicaSetManager implements FeatureListener {
     }
 
     void getPostgresMembers(Set<String> members, Set<String> arbiters) {
-        String sql = "select fqdn, feature_id from feature_local f, location l where f.location_id = l.location_id";
-        List<Map<String, Object>> pgLocations = m_jdbcTemplate.queryForList(sql);
+        String sql = "select fqdn, feature_id from feature_local f, location l where f.location_id = l.location_id "
+                + "and feature_id in (? , ?)";
+        List<Map<String, Object>> pgLocations = m_jdbcTemplate.queryForList(sql, MongoManager.FEATURE_ID.getId(),
+                MongoManager.ARBITER_FEATURE.getId());
         for (Map<String, Object> line : pgLocations) {
             boolean arbiter = MongoManager.ARBITER_FEATURE.getId().equals(line.get("feature_id"));
             String host = (String) line.get("fqdn");
