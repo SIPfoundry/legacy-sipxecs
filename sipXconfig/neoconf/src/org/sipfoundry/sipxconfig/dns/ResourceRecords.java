@@ -33,8 +33,10 @@ public class ResourceRecords {
     }
 
     public void addAddresses(Collection<Address> addresses) {
-        for (Address a : addresses) {
-            addAddress(a);
+        if (addresses != null) {
+            for (Address a : addresses) {
+                addAddress(a);
+            }
         }
     }
 
