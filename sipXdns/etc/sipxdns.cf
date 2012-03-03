@@ -71,6 +71,7 @@ options {
     directory  \"/var/named\";
     dump-file \"/var/named/data/cache_dump.db\";
     statistics-file \"/var/named/data/named_stats.txt\";
+    allow-query { any; };
     forwarders {
       $(sipx.dnsForwarders)
     };
