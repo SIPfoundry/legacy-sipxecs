@@ -412,6 +412,7 @@
 	<antcall target="openacd-remove-default-client" />
 	<antcall target="openacd-add-release-codes" />
 	<antcall target="alarm-drop-pkey" />
+	<antcall target="openacd-add-queuegroup-recipe" />
   </target>
 
   <target name="plugin-patches">
@@ -1282,6 +1283,9 @@
   </target>
   <target name="alarm-drop-pkey" unless="alarm-drop-pkey">
 	<db-patch patch="alarm-drop-pkey" />
+  </target>
+  <target name="openacd-add-queuegroup-recipe" unless="openacd-add-queuegroup-recipe">
+	<db-patch patch="openacd-add-queuegroup-recipe" />
   </target>
 
   <!--

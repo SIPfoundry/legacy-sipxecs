@@ -38,7 +38,8 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
 import com.mongodb.BasicDBObject;
 
-public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, DeployConfigOnEdit {
+public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, DeployConfigOnEdit,
+    OpenAcdObjectWithRecipe {
     private String m_name;
     private String m_description;
     private OpenAcdQueueGroup m_group;
@@ -157,8 +158,14 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, 
         props.put(MongoConstants.PROFILES, profiles);
         props.put(MongoConstants.WEIGHT, getWeight());
         props.put(MongoConstants.OLD_NAME, getOldName());
+
+        props.put(MongoConstants.RECIPES, constructRecipeMongoObject(m_steps));
+        return props;
+    }
+
+    public static List<BasicDBObject> constructRecipeMongoObject(Set<OpenAcdRecipeStep> steps) {
         List<BasicDBObject> objects = new ArrayList<BasicDBObject>();
-        for (OpenAcdRecipeStep step : m_steps) {
+        for (OpenAcdRecipeStep step : steps) {
             BasicDBObject recipeStep = new BasicDBObject();
             recipeStep.put(MongoConstants.ACTION, step.getAction().getMongoObject());
             List<BasicDBObject> conditions = new ArrayList<BasicDBObject>();
@@ -170,8 +177,7 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, 
             recipeStep.put(MongoConstants.STEP_NAME, "New Step");
             objects.add(recipeStep);
         }
-        props.put(MongoConstants.RECIPES, objects);
-        return props;
+        return objects;
     }
 
     @Override

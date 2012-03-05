@@ -70,14 +70,14 @@ public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBe
     public IPage addQueue(IRequestCycle cycle) {
         EditOpenAcdQueuePage page = (EditOpenAcdQueuePage) cycle.getPage(EditOpenAcdQueuePage.PAGE);
         page.addQueue(getPage().getPageName());
-        page.setRecipeSteps(null);
+        ((OpenAcdRecipeComponent) page.getComponent(OpenAcdRecipeComponent.NAME)).setRecipeSteps(null);
         return page;
     }
 
     public IPage editQueue(IRequestCycle cycle, Integer queueId) {
         EditOpenAcdQueuePage page = (EditOpenAcdQueuePage) cycle.getPage(EditOpenAcdQueuePage.PAGE);
         page.editQueue(queueId, getPage().getPageName());
-        page.setRecipeSteps(null);
+        ((OpenAcdRecipeComponent) page.getComponent(OpenAcdRecipeComponent.NAME)).setRecipeSteps(null);
         return page;
     }
 

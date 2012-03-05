@@ -48,6 +48,10 @@ import org.sipfoundry.sipxconfig.openacd.RecipeStepBean;
 public abstract class OpenAcdRecipeConditionComponent extends BaseComponent {
 
     private static final String HOUR_FORMAT = "HH";
+    private static final String VOICE = "voice";
+    private static final String VOICEMAIL = "voicemail";
+    private static final String EMAIL = "email";
+    private static final String CHAT = "chat";
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
@@ -193,13 +197,13 @@ public abstract class OpenAcdRecipeConditionComponent extends BaseComponent {
 
     public IPropertySelectionModel getSelectDayOfWeekModel() {
         Map<Integer, String> map = new HashMap<Integer, String>();
-        map.put(Calendar.SUNDAY, getMessages().getMessage("label.sunday"));
-        map.put(Calendar.MONDAY, getMessages().getMessage("label.monday"));
-        map.put(Calendar.TUESDAY, getMessages().getMessage("label.tuesday"));
-        map.put(Calendar.WEDNESDAY, getMessages().getMessage("label.wednesday"));
-        map.put(Calendar.THURSDAY, getMessages().getMessage("label.thursday"));
-        map.put(Calendar.FRIDAY, getMessages().getMessage("label.friday"));
-        map.put(Calendar.SATURDAY, getMessages().getMessage("label.saturday"));
+        map.put(Calendar.SUNDAY, getMessages().getMessage("sunday"));
+        map.put(Calendar.MONDAY, getMessages().getMessage("monday"));
+        map.put(Calendar.TUESDAY, getMessages().getMessage("tuesday"));
+        map.put(Calendar.WEDNESDAY, getMessages().getMessage("wednesday"));
+        map.put(Calendar.THURSDAY, getMessages().getMessage("thursday"));
+        map.put(Calendar.FRIDAY, getMessages().getMessage("friday"));
+        map.put(Calendar.SATURDAY, getMessages().getMessage("saturday"));
         return new NamedValuesSelectionModel(map);
     }
 
@@ -215,10 +219,10 @@ public abstract class OpenAcdRecipeConditionComponent extends BaseComponent {
 
     public IPropertySelectionModel getSelectMediaTypeModel() {
         Map<String, String> map = new HashMap<String, String>();
-        map.put("Voice", getMessages().getMessage("label.mediaType.voice"));
-        map.put("Voicemail", getMessages().getMessage("label.mediaType.voicemail"));
-        map.put("Email", getMessages().getMessage("label.mediaType.email"));
-        map.put("Chat", getMessages().getMessage("label.mediaType.chat"));
+        map.put(VOICE, getMessages().getMessage(VOICE));
+        map.put(VOICEMAIL, getMessages().getMessage(VOICEMAIL));
+        map.put(EMAIL, getMessages().getMessage(EMAIL));
+        map.put(CHAT, getMessages().getMessage(CHAT));
         return new NamedValuesSelectionModel(map);
     }
 
