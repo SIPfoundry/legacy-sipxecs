@@ -43,7 +43,7 @@
 			  <tr><td><span jwcid="@Insert" value="ognl:actionHelpText" class="settingDescription"/></td></tr>
 			  <span jwcid="@If" condition="ognl:skillComponent">
 			  <tr>
-				<span jwcid="@openacd/OpenAcdSkillsList" recipeAction="ognl:recipeStepBean.recipeStep.action" defaultRecipeSkills="ognl:queue.skills" />
+				<span jwcid="@openacd/OpenAcdSkillsList" recipeAction="ognl:recipeStepBean.recipeStep.action" defaultRecipeSkills="ognl:objectWithRecipe.skills" />
 			  </tr>
 			  </span>
 			  <tr>
