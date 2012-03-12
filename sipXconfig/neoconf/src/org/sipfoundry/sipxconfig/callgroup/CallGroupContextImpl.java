@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
@@ -83,7 +84,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         if (!m_aliasManager.canObjectUseAlias(callGroup, did)) {
             throw new ExtensionInUseException(huntGroupTypeName, did);
         }
-        if (did.equals(extension)) {
+        if (StringUtils.isNotBlank(did) && did.equals(extension)) {
             throw new DidInUseException(huntGroupTypeName, did);
         }
         getHibernateTemplate().saveOrUpdate(callGroup);

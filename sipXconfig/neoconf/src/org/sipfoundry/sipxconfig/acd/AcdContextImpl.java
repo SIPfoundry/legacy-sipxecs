@@ -131,7 +131,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             if (!m_aliasManager.canObjectUseAlias(line, did)) {
                 throw new ExtensionInUseException(LINE, did);
             }
-            if (did.equals(extension)) {
+            if (StringUtils.isNotBlank(did) && did.equals(extension)) {
                 throw new DidInUseException(LINE, did);
             }
         }

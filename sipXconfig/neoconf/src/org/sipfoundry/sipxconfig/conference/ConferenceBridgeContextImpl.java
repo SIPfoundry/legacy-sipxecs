@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
@@ -103,7 +104,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         if (!m_aliasManager.canObjectUseAlias(conference, did)) {
             throw new ExtensionInUseException(CONFERENCE, did);
         }
-        if (did.equals(extension)) {
+        if (StringUtils.isNotBlank(did) && did.equals(extension)) {
             throw new DidInUseException(CONFERENCE, did);
         }
     }
