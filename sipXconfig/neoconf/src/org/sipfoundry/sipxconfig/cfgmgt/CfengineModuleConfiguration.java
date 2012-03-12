@@ -32,7 +32,7 @@ public class CfengineModuleConfiguration extends AbstractConfigurationFile {
         }
         m_out.write(key);
         m_out.write('=');
-        m_out.write(value.toString());
+        m_out.write(value == null ? "" : value.toString());
         m_out.write(EOL);
     }
 }
