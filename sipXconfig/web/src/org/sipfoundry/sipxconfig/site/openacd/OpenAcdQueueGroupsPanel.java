@@ -62,12 +62,14 @@ public abstract class OpenAcdQueueGroupsPanel extends BaseComponent implements P
     public IPage addQueueGroup(IRequestCycle cycle) {
         EditOpenAcdQueueGroupPage page = (EditOpenAcdQueueGroupPage) cycle.getPage(EditOpenAcdQueueGroupPage.PAGE);
         page.addQueueGroup(getPage().getPageName());
+        ((OpenAcdRecipeComponent) page.getComponent(OpenAcdRecipeComponent.NAME)).setRecipeSteps(null);
         return page;
     }
 
     public IPage editQueueGroup(IRequestCycle cycle, Integer queueGroupId) {
         EditOpenAcdQueueGroupPage page = (EditOpenAcdQueueGroupPage) cycle.getPage(EditOpenAcdQueueGroupPage.PAGE);
         page.editQueueGroup(queueGroupId, getPage().getPageName());
+        ((OpenAcdRecipeComponent) page.getComponent(OpenAcdRecipeComponent.NAME)).setRecipeSteps(null);
         return page;
     }
 

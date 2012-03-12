@@ -90,5 +90,10 @@ public abstract class EditOpenAcdQueueGroupPage extends PageWithCallback impleme
         OpenAcdQueueGroup group = getQueueGroup();
         getOpenAcdContext().saveQueueGroup(group);
         setGroupId(getQueueGroup().getId());
+        ((OpenAcdRecipeComponent) this.getComponent("recipes")).setRecipeSteps(null);
+    }
+
+    public boolean renderRecipe() {
+        return !getQueueGroup().isNew();
     }
 }

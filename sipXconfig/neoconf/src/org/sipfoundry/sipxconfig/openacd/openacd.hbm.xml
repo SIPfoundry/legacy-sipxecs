@@ -75,6 +75,10 @@
 	   <key column="openacd_queue_group_id" />
 	   <many-to-many column="openacd_agent_group_id" class="OpenAcdAgentGroup"/>
     </set>
+	<set name="steps" table="openacd_queue_recipe_step" cascade="all,delete-orphan" order-by="openacd_recipe_step_id">
+	  <key column="openacd_queue_group_id"/>
+	  <one-to-many class="OpenAcdRecipeStep"/>
+	</set>    
   </class>
 
   <class name="OpenAcdQueue" table="openacd_queue">
@@ -97,7 +101,7 @@
 	   <many-to-many column="openacd_agent_group_id" class="OpenAcdAgentGroup" />
     </set>
 	<set name="steps" table="openacd_queue_recipe_step" cascade="all,delete-orphan" order-by="openacd_recipe_step_id">
-	  <key column="openacd_queue_id" not-null="true"/>
+	  <key column="openacd_queue_id"/>
 	  <one-to-many class="OpenAcdRecipeStep"/>
 	</set>
   </class>

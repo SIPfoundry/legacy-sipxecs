@@ -16,13 +16,13 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
@@ -30,25 +30,22 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
-import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeAction;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition.CONDITION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep;
-import org.sipfoundry.sipxconfig.openacd.RecipeStepBean;
-
-import static org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeAction.ACTION;
-import static org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep.FREQUENCY;
 
 public abstract class EditOpenAcdQueuePage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "openacd/EditOpenAcdQueuePage";
+    public static final String SPACE = " ";
 
     @InjectObject("spring:openAcdContext")
     public abstract OpenAcdContext getOpenAcdContext();
@@ -58,9 +55,6 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
-
-    @Bean
-    public abstract SelectMap getSelections();
 
     @Persist
     public abstract Integer getQueueId();
@@ -84,21 +78,9 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
 
     public abstract void setSkill(String skill);
 
-    @Persist
-    public abstract Map<Integer, RecipeStepBean> getRecipeSteps();
+    public abstract String getRecipe();
 
-    public abstract void setRecipeSteps(Map<Integer, RecipeStepBean> steps);
-
-    public abstract RecipeStepBean getRecipeStepBean();
-
-    public abstract void setRecipeStepBean(RecipeStepBean bean);
-
-    public abstract Collection getSelectedRows();
-
-    @Persist
-    public abstract Integer getLastPosition();
-
-    public abstract void setLastPosition(Integer position);
+    public abstract void setRecipe(String recipe);
 
     public void addQueue(String returnPage) {
         setQueueId(null);
@@ -115,17 +97,6 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
         OpenAcdServerPage page = (OpenAcdServerPage) cycle.getPage(OpenAcdServerPage.PAGE);
         page.setTab("skills");
         return page;
-    }
-
-    public void addRecipeStep() {
-        if (!TapestryUtils.isValid(this)) {
-            return;
-        }
-
-        OpenAcdRecipeStep step = new OpenAcdRecipeStep();
-        RecipeStepBean bean = new RecipeStepBean(step, getLastPosition());
-        getRecipeSteps().put(getLastPosition(), bean);
-        setLastPosition(getLastPosition() + 1);
     }
 
     @Override
@@ -145,27 +116,6 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
                 setInheritedSkills(queueGroup.getAllSkillNames());
             }
         }
-        if (getRecipeSteps() == null) {
-            Map<Integer, RecipeStepBean> stepBeans = new LinkedHashMap<Integer, RecipeStepBean>();
-            Set<OpenAcdRecipeStep> steps = getQueue().getSteps();
-            int i = 0;
-            for (OpenAcdRecipeStep step : steps) {
-                stepBeans.put(i, new RecipeStepBean(step, i));
-                i++;
-            }
-            setRecipeSteps(stepBeans);
-            setLastPosition(i);
-        }
-    }
-
-    public void deleteSteps() {
-        Collection<RecipeStepBean> beans = getSelectedRows();
-        if (beans.isEmpty()) {
-            return;
-        }
-        for (RecipeStepBean bean : beans) {
-            getRecipeSteps().remove(bean.getPosition());
-        }
     }
 
     public void commit() {
@@ -179,54 +129,90 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
             throw new UserException(getMessages().getMessage("error.requiredQueueGroup"));
         }
         queue.setGroup(selectedQueueGroup);
-        Set<OpenAcdRecipeStep> steps = new LinkedHashSet<OpenAcdRecipeStep>();
-        for (RecipeStepBean bean : getRecipeSteps().values()) {
-            steps.add(bean.getRecipeStep());
-        }
-        queue.setSteps(steps);
 
         getOpenAcdContext().saveQueue(queue);
         setQueueId(getQueue().getId());
-        setRecipeSteps(null);
-    }
-
-    public IPropertySelectionModel getActionModel() {
-        Map<String, String> types2Labels = new LinkedHashMap<String, String>();
-        for (ACTION value : ACTION.values()) {
-            types2Labels.put(value.toString(), getMessages().getMessage(value.toString()));
-        }
-        return new NamedValuesSelectionModel(types2Labels);
-    }
-
-    public String getActionHelpText() {
-        return getMessages().getMessage("description." + getRecipeStepBean().getRecipeStep().getAction().getAction());
-    }
-
-    public IPropertySelectionModel getFrequencyModel() {
-        Map<String, String> types2Labels = new LinkedHashMap<String, String>();
-        for (FREQUENCY value : FREQUENCY.values()) {
-            types2Labels.put(value.toString(), getMessages().getMessage(value.toString()));
-        }
-        return new NamedValuesSelectionModel(types2Labels);
-    }
-
-    public boolean isSkillComponent() {
-        String actionValue = getRecipeStepBean().getRecipeStep().getAction().getAction();
-        return actionValue.equals(ACTION.ADD_SKILLS.toString())
-                || actionValue.equals(ACTION.REMOVE_SKILLS.toString());
-    }
-
-    public boolean isPriorityComponent() {
-        String actionValue = getRecipeStepBean().getRecipeStep().getAction().getAction();
-        return actionValue.equals(ACTION.SET_PRIORITY.toString());
-    }
-
-    public boolean isMediaAnnounceComponent() {
-        String actionValue = getRecipeStepBean().getRecipeStep().getAction().getAction();
-        return actionValue.equals(ACTION.MEDIA_ANNOUCE.toString());
+        ((OpenAcdRecipeComponent) this.getComponent(OpenAcdRecipeComponent.NAME)).setRecipeSteps(null);
     }
 
     public boolean renderRecipe() {
         return !getQueue().isNew();
+    }
+
+    /**
+     * Format recipe steps as plain English statements.
+     * This method provides a "best effort" approach (for instance capitalization is completely wrong,
+     * but still recipe steps are very intelligible in the English language).
+     * Cannot find a reason to include this in the context, it is strictly a UI function.
+     * @return
+     */
+    public Set<String> getInheritedRecipes() {
+        Set<String> recipes = new HashSet<String>();
+        Messages messages = ((OpenAcdRecipeComponent)
+                this.getComponent(OpenAcdRecipeComponent.NAME)).getComponent("recipeCondition").getMessages();
+        for (OpenAcdRecipeStep step : getQueue().getGroup().getSteps()) {
+            StringBuilder criteria = new StringBuilder(messages.getMessage("if"));
+            criteria.append(SPACE);
+            Iterator<OpenAcdRecipeCondition> conditionIterator = step.getConditions().iterator();
+            while (conditionIterator.hasNext()) {
+                OpenAcdRecipeCondition condition = conditionIterator.next();
+                criteria.append(messages.getMessage(condition.getCondition()));
+                criteria.append(SPACE);
+                criteria.append(messages.getMessage(condition.getRelation()));
+                criteria.append(SPACE);
+                if (condition.getCondition().equals(CONDITION.DAY_OF_WEEK.toString())) {
+                    criteria.append(getDayOfWeek(new Integer(condition.getValueCondition()), messages));
+                } else if (condition.getCondition().equals(CONDITION.MEDIA_TYPE.toString())) {
+                    criteria.append(messages.getMessage(condition.getValueCondition()));
+                } else {
+                    criteria.append(condition.getValueCondition());
+                }
+                if (conditionIterator.hasNext()) {
+                    criteria.append(SPACE);
+                    criteria.append(messages.getMessage("and"));
+                }
+                criteria.append(SPACE);
+            }
+            StringBuilder recipeBuilder = new StringBuilder(criteria);
+            recipeBuilder.append(messages.getMessage("then"));
+            recipeBuilder.append(SPACE);
+            recipeBuilder.append(((OpenAcdRecipeComponent) this.getComponent(OpenAcdRecipeComponent.NAME))
+                    .getMessages().getMessage(step.getAction().getAction()));
+            if (step.getAction().getAction().equals(OpenAcdRecipeAction.ACTION.ADD_SKILLS.toString())
+                    || step.getAction().getAction().equals(OpenAcdRecipeAction.ACTION.REMOVE_SKILLS.toString())) {
+                recipeBuilder.append(": ");
+                recipeBuilder.append(StringUtils.join(step.getAction().getAllSkillNames(), ", "));
+            } else if (step.getAction().getActionValue() != null) {
+                recipeBuilder.append(SPACE);
+                recipeBuilder.append(step.getAction().getActionValue());
+            }
+            recipeBuilder.append("; ");
+            recipeBuilder.append(((OpenAcdRecipeComponent) this.getComponent(OpenAcdRecipeComponent.NAME))
+                    .getMessages().getMessage(step.getFrequency()));
+            recipes.add(recipeBuilder.toString());
+        }
+
+        return recipes;
+    }
+
+    private String getDayOfWeek(int position, Messages messages) {
+        switch (position) {
+        case 1:
+            return messages.getMessage("sunday");
+        case 2:
+            return messages.getMessage("monday");
+        case 3:
+            return messages.getMessage("tuesday");
+        case 4:
+            return messages.getMessage("wednesday");
+        case 5:
+            return messages.getMessage("thursday");
+        case 6:
+            return messages.getMessage("friday");
+        case 7:
+            return messages.getMessage("saturday");
+        default:
+            return "";
+        }
     }
 }
