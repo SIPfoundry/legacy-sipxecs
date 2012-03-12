@@ -7,8 +7,10 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.springframework.beans.factory.BeanFactory;
@@ -29,7 +32,8 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
  * NOTE: This implementation pays no attention to efficiency.  Should work in caching or optimize queries
  * accordingly if found to be inefficient during testing.
  */
-public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, FeatureManager {
+public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, FeatureManager,
+    DaoEventListener {
     private ListableBeanFactory m_beanFactory;
     private Collection<FeatureProvider> m_providers;
     private Collection<FeatureListener> m_listeners;
@@ -295,5 +299,18 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Location) {
+            // When deleting a location, treat this as if someone disabled all features at this location.
+            Set<LocationFeature> none = Collections.emptySet();
+            enableLocationFeatures(none, (Location) entity);
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
     }
 }
