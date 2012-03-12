@@ -147,7 +147,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         if (!m_aliasManager.canObjectUseAlias(rule, voiceMailDid)) {
             throw new ExtensionInUseException(VOICEMAIL, voiceMailDid);
         }
-        if (voiceMailDid.equals(voiceMailExtension)) {
+        if (StringUtils.isNotBlank(voiceMailDid) && voiceMailDid.equals(voiceMailExtension)) {
             throw new DidInUseException(VOICEMAIL, voiceMailDid);
         }
     }
@@ -161,7 +161,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         if (!m_aliasManager.canObjectUseAlias(ar, attendantDid)) {
             throw new ExtensionInUseException(DIALING_RULE, attendantDid);
         }
-        if (attendantDid.equals(attendantExtension)) {
+        if (StringUtils.isNotBlank(attendantDid) && attendantDid.equals(attendantExtension)) {
             throw new DidInUseException(DIALING_RULE, attendantDid);
         }
 
