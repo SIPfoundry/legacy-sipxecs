@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.commserver.SettingsWithLocationDao;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -207,5 +208,12 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(new ProcessDefinition(m_name)) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -76,5 +77,12 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(new ProcessDefinition("sipxprovision",
             ".*-Dprocname=sipxprovision.*")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

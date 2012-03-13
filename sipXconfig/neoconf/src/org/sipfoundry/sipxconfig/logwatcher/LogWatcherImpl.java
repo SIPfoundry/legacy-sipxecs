@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -48,5 +49,12 @@ public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvide
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return null;
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isRouter()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

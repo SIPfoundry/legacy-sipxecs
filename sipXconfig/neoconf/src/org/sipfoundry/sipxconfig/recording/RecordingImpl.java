@@ -12,6 +12,7 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -51,5 +52,12 @@ public class RecordingImpl implements FeatureProvider, Recording, ProcessProvide
         boolean rec = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE);
         return (conf && rec ? Collections.singleton(new ProcessDefinition("sipxrecording",
             ".*\\s-Dprocname=sipxrecording\\s.*")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

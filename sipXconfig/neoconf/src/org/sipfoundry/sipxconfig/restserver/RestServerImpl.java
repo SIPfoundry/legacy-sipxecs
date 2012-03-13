@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -88,5 +89,12 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(new ProcessDefinition("sipxrest", ".*\\s-Dprocname=sipxrest\\s.*"))
                 : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isUnifiedCommunications()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

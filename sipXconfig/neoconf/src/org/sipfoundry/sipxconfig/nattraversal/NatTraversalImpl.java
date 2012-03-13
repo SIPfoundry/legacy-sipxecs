@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -78,5 +79,13 @@ public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureP
         boolean proxyEnabled = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
         return (relayEnabled && proxyEnabled ? Collections.singleton(new ProcessDefinition("sipxrelay",
             ".*\\s-Dprocname=sipxrelay\\s.*")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isRouter()) {
+            // NAT traveral is debatable but proxy requires it ATM AFAIU
+            b.addFeature(FEATURE);
+        }
     }
 }

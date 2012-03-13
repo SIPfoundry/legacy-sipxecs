@@ -44,6 +44,7 @@ import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -557,5 +558,12 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(new ProcessDefinition("sipxcdr",
                 ".*\\s$(sipx.SIPX_LIBDIR)/ruby/gems/[0-9.]+/gems/sipxcallresolver-[0-9.]+/lib/main.rb\\s.*")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isRouter()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

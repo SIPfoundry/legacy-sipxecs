@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -83,5 +84,12 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
             procs.add(new ProcessDefinition("mongoArbiter", ".*/mongod.*-f.*/mongod-arbiter.conf"));
         }
         return procs;
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE_ID);
+        }
     }
 }

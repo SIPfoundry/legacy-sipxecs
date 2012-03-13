@@ -43,6 +43,8 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
+import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.BundleProvider;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -59,7 +61,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
-        FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener {
+        FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, BundleProvider {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -1014,5 +1016,17 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     public void setReplicationManager(ReplicationManager replicationManager) {
         m_replicationManager = replicationManager;
+    }
+
+    @Override
+    public Collection<Bundle> getBundles(FeatureManager manager) {
+        return Collections.singleton(CALL_CENTER);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.basedOn(CALL_CENTER)) {
+            b.addFeature(FEATURE);
+        }
     }
 }

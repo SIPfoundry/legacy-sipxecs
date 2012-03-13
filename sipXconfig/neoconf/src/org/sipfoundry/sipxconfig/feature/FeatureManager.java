@@ -46,4 +46,8 @@ public interface FeatureManager {
     public Set<LocationFeature> getAvailableLocationFeatures(Location location);
 
     public List<Location> getLocationsForEnabledFeature(LocationFeature feature);
+
+    public List<Bundle> getBundles();
+
+    public void enableBundleOnPrimary(Bundle b);
 }
