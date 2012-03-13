@@ -35,7 +35,6 @@
         <param name="sequence">openacd_agent_seq</param>
       </generator>
 	</id>
-    <property name="pin"/>
     <property name="security"/>
     <many-to-one name="group" class="OpenAcdAgentGroup" column="openacd_agent_group_id" not-null="true" lazy="proxy"
       foreign-key="fk_openacd_agent_group" />

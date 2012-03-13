@@ -31,6 +31,7 @@ public class OpenAcd extends AbstractDataSetGenerator {
         }
         top.put(MongoConstants.UUID,  UUID.randomUUID().toString());
         top.put(MongoConstants.TYPE, entity.getClass().getSimpleName().toString().toLowerCase());
+        top.put(MongoConstants.REALM, getCoreContext().getAuthorizationRealm());
         return true;
     }
 

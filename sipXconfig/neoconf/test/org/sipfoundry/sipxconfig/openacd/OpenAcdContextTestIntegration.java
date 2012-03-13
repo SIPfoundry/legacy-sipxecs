@@ -276,7 +276,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         OpenAcdAgent supervisor = new OpenAcdAgent();
         supervisor.setGroup(group);
         supervisor.setUser(alpha);
-        supervisor.setPin("123456");
         supervisor.setSecurity(OpenAcdAgent.Security.SUPERVISOR.toString());
         m_openAcdContext.saveAgent(supervisor);
 
@@ -284,7 +283,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         OpenAcdAgent agent = new OpenAcdAgent();
         agent.setGroup(group);
         agent.setUser(beta);
-        agent.setPin("123457");
         agent.setSecurity(OpenAcdAgent.Security.AGENT.toString());
         m_openAcdContext.saveAgent(agent);
 
@@ -377,7 +375,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         assertEquals(0, m_openAcdContext.getAgents().size());
         agent.setGroup(group);
         agent.setUser(charlie);
-        agent.setPin("123456");
         m_openAcdContext.saveAgent(agent);
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
             MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
@@ -397,7 +394,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         Set<OpenAcdAgent> agents = group.getAgents();
         OpenAcdAgent savedAgent = DataAccessUtils.singleResult(agents);
         assertEquals(charlie, savedAgent.getUser());
-        assertEquals("123456", savedAgent.getPin());
         assertEquals("AGENT", savedAgent.getSecurity());
 
         // test get agent by id
@@ -420,13 +416,11 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
         OpenAcdAgent agent1 = new OpenAcdAgent();
         agent1.setGroup(grp);
-        agent1.setPin("1234");
         agent1.setUser(delta);
         m_openAcdContext.saveAgent(agent1);
 
         OpenAcdAgent agent2 = new OpenAcdAgent();
         agent2.setGroup(grp);
-        agent2.setPin("123433");
         agent2.setUser(elephant);
         m_openAcdContext.saveAgent(agent2);
 
@@ -458,7 +452,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_coreContext.saveUser(newAgent);
         OpenAcdAgent agent3 = new OpenAcdAgent();
         agent3.setGroup(newGroup);
-        agent3.setPin("123433");
         agent3.setUser(newAgent);
         m_openAcdContext.saveAgent(agent3);
         assertEquals(3, m_openAcdContext.getAgents().size());
@@ -695,7 +688,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         OpenAcdAgent agent = new OpenAcdAgent();
         agent.setGroup(group);
         agent.setUser(charlie);
-        agent.setPin("123456");
         agent.addSkill(englishSkill);
         m_openAcdContext.saveAgent(agent);
         assertTrue(m_openAcdContext.getAgentByUser(charlie).getSkills().contains(englishSkill));
