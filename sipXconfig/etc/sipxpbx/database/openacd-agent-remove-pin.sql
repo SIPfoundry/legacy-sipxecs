@@ -1,0 +1,1 @@
+alter table openacd_agent drop column pin;

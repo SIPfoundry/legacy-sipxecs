@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -57,7 +56,6 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
 
     private OpenAcdAgentGroup m_group;
     private User m_user;
-    private String m_pin = RandomStringUtils.randomAlphanumeric(8);
     private String m_security = Security.AGENT.toString(); // default 'AGENT'
     private String m_oldName;
 
@@ -75,14 +73,6 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
 
     public void setUser(User user) {
         m_user = user;
-    }
-
-    public String getPin() {
-        return m_pin;
-    }
-
-    public void setPin(String pin) {
-        m_pin = pin;
     }
 
     public String getSecurity() {
@@ -124,7 +114,6 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(MongoConstants.PIN, getPin());
         List<String> skills = new ArrayList<String>();
         for (OpenAcdSkill skill : getSkills()) {
             skills.add(skill.getAtom());
@@ -146,6 +135,7 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
         props.put(MongoConstants.SECURITY, getSecurity());
         props.put(MongoConstants.AGENT_GROUP, getAgentGroup());
         props.put(MongoConstants.CONTACT, getUser().getIdentity(domain));
+        props.put(MongoConstants.PINTOKEN, getUser().getPintoken());
 
         return props;
     }
