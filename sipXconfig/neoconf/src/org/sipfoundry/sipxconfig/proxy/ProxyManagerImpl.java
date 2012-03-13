@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -135,5 +136,12 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
     @Override
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
         return Collections.singleton(EMERG_NUMBER_DIALED);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isRouter()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

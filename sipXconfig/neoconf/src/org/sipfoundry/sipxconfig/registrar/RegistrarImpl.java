@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsProvider;
 import org.sipfoundry.sipxconfig.dns.ResourceRecords;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -173,5 +174,12 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(new ProcessDefinition("sipregistrar")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isRouter()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

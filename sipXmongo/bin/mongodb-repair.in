@@ -67,19 +67,25 @@ obliterate_db() {
   /etc/init.d/mongod start
 }
 
-if [ "${Action}" = "AUTO_REPAIR" ]
-then
-	if [ -f $LOCK_FILE ]; then
-	  PID=`cat $LOCK_FILE 2>/dev/null`
-	  if [ ! -e /proc/${PID} ]; then
-	       repair_db
-	       /etc/init.d/mongod start
-	   fi
-	fi
-fi
+repair_if_broken() {
+  if [ -f $LOCK_FILE ]; then
+    PID=`cat $LOCK_FILE 2>/dev/null`
+      if [ ! -e /proc/${PID} ]; then
+        repair_db
+        /etc/init.d/mongod start
+      fi
+  fi
+}
 
-if [ "${Action}" = "FORCE_REPAIR" ]
-then
-   repair_db
-fi
 
+case ${Action} in
+  AUTO_REPAIR)
+    repair_if_broken
+  ;;
+  FORCE_REPAIR)
+    repair_db
+  ;;
+  OBLITERATE)
+    obliterate_db
+  ;;
+esac

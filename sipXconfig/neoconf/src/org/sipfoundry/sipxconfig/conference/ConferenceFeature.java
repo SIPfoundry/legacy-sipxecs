@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -54,5 +55,12 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
 
     public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
         m_conferenceBridgeContext = conferenceBridgeContext;
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(ConferenceBridgeContext.FEATURE);
+        }
     }
 }

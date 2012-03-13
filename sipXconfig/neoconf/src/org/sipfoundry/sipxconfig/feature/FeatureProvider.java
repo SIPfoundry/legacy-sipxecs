@@ -21,4 +21,6 @@ public interface FeatureProvider {
     public Collection<GlobalFeature> getAvailableGlobalFeatures();
 
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l);
+
+    public void getBundleFeatures(Bundle b);
 }

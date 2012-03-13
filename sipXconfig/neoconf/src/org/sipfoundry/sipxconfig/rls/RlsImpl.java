@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -91,5 +92,12 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessPr
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(new ProcessDefinition("sipxrls")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isUnifiedCommunications()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

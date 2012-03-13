@@ -17,6 +17,7 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -88,5 +89,12 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
         return (enabled ? Collections.singleton(new ProcessDefinition("snmpd")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isRouter()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

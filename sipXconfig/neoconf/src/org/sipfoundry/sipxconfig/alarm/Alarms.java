@@ -10,6 +10,7 @@ package org.sipfoundry.sipxconfig.alarm;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -28,4 +29,10 @@ public class Alarms implements FeatureProvider {
         return null;
     }
 
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isRouter()) {
+            b.addFeature(FEATURE);
+        }
+    }
 }

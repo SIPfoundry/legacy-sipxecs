@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -47,5 +48,12 @@ public class MailManagerImpl implements MailManager, SetupListener, FeatureProvi
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         return Collections.singleton(SERVICE);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

@@ -13,10 +13,6 @@
     </property>
   </bean>
   
-  <bean id="sbcFeature" class="org.sipfoundry.sipxconfig.sbc.SbcFeature">
-    <property name="sbcDeviceManager" ref="sbcDeviceManager"/>
-  </bean>
-
   <bean id="sbcOnEdit" class="org.sipfoundry.sipxconfig.sbc.SbcOnEditListener">
     <property name="featureManager" ref="featureManager" />
     <property name="sbcDeviceManager" ref="sbcDeviceManager"/>

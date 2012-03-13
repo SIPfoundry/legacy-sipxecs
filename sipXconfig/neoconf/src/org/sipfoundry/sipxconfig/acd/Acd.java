@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -107,5 +108,9 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
 
     public void setAcdContext(AcdContext acdContext) {
         m_acdContext = acdContext;
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
     }
 }

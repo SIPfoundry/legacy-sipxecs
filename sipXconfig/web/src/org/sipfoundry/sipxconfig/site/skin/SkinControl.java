@@ -11,9 +11,11 @@ package org.sipfoundry.sipxconfig.site.skin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +24,7 @@ import org.apache.tapestry.asset.AssetFactory;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 
@@ -43,8 +46,8 @@ public class SkinControl implements BeanFactoryAware {
     // overrideable in skin
     private Map<String, String> m_assets = new HashMap();
     private String m_messageSourceBeanId;
-    private MessageSource m_messageSource;
-    private BeanFactory m_beanFactory;
+    private Set<MessageSource> m_messageSources;
+    private ListableBeanFactory m_beanFactory;
 
     public SkinControl() {
         String pkg = getClass().getPackage().getName().replace('.', '/');
@@ -129,22 +132,34 @@ public class SkinControl implements BeanFactoryAware {
     }
 
     public String getLocalizeString(String key, Locale locale, String defaultString) {
-        if (m_messageSourceBeanId == null) {
-            return defaultString;
+        // lazy load message source beans
+        if (m_messageSources == null) {
+            m_messageSources = new HashSet<MessageSource>();
+            if (m_messageSourceBeanId != null) {
+                m_messageSources.add((MessageSource) m_beanFactory.getBean(m_messageSourceBeanId));
+            }
+
+            Map<String, MessageSourceProvider> beanMap = m_beanFactory.getBeansOfType(
+                    MessageSourceProvider.class, false, false);
+            for (MessageSourceProvider p : beanMap.values()) {
+                m_messageSources.add(p.getMessageSource());
+            }
         }
 
-        if (m_messageSource == null) {
-            m_messageSource = (MessageSource) m_beanFactory.getBean(m_messageSourceBeanId);
+        int nop = 0;
+        for (MessageSource source : m_messageSources) {
+            try {
+                // pass null for message args, tapestry will use MessageFormat later.
+                return source.getMessage(key, null, locale);
+            } catch (NoSuchMessageException normal) {
+                nop++; // useless code to suppress checksytle error
+            }
         }
-        try {
-            // pass null for message args, tapestry will use MessageFormat later.
-            return m_messageSource.getMessage(key, null, locale);
-        } catch (NoSuchMessageException extremelyLikely) {
-            return defaultString;
-        }
+
+        return defaultString;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
+        m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 }

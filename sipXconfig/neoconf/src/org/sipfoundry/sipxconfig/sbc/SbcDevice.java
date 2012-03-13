@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SbcDevice extends Device implements NamedObject, DeployConfigOnEdit {
-    private static final Collection<Feature> REPLICATE_ON_CHANGE = Arrays.asList((Feature) SbcFeature.SBC,
+    private static final Collection<Feature> REPLICATE_ON_CHANGE = Arrays.asList((Feature) SbcManager.FEATURE,
             (Feature) DialPlanContext.FEATURE);
     private String m_address;
 
