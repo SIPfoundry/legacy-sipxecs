@@ -365,9 +365,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     private void checkAgent(OpenAcdAgent agent) {
-        if (StringUtils.isBlank(agent.getPin())) {
-            throw new UserException("&blank.agentPin.error");
-        }
         // check if agent security is empty
         if (StringUtils.isBlank(agent.getSecurity())) {
             throw new UserException("&blank.agentSecurity.error");

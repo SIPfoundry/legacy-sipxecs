@@ -24,8 +24,6 @@ import org.sipfoundry.sipxconfig.components.FaxServicePanel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
@@ -36,7 +34,6 @@ import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
     public static final String TAB_CONFERENCES = "conferences";
-    public static final String TAB_OPENACD = "openAcd";
 
     //private static final String OPERATOR_SETTING = "personal-attendant" + Setting.PATH_DELIM + "operator";
 
@@ -51,9 +48,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 //
 //    @InjectObject("spring:xmppContactInformationUpdate")
 //    public abstract XmppContactInformationUpdate getXmppContactInformationUpdate();
-
-    @InjectObject("spring:openAcdContext")
-    public abstract OpenAcdContext getOpenAcdContext();
 
     public abstract String getPin();
 
@@ -93,10 +87,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract Setting getImNotificationSettings();
 
     public abstract void setImNotificationSettings(Setting paSetting);
-
-    public abstract String getOpenAcdPin();
-
-    public abstract void setOpenAcdPin(String pin);
 
     public abstract Setting getParentSetting();
     public abstract void setParentSetting(Setting setting);
@@ -155,10 +145,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             setActionBlockForConferencesTab(b);
         }
 
-        if (getTab().equals(TAB_OPENACD)) {
-            OpenAcdAgent agent = getOpenAcdContext().getAgentByUser(user);
-            setOpenAcdPin(agent.getPin());
-        }
     }
 
     public void syncXmppContacts() {
@@ -191,18 +177,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 //            tabNames.add("myAssistant");
 //        }
 
-        if (getOpenAcdContext().isOpenAcdAgent(getUser())) {
-            tabNames.add(TAB_OPENACD);
-        }
-
         setAvailableTabNames(tabNames);
-    }
-
-    public void saveOpenAcdPin() {
-        OpenAcdAgent agent = getOpenAcdContext().getAgentByUser(getUser());
-        agent.setPin(getOpenAcdPin());
-        getOpenAcdContext().saveAgent(agent);
-        getValidator().recordSuccess(getMessages().getMessage("label.openAcdPin.changed"));
     }
 
 }
