@@ -1,0 +1,9 @@
+<context name="default">
+  <extension name="IVR">
+    <condition field="destination_number" expression="^IVR$">
+      <action application="socket" data="10.1.1.0:8084 async full"/>
+      <action application="socket" data="10.1.1.1:8084 async full"/>
+      <action application="socket" data="10.1.1.2:8084 async full"/>
+    </condition>
+  </extension>
+</context>
