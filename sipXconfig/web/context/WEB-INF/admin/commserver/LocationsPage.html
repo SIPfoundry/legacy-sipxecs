@@ -1,5 +1,5 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'locations', 'roles', 'features'}" selectedTab="ognl:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'locations', 'roles'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
@@ -68,10 +68,5 @@
   <div jwcid="rolesTab@Block">
     <div jwcid="@admin/commserver/RolesPanel">
     </div>  
-  </div>
-  <div jwcid="featuresTab@Block">
-    <form jwcid="@Form" delegate="bean:validator">
-      <span jwcid="@feature/ConfigureFeaturesPanel" callback="ognl:callback"/>
-    </form>
   </div>
 </div>

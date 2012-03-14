@@ -84,7 +84,7 @@ public abstract class ConfigureBundlePage extends PageWithCallback implements Pa
         if (c.isLocationDependent(fm, f)) {
             return "global";
         }
-        if (c.isSingleLocation(fm, f)) {
+        if (c.isSingleLocation(fm, f) && getLocations().size() > 1) {
             return "pickOne";
         }
 
