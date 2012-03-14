@@ -45,7 +45,6 @@ public abstract class BackupManagerImpl extends HibernateDaoSupport implements A
                 initFtpConfig(plan);
             }
             getHibernateTemplate().save(plan);
-            getHibernateTemplate().flush();
         }
         return plan;
     }
