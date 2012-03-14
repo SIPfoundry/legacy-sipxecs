@@ -376,4 +376,14 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
+
+    @Override
+    public Bundle getBundle(String id) {
+        for (Bundle b : getBundles()) {
+            if (b.getId().equals(id)) {
+                return b;
+            }
+        }
+        return null;
+    }
 }

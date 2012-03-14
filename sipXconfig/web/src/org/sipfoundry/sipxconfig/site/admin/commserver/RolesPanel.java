@@ -20,7 +20,6 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public abstract class RolesPanel extends BaseComponent implements PageBeginRenderListener {
 
@@ -62,7 +61,7 @@ public abstract class RolesPanel extends BaseComponent implements PageBeginRende
 
     public IPage configure(IRequestCycle cycle) {
         ConfigureBundlePage page = (ConfigureBundlePage) cycle.getPage(ConfigureBundlePage.PAGE);
-        page.setBundle(getBundle());
+        page.setBundleId(getBundle().getId());
         page.setReturnPage(getPage());
         return page;
     }
@@ -76,12 +75,7 @@ public abstract class RolesPanel extends BaseComponent implements PageBeginRende
 
             @Override
             public Object getValue(Object primaryKey) {
-                for (Bundle b : getBundles()) {
-                    if (b.getId().equals(primaryKey)) {
-                        return b;
-                    }
-                }
-                return null;
+                return getFeatureManager().getBundle(primaryKey.toString());
             }
         };
     }
@@ -98,7 +92,7 @@ public abstract class RolesPanel extends BaseComponent implements PageBeginRende
 
             @Override
             public Object getValue(Object primaryKey) {
-                return new LocationFeature("dontcare");
+                return getBundle().getFeature(primaryKey.toString());
             }
         };
     }

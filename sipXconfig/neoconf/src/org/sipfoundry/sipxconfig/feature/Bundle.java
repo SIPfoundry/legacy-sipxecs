@@ -74,6 +74,19 @@ public class Bundle {
         return m_id;
     }
 
+    public BundleConstraint getConstraint(Feature f) {
+        return m_features.get(f);
+    }
+
+    public Feature getFeature(String featureId) {
+        for (Feature f : m_features.keySet()) {
+            if (f.getId().equals(featureId)) {
+                return f;
+            }
+        }
+        return null;
+    }
+
     public Collection<Feature> getFeatures() {
         return m_features.keySet();
     }
