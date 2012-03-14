@@ -39,16 +39,6 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         modifyContext(m_domainManagerImpl, "locationsManager", m_originalLocationsManager, locationsManager);
     }
 
-    public void testGetEmptyDomain() throws Exception {
-        try {
-            m_out.setNullDomain();
-            m_out.getDomain();
-            fail();
-        } catch (DomainNotInitializedException expected) {
-            assertTrue(true);
-        }
-    }
-
     public void testGetDomain() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
         Domain d = m_out.getDomain();

@@ -164,8 +164,12 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         }
         // ARGH!! Kept getting duplicate object in session and usual tricks of merge and evict
         // didn't work so i resorted to SQL. --Douglas
-        m_jdbcTemplate.execute("delete from location where location_id = " + location.getId());
-        getHibernateTemplate().flush();
+        Location merge = getHibernateTemplate().merge(location);
+        getHibernateTemplate().delete(merge);
+//        // ARGH!! Kept getting duplicate object in session and usual tricks of merge and evict
+//        // didn't work so i resorted to SQL. --Douglas
+//        m_jdbcTemplate.execute("delete from location where location_id = " + location.getId());
+//        getHibernateTemplate().flush();
     }
 
     @Override
