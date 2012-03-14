@@ -88,8 +88,10 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
     @Override
     protected void onSetUpInTransaction() throws Exception {
+        clear();
         loadDataSetXml("commserver/seedLocations.xml");
         loadDataSetXml("domain/DomainSeed.xml");
+        sql("openacd/openacd.sql");
         m_migrationContext.migrateSkillGroup();
         getEntityCollection().drop();
         m_featureManager.enableLocationFeature(OpenAcdContext.FEATURE, new Location("localhost", "127.0.0.1"), true);
