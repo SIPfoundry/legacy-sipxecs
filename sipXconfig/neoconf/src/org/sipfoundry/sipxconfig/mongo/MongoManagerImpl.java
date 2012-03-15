@@ -24,11 +24,14 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider {
+public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
+    SetupListener {
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
 
     public MongoSettings getSettings() {
@@ -92,6 +95,15 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
         if (b.isBasic()) {
             b.addFeature(FEATURE_ID);
             b.addFeature(ARBITER_FEATURE, BundleConstraint.SINGLE_LOCATION);
+        }
+    }
+
+    @Override
+    public void setup(SetupManager manager) {
+        if (manager.isSetup(FEATURE_ID.getId())) {
+            Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
+            manager.getFeatureManager().enableLocationFeature(FEATURE_ID, primary, true);
+            manager.setSetup(FEATURE_ID.getId());
         }
     }
 }
