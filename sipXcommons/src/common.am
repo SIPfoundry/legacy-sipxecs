@@ -25,4 +25,20 @@ commons_PKGS = \
 	org.springframework.transaction \
 	spring-data-mongodb \
 	jce \
-	mongo
+	mongo \
+	jetty-client \
+	jetty-continuation \
+	jetty-http \
+	jetty-io \
+	jetty-security \
+	jetty-server \
+	jetty-servlet \
+	jetty-servlets \
+	jetty-util \
+	jetty-webapp \
+	jetty-websocket \
+	jetty-xml \
+	servlet-api \
+	spring-security-config \
+	spring-security-core \
+	spring-security-web

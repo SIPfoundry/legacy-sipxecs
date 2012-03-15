@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="vcard-provider/src"/>
 	<classpathentry kind="src" path="presence-plugin/test"/>
 	<classpathentry kind="src" path="presence-plugin/src"/>
+	<classpathentry kind="src" path="ws-plugin/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/activation.jar"/>
@@ -26,5 +27,19 @@
 	<classpathentry kind="var" path="OPENFIRE_ROOT"/>
 	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/openfire.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-xml.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/spring-security-config.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/spring-security-core.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/spring-security-web.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-websocket.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-util.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-webapp.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-security.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-servlet-.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-servlets-.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-server.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-client.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-continuation.jar"/>
+	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-http.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
