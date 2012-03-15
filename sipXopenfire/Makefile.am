@@ -9,6 +9,7 @@ SUBDIRS = \
 	presence-plugin \
 	vcard-provider \
 	config-plugin \
+	ws-plugin \
 	etc \
 	bin
 

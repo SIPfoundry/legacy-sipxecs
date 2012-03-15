@@ -18,5 +18,6 @@ AC_CONFIG_FILES([
   presence-plugin/Makefile
   vcard-provider/Makefile
   config-plugin/Makefile
+  ws-plugin/Makefile
 ])
 AC_OUTPUT

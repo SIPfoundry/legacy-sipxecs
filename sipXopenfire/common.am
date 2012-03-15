@@ -29,7 +29,29 @@ plugin_JAR_PKGS = \
 	sipxcommons \
 	ws-commons-util \
 	xmlrpc-client \
-	xmlrpc-server
+	xmlrpc-server \
+	org.springframework.beans \
+	org.springframework.context \
+	org.springframework.core \
+	org.springframework.transaction \
+	org.springframework.web \
+	org.springframework.web.servlet \
+	jetty-client \
+	jetty-continuation \
+	jetty-http \
+	jetty-io \
+	jetty-security \
+	jetty-server \
+	jetty-servlet \
+	jetty-servlets \
+	jetty-util \
+	jetty-webapp \
+	jetty-websocket \
+	jetty-xml \
+	servlet-api \
+	spring-security-config \
+	spring-security-core \
+	spring-security-web		
 
 plugin_JAR_RT_PKGS = \
 	com.noelios.restlet \
