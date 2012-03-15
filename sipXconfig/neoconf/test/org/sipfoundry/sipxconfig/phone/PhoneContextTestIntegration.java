@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -195,6 +196,8 @@ public class PhoneContextTestIntegration extends IntegrationTestCase {
 
     public void testGetPhonebookEntries() throws Exception {
         loadDataSet("phone/PhoneWithPhonebookSeed.xml");
+        GeneralPhonebookSettings settings = m_phonebookManager.getGeneralPhonebookSettings();
+        m_phonebookManager.saveGeneralPhonebookSettings(settings);  
 
         Phone phone = m_context.loadPhone(1001);
         assertEquals(6, m_context.getPhonebookEntries(phone).size());
@@ -203,7 +206,8 @@ public class PhoneContextTestIntegration extends IntegrationTestCase {
         assertEquals(1, m_context.getPhonebookEntries(phone2).size());
 
         //Test everyone disabled
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
+        settings.setEveryoneEnabled(false);
+        flush();
         phone = m_context.loadPhone(1001);
         assertEquals(5, m_context.getPhonebookEntries(phone).size());
 
@@ -211,7 +215,7 @@ public class PhoneContextTestIntegration extends IntegrationTestCase {
         assertEquals(0, m_context.getPhonebookEntries(phone2).size());
 
         //Reset everyone to default value(true)
-        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
+        settings.setEveryoneEnabled(true);
     }
 
     public void setPhoneContext(PhoneContext context) {
