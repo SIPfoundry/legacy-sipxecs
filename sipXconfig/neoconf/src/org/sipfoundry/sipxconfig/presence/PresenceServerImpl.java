@@ -59,7 +59,6 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
     public static final AddressType SIP_UDP_ADDRESS = new AddressType("acdPresenceUdp");
     public static final String OBJECT_CLASS_KEY = "object-class";
     private static final Log LOG = LogFactory.getLog(PresenceServer.class);
-    private static final List<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS);
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<PresenceSettings> m_settingsDao;
@@ -187,13 +186,13 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
 
     @Override
     public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
+        return Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS);
     }
 
     @Override
     public java.util.Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Object requester) {
-        if (!ADDRESSES.contains(type) || manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+        if (!type.equalsAnyOf(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS)) {
             return null;
         }
 
