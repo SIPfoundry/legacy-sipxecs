@@ -6,6 +6,7 @@ ivr_PKGS = \
 	commons-logging \
 	commons-lang \
 	dom4j \
+	iText \
 	javamail \
 	javax.servlet \
 	jaxen \
