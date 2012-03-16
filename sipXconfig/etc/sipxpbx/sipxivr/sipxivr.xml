@@ -31,10 +31,24 @@
       </option>
     </enum>
   </type>
+  <type id="faxformat">
+    <enum>
+      <option>
+        <value>pdf</value>
+      </option>
+      <option>
+        <value>tiff</value>
+      </option>
+    </enum>
+  </type>
   <group name="ivr">
     <setting name="log.level">
       <type refid="loglevel" />
       <value>NOTICE</value>
+    </setting>
+    <setting name="fax.format">
+      <type refid="faxformat" />
+      <value>pdf</value>
     </setting>
     <setting name="ivr.httpsPort" advanced="yes">
       <type>
