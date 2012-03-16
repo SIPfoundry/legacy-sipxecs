@@ -8,10 +8,20 @@
 
 bundle agent zz_apache {
   methods:
+    apache::
+      "any" usebundle => apache_config;
     fedora16_or_greater::
       "any" usebundle => "apache_sysctl_running";
     !fedora16_or_greater::
       "any" usebundle => "apache_sysv_running";
+}
+
+bundle agent apache_config {
+  files:
+    "$(sipx.APACHE2_CONFDIR)/welcome.conf"
+      comment => "remove apache welcome page",
+      delete => tidy,
+      classes => if_repaired("restart_apache");
 }
 
 bundle agent apache_sysv_running {
