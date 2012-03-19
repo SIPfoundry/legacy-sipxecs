@@ -36,6 +36,7 @@
     </property>
     <property name="featureManager" ref="featureManager" />
     <property name="configManager" ref="configManager" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="ivrConfig" class="org.sipfoundry.sipxconfig.ivr.IvrConfig">

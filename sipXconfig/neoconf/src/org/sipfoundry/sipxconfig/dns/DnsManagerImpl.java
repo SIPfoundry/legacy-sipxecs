@@ -52,17 +52,17 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
             return null;
         }
 
-        Iterator<Address> i = addresses.iterator();
-        Address first = i.next();
-        if (addresses.size() == 1 || whoIsAsking == null) {
-            return first;
-        }
-
         for (DnsProvider p : getProviders()) {
             Address rewrite = p.getAddress(this, t, addresses, whoIsAsking);
             if (rewrite != null) {
                 return rewrite;
             }
+        }
+
+        Iterator<Address> i = addresses.iterator();
+        Address first = i.next();
+        if (addresses.size() == 1 || whoIsAsking == null) {
+            return first;
         }
 
         // return the address local to who is asking if available

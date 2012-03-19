@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsProvider;
 import org.sipfoundry.sipxconfig.dns.ResourceRecords;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -55,6 +56,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
     private BeanWithSettingsDao<CallPilotSettings> m_pilotSettingsDao;
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
+    private DomainManager m_domainManager;
 
     public IvrSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -149,11 +151,18 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
 
     @Override
     public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
-        if (!t.equals(SIP_ADDRESS)) {
+        if (!t.equals(SIP_ADDRESS) || !m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
             return null;
         }
 
-        return new Address(t, String.format("vm.%s", whoIsAsking.getFqdn()));
+        if (m_featureManager.isFeatureEnabled(Ivr.FEATURE, whoIsAsking)) {
+            return new Address(t, getAddress(whoIsAsking.getFqdn()));
+        }
+        return new Address(t, getAddress(m_domainManager.getDomainName()));
+    }
+
+    private String getAddress(String host) {
+        return String.format("%s.%s", VM, host);
     }
 
     @Override
@@ -178,6 +187,10 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 
     public void setFeatureManager(FeatureManager featureManager) {

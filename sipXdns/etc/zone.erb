@@ -35,6 +35,8 @@ _sip._tls.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
     resource_records.each { |rr|
       if rr[:records]
         rr[:records].each { |a|
+%><%= rr[:proto] %>.<%= rr[:resource] %>.<%= domain %>.   IN    SRV   10 10 <%= a[:port] %> <%= a[:name] %>.
+<%
           rr[:records].each { |b|
             # give priority to local registrar
             rr_priority = (a == b ? '10' : '20')
