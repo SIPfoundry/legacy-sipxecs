@@ -70,11 +70,13 @@ bundle agent sipxopenfire_config {
 }
 
 bundle edit_line sipxopenfire_sipx_properties {
-  insert_lines:
+  insert_lines:	
+  any::
+    "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipx.properties.part"
+      insert_type => "file";	
     "conf.dir=$(sipx.SIPX_CONFDIR)";
     "localization.file=$(sipx.SIPX_CONFDIR)/openfire/sipxopenfire-prompts.properties";
     "openfire.home=$(sipx.OPENFIRE_HOME)";
-    "openfire.realm=$(sipx.realm)";
 
   delete_lines:
     ".*";

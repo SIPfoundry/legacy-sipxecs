@@ -199,7 +199,7 @@ setup() {
    ln -s ${SIPX_OPENFIRE_DIR}/plugins/sipx-openfire-ws-plugin.jar @OPENFIRE_HOME@/plugins 2> /dev/null
    rm -f ${OPENFIRE_LIB}/sipx-openfire-vcard-provider.jar 2> /dev/null
    ln -s ${SIPX_OPENFIRE_DIR}/lib/sipx-openfire-vcard-provider.jar ${OPENFIRE_LIB} 2> /dev/null
-   for f in ws-commons-util xmlrpc-client xmlrpc-server xmlrpc-common log4j mongo commons-logging commons-digester commons-collections commons-beanutils-core jain-sip-sdp dnsjava dom4j commons-io jetty-client jetty-continuation jetty-http jetty-io jetty-security jetty-server jetty-servlet- jetty-servlets- jetty-util jetty-webapp jetty-websocket jetty-xml servlet-api org.springframework.beans org.springframework.context- org.springframework.context.support org.springframework.core org.springframework.transaction org.springframework.web- org.springframework.aop org.springframework.asm org.springframework.expression org.springframework.web.servlet spring-security-config spring-security-core spring-security-web; do
+   for f in ws-commons-util xmlrpc-client xmlrpc-server xmlrpc-common log4j mongo commons-logging commons-digester commons-collections commons-beanutils-core jain-sip-sdp dnsjava dom4j commons-io not-yet-commons-ssl; do
        ln -snf ${SIPX_COMMONS}/$f*.jar ${OPENFIRE_LIB}/$f.jar
    done
    ln -snf ${SIPX_COMMONS}/sipxcommons.jar ${OPENFIRE_LIB}/sipxcommons.jar

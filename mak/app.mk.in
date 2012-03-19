@@ -40,7 +40,8 @@ sf = \
   sipXunidata \
   sipXgrandstream \
   sipXimbot \
-  sipXexample
+  sipXexample \
+  sipXwebsocket
 
 lang = \
   sipXlang-abitibi-fr_CA \

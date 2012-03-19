@@ -7,14 +7,19 @@
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
-  <http auto-config='true'>
-    <intercept-url pattern="/register" access="ROLE_USER" />
-  </http>
-
-  <beans:bean id="openfireProps" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <beans:bean id="websocketProps" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <beans:property name="locations">
+      <beans:list>
+        <beans:value>file:${conf.dir}/sipxwebsocket.properties</beans:value>        
+      </beans:list>
+    </beans:property>  
     <beans:property name="searchSystemEnvironment" value="true" />
     <beans:property name="ignoreUnresolvablePlaceholders" value="true" />
   </beans:bean>
+
+  <http auto-config='true'>
+    <intercept-url pattern="/register" access="ROLE_USER" />
+  </http>
 
   <authentication-manager>
     <authentication-provider ref='daoAuthenticationProvider'/>
@@ -36,21 +41,23 @@
   </beans:bean>
   
   <beans:bean id="passwordEncoder" class="org.sipfoundry.commons.security.PasswordEncoderImpl">
-  	<beans:property name="realm" value="${openfire.realm}" />
+  	<beans:property name="realm" value="${websocket.realm}" />
   </beans:bean>
   
-  <beans:bean id="presenceEventListener" class="org.sipfoundry.openfire.ws.PresenceEventListenerImpl">
-  </beans:bean>
-  
-  <beans:bean id="presenceWebSocket" class="org.sipfoundry.openfire.ws.PresenceWebSocket" scope="prototype">
-  	<beans:property name="presenceEventListener" ref="presenceEventListener" />
-  	<beans:property name="userDetailsService" ref="mongoUserDetailsService" />
-  	<beans:property name="passwordEncoder" ref="passwordEncoder" />
+  <beans:bean id="registeredClients" class="org.sipfoundry.sipxwebsocket.RegisteredClients">  	
   </beans:bean>  
   
-  <beans:bean id="presence" class="org.sipfoundry.openfire.ws.PresenceServlet" init-method="init">
-  	<beans:property name="presenceEventListener" ref="presenceEventListener" />
+  <beans:bean id="sipxWebSocket" class="org.sipfoundry.sipxwebsocket.SipXWebSocket" scope="prototype">
+  	<beans:property name="userDetailsService" ref="mongoUserDetailsService" />
+  	<beans:property name="passwordEncoder" ref="passwordEncoder" />
+  	<beans:property name="registeredClients" ref="registeredClients" />
+  </beans:bean>  
+  
+  <beans:bean id="websocket" class="org.sipfoundry.sipxwebsocket.WebSocketServlet" init-method="init">
+  </beans:bean>
+  
+  <beans:bean id="receiver" class="org.sipfoundry.sipxwebsocket.MessageReceiverServlet">
+  	<beans:property name="registeredClients" ref="registeredClients" />
   </beans:bean>     
-       
-    
+                 
 </beans:beans>

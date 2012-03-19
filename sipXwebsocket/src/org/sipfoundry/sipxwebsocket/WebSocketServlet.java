@@ -1,7 +1,7 @@
 /**
  *
  *
- * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
  * This software is free software; you can redistribute it and/or modify it under
@@ -14,7 +14,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.openfire.ws;
+package org.sipfoundry.sipxwebsocket;
 
 import java.io.IOException;
 
@@ -24,17 +24,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketFactory;
-import org.jivesoftware.openfire.user.PresenceEventDispatcher;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.HttpRequestHandler;
 
 
-public class PresenceServlet implements HttpRequestHandler, BeanFactoryAware {
+public class WebSocketServlet implements HttpRequestHandler, BeanFactoryAware {
 	private WebSocketFactory wsFactory;
-	private PresenceEventListenerImpl m_presenceEventListener;
 	private BeanFactory m_beanFactory;
 
 	public void init() {
@@ -47,12 +44,11 @@ public class PresenceServlet implements HttpRequestHandler, BeanFactoryAware {
 			}
 
 			public WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
-				return createPresenceWebSocket();
+				return createSipXWebSocket();
 			}
 		});
 		wsFactory.setBufferSize(4096);
 		wsFactory.setMaxIdleTime(60000);
-		PresenceEventDispatcher.addListener(m_presenceEventListener);
 	}
 
 	@Override
@@ -65,17 +61,12 @@ public class PresenceServlet implements HttpRequestHandler, BeanFactoryAware {
 				"Websocket only");
 	}
 
-	@Required
-	public void setPresenceEventListener(PresenceEventListenerImpl presenceEventListener) {
-		m_presenceEventListener = presenceEventListener;
-	}
-
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		m_beanFactory = beanFactory;
 	}
 
-   protected PresenceWebSocket createPresenceWebSocket() {
-	   return (PresenceWebSocket) this.m_beanFactory.getBean(PresenceWebSocket.CONTEXT_BEAN_NAME); // notice the Spring API dependency
+   protected SipXWebSocket createSipXWebSocket() {
+	   return (SipXWebSocket) this.m_beanFactory.getBean(SipXWebSocket.CONTEXT_BEAN_NAME); // notice the Spring API dependency
    }
 }

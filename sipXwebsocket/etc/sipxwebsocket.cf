@@ -1,0 +1,75 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipxwebsocket configuration and process management
+#
+bundle agent sipxwebsocket {
+  methods:
+    sipxwebsocket::
+      "any" usebundle => "sipxwebsocket_config";
+    any::
+      "any" usebundle => "sipxwebsocket_setup";
+      "any" usebundle => "sipxwebsocket_running";
+}
+
+bundle agent sipxwebsocket_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxwebsocket.properties"
+        comment => "install sipxwebsocket config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxwebsocket_properties_contents,
+        classes => if_repaired("restart_sipxwebsocket");
+}
+
+bundle edit_line sipxwebsocket_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxwebsocket.properties.part"
+        insert_type => "file";
+      "websocket.realm=$(sipx.realm)";
+      "keystore.file=$(sipx.SIPX_CONFDIR)/ssl/ssl.keystore";
+      "keystore.password=changeit";
+      "log.file=$(sipx.SIPX_LOGDIR)/sipxwebsocket.log";
+      "java.dir=$(sipx.SIPX_JAVADIR)/sipXwebsocket";
+      "conf.dir=$(sipx.SIPX_CONFDIR)";      
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxwebsocket_setup {
+  methods:
+    !src.sipxwebsocket::
+      "any" usebundle => rh_chkconfig_status("sipxwebsocket on");
+    !src.!sipxwebsocket::
+      "any" usebundle => rh_chkconfig_status("sipxwebsocket off");
+}
+
+bundle agent sipxwebsocket_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipxwebsocket\s.*";
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxwebsocket_running");
+
+  commands:
+    !sipxwebsocket.sipxwebsocket_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxwebsocket"
+        comment => "stop sipxwebsocket",
+        args => "stop";
+
+    sipxwebsocket.!sipxwebsocket_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxwebsocket"
+        comment => "start sipxwebsocket",
+        args => "start";
+
+    sipxwebsocket.sipxwebsocket_running.(restart_sipxecs|restart_sipxwebsocket)::
+      "$(sipx.SIPX_SERVICEDIR)/sipxwebsocket"
+        comment => "restart sipxwebsocket",
+        args => "restart";
+}

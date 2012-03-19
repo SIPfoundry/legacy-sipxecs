@@ -27,19 +27,5 @@
 	<classpathentry kind="var" path="OPENFIRE_ROOT"/>
 	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/openfire.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-xml.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/spring-security-config.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/spring-security-core.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/spring-security-web.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-websocket.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-util.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-webapp.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-security.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-servlet-.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-servlets-.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-server.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-client.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-continuation.jar"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/jetty-http.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
