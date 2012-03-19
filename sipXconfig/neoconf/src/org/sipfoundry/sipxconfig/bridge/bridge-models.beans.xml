@@ -35,7 +35,7 @@
 
   <bean id="bridgeSbcStatistics" class="org.sipfoundry.sipxconfig.bridge.BridgeSbcStatistics">
     <property name="bridgeSbcApiProvider" ref="bridgeSbcApiProvider" />
-    <property name="addressManager" ref="addressManager" />
+    <property name="snmpManager" ref="snmpManager" />
   </bean>
 
   <bean id="sbcSipXbridgeSbcContext" class="org.sipfoundry.sipxconfig.bridge.BridgeSbcContext">

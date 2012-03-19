@@ -15,15 +15,17 @@ import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
@@ -38,11 +40,6 @@ public class BridgeSbcStatisticsTest {
         location.setUniqueId();
         location.setAddress("98.65.1.5");
         location.setFqdn("sipx.example.org");
-
-        AddressManager addressManager = createMock(AddressManager.class);
-        addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS);
-        expectLastCall().andReturn(new Address(BridgeSbcContext.XMLRPC_ADDRESS, "bridge.example.org", 9999)).anyTimes();
-        replay(addressManager);
         
         m_sbc = new BridgeSbc();
         m_sbc.setLocation(location);
@@ -55,6 +52,14 @@ public class BridgeSbcStatisticsTest {
         registrationMap.put("47.123.2.34", "INIT");
         registrationMap.put("47.123.2.35", "INIT");
         registrationMap.put("47.123.2.36", "INIT");
+
+        List<ServiceStatus> stats = new ArrayList<ServiceStatus>();
+        ServiceStatus status = new ServiceStatus("sipxbridge", ServiceStatus.Status.Running, false, false);
+        stats.add(status);
+        SnmpManager snmpMgr = createMock(SnmpManager.class);
+        snmpMgr.getServicesStatuses(location);
+        expectLastCall().andReturn(stats);
+        replay(snmpMgr);
 
         final BridgeSbcXmlRpcApi bridgeSbcApiProvider = createMock(BridgeSbcXmlRpcApi.class);
         bridgeSbcApiProvider.getCallCount();
@@ -71,7 +76,7 @@ public class BridgeSbcStatisticsTest {
 
         m_sbcStats = new BridgeSbcStatistics();
         m_sbcStats.setBridgeSbcApiProvider(provider);
-        m_sbcStats.setAddressManager(addressManager);
+        m_sbcStats.setSnmpManager(snmpMgr);
     }
 
     @Test
