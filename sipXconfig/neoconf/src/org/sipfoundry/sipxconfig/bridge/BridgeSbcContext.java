@@ -53,18 +53,18 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider {
         return Collections.singleton(XMLRPC_ADDRESS);
     }
 
-    private Address newSbcAddress(BridgeSbc bridge, AddressType type) {
+    public static Address newSbcAddress(BridgeSbc bridge, AddressType type) {
         if (!type.equals(XMLRPC_ADDRESS)) {
             return null;
         }
-        return new Address(XMLRPC_ADDRESS, bridge.getAddress(), bridge.getXmlRpcPort());
+        return new Address(XMLRPC_ADDRESS, bridge.getLocation().getFqdn(), bridge.getXmlRpcPort());
     }
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
         if (type == XMLRPC_ADDRESS) {
             if (requester instanceof BridgeSbc) {
-                Collections.singleton(newSbcAddress((BridgeSbc) requester, type));
+                return Collections.singleton(newSbcAddress((BridgeSbc) requester, type));
             } else {
                 List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
                 List<Address> addresses = new ArrayList<Address>(locations.size());
@@ -75,6 +75,7 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider {
                         addresses.add(newSbcAddress(bridge, type));
                     }
                 }
+                return addresses;
             }
         }
         return null;

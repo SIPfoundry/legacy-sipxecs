@@ -471,9 +471,9 @@ AC_DEFUN([CHECK_APACHE2],
    AC_MSG_RESULT($apache2_host_access = $apache2_mod_access)
    AC_SUBST(APACHE2_HOST_ACCESS, $apache2_host_access)
    AC_SUBST(APACHE2_MOD_ACCESS, $apache2_mod_access)
+
    AC_SUBST(APACHE2_USER, apache)
    AC_SUBST(APACHE2_GROUP, apache)
-
 
    ## Apache Modules Directory
    AC_MSG_CHECKING([for apache2 modules directory])
@@ -516,6 +516,10 @@ AC_DEFUN([CHECK_APACHE2],
    else
        AC_MSG_ERROR('$apache2_mod_access' and 'httpd.exp' not found; tried: $tried_path)
    fi
+
+   apache2_home=`dirname ${apache2_moddir}`
+   AC_SUBST(APACHE2_CONFDIR, ${apache2_home}/conf.d)
+   AC_SUBST(APACHE2_CONF, ${apache2_home}/conf/httpd.conf)
 ])dnl
 
 # ================ ZLIB ================

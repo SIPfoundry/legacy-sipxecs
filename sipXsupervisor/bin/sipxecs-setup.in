@@ -94,6 +94,7 @@ def set_primary
 +sipxsupervisor
 +postgres
 +mongod
++apache
 EOF
   }
   puts "Created #{$primary_dat}" if $verbose

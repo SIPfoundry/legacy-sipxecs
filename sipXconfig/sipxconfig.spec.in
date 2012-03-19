@@ -52,6 +52,7 @@ Requires: sipxcommserverlib >= %version
 Requires: sipxacdstatistics-client >= %version
 Requires: sipxcdr-client >= %version
 Requires: sipxpostgres >= %version
+Requires: sipxhttpd >= %version
 
 # doesn't really require mongo server on same machine, but 
 # hard to see a reason why this isn't true and there needs

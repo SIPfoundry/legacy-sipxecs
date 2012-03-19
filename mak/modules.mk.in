@@ -31,7 +31,8 @@ sipx = \
   sipXproxy \
   sipXpublisher \
   sipXregistry \
-  sipXpolycom
+  sipXpolycom \
+  sipXhttpd
 
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i 
 # think it's called as ruby-postgres is obsoleted.
