@@ -485,7 +485,7 @@ global_hostname_check () {
 
 global_maxfds_check () {
     local fd_max
-    fd_max=16384
+    fd_max=32768
 
     # Try to bump up max fds
     ulimit -n $fd_max > /dev/null 2>&1
