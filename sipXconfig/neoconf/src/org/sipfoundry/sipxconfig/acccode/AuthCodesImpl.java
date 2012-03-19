@@ -132,5 +132,8 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
 
     @Override
     public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
     }
 }
