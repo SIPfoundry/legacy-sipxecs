@@ -44,6 +44,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings.SystemMohSetting;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
@@ -221,7 +222,7 @@ public class FreeswitchFeature implements Replicable, ReplicableProvider, Featur
 
     @Override
     public void getBundleFeatures(Bundle b) {
-        if (b.isBasic()) {
+        if (b.isBasic() || b.basedOn(OpenAcdContext.CALL_CENTER)) {
             b.addFeature(FEATURE);
         }
     }
