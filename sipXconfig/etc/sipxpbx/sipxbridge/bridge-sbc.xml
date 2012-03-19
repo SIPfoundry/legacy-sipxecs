@@ -168,7 +168,7 @@
 
     <setting name="route-inbound-calls-to-extension" advanced="yes">
     </setting>
-    <setting name="log-level" hidden="yes">
+    <setting name="log-level">
       <label>Logging level</label>
       <type>
         <enum>

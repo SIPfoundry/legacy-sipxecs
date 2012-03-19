@@ -13,7 +13,6 @@ import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
-import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -30,10 +29,6 @@ import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 public abstract class EditSbcDevice extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "sbc/EditSbcDevice";
-
-    private static final String[] TAB_NAMES = {
-        "config"
-    };
 
     @InjectObject(value = "spring:sbcDeviceManager")
     public abstract SbcDeviceManager getSbcDeviceManager();
@@ -68,30 +63,11 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
 
     public abstract SbcDescriptor getSbcDescriptor();
 
-    @Persist
-    public abstract String getCurrentSettingSetName();
-
-    public abstract void setCurrentSettingSetName(String settingName);
-
     public abstract void setCurrentSettingSet(SettingSet currentSettingSet);
 
     public abstract SettingSet getCurrentSettingSet();
 
-    @InitialValue(value = "literal:config")
-    public abstract void setActiveTab(String tab);
-
-    public abstract String getActiveTab();
-
-    public abstract String getCurrentTab();
-
     public abstract void setActiveSetting(String setting);
-
-    /**
-     * Names of the tabs that are not in navigation components
-     */
-    public String[] getTabNames() {
-        return TAB_NAMES;
-    }
 
     public void pageBeginRender(PageEvent event_) {
         SbcDevice sbc = getSbcDevice();
@@ -107,16 +83,10 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
             sbc = sdm.newSbcDevice(sbcDescriptor);
         }
         setSbcDevice(sbc);
-        setSettingProperties(getCurrentSettingSetName());
-    }
-
-    public void editNonSettings(String tabId) {
-        setCurrentSettingSetName(null);
-        setActiveTab(tabId);
+        setSettingProperties("bridge-configuration");
     }
 
     public void editSettings(Integer sbcId, String settingPath) {
-        setActiveTab("settings");
         setSbcDeviceId(sbcId);
         setSbcDevice(getSbcDeviceManager().getSbcDevice(sbcId));
         setSettingProperties(settingPath);
@@ -124,18 +94,13 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
 
     private void setSettingProperties(String settingPath) {
         SettingSet currentSettingSet = null;
-        String currentSettingSetName = null;
         Setting settings = getSbcDevice().getSettings();
         // because setting path is persistant in session, guard against
         // path not rellevant to this SbcDevices setting set
         if (settings != null && !StringUtils.isBlank(settingPath)) {
             currentSettingSet = (SettingSet) settings.getSetting(settingPath);
-            if (currentSettingSet != null) {
-                currentSettingSetName = currentSettingSet.getName();
-            }
         }
         setCurrentSettingSet(currentSettingSet);
-        setCurrentSettingSetName(currentSettingSetName);
     }
 
     public void save() {
@@ -166,7 +131,6 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
         page.setSbcDescriptor(null);
         page.setSbcDeviceId(sbcId);
         page.setSbcDevice(null);
-        page.setCurrentSettingSetName(null);
         page.setReturnPage(returnPage);
         return page;
     }
@@ -176,7 +140,6 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
         page.setSbcDescriptor(model);
         page.setSbcDeviceId(null);
         page.setSbcDevice(null);
-        page.setCurrentSettingSetName(null);
         page.setReturnPage(returnPage);
         return page;
     }
