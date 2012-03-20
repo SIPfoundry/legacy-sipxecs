@@ -159,8 +159,16 @@ handle_call({agent_auth, Name, PlainPassword, Extended}, _From, State) ->
 		{ok, []} ->
 			destroy;
 		{ok, Agent} ->
-			case get_str(<<"pin">>, Agent) of
-				PlainPassword ->
+			UsernameBin = list_to_binary(Name),
+			PasswordBin = list_to_binary(PlainPassword),
+			Realm = proplists:get_value(<<"rlm">>, Agent, <<>>),
+
+			DigestBin = crypto:md5(<<UsernameBin/binary, $:, Realm/binary, $:, PasswordBin/binary>>),
+			DigestHexBin = iolist_to_binary([io_lib:format("~2.16.0b", [C]) || <<C>> <= DigestBin]),
+
+			PntkHexBin = proplists:get_value(<<"pntk">>, Agent, <<>>),
+			case PntkHexBin of
+				DigestHexBin ->
 					Rec = props_to_agent(Agent, #agent_auth{skills=[]}),
 
 					{ok, Rec#agent_auth.id,
