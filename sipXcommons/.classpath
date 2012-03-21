@@ -143,5 +143,21 @@
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-commons-core-1.2.0.M2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/snmp4j-2.0.3.jar" sourcepath="/home/dhubler/Downloads/temp/snmp4j-2.0.3/src"/>
 	<classpathentry exported="true" kind="lib" path="lib/bcprov-jdk16-146.jar" sourcepath="/home/dhubler/libsrc/bouncycastle-src.zip/src.zip"/>
-	<classpathentry kind="output" path="bin.eclipse/classes"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-security-config-3.1.0.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-security-core-3.1.0.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-security-web-3.1.0.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-client-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-continuation-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-http-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-io-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-security-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-server-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-servlet-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-servlets-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-util-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-webapp-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-websocket-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-xml-8.1.0.v20120127.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/servlet-api-3.0.jar"/>
+	<classpathentry exported="true" kind="output" path="bin.eclipse/classes"/>
 </classpath>

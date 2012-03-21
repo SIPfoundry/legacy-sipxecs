@@ -13,9 +13,8 @@ jardir = @SIPX_JAVADIR@/sipXopenfire/plugins
 cfg_JAR = sipx-openfire-ws-plugin.jar
 jar_DATA = $(cfg_JAR)
 
-cfg_RESOURCES = web \
-    plugin.xml \
-    beans.xml
+cfg_RESOURCES = \ 
+	plugin.xml
                       
 cfg_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(plugin_PKGS)) \

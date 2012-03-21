@@ -34,7 +34,9 @@
     <property name="sipxConfig" ref="openfireSipxXml"/>
     <property name="accountConfig" ref="openfireAccountXml"/>
     <property name="ldapManager" ref="ldapManager"/>
-    <property name="configManager" ref="configManager"/>  
+    <property name="configManager" ref="configManager"/>
+    <property name="featureManager" ref="featureManager"/>
+    <property name="websocket" ref="websocket"/>
   </bean>
 
   <bean id="openfireSipxXml" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireConfiguration">
@@ -42,7 +44,7 @@
     <property name="addressManager" ref="addressManager" />
     <property name="openfire" ref="openfire" />
     <property name="domainManager" ref="domainManager" />
-    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="velocityEngine" ref="velocityEngine" />        
   </bean>
 
   <bean id="openfireXml" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfigurationFile">

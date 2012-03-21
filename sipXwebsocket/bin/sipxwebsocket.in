@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# sipXwebsocket - Startup script for sipxrave
+# processname: sipxwebsocket
+
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+prog=sipxwebsocket
+pidfile="@SIPX_RUNDIR@/sipxwebsocket.pid"
+
+[ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
+
+checkRunningInstance() {
+  if [ -f "${pidfile}" ]; then
+    pid=`cat ${pidfile}`
+    if checkpid $pid 2>&1; then
+      echo "Process $prog is already running with pid $pid"
+      exit 1
+    fi
+  fi
+}
+
+# Start sipxwebsocket
+start() {
+  checkRunningInstance
+  
+  JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+  Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @websocket_PKGS@`
+  export CLASSPATH=`echo @SIPX_CONFDIR@/sipxwebsocket @SIPX_JAVADIR@/sipXwebsocket/*.jar ${Dependencies} | sed -e 's/ /:/g'`  
+  
+  Command="$JavaCmd \
+    -Dprocname=sipxwebsocket \
+    -Dconf.dir=@SIPX_CONFDIR@ \
+    -Dvar.dir=@SIPX_VARDIR@ \
+    $JavaSslOpts \
+    org.sipfoundry.sipxwebsocket.WebSocketServer \
+    $Args"
+  if [ -n "${NoFork}" ] ; then
+    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
+  else
+    echo -n $"Starting $prog: "
+    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+    echo $! > ${pidfile}
+    echo_success
+  fi
+}
+
+stop() {
+  echo -n $"Stopping sipxwebsocket: "
+  killproc -p "${pidfile}" -t30 -TERM "sipxwebsocket"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
+}
+
+restart() {
+    stop
+    # sleep for no good reason. Can be disconcerting if stop/start
+    # switch is too fast IMHO
+    sleep 1
+    start
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${pidfile} ] && restart || :
+    ;;
+  status)
+    status -p ${pidfile} java
+    ;;
+  configtest)
+    configtest
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork}"
+    Status=1
+esac
+
+exit $Status

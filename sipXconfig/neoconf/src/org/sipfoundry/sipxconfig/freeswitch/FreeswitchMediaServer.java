@@ -9,17 +9,14 @@ package org.sipfoundry.sipxconfig.freeswitch;
 
 
 import java.util.Formatter;
-import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.dialplan.MediaServer;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
@@ -38,9 +35,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  */
 public class FreeswitchMediaServer extends MediaServer {
     private static final String USER_PART = "IVR";
-    private static final String VM = "vm.%s";
     private AddressManager m_addressManager;
-    private FeatureManager m_featureManager;
 
     @Override
     public String getDigitStringForOperation(Operation operation, CallDigits userDigits) {
@@ -91,13 +86,9 @@ public class FreeswitchMediaServer extends MediaServer {
     @Override
     public String getHostname(Operation operation) {
         if (getLocation() != null) {
-            if (m_featureManager.isFeatureEnabled(Ivr.FEATURE, getLocation())) {
-                return String.format(VM, getLocation().getFqdn());
-            } else {
-                List<Location> vms = m_featureManager.getLocationsForEnabledFeature(Ivr.FEATURE);
-                if (vms != null && vms.size() > 0) {
-                    return String.format(VM, vms.get(0).getFqdn());
-                }
+            Address addr = m_addressManager.getSingleAddress(Ivr.SIP_ADDRESS, getLocation());
+            if (addr != null) {
+                return addr.getAddress();
             }
         }
         return getRegularHostname();
@@ -120,9 +111,5 @@ public class FreeswitchMediaServer extends MediaServer {
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
-    }
-
-    public void setFeatureManager(FeatureManager featureManager) {
-        m_featureManager = featureManager;
     }
 }

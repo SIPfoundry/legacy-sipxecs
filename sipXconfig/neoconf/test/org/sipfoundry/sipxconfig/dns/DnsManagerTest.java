@@ -60,7 +60,7 @@ public class DnsManagerTest implements DnsProvider {
     }
     
     @Test
-    public void singleRRAddress() {
+    public void singleRRAddressRewrite() {
         DnsProvider provider = new DnsProvider() {
 
             @Override
@@ -76,8 +76,29 @@ public class DnsManagerTest implements DnsProvider {
         };            
         m_dns.setProviders(Arrays.asList(provider));
         assertNull(m_dns.getSingleAddress(m_any, null, m_l1));
-        assertEquals(m_a1, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1), m_l1));
+        assertEquals(m_a3, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1), m_l1));
         assertEquals(m_a3, m_dns.getSingleAddress(Registrar.TCP_ADDRESS, Arrays.asList(m_a1, m_a2), m_l2));
+    }
+
+    @Test
+    public void singleRRAddress() {
+        DnsProvider provider = new DnsProvider() {
+
+            @Override
+            public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses,
+                    Location whoIsAsking) {
+                return null;
+            }
+
+            @Override
+            public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
+                return null;
+            }
+        };            
+        m_dns.setProviders(Arrays.asList(provider));
+        assertNull(m_dns.getSingleAddress(m_any, null, m_l1));
+        assertEquals(m_a1, m_dns.getSingleAddress(m_any, Arrays.asList(m_a1), m_l1));
+        assertEquals(m_a2, m_dns.getSingleAddress(Registrar.TCP_ADDRESS, Arrays.asList(m_a1, m_a2), m_l2));
     }
 
     @Override

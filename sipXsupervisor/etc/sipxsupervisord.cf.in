@@ -49,20 +49,16 @@ body agent control {
 }
 
 bundle server access_rules {
+  vars:
+    "export_dirs" slist => {
+        "/usr/sbin/cf-agent",
+        "@SIPX_CFDATA@",
+        "@SIPX_LOGDIR@",
+        "@SIPX_CONFDIR@/ssl",
+        "@SIPX_VARDIR@/tmp/"
+     };
   access:
-    "/usr/sbin/cf-agent"
-        admit => { @(sipx.allowed_addrs) },
-        maproot => { @(sipx.allowed_addrs) };
-      
-    "@SIPX_CFDATA@"
-        admit => { @(sipx.allowed_addrs) },
-        maproot => { @(sipx.allowed_addrs) };
-
-    "@SIPX_LOGDIR@"
-        admit => { @(sipx.allowed_addrs) },
-        maproot => { @(sipx.allowed_addrs) };
-
-    "@SIPX_CONFDIR@/ssl"
+    "$(export_dirs)"
         admit => { @(sipx.allowed_addrs) },
         maproot => { @(sipx.allowed_addrs) };
 

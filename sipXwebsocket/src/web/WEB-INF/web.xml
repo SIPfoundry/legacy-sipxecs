@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>beans.xml</param-value>
+		<param-value>web.beans.xml</param-value>
 	</context-param>
 	<listener>
 		<listener-class>
@@ -23,15 +23,28 @@
 	</filter-mapping>
 	
     <servlet>
-        <display-name>PresenceServlet</display-name>
-        <servlet-name>presence</servlet-name>
+        <display-name>WebSocketServlet</display-name>
+        <servlet-name>websocket</servlet-name>
         <servlet-class>
             org.springframework.web.context.support.HttpRequestHandlerServlet
         </servlet-class>
     </servlet>
  	
     <servlet-mapping>
-    	<servlet-name>presence</servlet-name>
-    	<url-pattern>/presence/*</url-pattern>
-    </servlet-mapping>   	    
+    	<servlet-name>websocket</servlet-name>
+    	<url-pattern>/websocket/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <display-name>MessageReceiverServlet</display-name>
+        <servlet-name>receiver</servlet-name>
+        <servlet-class>
+            org.springframework.web.context.support.HttpRequestHandlerServlet
+        </servlet-class>
+    </servlet>
+ 	
+    <servlet-mapping>
+    	<servlet-name>receiver</servlet-name>
+    	<url-pattern>/receiver/*</url-pattern>
+    </servlet-mapping>
 </web-app>

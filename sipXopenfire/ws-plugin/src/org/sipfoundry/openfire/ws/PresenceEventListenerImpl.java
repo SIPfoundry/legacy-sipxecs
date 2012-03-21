@@ -16,32 +16,24 @@
  */
 package org.sipfoundry.openfire.ws;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.InputStream;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jetty.websocket.WebSocket.Connection;
 import org.jivesoftware.openfire.session.ClientSession;
 import org.jivesoftware.openfire.user.PresenceEventListener;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Presence;
 
 public class PresenceEventListenerImpl implements PresenceEventListener {
-	public static final String BEAN_NAME = "presenceEventListener";
-	private Map<String, PresenceWebSocket> m_registeredClients = new HashMap<String, PresenceWebSocket>();
-
-	public boolean isUserRegistered(String userId) {
-		return m_registeredClients.containsKey(userId);
-	}
-
-	public void registerClient(PresenceWebSocket socket) {
-		m_registeredClients.put(socket.getUserId(), socket);
-	}
-
-	public void unregisterClient(PresenceWebSocket socket) {
-		m_registeredClients.remove(socket.getUserId());
-	}
 
 	@Override
 	public void availableSession(ClientSession arg0, Presence presence) {
@@ -53,21 +45,17 @@ public class PresenceEventListenerImpl implements PresenceEventListener {
 		sendPresenceMessage(presence);
 	}
 
-	private void sendPresenceMessage(Presence presence) {
-		try {
-			String status = presence.getStatus();
-			String message = StringUtils.isEmpty(status) ? "Offline" : status;
-			JID from = presence.getFrom();
-			PresenceWebSocket socket = m_registeredClients.get(from.getNode());
-			if (socket != null) {
-				Connection conn = socket.getConnection();
-				conn.sendMessage(message);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    private void sendPresenceMessage(Presence presence) {
+        try {
+            String status = presence.getStatus();
+            String message = StringUtils.isEmpty(status) ? "Offline" : status;
+            User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUserByJid(presence.getFrom().getNode());
+            invokePost(user.getUserName(), message);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
 	@Override
 	public void subscribedToPresence(JID arg0, JID arg1) {
@@ -83,4 +71,32 @@ public class PresenceEventListenerImpl implements PresenceEventListener {
 	public void unsubscribedToPresence(JID arg0, JID arg1) {
 	}
 
+    private String getRestServerUrl(String fqdn, int port) {
+        return String.format("https://%s:%d/receiver", fqdn, port);
+    }
+
+    private String invokePost(String userId, String message) throws Exception {
+        String response = null;
+        InputStream stream = null;
+        String websocketAddress = System.getProperty("websocket.address");
+        String websocketPort = System.getProperty("websocket.port");
+        if (websocketAddress != null && websocketPort != null) {
+            PostMethod method = new PostMethod(getRestServerUrl(websocketAddress, new Integer(websocketPort)));
+            RequestEntity re = new InputStreamRequestEntity(new ByteArrayInputStream(message.getBytes()), "text/x-json");
+            method.setRequestEntity(re);
+            method.addRequestHeader("user_id", userId);
+            try {
+                HttpClient client = new HttpClient();
+                client.executeMethod(method);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (method != null) {
+                    method.releaseConnection();
+                }
+                IOUtils.closeQuietly(stream);
+            }
+        }
+        return response;
+    }
 }

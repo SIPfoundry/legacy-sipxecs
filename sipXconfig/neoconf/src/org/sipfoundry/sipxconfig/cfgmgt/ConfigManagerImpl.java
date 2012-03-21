@@ -349,6 +349,20 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     @Override
+    public void collectSnapshot(Location location) {
+        RunRequest collect = new RunRequest("collect snapshot", Collections.singleton(location));
+        collect.setBundles("collect_snapshot");
+        run(collect);
+    }
+
+    @Override
+    public void uploadSnapshot(Location location) {
+        RunRequest collect = new RunRequest("upload snapshot", Collections.singleton(location));
+        collect.setBundles("upload_snapshot");
+        run(collect);
+    }
+
+    @Override
     public ConfigCommands getConfigCommands() {
         return this;
     }

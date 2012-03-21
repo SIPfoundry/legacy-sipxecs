@@ -9,17 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.bridge;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.springframework.beans.factory.annotation.Required;
 
 public class BridgeSbcStatistics {
     private ApiProvider<BridgeSbcXmlRpcApi> m_bridgeSbcApiProvider;
-    private AddressManager m_addressManager;
+    private SnmpManager m_snmpManager;
 
     /**
      * Get a count of the number of ongoing calls.
@@ -34,14 +36,21 @@ public class BridgeSbcStatistics {
 
     boolean isOk(BridgeSbc bridgeSbc) {
         // Not sure what to check? process configed? running? ---Douglas
-        return true;
+        List<ServiceStatus> stats = m_snmpManager.getServicesStatuses(bridgeSbc.getLocation());
+        for (ServiceStatus status : stats) {
+            if (status.getServiceBeanId().equals("sipxbridge")
+                    && status.getStatus().equals(ServiceStatus.Status.Running)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     BridgeSbcXmlRpcApi getApi(BridgeSbc bridgeSbc) {
         if (!isOk(bridgeSbc)) {
             return null;
         }
-        Address address = m_addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS);
+        Address address = BridgeSbcContext.newSbcAddress(bridgeSbc, BridgeSbcContext.XMLRPC_ADDRESS);
         BridgeSbcXmlRpcApi api = m_bridgeSbcApiProvider.getApi(address.toString());
         return api;
     }
@@ -81,8 +90,9 @@ public class BridgeSbcStatistics {
         m_bridgeSbcApiProvider = bridgeSbcApiProvider;
     }
 
-    public void setAddressManager(AddressManager addressManager) {
-        m_addressManager = addressManager;
+    @Required
+    public void setSnmpManager(SnmpManager snmpManager) {
+        m_snmpManager = snmpManager;
     }
 
 }

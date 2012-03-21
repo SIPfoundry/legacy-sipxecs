@@ -8,7 +8,6 @@
     <property name="label" value="Internal Voicemail Server" />
     <property name="localizationContext" ref="localizationContext" />
     <property name="addressManager" ref="addressManager" />
-    <property name="featureManager" ref="featureManager" />
   </bean>
   
   <bean id="freeswitchFeature" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature">

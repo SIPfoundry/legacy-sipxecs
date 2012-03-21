@@ -140,6 +140,9 @@ public abstract class ConfigureBundlePage extends PageWithCallback implements Pa
             Collection<String> subset = CollectionUtils.select(getCellIds(), filter);
             Collection<LocationFeature> features = CollectionUtils.collect(subset, filter);
             Set<LocationFeature> featureSet = new HashSet<LocationFeature>(features);
+            if (featureSet.contains(null)) {
+                featureSet.remove(null);
+            }
             getFeatureManager().enableLocationFeatures(featureSet, l);
         }
     }

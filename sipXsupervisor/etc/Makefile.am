@@ -40,7 +40,8 @@ dist_cfplugins_DATA = \
 
 cflibdir =  $(SIPX_CFINPUTS)/plugin.d/lib
 cflib_DATA = \
-	commands.cf
+	commands.cf \
+	snapshot.cf
 
 cfinputs_PROMISES = \
 	sipxsupervisord.cf \

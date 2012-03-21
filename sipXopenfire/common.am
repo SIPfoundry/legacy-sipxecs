@@ -20,6 +20,7 @@ plugin_JAR_PKGS = \
 	commons-beanutils \
 	commons-collections \
 	commons-digester \
+	commons-io \
 	dnsjava \
 	dom4j \
 	jain-sip-sdp \
@@ -27,31 +28,10 @@ plugin_JAR_PKGS = \
 	mongo \
 	org.restlet \
 	sipxcommons \
+	not-yet-commons-ssl \
 	ws-commons-util \
 	xmlrpc-client \
-	xmlrpc-server \
-	org.springframework.beans \
-	org.springframework.context \
-	org.springframework.core \
-	org.springframework.transaction \
-	org.springframework.web \
-	org.springframework.web.servlet \
-	jetty-client \
-	jetty-continuation \
-	jetty-http \
-	jetty-io \
-	jetty-security \
-	jetty-server \
-	jetty-servlet \
-	jetty-servlets \
-	jetty-util \
-	jetty-webapp \
-	jetty-websocket \
-	jetty-xml \
-	servlet-api \
-	spring-security-config \
-	spring-security-core \
-	spring-security-web		
+	xmlrpc-server		
 
 plugin_JAR_RT_PKGS = \
 	com.noelios.restlet \

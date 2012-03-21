@@ -33,8 +33,11 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class OpenfireImpl extends ImManager implements FeatureProvider, AddressProvider, Openfire {
+public class OpenfireImpl extends ImManager implements FeatureProvider, AddressProvider, ProcessProvider, Openfire {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         XMPP_ADDRESS, XMLRPC_ADDRESS, WATCHER_ADDRESS
     });
@@ -103,5 +106,12 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
         if (b.isUnifiedCommunications()) {
             b.addFeature(FEATURE);
         }
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxopenfire", ".*\\s-Dcom.sun.management.jmxremote.port=23458\\s.*"))
+                : null);
     }
 }

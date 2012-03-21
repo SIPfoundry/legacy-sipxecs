@@ -24,18 +24,21 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
-import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.websocket.WebSocket;
+import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private OpenfireConfigurationFile m_config;
@@ -43,21 +46,23 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private XmppAccountInfo m_accountConfig;
     private LdapManager m_ldapManager;
     private ConfigManager m_configManager;
+    private FeatureManager m_featureManager;
+    private WebSocket m_websocket;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(OpenfireImpl.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE)) {
             return;
         }
-        
-        if (request.applies(LdapManager.FEATURE)) {
+
+        /*if (request.applies(LdapManager.FEATURE)) {
             LdapSystemSettings settings = m_ldapManager.getSystemSettings();
             boolean isEnableOpenfireConfiguration = settings.isEnableOpenfireConfiguration() && settings.isConfigured();
             if (!isEnableOpenfireConfiguration) {
                 return;
             }
-        }
-        
+        }*/
+
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
@@ -66,30 +71,49 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             if (!enabled) {
                 continue;
             }
+            File f = new File(dir, "sipx.properties.part");
+            if(!f.exists()) {
+                f.createNewFile();
+            }
+            Writer wtr = new FileWriter(f);
+            try {
+                if (m_featureManager.isFeatureEnabled(WebSocket.FEATURE, location)) {
+                    write(wtr, location.getAddress(), m_websocket.getSettings().getWebSocketPort());
+                }
+
+            } finally {
+                IOUtils.closeQuietly(wtr);
+            }
             Writer sipxopenfire = new FileWriter(new File(dir, "openfire.xml"));
             try {
                 m_config.write(sipxopenfire);
             } finally {
                 IOUtils.closeQuietly(sipxopenfire);
             }
-            
+
             Writer openfire = new FileWriter(new File(dir, "sipxopenfire.xml"));
             try {
                 m_sipxConfig.write(openfire, location);
             } finally {
                 IOUtils.closeQuietly(openfire);
             }
-            
+
             Writer account = new FileWriter(new File(dir, "xmpp-account-info.xml"));
             try {
                 XmlFile config = new XmlFile(account);
                 config.write(m_accountConfig.getDocument());
             } finally {
-                IOUtils.closeQuietly(account);                
+                IOUtils.closeQuietly(account);
             }
         }
     }
-    
+
+    void write(Writer wtr, String wsAddress, int wsPort) throws IOException {
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
+        config.write("websocket.address", wsAddress);
+        config.write("websocket.port", wsPort);
+    }
+
     public void setConfig(OpenfireConfigurationFile config) {
         m_config = config;
     }
@@ -101,10 +125,10 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     public void setSipxConfig(SipxOpenfireConfiguration sipxConfig) {
         m_sipxConfig = sipxConfig;
     }
-    
+
     private void checkReplicate(Object entity) {
         if (entity instanceof User || entity instanceof Conference) {
-            m_configManager.configureEverywhere(OpenfireImpl.FEATURE);            
+            m_configManager.configureEverywhere(OpenfireImpl.FEATURE);
         }
     }
 
@@ -124,5 +148,15 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    @Required
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    @Required
+    public void setWebsocket(WebSocket websocket) {
+        m_websocket = websocket;
     }
 }
