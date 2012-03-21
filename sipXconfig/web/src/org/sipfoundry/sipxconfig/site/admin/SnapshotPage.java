@@ -87,7 +87,7 @@ public abstract class SnapshotPage extends SipxBasePage implements PageBeginRend
 
         List<SnapshotResult> results = getSnapshot().getResults();
         for (SnapshotResult result : results) {
-            if (!result.isSuccess()) {
+            if (result == null || !result.isSuccess()) {
                 UserException exception = result.getUserException();
                 getValidator().record(exception, getMessages());
             }

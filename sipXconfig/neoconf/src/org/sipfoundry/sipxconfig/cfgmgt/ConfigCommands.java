@@ -32,4 +32,8 @@ public interface ConfigCommands {
     public void restartServices(Collection<Location> locations);
 
     public void lastSeen();
+
+    public void collectSnapshot(Location location);
+
+    public void uploadSnapshot(Location location);
 }

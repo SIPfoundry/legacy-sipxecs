@@ -38,4 +38,10 @@
   <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.backup.FtpRestore" parent="restore">
   </bean>
 
+  <bean id="snapshot" class="org.sipfoundry.sipxconfig.backup.Snapshot">
+    <property name="destDirectory" value="${sysdir.tmp}" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="configCommands" ref="configCommands" />
+  </bean>
+
 </beans>
