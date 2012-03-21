@@ -9,8 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.Properties;
+import java.io.IOException;
 
+import org.apache.axis.utils.StringUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
@@ -19,11 +21,15 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.request.IUploadFile;
 import org.sipfoundry.sipxconfig.cert.CertificateManager;
+import org.sipfoundry.sipxconfig.cert.CertificateRequestGenerator;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class ManageCertificates extends SipxBasePage implements PageBeginRenderListener {
 
@@ -44,7 +50,7 @@ public abstract class ManageCertificates extends SipxBasePage implements PageBeg
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    @InjectObject(value = "spring:certificateManagerImpl")
+    @InjectObject(value = "spring:certificateManager")
     public abstract CertificateManager getCertificateManager();
 
     @InjectObject(value = "spring:locationsManager")
@@ -84,6 +90,10 @@ public abstract class ManageCertificates extends SipxBasePage implements PageBeg
 
     public abstract void setEmail(String email);
 
+    public abstract Setting getCsrSettings();
+
+    public abstract void setCsrSettings(Setting settings);
+
     public abstract String getCsr();
 
     public abstract void setCsr(String csr);
@@ -109,25 +119,10 @@ public abstract class ManageCertificates extends SipxBasePage implements PageBeg
 
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
 
-        try {
-            // load properties
-            Properties properties = getCertificateManager().loadCertPropertiesFile();
-            if (properties != null) {
-                setCountry(properties.getProperty(COUNTRY_PROP));
-                setState(properties.getProperty(STATE_PROP));
-                setLocality(properties.getProperty(LOCALITY_PROP));
-                setOrganization(properties.getProperty(ORGANIZATION_PROP));
-                setEmail(properties.getProperty(EMAIL_PROP));
-                String server = properties.getProperty(SERVER_NAME);
-                server = (server == null) ? getDefaultServer() : server;
-                setServer(server);
-
-                // load csr
-                String csr = getCertificateManager().readCSRFile(getServer());
-                setCsr(csr);
-            }
-        } catch (UserException e) {
-            validator.record(e, getMessages());
+        Setting settings = getCsrSettings();
+        if (settings == null) {
+            settings = getCertificateManager().getSettings().getSettings().getSetting("csr");
+            setCsrSettings(settings);
         }
     }
 
@@ -138,19 +133,13 @@ public abstract class ManageCertificates extends SipxBasePage implements PageBeg
         }
 
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
-
-        // write properties file
-        Properties properties = new Properties();
-        properties.setProperty(COUNTRY_PROP, getCountry());
-        properties.setProperty(STATE_PROP, getState());
-        properties.setProperty(LOCALITY_PROP, getLocality());
-        properties.setProperty(ORGANIZATION_PROP, getOrganization());
-        properties.setProperty(EMAIL_PROP, getEmail());
-        properties.setProperty(SERVER_NAME, getServer());
-        getCertificateManager().writeCertPropertiesFile(properties);
-
-        // generate key and csr files
-        getCertificateManager().generateCSRFile();
+        CertificateManager mgr = getCertificateManager();
+        String web = mgr.getWebCertificate();
+        String key = mgr.getWebPrivateKey();
+        Location primary = getLocationsManager().getPrimaryLocation();
+        String domain = Domain.getDomain().getName();
+        CertificateRequestGenerator csr = new CertificateRequestGenerator(domain, primary.getHostname());
+        setCsr(csr.getCertificateRequestText(web, key));
 
         validator.recordSuccess(getMessages().getMessage("msg.generateSuccess"));
     }
@@ -167,36 +156,32 @@ public abstract class ManageCertificates extends SipxBasePage implements PageBeg
         String key = getKey();
 
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
-        boolean isCsrBased = uploadKeyFile == null && key == null;
-
         if (uploadCrtFile == null && certificate == null) {
             validator.record(new UserException("&msg.selectOneSource"), getMessages());
             return;
         }
 
-        if (isCsrBased) {
+        String fname = null;
+        try {
             if (uploadCrtFile != null) {
-                uploadCrtFile.write(getCertificateManager().getCRTFile(getServer()));
-            } else if (certificate != null) {
-                getCertificateManager().writeCRTFile(certificate, getServer());
+                fname = uploadCrtFile.getFileName();
+                certificate = IOUtils.toString(uploadCrtFile.getStream());
             }
-        } else {
-            if (uploadCrtFile != null) {
-                uploadCrtFile.write(getCertificateManager().getExternalCRTFile());
-            } else if (certificate != null) {
-                getCertificateManager().writeExternalCRTFile(certificate);
+
+            if (uploadKeyFile != null) {
+                fname = uploadKeyFile.getFileName();
+                key = IOUtils.toString(uploadKeyFile.getStream());
             }
+            CertificateManager mgr = getCertificateManager();
+            if (StringUtils.isEmpty(key)) {
+                mgr.setThirdPartyTrustedWebCertificate(certificate);
+            } else {
+                mgr.setSelfSignedWebCertificate(certificate, key);
+            }
+            validator.recordSuccess(getMessages().getMessage("msg.importSuccess"));
+        } catch (IOException e) {
+            validator.record(new UserException("&msg.readError", fname), getMessages());
         }
-
-        if (uploadKeyFile != null) {
-            uploadKeyFile.write(getCertificateManager().getExternalKeyFile());
-        } else if (key != null) {
-            getCertificateManager().writeKeyFile(key);
-        }
-
-        getCertificateManager().importKeyAndCertificate(getServer(), isCsrBased);
-
-        validator.recordSuccess(getMessages().getMessage("msg.importSuccess"));
     }
 
     public boolean getUploadDisabled() {

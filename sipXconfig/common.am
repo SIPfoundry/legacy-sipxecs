@@ -23,6 +23,7 @@ neoconf_PKGS = \
 	antlr \
 	aopalliance \
 	axis \
+	bcprov-jdk16 \
 	cglib \
 	com.noelios.restlet \
 	com.noelios.restlet.ext.servlet \

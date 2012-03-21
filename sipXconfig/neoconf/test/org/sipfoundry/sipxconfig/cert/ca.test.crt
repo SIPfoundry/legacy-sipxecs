@@ -1,0 +1,41 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 22157397 (0x1521855)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=US, ST=AnyState, L=AnyTown, O=hubler.us, OU=IT, CN=ca.hubler.us/emailAddress=root@hubler.us
+        Validity
+            Not Before: Feb 17 01:57:01 2012 GMT
+            Not After : Feb 14 01:57:01 2022 GMT
+        Subject: C=US, ST=AnyState, L=AnyTown, O=hubler.us, OU=IT, CN=ca.hubler.us/emailAddress=root@hubler.us
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:TRUE, pathlen:0
+            Netscape Comment: 
+                gen-ssl-keys.sh generated custom CA certificate
+            Netscape Cert Type: 
+                SSL CA
+-----BEGIN CERTIFICATE-----
+MIID+DCCAuCgAwIBAgIEAVIYVTANBgkqhkiG9w0BAQUFADCBiTELMAkGA1UEBhMC
+VVMxETAPBgNVBAgTCEFueVN0YXRlMRAwDgYDVQQHEwdBbnlUb3duMRIwEAYDVQQK
+EwlodWJsZXIudXMxCzAJBgNVBAsTAklUMRUwEwYDVQQDEwxjYS5odWJsZXIudXMx
+HTAbBgkqhkiG9w0BCQEWDnJvb3RAaHVibGVyLnVzMB4XDTEyMDIxNzAxNTcwMVoX
+DTIyMDIxNDAxNTcwMVowgYkxCzAJBgNVBAYTAlVTMREwDwYDVQQIEwhBbnlTdGF0
+ZTEQMA4GA1UEBxMHQW55VG93bjESMBAGA1UEChMJaHVibGVyLnVzMQswCQYDVQQL
+EwJJVDEVMBMGA1UEAxMMY2EuaHVibGVyLnVzMR0wGwYJKoZIhvcNAQkBFg5yb290
+QGh1Ymxlci51czCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMPMCXNX
+ZMuhNAfWpH1U3tb6gZMh0iktQJ2kgPOpDhzcW6O4u59FuYAvpjIuNtBFCZV3eytm
+bkNPlg1vkSv9CMYt15qMqNPHT+0NDJeyogQMk1E4NJ9fvSQUbMFWvJp3Ro4KVKMR
+ZH9qJSheXOPPqEHFLN3UWMcTrKUl2Jci4pVmkz/1ng2t0bgLIwjgJuehFKdEDRA0
+JXuJngKrGjzQ24RjHDV3kqyvh0C2cT0ncwtpGb0J5UdKP97HPvtcjaljub7l8rZW
+Jqpg+UsD7Lz/UQsp4KfBMksU/W23FhDhtqAHFDrcxPNMzacP805ypkw9oi0YzKet
+BkIXnFMp+hB/z8cCAwEAAaNmMGQwDwYDVR0TBAgwBgEB/wIBADA+BglghkgBhvhC
+AQ0EMRYvZ2VuLXNzbC1rZXlzLnNoIGdlbmVyYXRlZCBjdXN0b20gQ0EgY2VydGlm
+aWNhdGUwEQYJYIZIAYb4QgEBBAQDAgIEMA0GCSqGSIb3DQEBBQUAA4IBAQBpenHJ
+uiww0BGQT2HGrp+skWRbcpTy+EhVXhD5PyseH4X6Rt+IcD98qhab8jsAfOb8Z1gk
+dOoZBoRDs2LJJSsq2O1PGp8ctTprFWfHWuGL5IzoJCR92wOJEXAgBHnIp+8SwNb8
+OhppDAfTfs+CSiZjHTmjJ+19+Wr6ZOUGS8E6Pj1b4UQ2/dVblsTrrWfyVRL2quLf
+vXPB6x2U5c1gfhVyPSeUCDFhq/4u51BloUfKyITipz67gBpYqb6QmjXFskmQfDht
+t3U0zRbxVHL0UC1lAeeJHVpqsBR0ds0nU1ai99Bqa+8PqYT4rfKsriYDPgZIfOV4
+FDicQjdxVIs3ShDm
+-----END CERTIFICATE-----
