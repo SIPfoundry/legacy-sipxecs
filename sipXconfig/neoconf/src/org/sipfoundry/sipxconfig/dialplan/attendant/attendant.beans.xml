@@ -3,6 +3,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="autoAttendants" class="org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendants">
+    <property name="configCommands" ref="configCommands" />
   </bean>  
   
   <bean id="autoAttendantsConfig" class="org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendantsConfig">
@@ -14,6 +15,11 @@
     <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="domainManager" ref="domainManager" />  
+  </bean>
+
+  <bean id="autoAttendantListener" class="org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendantListener">
+    <property name="featureManager" ref="featureManager" />
+    <property name="configCommands" ref="configCommands" />
   </bean>
 
 </beans>

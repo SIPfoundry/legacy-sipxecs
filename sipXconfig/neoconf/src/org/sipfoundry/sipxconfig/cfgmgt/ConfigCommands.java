@@ -36,4 +36,6 @@ public interface ConfigCommands {
     public void collectSnapshot(Location location);
 
     public void uploadSnapshot(Location location);
+
+    public void syncAutoAttendantPrompts(Location location);
 }
