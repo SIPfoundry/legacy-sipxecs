@@ -1175,7 +1175,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_featureManager = featureManager;
     }
 
-    public void setOpenAcdReplicationProviderImpl(OpenAcdReplicationProvider openAcdReplicationProvider) {
+    public void setOpenAcdReplicationProvider(OpenAcdReplicationProvider openAcdReplicationProvider) {
         m_openAcdReplicationProvider = openAcdReplicationProvider;
     }
 }

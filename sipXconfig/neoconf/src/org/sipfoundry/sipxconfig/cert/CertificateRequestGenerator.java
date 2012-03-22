@@ -21,7 +21,6 @@ import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.jce.X509Principal;
 
@@ -35,11 +34,13 @@ public class CertificateRequestGenerator extends AbstractCertificateCommon {
     /**
      * Take an existing certificate and private key and generate a CSR from that with new company
      * details but use cert's public key and other details.
+     *
+     * Many deprecated calls, but there's no documentation on what the new calls are
      */
     public String getCertificateRequestText(String certTxt, String keyTxt) {
         X509Certificate cert = CertificateUtils.readCertificate(certTxt);
         PrivateKey key = CertificateUtils.readCertificateKey(keyTxt);
-        X509Name subject = new X509Principal(getSubject());
+        X509Principal subject = new X509Principal(getSubject());
         try {
             Vector<ASN1ObjectIdentifier> oids = new Vector<ASN1ObjectIdentifier>();
             Vector<X509Extension> values = new Vector<X509Extension>();
