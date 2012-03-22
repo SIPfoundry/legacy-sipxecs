@@ -88,6 +88,8 @@
   
   <bean id="openAcdConfig" class="org.sipfoundry.sipxconfig.openacd.OpenAcdConfiguration">
     <property name="openAcdContext" ref="openAcdContext" />
+    <property name="openAcdReplicationProvider" ref="openAcdReplicationProviderImpl" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
   
   <bean id="openAcdSettings" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSettings" parent="settingsBean">

@@ -27,10 +27,15 @@ import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.PostConfigListener;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 
-public class OpenAcdConfiguration implements ConfigProvider {
+public class OpenAcdConfiguration implements ConfigProvider, PostConfigListener {
     private OpenAcdContext m_openAcdContext;
+    private OpenAcdReplicationProvider m_openAcdReplicationProvider;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -58,7 +63,25 @@ public class OpenAcdConfiguration implements ConfigProvider {
         }
     }
 
+    @Override
+    public void postReplicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (request.applies(OpenAcdContext.FEATURE)) {
+            for (Replicable openAcdObject : m_openAcdReplicationProvider.getReplicables()) {
+                m_sipxReplicationContext.generate(openAcdObject);
+            }
+        }
+    }
+
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {
         m_openAcdContext = openAcdContext;
     }
+
+    public void setOpenAcdReplicationProvider(OpenAcdReplicationProvider openAcdReplicationProvider) {
+        m_openAcdReplicationProvider = openAcdReplicationProvider;
+    }
+
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
+    }
+
 }
