@@ -32,6 +32,10 @@
     </enum>
   </type>
   <group name="rest-config">
+    <setting name="log.level">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>  
     <setting name="sipPort" advanced="yes">
       <type>
         <integer />

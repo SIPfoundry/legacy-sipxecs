@@ -48,6 +48,9 @@
   </li>
   <li jwcid="@If" condition="ognl:isOn('websocket')">
 	  <a jwcid="@PageLink" page="websocket/EditWebsocket"><span key="menu.websocket.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('restServer')">
+	  <a jwcid="@PageLink" page="restServer/EditRestServer"><span key="menu.restServer.featureMenu"/></a>
   </li>  
 </span>
 <span jwcid="InternalPluginsSystemBottom@Block">

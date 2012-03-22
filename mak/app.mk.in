@@ -11,9 +11,6 @@ sf_broken = \
   sipXpreflight \
   sipXrls \
   sipXsaa \
-  sipXrest \
-  sipXcallController \
-  sipXcdrLog \
   sipXtools \
   sipXpark \
   sipXpresence \
@@ -41,6 +38,9 @@ sf = \
   sipXgrandstream \
   sipXimbot \
   sipXexample \
+  sipXrest \
+  sipXcallController \
+  sipXcdrLog \
   sipXwebsocket
 
 lang = \

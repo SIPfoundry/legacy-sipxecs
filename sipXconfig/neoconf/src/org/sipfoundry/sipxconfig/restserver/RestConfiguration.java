@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
@@ -28,6 +28,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 
@@ -37,11 +38,7 @@ public class RestConfiguration implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!manager.getFeatureManager().isFeatureEnabled(RestServer.FEATURE)) {
-            return;
-        }
-
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(RestServer.FEATURE);
+        Set<Location> locations = request.locations(manager);
         if (locations.isEmpty()) {
             return;
         }
@@ -49,6 +46,11 @@ public class RestConfiguration implements ConfigProvider {
         RestServerSettings settings = m_restServer.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(RestServer.FEATURE);
+            ConfigUtils.enableCfengineClass(dir, "sipxrest.cfdat", enabled, "sipxrest");
+            if (!enabled) {
+                continue;
+            }
             Writer wtr = new FileWriter(new File(dir, "sipxrest-config.xml"));
             try {
                 write(wtr, settings, location, manager.getDomainManager().getDomain());
