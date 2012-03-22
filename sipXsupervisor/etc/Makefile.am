@@ -42,6 +42,10 @@ cflibdir =  $(SIPX_CFINPUTS)/plugin.d/lib
 cflib_DATA = \
 	commands.cf \
 	upload_snapshot.cf \
+	vmbackup.cf \
+	restore_vmbackup.cf \
+	upload_vmbackup.cf \
+	restore.cf \
 	snapshot.cf
 
 cfinputs_PROMISES = \

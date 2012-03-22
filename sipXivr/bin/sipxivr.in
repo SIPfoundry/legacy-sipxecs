@@ -29,21 +29,6 @@ checkRunningInstance() {
 
 start() {
     checkRunningInstance
-    # Ensure that sipx-sudo-restore is owned by root and
-    # that the UID permission bit is set.
-    # sipxivr may run on a secondary location and sipx-sudo-restore is used for restoring voicemail on this location
-    if test -e @bindir@/sipx-sudo-restore
-    then
-        is_file_owned_by_username  @bindir@/sipx-sudo-restore "root"
-        if [ $? -ne 0 ]
-        then
-            chown root @bindir@/sipx-sudo-restore
-        fi
-        if test ! -x @bindir@/sipx-sudo-restore -o ! -u @bindir@/sipx-sudo-restore
-        then
-            chmod 4755 @bindir@/sipx-sudo-restore
-        fi
-    fi
 
     JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
     Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @ivr_PKGS@`

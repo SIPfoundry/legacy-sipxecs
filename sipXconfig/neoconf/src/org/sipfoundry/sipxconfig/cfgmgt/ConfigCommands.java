@@ -27,13 +27,21 @@ import org.sipfoundry.sipxconfig.commserver.Location;
  */
 public interface ConfigCommands {
 
-    public void restartServices();
+    void restartServices();
 
-    public void restartServices(Collection<Location> locations);
+    void restartServices(Collection<Location> locations);
 
-    public void lastSeen();
+    void lastSeen();
 
-    public void collectSnapshot(Location location);
+    void collectSnapshot(Location location);
 
-    public void uploadSnapshot(Location location);
+    void uploadSnapshot(Location location);
+
+    void collectVmBackup(Location location);
+
+    void uploadVmBackup(Location location);
+
+    void restoreVmBackup(Location location);
+
+    void runRestoreScript(Location location);
 }

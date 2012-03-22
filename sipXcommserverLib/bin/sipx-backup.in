@@ -252,6 +252,7 @@ then
   # Copy the files.
   echo -n "Copying voicemail files... "
   tar cC / $ExistingFiles $Dirs -C $ARCHIVE_DIR $VERSION_FILE_NAME | gzip --best > $VM_BACKUP_FILE
+  chmod 644 $VM_BACKUP_FILE
   echo "done."
 
 fi # *** END Voicemail ***

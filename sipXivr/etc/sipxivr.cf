@@ -71,6 +71,7 @@ bundle edit_line sipxivr_properties_contents {
       "ivr.promptsDirectory=$(sipx.SIPX_IVRDATADIR)/prompts";
       "ivr.scriptsDirectory=$(sipx.wwwdir)/doc/aa_vxml";
       "ivr.docDirectory=$(sipx.wwwdir)/doc";
+      "ivr.logDirectory=$(sipx.SIPX_LOGDIR)";
       "ivr.organizationPrefs=$(sipx.SIPX_IVRDATADIR)/organizationprefs.xml";
       "ivr.binDirectory=$(sipx.SIPX_BINDIR)";
      "ivr.backupPath=$(sipx.SIPX_VARDIR)/backup";

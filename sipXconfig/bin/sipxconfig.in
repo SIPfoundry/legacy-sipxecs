@@ -150,20 +150,6 @@ setupCheck() {
     databaseCommand drop-index create
     # echo "Configuration database created"
   fi
-  # Ensure that sipx-sudo-restore is owned by root and
-  # that the UID permission bit is set.
-  if test -e @bindir@/sipx-sudo-restore
-  then
-      is_file_owned_by_username  @bindir@/sipx-sudo-restore "root"
-      if [ $? -ne 0 ]
-      then
-          chown root @bindir@/sipx-sudo-restore
-      fi
-      if test ! -x @bindir@/sipx-sudo-restore -o ! -u @bindir@/sipx-sudo-restore
-      then
-          chmod 4755 @bindir@/sipx-sudo-restore
-      fi
-  fi
 }
 
 buildCommand() {
