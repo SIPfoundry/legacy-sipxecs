@@ -9,22 +9,7 @@ package org.sipfoundry.sipxconfig.cert;
 
 import static java.lang.String.format;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMReader;
-import org.bouncycastle.openssl.PEMWriter;
-import org.sipfoundry.sipxconfig.common.UserException;
-
 public class AbstractCertificateCommon {
-    protected static final String PROVIDER = "BC";
-
     private String m_country = "US";
     private String m_state = "AnyState";
     private String m_locality = "AnyTown";
@@ -37,65 +22,11 @@ public class AbstractCertificateCommon {
     private int m_bitCount = 1024;
     private String m_algorithm = "SHA1WithRSAEncryption";
 
-    static {
-        Security.addProvider(new BouncyCastleProvider());
-    }
-
     protected AbstractCertificateCommon(String domain, String hostname) {
         setDnsDomain(domain);
         setEmail("root@" + domain);
         setCommonName(hostname + '.' + domain);
     }
-
-    public static X509Certificate readCertificate(Reader in) {
-        Object o = readObject(in);
-        if (!(o instanceof X509Certificate)) {
-            String msg = format("Certificate was expected but found %s instead", o.getClass().getSimpleName());
-            throw new UserException(msg);
-        }
-        return (X509Certificate) o;
-    }
-
-    public static Object readObject(Reader in) {
-        PEMReader rdr = new PEMReader(in);
-        try {
-            Object o = rdr.readObject();
-            if (o == null) {
-                throw new UserException("No recognized security information was found. Files "
-                        + "should be in PEM style format.");
-            }
-            return o;
-        } catch (IOException e) {
-            throw new UserException("Error reading certificate. " + e.getMessage(), e);
-        }
-    }
-
-    public static PrivateKey readCertificateKey(Reader in) {
-        Object o = readObject(in);
-        if (o instanceof KeyPair) {
-            return ((KeyPair) o).getPrivate();
-        }
-        if (o instanceof PrivateKey) {
-            return (PrivateKey) o;
-        }
-
-        String msg = format("Private key was expected but found %s instead", o.getClass().getSimpleName());
-        throw new UserException(msg);
-    }
-
-    public static void writeObject(Writer w, Object o, String description) {
-        PEMWriter pw = new PEMWriter(w);
-        try {
-            if (description != null) {
-                w.write(description);
-            }
-            pw.writeObject(o);
-            pw.close();
-        } catch (IOException e) {
-            throw new UserException("Problem updating certificate authority. " + e.getMessage(), e);
-        }
-    }
-
     public String getCountry() {
         return m_country;
     }

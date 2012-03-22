@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collection;
@@ -48,9 +49,6 @@ public abstract class CertificateAuthorities extends BaseComponent {
 
     @InjectObject(value = "spring:certificateManager")
     public abstract CertificateManager getCertificateManager();
-
-    @InjectObject(value = "spring:securityManager")
-    public abstract SecurityManager getSecurityManager();
 
     @InitialValue(value = "false")
     public abstract boolean isShowCertificate();

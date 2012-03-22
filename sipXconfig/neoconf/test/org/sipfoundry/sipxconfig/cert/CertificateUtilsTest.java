@@ -15,18 +15,18 @@ import java.io.StringReader;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.common.UserException;
 
-public class CertificateGeneratorTest {
+public class CertificateUtilsTest {
 
     @Test
     public void readValidCert() throws IOException {
         Reader in = new InputStreamReader(getClass().getResourceAsStream("test.crt"));
-        CertificateGenerator.readCertificate(in);
+        CertificateUtils.readCertificate(in);
         in.close();        
     }
     
     @Test(expected = UserException.class)
     public void readInvalidCert() {
         Reader in = new StringReader("Invalid cert");
-        CertificateGenerator.readCertificate(in);
+        CertificateUtils.readCertificate(in);
     }    
 }

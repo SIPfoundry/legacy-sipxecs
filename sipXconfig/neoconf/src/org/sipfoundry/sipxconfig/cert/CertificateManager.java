@@ -26,15 +26,20 @@ public interface CertificateManager {
     /**
      * No key, must be based on a return signed CSR from trusted authority
      */
-    public void setThirdPartyTrustedWebCertificate(String cert);
+    public void setWebCertificate(String cert);
 
-    public void setSelfSignedWebCertificate(String cert, String key);
+    public void setWebCertificate(String cert, String key);
 
     /**
      * Do not support third party trusted authority signed certificate yet. No particular
      * reason other than no one has requested this yet.
      */
-    public void setCommunicationsCertificate(String cert, String key, String authority);
+    public void setCommunicationsCertificate(String cert, String key);
+
+    /**
+     * No key, must be based on a return signed CSR from trusted authority
+     */
+    public void setCommunicationsCertificate(String cert);
 
     public String getWebCertificate();
 

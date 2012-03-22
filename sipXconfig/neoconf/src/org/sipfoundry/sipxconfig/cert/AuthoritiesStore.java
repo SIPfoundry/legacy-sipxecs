@@ -9,7 +9,6 @@ package org.sipfoundry.sipxconfig.cert;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -21,7 +20,6 @@ import java.security.cert.X509Certificate;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class AuthoritiesStore {
-    private static final String PROVIDER = "BC"; // bouncycastle
     private KeyStore m_store;
 
     static {
@@ -30,7 +28,7 @@ public class AuthoritiesStore {
 
     public AuthoritiesStore() {
         try {
-            m_store = KeyStore.getInstance("PKCS12", PROVIDER);
+            m_store = KeyStore.getInstance("PKCS12", CertificateUtils.getProvider());
             m_store.load(null, null);
         } catch (NoSuchProviderException e) {
             throw new RuntimeException(e);
@@ -47,7 +45,7 @@ public class AuthoritiesStore {
 
     public void addAuthority(String authority, String certText) throws IOException {
         try {
-            X509Certificate cert = AbstractCertificateGenerator.readCertificate(new StringReader(certText));
+            X509Certificate cert = CertificateUtils.readCertificate(certText);
             m_store.setCertificateEntry(authority, cert);
         } catch (KeyStoreException e) {
             throw new RuntimeException(e);

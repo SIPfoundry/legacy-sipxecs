@@ -23,6 +23,5 @@ public class AuthoritiesStoreTest {
         ByteArrayOutputStream actual = new ByteArrayOutputStream();
         store.addAuthority("ca.test.crt", certText);
         store.store(actual);
-        System.out.print(actual.size());
     }
 }

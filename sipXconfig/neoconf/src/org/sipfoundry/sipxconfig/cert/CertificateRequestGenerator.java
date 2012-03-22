@@ -7,7 +7,6 @@
  */
 package org.sipfoundry.sipxconfig.cert;
 
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -38,8 +37,8 @@ public class CertificateRequestGenerator extends AbstractCertificateCommon {
      * details but use cert's public key and other details.
      */
     public String getCertificateRequestText(String certTxt, String keyTxt) {
-        X509Certificate cert = AbstractCertificateGenerator.readCertificate(new StringReader(certTxt));
-        PrivateKey key = AbstractCertificateGenerator.readCertificateKey(new StringReader(keyTxt));
+        X509Certificate cert = CertificateUtils.readCertificate(certTxt);
+        PrivateKey key = CertificateUtils.readCertificateKey(keyTxt);
         X509Name subject = new X509Principal(getSubject());
         try {
             Vector<ASN1ObjectIdentifier> oids = new Vector<ASN1ObjectIdentifier>();
@@ -52,7 +51,7 @@ public class CertificateRequestGenerator extends AbstractCertificateCommon {
             PKCS10CertificationRequest csr = new PKCS10CertificationRequest(m_algorithm, subject,
                     cert.getPublicKey(), new DERSet(attribute), key);
             StringWriter data = new StringWriter();
-            writeObject(data, csr, null);
+            CertificateUtils.writeObject(data, csr, null);
             return data.toString();
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);

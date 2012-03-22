@@ -7,6 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.cert;
 
+import static org.sipfoundry.sipxconfig.cert.CertificateUtils.x500;
 
 import java.io.StringWriter;
 import java.math.BigInteger;
@@ -14,12 +15,13 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.bouncycastle.jce.X509Principal;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public abstract class AbstractCertificateGenerator extends AbstractCertificateCommon {
@@ -58,36 +60,33 @@ public abstract class AbstractCertificateGenerator extends AbstractCertificateCo
         return buf.toString();
     }
 
-    X509V3CertificateGenerator createCertificateGenerator() {
-        X509V3CertificateGenerator gen = new X509V3CertificateGenerator();
+    X509v3CertificateBuilder createCertificateGenerator(String issuer, PublicKey pub) {
         // use minutes in the epoch as the initial serial number
         // to prevent clashes when the admin wipes out the system and starts over.
-        long minSinceEpoc = System.currentTimeMillis() / (1000 * 60);
-        gen.setSerialNumber(BigInteger.valueOf(minSinceEpoc));
+        BigInteger serialNum = BigInteger.valueOf(System.currentTimeMillis() / (1000 * 60));
         Calendar cal = Calendar.getInstance();
         // cert valid 1hr ago just to be sure we're covered.
         cal.add(Calendar.HOUR, -1);
         Date start = cal.getTime();
         cal.add(Calendar.YEAR, getValidYears());
         Date end = cal.getTime();
-        gen.setNotBefore(start);
-        gen.setNotAfter(end);
-        gen.setSubjectDN(new X509Principal(getSubject()));
-        gen.setSignatureAlgorithm(getAlgorithm());
+        SubjectPublicKeyInfo pubKeyInfo = SubjectPublicKeyInfo.getInstance(pub.getEncoded());
+        X509v3CertificateBuilder gen = new X509v3CertificateBuilder(x500(issuer), serialNum, start, end,
+                x500(getSubject()), pubKeyInfo);
         return gen;
     }
 
     public String getPrivateKeyText() {
         PrivateKey key = getKeyPair().getPrivate();
         StringWriter data = new StringWriter();
-        writeObject(data, key, null);
+        CertificateUtils.writeObject(data, key, null);
         return data.toString();
     }
 
     public String getCertificateText() {
         X509Certificate cert = getCertificate();
         StringWriter data = new StringWriter();
-        writeObject(data, cert, getDescription(cert));
+        CertificateUtils.writeObject(data, cert, getDescription(cert));
         return data.toString();
     }
 
@@ -104,7 +103,7 @@ public abstract class AbstractCertificateGenerator extends AbstractCertificateCo
             return m_keys;
         }
         try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", PROVIDER);
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", CertificateUtils.getProvider());
             kpg.initialize(getBitCount());
             m_keys = kpg.genKeyPair();
             return m_keys;

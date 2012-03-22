@@ -11,10 +11,12 @@ package org.sipfoundry.sipxconfig.cert;
 
 import static java.lang.String.format;
 
-import java.io.StringReader;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -53,18 +55,24 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     }
 
     @Override
-    public void setThirdPartyTrustedWebCertificate(String cert) {
-        updateCertificate(WEB_CERT, cert, null, getSelfSigningAuthority());
+    public void setWebCertificate(String cert) {
+        setWebCertificate(cert, null);
     }
 
     @Override
-    public void setSelfSignedWebCertificate(String cert, String key) {
+    public void setWebCertificate(String cert, String key) {
+        validateCert(cert, key);
         updateCertificate(WEB_CERT, cert, key, getSelfSigningAuthority());
     }
 
     @Override
-    public void setCommunicationsCertificate(String cert, String key, String authority) {
-        updateCertificate(COMM_CERT, cert, key, authority);
+    public void setCommunicationsCertificate(String cert) {
+        setCommunicationsCertificate(cert, null);
+    }
+
+    public void setCommunicationsCertificate(String cert, String key) {
+        validateCert(cert, key);
+        updateCertificate(COMM_CERT, cert, key, getSelfSigningAuthority());
     }
 
     void updateCertificate(String name, String cert, String key, String authority) {
@@ -127,6 +135,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
 
     @Override
     public void addTrustedAuthority(String authority, String cert) {
+        validateAuthority(cert);
         addAuthority(authority, cert, null);
     }
 
@@ -167,7 +176,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         String issuer = getIssuer(authority);
         String domain = Domain.getDomain().getName();
         CertificateGenerator gen = CertificateGenerator.sip(domain, issuer, authKey);
-        setCommunicationsCertificate(gen.getCertificateText(), gen.getPrivateKeyText(), authority);
+        updateCertificate(COMM_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
     }
 
     void createWebCert(String authority, String host) {
@@ -180,8 +189,27 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
 
     String getIssuer(String authority) {
         String authCertText = getSecurityData(AUTHORITY_TABLE, CERT_COLUMN, authority);
-        X509Certificate authCert = AbstractCertificateGenerator.readCertificate(new StringReader(authCertText));
+        X509Certificate authCert = CertificateUtils.readCertificate(authCertText);
         return authCert.getSubjectDN().getName();
+    }
+
+    void validateCert(String certTxt, String keyTxt) {
+        X509Certificate cert = CertificateUtils.readCertificate(certTxt);
+        try {
+            cert.checkValidity();
+        } catch (CertificateExpiredException e) {
+            throw new UserException("Certificate has expired.");
+        } catch (CertificateNotYetValidException e) {
+            throw new UserException("Certificate valid date range is in the future, it is not yet valid.");
+        }
+        if (StringUtils.isNotBlank(keyTxt)) {
+            CertificateUtils.readCertificateKey(keyTxt);
+        }
+        // to do, validate key w/cert and cert w/authorities
+    }
+
+    void validateAuthority(String cert) {
+        validateCert(cert, null);
     }
 
     @Override
