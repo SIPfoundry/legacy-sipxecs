@@ -363,13 +363,6 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     @Override
-    public void syncAutoAttendantPrompts(Location location) {
-        RunRequest collect = new RunRequest("copy AutoAttendant prompts", Collections.singleton(location));
-        collect.setBundles("sync_aa_prompts");
-        run(collect);
-    }
-
-    @Override
     public ConfigCommands getConfigCommands() {
         return this;
     }

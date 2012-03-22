@@ -41,7 +41,6 @@ dist_cfplugins_DATA = \
 cflibdir =  $(SIPX_CFINPUTS)/plugin.d/lib
 cflib_DATA = \
 	commands.cf \
-	sync_attendants.cf \
 	snapshot.cf
 
 cfinputs_PROMISES = \

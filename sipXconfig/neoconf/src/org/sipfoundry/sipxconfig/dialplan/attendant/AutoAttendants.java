@@ -19,19 +19,14 @@ package org.sipfoundry.sipxconfig.dialplan.attendant;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigCommands;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.springframework.beans.factory.annotation.Required;
 
-public class AutoAttendants implements FeatureProvider, FeatureListener {
+public class AutoAttendants implements FeatureProvider {
     public static final LocationFeature FEATURE = new LocationFeature("autoAttendant");
-    private ConfigCommands m_configCommands;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
@@ -48,34 +43,5 @@ public class AutoAttendants implements FeatureProvider, FeatureListener {
         if (b.isBasic()) {
             b.addFeature(FEATURE);
         }
-    }
-
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!feature.equals(FEATURE)) {
-            return;
-        }
-
-        switch (event) {
-        case PRE_ENABLE:
-            if (!location.isPrimary()) {
-                m_configCommands.syncAutoAttendantPrompts(location);
-            }
-            break;
-        case POST_DISABLE:
-        case POST_ENABLE:
-        default:
-            break;
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
-
-    @Required
-    public void setConfigCommands(ConfigCommands configCommands) {
-        m_configCommands = configCommands;
     }
 }
