@@ -24,7 +24,7 @@ bundle agent sipxivr {
 }
 
 bundle agent sipxivr_config {
-  vars:    
+  vars:
     any::
       "xml_file" slist => { 
         "autoattendants.xml",
@@ -46,6 +46,15 @@ bundle agent sipxivr_config {
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxivr");
+
+    !primary::
+      "$(sipx.SIPX_IVRDATADIR)/prompts"
+        comment => "sync AA prompts",
+        create => "true",
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_IVRDATADIR)/prompts"),
+        file_select => aa_prompt,
+        depth_search => recurse("1");
 }
 
 bundle edit_line sipxivr_properties_contents {
@@ -105,5 +114,17 @@ bundle agent sipxivr_running {
         args => "restart";
 }
 
+body copy_from copy_prompts(server,file) {
+  servers => { "$(server)" };
+  source => "$(file)";
+  compare => "digest";
+  trustkey => "true";
+}
 
+body file_select aa_prompt {
+  leaf_name => {
+    ".*\.wav"
+  };
+  file_result => "leaf_name";
+}
 

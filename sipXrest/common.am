@@ -17,4 +17,5 @@ rest_PKGS = \
 	sipxcommons \
 	ws-commons-util \
 	xmlrpc-client \
+	postgresql \
 	xmlrpc-server

@@ -55,7 +55,8 @@ bundle server access_rules {
         "@SIPX_CFDATA@",
         "@SIPX_LOGDIR@",
         "@SIPX_CONFDIR@/ssl",
-        "@SIPX_VARDIR@/tmp/"
+        "@SIPX_VARDIR@/tmp",
+        "@SIPX_IVRDATADIR@/prompts"
      };
   access:
     "$(export_dirs)"
