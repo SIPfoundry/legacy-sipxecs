@@ -22,7 +22,7 @@ public class LazyDaemonTest extends TestCase {
         mock.join(1000);
         assertEquals("xXxxXxX", m_testBuffer.toString());
     }
-
+    
     private class LazyDaemonMock extends LazyDaemon {
         private int m_i = 0;
 

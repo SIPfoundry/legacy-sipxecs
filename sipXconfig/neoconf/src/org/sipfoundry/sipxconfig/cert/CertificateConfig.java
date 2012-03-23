@@ -8,7 +8,6 @@
 package org.sipfoundry.sipxconfig.cert;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -17,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.domain.Domain;
 
 public class CertificateConfig implements ConfigProvider {
     private CertificateManager m_certificateManager;
@@ -37,9 +37,19 @@ public class CertificateConfig implements ConfigProvider {
         String webKey = m_certificateManager.getWebPrivateKey();
         FileUtils.writeStringToFile(new File(dir, "ssl-web.key"), webKey);
 
+        String domain = Domain.getDomain().getName();
+
+        JavaKeyStore sslSip = new JavaKeyStore();
+        sslSip.addKey(domain, sipCert, sipKey);
+        sslSip.storeIfDifferent(new File("ssl.keystore"));
+
+        JavaKeyStore sslWeb = new JavaKeyStore();
+        sslWeb.addKey(domain, webCert, webKey);
+        sslWeb.storeIfDifferent(new File("ssl-web.keystore"));
+
         File authDir = new File(dir, "authorities");
         authDir.mkdir();
-        AuthoritiesStore store = new AuthoritiesStore();
+        JavaKeyStore store = new JavaKeyStore();
         for (String authority : m_certificateManager.getAuthorities()) {
             String authCert = m_certificateManager.getAuthorityCertificate(authority);
             FileUtils.writeStringToFile(new File(authDir, authority + ".crt"), authCert);
@@ -47,8 +57,7 @@ public class CertificateConfig implements ConfigProvider {
         }
         OutputStream authoritiesStore = null;
         try {
-            authoritiesStore = new FileOutputStream(new File(dir, "authorities.jks"));
-            store.store(authoritiesStore);
+            store.storeIfDifferent(new File(dir, "authorities.jks"));
         } finally {
             IOUtils.closeQuietly(authoritiesStore);
         }

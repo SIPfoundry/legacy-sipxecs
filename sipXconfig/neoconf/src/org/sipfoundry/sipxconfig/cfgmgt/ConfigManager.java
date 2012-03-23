@@ -84,4 +84,9 @@ public interface ConfigManager {
     void regenerateMongo(Collection<Location> locations);
 
     void sendProfiles(Collection<Location> locations);
+
+    /**
+     * Only used by setup init task
+     */
+    public void setup();
 }

@@ -13,4 +13,8 @@
     <property name="jdbcTemplate" ref="configJdbcTemplate"/>
   </bean>  
   
+  <bean id="setup" class="org.sipfoundry.sipxconfig.setup.SetupMain">
+    <property name="configManager" ref="configManager"/>
+  </bean>
+  
 </beans>

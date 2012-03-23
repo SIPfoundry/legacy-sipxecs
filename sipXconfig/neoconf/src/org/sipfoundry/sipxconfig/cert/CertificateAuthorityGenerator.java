@@ -11,6 +11,9 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 
+import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 
 public class CertificateAuthorityGenerator extends AbstractCertificateGenerator {
@@ -24,9 +27,14 @@ public class CertificateAuthorityGenerator extends AbstractCertificateGenerator 
 
     @Override
     public X509Certificate createCertificate() throws GeneralSecurityException {
-        KeyPair pair = getKeyPair();
-        String issuer = getSubject();
-        X509v3CertificateBuilder gen = createCertificateGenerator(issuer, pair.getPublic());
-        return CertificateUtils.generateCert(gen, getAlgorithm(), pair.getPrivate());
+        try {
+            KeyPair pair = getKeyPair();
+            String issuer = getSubject();
+            X509v3CertificateBuilder gen = createCertificateGenerator(issuer, pair.getPublic());
+            gen.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(0));
+            return CertificateUtils.generateCert(gen, getAlgorithm(), pair.getPrivate());
+        } catch (CertIOException e) {
+            throw new GeneralSecurityException(e);
+        }
     }
 }
