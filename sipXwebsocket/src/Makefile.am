@@ -3,8 +3,8 @@ include $(top_srcdir)/config/java.am
 include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(cfg_SRC) \
-	$(cfg_RESOURCES)
+	$(websocket_SRC) \
+	$(websocket_RESOURCES)
 	
 noinst_DATA = \
 	javac-websocket
@@ -22,9 +22,7 @@ websocket_DEPS = \
 websocket_SRC = \
 	$(shell cd $(srcdir); find org -name '*.java')
 	  
-$(JAR_FILE) : javac-websocket $(websocket_RESOURCES)
-	cp -r $(srcdir)/web/* @SIPX_JAVADIR@/sipXwebsocket
-	cp $(srcdir)/web.beans.xml @SIPX_JAVADIR@/sipXwebsocket
+$(JAR_FILE) : javac-websocket $(websocket_RESOURCES)	
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(websocket_RESOURCES))	  
