@@ -41,13 +41,13 @@
   <bean id="openAcdReplicationProvider" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
       <property name="proxyInterfaces">
       <list>
-        <value>org.sipfoundry.sipxconfig.common.ReplicableProvider</value>
+        <value>org.sipfoundry.sipxconfig.openacd.OpenAcdReplicationProvider</value>
       </list>
     </property>
     <property name="target" ref="openAcdReplicationProviderImpl" />
   </bean>
 
-  <bean id="openAcdReplicationProviderImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdReplicationProvider">
+  <bean id="openAcdReplicationProviderImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdReplicationProviderImpl">
     <property name="openAcdContext" ref="openAcdContext" />
     <property name="featureManager" ref="featureManager" />
   </bean>
@@ -88,7 +88,7 @@
   
   <bean id="openAcdConfig" class="org.sipfoundry.sipxconfig.openacd.OpenAcdConfiguration">
     <property name="openAcdContext" ref="openAcdContext" />
-    <property name="openAcdReplicationProvider" ref="openAcdReplicationProviderImpl" />
+    <property name="openAcdReplicationProvider" ref="openAcdReplicationProvider" />
     <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
   

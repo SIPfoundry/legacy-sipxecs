@@ -9,65 +9,53 @@
  */
 package org.sipfoundry.sipxconfig.cert;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
+import java.util.List;
 
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
-
-public interface CertificateManager extends ConfigProvider {
+/*
+ * CRUD operations for certificate authorities, certificates and private keys
+ */
+public interface CertificateManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("certificates");
 
-    Properties loadCertPropertiesFile();
+    public CertificateSettings getSettings();
 
-    String readCSRFile(String serverName);
+    public void saveSettings(CertificateSettings settings);
 
-    void writeCertPropertiesFile(Properties properties);
+    /**
+     * No key, must be based on a return signed CSR from trusted authority
+     */
+    public void setWebCertificate(String cert);
 
-    void generateCSRFile();
+    public void setWebCertificate(String cert, String key);
 
-    File getCRTFile(String server);
+    /**
+     * Do not support third party trusted authority signed certificate yet. No particular
+     * reason other than no one has requested this yet.
+     */
+    public void setCommunicationsCertificate(String cert, String key);
 
-    File getExternalCRTFile();
+    /**
+     * No key, must be based on a return signed CSR from trusted authority
+     */
+    public void setCommunicationsCertificate(String cert);
 
-    void writeCRTFile(String crt, String server);
+    public String getWebCertificate();
 
-    void writeExternalCRTFile(String crt);
+    public String getWebPrivateKey();
 
-    File getKeyFile(String server);
+    public String getCommunicationsCertificate();
 
-    File getExternalKeyFile();
+    public String getCommunicationsPrivateKey();
 
-    void writeKeyFile(String key);
+    public List<String> getAuthorities();
 
-    void importKeyAndCertificate(String server, boolean isCsrBased);
+    public String getAuthorityCertificate(String authority);
 
-    boolean validateCertificate(File file);
+    public String getAuthorityKey(String authority);
 
-    boolean validateCertificateAuthority(File file);
+    public void addTrustedAuthority(String authority, String cert);
 
-    String showCertificate(File file);
-
-    public void rehashCertificates();
-
-    public void generateKeyStores();
-
-    public File getCAFile(String fileName);
-
-    public File getCATmpFile(String fileName);
-
-    void deleteCRTAuthorityTmpDirectory();
-
-    void copyCRTAuthority();
-
-    Set<CertificateDecorator> listCertificates();
-
-    void deleteCA(CertificateDecorator cert);
-
-    void deleteCAs(Collection<CertificateDecorator> listCert);
-
-    public void restartRemote();
+    public void deleteTrustedAuthority(String authority);
 }

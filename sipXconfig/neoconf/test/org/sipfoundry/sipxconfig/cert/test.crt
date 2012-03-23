@@ -1,0 +1,38 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 22157399 (0x1521857)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=US, ST=AnyState, L=AnyTown, O=hubler.us, OU=IT, CN=ca.hubler.us/emailAddress=root@hubler.us
+        Validity
+            Not Before: Feb 17 01:57:01 2012 GMT
+            Not After : Feb 16 01:57:01 2015 GMT
+        Subject: C=US, ST=AnyState, L=AnyTown, O=hubler.us, OU=IT, CN=swift.hubler.us/emailAddress=root@swift.hubler.us
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Subject Alternative Name: 
+                URI:sip:hubler.us, DNS:swift.hubler.us
+            X509v3 Subject Key Identifier: 
+                B0:5A:0E:36:F3:4A:18:9C:9F:DE:BE:11:8F:54:52:FB:5A:97:97:B9
+-----BEGIN CERTIFICATE-----
+MIIDbjCCAlagAwIBAgIEAVIYVzANBgkqhkiG9w0BAQUFADCBiTELMAkGA1UEBhMC
+VVMxETAPBgNVBAgTCEFueVN0YXRlMRAwDgYDVQQHEwdBbnlUb3duMRIwEAYDVQQK
+EwlodWJsZXIudXMxCzAJBgNVBAsTAklUMRUwEwYDVQQDEwxjYS5odWJsZXIudXMx
+HTAbBgkqhkiG9w0BCQEWDnJvb3RAaHVibGVyLnVzMB4XDTEyMDIxNzAxNTcwMVoX
+DTE1MDIxNjAxNTcwMVowgZIxCzAJBgNVBAYTAlVTMREwDwYDVQQIEwhBbnlTdGF0
+ZTEQMA4GA1UEBxMHQW55VG93bjESMBAGA1UEChMJaHVibGVyLnVzMQswCQYDVQQL
+EwJJVDEYMBYGA1UEAxMPc3dpZnQuaHVibGVyLnVzMSMwIQYJKoZIhvcNAQkBFhRy
+b290QHN3aWZ0Lmh1Ymxlci51czCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA
+6xABh/m2JRz0CnMi/u//Lu7+/pVw3gyQs8ZebBgzrrkorq7Qni7f8bX0arRVXiLE
+aF6EkPaus1tBrp0HGsQ6wIQL66GPBL6LA781YF+f2tFrFrg+60yTIJFwVQ0x/gag
++CAvHYFhIxLiHdi/1S4a+oMXAcsd8EV5SZM3GdNCEs0CAwEAAaNXMFUwCQYDVR0T
+BAIwADApBgNVHREEIjAghg1zaXA6aHVibGVyLnVzgg9zd2lmdC5odWJsZXIudXMw
+HQYDVR0OBBYEFLBaDjbzShicn96+EY9UUvtal5e5MA0GCSqGSIb3DQEBBQUAA4IB
+AQCWJqiTWmy0tMwRliJfrCfvR4LrmZJWYSFlo7oxa76sXIpbE3Kfnu3ol/bA5/w/
+Z+Yf2LTv+B52btJiLi0cMJvArfhphjwTdH6ibxOB5DXjg2Ns7ySYnCTCZy8uAbCt
+tH/A9sIHdyYEgbaI8gkDJYRcL6oDqaMT7apmtQqBQYmxKZWgFfXzMp8bikLFQHnB
+7Nb+AaS1VMLLYYSb72FZxk9O7YPUUwW+aw/bPiFkfqVS4uMlpTenIeZjpuY9Ndci
+rOs9Vsh8caG2YSo5aK4wV0qZkMkELqFaqVQ/h2G6qnaR9Ib9mdjrBbIT45T4+PxE
+NQuHbYso7LvW7BRV1Z1v8fvN
+-----END CERTIFICATE-----

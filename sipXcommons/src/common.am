@@ -24,7 +24,6 @@ commons_PKGS = \
 	org.springframework.core \
 	org.springframework.transaction \
 	spring-data-mongodb \
-	jce \
 	mongo \
 	jetty-client \
 	jetty-continuation \

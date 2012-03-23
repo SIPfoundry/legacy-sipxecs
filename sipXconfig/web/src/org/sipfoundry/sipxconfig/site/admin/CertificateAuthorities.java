@@ -9,10 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.Set;
 
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Collection;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.ComponentClass;
@@ -20,7 +23,6 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.request.IUploadFile;
-import org.sipfoundry.sipxconfig.cert.CertificateDecorator;
 import org.sipfoundry.sipxconfig.cert.CertificateManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -35,18 +37,15 @@ public abstract class CertificateAuthorities extends BaseComponent {
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    public abstract CertificateDecorator getCurrentRow();
+    public abstract String getAuthority();
 
     @Persist(value = "client")
-    public abstract CertificateDecorator getRowToShow();
+    public abstract String getRowToShow();
 
-    public abstract void setRowToShow(CertificateDecorator row);
+    public abstract void setRowToShow(String row);
 
     @Bean
     public abstract SelectMap getSelections();
-
-    @Bean
-    public abstract CertificateSqueezeAdapter getCertificateConverter();
 
     @InjectObject(value = "spring:certificateManager")
     public abstract CertificateManager getCertificateManager();
@@ -65,23 +64,16 @@ public abstract class CertificateAuthorities extends BaseComponent {
     public abstract void setSavedCertificateText(String savedCertificateText);
 
     public boolean isShowDescription() {
-        return getRowToShow() == null ? false : getRowToShow().equals(getCurrentRow());
+        return getRowToShow() == null ? false : getRowToShow().equals(getAuthority());
     }
 
     public void clickRow() {
-        if (getRowToShow() != null && getRowToShow().equals(getCurrentRow())) {
+        if (getRowToShow() != null && getRowToShow().equals(getAuthority())) {
             setRowToShow(null);
         } else {
-            setRowToShow(getCurrentRow());
+            setRowToShow(getAuthority());
             runShowDescription();
         }
-    }
-
-    public CertificatesTableModel getCertificatesModel() {
-        CertificatesTableModel tableModel = new CertificatesTableModel();
-        Set<CertificateDecorator> list = getCertificateManager().listCertificates();
-        tableModel.setCertificates(list);
-        return tableModel;
     }
 
     public void importCA() {
@@ -89,51 +81,39 @@ public abstract class CertificateAuthorities extends BaseComponent {
             // do nothing on errors
             return;
         }
-        //clean tmp path
-        getCertificateManager().deleteCRTAuthorityTmpDirectory();
-        IUploadFile uploadFile = getUploadFile();
 
+        IUploadFile uploadFile = getUploadFile();
         if (uploadFile == null) {
             getValidator().record(new UserException("&error.certificate"), getMessages());
             return;
         }
         String caFileName = uploadFile.getFileName();
-        File tmpCAFile = getCertificateManager().getCATmpFile(caFileName);
-        getUploadFile().write(tmpCAFile);
-        boolean valid = getCertificateManager().validateCertificateAuthority(tmpCAFile);
-        if (!valid) {
+        Reader r = null;
+        try {
+            String ca = IOUtils.toString(uploadFile.getStream());
+            getCertificateManager().addTrustedAuthority(caFileName, ca);
+            setShowCertificate(true);
+            setCertificateText(ca.toString());
+        } catch (UserException err) {
             getValidator().record(new UserException("&error.valid", caFileName), getMessages());
-            return;
+        } catch (IOException e) {
+            getValidator().record(new UserException("Error reading file " + e.getMessage()), getMessages());
+        } finally {
+            IOUtils.closeQuietly(r);
         }
-        setShowCertificate(true);
-        String certificateText = getCertificateManager().showCertificate(tmpCAFile);
-        setCertificateText(certificateText);
-    }
-
-    public void keep() {
-        setShowCertificate(false);
-        getCertificateManager().copyCRTAuthority();
-        getCertificateManager().rehashCertificates();
-        getCertificateManager().restartRemote();
-        getCertificateManager().generateKeyStores();
-    }
-
-    public void delete() {
-        setShowCertificate(false);
-        getCertificateManager().deleteCRTAuthorityTmpDirectory();
     }
 
     public void runShowDescription() {
-        File caFile = getCertificateManager().getCAFile(getCurrentRow().getFileName());
-        String savedCertificateText = getCertificateManager().showCertificate(caFile);
-        setSavedCertificateText(savedCertificateText);
+        String ca = getCertificateManager().getAuthorityCertificate(getAuthority());
+        setSavedCertificateText(ca);
     }
 
     public void deleteCertificates() {
-        Collection<CertificateDecorator> listCert = getSelections().getAllSelected();
-        getCertificateManager().deleteCAs(listCert);
-        getCertificateManager().rehashCertificates();
-        getCertificateManager().restartRemote();
-        getCertificateManager().generateKeyStores();
+        @SuppressWarnings("rawtypes")
+        Collection selections = getSelections().getAllSelected();
+        CertificateManager mgr = getCertificateManager();
+        for (Object authority : selections) {
+            mgr.deleteTrustedAuthority(authority.toString());
+        }
     }
 }

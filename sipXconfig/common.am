@@ -23,6 +23,8 @@ neoconf_PKGS = \
 	antlr \
 	aopalliance \
 	axis \
+    bcpkix-jdk15on \
+	bcprov-jdk15on \
 	cglib \
 	com.noelios.restlet \
 	com.noelios.restlet.ext.servlet \
@@ -100,7 +102,6 @@ web_PKGS = \
 	hivemind-lib \
 	jasper-compiler \
 	javassist \
-	jce \
 	jdom \
 	jetty \
 	jta \
