@@ -20,30 +20,28 @@ bundle agent snapshot {
 
 bundle agent collect_snapshot {
   vars:
+    any::
+      "ini_file" string => "$(sipx.location_id)/snapshot.ini";
     !primary::
       "dim_master" int => readstringarray("master","@SIPX_CFDATA@/defaults/master", "#[^\n]*", "=", 10, 4000);
       "server" string => "$(master[address][1])";
-
-  classes:
-    "ini_exists" expression => fileexists("@SIPX_CFDATA@/$(sipx.location_id)/snapshot.ini");
-
+ 
   files:
-    ini_exists::
-      "@SIPX_CONFDIR@/snapshot.ini"
+    !primary::
+       "@SIPX_CFDATA@/$(ini_file)"
         comment => "prepare snapshot",
         create => "true",
         perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/snapshot.ini");
+        copy_from => master_files("$(server)", "$(master[SIPX_CFDATA][1])/$(ini_file)");
 
   methods:
     any::
-      "run_script" usebundle => "invoke_snapshot_script";
+      "run_script" usebundle => invoke_snapshot_script("@SIPX_CFDATA@/$(ini_file)");
 }
 
-bundle agent invoke_snapshot_script {
+bundle agent invoke_snapshot_script(ini) {
   vars:
-    ini_exists::
-      "snapshot_args" string => readfile("@SIPX_CONFDIR@/snapshot.ini", "1500");
+    "snapshot_args" string => readfile("$(ini)", "1500");
 
   commands:
     any::
