@@ -11,9 +11,11 @@
 # FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
 # details.
 
-bundle common snapshot {
-  classes:
-      "primary" expression => strcmp("$(sipx.location_id)", "1");
+bundle agent snapshot {
+  methods:
+    any::
+      "any" usebundle => "sipx_module";
+      "any" usebundle => "collect_snapshot";
 }
 
 bundle agent collect_snapshot {
@@ -22,13 +24,16 @@ bundle agent collect_snapshot {
       "dim_master" int => readstringarray("master","@SIPX_CFDATA@/defaults/master", "#[^\n]*", "=", 10, 4000);
       "server" string => "$(master[address][1])";
 
+  classes:
+    "ini_exists" expression => fileexists("@SIPX_CFDATA@/$(sipx.location_id)/snapshot.ini");
+
   files:
-    !primary::
+    ini_exists::
       "@SIPX_CONFDIR@/snapshot.ini"
         comment => "prepare snapshot",
         create => "true",
         perms => m("644"),
-        copy_from => copy_remote("$(server)","@SIPX_CFDATA@/$(sipx.location_id)/snapshot.ini");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/snapshot.ini");
 
   methods:
     any::
@@ -37,46 +42,11 @@ bundle agent collect_snapshot {
 
 bundle agent invoke_snapshot_script {
   vars:
-    !primary::
+    ini_exists::
       "snapshot_args" string => readfile("@SIPX_CONFDIR@/snapshot.ini", "1500");
-    primary::
-      "snapshot_args" string => readfile("@SIPX_CFDATA@/$(sipx.location_id)/snapshot.ini", "1500");
 
   commands:
     any::
       "@SIPX_BINDIR@/sipx-snapshot"
         args => $(snapshot_args);
-}
-
-bundle agent upload_snapshot {
-    vars:
-    "fqdn" slist => readstringlist("@SIPX_CFDATA@/servers", "=(.*?)end", "\n", 100, 4000);
-    "dim_servers" int => readstringarray("server", "@SIPX_CFDATA@/servers", "#[^\n]*", "[\s=]", 100, 4000);
-
-  files:
-    "@SIPX_VARDIR@/tmp/"
-      handle => "upload",
-      create => "true",
-      perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@"),
-      copy_from => copy_remote("$(server[$(fqdn)][2])","@SIPX_VARDIR@/tmp/"),
-      file_select => sipx_snapshot,
-      depth_search => recurse("1");
-
-  reports:
-    linux::
-      "Uploading snapshot from $(server[$(fqdn)][0])";
-}
-
-body copy_from copy_remote(server,file) {
-  servers => { "$(server)" };
-  source => "$(file)";
-  compare => "digest";
-  trustkey => "true";
-}
-
-body file_select sipx_snapshot {
-  leaf_name => {
-    "sipx-snapshot-.*\.tar.gz"
-  };
-  file_result => "leaf_name";
 }

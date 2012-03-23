@@ -1122,6 +1122,7 @@ then
   tar cf - -C ${Work} . | gzip >${ToFile}
   # Remove the temporary files.
   rm -rf $Work
+  chmod 644 ${ToFile}
 
   echo "Configuration saved in '${ToFile}'"
 
