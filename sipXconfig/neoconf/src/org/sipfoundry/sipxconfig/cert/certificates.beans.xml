@@ -22,11 +22,16 @@
         </property>
       </bean>
     </property>
+    <property name="configManager" ref="configManager"/>
     <property name="jdbc" ref="configJdbcTemplate"/>    
     <property name="locationsManager" ref="locationsManager"/>
     <property name="locationSetup" ref="locationsManagerImpl"/>    
   </bean>
   
   <bean id="certificateSettings" class="org.sipfoundry.sipxconfig.cert.CertificateSettings" parent="settingsBean">
+  </bean>
+  
+  <bean id="certificateConfig" class="org.sipfoundry.sipxconfig.cert.CertificateConfig">
+    <property name="certificateManager" ref="certificateManager"/>
   </bean>
 </beans>

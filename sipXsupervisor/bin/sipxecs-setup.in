@@ -9,6 +9,7 @@ $cfdatadir = "@SIPX_CFDATA@"
 $confdir = "@SIPX_CONFDIR@"
 $logdir = "@SIPX_LOGDIR@"
 $bindir = "@SIPX_BINDIR@"
+$servicedir = "@SIPX_SERVICEDIR@"
 $user = "@SIPXPBXUSER@"
 $group = "@SIPXPBXGROUP@"
 
@@ -251,6 +252,7 @@ set_root_keys()
 set_nonroot_keys()
 if set_primary()
   set_domain()
+  run_command("#{$servicedir}/sipxconfig db setup")
 else
   set_secondary
 end

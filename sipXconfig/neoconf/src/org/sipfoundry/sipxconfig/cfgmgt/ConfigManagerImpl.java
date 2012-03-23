@@ -141,8 +141,22 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     // not synchronized so new incoming work can accumulate.
     public void doWork(ConfigRequest request) {
-        LOG.info("Configuration work to do. Notifying providers.");
         String jobLabel = "Configuration";
+        runProviders(request, jobLabel);
+        runCfengine(request, jobLabel);
+        runPostProviders(request, jobLabel);
+    }
+
+    @Override
+    public void setup() {
+        ConfigRequest work = getWork();
+        if (work != null) {
+            runProviders(work, "setup");
+        }
+    }
+
+    private void runProviders(ConfigRequest request, String jobLabel) {
+        LOG.info("Configuration work to do. Notifying providers.");
         Serializable job = m_jobContext.schedule(jobLabel);
         m_jobContext.start(job);
         Stack<Exception> errors = new Stack<Exception>();
@@ -168,11 +182,15 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
                 fail(m_jobContext, jobLabel, jobError, errors.pop());
             }
         }
+    }
 
+    private void runCfengine(ConfigRequest request, String jobLabel) {
         Collection<Location> all = m_locationManager.getLocationsList();
         Collection<Location> registered = getRegisteredLocations(all);
         m_configAgent.run(registered);
+    }
 
+    private void runPostProviders(ConfigRequest request, String jobLabel) {
         // After config has rolled out
         for (ConfigProvider provider : getProviders()) {
             try {

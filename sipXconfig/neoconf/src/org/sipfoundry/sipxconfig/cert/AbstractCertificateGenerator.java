@@ -25,6 +25,8 @@ import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public abstract class AbstractCertificateGenerator extends AbstractCertificateCommon {
+    public static final String NETSCAPE_CERT_TYPE_OID = "2.16.840.1.113730.1.1";
+    public static final String NETSCAPE_COMMENT_OID = "2.16.840.1.113730.1.13";
     private int m_validYears = 3; // historical default, otherwise insignificant AFAIK
     private KeyPair m_keys;
     private X509Certificate m_certificate;

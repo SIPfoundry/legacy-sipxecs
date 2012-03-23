@@ -19,6 +19,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -45,6 +46,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     private SetupListener m_locationSetup;
     private LocationsManager m_locationsManager;
     private JdbcTemplate m_jdbc;
+    private ConfigManager m_configManager;
 
     public CertificateSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -79,12 +81,14 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         m_jdbc.update("delete from cert where name = ?", name);
         m_jdbc.update("insert into cert (name, data, private_key, authority) values (?, ?, ?, ?)", name, cert, key,
                 authority);
+        m_configManager.configureEverywhere(FEATURE);
     }
 
     void addAuthority(String name, String data, String key) {
         m_jdbc.update("delete from authority where name = ? ", name);
         m_jdbc.update("delete from cert where authority = ? ", name); // should be zero
         m_jdbc.update("insert into authority (name, data, private_key) values (?, ?, ?)", name, data, key);
+        m_configManager.configureEverywhere(FEATURE);
     }
 
     String getSecurityData(String table, String column, String name) {
@@ -147,6 +151,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
 
         m_jdbc.update("delete from authority where name = ?", authority);
         m_jdbc.update("delete from cert where authority = ?", authority);
+        m_configManager.configureEverywhere(FEATURE);
     }
 
     void checkSetup() {
@@ -210,6 +215,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
 
     void validateAuthority(String cert) {
         validateCert(cert, null);
+        // to do validate authority cert
     }
 
     @Override
@@ -233,5 +239,9 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
 
     public void setSettingsDao(BeanWithSettingsDao<CertificateSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

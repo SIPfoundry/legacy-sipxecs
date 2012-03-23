@@ -599,6 +599,10 @@
     <sipx-task beanId="resetAdministrator" />
   </target>
 
+  <target name="setup" depends="upgrade" description="Run setup which in turn may run cfengine work if there is work to do">
+    <sipx-task beanId="setup" />
+  </target>
+
   <target name="first-run" depends="upgrade" description="Make sipXconfig behave as it was just installed or upgraded.">
     <sipx-sql>
       insert into initialization_task (name) values ('first-run');
@@ -1353,7 +1357,7 @@
   <!-- run spring beans implementing SystemTaskRunner from CLI -->
   <macrodef name="sipx-task">
     <attribute name="beanId" />
-    <attribute name="output" default="/dev/stdout" />
+    <attribute name="output" default="stdouterr.txt" />
     <element name="task-body" optional="yes" implicit="yes" />
     <sequential>
       <java classname="org.sipfoundry.sipxconfig.common.SystemTaskRunner" output="@{output}">
