@@ -1,0 +1,55 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary: Unified Event Notifier
+License: AGPL
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org
+
+BuildRequires: automake
+BuildRequires: java-devel >= 1.6
+BuildRequires: zip
+BuildRequires: sipxcommons >= %version
+
+Source: %name-%version.tar.gz
+
+Obsoletes: sipxvxml
+
+Requires: sipxcommons >= %version
+
+%if %{?use_ibm_jvm}0
+Requires: java-ibm >= 1.6
+Requires: java-ibm-unrestricted
+%endif
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Web socket event notifier
+
+%prep
+%setup -q
+
+%build
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%dir %attr(755,sipx,sipx) %{_datadir}/sipxecs
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxwebsocket
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxwebsocket.cf
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXwebsocket
