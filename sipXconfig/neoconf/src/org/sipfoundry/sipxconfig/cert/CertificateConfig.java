@@ -41,11 +41,11 @@ public class CertificateConfig implements ConfigProvider {
 
         JavaKeyStore sslSip = new JavaKeyStore();
         sslSip.addKey(domain, sipCert, sipKey);
-        sslSip.storeIfDifferent(new File("ssl.keystore"));
+        sslSip.storeIfDifferent(new File(dir, "ssl.keystore"));
 
         JavaKeyStore sslWeb = new JavaKeyStore();
         sslWeb.addKey(domain, webCert, webKey);
-        sslWeb.storeIfDifferent(new File("ssl-web.keystore"));
+        sslWeb.storeIfDifferent(new File(dir, "ssl-web.keystore"));
 
         File authDir = new File(dir, "authorities");
         authDir.mkdir();

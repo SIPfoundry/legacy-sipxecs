@@ -189,7 +189,7 @@ start() {
        -Xmx1024m \
        ${SIPXCONFIG_OPTS} \
        $SystemProps \
-       $JavaSslOpts \
+       $TrustStoreOpts \
        org.mortbay.jetty.Server \
        @SIPX_CONFDIR@/sipxconfig-jetty.xml"
 

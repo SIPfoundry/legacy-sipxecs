@@ -400,40 +400,8 @@ sipx_stop() {
    fi
 }
 
-global_ssl_check () {
-    local ssl_status
-
-    if ! [ -e @SIPX_CONFDIR@/ssl/ssl.key -a -e @SIPX_CONFDIR@/ssl/ssl.crt ]
-    then
-        cat <<EOF
-    SSL key and/or certificate not found (@SIPX_CONFDIR@/ssl/ssl.{key,crt})
-
-    Run setup wizard or see the instructions in
-        @SIPX_DOCDIR@/INSTALL.ssl.txt
-          - OR -
-        @SIPX_DOCDIR@INSTALL.ssl.html
-EOF
-        ssl_status=1
-    else
-        ## rehash certificate authorities certificates - if this fails, it will be caught below
-        @SIPX_BINDIR@/ssl-cert/ca_rehash > /dev/null 2>&1
-
-        local domain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
-        ## check certificate
-        @SIPX_BINDIR@/ssl-cert/check-cert.sh \
-            --name ${domain}  --name `hostname --fqdn` \
-            --fail 5 @SIPX_CONFDIR@/ssl/ssl.crt
-        ssl_status=$?
-    fi
-    return $ssl_status
-}
-
 setJavaSslOpts() {
   StorePassword=changeit
-
-  if [ ! -f @SIPX_CONFDIR@/ssl/ssl/ssl-web.keystore ]; then
-      @SIPX_LIBEXECDIR@/sipxkeystoregen
-  fi
 
   # List of authorities accepted system-wide
   if [ -d @SIPX_CONFDIR@/ssl/authorities ]
