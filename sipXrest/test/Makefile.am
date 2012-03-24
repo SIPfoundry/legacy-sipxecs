@@ -14,4 +14,4 @@ xtest_SRC = $(shell cd $(srcdir); find org -name '*.java')
 xtest_DEPS = \
 	$(JAVAROOT) \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,junit $(rest_PKGS)) \
-	$(top_builddir)/src/main/java/classes
+	$(top_builddir)/src/classes
