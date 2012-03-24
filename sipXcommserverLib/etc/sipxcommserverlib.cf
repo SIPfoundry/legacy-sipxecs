@@ -23,10 +23,6 @@ bundle agent sipxcommserverlib {
 
 bundle agent sipxcommserverlib_config {
   vars:
-    "ssl_web" slist => {
-      "ssl-web.key",
-      "ssl-web.crt"
-    };
     "ssl" slist => {
       "ssl.key",
       "ssl.crt"
@@ -34,13 +30,6 @@ bundle agent sipxcommserverlib_config {
 
   files:
     primary::
-      "$(sipx.SIPX_CONFDIR)/ssl/$(ssl_web)"
-        comment => "install SSL WEB info $(this.promiser)",
-        create => "true",
-        copy_from => copy_from_cfdata("$(ssl_web)"),
-        perms => mog("600","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
-        classes => if_repaired("ssl_web_repaired");
-
       "$(sipx.SIPX_CONFDIR)/ssl/$(ssl)"
         comment => "install SSL SIP info $(this.promiser)",
         create => "true",

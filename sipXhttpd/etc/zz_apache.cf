@@ -17,11 +17,37 @@ bundle agent zz_apache {
 }
 
 bundle agent apache_config {
+  vars:
+    any::
+      "ssl_web" slist => {
+        "ssl-web.key",
+        "ssl-web.crt"
+      };
+
   files:
-    "$(sipx.APACHE2_CONFDIR)/welcome.conf"
-      comment => "remove apache welcome page",
-      delete => tidy,
-      classes => if_repaired("restart_apache");
+    any::
+      "$(sipx.APACHE2_CONFDIR)/welcome.conf"
+        comment => "remove apache config $(this.promiser)",
+        delete => tidy,
+        classes => if_repaired("restart_apache");
+
+      "$(sipx.APACHE2_CONFDIR)/ssl.conf"
+        comment => "add apache ssl conf $(this.promiser)",
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(sipx.SIPX_CONFDIR)/apache/ssl.conf"),
+        classes => if_repaired("restart_apache");
+
+      "$(sipx.APACHE2_CONFDIR)/ssl/."
+        create => "true",
+        perms => mog("700","$(sipx.APACHE2_USER)","$(sipx.APACHE2_GROUP)");
+
+      "$(sipx.APACHE2_CONFDIR)/ssl/$(ssl_web)"
+        comment => "install ssl info $(this.promiser)",
+        create => "true",
+        copy_from => copy_from_cfdata("$(ssl_web)"),
+        perms => mog("600","$(sipx.APACHE2_USER)","$(sipx.APACHE2_GROUP)"),
+        classes => if_repaired("restart_apache");
 }
 
 bundle agent apache_sysv_running {
