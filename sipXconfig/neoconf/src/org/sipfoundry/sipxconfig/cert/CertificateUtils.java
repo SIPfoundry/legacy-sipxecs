@@ -20,6 +20,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -124,5 +125,19 @@ public final class CertificateUtils {
         } catch (IOException e) {
             throw new UserException("Problem updating certificate authority. " + e.getMessage(), e);
         }
+    }
+
+    static String stripPath(String s) {
+        if (StringUtils.isBlank(s)) {
+            return s;
+        }
+        int i = s.lastIndexOf('/');
+        if (i < 0) {
+            return s;
+        }
+        if (i  + 1 == s.length()) {
+            return StringUtils.EMPTY;
+        }
+        return s.substring(i + 1);
     }
 }

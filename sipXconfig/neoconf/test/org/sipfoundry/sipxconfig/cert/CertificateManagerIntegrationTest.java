@@ -8,7 +8,8 @@
 package org.sipfoundry.sipxconfig.cert;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
@@ -25,8 +26,8 @@ public class CertificateManagerIntegrationTest extends IntegrationTestCase {
     public void testSaveCert() throws IOException {
         m_certificateManagerImpl.checkSetup();
         String authority = "ca.example.org";
-        List<String> authorities = m_certificateManagerImpl.getAuthorities();
-        assertEquals(String.format("[%s]", authority), authorities.toString());
+        Set<String> authorities = new HashSet<String>(m_certificateManagerImpl.getAuthorities());
+        assertTrue(authorities.contains(authority));
         assertNotNull(m_certificateManagerImpl.getWebCertificate());
         assertNotNull(m_certificateManagerImpl.getWebPrivateKey());
         assertNotNull(m_certificateManagerImpl.getCommunicationsCertificate());
