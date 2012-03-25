@@ -1,3 +1,4 @@
+
 #!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
@@ -148,14 +149,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/schema/registration.xsd
 %{_datadir}/sipxecs/schema/subscription.xsd
 %{_datadir}/sipxecs/schema/urlmap.xsd
-%{_mandir}/man1
+
 
 # These should match sipXlib.m4 or at least sent
 # to configure script
 %dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx
-%dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx/ssl
-%dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx/ssl/authorities
-%{_sysconfdir}/sipxpbx/ssl/authorities/*
 %dir %attr(755,sipx,sipx) %{_datadir}/sipxecs
 %dir %attr(755,sipx,sipx) %{_localstatedir}/log/sipxpbx
 %dir %attr(755,sipx,sipx) %{_localstatedir}/run/sipxpbx

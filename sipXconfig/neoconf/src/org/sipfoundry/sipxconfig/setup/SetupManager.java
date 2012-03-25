@@ -32,4 +32,6 @@ public interface SetupManager {
     public boolean isSetup(String id);
 
     public void setSetup(String id);
+
+    public void setup();
 }

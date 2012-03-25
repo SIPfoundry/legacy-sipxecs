@@ -20,11 +20,15 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 public class SystemTaskRunner {
 
     public static void main(String[] args) {
-        if (args == null || args.length == 0) {
-            throw new IllegalArgumentException("bean to run is required as first argument");
+        try {
+            if (args == null || args.length == 0) {
+                throw new IllegalArgumentException("bean to run is required as first argument");
+            }
+            new SystemTaskRunner().runMain(args);
+        } finally {
+            // otherwise call from cfengine fails to return
+            System.exit(0);
         }
-
-        new SystemTaskRunner().runMain(args);
     }
 
     void runMain(String[] args) {

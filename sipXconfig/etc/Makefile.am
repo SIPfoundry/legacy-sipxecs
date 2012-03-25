@@ -29,6 +29,7 @@ conf_DATA = sipxconfig.properties
 
 cfinputsdir = @SIPX_CFINPUTS@/plugin.d
 dist_cfinputs_DATA = \
+	00_sipxconfig.cf \
 	sipxconfig.cf
 
 # automatically selects configuration files, but as importantly, also has to distinguish what is NOT

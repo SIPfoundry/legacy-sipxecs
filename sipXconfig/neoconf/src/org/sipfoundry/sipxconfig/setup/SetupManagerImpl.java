@@ -109,7 +109,13 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ApplicationInitializedEvent && m_enabled) {
+        if (event instanceof ApplicationInitializedEvent) {
+            setup();
+        }
+    }
+
+    public void setup() {
+        if (m_enabled) {
             for (SetupListener l : getSetupListeners()) {
                 l.setup(this);
             }

@@ -148,7 +148,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     @Override
-    public void setup() {
+    public void runProviders() {
         ConfigRequest work = getWork();
         if (work != null) {
             runProviders(work, "setup");
@@ -369,7 +369,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     @Override
     public void collectSnapshot(Location location) {
         RunRequest collect = new RunRequest("collect snapshot", Collections.singleton(location));
-        collect.setBundles("snapshot");
+        collect.setBundles("collect_snapshot");
         run(collect);
     }
 

@@ -151,19 +151,6 @@
     </sipx-task>
   </target>
 
-  <!--
-    - Add service to system from CLI.  
-    -  Example:
-    -    -Dservice.id=ntpService -Dservice.address=address-or-hostname
-  -->
-  <target name="add-service" depends="upgrade">
-    <sipx-task beanId="addServiceTask">
-      <arg value="${service.name}" />
-      <arg value="${service.id}" />
-      <arg value="${service.address}" />
-    </sipx-task>
-  </target>
-
   <target name="add-upload" depends="upgrade">
     <sipx-task beanId="uploadTask">
       <arg value="${upload.spec}" />

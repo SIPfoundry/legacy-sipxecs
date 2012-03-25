@@ -5,7 +5,7 @@ cfdefaults_DATA = \
 	apache.cfdat
 
 cfconfdir = $(SIPX_CONFDIR)/apache
-cfconf_DATA = ssl.conf
+dist_cfconf_DATA = ssl.conf
 
 apachevars = \
 	$(filter APACHE%,$(.VARIABLES))

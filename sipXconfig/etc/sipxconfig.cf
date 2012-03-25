@@ -38,14 +38,6 @@ bundle agent sipxconfig_logwatcher {
       
 }
 
-bundle agent sipxconfig_setup {
-  methods:
-    !src.primary::
-      "any" usebundle => rh_chkconfig_status("sipxconfig on");
-    !src.!primary::
-      "any" usebundle => rh_chkconfig_status("sipxconfig off");
-}
-
 bundle agent sipxconfig_running {
   vars:
     any::
@@ -54,6 +46,10 @@ bundle agent sipxconfig_running {
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxconfig_running");
+    !src.primary::
+      "any" usebundle => rh_chkconfig_status("sipxconfig on");
+    !src.!primary::
+      "any" usebundle => rh_chkconfig_status("sipxconfig off");
 
   commands:
     (!primary|stop_sipxecs).sipxconfig_running::
@@ -66,7 +62,7 @@ bundle agent sipxconfig_running {
         comment => "start sipxconfig",
         args => "start";
 
-    primary.sipxconfig_running.(restart_sipxconfig|restart_sipxecs)::
+    primary.sipxconfig_running.(restart_sipxconfig|restart_sipxecs|java_authorities_repaired)::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         comment => "restart sipxconfig",
         args => "restart";
