@@ -11,11 +11,13 @@ package org.sipfoundry.sipxconfig.cert;
 
 import static java.lang.String.format;
 
+import java.io.IOException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +49,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     private LocationsManager m_locationsManager;
     private JdbcTemplate m_jdbc;
     private ConfigManager m_configManager;
+    private List<String> m_thirdPartyAuthorites;
 
     public CertificateSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -82,6 +85,10 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         m_jdbc.update("insert into cert (name, data, private_key, authority) values (?, ?, ?, ?)", name, cert, key,
                 authority);
         m_configManager.configureEverywhere(FEATURE);
+    }
+
+    void addThirdPartyAuthority(String name, String data) {
+        addAuthority(name, data, null);
     }
 
     void addAuthority(String name, String data, String key) {
@@ -162,6 +169,18 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
             CertificateAuthorityGenerator gen = new CertificateAuthorityGenerator(domain);
             addAuthority(authority, gen.getCertificateText(), gen.getPrivateKeyText());
         }
+        for (String thirdPartAuth : m_thirdPartyAuthorites) {
+            if (getAuthorityCertificate(thirdPartAuth) == null) {
+                try {
+                    String thirdPartCert = IOUtils.toString(getClass().getResourceAsStream(thirdPartAuth));
+                    String thirdPartAuthId = CertificateUtils.stripPath(thirdPartAuth);
+                    addThirdPartyAuthority(thirdPartAuthId, thirdPartCert);
+                } catch (IOException e) {
+                    LOG.error("Cannot import authority " + thirdPartAuth, e);
+                }
+            }
+        }
+
         if (!hasCertificate(COMM_CERT, authority)) {
             createCommunicationsCert(authority);
         }
@@ -243,5 +262,9 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    public void setThirdPartyAuthorites(List<String> thirdPartyAuthorites) {
+        m_thirdPartyAuthorites = thirdPartyAuthorites;
     }
 }

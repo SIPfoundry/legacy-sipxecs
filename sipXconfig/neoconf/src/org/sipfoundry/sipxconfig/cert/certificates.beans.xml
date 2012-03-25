@@ -25,7 +25,12 @@
     <property name="configManager" ref="configManager"/>
     <property name="jdbc" ref="configJdbcTemplate"/>    
     <property name="locationsManager" ref="locationsManager"/>
-    <property name="locationSetup" ref="locationsManagerImpl"/>    
+    <property name="locationSetup" ref="locationsManagerImpl"/>
+    <property name="thirdPartyAuthorites">
+      <list>
+        <value>verisignclass3ca.crt</value>
+      </list>
+    </property>    
   </bean>
   
   <bean id="certificateSettings" class="org.sipfoundry.sipxconfig.cert.CertificateSettings" parent="settingsBean">

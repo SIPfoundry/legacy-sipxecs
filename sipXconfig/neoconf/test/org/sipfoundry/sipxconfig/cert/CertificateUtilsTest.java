@@ -7,6 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.cert;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -28,5 +30,14 @@ public class CertificateUtilsTest {
     public void readInvalidCert() {
         Reader in = new StringReader("Invalid cert");
         CertificateUtils.readCertificate(in);
+    }    
+
+    @Test
+    public void play() {
+        assertEquals("c", CertificateUtils.stripPath("a/b/c"));
+        assertEquals("c", CertificateUtils.stripPath("c"));
+        assertEquals("", CertificateUtils.stripPath("c/"));
+        assertEquals("", CertificateUtils.stripPath(""));
+        assertEquals(null, CertificateUtils.stripPath(null));
     }    
 }

@@ -23,11 +23,12 @@ import java.security.cert.CertificateException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
-public class JavaKeyStoreTest {
+public class JavaKeyStoreTest {          
     
     @Test
     public void store() throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
