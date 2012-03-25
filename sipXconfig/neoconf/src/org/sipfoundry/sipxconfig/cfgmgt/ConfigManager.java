@@ -88,5 +88,5 @@ public interface ConfigManager {
     /**
      * Only used by setup init task
      */
-    public void setup();
+    public void runProviders();
 }

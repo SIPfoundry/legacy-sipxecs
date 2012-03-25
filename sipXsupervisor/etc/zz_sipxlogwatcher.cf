@@ -64,7 +64,7 @@ bundle agent sipxlogwatcher_running {
       "any" usebundle => find_service_by_command("$(service_command)", "sipxlogwatcher_running","root");
 
   commands:
-    !sipxlogwatcher.sipxlogwatcher_running::
+    (!sipxlogwatcher|stop_sipxecs).sipxlogwatcher_running::
       "$(service)"
         comment => "stop sipxlogwatcher",
         args => "stop";
@@ -78,5 +78,10 @@ bundle agent sipxlogwatcher_running {
       "$(service)"
         comment => "reload sipxlogwatcher",
         args => "reload";
+
+    sipxlogwatcher.sipxlogwatcher_running.(restart_sipxlogwatcher|restart_sipxecs)::
+      "$(service)"
+        comment => "restart sipxlogwatcher",
+        args => "restart";
 }
 

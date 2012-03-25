@@ -252,13 +252,12 @@ set_root_keys()
 set_nonroot_keys()
 if set_primary()
   set_domain()
-  run_command("#{$servicedir}/sipxconfig db setup")
 else
   set_secondary
 end
 
 puts "Configuring system, this may take a few minutes..."
-ok = run_command("#{$bindir}/sipxagent #{'-v ' if $verbose}")
+ok = run_command("#{$bindir}/sipxagent #{'-v ' if $verbose} -d setup")
 if !ok
   puts "failed."
   exit 1

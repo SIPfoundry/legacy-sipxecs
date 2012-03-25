@@ -1,13 +1,10 @@
 include $(top_srcdir)/config/utility.am
 
-SUBDIRS = ssl-cert
-
 INCLUDES = -I$(top_srcdir)/include
 
 utildir = @SIPX_LIBEXECDIR@
 util_SCRIPTS = \
 	sipx-archive-common \
-	sipxkeystoregen \
 	sipx-utils.sh
 
 bin_SCRIPTS = \

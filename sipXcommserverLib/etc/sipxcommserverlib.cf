@@ -22,18 +22,55 @@ bundle agent sipxcommserverlib {
 }
 
 bundle agent sipxcommserverlib_config {
-  classes:
-    primary::
-      "generate_certs" not => fileexists("$(sipx.SIPX_CONFDIR)/ssl/ssl.crt");
+  vars:
+    "ssl" slist => {
+      "ssl.key",
+      "ssl.crt"
+    };
 
   files:
     primary::
-      "$(sipx.SIPX_CONFDIR)/SSL_DEFAULTS"
+      "$(sipx.SIPX_CONFDIR)/ssl/$(ssl)"
+        comment => "install SSL SIP info $(this.promiser)",
+        create => "true",
+        copy_from => copy_from_cfdata("$(ssl)"),
+        perms => mog("600","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        classes => if_repaired("ssl_repaired");
+
+      "$(sipx.SIPX_CONFDIR)/ssl/ssl.keystore"
+        comment => "install Java SSL info $(this.promiser)",
+        create => "true",
+        copy_from => copy_from_cfdata("ssl.keystore"),
+        perms => mog("600","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        classes => if_repaired("java_ssl_repaired");
+
+      "$(sipx.SIPX_CONFDIR)/ssl/ssl-web.keystore"
+        comment => "install Java SSL info $(this.promiser)",
+        create => "true",
+        copy_from => copy_from_cfdata("ssl-web.keystore"),
+        perms => mog("600","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        classes => if_repaired("java_ssl_web_repaired");
+
+      "$(sipx.SIPX_CONFDIR)/ssl/authorities.jks"
+        comment => "install Java WEB SSL  $(this.promiser)",
+        create => "true",
+        copy_from => copy_from_cfdata("authorities.jks"),
+        perms => mog("600","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        classes => if_repaired("java_authorities_repaired");
+
+      "$(sipx.SIPX_CONFDIR)/ssl/authorities/."
+        comment => "install SSL authority dir $(this.promiser)",
+        create => "true",
+        perms => mog("755","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)");
+
+      "$(sipx.SIPX_CONFDIR)/ssl/authorities"
         comment => "install SSL info $(this.promiser)",
         create => "true",
-        perms => m("644"),
-        edit_line => SSL_DEFAULTS,
-        classes => if_repaired("generate_certs");
+        copy_from => copy_from_cfdata("authorities"),
+        depth_search => recurse("1"),
+        file_select => authority_files,
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        classes => if_repaired("authorities_repaired");
 
     any::
       "$(sipx.SIPX_CONFDIR)/domain-config"
@@ -46,54 +83,15 @@ bundle agent sipxcommserverlib_config {
         # do not call this, it restarts too much,
         # need to get DOMAIN_ALIASES out of the config file
         # classes => if_repaired("restart_sipxecs");
-
-  methods:
-    generate_certs::
-      "any" usebundle => "generate_certs";
 }
 
-bundle agent generate_certs {
-  vars:
-    any::
-      "tempssl" string => "$(sipx.SIPX_VARDIR)/temp/cert-temp";
-       
-  files:
-    any::
-      "$(tempssl)/."
-         create => "true";
-
-  commands:
-    any::
-      "$(sipx.SIPX_BINDIR)/ssl-cert/gen-ssl-keys.sh"
-        comment => "generate ssl keys",
-        args => "-d -p $(sipx.SIPX_CONFDIR)/SSL_DEFAULTS",
-        contain => sipxcommserverlib_cert_cmd("$(tempssl)");
-
-      "$(sipx.SIPX_BINDIR)/ssl-cert/install-cert.sh",
-        comment => "install ssl keys",
-        contain => sipxcommserverlib_cert_cmd("$(tempssl)");
+body file_select authority_files {
+  leaf_name => {
+    ".*\.crt",
+  };
+  file_result => "leaf_name";
 }
 
-body contain sipxcommserverlib_cert_cmd(d) {
-  chdir => "$(d)";
-}
-
-bundle edit_line SSL_DEFAULTS {
-  insert_lines:
-    "countryName=\"US\"";
-    "stateOrProvinceName=\"AnyState\"";
-    "localityName=\"AnyTown\"";
-    "organizationName=\"$(sipx.domain)\"";
-    "organizationalUnitName=\"IT\"";
-    "caName=\"ca.$(sipx.domain)\"";
-    "caEmail=\"root@$(sipx.domain)\"";
-    "sipDomainName=\"$(sipx.domain)\"";
-    "server=\"$(sipx.host).$(sipx.net_domain)\"";
-    "serverEmail=\"root@$(sipx.host).$(sipx.net_domain)\"";
-    
-  delete_lines:
-    ".*";
-}
 
 bundle edit_line domain_config {
   classes:

@@ -14,7 +14,7 @@
 
 usage() {
 cat <<USAGE
-Usage: sipxconfig [start|stop|configtest|status|db commands ...]
+Usage: sipxconfig [start|stop|configtest|status|setup|db commands ...]
 
 Start Web UI administration for sipXpbx and for remotely provisioned
 SIP-based phones.
@@ -26,6 +26,14 @@ Options include:
   stop                 Stop web admin ui
 
   status               Checks if process is running
+
+  reset-superadmin     Clear the password of the superadmin user.
+                       This lets you log in if you've forgotten the superadmin
+                       password.  But for security, you should immediately log
+                       in and set superadmin's password.
+
+  setup                Called automatically as part of setup.
+
 
   db commands ...      Runs an operation on the database. Database commands
                        are detailed below
@@ -43,10 +51,6 @@ Common Database commands include:
                        patches to the database schema.  This will only
                        upgrade if nec.
 
-   reset-superadmin    Clear the password of the superadmin user.
-                       This lets you log in if you've forgotten the superadmin
-                       password.  But for security, you should immediately log
-                       in and set superadmin's password.
 
 USAGE
 }
@@ -162,13 +166,8 @@ setupCheck() {
   fi
 }
 
-
-# Run Web interface
-start() {
-    setupCheck
-    databaseCommand upgrade
-    databaseVersionCheck    
-    clearIndexLocks
+buildCommand() {
+    procNameId=$1
     # Used in sipxconfig-jetty.xml only
     SystemProps="\
         -Djava.io.tmpdir=${TmpDir} \
@@ -182,23 +181,41 @@ start() {
     setJavaSslOpts
 
     # -Dprocname needs to be early in the command so cfengine can detect it
-    killAnyOrphans
     Command="$JavaCmd \
-       -Dprocname=sipxconfig \
+       -Dprocname=${procNameId} \
        -XX:MaxPermSize=128M \
        -Xmx1024m \
        ${SIPXCONFIG_OPTS} \
        $SystemProps \
-       $JavaSslOpts \
-       org.mortbay.jetty.Server \
-       @SIPX_CONFDIR@/sipxconfig-jetty.xml"
+       $TrustStoreOpts"
+}
 
+runTask() {
+    setupCheck
+    databaseCommand upgrade
+    databaseVersionCheck    
+    buildCommand task-$taskId
+    Command="$Command org.sipfoundry.sipxconfig.common.SystemTaskRunner $*"
+    runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+}
+
+
+# Run Web interface
+start() {
+    setupCheck
+    databaseCommand upgrade
+    databaseVersionCheck    
+    clearIndexLocks
+    killAnyOrphans
+    buildCommand sipxconfig
+    Command="$Command org.mortbay.jetty.Server @SIPX_CONFDIR@/sipxconfig-jetty.xml"
     if [ -n "${NoFork}" ] ; then
       runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
     else
       echo -n $"Starting sipxconfig: "
       runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
       echo $! > ${PidFile}
+      echo
       echo_success
     fi
 }
@@ -310,8 +327,16 @@ case "$1" in
     setupCheck
     databaseCommand ${@}
     ;;
+  reset-admin)
+    shift
+    runTask resetAdministrator
+    ;;
+  setup)
+    shift
+    runTask setup
+    ;;
   *)
-    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|db}"
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|db|setup|reset-admin}"
     Status=1
 esac
 

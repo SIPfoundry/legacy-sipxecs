@@ -54,7 +54,6 @@ bundle server access_rules {
         "/usr/sbin/cf-agent",
         "@SIPX_CFDATA@",
         "@SIPX_LOGDIR@",
-        "@SIPX_CONFDIR@/ssl",
         "@SIPX_VARDIR@/tmp",
         "@SIPX_IVRDATADIR@/prompts"
      };
@@ -65,8 +64,8 @@ bundle server access_rules {
 
     roles:
         ".*"
-	  # todo, remove root?
 	  authorize => { @(sipx.allowed_users) };
+
   reports:
     linux::
       "Allowing connections from $(sipx.allowed_addrs)";

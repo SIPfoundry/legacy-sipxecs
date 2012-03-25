@@ -160,13 +160,6 @@ bundle agent update_from_master {
         perms => m("644"),
         classes => if_notkept("fatal_error");
 
-      # relay for some reason needs r/w.  Ideally just read is nec.
-      "@SIPX_CONFDIR@/ssl"
-        handle => "update_ssl",
-        copy_from => master_files("$(server)","$(master[SIPX_CONFDIR][1])/ssl"),
-        depth_search => recurse("inf"),
-        perms => mog("600","@SIPXPBXUSER@","@SIPXPBXGROUP@");
-
   reports:
     !primary::
       "Replication from $(server)";
@@ -205,6 +198,11 @@ body contain su(user) {
 # 
 body copy_from copy_from_cfdata(filename) {
   source => "$(sipx.SIPX_CFDATA)/$(filename)";
+  compare => "digest";
+}
+
+body copy_from copy_from_cfdatadir {
+  source => "$(sipx.SIPX_CFDATA)";
   compare => "digest";
 }
 
