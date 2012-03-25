@@ -415,22 +415,6 @@ onSetup() {
        databaseCommand create
        # echo 'CDR database created'
     fi
-    # Ensure that sipx-sudo-restore is owned by root and
-    # that the UID permission bit is set.
-    # sipxcdr may run on a secondary location and sipx-sudo-restore is used for restoring cdr on this location
-    #TODO port this code snipped to cfengine
-    if test -e @bindir@/sipx-sudo-restore
-    then
-        is_file_owned_by_username  @bindir@/sipx-sudo-restore "root"
-        if [ $? -ne 0 ]
-        then
-            chown root @bindir@/sipx-sudo-restore
-        fi
-        if test ! -x @bindir@/sipx-sudo-restore -o ! -u @bindir@/sipx-sudo-restore
-        then
-            chmod 4755 @bindir@/sipx-sudo-restore
-        fi
-    fi
 }
 
 # Start CDR call resolver

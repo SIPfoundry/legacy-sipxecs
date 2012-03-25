@@ -44,7 +44,6 @@ AC_CONFIG_FILES([
   src/xsdvalid/Makefile
   src/test/Makefile
   meta/Makefile
-  src/sipxrestorebinary/Makefile
   src/sipxpackage/Makefile
   src/sipxswadmin/Makefile
   src/sipxzoneadmin/Makefile

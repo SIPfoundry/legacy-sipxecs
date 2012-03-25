@@ -117,7 +117,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxcommserverlib.cf
-%attr(4755,root,root) %{_bindir}/sipx-sudo-restore
 %attr(755,root,root) %{_bindir}/pkg-upgrade
 %attr(755,root,root) %{_bindir}/configmerge
 %attr(755,root,root) %{_bindir}/configquery

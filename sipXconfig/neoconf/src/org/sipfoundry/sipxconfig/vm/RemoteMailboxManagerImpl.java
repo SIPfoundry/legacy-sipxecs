@@ -17,11 +17,10 @@
 package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Writer;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -29,20 +28,19 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 import javax.xml.transform.Source;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.backup.BackupBean;
-import org.sipfoundry.sipxconfig.backup.Restore;
+import org.sipfoundry.sipxconfig.backup.BackupPlan;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigCommands;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -65,6 +63,8 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private static final Log LOG = LogFactory.getLog(RemoteMailboxManagerImpl.class);
     private XPathOperations m_xPathTemplate;
     private RestTemplate m_restTemplate;
+    private ConfigCommands m_configCommands;
+    private String m_backupDirectory;
 
     @Override
     public boolean isEnabled() {
@@ -143,44 +143,46 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     @Override
     public boolean performBackup(File workingDir) {
-        OutputStream outputStream = null;
-        InputStream inputStream = null;
-        try {
-            URL backupUrl = new URL(getMailboxServerUrl() + "/manage/backup");
-            outputStream = FileUtils.openOutputStream(new File(workingDir, "voicemail.tar.gz"));
-            inputStream = backupUrl.openStream();
-            IOUtils.copy(inputStream, outputStream);
-        } catch (Exception ex) {
-            LOG.error(String.format("Failed to retrieve backup from voicemail server %s", ex.getMessage()));
-            return false;
-        } finally {
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(outputStream);
+        List<Location> locations = getFeatureManager().getLocationsForEnabledFeature(Ivr.FEATURE);
+        if (locations != null && locations.size() > 0) {
+            Location ivrLocation = locations.get(0);
+            try {
+                m_configCommands.collectVmBackup(ivrLocation);
+                if (!ivrLocation.isPrimary()) {
+                    m_configCommands.uploadVmBackup(getLocationsManager().getPrimaryLocation());
+                    FileUtils.moveFile(
+                            new File(m_backupDirectory, "voicemail-" + ivrLocation.getFqdn() + ".tar.gz"), new File(
+                                    workingDir, BackupPlan.VOICEMAIL_ARCHIVE));
+                } else {
+                    FileUtils.moveFile(new File(m_backupDirectory, BackupPlan.VOICEMAIL_ARCHIVE), new File(
+                            workingDir, BackupPlan.VOICEMAIL_ARCHIVE));
+                }
+            } catch (IOException ex) {
+                LOG.error(String.format("Failed to retrieve backup from voicemail server %s", ex.getMessage()));
+                return false;
+            }
         }
         return true;
     }
 
     @Override
-    public void performRestore(BackupBean archive, boolean verify, boolean noRestart) {
-        if (verify) {
-            // verify locally if valid archive
-            Restore.runRestoreScript(getBinDir(), archive, verify, true);
-        } else {
-            // upload archive and restore on ivr side
-            File vmArchive = new File(archive.getPath());
-            PutMethod method = new PutMethod(getMailboxServerUrl() + "/manage/restore");
+    public void performRestore(BackupBean archive, boolean noRestart) {
+        // upload archive and restore on ivr side
+        List<Location> locations = getFeatureManager().getLocationsForEnabledFeature(Ivr.FEATURE);
+        if (locations != null && locations.size() > 0) {
+            Location ivrLocation = locations.get(0);
+            Writer wtr = null;
             try {
-                Part[] parts = {
-                    new FilePart(vmArchive.getName(), vmArchive)
-                };
-                method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));
-                HttpClient client = new HttpClient();
-                client.executeMethod(method);
-            } catch (Exception ex) {
+                File f = new File(((ConfigManager) m_configCommands).getGlobalDataDirectory(), "backup.ini");
+                wtr = new FileWriter(f);
+                wtr.write(archive.getPath());
+                wtr.flush();
+                m_configCommands.restoreVmBackup(ivrLocation);
+            } catch (IOException ex) {
                 LOG.error(String.format("Failed to restore backup on voicemail server %s", ex.getMessage()));
                 throw new UserException("&error.ivrrestore.failed");
             } finally {
-                method.releaseConnection();
+                IOUtils.closeQuietly(wtr);
             }
         }
     }
@@ -198,6 +200,15 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     public void setXpathTemplate(XPathOperations xpathTemplate) {
         m_xPathTemplate = xpathTemplate;
+    }
+
+    public void setBackupDirectory(String dir) {
+        m_backupDirectory = dir;
+    }
+
+    @Required
+    public void setConfigCommands(ConfigCommands configCommands) {
+        m_configCommands = configCommands;
     }
 
     public void setRestTemplate(RestTemplate restTemplate) {

@@ -40,7 +40,6 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
     private AddressManager m_addressManager;
-    private String m_binDir;
     private FeatureManager m_featureManager;
 
     public boolean isSystemCpui() {
@@ -140,14 +139,6 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         return m_locationsManager;
     }
 
-    public void setBinDir(String binDir) {
-        m_binDir = binDir;
-    }
-
-    protected String getBinDir() {
-        return m_binDir;
-    }
-
     protected String getMailboxServerUrl() {
         Address ivrAddress = m_addressManager.getSingleAddress(Ivr.REST_API);
         if (ivrAddress != null) {
@@ -168,5 +159,9 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
 
     public AddressManager getAddressManager() {
         return m_addressManager;
+    }
+
+    public FeatureManager getFeatureManager() {
+        return m_featureManager;
     }
 }
