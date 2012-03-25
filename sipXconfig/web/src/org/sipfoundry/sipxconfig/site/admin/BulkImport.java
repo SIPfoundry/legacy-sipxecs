@@ -21,10 +21,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.bulk.csv.BulkManager;
+import org.sipfoundry.sipxconfig.bulk.csv.ExportCsv;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -38,6 +40,9 @@ public abstract class BulkImport extends SipxBasePage {
     public abstract IUploadFile getUploadFile();
 
     public abstract BulkManager getBulkManager();
+
+    @InjectObject(value = "spring:exportCsv")
+    public abstract ExportCsv getExportCsv();
 
     public abstract String getExportFile();
 
@@ -85,7 +90,7 @@ public abstract class BulkImport extends SipxBasePage {
             File exportFile = File.createTempFile("export", ".csv");
             exportFile.deleteOnExit();
             Writer writer = new FileWriter(exportFile);
-            getBulkManager().performExport(writer);
+            getExportCsv().exportCsv(writer);
             writer.close();
             setExportFile(exportFile.getPath());
             validator.recordSuccess(getMessages().getMessage("msg.exportSuccess"));
