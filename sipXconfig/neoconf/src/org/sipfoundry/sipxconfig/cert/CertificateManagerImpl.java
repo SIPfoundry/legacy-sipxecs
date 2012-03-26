@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.cert;
 import static java.lang.String.format;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
@@ -172,7 +173,11 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         for (String thirdPartAuth : m_thirdPartyAuthorites) {
             if (getAuthorityCertificate(thirdPartAuth) == null) {
                 try {
-                    String thirdPartCert = IOUtils.toString(getClass().getResourceAsStream(thirdPartAuth));
+                    InputStream thirdPartIn = getClass().getResourceAsStream(thirdPartAuth);
+                    if (thirdPartIn == null) {
+                        throw new IOException("Missing resource " + thirdPartAuth);
+                    }
+                    String thirdPartCert = IOUtils.toString(thirdPartIn);
                     String thirdPartAuthId = CertificateUtils.stripPath(thirdPartAuth);
                     addThirdPartyAuthority(thirdPartAuthId, thirdPartCert);
                 } catch (IOException e) {
