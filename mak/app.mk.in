@@ -41,7 +41,7 @@ sf = \
   sipXrest \
   sipXcallController \
   sipXcdrLog \
-  sipXwebsocket
+  sipXevent
 
 lang = \
   sipXlang-abitibi-fr_CA \

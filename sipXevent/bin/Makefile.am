@@ -5,9 +5,9 @@ EXTRA_DIST = $(initd_SCRIPTS:=.in)
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
-	sipxwebsocket
+	sipxevent
 
 $(initd_SCRIPTS) : % : %.in Makefile
-	@$(call SearchAndReplace,$<,$@,websocket_PKGS)
+	@$(call SearchAndReplace,$<,$@,event_PKGS)
 
 DISTCLEANFILES = $(initd_SCRIPTS)

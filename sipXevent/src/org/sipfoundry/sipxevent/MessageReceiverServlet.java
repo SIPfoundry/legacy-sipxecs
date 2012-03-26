@@ -14,7 +14,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxwebsocket;
+package org.sipfoundry.sipxevent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +30,7 @@ import org.springframework.web.HttpRequestHandler;
 
 public class MessageReceiverServlet implements HttpRequestHandler {
     private RegisteredClients m_registeredClients;
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxwebsocket");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxevent");
 
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException,

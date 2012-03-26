@@ -5,17 +5,17 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-  <beans:bean id="websocketProps" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <beans:bean id="eventProps" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <beans:property name="locations">
       <beans:list>
-        <beans:value>file:${conf.dir}/sipxwebsocket.properties</beans:value>        
+        <beans:value>file:${conf.dir}/sipxevent.properties</beans:value>        
       </beans:list>
     </beans:property>  
     <beans:property name="searchSystemEnvironment" value="true" />
     <beans:property name="ignoreUnresolvablePlaceholders" value="true" />
   </beans:bean>
   
-  <beans:bean id="webSocketServer" class="org.sipfoundry.sipxwebsocket.WebSocketServer" init-method="init">
+  <beans:bean id="webSocketServer" class="org.sipfoundry.sipxevent.WebSocketServer" init-method="init">
   	<beans:property name="keystore" value="${keystore.file}" />
   	<beans:property name="password" value="${keystore.password}" />
   	<beans:property name="logFile" value="${log.file}" />

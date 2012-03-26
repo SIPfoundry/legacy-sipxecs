@@ -50,6 +50,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %dir %attr(755,sipx,sipx) %{_datadir}/sipxecs
-%attr(755,root,root) %{_sysconfdir}/init.d/sipxwebsocket
-%{_datadir}/sipxecs/cfinputs/plugin.d/sipxwebsocket.cf
-%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXwebsocket
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxevent
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxevent.cf
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXevent

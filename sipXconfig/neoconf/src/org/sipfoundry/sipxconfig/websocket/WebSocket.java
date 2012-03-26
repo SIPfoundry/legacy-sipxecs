@@ -19,7 +19,7 @@ package org.sipfoundry.sipxconfig.websocket;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface WebSocket {
-    public static final LocationFeature FEATURE = new LocationFeature("websocket");
+    public static final LocationFeature FEATURE = new LocationFeature("event");
 
     public WebSocketSettings getSettings();
 

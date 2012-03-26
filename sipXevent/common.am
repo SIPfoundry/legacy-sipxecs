@@ -1,4 +1,4 @@
-websocket_PKGS = \
+event_PKGS = \
 	commons-logging \
 	commons-lang \
 	commons-io \

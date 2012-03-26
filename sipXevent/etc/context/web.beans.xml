@@ -7,20 +7,20 @@
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
-  <beans:bean id="websocketProps" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <beans:bean id="eventProps" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <beans:property name="locations">
       <beans:list>
-        <beans:value>file:${conf.dir}/sipxwebsocket.properties</beans:value>        
+        <beans:value>file:${conf.dir}/sipxevent.properties</beans:value>        
       </beans:list>
     </beans:property>  
     <beans:property name="searchSystemEnvironment" value="true" />
     <beans:property name="ignoreUnresolvablePlaceholders" value="true" />
   </beans:bean>
-
+  
   <http auto-config='true'>
     <intercept-url pattern="/register" access="ROLE_USER" />
   </http>
-
+  
   <authentication-manager>
     <authentication-provider ref='daoAuthenticationProvider'/>
   </authentication-manager>
@@ -44,19 +44,19 @@
   	<beans:property name="realm" value="${websocket.realm}" />
   </beans:bean>
   
-  <beans:bean id="registeredClients" class="org.sipfoundry.sipxwebsocket.RegisteredClients">  	
+  <beans:bean id="registeredClients" class="org.sipfoundry.sipxevent.RegisteredClients">  	
   </beans:bean>  
   
-  <beans:bean id="sipxWebSocket" class="org.sipfoundry.sipxwebsocket.SipXWebSocket" scope="prototype">
+  <beans:bean id="sipxWebSocket" class="org.sipfoundry.sipxevent.SipXWebSocket" scope="prototype">
   	<beans:property name="userDetailsService" ref="mongoUserDetailsService" />
   	<beans:property name="passwordEncoder" ref="passwordEncoder" />
   	<beans:property name="registeredClients" ref="registeredClients" />
   </beans:bean>  
   
-  <beans:bean id="websocket" class="org.sipfoundry.sipxwebsocket.WebSocketServlet" init-method="init">
+  <beans:bean id="websocket" class="org.sipfoundry.sipxevent.WebSocketServlet" init-method="init">
   </beans:bean>
   
-  <beans:bean id="receiver" class="org.sipfoundry.sipxwebsocket.MessageReceiverServlet">
+  <beans:bean id="receiver" class="org.sipfoundry.sipxevent.MessageReceiverServlet">
   	<beans:property name="registeredClients" ref="registeredClients" />
   </beans:bean>     
                  
