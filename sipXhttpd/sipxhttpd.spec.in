@@ -13,6 +13,8 @@ BuildRequires: automake
 Requires: httpd
 # not installed by default on centos 6
 Requires: mod_ssl
+# just for sipx user
+Requires: sipxcommserverlib >= %version
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
