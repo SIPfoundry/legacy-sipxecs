@@ -11,6 +11,8 @@ Url: http://www.sipfoundry.org
 
 BuildRequires: automake
 Requires: httpd
+# not installed by default on centos 6
+Requires: mod_ssl
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
