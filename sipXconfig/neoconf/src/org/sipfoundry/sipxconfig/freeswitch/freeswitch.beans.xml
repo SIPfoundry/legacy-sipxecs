@@ -11,8 +11,6 @@
   </bean>
   
   <bean id="freeswitchFeature" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature">
-    <property name="featureManager" ref="featureManager" />
-    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
     <property name="settingsDao">
       <bean parent="settingsWithLocationDao">
         <property name="target">

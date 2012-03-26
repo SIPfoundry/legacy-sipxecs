@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.localization.Localization;
 import org.springframework.dao.support.DataAccessUtils;
@@ -100,7 +101,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         return (Localization) DataAccessUtils.singleResult(l);
     }
 
-    public List<DialingRule> getDialingRules() {
+    public List<DialingRule> getDialingRules(Location location) {
         List<DialingRule> rules;
         Domain d = getDomain();
         if (d.hasAliases()) {

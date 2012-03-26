@@ -22,8 +22,10 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.springframework.beans.factory.annotation.Required;
 
 public class MohAddressFactory {
@@ -38,6 +40,19 @@ public class MohAddressFactory {
     private String m_mohUser;
 
     public Address getMediaAddress() {
+        return getMediaAddress(null);
+    }
+
+    public Address getMediaAddress(Location location) {
+        Address addr = null;
+        if (location == null) {
+            addr = m_addressManager.getSingleAddress(Ivr.SIP_ADDRESS);
+        } else {
+            addr = m_addressManager.getSingleAddress(Ivr.SIP_ADDRESS, location);
+        }
+        if (addr != null) {
+            return addr;
+        }
         if (m_freeswitchAddress == null) {
             m_freeswitchAddress = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
         }
@@ -97,7 +112,7 @@ public class MohAddressFactory {
         if (mohParam != null) {
             params.put(MOH, mohParam);
         }
-        return SipUri.format("IVR", getMediaAddress().toString(), params);
+        return SipUri.format("IVR", getMediaAddress().getAddress(), params);
     }
 
     private String getMohUri(String mohParam) {
@@ -116,4 +131,5 @@ public class MohAddressFactory {
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
+
 }

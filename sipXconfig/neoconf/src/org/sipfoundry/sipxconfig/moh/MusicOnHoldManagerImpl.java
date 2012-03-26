@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.moh;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -20,31 +21,45 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.common.BeanId;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListener, BeanFactoryAware {
+public class MusicOnHoldManagerImpl implements MusicOnHoldManager, ReplicableProvider, DaoEventListener,
+        BeanFactoryAware, FeatureProvider {
     public static final Log LOG = LogFactory.getLog(MusicOnHoldManagerImpl.class);
     private String m_audioDirectory;
     private String m_mohUser;
     private ListableBeanFactory m_beanFactory;
+    private FeatureManager m_featureManager;
+    private BeanWithSettingsDao<MohSettings> m_settingsDao;
+    private ReplicationManager m_replicationManager;
 
     /**
      * Music on hold implementation requires that ~~mh~u calls are forwarded to Media Server. We
      * are adding the rule here.
      */
-    public List<DialingRule> getDialingRules() {
+    public List<DialingRule> getDialingRules(Location location) {
         MohAddressFactory factory = getAddressFactory();
-        Address mediaAddress = factory.getMediaAddress();
+        Address mediaAddress = factory.getMediaAddress(location);
         if (mediaAddress == null) {
             return Collections.emptyList();
         }
-        DialingRule rule = new MohRule(mediaAddress.toString(), factory.getFilesMohUser());
+        DialingRule rule = new MohRule(mediaAddress.getAddress(), factory.getFilesMohUser());
         return Collections.singletonList(rule);
     }
 
@@ -110,6 +125,17 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         return m_beanFactory.getBean(MohAddressFactory.class);
     }
 
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
+        if (locations.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        replicables.add(getSettings());
+        return replicables;
+    }
+
     /**
      * If the directory does not exist create it.
      *
@@ -132,4 +158,44 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
+
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public MohSettings getSettings() {
+        return m_settingsDao.findOrCreateOne();
+    }
+
+    @Override
+    public void saveSettings(MohSettings settings) {
+        m_settingsDao.upsert(settings);
+        m_replicationManager.replicateEntity(settings);
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<MohSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return null;
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return Collections.singleton(FEATURE);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
+    }
+
 }

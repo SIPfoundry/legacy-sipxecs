@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.dialplan;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
+
 public interface DialingRuleProvider {
-    public List< ? extends DialingRule> getDialingRules();
+    public List< ? extends DialingRule> getDialingRules(Location location);
 }
