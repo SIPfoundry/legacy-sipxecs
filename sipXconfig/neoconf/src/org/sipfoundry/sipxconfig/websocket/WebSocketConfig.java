@@ -43,11 +43,11 @@ public class WebSocketConfig implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(WebSocketImpl.FEATURE);
-            ConfigUtils.enableCfengineClass(dir, "sipxwebsocket.cfdat", enabled, "sipxwebsocket");
+            ConfigUtils.enableCfengineClass(dir, "sipxevent.cfdat", enabled, "sipxevent");
             if (!enabled) {
                 continue;
             }
-            File f = new File(dir, "sipxwebsocket.properties.part");
+            File f = new File(dir, "sipxevent.properties.part");
             Writer wtr = new FileWriter(f);
             try {
                 write(wtr, m_websocket.getSettings());

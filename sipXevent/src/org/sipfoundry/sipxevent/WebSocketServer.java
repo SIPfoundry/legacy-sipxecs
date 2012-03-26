@@ -14,7 +14,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxwebsocket;
+package org.sipfoundry.sipxevent;
 
 import java.net.UnknownHostException;
 import java.util.Properties;
@@ -40,7 +40,7 @@ public class WebSocketServer {
     private String m_confDir;
     private int m_port;
 
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxwebsocket");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxevent");
 
     public void init() {
         // Configure log4j

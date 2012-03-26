@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# sipXwebsocket - Startup script for sipxrave
-# processname: sipxwebsocket
+# sipXevent - Startup script for sipxevent
+# processname: sipxevent
 
 # Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -10,8 +10,8 @@
 . /etc/rc.d/init.d/functions || exit 1
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-prog=sipxwebsocket
-pidfile="@SIPX_RUNDIR@/sipxwebsocket.pid"
+prog=sipxevent
+pidfile="@SIPX_RUNDIR@/sipxevent.pid"
 
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
@@ -25,20 +25,20 @@ checkRunningInstance() {
   fi
 }
 
-# Start sipxwebsocket
+# Start sipxevent
 start() {
   checkRunningInstance
   
   JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-  Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @websocket_PKGS@`
-  export CLASSPATH=`echo @SIPX_CONFDIR@/sipxwebsocket @SIPX_JAVADIR@/sipXwebsocket/*.jar ${Dependencies} | sed -e 's/ /:/g'`  
+  Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @event_PKGS@`
+  export CLASSPATH=`echo @SIPX_CONFDIR@/sipxevent @SIPX_JAVADIR@/sipXevent/*.jar ${Dependencies} | sed -e 's/ /:/g'`  
   
   Command="$JavaCmd \
-    -Dprocname=sipxwebsocket \
+    -Dprocname=sipxevent \
     -Dconf.dir=@SIPX_CONFDIR@ \
     -Dvar.dir=@SIPX_VARDIR@ \
     $JavaSslOpts \
-    org.sipfoundry.sipxwebsocket.WebSocketServer \
+    org.sipfoundry.sipxevent.WebSocketServer \
     $Args"
   if [ -n "${NoFork}" ] ; then
     runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
@@ -51,8 +51,8 @@ start() {
 }
 
 stop() {
-  echo -n $"Stopping sipxwebsocket: "
-  killproc -p "${pidfile}" -t30 -TERM "sipxwebsocket"
+  echo -n $"Stopping sipxevent: "
+  killproc -p "${pidfile}" -t30 -TERM "sipxevent"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"
