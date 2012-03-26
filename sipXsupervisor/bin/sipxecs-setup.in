@@ -257,7 +257,13 @@ else
 end
 
 puts "Configuring system, this may take a few minutes..."
-ok = run_command("#{$bindir}/sipxagent #{'-v ' if $verbose} -d setup")
+
+# First pass generated cfdata info
+exit 1 unless run_command("#{$bindir}/sipxagent #{'-v ' if $verbose} -d setup")
+
+# 2nd pass operates on cfdata info
+ok = run_command("#{$bindir}/sipxagent #{'-v ' if $verbose}")
+
 if !ok
   puts "failed."
   exit 1
