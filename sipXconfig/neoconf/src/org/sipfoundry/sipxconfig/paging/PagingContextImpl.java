@@ -141,7 +141,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         removeAll(PagingGroup.class);
     }
 
-    public List< ? extends DialingRule> getDialingRules() {
+    public List< ? extends DialingRule> getDialingRules(Location location) {
         if (!m_featureManager.isFeatureEnabled(FEATURE)) {
             return null;
         }

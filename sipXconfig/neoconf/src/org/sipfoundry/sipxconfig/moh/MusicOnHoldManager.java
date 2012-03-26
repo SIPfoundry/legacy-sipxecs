@@ -9,16 +9,25 @@
  */
 package org.sipfoundry.sipxconfig.moh;
 
+import java.io.File;
+
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface MusicOnHoldManager extends DialingRuleProvider, AliasOwner {
-    static final GlobalFeature FEATURE = new GlobalFeature("moh");
+    static final LocationFeature FEATURE = new LocationFeature("moh");
 
     String getAudioDirectoryPath();
 
     boolean isAudioDirectoryEmpty();
 
     MohAddressFactory getAddressFactory();
+
+    File getUserAudioDirectory(User user);
+
+    MohSettings getSettings();
+
+    void saveSettings(MohSettings settings);
 }

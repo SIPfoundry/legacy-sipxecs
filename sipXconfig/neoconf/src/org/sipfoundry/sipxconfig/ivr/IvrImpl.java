@@ -155,7 +155,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
             return null;
         }
 
-        if (m_featureManager.isFeatureEnabled(Ivr.FEATURE, whoIsAsking)) {
+        if (whoIsAsking != null && m_featureManager.isFeatureEnabled(Ivr.FEATURE, whoIsAsking)) {
             return new Address(t, getAddress(whoIsAsking.getFqdn()));
         }
         return new Address(t, getAddress(m_domainManager.getDomainName()));

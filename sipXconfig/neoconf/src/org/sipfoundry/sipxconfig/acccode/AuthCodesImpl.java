@@ -50,7 +50,7 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
     private BeanWithSettingsDao<AuthCodeSettings> m_settingsDao;
 
     @Override
-    public List< ? extends DialingRule> getDialingRules() {
+    public List< ? extends DialingRule> getDialingRules(Location location) {
         List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
         if (locations.isEmpty()) {
             return Collections.emptyList();

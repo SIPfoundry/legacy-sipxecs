@@ -17,6 +17,7 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -147,7 +148,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     }
 
     @Override
-    public List<DialingRule> getDialingRules() {
+    public List<DialingRule> getDialingRules(Location location) {
         DialingRule[] rules = new DialingRule[] {
             new RlsRule()
         };
