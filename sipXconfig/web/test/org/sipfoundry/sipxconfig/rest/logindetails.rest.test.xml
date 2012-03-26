@@ -2,4 +2,5 @@
   <userName>200</userName>
   <imId>JohnIM</imId>
   <imPassword>123456</imPassword>
+  <ldapImAuth>false</ldapImAuth>
 </login-details>

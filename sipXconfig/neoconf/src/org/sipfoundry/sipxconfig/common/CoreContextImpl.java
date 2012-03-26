@@ -671,7 +671,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 if (imEnabled) {
                     if (StringUtils.isNotBlank(imId) && !StringUtils.equals(imId, userName)) {
                         String imIdentity = createUri(imId, domainName);
-                        aliases.add(new AliasMapping(imIdentity, contact, ALIAS));
+                        AliasMapping am = new AliasMapping(imIdentity, contact, ALIAS);
+                        if (!aliases.contains(am)) {
+                            aliases.add(am);
+                        }
                     }
                 }
                 String faxExtension = rs.getString(FAX);

@@ -14,8 +14,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdQueue;
+import org.sipfoundry.sipxconfig.admin.DidInUseException;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -68,6 +70,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         // Check for duplicate names or extensions before saving the call group
         String name = callGroup.getName();
         String extension = callGroup.getExtension();
+        String did = callGroup.getDid();
         final String huntGroupTypeName = "hunt group";
         if (!m_aliasManager.canObjectUseAlias(callGroup, name)) {
             throw new NameInUseException(huntGroupTypeName, name);
@@ -75,8 +78,11 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         if (!m_aliasManager.canObjectUseAlias(callGroup, extension)) {
             throw new ExtensionInUseException(huntGroupTypeName, extension);
         }
-        if (!m_aliasManager.canObjectUseAlias(callGroup, callGroup.getDid())) {
-            throw new ExtensionInUseException(huntGroupTypeName, callGroup.getDid());
+        if (!m_aliasManager.canObjectUseAlias(callGroup, did)) {
+            throw new ExtensionInUseException(huntGroupTypeName, did);
+        }
+        if (StringUtils.isNotBlank(did) && did.equals(extension)) {
+            throw new DidInUseException(huntGroupTypeName, did);
         }
         getHibernateTemplate().saveOrUpdate(callGroup);
         // activate call groups every time the call group is saved

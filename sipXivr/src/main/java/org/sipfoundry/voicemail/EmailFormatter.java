@@ -187,6 +187,10 @@ public class EmailFormatter {
      * The format of the attached fax
      */
     public String getFaxFormat() {
-        return m_bundle.getString("fax_format");
+        String format = "fax_format";
+        if (m_bundle.containsKey(format)) {
+            return m_bundle.getString(format);
+        }
+        return "pdf";
     }
 }

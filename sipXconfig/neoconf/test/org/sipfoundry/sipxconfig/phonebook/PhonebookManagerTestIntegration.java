@@ -453,12 +453,12 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertTrue(genPhSettings.isEveryoneEnabled());
         //test save everyone to false
         genPhSettings.setEveryoneEnabled(false);
-        m_phonebookManager.saveGeneralPhonebookSettings(genPhSettings);
+        m_phonebookManager.saveGeneralPhonebookSettings();
         genPhSettings = m_phonebookManager.getGeneralPhonebookSettings();
         assertFalse(genPhSettings.isEveryoneEnabled());
         //test revert everyone to default value (true)
         genPhSettings.setEveryoneEnabled(true);
-        m_phonebookManager.saveGeneralPhonebookSettings(genPhSettings);
+        m_phonebookManager.saveGeneralPhonebookSettings();
         genPhSettings = m_phonebookManager.getGeneralPhonebookSettings();
         assertTrue(genPhSettings.isEveryoneEnabled());
     }

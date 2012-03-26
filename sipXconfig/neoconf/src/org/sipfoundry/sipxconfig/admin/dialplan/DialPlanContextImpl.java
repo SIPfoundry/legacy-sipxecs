@@ -17,6 +17,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.DidInUseException;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
@@ -146,6 +147,9 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         if (!m_aliasManager.canObjectUseAlias(rule, voiceMailDid)) {
             throw new ExtensionInUseException(VOICEMAIL, voiceMailDid);
         }
+        if (StringUtils.isNotBlank(voiceMailDid) && voiceMailDid.equals(voiceMailExtension)) {
+            throw new DidInUseException(VOICEMAIL, voiceMailDid);
+        }
     }
 
     private void checkAliasCollisionsForAttendantRule(AttendantRule ar) {
@@ -156,6 +160,9 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         }
         if (!m_aliasManager.canObjectUseAlias(ar, attendantDid)) {
             throw new ExtensionInUseException(DIALING_RULE, attendantDid);
+        }
+        if (StringUtils.isNotBlank(attendantDid) && attendantDid.equals(attendantExtension)) {
+            throw new DidInUseException(DIALING_RULE, attendantDid);
         }
 
         String aa = ar.getAttendantAliases();

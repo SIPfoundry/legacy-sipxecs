@@ -1,0 +1,29 @@
+<conference>
+  <extension>555</extension>
+  <description>desc</description>
+  <locked>false</locked>
+  <members>
+    <member>
+      <id>1</id>
+      <name>200</name>
+      <imId>200im</imId>
+      <uuid>33ee33ee</uuid>
+      <volumeIn>0</volumeIn>
+      <volumeOut>0</volumeOut>
+      <energyLevel>30</energyLevel>
+      <canHear>true</canHear>
+      <canSpeak>true</canSpeak>
+    </member>
+    <member>
+      <id>1</id>
+      <name>201</name>
+      <imId>201im</imId>
+      <uuid>333eee333</uuid>
+      <volumeIn>0</volumeIn>
+      <volumeOut>0</volumeOut>
+      <energyLevel>30</energyLevel>
+      <canHear>true</canHear>
+      <canSpeak>false</canSpeak>
+    </member>
+  </members>
+</conference>

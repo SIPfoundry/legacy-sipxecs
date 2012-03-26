@@ -28,6 +28,7 @@
     <property name="vcardParser" ref="vcardParser" />
     <property name="vcardEncoding" value="UTF-8" />
 	<property name="generalPhonebookSettings" ref="generalPhonebookSettings" />
+	<property name="configJdbcTemplate" ref="configJdbcTemplate" />	
   </bean>
 
   <bean id="filePhonebookEntryUpgradeTask" class="org.sipfoundry.sipxconfig.phonebook.FilePhonebookEntryUpgradeTask">
@@ -39,9 +40,9 @@
     </property>
   </bean>
 
-  <bean id="generalPhonebookSettings"
+  <bean id="generalPhonebookSettings" parent="beanWithSettings"
 	class="org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings">
-	<property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
+  
 
 </beans>

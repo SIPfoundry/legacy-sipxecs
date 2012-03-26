@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.classic.Session;
+import org.sipfoundry.sipxconfig.admin.DidInUseException;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -122,6 +123,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             AcdLine line = (AcdLine) acdComponent;
             String name = line.getName();
             String extension = line.getExtension();
+            String did = line.getDid();
             DaoUtils.checkDuplicates(getHibernateTemplate(), AcdLine.class, line, NAME_PROPERTY,
                     new NameInUseException(LINE, line.getName()));
             DaoUtils.checkDuplicates(getHibernateTemplate(), AcdLine.class, line, "extension",
@@ -133,8 +135,11 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             if (!m_aliasManager.canObjectUseAlias(line, extension)) {
                 throw new ExtensionInUseException(LINE, extension);
             }
-            if (!m_aliasManager.canObjectUseAlias(line, line.getDid())) {
-                throw new ExtensionInUseException(LINE, line.getDid());
+            if (!m_aliasManager.canObjectUseAlias(line, did)) {
+                throw new ExtensionInUseException(LINE, did);
+            }
+            if (StringUtils.isNotBlank(did) && did.equals(extension)) {
+                throw new DidInUseException(LINE, did);
             }
         }
         if (acdComponent instanceof AcdQueue) {

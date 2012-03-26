@@ -105,7 +105,7 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     void saveGoogleDomain(GoogleDomain gd);
 
-    void saveGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings);
+    void saveGeneralPhonebookSettings();
 
     GeneralPhonebookSettings getGeneralPhonebookSettings();
 
