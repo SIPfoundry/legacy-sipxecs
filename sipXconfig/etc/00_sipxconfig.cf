@@ -16,8 +16,14 @@
 #
 
 bundle agent 00_sipxconfig {
+  methods:
+    primary::
+      "any" usebundle => "mongodb";
+      "any" usebundle => "postgres";
+      "any" usebundle => "sipxcommserverlib";
+
   commands:
-    setup::
+    primary.setup::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         comment => "generate ssl info $(this.promiser)",
         args => "setup",
