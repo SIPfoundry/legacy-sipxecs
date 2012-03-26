@@ -1168,22 +1168,21 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
                         requestCNonce.data(), requestNonceCount.data(),
                         requestQop.data(), nonceExpires);
       }
-
-      // verify that qop,cnonce, nonceCount are compatible
-      else if (sipRequest.verifyQopConsistency(requestCNonce.data(),
-                                               requestNonceCount.data(),
-                                               &requestQop,
-                                               qopType)
-               >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
-      {
-          OsSysLog::add(FAC_AUTH, PRI_INFO,
-                        "SipRouter:isAuthenticated -"
-                        "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
-                        requestQop.data(), requestCNonce.data(), requestNonceCount.data());
-      }
-
       else // realm, nonce and qop are all ok
-      {    
+      {
+          // verify that qop,cnonce, nonceCount are compatible but only log it
+          if (sipRequest.verifyQopConsistency(requestCNonce.data(),
+                                                   requestNonceCount.data(),
+                                                   &requestQop,
+                                                   qopType)
+                   >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
+          {
+              OsSysLog::add(FAC_AUTH, PRI_INFO,
+                            "SipRouter:isAuthenticated -"
+                            "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
+                            requestQop.data(), requestCNonce.data(), requestNonceCount.data());
+          }
+
           Url userUrl;
           UtlString authTypeDB;
           UtlString passTokenDB;
