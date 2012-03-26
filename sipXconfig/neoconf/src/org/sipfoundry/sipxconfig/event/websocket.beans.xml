@@ -2,16 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="websocketSettings" class="org.sipfoundry.sipxconfig.websocket.WebSocketSettings" parent="settingsBean">
+  <bean id="websocketSettings" class="org.sipfoundry.sipxconfig.event.WebSocketSettings" parent="settingsBean">
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
-  <bean id="websocketImpl" class="org.sipfoundry.sipxconfig.websocket.WebSocketImpl">
+  <bean id="websocketImpl" class="org.sipfoundry.sipxconfig.event.WebSocketImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">
           <bean parent="beanWithSettingsDaoImpl">
-            <constructor-arg value="org.sipfoundry.sipxconfig.websocket.WebSocketSettings"/>
+            <constructor-arg value="org.sipfoundry.sipxconfig.event.WebSocketSettings"/>
           </bean>
         </property>
       </bean>
@@ -20,10 +20,10 @@
 
   <bean id="websocket" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="target" ref="websocketImpl"/>
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.websocket.WebSocket"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.event.WebSocket"/>
   </bean>
   
-  <bean id="websocketConfig" class="org.sipfoundry.sipxconfig.websocket.WebSocketConfig">
+  <bean id="websocketConfig" class="org.sipfoundry.sipxconfig.event.WebSocketConfig">
   	<property name="websocket" ref="websocket" />
   </bean>
 </beans>

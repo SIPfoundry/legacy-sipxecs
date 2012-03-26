@@ -14,7 +14,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.site.websocket;
+package org.sipfoundry.sipxconfig.site.event;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
@@ -22,10 +22,10 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.websocket.WebSocket;
-import org.sipfoundry.sipxconfig.websocket.WebSocketSettings;
+import org.sipfoundry.sipxconfig.event.WebSocket;
+import org.sipfoundry.sipxconfig.event.WebSocketSettings;
 
-public abstract class EditWebSocket extends PageWithCallback implements PageBeginRenderListener {
+public abstract class EditEvent extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "websocket/EditWebsocket";
 
     @Bean

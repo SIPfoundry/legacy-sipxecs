@@ -23,16 +23,16 @@
 	</filter-mapping>
 	
     <servlet>
-        <display-name>WebSocketServlet</display-name>
-        <servlet-name>websocket</servlet-name>
+        <display-name>eventServlet</display-name>
+        <servlet-name>event</servlet-name>
         <servlet-class>
             org.springframework.web.context.support.HttpRequestHandlerServlet
         </servlet-class>
     </servlet>
  	
     <servlet-mapping>
-    	<servlet-name>websocket</servlet-name>
-    	<url-pattern>/websocket/*</url-pattern>
+    	<servlet-name>event</servlet-name>
+    	<url-pattern>/event/*</url-pattern>
     </servlet-mapping>
     
     <servlet>

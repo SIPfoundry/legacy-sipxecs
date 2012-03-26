@@ -21,10 +21,10 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
-import org.sipfoundry.sipxconfig.websocket.WebSocket;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxOpenfireConfiguration {

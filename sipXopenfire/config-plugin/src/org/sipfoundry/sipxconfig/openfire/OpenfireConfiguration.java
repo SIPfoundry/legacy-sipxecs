@@ -34,10 +34,10 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
-import org.sipfoundry.sipxconfig.websocket.WebSocket;
 import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {

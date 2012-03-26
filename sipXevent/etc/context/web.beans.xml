@@ -41,7 +41,7 @@
   </beans:bean>
   
   <beans:bean id="passwordEncoder" class="org.sipfoundry.commons.security.PasswordEncoderImpl">
-  	<beans:property name="realm" value="${websocket.realm}" />
+  	<beans:property name="realm" value="${event.realm}" />
   </beans:bean>
   
   <beans:bean id="registeredClients" class="org.sipfoundry.sipxevent.RegisteredClients">  	
@@ -53,7 +53,7 @@
   	<beans:property name="registeredClients" ref="registeredClients" />
   </beans:bean>  
   
-  <beans:bean id="websocket" class="org.sipfoundry.sipxevent.WebSocketServlet" init-method="init">
+  <beans:bean id="event" class="org.sipfoundry.sipxevent.WebSocketServlet" init-method="init">
   </beans:bean>
   
   <beans:bean id="receiver" class="org.sipfoundry.sipxevent.MessageReceiverServlet">
