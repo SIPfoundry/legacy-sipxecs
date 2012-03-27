@@ -5,6 +5,7 @@
     - I N T E R C O M   M A N A G E R   I M P L
   -->
   <bean id="intercomManagerImpl" class="org.sipfoundry.sipxconfig.intercom.IntercomManagerImpl" parent="abstractDaoImpl">
+    <property name="configManager" ref="configManager" />
   </bean>
 
   <!--
