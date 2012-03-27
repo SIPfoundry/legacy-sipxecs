@@ -93,7 +93,7 @@ bundle agent sipxopenfire_setup {
 bundle agent sipxopenfire_running {
   vars:
     any::
-      "service_command" string => ".*\s-Dcom.sun.management.jmxremote.port=23458\s.*";
+      "service_command" string => ".*\s-Dexe4j.moduleName=$(sipx.OPENFIRE_HOME)/bin/openfire\s.*";
 
   methods:
     any::
