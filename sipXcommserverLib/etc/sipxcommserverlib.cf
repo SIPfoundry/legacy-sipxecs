@@ -29,7 +29,7 @@ bundle agent sipxcommserverlib_config {
     };
 
   files:
-    primary::
+    any::
       "$(sipx.SIPX_CONFDIR)/ssl/$(ssl)"
         comment => "install SSL SIP info $(this.promiser)",
         create => "true",
