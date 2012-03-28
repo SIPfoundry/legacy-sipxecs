@@ -6,6 +6,7 @@
   <bean id="mohAddressFactory" class="org.sipfoundry.sipxconfig.moh.MohAddressFactory" scope="prototype">
     <property name="addressManager" ref="addressManager" />
     <property name="domainManager" ref="domainManager" />
+    <property name="mohUser" value="~~mh~" />
   </bean>
 
   <bean id="musicOnHoldManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -15,10 +16,27 @@
     </property>
   </bean>
 
+  <bean id="mohSettings" class="org.sipfoundry.sipxconfig.moh.MohSettings" parent="settingsBean">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+
   <bean id="musicOnHoldManagerImpl" class="org.sipfoundry.sipxconfig.moh.MusicOnHoldManagerImpl">
+     <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.moh.MohSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
     <property name="audioDirectory" value="${sysdir.vxml.moh}" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
+    <property name="featureManager" ref="featureManager" />
+    <property name="replicationManager" ref="replicationManagerImpl" />
   </bean>
+
+  <bean id="mohConfig" class="org.sipfoundry.sipxconfig.moh.MohConfig" />
 
 </beans>

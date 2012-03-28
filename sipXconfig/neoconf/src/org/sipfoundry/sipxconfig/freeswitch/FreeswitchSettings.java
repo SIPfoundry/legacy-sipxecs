@@ -26,19 +26,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class FreeswitchSettings extends SettingsWithLocation {
     private static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     private static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
-    private static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
     private static final String FREESWITCH_CODECS = "freeswitch-config/FREESWITCH_CODECS";
-
-    public static enum SystemMohSetting {
-        FILES_SRC, SOUNDCARD_SRC, NONE;
-        public static SystemMohSetting parseSetting(String mohSetting) {
-            try {
-                return valueOf(mohSetting);
-            } catch (IllegalArgumentException e) {
-                return FILES_SRC;
-            }
-        }
-    }
 
     public int getEventSocketPort() {
         return 8084; // not configurable at this time, no particular reason. --Douglas
@@ -54,10 +42,6 @@ public class FreeswitchSettings extends SettingsWithLocation {
 
     public int getFreeswitchSipPort() {
         return (Integer) getSettingTypedValue(FREESWITCH_SIP_PORT);
-    }
-
-    public String getMusicOnHoldSource() {
-        return (String) getSettingValue(FREESWITCH_MOH_SOURCE);
     }
 
     public class Defaults {

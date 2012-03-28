@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -25,13 +26,13 @@ public class DialingRuleCollector implements DialingRuleProvider, BeanFactoryAwa
     private Collection<DialingRuleProvider> m_dialingRuleProviders;
     private ListableBeanFactory m_beanFactory;
 
-    public List<DialingRule> getDialingRules() {
+    public List<DialingRule> getDialingRules(Location location) {
         List<DialingRule> dialingRules = new ArrayList<DialingRule>();
         Collection<DialingRuleProvider> dialingRuleProviders = getDialingRuleProviders();
         for (DialingRuleProvider provider : dialingRuleProviders) {
-            List< ? extends DialingRule> rules = provider.getDialingRules();
+            List< ? extends DialingRule> rules = provider.getDialingRules(location);
             if (rules != null) {
-                for (DialingRule rule : provider.getDialingRules()) {
+                for (DialingRule rule : provider.getDialingRules(location)) {
                     rule.appendToGenerationRules(dialingRules);
                 }
             }

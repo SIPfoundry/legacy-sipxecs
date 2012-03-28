@@ -10,8 +10,8 @@
 package org.sipfoundry.sipxconfig.intercom;
 
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
@@ -87,6 +87,6 @@ public class Intercom extends BeanWithGroups implements DeployConfigOnEdit {
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) DialPlanContext.FEATURE);
+        return Arrays.asList((Feature) IntercomManager.FEATURE, (Feature) DialPlanContext.FEATURE);
     }
 }

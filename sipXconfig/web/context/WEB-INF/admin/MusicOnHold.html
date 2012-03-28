@@ -3,8 +3,8 @@
   <span jwcid="@common/QuickHelp" value="message:help.text" />
   <form jwcid="moh@Form" id="moh:form" delegate="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
-        settings="ognl:mohSetting"
-        renderGroupTitle="ognl:true" />
+        settings="ognl:settings.settings"
+        renderGroupTitle="false" />
     <fieldset jwcid="@common/AssetSelectorMultiple"
               asset="ognl:asset"
               assetDir="ognl:musicOnHoldManager.audioDirectoryPath"

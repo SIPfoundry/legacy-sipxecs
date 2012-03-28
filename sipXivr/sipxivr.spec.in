@@ -59,3 +59,4 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXivr
 %attr(644,root,root) %{_datadir}/sipxecs/schema/autoattendants.xsd
 %attr(644,root,root) %{_datadir}/sipxecs/schema/validusers.xsd
+%config(noreplace) %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/mediaserver/data/moh

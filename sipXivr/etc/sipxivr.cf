@@ -18,6 +18,8 @@ bundle agent sipxivr {
   methods:
     sipxivr::
       "any" usebundle => "sipxivr_config";
+    moh::
+      "any" usebundle => "sync_moh_prompts";
     any::
       "any" usebundle => "sipxivr_setup";
       "any" usebundle => "sipxivr_running";
@@ -53,8 +55,20 @@ bundle agent sipxivr_config {
         create => "true",
         perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
         copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_IVRDATADIR)/prompts"),
-        file_select => aa_prompt,
+        file_select => wav_prompt,
         depth_search => recurse("1");
+}
+
+bundle agent sync_moh_prompts {
+    files:
+      !primary::
+        "$(sipx.SIPX_IVRDATADIR)/moh"
+         comment => "sync MoH files",
+         create => "true",
+         perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+         copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_IVRDATADIR)/moh"),
+         file_select => wav_prompt,
+         depth_search => recurse("2");
 }
 
 bundle edit_line sipxivr_properties_contents {
@@ -120,9 +134,10 @@ body copy_from copy_prompts(server,file) {
   source => "$(file)";
   compare => "digest";
   trustkey => "true";
+  purge => "true";
 }
 
-body file_select aa_prompt {
+body file_select wav_prompt {
   leaf_name => {
     ".*\.wav"
   };

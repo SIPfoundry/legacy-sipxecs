@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class DialingRuleCollectorTest extends TestCase {
 
@@ -35,7 +36,7 @@ public class DialingRuleCollectorTest extends TestCase {
         for (int i = 0; i < len; i++) {
             drpCtrl[i] = EasyMock.createControl();
             drp[i] = drpCtrl[i].createMock(DialingRuleProvider.class);
-            drp[i].getDialingRules();
+            drp[i].getDialingRules(new Location());
             drpCtrl[i].andReturn(rules).anyTimes();
             drpCtrl[i].replay();
         }
@@ -46,7 +47,7 @@ public class DialingRuleCollectorTest extends TestCase {
             }
         };
 
-        rules = collector.getDialingRules();
+        rules = collector.getDialingRules(new Location());
         assertEquals(len, rules.size());
         for (Iterator i = rules.iterator(); i.hasNext();) {
             assertSame(rule, i.next());
@@ -70,7 +71,7 @@ public class DialingRuleCollectorTest extends TestCase {
         for (int i = 0; i < len; i++) {
             drpCtrl[i] = EasyMock.createControl();
             drp[i] = drpCtrl[i].createMock(DialingRuleProvider.class);
-            drp[i].getDialingRules();
+            drp[i].getDialingRules(new Location());
             drpCtrl[i].andReturn(rules).anyTimes();
             drpCtrl[i].replay();
         }
@@ -81,7 +82,7 @@ public class DialingRuleCollectorTest extends TestCase {
             }
         };
 
-        rules = collector.getDialingRules();
+        rules = collector.getDialingRules(new Location());
         // list must be empry since none of the rules were enabled
         assertEquals(0, rules.size());
 
