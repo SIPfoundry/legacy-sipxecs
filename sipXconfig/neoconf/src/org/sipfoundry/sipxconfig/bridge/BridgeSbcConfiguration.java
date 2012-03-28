@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -52,21 +54,20 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener, 
         }
 
         Set<Location> locations = request.locations(manager);
-        FeatureManager fm = manager.getFeatureManager();
         List<BridgeSbc> bridges = m_sbcDeviceManager.getBridgeSbcs();
-        for (Location l : locations) {
-            for (BridgeSbc bridge : bridges) {
-                Location location = bridge.getLocation();
-                boolean bridgeHere = l.getId().equals(location.getId());
-                File dir = manager.getLocationDataDirectory(location);
-                ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, SIPXBRIDGE);
-                boolean proxyHere = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
-                // Proxy source reads sipxbrige.xml to find how to connect to bridge
-                if (bridgeHere || proxyHere) {
-                    // strange object for profile location to be compatible with device module
-                    ProfileLocation profileLocation = bridge.getProfileLocation();
-                    bridge.generateFiles(profileLocation);
-                }
+        Map<Integer, BridgeSbc> bridgesMap = new HashMap<Integer, BridgeSbc>();
+        for (BridgeSbc bridge : bridges) {
+            bridgesMap.put(bridge.getLocation().getId(), bridge);
+        }
+        for (Location location : locations) {
+            BridgeSbc bridge = bridgesMap.get(location.getId());
+            boolean bridgeHere = bridge != null ? true : false;
+            File dir = manager.getLocationDataDirectory(location);
+            ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, SIPXBRIDGE);
+            if (bridgeHere) {
+                // strange object for profile location to be compatible with device module
+                ProfileLocation profileLocation = bridge.getProfileLocation();
+                bridge.generateFiles(profileLocation);
             }
         }
     }
@@ -107,7 +108,7 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener, 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition(SIPXBRIDGE,
-                ".*\\s-Dprocname=sipxbridge\\s.*")) : null);
+        return (enabled ? Collections
+                .singleton(new ProcessDefinition(SIPXBRIDGE, ".*\\s-Dprocname=sipxbridge\\s.*")) : null);
     }
 }
