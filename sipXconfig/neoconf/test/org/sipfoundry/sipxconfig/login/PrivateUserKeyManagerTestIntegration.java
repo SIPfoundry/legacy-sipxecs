@@ -25,7 +25,9 @@ public class PrivateUserKeyManagerTestIntegration extends IntegrationTestCase {
 
     public void testPrivateKeyForUser() throws Exception {
         loadDataSet("dialplan/seedUser.xml");
-        m_featureManager.enableLocationFeature(Ivr.FEATURE, m_locationsManager.getPrimaryLocation(), false);
+        if (m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
+            m_featureManager.enableLocationFeature(Ivr.FEATURE, m_locationsManager.getPrimaryLocation(), false);
+        }
 
         User user = m_coreContext.loadUser(1001);
 
