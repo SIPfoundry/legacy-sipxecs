@@ -76,4 +76,9 @@ public class RlsConfig implements ConfigProvider {
     public void setRls(Rls rls) {
         m_rls = rls;
     }
+
+    @Required
+    public void setRlsLists(ResourceLists lists) {
+        m_lists = lists;
+    }
 }
