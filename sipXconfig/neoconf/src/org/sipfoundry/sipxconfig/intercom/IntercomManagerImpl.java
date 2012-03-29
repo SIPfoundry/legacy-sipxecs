@@ -142,18 +142,20 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
         }
 
         Intercom intercom = getIntercom();
-        switch (event) {
-        case POST_ENABLE:
-            intercom.setEnabled(true);
-            saveIntercom(intercom);
-            m_configManager.configureEverywhere(DialPlanContext.FEATURE);
-            break;
-        case PRE_DISABLE:
-            intercom.setEnabled(false);
-            saveIntercom(intercom);
-            m_configManager.configureEverywhere(DialPlanContext.FEATURE);
-        default:
-            break;
+        if (!intercom.isNew()) {
+            switch (event) {
+            case POST_ENABLE:
+                intercom.setEnabled(true);
+                saveIntercom(intercom);
+                m_configManager.configureEverywhere(DialPlanContext.FEATURE);
+                break;
+            case PRE_DISABLE:
+                intercom.setEnabled(false);
+                saveIntercom(intercom);
+                m_configManager.configureEverywhere(DialPlanContext.FEATURE);
+            default:
+                break;
+            }
         }
 
     }

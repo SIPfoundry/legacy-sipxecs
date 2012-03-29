@@ -95,6 +95,7 @@ public abstract class IntercomPage extends SipxBasePage implements PageBeginRend
                     .getGroupsByString(Phone.GROUP_RESOURCE_ID, groupsString, true);
             intercom.setGroupsAsList(groups);
         }
+        intercom.setEnabled(true);
 
         getIntercomManager().saveIntercom(intercom);
     }
