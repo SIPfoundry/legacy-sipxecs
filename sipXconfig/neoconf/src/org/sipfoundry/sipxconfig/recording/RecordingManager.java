@@ -16,12 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.recording;
 
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
-
-public interface Recording extends RecordingManager {
-    public static final LocationFeature FEATURE = new LocationFeature("recording");
-
-    public RecordingSettings getSettings();
-
-    public void saveSettings(RecordingSettings settings);
+public interface RecordingManager {
+    public static final String BEAN_NAME = "recording";
+    public int getJettyPort();
 }

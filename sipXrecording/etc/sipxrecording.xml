@@ -36,5 +36,11 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
+    <setting name="jetty.port">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>8549</value>
+    </setting>    
   </group>
 </model>

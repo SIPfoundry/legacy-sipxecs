@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class RecordingSettings extends PersistableSettings implements DeployConfigOnEdit {
+    private static final String JETTY_PORT = "recording/jetty.port";
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
@@ -34,6 +35,10 @@ public class RecordingSettings extends PersistableSettings implements DeployConf
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxrecording/sipxrecording.xml");
+    }
+
+    public int getJettyPort() {
+        return (Integer) getSettingTypedValue(JETTY_PORT);
     }
 
     @Override
