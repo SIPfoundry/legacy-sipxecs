@@ -234,15 +234,13 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     private static class DuplicateSerialNumberException extends UserException {
-        private static final String ERROR = "A phone with serial number: {0} already exists.";
-
         public DuplicateSerialNumberException(String serialNumber) {
-            super(ERROR, serialNumber);
+            super("&error.duplicateSerialNumberException", serialNumber);
         }
     }
 
     private static class InvalidSerialNumberException extends UserException {
-        private static final String ERROR = "The serial number \"{0}\" does not fulfill the required pattern {1}.";
+        private static final String ERROR = "&error.invalidSerialNumberException";
 
         public InvalidSerialNumberException(String serialNumber, String pattern) {
             super(ERROR, serialNumber, pattern);

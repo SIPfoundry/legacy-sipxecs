@@ -196,7 +196,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     class DuplicatePhonebookName extends UserException {
         DuplicatePhonebookName() {
-            super("A phonebook already exists with that name.");
+            super("&error.duplicatePhonebookName");
         }
     }
 

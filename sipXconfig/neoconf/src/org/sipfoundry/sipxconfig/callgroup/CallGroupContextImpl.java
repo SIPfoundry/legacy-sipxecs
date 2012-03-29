@@ -74,7 +74,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         String name = callGroup.getName();
         String extension = callGroup.getExtension();
         String did = callGroup.getDid();
-        final String huntGroupTypeName = "hunt group";
+        final String huntGroupTypeName = "&label.huntGroup";
         if (!m_aliasManager.canObjectUseAlias(callGroup, name)) {
             throw new NameInUseException(huntGroupTypeName, name);
         }

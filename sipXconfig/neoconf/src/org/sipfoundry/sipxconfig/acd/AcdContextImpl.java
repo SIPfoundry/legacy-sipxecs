@@ -59,7 +59,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     private static final String SQL = "alter table acd_server drop column host";
     private static final String ACD_LINE_IDS_WITH_ALIAS = "acdLineIdsWithAlias";
     private static final String VALUE = "value";
-    private static final String LINE = "line";
+    private static final String LINE = "&label.line";
     private static final String AGENT_FOR_USER_AND_SERVER_QUERY = "agentForUserAndServer";
 
     private AliasManager m_aliasManager;

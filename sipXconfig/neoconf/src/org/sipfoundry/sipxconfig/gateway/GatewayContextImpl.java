@@ -41,14 +41,14 @@ public class GatewayContextImpl extends SipxHibernateDaoSupport implements Gatew
     private static final String AUDIT_LOG_CONFIG_TYPE = "Gateway";
 
     private static class DuplicateNameException extends UserException {
-        private static final String ERROR = "A gateway with name \"{0}\" already exists.";
+        private static final String ERROR = "&error.duplicateNameException";
         public DuplicateNameException(String name) {
             super(ERROR, name);
         }
     }
 
     private static class DuplicateSerialNumberException extends UserException {
-        private static final String ERROR = "A gateway with serial number \"{0}\" already exists.";
+        private static final String ERROR = "&error.duplicateSerialNumberException";
         public DuplicateSerialNumberException(String name) {
             super(ERROR, name);
         }

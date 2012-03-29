@@ -43,7 +43,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         ConferenceBridgeContext {
     private static final String BUNDLE_CONFERENCE = "conference";
-    private static final String CONFERENCE = BUNDLE_CONFERENCE;
+    private static final String CONFERENCE = "&label.conference";
     private static final String VALUE = "value";
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
     private static final String CONFERENCE_BY_NAME = "conferenceByName";

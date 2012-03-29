@@ -47,9 +47,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String VALUE = "value";
-    private static final String DIALING_RULE = "dialing rule";
+    private static final String DIALING_RULE = "&label.dialingRule";
     private static final String DIAL_PLAN = "Dial-plan: ";
-    private static final String VOICEMAIL = "voicemail";
+    private static final String VOICEMAIL = "&label.voicemail";
     private AliasManager m_aliasManager;
     private ListableBeanFactory m_beanFactory;
     private AuditLogContext m_auditLogContext;
@@ -166,8 +166,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         for (int i = 0; i < aliases.length; i++) {
             String ruleAlias = aliases[i];
             if (!m_aliasManager.canObjectUseAlias(ar, ruleAlias)) {
-                final String message = "Alias \"{0}\" is already in use.  "
-                        + "Please choose another alias for this auto attendant.";
+                final String message = "&error.aliasCollisionException";
                 throw new UserException(message, ruleAlias);
             }
         }

@@ -254,7 +254,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     }
 
     private static class DuplicatePermissionLabelException extends UserException {
-        private static final String ERROR = "Permission {0} was already defined. Please choose another name.";
+        private static final String ERROR = "&message.duplicatePermission";
 
         public DuplicatePermissionLabelException(String label) {
             super(ERROR, label);

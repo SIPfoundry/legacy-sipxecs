@@ -104,7 +104,7 @@ public class CallGroupContextImplTestIntegration extends IntegrationTestCase {
             m_callGroupContext.saveCallGroup(group);
             fail("NameInUseException should be thrown");
         } catch (UserException e) {
-            assertTrue(e.getMessage().indexOf("sales") > 0);
+            assertEquals(e.getMessage(),"&error.nameInUse.long");
         }
         // table should have the same number of rows as before
         assertEquals(2, countRowsInTable("call_group"));
@@ -119,7 +119,7 @@ public class CallGroupContextImplTestIntegration extends IntegrationTestCase {
             m_callGroupContext.saveCallGroup(group);
             fail("ExtensionInUseException should be thrown");
         } catch (UserException e) {
-            assertTrue(e.getMessage().indexOf("401") > 0);
+            assertEquals(e.getMessage(),"&error.extensionInUse");
         }
         // table should have the same number of rows as before
         assertEquals(2, countRowsInTable("call_group"));
