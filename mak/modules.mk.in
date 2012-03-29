@@ -47,7 +47,8 @@ lib_common = \
   sipx-openfire \
   ruby-dbi \
   ruby-postgres \
-  cfengine
+  cfengine \
+  php-seclib
 
 $(foreach V,11 12 13 14 15 16,$(eval lib_fedora_$(V) = $(lib_common) sec))
 
