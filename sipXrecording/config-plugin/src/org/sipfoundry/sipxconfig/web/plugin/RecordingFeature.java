@@ -14,14 +14,10 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.recording;
+package org.sipfoundry.sipxconfig.web.plugin;
 
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.apache.tapestry.html.BasePage;
 
-public interface Recording {
-    public static final GlobalFeature FEATURE = new GlobalFeature("bridgeRecording");
+public abstract class RecordingFeature extends BasePage {
 
-    public RecordingSettings getSettings();
-
-    public void saveSettings(RecordingSettings settings);
 }

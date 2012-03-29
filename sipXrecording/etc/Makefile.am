@@ -1,18 +1,10 @@
 include $(top_srcdir)/config/utility.am
 
-EXTRA_DIST = \
-	$(proc_DATA:=.in) \
-	$(schema_DATA:=.in)
+cfinputsdir = @SIPX_CFINPUTS@/plugin.d
+dist_cfinputs_DATA = \
+	sipxrecording.cf
 
-procdir = $(SIPX_DATADIR)/process.d
-proc_DATA = \
-	sipxrecording-process.xml
-
-schemadir = $(SIPX_DATADIR)/schema
-schema_DATA = \
-	conferencebridge.xsd
-
-$(schema_DATA) $(proc_DATA) : % : %.in Makefile
-	@$(call SearchAndReplace, $<, $@)
-
-CLEANFILES = $(proc_DATA) $(schema_DATA)
+cfgdir = @SIPX_CONFDIR@/sipxrecording
+dist_cfg_DATA = \
+	sipxrecording.xml \
+	sipxrecording.properties

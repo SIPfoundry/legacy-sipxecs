@@ -16,7 +16,6 @@ sf_broken = \
   sipXpresence \
   sipXpage \
   sipXprovision \
-  sipXrecording \
   sipXphonelog
 
 sf = \
@@ -41,7 +40,8 @@ sf = \
   sipXrest \
   sipXcallController \
   sipXcdrLog \
-  sipXevent
+  sipXevent \
+  sipXrecording
 
 lang = \
   sipXlang-abitibi-fr_CA \

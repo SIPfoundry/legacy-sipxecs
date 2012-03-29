@@ -26,11 +26,13 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.springframework.beans.factory.annotation.Required;
 
-public class RecordingConfiguration implements ConfigProvider {
+public class RecordingConfig implements ConfigProvider {
     private Recording m_recording;
 
     @Override
@@ -38,30 +40,34 @@ public class RecordingConfiguration implements ConfigProvider {
         if (!request.applies(Recording.FEATURE)) {
             return;
         }
-
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
                 ConferenceBridgeContext.FEATURE);
         if (locations.isEmpty()) {
             return;
         }
-
-        RecordingSettings settings = m_recording.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            Writer writer = new FileWriter(new File(dir, "sipxrecording.properties"));
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE);
+            ConfigUtils.enableCfengineClass(dir, "sipxrecording.cfdat", enabled, "sipxrecording");
+            if (!enabled) {
+                continue;
+            }
+            File f = new File(dir, "sipxrecording.properties.part");
+            Writer wtr = new FileWriter(f);
             try {
-                write(writer, settings);
+                write(wtr, m_recording.getSettings());
             } finally {
-                IOUtils.closeQuietly(writer);
+                IOUtils.closeQuietly(wtr);
             }
         }
     }
 
     void write(Writer wtr, RecordingSettings settings) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
-        config.write(settings.getSettings().getSetting("recording"));
+        config.write(settings.getSettings());
     }
 
+    @Required
     public void setRecording(Recording recording) {
         m_recording = recording;
     }

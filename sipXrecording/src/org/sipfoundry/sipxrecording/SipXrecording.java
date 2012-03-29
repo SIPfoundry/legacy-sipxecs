@@ -8,10 +8,7 @@
  */
 package org.sipfoundry.sipxrecording;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -32,7 +29,7 @@ public class SipXrecording implements Runnable {
 
     /**
      * Determine what to do based on the SIP request.
-     * 
+     *
      * Run the autoattendant if action=autoattendant
      * Otherwise, hang up.
      */
@@ -41,10 +38,10 @@ public class SipXrecording implements Runnable {
         LOG.debug("SipXrecording::run Ending SipXrecording thread with client " + m_clientSocket);
     }
 
-    
+
     /**
      * Load the configuration from the sipxrecording.properties file.
-     * 
+     *
      * @throws Throwable
      */
     static void init() throws Throwable {
@@ -61,7 +58,7 @@ public class SipXrecording implements Runnable {
         props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
         props.setProperty("log4j.appender.file.layout.facility", "sipXrecording");
         PropertyConfigurator.configure(props);
-        
+
         // Start conference recording task
         ConfRecordThread confThread = new ConfRecordThread(s_config);
         confThread.start();
