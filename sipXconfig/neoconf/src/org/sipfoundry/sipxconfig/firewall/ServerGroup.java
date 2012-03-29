@@ -1,6 +1,4 @@
 /**
- *
- *
  * Copyright (c) 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
@@ -14,24 +12,30 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.address;
+package org.sipfoundry.sipxconfig.firewall;
 
-import java.util.List;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
+public class ServerGroup extends BeanWithId implements NamedObject {
+    private String m_name;
+    private String m_serverList;
 
-public interface AddressManager {
+    @Override
+    public String getName() {
+        return m_name;
+    }
 
-    public List<AddressType> getAddressTypes();
+    @Override
+    public void setName(String name) {
+        m_name = name;
+    }
 
-    public Address getSingleAddress(AddressType type);
+    public void setServerList(String list) {
+        m_serverList = list;
+    }
 
-    public Address getSingleAddress(AddressType type, Location requester);
-
-    public List<Address> getAddresses(AddressType type);
-
-    public List<Address> getAddresses(AddressType type, Location requester);
-
-    public FeatureManager getFeatureManager();
+    public String getServerList() {
+        return m_serverList;
+    }
 }

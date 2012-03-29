@@ -348,3 +348,37 @@ body process_select by_pid(pid) {
   process_result => "pid";
 }
 
+#
+# When you want to trigger an action when a file has changed. Be 
+# careful however. This can be a bit limiting because admin will 
+# have no way to force action if for some reason it's broken because
+# trigger files that's being watch may not change. A trick is to put
+# something in the file like a serial number or a date so file
+# changes from sipxconfig when OK or Apply is hit or send profiles
+# is run.  See DNS and Firewall code for examples.
+# 
+# Example
+#
+#   files:
+#      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/some-file"
+#        comment => "check for updates to $(this.promiser)",
+#        changes => repair_on_change,
+#        classes => if_repaired("do_something"),
+#        action => fix;
+#
+#   commands:
+#      do_something::
+#         "/some/command";
+#
+#
+body changes repair_on_change {
+  hash           => "best";
+  report_changes => "content";
+  update_hashes  => "yes";
+}
+
+# Part of above
+body action fix {
+  action_policy => "fix";
+}
+

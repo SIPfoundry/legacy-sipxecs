@@ -1,6 +1,4 @@
 /**
- *
- *
  * Copyright (c) 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
@@ -14,24 +12,20 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.address;
+package org.sipfoundry.sipxconfig.firewall;
 
-import java.util.List;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
+public class FirewallSettings extends PersistableSettings {
 
-public interface AddressManager {
+    @Override
+    public String getBeanId() {
+        return "firewallSettings";
+    }
 
-    public List<AddressType> getAddressTypes();
-
-    public Address getSingleAddress(AddressType type);
-
-    public Address getSingleAddress(AddressType type, Location requester);
-
-    public List<Address> getAddresses(AddressType type);
-
-    public List<Address> getAddresses(AddressType type, Location requester);
-
-    public FeatureManager getFeatureManager();
+    @Override
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("firewall/firewall.xml");
+    }
 }

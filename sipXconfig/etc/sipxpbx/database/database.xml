@@ -402,6 +402,7 @@
 	<antcall target="openacd-add-queuegroup-recipe" />
     <antcall target="openacd-agent-remove-pin" />
     <antcall target="cert" />
+    <antcall target="firewall" />
   </target>
 
   <target name="plugin-patches">
@@ -1285,6 +1286,9 @@
   </target>
   <target name="cert" unless="cert">
 	<db-patch patch="cert" />
+  </target>
+  <target name="firewall" unless="firewall">
+	<db-patch patch="firewall" />
   </target>
 
   <!--

@@ -1,6 +1,4 @@
 /**
- *
- *
  * Copyright (c) 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
@@ -14,24 +12,29 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.address;
+package org.sipfoundry.sipxconfig.firewall;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
-public interface AddressManager {
+public interface FirewallManager {
+    public static final GlobalFeature FEATURE = new GlobalFeature("firewall");
 
-    public List<AddressType> getAddressTypes();
+    public FirewallSettings getSettings();
 
-    public Address getSingleAddress(AddressType type);
+    public void saveSavings(FirewallSettings settings);
 
-    public Address getSingleAddress(AddressType type, Location requester);
+    public ServerGroup getPublicGroup();
 
-    public List<Address> getAddresses(AddressType type);
+    public ServerGroup getClusterGroup();
 
-    public List<Address> getAddresses(AddressType type, Location requester);
+    public List<DefaultFirewallRule> getDefaultFirewallRules();
 
-    public FeatureManager getFeatureManager();
+    public List<EditableFirewallRule> getEditableFirewallRules();
+
+    public void saveRules(List<EditableFirewallRule> rules);
+
+    public List<FirewallRule> getFirewallRules();
+
 }
