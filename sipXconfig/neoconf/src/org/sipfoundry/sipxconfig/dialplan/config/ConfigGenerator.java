@@ -102,7 +102,7 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
         // Get rules from dialing rule providers and the dial plan
         List<IDialingRule> rules = new ArrayList<IDialingRule>();
         if (m_dialingRuleProvider != null) {
-            rules.addAll(m_dialingRuleProvider.getDialingRules());
+            rules.addAll(m_dialingRuleProvider.getDialingRules(location));
         }
         rules.addAll(m_planContext.getGenerationRules(location));
 

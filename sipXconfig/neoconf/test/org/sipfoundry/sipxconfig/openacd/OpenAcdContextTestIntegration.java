@@ -267,7 +267,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveAgentGroup(group);
         assertEquals(2, m_openAcdContext.getAgentGroups().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdagentgroup", "Group"
         });
@@ -295,12 +295,12 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
         assertEquals(2, group.getAgents().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+            OpenAcdContext.TYPE, MongoConstants.NAME, OpenAcdContext.AGENT_GROUP
         }, new String[] {
             "openacdagent", "alpha", "Group"
         });
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+            OpenAcdContext.TYPE, MongoConstants.NAME, OpenAcdContext.AGENT_GROUP
         }, new String[] {
             "openacdagent", "beta", "Group"
         });
@@ -344,17 +344,17 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         }
         m_openAcdContext.deleteAgentGroup(group);
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdagentgroup", "Group"
         });
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+            OpenAcdContext.TYPE, MongoConstants.NAME, OpenAcdContext.AGENT_GROUP
         }, new String[] {
             "openacdagent", "alpha", "Group"
         });
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+            OpenAcdContext.TYPE, MongoConstants.NAME, OpenAcdContext.AGENT_GROUP
         }, new String[] {
             "openacdagent", "beta", "Group"
         });
@@ -379,7 +379,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         agent.setUser(charlie);
         m_openAcdContext.saveAgent(agent);
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+            OpenAcdContext.TYPE, MongoConstants.NAME, OpenAcdContext.AGENT_GROUP
         }, new String[] {
             "openacdagent", "charlie", "Group"
         });
@@ -443,7 +443,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
         assertEquals(2, m_openAcdContext.getAgents().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdagent", "elephant"
         });
@@ -459,7 +459,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         assertEquals(3, m_openAcdContext.getAgents().size());
 
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdagent", "test"
         });
@@ -467,7 +467,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_coreContext.deleteUser(newAgent);
 
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdagent", "test"
         });
@@ -619,7 +619,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveSkill(newSkill);
         assertEquals(9, m_openAcdContext.getSkills().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.GROUP_NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME, OpenAcdContext.GROUP_NAME
         }, new String[] {
             "openacdskill", "TestSkill", "Group"
         });
@@ -634,7 +634,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.deleteSkill(newSkill);
         assertEquals(8, m_openAcdContext.getSkills().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+            OpenAcdContext.TYPE, MongoConstants.NAME, OpenAcdContext.AGENT_GROUP
         }, new String[] {
             "openacdskill", "TestSkill", "Group"
         });
@@ -645,13 +645,13 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         newSkill1.setGroup(skillGroup);
         m_openAcdContext.saveSkill(newSkill1);
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.GROUP_NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME, OpenAcdContext.GROUP_NAME
         }, new String[] {
             "openacdskill", "TestSkill1", "Group"
         });
         m_openAcdContext.removeSkillGroups(Collections.singletonList(skillGroup.getId()));
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME, MongoConstants.AGENT_GROUP
+            OpenAcdContext.TYPE, MongoConstants.NAME, OpenAcdContext.AGENT_GROUP
         }, new String[] {
             "openacdskill", "TestSkill1", "Group"
         });
@@ -837,7 +837,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveClient(anotherClient);
         assertEquals(2, m_openAcdContext.getClients().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdclient", "client"
         });
@@ -845,7 +845,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         // test remove clients
         m_openAcdContext.deleteClient(client);
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdclient", "client"
         });
@@ -875,7 +875,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveQueueGroup(group);
         assertEquals(2, m_openAcdContext.getQueueGroups().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdqueuegroup", "QueueGroup"
         });
@@ -922,7 +922,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         }
         m_openAcdContext.deleteQueueGroup(group);
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdqueuegroup", "QueueGroup"
         });
@@ -957,7 +957,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveQueue(queue);
         assertEquals(2, m_openAcdContext.getQueues().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdqueue", "Queue1"
         });
@@ -1059,7 +1059,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         }
         m_openAcdContext.deleteQueue(queue);
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdqueue", "Queue1"
         });
@@ -1074,13 +1074,13 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveQueueGroup(group);
         m_openAcdContext.saveQueue(anotherQueue);
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdqueue", "q2"
         });
         m_openAcdContext.deleteQueueGroup(group);
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.NAME
+            OpenAcdContext.TYPE, MongoConstants.NAME
         }, new String[] {
             "openacdqueue", "q2"
         });
@@ -1133,7 +1133,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         m_openAcdContext.saveReleaseCode(anotherCode);
         assertEquals(2, m_openAcdContext.getReleaseCodes().size());
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.LABEL
+            OpenAcdContext.TYPE, OpenAcdContext.LABEL
         }, new String[] {
             "openacdreleasecode", "positive label"
         });
@@ -1146,12 +1146,12 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         codeIds.add(anotherCode.getId());
         m_openAcdContext.removeReleaseCodes(codeIds);
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.LABEL
+            OpenAcdContext.TYPE, OpenAcdContext.LABEL
         }, new String[] {
             "openacdreleasecode", "negative label"
         });
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getEntityCollection(), new String[] {
-            MongoConstants.TYPE, MongoConstants.LABEL
+            OpenAcdContext.TYPE, OpenAcdContext.LABEL
         }, new String[] {
             "openacdreleasecode", "positive label"
         });

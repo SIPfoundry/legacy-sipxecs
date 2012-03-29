@@ -16,6 +16,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.moh.MohSettings;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 
 public abstract class MusicOnHold extends SipxBasePage implements PageBeginRenderListener {
@@ -26,8 +27,9 @@ public abstract class MusicOnHold extends SipxBasePage implements PageBeginRende
     @InjectObject("spring:musicOnHoldManager")
     public abstract MusicOnHoldManager getMusicOnHoldManager();
 
-//    @InjectObject("spring:sipxServiceManager")
-//    public abstract SipxServiceManager getSipxServiceManager();
+    public abstract MohSettings getSettings();
+
+    public abstract void setSettings(MohSettings settings);
 
     public abstract String getAsset();
 
@@ -35,11 +37,10 @@ public abstract class MusicOnHold extends SipxBasePage implements PageBeginRende
 
     public abstract void setAudioDirectoryEmpty(Boolean isAudioDirectoryEmpty);
 
-//    public abstract SipxService getSipxService();
-//
-//    public abstract void setSipxService(SipxService service);
-
     public void pageBeginRender(PageEvent event_) {
+        if (getSettings() == null) {
+            setSettings(getMusicOnHoldManager().getSettings());
+        }
         boolean managerDirectoryEmpty = getMusicOnHoldManager().isAudioDirectoryEmpty();
         if (getAudioDirectoryEmpty() == null) {
             setAudioDirectoryEmpty(managerDirectoryEmpty);
@@ -47,21 +48,12 @@ public abstract class MusicOnHold extends SipxBasePage implements PageBeginRende
             setAudioDirectoryEmpty(managerDirectoryEmpty);
         }
 
-//        if (getSipxService() == null) {
-//            SipxService sipxService = getSipxServiceManager().getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-//            setSipxService(sipxService);
-//        }
     }
-
-//    public Setting getMohSetting() {
-//        return getSipxService().getSettings().getSetting(SipxFreeswitchService.FREESWITCH_MOH_SOURCE);
-//    }
 
     public void saveValid() {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-//        SipxService service = getSipxService();
-//        getSipxServiceManager().storeService(service);
+        getMusicOnHoldManager().saveSettings(getSettings());
     }
 }

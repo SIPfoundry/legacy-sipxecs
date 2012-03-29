@@ -6,7 +6,7 @@
   -->
 
   <bean id="forwardingContextImpl" class="org.sipfoundry.sipxconfig.forwarding.ForwardingContextImpl" parent="abstractDaoImpl">
-    <property name="coreContext" ref="coreContextImpl" />
+    <property name="coreContext" ref="coreContext" />
     <property name="configJdbcTemplate" ref="configJdbcTemplate" />
     <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>

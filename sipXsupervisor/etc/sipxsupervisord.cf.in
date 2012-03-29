@@ -56,7 +56,8 @@ bundle server access_rules {
         "@SIPX_LOGDIR@",
         "@SIPX_VARDIR@/tmp",
         "@SIPX_VARDIR@/backup",
-        "@SIPX_IVRDATADIR@/prompts"
+        "@SIPX_IVRDATADIR@/prompts",
+        "@SIPX_IVRDATADIR@/moh"
      };
   access:
     "$(export_dirs)"

@@ -17,6 +17,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.callback.ICallback;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
@@ -50,12 +51,15 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
     @InjectObject(value = "spring:phoneProfileManager")
     public abstract ProfileManager getLazyProfileManager();
 
+    @InjectObject(value = "spring:configManager")
+    public abstract ConfigManager getConfigManager();
+
     @Persist
     public abstract String getAsset();
 
-//    public String getUserAudioDirectory() {
-//        return getMusicOnHoldManager().getUserAudioDirectory(getUser()).toString();
-//    }
+    public String getUserAudioDirectory() {
+        return getMusicOnHoldManager().getUserAudioDirectory(getUser()).toString();
+    }
 
     public Setting getMohSettings() {
         return getUser().getSettings().getSetting(User.MOH_SETTING);
@@ -67,6 +71,7 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
         }
         getCoreContext().saveUser(getUser());
         getLazyProfileManager().generateProfiles(getPhoneIdsForUser(getUser()), false, null);
+        getConfigManager().configureEverywhere(MusicOnHoldManager.FEATURE);
     }
 
     public void onUpdatePhones() {

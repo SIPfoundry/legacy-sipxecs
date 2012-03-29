@@ -9,15 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.moh;
 
-import java.io.File;
-import java.io.IOException;
-
 import junit.framework.TestCase;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class MusicOnHoldManagerTest extends TestCase {
 
@@ -27,29 +22,6 @@ public class MusicOnHoldManagerTest extends TestCase {
     protected void setUp() throws Exception {
         m_musicOnHoldManager = new MusicOnHoldManagerImpl();
         m_musicOnHoldManager.setMohUser("~~testMohUser~");
-    }
-
-    public void _testIsAudioDirectoryEmpty() {
-        File audioDirectory = new File(TestHelper.getTestDirectory() + File.separator + "moh");
-        if (audioDirectory.exists()) {
-            try {
-                FileUtils.deleteDirectory(audioDirectory);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        assertTrue(audioDirectory.mkdir());
-        m_musicOnHoldManager.setAudioDirectory(audioDirectory.getAbsolutePath());
-        assertTrue(m_musicOnHoldManager.isAudioDirectoryEmpty());
-        File mohFile = new File(audioDirectory + File.separator + "test.wav");
-
-        try {
-            assertTrue(mohFile.createNewFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        assertTrue(!m_musicOnHoldManager.isAudioDirectoryEmpty());
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() {

@@ -118,22 +118,22 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
         for (OpenAcdSkill skill : getSkills()) {
             skills.add(skill.getAtom());
         }
-        props.put(MongoConstants.SKILLS, skills);
+        props.put(OpenAcdContext.SKILLS, skills);
         List<String> queues = new ArrayList<String>();
         for (OpenAcdQueue queue : getQueues()) {
             queues.add(queue.getName());
         }
-        props.put(MongoConstants.QUEUES, queues);
+        props.put(OpenAcdContext.QUEUES, queues);
         List<String> clients = new ArrayList<String>();
         for (OpenAcdClient client : getClients()) {
             clients.add(client.getName());
         }
-        props.put(MongoConstants.CLIENTS, clients);
-        props.put(MongoConstants.FIRST_NAME, getFirstName());
-        props.put(MongoConstants.LAST_NAME, getLastName());
-        props.put(MongoConstants.OLD_NAME, getOldName());
-        props.put(MongoConstants.SECURITY, getSecurity());
-        props.put(MongoConstants.AGENT_GROUP, getAgentGroup());
+        props.put(OpenAcdContext.CLIENTS, clients);
+        props.put(OpenAcdContext.FIRST_NAME, getFirstName());
+        props.put(OpenAcdContext.LAST_NAME, getLastName());
+        props.put(OpenAcdContext.OLD_NAME, getOldName());
+        props.put(OpenAcdContext.SECURITY, getSecurity());
+        props.put(OpenAcdContext.AGENT_GROUP, getAgentGroup());
         props.put(MongoConstants.CONTACT, getUser().getIdentity(domain));
         props.put(MongoConstants.PINTOKEN, getUser().getPintoken());
 

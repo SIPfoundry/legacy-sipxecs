@@ -68,8 +68,8 @@ public class FreeswitchMediaCommand extends BeanWithId implements Replicable {
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(MongoConstants.ENABLED, isEnabled());
-        props.put(MongoConstants.NODE, getNode());
-        props.put(MongoConstants.DIAL_STRING, getDialString());
+        props.put(OpenAcdContext.NODE, getNode());
+        props.put(OpenAcdContext.DIAL_STRING, getDialString());
         return props;
     }
 

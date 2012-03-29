@@ -36,12 +36,14 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireImpl extends ImManager implements FeatureProvider, AddressProvider, ProcessProvider, Openfire {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         XMPP_ADDRESS, XMLRPC_ADDRESS, WATCHER_ADDRESS
     });
     private BeanWithSettingsDao<OpenfireSettings> m_settingsDao;
+    private String m_openfireHome;
 
     @Override
     public OpenfireSettings getSettings() {
@@ -93,8 +95,8 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
             }
             addresses.add(address);
         }
-        
-        return addresses;            
+
+        return addresses;
     }
 
     public void setSettingsDao(BeanWithSettingsDao<OpenfireSettings> settingsDao) {
@@ -111,7 +113,13 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipxopenfire", ".*\\s-Dcom.sun.management.jmxremote.port=23458\\s.*"))
-                : null);
+        return (enabled ? Collections.singleton(
+                new ProcessDefinition("sipxopenfire", String.format(".*\\s-Dexe4j.moduleName=%s/bin/openfire\\s.*", m_openfireHome))) : null);
     }
+
+    @Required
+    public void setOpenfireHome(String openfireHome) {
+        m_openfireHome = openfireHome;
+    }
+
 }
