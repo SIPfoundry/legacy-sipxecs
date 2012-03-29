@@ -68,4 +68,9 @@ public class RecordingImpl implements FeatureProvider, Recording, ProcessProvide
         return (conf && rec ? Collections.singleton(new ProcessDefinition("sipxrecording",
             ".*\\s-Dprocname=sipxrecording\\s.*")) : null);
     }
+
+    @Override
+    public int getJettyPort() {
+        return getSettings().getJettyPort();
+    }
 }

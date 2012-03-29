@@ -19,7 +19,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchConfigurationInterface;
 
 /**
  * Holds the configuration data needed for sipXrecording.
- * 
+ *
  */
 public class RecordingConfiguration implements FreeSwitchConfigurationInterface {
 
@@ -29,27 +29,28 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
     private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
     private String m_sipxchangeDomainName; // The domain name of this system
     private String m_realm;
+    private int m_jettyPort;
     private static final int PORT_NONE = -1;
-    
+
     private static RecordingConfiguration s_current;
     private static File s_propertiesFile;
     private static long s_lastModified;
-    
+
     private RecordingConfiguration() {
     }
-    
+
     public static RecordingConfiguration get() {
         return update(true);
     }
-    
+
     public static RecordingConfiguration getTest() {
         return update(false);
     }
-    
+
     /**
      * Load new Configuration object if the underlying properties files have changed since the last
      * time
-     * 
+     *
      * @return
      */
     private static RecordingConfiguration update(boolean load) {
@@ -61,14 +62,14 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
         }
         return s_current;
     }
-    
+
     void properties() {
         String path = System.getProperty("conf.dir");
         if (path == null) {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);
         }
-        
+
         // Setup SSL properties so we can talk to HTTPS servers
         String keyStore = System.getProperty("javax.net.ssl.keyStore");
         if (keyStore == null) {
@@ -87,7 +88,7 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
             System.setProperty("javax.net.ssl.trustStoreType", "JKS");
             System.setProperty("javax.net.ssl.trustStorePassword", "changeit"); // Real security!
         }
-        
+
         String name = "sipxrecording.properties";
         FileInputStream inStream;
         Properties props = null;
@@ -113,6 +114,7 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
             m_docDirectory = props.getProperty(prop = "recording.docDirectory") ;
             m_sipxchangeDomainName = props.getProperty(prop = "recording.sipxchangeDomainName");
             m_realm = props.getProperty(prop ="recording.realm");
+            m_jettyPort = Integer.parseInt(props.getProperty(prop = "jetty.port"));
         } catch (Exception e) {
             System.err.println("Problem understanding property " + prop);
             e.printStackTrace(System.err);
@@ -148,7 +150,15 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
         m_realm = realm;
     }
 
-	@Override
+	public int getJettyPort() {
+        return m_jettyPort;
+    }
+
+    public void setJettyPort(int jettyPort) {
+        m_jettyPort = jettyPort;
+    }
+
+    @Override
 	public Logger getLogger() {
 		return LOG;
 	}

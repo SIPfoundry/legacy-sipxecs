@@ -33,12 +33,15 @@ import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiConnectException;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParser;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiResultParserImpl;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
+import org.sipfoundry.sipxconfig.recording.RecordingManager;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ActiveConferenceContextImpl implements ActiveConferenceContext {
+public class ActiveConferenceContextImpl implements ActiveConferenceContext, BeanFactoryAware {
 
     private static final String COMMAND_LIST_DELIM = ">,<";
     private static final String COMMAND_LIST = "list delim " + COMMAND_LIST_DELIM;
@@ -52,6 +55,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private AddressManager m_addressManager;
     private SipService m_sipService;
     private CoreContext m_coreContext;
+    private BeanFactory m_beanFactory;
 
     @Required
     public void setDomainManager(DomainManager domainManager) {
@@ -184,7 +188,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
             String domainName = m_domainManager.getDomain().getName();
             return String.format("http://%s:%d/recordconference?action=%s&conf=%s&ownerName=%s&ownerId=%s"
                     + "&bridgeContact=%s&mboxServer=%s",
-                conf.getBridge().getName(), 8549, arguments.length == 1 ? "start" : arguments[1],
+                conf.getBridge().getName(), getConfCommandsPort(), arguments.length == 1 ? "start" : arguments[1],
                 conf.getName(), owner.getUserName(), owner.getAddrSpec(domainName), conf.getUri(), findMailboxServer());
         } else {
             StringBuilder builder = new StringBuilder();
@@ -193,7 +197,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
                        .append(argument);
             }
             return String.format("http://%s:%d/conference/%s%s",
-                    conf.getBridge().getName(), 8549, conf.getName(), builder.toString());
+                    conf.getBridge().getName(), getConfCommandsPort(), conf.getName(), builder.toString());
         }
     }
 
@@ -349,5 +353,16 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    @Override
+    @Required
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
+    }
+
+    private int getConfCommandsPort() {
+        RecordingManager manager = (RecordingManager) m_beanFactory.getBean(RecordingManager.BEAN_NAME);
+        return manager.getJettyPort();
     }
 }
