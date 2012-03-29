@@ -8,7 +8,8 @@ EXTRA_DIST = \
 
 libexecdir = @SIPX_LIBEXECDIR@
 libexec_SCRIPTS = \
-	sipxlogwatcher-maker
+	sipxlogwatcher-maker \
+	sipx-firewall-maker
 
 bin_SCRIPTS = \
 	sipxagent \

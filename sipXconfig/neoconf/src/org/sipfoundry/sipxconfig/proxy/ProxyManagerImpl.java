@@ -38,13 +38,17 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressProvider, ProcessProvider,
-    FeatureListener, AlarmProvider {
+    FeatureListener, AlarmProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("proxy");
     public static final AddressType TCP_ADDRESS = AddressType.sip("proxyTcp");
     public static final AddressType UDP_ADDRESS = AddressType.sip("procyUdp");
@@ -152,5 +156,14 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         if (b.isRouter()) {
             b.addFeature(FEATURE);
         }
+    }
+
+    @Override
+    public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type) {
+        if (!ADDRESS_TYPES.contains(type)) {
+            return null;
+        }
+
+        return new DefaultFirewallRule(type, FirewallRule.SystemId.PUBLIC, true);
     }
 }

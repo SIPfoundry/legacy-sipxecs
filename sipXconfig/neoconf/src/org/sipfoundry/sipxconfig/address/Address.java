@@ -98,4 +98,8 @@ public class Address {
                 .append(m_port, rhs.m_port).append(m_type, rhs.m_type).isEquals();
 
     }
+
+    public AddressType getType() {
+        return m_type;
+    }
 }

@@ -38,6 +38,10 @@ dist_cfplugins_DATA = \
 	sendmail.cf \
 	zz_sipxlogwatcher.cf
 
+fwconfdir = $(SIPX_CONFDIR)/firewall
+dist_fwconf_DATA = \
+	firewall.erb
+
 cflibdir =  $(SIPX_CFINPUTS)/plugin.d/lib
 cflib_DATA = \
 	commands.cf \

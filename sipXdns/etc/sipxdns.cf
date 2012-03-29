@@ -63,16 +63,6 @@ bundle agent sipxdns_config {
         classes => if_repaired("reload_sipxdns");
 }
 
-body changes repair_on_change {
-  hash           => "best";
-  report_changes => "content";
-  update_hashes  => "yes";
-}
-
-body action fix {
-  action_policy => "fix";
-}
-
 bundle edit_line named_conf {
   insert_lines:
     "

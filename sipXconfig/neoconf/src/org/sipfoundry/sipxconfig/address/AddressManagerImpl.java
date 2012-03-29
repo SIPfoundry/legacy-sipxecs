@@ -95,4 +95,17 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     public void setDnsManager(DnsManager dnsManager) {
         m_dnsManager = dnsManager;
     }
+
+    @Override
+    public List<AddressType> getAddressTypes() {
+        List<AddressType> types = new ArrayList<AddressType>();
+        for (AddressProvider provider : getProviders()) {
+            Collection<AddressType> providerTypes = provider.getSupportedAddressTypes(this);
+            if (providerTypes != null && providerTypes.size() > 0) {
+                types.addAll(providerTypes);
+            }
+        }
+
+        return types;
+    }
 }
