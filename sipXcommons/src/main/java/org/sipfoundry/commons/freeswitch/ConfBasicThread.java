@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
 public class ConfBasicThread extends Thread {
@@ -197,7 +196,6 @@ public class ConfBasicThread extends Thread {
     }
 
     private Socket getSocket() {
-
         Socket socket = null;
 
         while(socket == null) {
@@ -220,6 +218,12 @@ public class ConfBasicThread extends Thread {
 
     @Override
     public void run() {
+        String configDir = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx");
+        try{
+            UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
+        } catch (UnknownHostException e) {
+            LOG.error(e);
+        }
         // make a socket connection to freeswitch
         m_fsListenSocket = new FreeSwitchEventSocket(m_fsConfig);
         m_fsCmdSocket = new FreeSwitchEventSocket(m_fsConfig);

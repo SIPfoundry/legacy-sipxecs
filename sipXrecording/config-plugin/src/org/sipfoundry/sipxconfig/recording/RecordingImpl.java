@@ -33,26 +33,32 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 public class RecordingImpl implements FeatureProvider, Recording, ProcessProvider {
     private BeanWithSettingsDao<RecordingSettings> m_settingsDao;
 
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return null;
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return Collections.singleton(FEATURE);
+    }
+
     public RecordingSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<RecordingSettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 
     public void saveSettings(RecordingSettings settings) {
         m_settingsDao.upsert(settings);
     }
-
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
-        return Collections.singleton(FEATURE);
-    }
-
-    @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
-        return null;
-    }
-
-    public void setSettingsDao(BeanWithSettingsDao<RecordingSettings> settingsDao) {
-        m_settingsDao = settingsDao;
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
     }
 
     @Override
@@ -64,9 +70,7 @@ public class RecordingImpl implements FeatureProvider, Recording, ProcessProvide
     }
 
     @Override
-    public void getBundleFeatures(Bundle b) {
-        if (b.isBasic()) {
-            b.addFeature(FEATURE);
-        }
+    public int getJettyPort() {
+        return getSettings().getJettyPort();
     }
 }
