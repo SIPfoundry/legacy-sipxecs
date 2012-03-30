@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
 import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
+import org.sipfoundry.sipxconfig.phonebook.Address;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class ExportCsvTest extends TestCase {
@@ -150,6 +152,61 @@ public class ExportCsvTest extends TestCase {
         assertEquals(
                 "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
                 ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                writer.toString());
+    }
+
+    public void testExportUserDetails() throws Exception {
+        ExportCsv exportCsv = new ExportCsv();
+
+        StringWriter writer = new StringWriter();
+        SimpleCsvWriter csv = new SimpleCsvWriter(writer);
+        String[] row = Index.newRow();
+
+        User user = new User();
+        user.setFirstName("John");
+        user.setLastName("Lennon");
+        user.setPin("1234", "example.org");
+        user.setSipPassword("sip_pass");
+        user.setUserName("jlennon");
+
+        AddressBookEntry addressBookEntry = new AddressBookEntry();
+        addressBookEntry.setJobTitle("job title");
+        addressBookEntry.setJobDept("job dept");
+        addressBookEntry.setCompanyName("company name");
+        addressBookEntry.setAssistantName("assistant name");
+        addressBookEntry.setCellPhoneNumber("001122");
+        addressBookEntry.setHomePhoneNumber("112233");
+        addressBookEntry.setAssistantPhoneNumber("223344");
+        addressBookEntry.setFaxNumber("33445566");
+        addressBookEntry.setAlternateEmailAddress("alternate@gmail.com");
+        addressBookEntry.setAlternateImId("alternateImId");
+        addressBookEntry.setLocation("location");
+
+        Address homeAddress = new Address();
+        homeAddress.setStreet("home street");
+        homeAddress.setCity("home city");
+        homeAddress.setState("home state");
+        homeAddress.setCountry("home country");
+        homeAddress.setZip("34001");
+        addressBookEntry.setHomeAddress(homeAddress);
+
+        Address officeAddress = new Address();
+        officeAddress.setStreet("office street");
+        officeAddress.setCity("office city");
+        officeAddress.setState("office state");
+        officeAddress.setCountry("office country");
+        officeAddress.setZip("34342");
+        addressBookEntry.setOfficeAddress(officeAddress);
+
+        user.setAddressBookEntry(addressBookEntry);
+
+        exportCsv.exportUser(csv, row, user, "example.org");
+        assertEquals(
+                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
+                ",\"job title\",\"job dept\",\"company name\",\"assistant name\"," +
+                "\"001122\",\"112233\",\"223344\",\"33445566\",\"alternate@gmail.com\",\"alternateImId\",\"location\"," +
+                "\"home street\",\"home city\",\"home state\",\"home country\",\"34001\"," +
+                "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\"\n",
                 writer.toString());
     }
 }
