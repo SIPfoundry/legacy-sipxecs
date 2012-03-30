@@ -22,6 +22,10 @@ import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
@@ -31,9 +35,9 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * Backup provides Java interface to backup scripts
  */
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider,
-    AlarmProvider {
+    AlarmProvider, FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
-            PRIMARY_IP_ADDRESS, TFTP_ADDRESS, FTP_ADDRESS);
+            PRIMARY_IP_ADDRESS, TFTP_ADDRESS, FTP_ADDRESS, SSH_ADDRESS);
     private LocationsManager m_locationsManager;
 
     @Override
@@ -95,5 +99,13 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     @Override
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
         return Collections.singleton(ALARM_LOGIN_FAILED);
+    }
+
+    @Override
+    public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type) {
+        if (type.equalsAnyOf(FTP_ADDRESS, TFTP_ADDRESS, SSH_ADDRESS)) {
+            return new DefaultFirewallRule(type, FirewallRule.SystemId.PUBLIC);
+        }
+        return null;
     }
 }

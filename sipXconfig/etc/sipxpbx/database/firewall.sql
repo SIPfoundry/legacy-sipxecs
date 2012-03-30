@@ -1,4 +1,3 @@
--- alter table firewall_rule drop constraint firewall_rule_fk1;
 -- drop table firewall_server_group;
 create table firewall_server_group (
    firewall_server_group_id int4 not null,      
@@ -7,13 +6,13 @@ create table firewall_server_group (
    primary key (firewall_server_group_id)
 );
 
---drop table firewall_rule
+--drop table firewall_rule;
 create table firewall_rule (
    firewall_rule_id int4 not null,
    prioritize boolean default false,
-   address_type character(64) not null,
+   address_type varchar(32) not null,
    firewall_server_group_id int4,
-   system_id char(16),
+   system_id varchar(16),
    primary key (firewall_rule_id)
 );
  

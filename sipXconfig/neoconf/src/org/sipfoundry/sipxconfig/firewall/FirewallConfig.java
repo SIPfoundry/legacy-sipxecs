@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
@@ -33,6 +34,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class FirewallConfig implements ConfigProvider {
+    private static final Logger LOG = Logger.getLogger(FirewallConfig.class);
     private FirewallManager m_firewallManager;
     private AddressManager m_addressManager;
 
@@ -82,9 +84,16 @@ public class FirewallConfig implements ConfigProvider {
             List<Address> addresses = m_addressManager.getAddresses(type, location);
             if (addresses != null) {
                 for (Address address : addresses) {
-                    c.write("destination", address.getPort());
-                    c.write("priority", rule.isPriority());
-                    c.nextElement();
+                    String id = address.getType().getId();
+                    int port = address.getCanonicalPort();
+                    if (port == 0) {
+                        LOG.error("Cannot open up port zero for service id " + id);
+                    } else {
+                        c.write("destination", port);
+                        c.write("service", id);
+                        c.write("priority", rule.isPriority());
+                        c.nextElement();
+                    }
                 }
             }
         }

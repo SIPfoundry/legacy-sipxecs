@@ -1,0 +1,14 @@
+<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'rules', 'groups', 'settings'}" selectedTab="ognl:tab" />
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg" /> <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <div jwcid="rulesTab@Block">Rules Here</div>
+  <div jwcid="groupsTab@Block">Groups Here</div>
+  <div jwcid="settingsTab@Block">
+    <form jwcid="form@Form" delegate="bean:validator">
+      <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:settings.settings" />
+      <ul jwcid="formActions@common/FormActions" callback="ognl:callback" listener="listener:saveSettings" />
+    </form>
+  </div>
+</div>

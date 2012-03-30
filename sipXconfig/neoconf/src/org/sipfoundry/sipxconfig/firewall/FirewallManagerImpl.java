@@ -21,11 +21,15 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -44,8 +48,10 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-public class FirewallManagerImpl extends SipxHibernateDaoSupport implements FirewallManager, FeatureProvider,
-        SetupListener, BeanFactoryAware {
+public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> implements FirewallManager,
+        FeatureProvider, SetupListener, BeanFactoryAware {
+    private static final Log LOG = LogFactory.getLog(FirewallManagerImpl.class);
+    private static final String SERVER_GROUP_COL = "firewall_server_group_id";
     private BeanWithSettingsDao<FirewallSettings> m_settingsDao;
     private AddressManager m_addressManager;
     private List<FirewallProvider> m_providers;
@@ -58,7 +64,7 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport implements Fire
     }
 
     @Override
-    public void saveSavings(FirewallSettings settings) {
+    public void saveSettings(FirewallSettings settings) {
         m_settingsDao.upsert(settings);
     }
 
@@ -97,6 +103,7 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport implements Fire
                 ServerGroup group = new ServerGroup();
                 group.setName(rs.getString("name"));
                 group.setServerList("servers");
+                group.setUniqueId(rs.getInt(SERVER_GROUP_COL));
                 return group;
             }
         };
@@ -120,14 +127,51 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport implements Fire
     }
 
     public List<EditableFirewallRule> getEditableFirewallRules() {
-        List<EditableFirewallRule> editable = new ArrayList<EditableFirewallRule>();
+        final Map<String, DefaultFirewallRule> defaults = Util.defaultsByAddressTypeId(getDefaultFirewallRules());
+        final Map<Integer, ServerGroup> groups = Util.groupsById(getServerGroups());
+        RowMapper<EditableFirewallRule> reader = new RowMapper<EditableFirewallRule>() {
+            public EditableFirewallRule mapRow(ResultSet rs, int arg1) throws SQLException {
+                String addressType = rs.getString("address_type");
+                DefaultFirewallRule pop = defaults.remove(addressType);
+                if (pop == null) {
+                    LOG.error("Cannot find default firewall rule for address type " + addressType);
+                    return null;
+                }
+                EditableFirewallRule rule = new EditableFirewallRule(pop);
+                rule.setPriority(rs.getBoolean("prioritize"));
+                String systemId = rs.getString("system_id");
+                if (StringUtils.isNotBlank(systemId)) {
+                    rule.setSystemId(FirewallRule.SystemId.valueOf(systemId));
+                }
+                int groupId = rs.getInt(SERVER_GROUP_COL);
+                if (groupId > 0) {
+                    ServerGroup group = groups.get(groupId);
+                    if (group == null) {
+                        LOG.error("Cannot find server group with id " + groupId);
+                    } else {
+                        rule.setServerGroup(group);
+                    }
+                }
+                rule.setUniqueId(rs.getInt("firewall_rule_id"));
+                return rule;
+            }
+        };
+        String sql = "select * from firewall_rule";
+        List<EditableFirewallRule> editable = m_jdbc.query(sql, reader);
+        editable.removeAll(Collections.singletonList(null));
 
-        // TODO load from db
-
-        for (DefaultFirewallRule def : getDefaultFirewallRules()) {
+        // add remaining defaults
+        for (DefaultFirewallRule def : defaults.values()) {
             editable.add(new EditableFirewallRule(def));
         }
 
+        // sort by address type to give consistent order and an order that could be influenced
+        // by implementations.
+        Collections.sort(editable, new Comparator<EditableFirewallRule>() {
+            public int compare(EditableFirewallRule o1, EditableFirewallRule o2) {
+                return o1.getAddressType().getId().compareTo(o2.getAddressType().getId());
+            }
+        });
         return editable;
     }
 
@@ -166,11 +210,10 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport implements Fire
         return new ArrayList<FirewallRule>(getEditableFirewallRules());
     }
 
-    @Override
-    public void saveRules(List<EditableFirewallRule> rules) {
-        m_jdbc.execute("delete from firewall_rule");
-        String sql = "insert into firewall_rule (firewall_rule_id, firewall_server_group_id, "
-                + "address_type, prioritize, system_id) values (nextval('firewall_rule_seq'),?,?,?,?)";
+    @SuppressWarnings({
+        "unchecked", "rawtypes"
+    })
+    EditableFirewallRule[] getChanged(List<EditableFirewallRule> rules) {
         Predicate selectChanged = new Predicate() {
             public boolean evaluate(Object arg0) {
                 return ((EditableFirewallRule) arg0).isChangedFromDefault();
@@ -178,8 +221,15 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport implements Fire
         };
 
         Collection changedCol = CollectionUtils.select(rules, selectChanged);
-        final EditableFirewallRule[] changed = (EditableFirewallRule[]) changedCol
-                .toArray(new EditableFirewallRule[0]);
+        return (EditableFirewallRule[]) changedCol.toArray(new EditableFirewallRule[0]);
+    }
+
+    @Override
+    public void saveRules(List<EditableFirewallRule> rules) {
+        m_jdbc.execute("delete from firewall_rule");
+        String sql = "insert into firewall_rule (firewall_rule_id, firewall_server_group_id, "
+                + "address_type, prioritize, system_id) values (nextval('firewall_rule_seq'),?,?,?,?)";
+        final EditableFirewallRule[] changed = getChanged(rules);
         if (changed.length == 0) {
             return;
         }
@@ -198,7 +248,7 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport implements Fire
                 }
                 arg.setString(2, rule.getAddressType().getId());
                 arg.setBoolean(3, rule.isPriority());
-                arg.setString(4, rule.getSystemId().name());
+                arg.setString(4, rule.getSystemId().toString());
             }
         };
         m_jdbc.batchUpdate(sql, inserter);

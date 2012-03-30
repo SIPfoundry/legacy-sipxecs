@@ -19,20 +19,22 @@ bundle agent firewall {
   methods:
     firewall::
       "any" usebundle => "firewall_config";
-    fedora16_or_greater::
+    fedora16_or_greater.disabled_for_now::
       "any" usebundle => "firewall_systemctl_running";
-    !fedora16_or_greater::
+    !fedora16_or_greater.disabled_for_now::
       "any" usebundle => "firewall_sysv_running";
 }
 
 bundle agent firewall_config {
   vars:
-    "dim_sysctl" int => readstringarray("sysctl", "$(sipx.SIPX_CFDATA)/sysctl.part", "\s*#[^\n]*", "=", 10, 4000);
+    "dim_sysctl" int => readstringarray("sysctl", "$(sipx.SIPX_CFDATA)/sysctl.part", 
+        "\s*#[^\n]*", "=", 10, 4000);
     "sysctl_tunables" slist => getindices("firewall_config.sysctl");
+    "rules" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/firewall.yaml";
 
   files:
     any::
-      "$(sipx.SIPX_CFDATA)/firewall.yaml"
+      "$(rules)"
         comment => "check for updates in firewall rules in $(this.promiser)",
         changes => repair_on_change,
         classes => if_repaired("update_firewall"),
@@ -40,28 +42,28 @@ bundle agent firewall_config {
 
       "/etc/sysctl.conf"
         comment => "Kernel network parameters $(this.promoiser)",
-        mog("0644","root","root"),
+        perms => mog("0644","root","root"),
         create => "true",
         edit_line => sysctl_conf("@(firewall_config.sysctl_tunables)"),
         classes => if_repaired("update_sysctl");
 
   commands:
-    update_sysctl::
+    update_sysctl.disabled_for_now::
       "/sbin/sysctl"
         comment => "Apply kernel network parameters",
         args => "-p";
 
   commands:
-    update_firewall::
+    update_firewall.disabled_for_now::
       "/sbin/iptables-restore"
         comment => "Install new firewall rules",
         contain => in_shell,
-        args => " < $(sipx.SIPX_LIBEXEC)/sipx-firewall-maker";
+        args => " < $(sipx.SIPX_LIBEXECDIR)/sipx-firewall-maker --in $(rules)";
 }
 
 bundle edit_line sysctl_conf(sysctl_tunables) {
   insert_lines:
-    "$(sysctl_tunables) = $(alpha.sysctl[$(sysctl_tunables)][1])";
+    "$(sysctl_tunables) = $(firewall_config.sysctl[$(sysctl_tunables)][1])";
 
   delete_lines:
     "$(sysctl_tunables)\s*=.*";

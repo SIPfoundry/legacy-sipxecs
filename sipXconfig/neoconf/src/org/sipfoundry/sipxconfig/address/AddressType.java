@@ -20,6 +20,7 @@ package org.sipfoundry.sipxconfig.address;
 public class AddressType {
     private String m_id;
     private String m_format;
+    private int m_canonicalPort;
 
     public AddressType(String uniqueId) {
         m_id = uniqueId;
@@ -28,6 +29,16 @@ public class AddressType {
     public AddressType(String uniqueId, String format) {
         this(uniqueId);
         m_format = format;
+    }
+
+    public AddressType(String uniqueId, String format, int canonicalPort) {
+        this(uniqueId, format);
+        m_canonicalPort = canonicalPort;
+    }
+
+    public AddressType(String uniqueId, int canonicalPort) {
+        this(uniqueId);
+        m_canonicalPort = canonicalPort;
     }
 
     /**
@@ -76,5 +87,9 @@ public class AddressType {
 
     public String getFormat() {
         return m_format;
+    }
+
+    public int getCanonicalPort() {
+        return m_canonicalPort;
     }
 }

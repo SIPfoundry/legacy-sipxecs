@@ -49,6 +49,18 @@ public class Address {
         return m_port;
     }
 
+    /**
+     * If an address is using standard port for that protocol, getPort will be 0 but the canonical port
+     * will be the actual standard port number.
+     * Example:
+     *   DNS address, getPort() returns 0. getCanonicalPort() returns 53
+     *
+     * @return
+     */
+    public int getCanonicalPort() {
+        return (m_port == 0 ? m_type.getCanonicalPort() : m_port);
+    }
+
     public void setPort(int port) {
         this.m_port = port;
     }
