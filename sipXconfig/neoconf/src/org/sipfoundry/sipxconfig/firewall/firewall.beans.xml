@@ -31,5 +31,6 @@
   
   <bean id="firewallConfig" class="org.sipfoundry.sipxconfig.firewall.FirewallConfig">
     <property name="firewallManager" ref="firewallManager"/>
+    <property name="addressManager" ref="addressManager"/>
   </bean>
 </beans>

@@ -27,5 +27,4 @@ public interface FirewallRule {
     public AddressType getAddressType();
 
     public SystemId getSystemId();
-
 }

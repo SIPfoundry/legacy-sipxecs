@@ -16,12 +16,27 @@
  */
 package org.sipfoundry.sipxconfig.address;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
 public interface AddressManager {
+
+    public final class Util {
+        private Util() {
+        }
+        public static Map<String, AddressType> typesById(Collection<AddressType> l) {
+            Map<String, AddressType> ndx = new HashMap<String, AddressType>();
+            for (AddressType i : l) {
+                ndx.put(i.getId(), i);
+            }
+            return ndx;
+        }
+    }
 
     public List<AddressType> getAddressTypes();
 

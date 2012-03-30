@@ -57,6 +57,9 @@
   <li jwcid="@If" condition="ognl:isOn('sipxdns')">
 	  <a jwcid="@PageLink" page="dns/EditDns"><span key="menu.dns.featureMenu"/></a>
   </li>
+  <li jwcid="@If" condition="ognl:isOn('firewall')">
+    <a jwcid="@PageLink" page="firewall/ManageFirewall"><span key="menu.firewall.featureMenu"/></a>
+  </li>
   <li jwcid="@If" condition="ognl:isOn('proxy')">
 	  <a jwcid="@PageLink" page="proxy/EditProxy"><span key="menu.proxy.featureMenu"/></a>
   </li>

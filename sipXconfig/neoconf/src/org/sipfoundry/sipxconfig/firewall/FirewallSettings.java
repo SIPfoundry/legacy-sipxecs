@@ -14,10 +14,16 @@
  */
 package org.sipfoundry.sipxconfig.firewall;
 
+
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class FirewallSettings extends PersistableSettings {
+public class FirewallSettings extends PersistableSettings implements DeployConfigOnEdit {
 
     @Override
     public String getBeanId() {
@@ -27,5 +33,10 @@ public class FirewallSettings extends PersistableSettings {
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("firewall/firewall.xml");
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) FirewallManager.FEATURE);
     }
 }

@@ -54,7 +54,6 @@ public class ConfRecordThread extends ConfBasicThread {
                 LOG.error("ConfRecordThread::InterruptedException error ", e);
             }
         }
-
         setConfConfiguration(recordingConfig);
     }
 

@@ -15,5 +15,6 @@ AC_CONFIG_FILES([
   src/Makefile
   etc/Makefile
   bin/Makefile
+  config-plugin/Makefile
 ])
 AC_OUTPUT

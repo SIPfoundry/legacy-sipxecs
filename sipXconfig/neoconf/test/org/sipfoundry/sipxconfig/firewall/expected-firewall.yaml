@@ -1,5 +1,7 @@
 rules:
  - destination: 100
+   service: test
    priority: false
  - destination: 200
+   service: test
    priority: false

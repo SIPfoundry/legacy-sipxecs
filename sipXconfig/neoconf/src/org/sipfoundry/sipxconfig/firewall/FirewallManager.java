@@ -14,16 +14,37 @@
  */
 package org.sipfoundry.sipxconfig.firewall;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
 public interface FirewallManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("firewall");
+    public final class Util {
+        private Util() {
+        }
+        public static Map<String, DefaultFirewallRule> defaultsByAddressTypeId(Collection<DefaultFirewallRule> l) {
+            Map<String, DefaultFirewallRule> ndx = new HashMap<String, DefaultFirewallRule>();
+            for (DefaultFirewallRule i : l) {
+                ndx.put(i.getAddressType().getId(), i);
+            }
+            return ndx;
+        }
+        public static Map<Integer, ServerGroup> groupsById(Collection<ServerGroup> l) {
+            Map<Integer, ServerGroup> ndx = new HashMap<Integer, ServerGroup>();
+            for (ServerGroup i : l) {
+                ndx.put(i.getId(), i);
+            }
+            return ndx;
+        }
+    }
 
     public FirewallSettings getSettings();
 
-    public void saveSavings(FirewallSettings settings);
+    public void saveSettings(FirewallSettings settings);
 
     public ServerGroup getPublicGroup();
 

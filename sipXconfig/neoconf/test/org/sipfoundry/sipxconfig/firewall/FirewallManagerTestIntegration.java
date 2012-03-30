@@ -38,7 +38,11 @@ public class FirewallManagerTestIntegration extends IntegrationTestCase {
         boolean def = rule.isPriority();
         rule.setPriority(!def);
         m_firewallManager.saveRules(rules);
-        db().execute("select 1 from firewall_rule where prioritize = true");
+        db().queryForInt("select 1 from firewall_rule where prioritize = true and address_type = ?",
+                rule.getAddressType().getId());
+        
+        List<EditableFirewallRule> saved = m_firewallManager.getEditableFirewallRules();
+        assertFalse("Saved rule (not new)", saved.get(0).isNew());
     }
 
     public void setFirewallManager(FirewallManager firewallManager) {

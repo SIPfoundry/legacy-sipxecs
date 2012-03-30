@@ -36,11 +36,11 @@ public class EditableFirewallRule extends BeanWithId implements DeployConfigOnEd
         if (m_serverGroup == null) {
             if (getSystemId() == m_delegate.getSystemId()) {
                 if (isPriority() == m_delegate.isPriority()) {
-                    return true;
+                    return false;
                 }
             }
         }
-        return false;
+        return true;
     }
 
     @Override
