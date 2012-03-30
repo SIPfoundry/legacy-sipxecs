@@ -68,6 +68,10 @@ OPENFIRE_LIB="${OPENFIRE_HOME}/lib"
 Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @plugin_PKGS@`
 export CLASSPATH=`echo ${OPENFIRE_LIB}/*.jar @SIPX_JAVADIR@/sipXopenfire/*.jar ${Dependencies} | sed -e 's/ /:/g'`
 CONFIG_FILES="@SIPX_CONFDIR@/sipxopenfire.xml"
+SIPX_COMMONS=@SIPX_JAVADIR@/sipXcommons
+SIPX_OPENFIRE_DIR=@SIPX_JAVADIR@/sipXopenfire
+SIP_DOMAIN_NAME=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+FQDN=`hostname -f`
 TMP_DIR="/tmp"
 # Export any necessary variables
 export JAVA_HOME JAVACMD
@@ -133,10 +137,11 @@ databaseCheck() {
 }
 
 setupCheck() {
+  configure
   if ! databaseCheck
   then
     echo "Initializing openfire database..."
-      setup
+      setupDatabase
     # more to do here, see sipxopenacd setup
   fi
 }
@@ -175,11 +180,10 @@ restart() {
 # was either once necessary or someone that it was harmless.  For example, it's not 
 # typical to recursively chown directories each time on startup, but it's possible
 # there is a good reason to do this under some special circumstances. --douglas
-setup() {
- SIPX_COMMONS=@SIPX_JAVADIR@/sipXcommons
- SIPX_OPENFIRE_DIR=@SIPX_JAVADIR@/sipXopenfire
- SIP_DOMAIN_NAME=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
- FQDN=`hostname -f`
+
+# configure openfire - create necessary symbolic links, this should happen once, during build time
+# and should happen independent of openfire database creation
+configure() {
  if [ -e @OPENFIRE_HOME@  ]
  then
    chown -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
@@ -228,7 +232,9 @@ setup() {
           @OPENFIRE_HOME@/plugins/admin/webapp/WEB-INF/web.xml
    rm -f @OPENFIRE_HOME@/plugins/admin/webapp/favicon.ico 2> /dev/null
   fi 
+}
 
+setupDatabase() {
   # Check if we have created the database. If not create it.
   rm  @SIPX_TMPDIR@/sipxopenfire.version 2> /dev/null
   databaseCommand check 2> /dev/null
@@ -250,6 +256,9 @@ case "$1" in
   nofork)
     NoFork=1
     start
+    ;;
+  configure)
+    configure
     ;;
   start)
     start
@@ -276,7 +285,7 @@ case "$1" in
     databaseCommand ${@}
     ;;
   *)
-    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|configure}"
     Status=1
 esac
 
