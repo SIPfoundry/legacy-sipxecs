@@ -1563,21 +1563,23 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
                              identity.data(), requestNonce.data(), callId.data());
            }
 
-           // verify that qop,cnonce, nonceCount are compatible
-           else if (message.verifyQopConsistency(requestCnonce.data(),
-                                                 requestNonceCount.data(),
-                                                 &requestQop,
-                                                 qopType)
-                    >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
-           {
-               OsSysLog::add(FAC_AUTH, PRI_INFO,
-                             "SipRegistrarServer::isAuthorized "
-                             "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
-                             requestQop.data(), requestCnonce.data(), requestNonceCount.data());
-           }
-
+           
            else // realm, nonce and qop are all ok
            {
+                // verify that qop,cnonce, nonceCount are compatible
+               if (message.verifyQopConsistency(requestCnonce.data(),
+                                                     requestNonceCount.data(),
+                                                     &requestQop,
+                                                     qopType)
+                        >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
+               {
+                   OsSysLog::add(FAC_AUTH, PRI_INFO,
+                                 "SipRegistrarServer::isAuthorized "
+                                 "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
+                                 requestQop.data(), requestCnonce.data(), requestNonceCount.data());
+               }
+
+
                 // need the request URI to validate the nonce
                 UtlString reqUri;
                 message.getRequestUri(&reqUri);
