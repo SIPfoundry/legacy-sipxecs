@@ -50,19 +50,19 @@ public class MusicOnHoldManagerTestIntegration extends ImdbTestCase {
         DBObject obj = getEntityCollection().findOne(query);
         List<DBObject> aliases = (List<DBObject>) obj.get(MongoConstants.ALIASES);
         assertEquals(4, aliases.size());
-        assertEquals("sip:~~mh~@example.org", aliases.get(0).get(MongoConstants.ALIAS_ID));
+        assertEquals("~~mh~", aliases.get(0).get(MongoConstants.ALIAS_ID));
         assertEquals("<sip:IVR@vm.example.org;action=moh;moh=l>", aliases.get(0).get(MongoConstants.CONTACT));
         assertEquals("moh", aliases.get(0).get(MongoConstants.RELATION));
 
-        assertEquals("sip:~~mh~l@example.org", aliases.get(1).get(MongoConstants.ALIAS_ID));
+        assertEquals("~~mh~l", aliases.get(1).get(MongoConstants.ALIAS_ID));
         assertEquals("<sip:IVR@vm.example.org;action=moh;moh=l>", aliases.get(1).get(MongoConstants.CONTACT));
         assertEquals("moh", aliases.get(1).get(MongoConstants.RELATION));
 
-        assertEquals("sip:~~mh~p@example.org", aliases.get(2).get(MongoConstants.ALIAS_ID));
+        assertEquals("~~mh~p", aliases.get(2).get(MongoConstants.ALIAS_ID));
         assertEquals("<sip:IVR@vm.example.org;action=moh;moh=p>", aliases.get(2).get(MongoConstants.CONTACT));
         assertEquals("moh", aliases.get(2).get(MongoConstants.RELATION));
 
-        assertEquals("sip:~~mh~n@example.org", aliases.get(3).get(MongoConstants.ALIAS_ID));
+        assertEquals("~~mh~n", aliases.get(3).get(MongoConstants.ALIAS_ID));
         assertEquals("<sip:IVR@vm.example.org;action=moh;moh=n>", aliases.get(3).get(MongoConstants.CONTACT));
         assertEquals("moh", aliases.get(2).get(MongoConstants.RELATION));
     }

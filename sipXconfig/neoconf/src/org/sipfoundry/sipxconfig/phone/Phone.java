@@ -183,7 +183,7 @@ public abstract class Phone extends Device {
         }
         int max = getModel().getMaxLineCount();
         if (m_lines.size() >= max) {
-            throw new MaxLinesException("Maximum number of allowed lines is " + max);
+            throw new MaxLinesException(String.valueOf(max));
         }
         line.setPhone(this);
         m_lines.add(line);
@@ -192,7 +192,7 @@ public abstract class Phone extends Device {
 
     public static class MaxLinesException extends UserException {
         MaxLinesException(String msg) {
-            super(msg);
+            super("&error.maxLinesException", msg);
         }
     }
 
