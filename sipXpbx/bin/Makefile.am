@@ -6,8 +6,7 @@ libexec_SCRIPTS = \
 	sipx-activate-ntp \
 	sipx-config-httpd-access \
 	sipx-config-vxml-domain \
-	initial-config \
-	sipx-strip-db-secrets.pl
+	initial-config
 
 bin_SCRIPTS = \
 	analyze_483s \
