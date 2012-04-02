@@ -16,14 +16,12 @@
  */
 package org.sipfoundry.sipxconfig.imbot;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang.StringUtils.replace;
 
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
@@ -35,7 +33,6 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
     private static final String HTTP_PORT = "imbot/imbot.httpport";
     private static final String LOCALE_SETTING = "imbot/imbot.locale";
     private static final String LOG_LEVEL_SETTING = "imbot/log.level";
-    private static final int PASS_LENGTH = 8;
 
     @Override
     protected Setting loadSettings() {
@@ -54,11 +51,8 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
         return defaultIfEmpty(replace(getSettingValue(PA_PASSWORD_SETTING), "\\", "\\\\"), getPersonalAssistantImId());
     }
 
-    @Override
-    protected void initialize() {
-        if (StringUtils.isEmpty(getSettingValue(PA_PASSWORD_SETTING))) {
-            setSettingValue(PA_PASSWORD_SETTING, randomAlphanumeric(PASS_LENGTH));
-        }
+    public void setPaPassword(String password) {
+        setSettingValue(PA_PASSWORD_SETTING, password);
     }
 
     public int getHttpPort() {

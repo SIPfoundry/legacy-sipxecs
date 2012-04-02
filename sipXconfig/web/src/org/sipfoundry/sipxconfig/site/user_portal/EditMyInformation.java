@@ -24,6 +24,8 @@ import org.sipfoundry.sipxconfig.components.FaxServicePanel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
@@ -35,17 +37,15 @@ import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
     public static final String TAB_CONFERENCES = "conferences";
 
-    //private static final String OPERATOR_SETTING = "personal-attendant" + Setting.PATH_DELIM + "operator";
-
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
 
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
-//    @InjectObject("spring:sipxServiceManager")
-//    public abstract SipxServiceManager getSipxServiceManager();
-//
+    @InjectObject(value = "spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
+
 //    @InjectObject("spring:xmppContactInformationUpdate")
 //    public abstract XmppContactInformationUpdate getXmppContactInformationUpdate();
 
@@ -173,9 +173,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             tabNames.add("menu");
         }
 
-//        if (getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-//            tabNames.add("myAssistant");
-//        }
+        if (getFeatureManager().isFeatureEnabled(ImBot.FEATURE)) {
+            tabNames.add("myAssistant");
+        }
 
         setAvailableTabNames(tabNames);
     }

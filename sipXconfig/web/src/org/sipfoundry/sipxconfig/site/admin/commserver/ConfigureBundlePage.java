@@ -135,16 +135,31 @@ public abstract class ConfigureBundlePage extends PageWithCallback implements Pa
     public void save() {
         getFeatureManager().enableGlobalFeatures(getGlobalFeatures());
 
+        Set<LocationFeature> bundleFeatures = getBundleLocationFeatures();
         for (Location l : getLocations()) {
             ByLocation filter = new ByLocation(l);
             Collection<String> subset = CollectionUtils.select(getCellIds(), filter);
-            Collection<LocationFeature> features = CollectionUtils.collect(subset, filter);
-            Set<LocationFeature> featureSet = new HashSet<LocationFeature>(features);
+            Collection<LocationFeature> selected = CollectionUtils.collect(subset, filter);
+            Collection<LocationFeature> unselected = CollectionUtils.disjunction(bundleFeatures, selected);
+            Set<LocationFeature> enabledFeatures = getFeatureManager().getEnabledLocationFeatures(l);
+            enabledFeatures.addAll(selected);
+            enabledFeatures.removeAll(unselected);
+            Set<LocationFeature> featureSet = new HashSet<LocationFeature>(enabledFeatures);
             if (featureSet.contains(null)) {
                 featureSet.remove(null);
             }
             getFeatureManager().enableLocationFeatures(featureSet, l);
         }
+    }
+
+    private Set<LocationFeature> getBundleLocationFeatures() {
+        Set<LocationFeature> featureSet = new HashSet<LocationFeature>();
+        for (Feature feature : getBundle().getFeatures()) {
+            if (feature instanceof LocationFeature) {
+                featureSet.add((LocationFeature) feature);
+            }
+        }
+        return featureSet;
     }
 
     class ByLocation implements Transformer, Predicate {

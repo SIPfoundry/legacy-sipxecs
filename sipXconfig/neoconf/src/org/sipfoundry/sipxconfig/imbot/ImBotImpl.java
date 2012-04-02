@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.imbot;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +29,8 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -35,7 +39,8 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, ProcessProvider {
+public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, ProcessProvider, FeatureListener {
+    private static final int PASS_LENGTH = 8;
     private BeanWithSettingsDao<ImBotSettings> m_settingsDao;
 
     public ImBotSettings getSettings() {
@@ -92,6 +97,33 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     public void getBundleFeatures(Bundle b) {
         if (b.isUnifiedCommunications()) {
             b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        if (!feature.equals(ImBot.FEATURE)) {
+            return;
+        }
+        switch (event) {
+        case PRE_ENABLE:
+            initializeSettings();
+            break;
+        default:
+            break;
+        }
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+    }
+
+    private void initializeSettings() {
+        ImBotSettings settings = getSettings();
+        if (settings.isNew()) {
+            settings.setPaPassword(randomAlphanumeric(PASS_LENGTH));
+            saveSettings(settings);
         }
     }
 }
