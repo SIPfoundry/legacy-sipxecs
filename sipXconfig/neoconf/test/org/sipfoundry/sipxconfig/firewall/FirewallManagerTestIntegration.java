@@ -44,6 +44,20 @@ public class FirewallManagerTestIntegration extends IntegrationTestCase {
         List<EditableFirewallRule> saved = m_firewallManager.getEditableFirewallRules();
         assertFalse("Saved rule (not new)", saved.get(0).isNew());
     }
+    
+    public void testSaveServerGroup() {
+        ServerGroup g = new ServerGroup();
+        g.setName("test");
+        String servers = "1.1.1.1/32";
+        g.setServerList(servers);
+        m_firewallManager.saveServerGroup(g);
+        int id = db().queryForInt("select firewall_server_group_id from firewall_server_group where servers = ?", servers);
+        g = m_firewallManager.getServerGroup(id);
+        g.setName("test2");
+        m_firewallManager.saveServerGroup(g);
+        int id2 = db().queryForInt("select firewall_server_group_id from firewall_server_group where name = 'test2'");
+        assertEquals(id, id2);
+    }
 
     public void setFirewallManager(FirewallManager firewallManager) {
         m_firewallManager = firewallManager;

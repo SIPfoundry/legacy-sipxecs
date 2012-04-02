@@ -8,6 +8,24 @@ require 'optparse'
 require 'erb'
 require 'yaml'
 
+def firewall(yaml, template, out)
+  data = YAML::load_file(yaml)
+  out.puts firewall_generate(data, template)
+end
+
+def firewall_generate(data, template)
+  erb = ERB.new(File.read(template))
+  erb.filename = template
+  var = binding
+  data.each_key { |x|
+    eval "#{x} = data['#{x}']", var
+  }
+  return erb.result(var)
+end
+
+
+if __FILE__ == $0
+
 args = OptionParser.new { |opts|
   opts.banner = "Usage : sipx-firewall-maker [options]"
 
@@ -41,15 +59,8 @@ EOF
     $out = File.open(f, 'w')
   }
 }
-args.parse!
+  args.parse!
 
-data = YAML::load_file($yaml)
+  firewall($yaml, $template, $out)
+end
 
-var = binding
-data.each_key { |x|
-  eval "#{x} = data['#{x}']", var
-}
-
-erb = ERB.new(File.read($template))
-erb.filename = $template
-$out.puts erb.result(var)

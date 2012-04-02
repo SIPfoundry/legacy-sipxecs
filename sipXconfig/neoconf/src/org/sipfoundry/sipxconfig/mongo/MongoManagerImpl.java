@@ -58,7 +58,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!type.equalsAnyOf(ADDRESS_ID)) {
             return null;
         }

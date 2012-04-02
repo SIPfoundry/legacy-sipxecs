@@ -3,10 +3,34 @@
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [60:6096]
 :syn-flood - [0:0]
+
+-N PUBLIC
+-A PUBLIC -j ACCEPT
+
+<%
+  chains.each { |chain|
+%>-N <%= chain[:name] %>
+<%
+    chain[:ipv4s].each { |ipv4|
+%>-A <%= chain[:name] %> -s <%= ipv4 %> -j ACCEPT 
+<%
+    }
+%>-A <%= chain[:name] %> -j DROP 
+<%
+  }
+%>
+
+<% 
+  rules.each { |rule|
+%>-A INPUT --dport <%= rule[:port] %> -j <%= rule[:chain] %>
+<%
+    if rule[:prioritize]
+%>-t mangle -A OUTPUT -p tcp --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
+<%
+    end
+  }
+%>
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
--A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
--A INPUT -j REJECT --reject-with icmp-host-prohibited
--A FORWARD -j REJECT --reject-with icmp-host-prohibited
 COMMIT

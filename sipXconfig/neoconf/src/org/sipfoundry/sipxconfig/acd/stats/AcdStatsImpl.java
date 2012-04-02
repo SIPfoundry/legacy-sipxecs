@@ -64,7 +64,7 @@ public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider,
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!type.equals(API_ADDRESS)) {
             return null;
         }

@@ -67,7 +67,7 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!ADDRESSES.contains(type)) {
             return null;
         }

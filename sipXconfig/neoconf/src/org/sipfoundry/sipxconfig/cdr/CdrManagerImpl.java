@@ -528,7 +528,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!type.equals(CDR_API)) {
             return null;
         }

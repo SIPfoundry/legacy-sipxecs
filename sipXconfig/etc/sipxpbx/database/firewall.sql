@@ -10,7 +10,8 @@ create table firewall_server_group (
 create table firewall_rule (
    firewall_rule_id int4 not null,
    prioritize boolean default false,
-   address_type varchar(32) not null,
+   address_type varchar(32) not null,   
+-- either firewall_server_group_id or system_id is set, not both
    firewall_server_group_id int4,
    system_id varchar(16),
    primary key (firewall_rule_id)

@@ -94,7 +94,7 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!ADDRESSES.contains(type) || !manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
             return null;
         }

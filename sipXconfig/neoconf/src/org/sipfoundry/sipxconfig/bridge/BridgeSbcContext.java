@@ -61,24 +61,25 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider {
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (type == XMLRPC_ADDRESS) {
-            if (requester instanceof BridgeSbc) {
-                return Collections.singleton(newSbcAddress((BridgeSbc) requester, type));
-            } else {
-                List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-                List<Address> addresses = new ArrayList<Address>(locations.size());
-                List<BridgeSbc> bridges = m_sbcDeviceManager.getBridgeSbcs();
-                for (BridgeSbc bridge : bridges) {
-                    Location location = bridge.getLocation();
-                    if (locations.contains(location)) {
-                        addresses.add(newSbcAddress(bridge, type));
-                    }
-                }
-                return addresses;
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
+        if (!type.equals(XMLRPC_ADDRESS)) {
+            return null;
+        }
+
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        if (locations == null || locations.size() == 0) {
+            return null;
+        }
+
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        List<BridgeSbc> bridges = m_sbcDeviceManager.getBridgeSbcs();
+        for (BridgeSbc bridge : bridges) {
+            Location location = bridge.getLocation();
+            if (locations.contains(location)) {
+                addresses.add(newSbcAddress(bridge, type));
             }
         }
-        return null;
+        return addresses;
     }
 
     public void setSbcDeviceManager(SbcDeviceManager mgr) {

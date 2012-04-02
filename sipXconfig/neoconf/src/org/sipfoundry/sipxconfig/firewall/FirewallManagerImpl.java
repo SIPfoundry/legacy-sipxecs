@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
@@ -46,6 +47,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
 public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> implements FirewallManager,
@@ -98,17 +100,21 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
     }
 
     public List<ServerGroup> getServerGroups() {
+        String sql = "select * from firewall_server_group";
+        return getServerGroupsBySql(sql);
+    }
+
+    List<ServerGroup> getServerGroupsBySql(String sql, Object... args) {
         RowMapper<ServerGroup> reader = new RowMapper<ServerGroup>() {
             public ServerGroup mapRow(ResultSet rs, int arg1) throws SQLException {
                 ServerGroup group = new ServerGroup();
                 group.setName(rs.getString("name"));
-                group.setServerList("servers");
+                group.setServerList(rs.getString("servers"));
                 group.setUniqueId(rs.getInt(SERVER_GROUP_COL));
                 return group;
             }
         };
-        String sql = "select * from firewall_server_group";
-        List<ServerGroup> groups = m_jdbc.query(sql, reader);
+        List<ServerGroup> groups = m_jdbc.query(sql, args, reader);
         return groups;
     }
 
@@ -184,18 +190,6 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
         return m_providers;
     }
 
-    @Override
-    public ServerGroup getPublicGroup() {
-        // TODO
-        return new ServerGroup();
-    }
-
-    @Override
-    public ServerGroup getClusterGroup() {
-        // TODO
-        return new ServerGroup();
-    }
-
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
     }
@@ -228,7 +222,7 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
     public void saveRules(List<EditableFirewallRule> rules) {
         m_jdbc.execute("delete from firewall_rule");
         String sql = "insert into firewall_rule (firewall_rule_id, firewall_server_group_id, "
-                + "address_type, prioritize, system_id) values (nextval('firewall_rule_seq'),?,?,?,?)";
+                + "system_id, address_type, prioritize) values (nextval('firewall_rule_seq'),?,?,?,?)";
         final EditableFirewallRule[] changed = getChanged(rules);
         if (changed.length == 0) {
             return;
@@ -243,12 +237,13 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
                 ServerGroup serverGroup = rule.getServerGroup();
                 if (serverGroup == null) {
                     arg.setNull(1, Types.INTEGER);
+                    arg.setString(2, rule.getSystemId().toString());
                 } else {
                     arg.setInt(1, serverGroup == null ? 0 : serverGroup.getId());
+                    arg.setNull(2, Types.VARCHAR);
                 }
-                arg.setString(2, rule.getAddressType().getId());
-                arg.setBoolean(3, rule.isPriority());
-                arg.setString(4, rule.getSystemId().toString());
+                arg.setString(3, rule.getAddressType().getId());
+                arg.setBoolean(4, rule.isPriority());
             }
         };
         m_jdbc.batchUpdate(sql, inserter);
@@ -256,5 +251,31 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
 
     public void setJdbc(JdbcTemplate jdbc) {
         m_jdbc = jdbc;
+    }
+
+    @Override
+    public ServerGroup getServerGroup(Integer groupId) {
+        String sql = "select * from firewall_server_group where firewall_server_group_id = ?";
+        return DaoUtils.requireOneOrZero(getServerGroupsBySql(sql, groupId), sql);
+    }
+
+    @Override
+    public void saveServerGroup(final ServerGroup serverGroup) {
+        String sql;
+        if (serverGroup.isNew()) {
+            sql = "insert into firewall_server_group (firewall_server_group_id, name, servers) values "
+                + "(nextval('firewall_server_group_seq'),?,?)";
+        } else {
+            sql = "update firewall_server_group set name = ?, servers = ? where firewall_server_group_id = ?";
+        }
+        m_jdbc.update(sql, new PreparedStatementSetter() {
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, serverGroup.getName());
+                ps.setString(2, serverGroup.getServerList());
+                if (!serverGroup.isNew()) {
+                    ps.setInt(3, serverGroup.getId());
+                }
+            }
+        });
     }
 }

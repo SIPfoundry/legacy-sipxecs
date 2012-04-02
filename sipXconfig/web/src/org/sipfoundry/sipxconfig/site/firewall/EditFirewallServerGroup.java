@@ -15,43 +15,48 @@
 package org.sipfoundry.sipxconfig.site.firewall;
 
 import org.apache.tapestry.annotations.Bean;
-import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.components.SipxBasePage;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
-import org.sipfoundry.sipxconfig.firewall.FirewallSettings;
+import org.sipfoundry.sipxconfig.firewall.ServerGroup;
 
-public abstract class ManageFirewall extends SipxBasePage implements PageBeginRenderListener {
+public abstract class EditFirewallServerGroup extends PageWithCallback implements PageBeginRenderListener {
+    public static final String PAGE = "firewall/EditFirewallServerGroup";
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
+    @Persist
+    public abstract Integer getServerGroupId();
+
+    public abstract void setServerGroupId(Integer serverGroupId);
+
+    public abstract ServerGroup getServerGroup();
+
+    public abstract void setServerGroup(ServerGroup serverGroup);
+
     @InjectObject("spring:firewallManager")
     public abstract FirewallManager getFirewallManager();
 
-    public abstract FirewallSettings getSettings();
-
-    public abstract void setSettings(FirewallSettings settings);
-
-    @Persist
-    @InitialValue(value = "literal:rules")
-    public abstract String getTab();
-
-    public abstract void setTab(String tab);
-
-
     @Override
     public void pageBeginRender(PageEvent arg0) {
-        if (getSettings() == null) {
-            setSettings(getFirewallManager().getSettings());
+        ServerGroup group = getServerGroup();
+        if (group == null) {
+            Integer id = getServerGroupId();
+            if (id == null) {
+                group = new ServerGroup();
+            } else {
+                group = getFirewallManager().getServerGroup(id);
+            }
+            setServerGroup(group);
         }
     }
 
-    public void saveSettings() {
-        getFirewallManager().saveSettings(getSettings());
+    public void save() {
+        getFirewallManager().saveServerGroup(getServerGroup());
     }
 }

@@ -18,8 +18,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -60,11 +62,13 @@ public class FirewallConfig implements ConfigProvider {
         }
 
         List<FirewallRule> rules = m_firewallManager.getFirewallRules();
+        List<ServerGroup> groups = m_firewallManager.getServerGroups();
+        List<Location> locations = manager.getLocationManager().getLocationsList();
         for (Location location : request.locations(manager)) {
             File dir = manager.getLocationDataDirectory(location);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
-                writeIptables(config, rules, location);
+                writeIptables(config, rules, groups, locations, location);
             } finally {
                 IOUtils.closeQuietly(config);
             }
@@ -76,12 +80,20 @@ public class FirewallConfig implements ConfigProvider {
         c.write(settings.getSettings().getSetting("sysctl"));
     }
 
-    void writeIptables(Writer w, List<FirewallRule> rules, Location location) throws IOException {
+    void writeIptables(Writer w, List<FirewallRule> rules, List<ServerGroup> groups, List<Location> cluster,
+        Location thisLocation) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
+
+        c.startArray("chains");
+        Collection<?> ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
+        c.write(":name", FirewallRule.SystemId.CLUSTER.toString());
+        c.writeInlineArray(":ipv4s", ips);
+        c.endArray();
+
         c.startArray("rules");
         for (FirewallRule rule : rules) {
             AddressType type = rule.getAddressType();
-            List<Address> addresses = m_addressManager.getAddresses(type, location);
+            List<Address> addresses = m_addressManager.getAddresses(type, thisLocation);
             if (addresses != null) {
                 for (Address address : addresses) {
                     String id = address.getType().getId();
@@ -89,9 +101,10 @@ public class FirewallConfig implements ConfigProvider {
                     if (port == 0) {
                         LOG.error("Cannot open up port zero for service id " + id);
                     } else {
-                        c.write("destination", port);
-                        c.write("service", id);
-                        c.write("priority", rule.isPriority());
+                        c.write(":port", port);
+                        c.write(":service", id);
+                        c.write(":priority", rule.isPriority());
+                        c.write(":chain", rule.getSystemId().name());
                         c.nextElement();
                     }
                 }

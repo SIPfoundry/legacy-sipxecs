@@ -106,7 +106,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equals(REST_API)) {
             return null;
         }

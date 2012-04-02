@@ -52,7 +52,6 @@ public class IvrConfigTest {
         m_mwiApi = new Address(Mwi.HTTP_API, "mwi.example.org", 100);
         m_restApi = new Address(RestServer.HTTPS_API, "rest.example.org", 101);
         m_adminApi = new Address(AdminContext.HTTPS_ADDRESS, "admin.example.org", 102);
-        m_primaryIp = new Address(AdminContext.PRIMARY_IP_ADDRESS, "10.1.1.1", 101);
         m_imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 103);
         m_imbotApi = new Address(ImBot.XML_RPC, "imbot.example.org", 104);
         m_fsEvent = new Address(FreeswitchFeature.EVENT_ADDRESS, "fsevent.example.org", 105);
@@ -61,7 +60,7 @@ public class IvrConfigTest {
     @Test
     public void testWriteWithOpenfireService() throws Exception {
         StringWriter actual = new StringWriter();
-        m_config.write(actual, m_settings, m_domain, m_location, m_mwiApi, m_restApi, m_adminApi, m_primaryIp, m_imApi, m_imbotApi, m_fsEvent);
+        m_config.write(actual, m_settings, m_domain, m_location, m_mwiApi, m_restApi, m_adminApi, m_imApi, m_imbotApi, m_fsEvent);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxivr-with-openfire.properties"));
         assertEquals(expected, actual.toString());
     }
@@ -69,7 +68,7 @@ public class IvrConfigTest {
     @Test
     public void testWriteWithoutOpenfireService() throws Exception {
         StringWriter actual = new StringWriter();
-        m_config.write(actual, m_settings, m_domain, m_location, m_mwiApi, m_restApi, m_adminApi, m_primaryIp, null, null, m_fsEvent);
+        m_config.write(actual, m_settings, m_domain, m_location, m_mwiApi, m_restApi, m_adminApi, null, null, m_fsEvent);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxivr-without-openfire.properties"));
         assertEquals(expected, actual.toString());
     }

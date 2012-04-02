@@ -191,7 +191,7 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
 
     @Override
     public java.util.Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!type.equalsAnyOf(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS)) {
             return null;
         }

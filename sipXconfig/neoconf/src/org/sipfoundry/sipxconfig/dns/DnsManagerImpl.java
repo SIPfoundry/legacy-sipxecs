@@ -96,7 +96,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equals(DNS_ADDRESS)) {
             return null;
         }

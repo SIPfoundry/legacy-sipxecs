@@ -1,7 +1,12 @@
+chains:
+ - :name: CLUSTER
+   :ipv4s: [ 1.1.1.1, 2.2.2.2 ]
 rules:
- - destination: 100
-   service: test
-   priority: false
- - destination: 200
-   service: test
-   priority: false
+ - :port: 100
+   :service: test
+   :priority: false
+   :chain: CLUSTER
+ - :port: 200
+   :service: test
+   :priority: false
+   :chain: CLUSTER

@@ -16,18 +16,25 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
-public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService {
-    private static final List<AddressType> ADDRESSES = Arrays.asList(NTP, SYSLOG, DNS);
+public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService, FirewallProvider {
+    private static final List<AddressType> ADDRESSES = Arrays.asList(NTP, SYSLOG, DNS, SSH);
     private BeanWithSettingsDao<UnmanagedServiceSettings> m_settingsDao;
 
     @Override
@@ -46,7 +53,7 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService 
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!ADDRESSES.contains(type)) {
             return null;
         }
@@ -58,6 +65,9 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService 
             return settings.getAddresses(SYSLOG, "services/syslog");
         } else if (type.equals(DNS)) {
             return settings.getAddresses(DNS, "services/dns");
+        } else if (type.equals(SSH)) {
+            // return the ssh server on the server that asking. mostly useful for firewall rules
+            return Collections.singleton(new Address(SSH, requester.getAddress()));
         }
 
         return null;
@@ -65,5 +75,14 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService 
 
     public void setSettingsDao(BeanWithSettingsDao<UnmanagedServiceSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type) {
+        if (type.equalsAnyOf(SSH)) {
+            // should default be cluster? safer yes, but very unlikely.
+            return new DefaultFirewallRule(type, FirewallRule.SystemId.PUBLIC);
+        }
+        return null;
     }
 }

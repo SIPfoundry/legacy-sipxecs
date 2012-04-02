@@ -67,7 +67,7 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         List<Address> addresses = null;
         if (ADRESSES.contains(type)) {
             m_acdContext.getServers();

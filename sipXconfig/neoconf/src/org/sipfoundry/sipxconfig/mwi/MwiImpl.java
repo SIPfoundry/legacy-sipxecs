@@ -74,7 +74,7 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!ADDRESSES.contains(type)) {
             return null;
         }

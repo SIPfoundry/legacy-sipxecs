@@ -85,7 +85,7 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!ADDRESS_TYPES.contains(type)) {
             return null;
         }

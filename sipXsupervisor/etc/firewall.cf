@@ -15,13 +15,19 @@
 # This is iptables configuration. Uses either /etc/init.d./iptables (centos 6) or 
 # /bin/systemctl (fedora 16) scripts whichever are available.
 #
+bundle common g_firewall {
+  classes:
+    # for now until this works reliably
+    "unmanaged_firewall" expression => "any";
+}
+
 bundle agent firewall {
   methods:
     firewall::
       "any" usebundle => "firewall_config";
-    fedora16_or_greater.disabled_for_now::
+    fedora16_or_greater.!unmanaged_firewall::
       "any" usebundle => "firewall_systemctl_running";
-    !fedora16_or_greater.disabled_for_now::
+    !fedora16_or_greater.!unmanaged_firewall::
       "any" usebundle => "firewall_sysv_running";
 }
 
@@ -48,13 +54,19 @@ bundle agent firewall_config {
         classes => if_repaired("update_sysctl");
 
   commands:
-    update_sysctl.disabled_for_now::
+    update_sysctl::
       "/sbin/sysctl"
         comment => "Apply kernel network parameters",
         args => "-p";
 
   commands:
-    update_firewall.disabled_for_now::
+    update_firewall.unmanaged_firewall::
+      "$(sipx.SIPX_LIBEXECDIR)/sipx-firewall-maker"
+        comment => "Install new firewall rules",
+        contain => in_shell,
+        args => "--in $(rules) --out /etc/sysconfig/iptables.unmanaged";
+
+    update_firewall.!unmanaged_firewall::
       "/sbin/iptables-restore"
         comment => "Install new firewall rules",
         contain => in_shell,

@@ -20,17 +20,20 @@ import static java.lang.String.format;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Primitive YAML writer.
  *
- * Limitations/Notes:
- *  Does not support associative lists, but you can use write(key, "[ a, b ]")
- *  Does not escape text
- *  Does not support multi-line
- *  Consider introducing a library before expanding on this too, too much.
+ * Limitations/Notes: Does not support associative lists, but you can use write(key, "[ a, b ]")
+ * Does not escape text Does not support multi-line Consider introducing a library before
+ * expanding on this too, too much.
  */
 public class YamlConfiguration extends AbstractConfigurationFile {
+    private static final String BEGIN_ARRAY = "[ ";
+    private static final String END_ARRAY = " ]";
     private static final String INDEX = "                                                      ";
     private Writer m_out;
     private int m_nestLevel;
@@ -59,6 +62,14 @@ public class YamlConfiguration extends AbstractConfigurationFile {
         }
         m_newStruct = false;
         return indent;
+    }
+
+    /**
+     * Values must not have spaces in them
+     */
+    public void writeInlineArray(String key, Collection< ? > values) throws IOException {
+        String value = BEGIN_ARRAY + StringUtils.join(values, ", ") + END_ARRAY;
+        write(key, value);
     }
 
     private String up() {

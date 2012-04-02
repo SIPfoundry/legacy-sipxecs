@@ -62,7 +62,7 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equals(PROVISION_SERVICE)) {
             return null;
         }

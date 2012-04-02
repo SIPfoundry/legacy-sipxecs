@@ -55,7 +55,6 @@ public class IvrConfig implements ConfigProvider {
         FeatureManager featureManager = manager.getFeatureManager();
         Address mwiApi = manager.getAddressManager().getSingleAddress(Mwi.HTTP_API);
         Address adminApi = manager.getAddressManager().getSingleAddress(AdminContext.HTTPS_ADDRESS);
-        Address primaryIp = manager.getAddressManager().getSingleAddress(AdminContext.PRIMARY_IP_ADDRESS);
         Address restApi = manager.getAddressManager().getSingleAddress(RestServer.HTTPS_API);
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
         Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.XML_RPC);
@@ -73,7 +72,7 @@ public class IvrConfig implements ConfigProvider {
             File f = new File(dir, "sipxivr.properties.part");
             Writer wtr = new FileWriter(f);
             try {
-                write(wtr, settings, domain, location, mwiApi, restApi, adminApi, primaryIp, imApi, imbotApi, fsEvent);
+                write(wtr, settings, domain, location, mwiApi, restApi, adminApi, imApi, imbotApi, fsEvent);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
@@ -81,7 +80,7 @@ public class IvrConfig implements ConfigProvider {
     }
 
     void write(Writer wtr, IvrSettings settings, Domain domain, Location location, Address mwiApi, Address restApi,
-            Address adminApi, Address primaryIp, Address imApi, Address imbotApi, Address fsEvent) throws IOException {
+            Address adminApi, Address imApi, Address imbotApi, Address fsEvent) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write(settings.getSettings());
         config.write("freeswitch.eventSocketPort", fsEvent.getPort());
@@ -98,7 +97,7 @@ public class IvrConfig implements ConfigProvider {
         if (adminApi == null) {
             throw new ConfigException("Admin feature needs to be enabled. No addresses found.");
         }
-        config.write("ivr.configAddress", primaryIp.getAddress());
+        config.write("ivr.configAddress", adminApi.getAddress());
         config.write("ivr.configUrl", adminApi.toString());
 
         // optional services

@@ -23,9 +23,11 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
 public interface FirewallManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("firewall");
+
     public final class Util {
         private Util() {
         }
+
         public static Map<String, DefaultFirewallRule> defaultsByAddressTypeId(Collection<DefaultFirewallRule> l) {
             Map<String, DefaultFirewallRule> ndx = new HashMap<String, DefaultFirewallRule>();
             for (DefaultFirewallRule i : l) {
@@ -33,6 +35,7 @@ public interface FirewallManager {
             }
             return ndx;
         }
+
         public static Map<Integer, ServerGroup> groupsById(Collection<ServerGroup> l) {
             Map<Integer, ServerGroup> ndx = new HashMap<Integer, ServerGroup>();
             for (ServerGroup i : l) {
@@ -42,13 +45,15 @@ public interface FirewallManager {
         }
     }
 
+    public ServerGroup getServerGroup(Integer groupId);
+
+    public void saveServerGroup(ServerGroup serverGroup);
+
     public FirewallSettings getSettings();
 
     public void saveSettings(FirewallSettings settings);
 
-    public ServerGroup getPublicGroup();
-
-    public ServerGroup getClusterGroup();
+    public List<ServerGroup> getServerGroups();
 
     public List<DefaultFirewallRule> getDefaultFirewallRules();
 

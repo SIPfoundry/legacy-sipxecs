@@ -69,7 +69,7 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessPr
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!ADDRESSES.contains(type)) {
             return null;
         }

@@ -167,7 +167,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equalsAnyOf(SIP_TCP_PORT, SIP_UDP_PORT, SIP_RTP_PORT)) {
             return null;
         }

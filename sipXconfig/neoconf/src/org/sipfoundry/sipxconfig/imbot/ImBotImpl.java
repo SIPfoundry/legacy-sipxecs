@@ -63,7 +63,7 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equals(XML_RPC)) {
             return null;
         }

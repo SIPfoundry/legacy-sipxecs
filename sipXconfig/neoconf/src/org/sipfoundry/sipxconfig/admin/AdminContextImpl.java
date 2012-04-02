@@ -37,7 +37,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider,
     AlarmProvider, FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
-            PRIMARY_IP_ADDRESS, TFTP_ADDRESS, FTP_ADDRESS, SSH_ADDRESS);
+            TFTP_ADDRESS, FTP_ADDRESS);
     private LocationsManager m_locationsManager;
 
     @Override
@@ -46,19 +46,17 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!ADDRESSES.contains(type)) {
             return null;
         }
 
         Location location = m_locationsManager.getPrimaryLocation();
         Address address;
-        if (type.equals(PRIMARY_IP_ADDRESS)) {
-            address = new Address(PRIMARY_IP_ADDRESS, location.getAddress());
-        } else if (type.equals(HTTP_ADDRESS)) {
-            address = new Address(HTTP_ADDRESS, location.getFqdn(), 12000);
+        if (type.equals(HTTP_ADDRESS)) {
+            address = new Address(HTTP_ADDRESS, location.getAddress(), 12000);
         } else {
-            address = new Address(HTTPS_ADDRESS, location.getFqdn());
+            address = new Address(HTTPS_ADDRESS, location.getAddress());
         }
         // else ftp and tftp won't have ports defines, 0 means it's assumed to be default
         // also, this assumed admin ui is also tftp and ftp server, which is a correct assumption
@@ -103,7 +101,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type) {
-        if (type.equalsAnyOf(FTP_ADDRESS, TFTP_ADDRESS, SSH_ADDRESS)) {
+        if (type.equalsAnyOf(FTP_ADDRESS, TFTP_ADDRESS)) {
             return new DefaultFirewallRule(type, FirewallRule.SystemId.PUBLIC);
         }
         return null;

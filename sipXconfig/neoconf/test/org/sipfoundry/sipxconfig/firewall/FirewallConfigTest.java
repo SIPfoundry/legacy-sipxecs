@@ -59,18 +59,24 @@ public class FirewallConfigTest {
     public void iptables() throws IOException {        
         List<FirewallRule> rules = new ArrayList<FirewallRule>();
         AddressType testType = new AddressType("test");
-        rules.add(new DefaultFirewallRule(testType, FirewallRule.SystemId.PUBLIC));
-        Location location = TestHelper.createDefaultLocation();
+        rules.add(new DefaultFirewallRule(testType, FirewallRule.SystemId.CLUSTER));
+        Location l1 = new Location("one", "1.1.1.1");
+        Location l2 = new Location("two", "2.2.2.2");
+        List<Location> cluster = Arrays.asList(l1, l2);
+        
+        ServerGroup g1 = new ServerGroup();
+        ServerGroup g2 = new ServerGroup();
+        List<ServerGroup> groups = Arrays.asList(g1, g2);
 
         AddressManager addressManager = createMock(AddressManager.class);
-        addressManager.getAddresses(testType, location);
-        Address a1 = new Address(testType, "10.1.1.1", 100);
-        Address a2 = new Address(testType, "10.1.1.1", 200);
+        addressManager.getAddresses(testType, l1);
+        Address a1 = new Address(testType, l1.getAddress(), 100);
+        Address a2 = new Address(testType, l1.getAddress(), 200);
         expectLastCall().andReturn(Arrays.asList(a1, a2)).once();
         replay(addressManager);
         m_config.setAddressManager(addressManager);
         
-        m_config.writeIptables(m_actual, rules, location);
+        m_config.writeIptables(m_actual, rules, groups, cluster, l1);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-firewall.yaml"));
         assertEquals(expected, m_actual.toString());
         

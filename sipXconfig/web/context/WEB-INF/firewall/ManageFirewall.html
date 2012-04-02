@@ -3,8 +3,12 @@
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg" /> <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
-  <div jwcid="rulesTab@Block">Rules Here</div>
-  <div jwcid="groupsTab@Block">Groups Here</div>
+  <div jwcid="rulesTab@Block">
+    <span jwcid="@firewall/EditFirewallRules"/>    
+  </div>    
+  <div jwcid="groupsTab@Block">
+    <span jwcid="@firewall/EditFirewallServerGroups"/>    
+  </div>
   <div jwcid="settingsTab@Block">
     <form jwcid="form@Form" delegate="bean:validator">
       <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:settings.settings" />

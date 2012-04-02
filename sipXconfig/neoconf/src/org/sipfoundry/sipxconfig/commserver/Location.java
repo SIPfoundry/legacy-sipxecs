@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -35,6 +36,11 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
     // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
     public static final int PROCESS_MONITOR_PORT = 8092;
+    public static final Transformer GET_ADDRESS = new Transformer() {
+        public Object transform(Object o) {
+            return (o == null ? null : ((Location) o).getAddress());
+        }
+    };
     private static final int SOFTWARE_ADMIN_PORT = 8092;
     private static final int HTTPS_SERVER_PORT = 8092;
     private static final int OPENFIRE_CONTACT_INFO_UPDATE_PORT = 9099;

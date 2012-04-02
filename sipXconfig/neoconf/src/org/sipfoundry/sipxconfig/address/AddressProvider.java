@@ -18,10 +18,12 @@ package org.sipfoundry.sipxconfig.address;
 
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
+
 public interface AddressProvider {
 
     public Collection<AddressType> getSupportedAddressTypes(AddressManager manager);
 
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester);
+            Location requester);
 }
