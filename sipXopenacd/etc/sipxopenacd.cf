@@ -80,7 +80,7 @@ bundle edit_line sipxopenacd_app_config() {
 [{'OpenACD', [
 	{console_loglevel, $(sipx.OPENACD_LOG_LEVEl)},
 	{logfiles, [{\"$(sipx.OPENACD_HOME)/log/full.log\", $(sipx.OPENACD_LOG_LEVEl)}]},
-	{plugin_dir, \"plugin.d\"}, {plugins, [sipxplugin]}
+	{plugin_dir, \"plugin.d\"}, {plugins, [sipxplugin]}, {agent_auth_storage, spx_agent_auth}, {call_queue_config_storage, spx_call_queue_config}
 ]},
 {sasl, [
 	{errlog_type, error} % disable SASL progress reports

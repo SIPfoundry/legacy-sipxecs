@@ -24,11 +24,11 @@
 -define(DB, <<"imdb">>).
 -endif.
 
--include("log.hrl").
--include("call.hrl").
--include("queue.hrl").
--include("cpx.hrl").
--include("agent.hrl").
+-include_lib("OpenACD/include/log.hrl").
+-include_lib("OpenACD/include/call.hrl").
+-include_lib("OpenACD/include/queue.hrl").
+-include_lib("OpenACD/include/cpx.hrl").
+-include_lib("OpenACD/include/agent.hrl").
 
 %% API
 -export([
@@ -108,17 +108,13 @@ load_queue_groups() ->
 load_skills() ->
 	gen_server:call(integration, load_skills).
 
-load_release_opts() ->
-	gen_server:call(integration, load_release_opts).
-
 load() ->
-	load_skills(),
-	load_profiles(),
-	load_agents(),
-	load_clients(),
-	load_queue_groups(),
-	load_queues(),
-	load_release_opts().
+	%load_skills(),
+	%load_profiles(),
+	%load_agents(),
+	%load_clients(),
+	%load_queue_groups(),
+	load_queues().
 
 %%====================================================================
 %% gen_server callbacks
@@ -130,6 +126,11 @@ load() ->
 init(_Options) ->
 	mongodb:singleServer(spx),
 	ok = mongodb:connect(spx),
+
+	%% work-arounds since plug-in is not yet loaded
+	spx_agent_auth:start(),
+	spx_call_queue_config:start(),
+	spx_call_queue_config:load_queues(),
 
 	{ok, #state{}}.
 
@@ -159,16 +160,8 @@ handle_call({agent_auth, Name, PlainPassword, Extended}, _From, State) ->
 		{ok, []} ->
 			destroy;
 		{ok, Agent} ->
-			UsernameBin = list_to_binary(Name),
-			PasswordBin = list_to_binary(PlainPassword),
-			Realm = proplists:get_value(<<"rlm">>, Agent, <<>>),
-
-			DigestBin = crypto:md5(<<UsernameBin/binary, $:, Realm/binary, $:, PasswordBin/binary>>),
-			DigestHexBin = iolist_to_binary([io_lib:format("~2.16.0b", [C]) || <<C>> <= DigestBin]),
-
-			PntkHexBin = proplists:get_value(<<"pntk">>, Agent, <<>>),
-			case PntkHexBin of
-				DigestHexBin ->
+			case get_str(<<"pin">>, Agent) of
+				PlainPassword ->
 					Rec = props_to_agent(Agent, #agent_auth{skills=[]}),
 
 					{ok, Rec#agent_auth.id,
@@ -188,7 +181,7 @@ handle_call({get_profile, Name}, _From, State) ->
 		{ok, []} ->
 			none;
 		{ok, Profile} ->
-			Rec = props_to_profile(Profile, #agent_profile{name = "", 
+			Rec = props_to_profile(Profile, #agent_profile{name = "",
 				order = 10, timestamp = util:now()}),
 
 			{ok, Rec#agent_profile.name, Rec#agent_profile.id,
@@ -241,7 +234,7 @@ handle_call({get_queue, Name}, _From, State) ->
 			Rec = props_to_queue(Queue, #call_queue{name = "", skills = []}),
 			?INFO("Found: ~p~n", [Rec]),
 			{ok, Rec#call_queue.name, Rec#call_queue.weight,
-				Rec#call_queue.skills, Rec#call_queue.recipe, 
+				Rec#call_queue.skills, Rec#call_queue.recipe,
 				Rec#call_queue.hold_music, Rec#call_queue.group}
 	end,
 	{reply, Reply, State};
@@ -269,8 +262,8 @@ handle_call({get_skill, Atom}, _From, State) ->
 		{ok, Skill} ->
 			Rec = props_to_skill(Skill, #skill_rec{}),
 
-			{ok, Rec#skill_rec.atom, 
-				Rec#skill_rec.name, 
+			{ok, Rec#skill_rec.atom,
+				Rec#skill_rec.name,
 				Rec#skill_rec.protected,
 				Rec#skill_rec.description,
 				Rec#skill_rec.group}
@@ -294,7 +287,7 @@ handle_call(load_agents, _From, State) ->
 handle_call(load_clients, _From, State) ->
 	Type = <<"openacdclient">>,
 	Now = util:now(),
-	
+
 	GetLoaded = fun() -> call_queue_config:get_clients() end,
 	PropsToRec = fun(X) -> props_to_client(X, #client{timestamp = Now}) end,
 	GetKey = fun(#client{id=Id}) -> Id end,
@@ -306,7 +299,7 @@ handle_call(load_clients, _From, State) ->
 handle_call(load_profiles, _From, State) ->
 	Type = <<"openacdagentgroup">>,
 	Now = util:now(),
-	
+
 	GetLoaded = fun() -> agent_auth:get_profiles() end,
 	PropsToRec = fun(X) -> props_to_profile(X, #agent_profile{name = "",
 		skills = [], timestamp = Now}) end,
@@ -319,7 +312,7 @@ handle_call(load_profiles, _From, State) ->
 handle_call(load_queue_groups, _From, State) ->
 	Type = <<"openacdqueuegroup">>,
 	Now = util:now(),
-	
+
 	GetLoaded = fun() -> call_queue_config:get_queue_groups() end,
 	PropsToRec = fun(X) -> props_to_queue_group(X, #queue_group{name = "",
 		timestamp = Now}) end,
@@ -332,45 +325,22 @@ handle_call(load_queue_groups, _From, State) ->
 handle_call(load_queues, _From, State) ->
 	Type = <<"openacdqueue">>,
 	Now = util:now(),
-	
-	GetLoaded = fun() -> [Y || X <- mnesia:dirty_all_keys(call_queue), Y <- mnesia:dirty_read(call_queue, X)] end,
-	PropsToRec = fun(X) -> props_to_queue(X, #call_queue{name = "", skills = [], timestamp = Now}) end,
-	GetKey = fun(#call_queue{name=Name}) -> Name end,
-	Destroy = fun(#call_queue{name=Name}) ->
-		?INFO("About to destroy: ~p", [Name]),
-		call_queue_config:destroy_queue(Name),
-		case queue_manager:get_queue(Name) of
-			none -> ok;
-			Pid -> call_queue:stop(Pid)
-		end,
-		?INFO("Destroyed: ~p", [Name])
-	end,
-	Save = fun(Queue, none) ->
-			?INFO("Saving: ~p", [Queue]),
-			mnesia:dirty_write(Queue),
-			spawn_link(fun() -> queue_manager:load_queue(Queue#call_queue.name) end);
-		(Queue, OldQueue) -> 
-			case queue_equivalent(Queue, OldQueue) of
-				true ->
-					ok;
-				_ ->
-					?INFO("Updateing: ~p vs~n~p", [Queue, OldQueue]),
-					mnesia:dirty_write(Queue),
-					spawn_link(fun() ->
-						?INFO("Before: ~p", [mnesia:dirty_read(call_queue, Queue#call_queue.name)]),
-						queue_manager:load_queue(Queue#call_queue.name),
-						?INFO("After: ~p", [mnesia:dirty_read(call_queue, Queue#call_queue.name)])
-					end)
-			end
-		end,
-	IsProtected = fun(_) -> false end,
-	Reply = load_helper(Type, GetLoaded, PropsToRec, GetKey, Destroy, Save, IsProtected),
-	{reply, Reply, State};
+
+	%% TODO not build intermediary list
+	D = [{N, lists:sort(Skls), R, G} || {state, _, G, N, R, _, Skls, _, _} <- [call_queue:dump(P) || {_, P} <- queue_manager:queues()]],
+	%% TODO make atomic!
+	M = [{Q#call_queue.name, lists:sort(Q#call_queue.skills),
+		Q#call_queue.recipe, Q#call_queue.group} || Q <-
+			[call_queue_config:get_merged_queue(X#call_queue.name) || X <- call_queue_config:get_queues()]],
+
+	lists:foreach(fun({N, _, _, _} = E) -> case lists:member(E, D) of true -> ok; _ -> queue_manager:load_queue(N) end end, M),
+
+	{reply, ok, State};
 
 handle_call(load_skills, _From, State) ->
 	Type = <<"openacdskill">>,
 	Now = util:now(),
-	
+
 	GetLoaded = fun() -> call_queue_config:get_skills() end,
 	PropsToRec = fun(X) -> props_to_skill(X, #skill_rec{timestamp = Now}) end,
 	GetKey = fun(#skill_rec{atom=Atom}) -> Atom end,
@@ -379,21 +349,6 @@ handle_call(load_skills, _From, State) ->
 	IsProtected = fun(#skill_rec{protected=Protected}) -> Protected end,
 	Reply = load_helper(Type, GetLoaded, PropsToRec, GetKey, Destroy, Save, IsProtected),
 	{reply, Reply, State};
-
-handle_call(load_release_opts, _From, State) ->
-	Type = <<"openacdreleasecode">>,
-	Now = util:now(),
-	
-	GetLoaded = fun() -> agent_auth:get_releases() end,
-	PropsToRec = fun(X) -> props_to_release(X, #release_opt{timestamp = Now}) end,
-	GetKey = fun(#release_opt{id=Id}) -> Id end,
-	Destroy = fun(#release_opt{id=Id}) -> agent_auth:destroy_release(id, Id) end,
-	Save = fun(Release)-> agent_auth:new_release(Release) end,
-	IsProtected = fun(_) -> false end,
-	Reply = load_helper(Type, GetLoaded, PropsToRec, GetKey, Destroy, Save, IsProtected),
-	{reply, Reply, State};
-
-
 
 handle_call(_Request, _From, State) ->
     Reply = invalid,
@@ -459,11 +414,11 @@ props_to_agent([{<<"clns">>, {array, Clients}} | T], Rec) ->
 props_to_agent([{<<"scrty">>, Security} | T], Rec) ->
 	Atm = case Security of
 		<<"ADMIN">> ->
-    		admin;
+		admin;
 		<<"SUPERVISOR">> ->
-    		supervisor;
-    	_ ->
-    		agent
+		supervisor;
+	_ ->
+		agent
     end,
 	props_to_agent(T, Rec#agent_auth{securitylevel = Atm});
 props_to_agent([{<<"aggrp">>, Group} | T], Rec) ->
@@ -544,17 +499,6 @@ props_to_skill([{<<"grpnm">>, Group} | T], Rec) ->
 props_to_skill([_ | T], Rec) ->
 	props_to_skill(T, Rec).
 
-props_to_release([], Rec) ->
-	Rec;
-props_to_release([{<<"_id">>, Id} | T], Rec) ->
-	props_to_release(T, Rec#release_opt{id=binary_to_list(Id)});
-props_to_release([{<<"lbl">>, Label} | T], Rec) ->
-	props_to_release(T, Rec#release_opt{label=binary_to_list(Label)});
-props_to_release([{<<"bias">>, Bias} | T], Rec) ->
-	props_to_release(T, Rec#release_opt{bias=Bias});
-props_to_release([_|T], Rec) ->
-	props_to_release(T, Rec).
-
 props_to_queue([], Rec) ->
 	Rec;
 props_to_queue([{<<"name">>, Name} | T], Rec) ->
@@ -591,7 +535,7 @@ extract_recipe_step([], Rec) ->
 	{Rec#spx_recipe.conditions, Rec#spx_recipe.operations,
 		Rec#spx_recipe.frequency, Rec#spx_recipe.comment};
 extract_recipe_step([{<<"cndt">>, {array, Conditions}} | T], Rec) ->
-	extract_recipe_step(T, Rec#spx_recipe{conditions = 
+	extract_recipe_step(T, Rec#spx_recipe{conditions =
 		lists:foldl(fun acc_cond/2, Rec#spx_recipe.conditions, Conditions)});
 extract_recipe_step([{<<"actn">>, Operation} | T], Rec) ->
 	extract_recipe_step(T, Rec#spx_recipe{operations =
@@ -732,14 +676,14 @@ load_helper(Type, GetLoaded, PropsToRec, GetKey, Destroy, Save, IsProtected) ->
 	%% Mnesia agents
 	MnAgents = GetLoaded(),
 	MnAgentsNotInMd = lists:filter(
-		fun(X) -> 
+		fun(X) ->
 			not IsProtected(X) and not gb_sets:is_element(GetKey(X), MdAgentIdSet)
 		end, MnAgents),
 
 	% Delete Agents in cache not in MongoDB
 	lists:foreach(fun(Agent) -> Destroy(Agent) end,
 		MnAgentsNotInMd),
-	
+
 	% Hoping just writing is ok. no subsequent loading.
 	% probably better to agent_auth:cache/6 but need to fix password
 	case erlang:fun_info(Save, arity) of
@@ -776,7 +720,7 @@ queue_equivalent(#call_queue{name=Name, weight=Weight, skills=SkillsA,
 	lists:sort(SkillsA) =:= lists:sort(SkillsB) andalso recipes_equivalent(RecipeA, RecipeB);
 queue_equivalent(_, _) ->
 	false.
-	
+
 
 recipes_equivalent(A, B) ->
 	lists:sort([sort_recipe_step(X) || X <- A]) =:= lists:sort([sort_recipe_step(X) || X <- B]).
@@ -926,7 +870,7 @@ test_setup_mnesia() ->
 		password=util:bin_to_hexstr(erlang:md5("pass2")),
 		firstname="first2", lastname="last2",
 		securitylevel=admin, skills=[english], profile="profile2"}),
-	
+
 	agent_auth:new_profile(#agent_profile{name = "profile1", id = "1",
 		timestamp = util:now()}),
 	agent_auth:new_profile(#agent_profile{name = "profile2", id = "2",
@@ -939,7 +883,7 @@ test_setup_mnesia() ->
 	mnesia:dirty_write(#queue_group{name = "Marketing",recipe = [],skills = [],
               sort = 0,protected = false,timestamp = util:now()}),
     mnesia:dirty_write(#queue_group{name = "Maintenance",recipe = [],skills = [],
-              sort = 0,protected = false,timestamp = util:now()}),    
+              sort = 0,protected = false,timestamp = util:now()}),
 
 	mnesia:dirty_write(#skill_rec{name="English", atom=english, description="English", group = "Language"}),
 	mnesia:dirty_write(#skill_rec{name="German", atom=german, description="German", group = "Language"}),
@@ -955,7 +899,7 @@ test_setup_mnesia() ->
 	mnesia:dirty_write(#call_queue{name = "vip", skills=[english, '_node']}),
 	mnesia:dirty_write(#call_queue{name = "regular"}),
 	mnesia:dirty_write(#call_queue{name = "low_priority"}),
-		
+
 
 	ok.
 
@@ -976,22 +920,22 @@ agent_exists_test_() ->
 
 agent_auth_test_() ->
 	{setup, fun test_setup_mongo/0, fun test_cleanup_mongo/1,
- 	[?_assertMatch({ok, "OpenAcdAgent1", {"Default", _}, 
- 		admin, [{foo, bar}]},
- 		integration:agent_auth("211", "pin211", [{foo, bar}])),
- 	fun() ->
- 		{ok, _, {_, Skills}, _, _} = integration:agent_auth("211", "pin211", [{foo, bar}]),
- 		?assertEqual(
- 			lists:sort(['_agent', '_profile', '_node', '_all', english,
- 				{'_brand', "Demo Client"},
- 				{'_queue', "default_queue"}, {'_queue', "queue2"}]),
- 				lists:sort(Skills))
- 	end,
- 	?_assertEqual(deny,
- 		integration:agent_auth("211", "wrongpin", [{foo, bar}])),
+	[?_assertMatch({ok, "OpenAcdAgent1", {"Default", _},
+		admin, [{foo, bar}]},
+		integration:agent_auth("211", "pin211", [{foo, bar}])),
+	fun() ->
+		{ok, _, {_, Skills}, _, _} = integration:agent_auth("211", "pin211", [{foo, bar}]),
+		?assertEqual(
+			lists:sort(['_agent', '_profile', '_node', '_all', english,
+				{'_brand', "Demo Client"},
+				{'_queue', "default_queue"}, {'_queue', "queue2"}]),
+				lists:sort(Skills))
+	end,
+	?_assertEqual(deny,
+		integration:agent_auth("211", "wrongpin", [{foo, bar}])),
 
- 	?_assertEqual(destroy,
- 		integration:agent_auth("nouser", "pin", [{foo, bar}]))]}.
+	?_assertEqual(destroy,
+		integration:agent_auth("nouser", "pin", [{foo, bar}]))]}.
 
 get_profile_test_() ->
 	{setup, fun test_setup_mongo/0, fun test_cleanup_mongo/1,
@@ -1019,10 +963,10 @@ get_client_test_() ->
 
 get_queue_test_() ->
 	{setup, fun test_setup_mongo/0, fun test_cleanup_mongo/1,
- 	[?_assertEqual(none,
- 		integration:get_queue("noqueue")),
- 	?_assertEqual({ok, "vip", 1, [german, english], [], undefined, "Default"},
- 		integration:get_queue("vip"))]}.
+	[?_assertEqual(none,
+		integration:get_queue("noqueue")),
+	?_assertEqual({ok, "vip", 1, [german, english], [], undefined, "Default"},
+		integration:get_queue("vip"))]}.
 
 get_queue_group_test_() ->
 	{setup, fun test_setup_mongo/0, fun test_cleanup_mongo/1,
@@ -1052,7 +996,7 @@ load_setup() ->
 load_cleanup(DB) ->
 	test_cleanup_mongo(DB),
 	test_cleanup_mnesia(void).
-	
+
 load_agents_test_() ->
 	{foreach, fun load_setup/0, fun load_cleanup/1,
 	[fun() ->
@@ -1068,11 +1012,11 @@ load_agents_test_() ->
 				lastname = "last211"
 			}], agent_auth:get_agents()),
 		[Agent|_] = agent_auth:get_agents(),
- 		?assertEqual(
- 			lists:sort(['_agent', '_profile', '_node', '_all', english,
- 				{'_brand', "Demo Client"},
- 				{'_queue', "default_queue"}, {'_queue', "queue2"}]),
- 				lists:sort(Agent#agent_auth.skills))
+		?assertEqual(
+			lists:sort(['_agent', '_profile', '_node', '_all', english,
+				{'_brand', "Demo Client"},
+				{'_queue', "default_queue"}, {'_queue', "queue2"}]),
+				lists:sort(Agent#agent_auth.skills))
 	end]}.
 
 load_clients_test_() ->
@@ -1135,7 +1079,7 @@ load_skills_test_() ->
 			atom = jejemon,
 			description = "Jeje Language",
 			group = "Language",
-			name = "Jejemon"}], 
+			name = "Jejemon"}],
 			[X || X <- LoadedSkills, X#skill_rec.atom =:= jejemon])
 	end]}.
 
@@ -1163,7 +1107,7 @@ load_skills_test_() ->
 % 		% 	atom = jejemon,
 % 		% 	description = "Jeje Language",
 % 		% 	group = "Language",
-% 		% 	name = "Jejemon"}], 
+% 		% 	name = "Jejemon"}],
 % 		% 	[X || X <- LoadedSkills, X#skill_rec.atom =:= jejemon])
 % 	end]}.
 
