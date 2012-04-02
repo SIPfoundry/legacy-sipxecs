@@ -1,4 +1,6 @@
-/**
+/*
+ *
+ *
  * Copyright (c) 2012 Karel Electronics Corp. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *

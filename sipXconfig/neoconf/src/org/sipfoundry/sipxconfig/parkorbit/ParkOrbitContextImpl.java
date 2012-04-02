@@ -61,7 +61,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         // Check for duplicate names and extensions before saving the park orbit
         String name = parkOrbit.getName();
         String extension = parkOrbit.getExtension();
-        final String parkOrbitTypeName = "call park";
+        final String parkOrbitTypeName = "&label.callPark";
         if (!m_aliasManager.canObjectUseAlias(parkOrbit, name)) {
             throw new NameInUseException(parkOrbitTypeName, name);
         }

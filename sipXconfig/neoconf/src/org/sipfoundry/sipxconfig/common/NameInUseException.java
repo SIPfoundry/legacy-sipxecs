@@ -11,10 +11,9 @@ package org.sipfoundry.sipxconfig.common;
 
 
 public class NameInUseException extends UserException {
-    private static final String ERROR_LONG = "The name \"{1}\" is already being used by a user or service.  "
-            + "Please choose another name for this {0}.";
+    private static final String ERROR_LONG = "&error.nameInUse.long";
 
-    private static final String ERROR_SHORT = "The name \"{0}\" is already being used by a user or service.";
+    private static final String ERROR_SHORT = "&error.nameInUse.short";
 
     public NameInUseException(String objectType, String name) {
         super(ERROR_LONG, objectType, name);

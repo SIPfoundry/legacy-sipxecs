@@ -23,15 +23,25 @@ public class LocalStreamConfigurationTest {
     
     @Before
     public void setUp() {
-        m_configuration = new LocalStreamConfiguration();       
+        m_configuration = new LocalStreamConfiguration();
+        m_configuration.setDocDir("/test/doc/dir");
         m_configuration.setVelocityEngine(TestHelper.getVelocityEngine());
     }
     
     @Test
-    public void config() throws IOException {
+    public void configCustomPrompts() throws IOException {
         StringWriter actual = new StringWriter();
         m_configuration.write(actual, "/test/moh/dir");
         String expected = IOUtils.toString(getClass().getResourceAsStream("local_stream.conf.test.xml"));
+        assertEquals(expected, actual.toString());        
+    }
+
+    @Test
+    public void configDefault() throws IOException {
+        StringWriter actual = new StringWriter();
+        String test = null;
+        m_configuration.write(actual, test);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("local_stream_default.conf.test.xml"));
         assertEquals(expected, actual.toString());        
     }
 }

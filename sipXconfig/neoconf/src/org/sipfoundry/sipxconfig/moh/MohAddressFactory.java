@@ -68,15 +68,31 @@ public class MohAddressFactory {
     }
 
     public String getPortAudioMohUri() {
-        return getMohUri(m_mohUser + PORT_AUDIO_SOURCE_SUFFIX);
+        return getMohUri(getPortAudioUser());
     }
 
     public String getLocalFilesMohUri() {
-        return getMohUri(m_mohUser + LOCAL_FILES_SOURCE_SUFFIX);
+        return getMohUri(getLocalFilesUser());
     }
 
     public String getNoneMohUri() {
-        return getMohUri(m_mohUser + NONE_SUFFIX);
+        return getMohUri(getNoneUser());
+    }
+
+    public String getDefaultUser() {
+        return m_mohUser;
+    }
+
+    public String getLocalFilesUser() {
+        return m_mohUser + LOCAL_FILES_SOURCE_SUFFIX;
+    }
+
+    public String getPortAudioUser() {
+        return m_mohUser + PORT_AUDIO_SOURCE_SUFFIX;
+    }
+
+    public String getNoneUser() {
+        return m_mohUser + NONE_SUFFIX;
     }
 
     /**

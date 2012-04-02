@@ -13,9 +13,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
@@ -112,7 +114,13 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
             }
         }
         if (!affectedRules.isEmpty()) {
-            throw new AttendantInUseException(affectedRules);
+            List names = new ArrayList(affectedRules.size());
+            for (Iterator i = affectedRules.iterator(); i.hasNext();) {
+                DialingRule rule = (DialingRule) i.next();
+                names.add(rule.getName());
+            }
+            String ruleNames = StringUtils.join(names.iterator(), ", ");
+            throw new AttendantInUseException(new Object[] {ruleNames});
         }
 
         // deselect special mode if removign attendant

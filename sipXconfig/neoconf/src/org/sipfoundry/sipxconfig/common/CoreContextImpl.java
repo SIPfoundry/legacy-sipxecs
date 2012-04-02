@@ -152,7 +152,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 newUserName = true;
                 String origPintoken = (String) getOriginalValue(user, "pintoken");
                 if (origPintoken.equals(user.getPintoken())) {
-                    throw new ChangePintokenRequiredException("When changing user name, you must also change PIN");
+                    throw new ChangePintokenRequiredException("&error.changePintokenRequiredException");
                 }
             }
         } else {

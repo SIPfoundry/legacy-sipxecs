@@ -105,12 +105,12 @@ public class MohSettings extends PersistableSettings implements Replicable, Bean
             break;
         }
 
-        aliasMappings.add(new AliasMapping(moh.getDefaultMohUri(), contact, ALIAS_RELATION));
-        aliasMappings.add(new AliasMapping(moh.getLocalFilesMohUri(), moh.getLocalFilesMohUriMapping(),
+        aliasMappings.add(new AliasMapping(moh.getDefaultUser(), contact, ALIAS_RELATION));
+        aliasMappings.add(new AliasMapping(moh.getLocalFilesUser(), moh.getLocalFilesMohUriMapping(),
                 ALIAS_RELATION));
         aliasMappings
-                .add(new AliasMapping(moh.getPortAudioMohUri(), moh.getPortAudioMohUriMapping(), ALIAS_RELATION));
-        aliasMappings.add(new AliasMapping(moh.getNoneMohUri(), moh.getNoneMohUriMapping(), ALIAS_RELATION));
+                .add(new AliasMapping(moh.getPortAudioUser(), moh.getPortAudioMohUriMapping(), ALIAS_RELATION));
+        aliasMappings.add(new AliasMapping(moh.getNoneUser(), moh.getNoneMohUriMapping(), ALIAS_RELATION));
 
         return aliasMappings;
     }

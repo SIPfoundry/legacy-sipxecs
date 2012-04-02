@@ -106,7 +106,7 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
             fail();
         } catch (AttendantInUseException e) {
             assertTrue(true);
-            assertTrue(e.getMessage().indexOf("attendant_rule") > 0);
+            assertEquals(e.getMessage(),"&error.attendantInUse");
         }
     }
 

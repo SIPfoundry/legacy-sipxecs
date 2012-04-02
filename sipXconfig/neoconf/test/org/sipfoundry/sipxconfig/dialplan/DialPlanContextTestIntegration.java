@@ -119,7 +119,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
             m_dialPlanContext.storeRule(r2);
             fail("Exception expected");
         } catch (UserException e) {
-            assertTrue(e.getLocalizedMessage().indexOf("a1") > 0);
+            assertEquals(e.getLocalizedMessage(),"&error.nameInUse.long");
         }
     }
 
@@ -281,7 +281,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
             fail();
         } catch (UserException e) {
             // this is expected
-            assertTrue(e.getMessage().indexOf("0") > 0);
+            assertEquals(e.getMessage(),"&error.extensionInUse");
         }
     }
 
@@ -296,7 +296,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
             fail();
         } catch (UserException e) {
             // this is expected
-            assertTrue(e.getMessage().indexOf("operator") > 0);
+            assertEquals(e.getMessage(),"&error.aliasCollisionException");
         }
     }
 

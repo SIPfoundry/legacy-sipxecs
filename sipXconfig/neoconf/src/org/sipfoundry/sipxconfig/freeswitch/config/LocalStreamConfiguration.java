@@ -18,16 +18,21 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class LocalStreamConfiguration extends AbstractFreeswitchConfiguration {
     private MusicOnHoldManager m_musicOnHoldManager;
+    private String m_docDir;
 
     @Required
     public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
         m_musicOnHoldManager = musicOnHoldManager;
     }
 
+    public void setDocDir(String docDir) {
+        m_docDir = docDir;
+    }
+
     @Override
     public void write(Writer writer, Location location, FreeswitchSettings settings) throws IOException {
         String audioDir = null;
-        if (m_musicOnHoldManager.isAudioDirectoryEmpty()) {
+        if (!m_musicOnHoldManager.isAudioDirectoryEmpty()) {
             audioDir =  m_musicOnHoldManager.getAudioDirectoryPath();
         }
         write(writer, audioDir);
@@ -37,6 +42,7 @@ public class LocalStreamConfiguration extends AbstractFreeswitchConfiguration {
         VelocityContext context = new VelocityContext();
         context.put("moh", m_musicOnHoldManager);
         context.put("audioDir", audioDir);
+        context.put("docDir", m_docDir);
         write(writer, context);
     }
 
