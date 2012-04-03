@@ -23,6 +23,8 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phonebook.Address;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 
 public class ExportCsv {
     private static final int DEFAULT_PAGE_SIZE = 250;
@@ -117,6 +119,39 @@ public class ExportCsv {
         Index.PIN.set(row, formatRealmAndHash(realm, userPinToken));
         // XMPP
         Index.IM_ID.set(row, user.getImId());
+
+        if (user.getAddressBookEntry() != null) {
+            AddressBookEntry addressBookEntry = user.getAddressBookEntry();
+
+            Index.JOB_TITLE.set(row, addressBookEntry.getJobTitle());
+            Index.JOB_DEPT.set(row, addressBookEntry.getJobDept());
+            Index.COMPANY_NAME.set(row, addressBookEntry.getCompanyName());
+            Index.ASSISTANT_NAME.set(row, addressBookEntry.getAssistantName());
+            Index.CELL_PHONE_NUMBER.set(row, addressBookEntry.getCellPhoneNumber());
+            Index.HOME_PHONE_NUMBER.set(row, addressBookEntry.getHomePhoneNumber());
+            Index.ASSISTANT_PHONE_NUMBER.set(row, addressBookEntry.getAssistantPhoneNumber());
+            Index.FAX_NUMBER.set(row, addressBookEntry.getFaxNumber());
+            Index.ALTERNATE_EMAIL.set(row, addressBookEntry.getAlternateEmailAddress());
+            Index.ALTERNATE_IM_ID.set(row, addressBookEntry.getAlternateImId());
+            Index.LOCATION.set(row, addressBookEntry.getLocation());
+
+            if (addressBookEntry.getHomeAddress() != null) {
+                Address homeAddress = addressBookEntry.getHomeAddress();
+                Index.HOME_STREET.set(row, homeAddress.getStreet());
+                Index.HOME_CITY.set(row, homeAddress.getCity());
+                Index.HOME_STATE.set(row, homeAddress.getState());
+                Index.HOME_COUNTRY.set(row, homeAddress.getCountry());
+                Index.HOME_ZIP.set(row, homeAddress.getZip());
+            }
+            if (addressBookEntry.getOfficeAddress() != null) {
+                Address officeAddress = addressBookEntry.getOfficeAddress();
+                Index.OFFICE_STREET.set(row, officeAddress.getStreet());
+                Index.OFFICE_CITY.set(row, officeAddress.getCity());
+                Index.OFFICE_STATE.set(row, officeAddress.getState());
+                Index.OFFICE_COUNTRY.set(row, officeAddress.getCountry());
+                Index.OFFICE_ZIP.set(row, officeAddress.getZip());
+            }
+        }
         csv.write(row);
     }
 

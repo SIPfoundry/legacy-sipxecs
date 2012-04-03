@@ -204,6 +204,27 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Index.IM_ID.setProperty(user, row);
         Index.EMAIL.setProperty(user, row);
 
+        Index.JOB_TITLE.setProperty(user, row);
+        Index.JOB_DEPT.setProperty(user, row);
+        Index.COMPANY_NAME.setProperty(user, row);
+        Index.ASSISTANT_NAME.setProperty(user, row);
+        Index.CELL_PHONE_NUMBER.setProperty(user, row);
+        Index.HOME_PHONE_NUMBER.setProperty(user, row);
+        Index.ASSISTANT_PHONE_NUMBER.setProperty(user, row);
+        Index.FAX_NUMBER.setProperty(user, row);
+        Index.ALTERNATE_EMAIL.setProperty(user, row);
+        Index.ALTERNATE_IM_ID.setProperty(user, row);
+        Index.LOCATION.setProperty(user, row);
+        Index.HOME_STREET.setProperty(user, row);
+        Index.HOME_CITY.setProperty(user, row);
+        Index.HOME_STATE.setProperty(user, row);
+        Index.HOME_COUNTRY.setProperty(user, row);
+        Index.HOME_ZIP.setProperty(user, row);
+        Index.OFFICE_STREET.setProperty(user, row);
+        Index.OFFICE_CITY.setProperty(user, row);
+        Index.OFFICE_STATE.setProperty(user, row);
+        Index.OFFICE_COUNTRY.setProperty(user, row);
+        Index.OFFICE_ZIP.setProperty(user, row);
         return user;
     }
 

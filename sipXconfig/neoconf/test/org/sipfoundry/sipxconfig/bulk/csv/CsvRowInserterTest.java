@@ -79,6 +79,62 @@ public class CsvRowInserterTest extends TestCase {
         verify(coreContext, domainManager);
     }
 
+    public void testUserDetailsFromRow() {
+        User bongo = new User();
+        bongo.setUserName("bongo");
+        bongo.setFirstName("Ringo");
+
+        DomainManager domainManager = createMock(DomainManager.class);
+        domainManager.getAuthorizationRealm();
+        expectLastCall().andReturn("sipfoundry.org").times(1);
+
+        CoreContext coreContext = createMock(CoreContext.class);
+        coreContext.loadUserByUserName("bongo");
+        expectLastCall().andReturn(bongo);
+
+        replay(domainManager, coreContext);
+
+        String[] userRow1 = new String[] {
+            "bongo", "1234", "abcdef", "", "Star", "","","","","","",""," im_id",
+            "job title", "job dept", "company name", "assistant name",
+            "001122", "112233", "223344", "33445566", "alternate@gmail.com","alternateImId", "location",
+            "home street", "home city", "home state", "home country", "34001",
+            "office street", "office city", "office state", "office country", "34342"
+        };
+
+        CsvRowInserter impl = new CsvRowInserter();
+        impl.setCoreContext(coreContext);
+        impl.setDomainManager(domainManager);
+
+        User user1 = impl.userFromRow(userRow1);
+
+        assertEquals("job title", user1.getAddressBookEntry().getJobTitle());
+        assertEquals("job dept", user1.getAddressBookEntry().getJobDept());
+        assertEquals("company name", user1.getAddressBookEntry().getCompanyName());
+        assertEquals("assistant name", user1.getAddressBookEntry().getAssistantName());
+        assertEquals("001122", user1.getAddressBookEntry().getCellPhoneNumber());
+        assertEquals("112233", user1.getAddressBookEntry().getHomePhoneNumber());
+        assertEquals("223344", user1.getAddressBookEntry().getAssistantPhoneNumber());
+        assertEquals("33445566", user1.getAddressBookEntry().getFaxNumber());
+        assertEquals("alternate@gmail.com", user1.getAddressBookEntry().getAlternateEmailAddress());
+        assertEquals("alternateImId", user1.getAddressBookEntry().getAlternateImId());
+        assertEquals("location", user1.getAddressBookEntry().getLocation());
+
+        assertEquals("home street", user1.getAddressBookEntry().getHomeAddress().getStreet());
+        assertEquals("home city", user1.getAddressBookEntry().getHomeAddress().getCity());
+        assertEquals("home state", user1.getAddressBookEntry().getHomeAddress().getState());
+        assertEquals("home country", user1.getAddressBookEntry().getHomeAddress().getCountry());
+        assertEquals("34001", user1.getAddressBookEntry().getHomeAddress().getZip());
+
+        assertEquals("office street", user1.getAddressBookEntry().getOfficeAddress().getStreet());
+        assertEquals("office city", user1.getAddressBookEntry().getOfficeAddress().getCity());
+        assertEquals("office state", user1.getAddressBookEntry().getOfficeAddress().getState());
+        assertEquals("office country", user1.getAddressBookEntry().getOfficeAddress().getCountry());
+        assertEquals("34342", user1.getAddressBookEntry().getOfficeAddress().getZip());
+
+        verify(coreContext, domainManager);
+    }
+
     public void testCheckRowData() {
         DomainManager domainManager = createMock(DomainManager.class);
         domainManager.getAuthorizationRealm();
