@@ -206,6 +206,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/certificate/*
 %config(noreplace) %{sipxpbxconf}/commserver/*
 %config(noreplace) %{sipxpbxconf}/database/*
+%config(noreplace) %{sipxpbxconf}/firewall/*
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
 %config(noreplace) %{sipxpbxconf}/log4j.properties

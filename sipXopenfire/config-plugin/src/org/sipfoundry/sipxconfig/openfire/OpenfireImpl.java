@@ -72,7 +72,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location whoIsAsking) {
         if (!ADDRESSES.contains(type)) {
             return null;
         }
@@ -87,11 +87,11 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
         for (Location location : locations) {
             Address address = null;
             if (type.equals(XMPP_ADDRESS)) {
-		address = new Address(XMPP_ADDRESS, location.getAddress(), settings.getXmppPort());
+                address = new Address(XMPP_ADDRESS, location.getAddress(), settings.getXmppPort());
             } else if (type.equals(XMLRPC_ADDRESS)) {
-		address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
+                address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
             } else if (type.equals(WATCHER_ADDRESS)) {
-		address = new Address(WATCHER_ADDRESS, location.getAddress(), settings.getWatcherPort());
+                address = new Address(WATCHER_ADDRESS, location.getAddress(), settings.getWatcherPort());
             }
             addresses.add(address);
         }
@@ -121,5 +121,4 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     public void setOpenfireHome(String openfireHome) {
         m_openfireHome = openfireHome;
     }
-
 }
