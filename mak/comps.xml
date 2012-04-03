@@ -27,6 +27,7 @@
      <packagereq type="mandatory">sipxconfig-ftp</packagereq>
      <packagereq type="mandatory">sipxconfig-tftp</packagereq>
      <packagereq type="mandatory">sipxsnmp</packagereq>
+     <packagereq type="mandatory">sipxrecording</packagereq>
    </packagelist>
   </group>
   <group>
