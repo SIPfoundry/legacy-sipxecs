@@ -48,4 +48,9 @@ public class DefaultFirewallRule implements FirewallRule {
     public SystemId getSystemId() {
         return m_systemId;
     }
+
+    @Override
+    public ServerGroup getServerGroup() {
+        return null;
+    }
 }

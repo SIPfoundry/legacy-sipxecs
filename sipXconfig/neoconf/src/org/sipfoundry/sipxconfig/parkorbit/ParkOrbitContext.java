@@ -19,8 +19,8 @@ public interface ParkOrbitContext extends AliasOwner {
     public static final String PARK_ORBIT_GROUP_ID = "park_orbit";
     public static final String CONTEXT_BEAN_NAME = "parkOrbitContext";
     public static LocationFeature FEATURE = new LocationFeature("park");
-    public static AddressType SIP_TCP_PORT = AddressType.sip("parkTcp");
-    public static AddressType SIP_UDP_PORT = AddressType.sip("parkUdp");
+    public static AddressType SIP_TCP_PORT = AddressType.sipTcp("parkTcp");
+    public static AddressType SIP_UDP_PORT = AddressType.sipUdp("parkUdp");
     public static AddressType SIP_RTP_PORT = new AddressType("parkRtp");
 
     ParkSettings getSettings();

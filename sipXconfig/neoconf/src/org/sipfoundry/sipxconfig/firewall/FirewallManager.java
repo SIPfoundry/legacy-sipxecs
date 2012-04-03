@@ -28,9 +28,9 @@ public interface FirewallManager {
         private Util() {
         }
 
-        public static Map<String, DefaultFirewallRule> defaultsByAddressTypeId(Collection<DefaultFirewallRule> l) {
-            Map<String, DefaultFirewallRule> ndx = new HashMap<String, DefaultFirewallRule>();
-            for (DefaultFirewallRule i : l) {
+        public static <T extends FirewallRule> Map<String, T> defaultsByAddressTypeId(Collection<T> l) {
+            Map<String, T> ndx = new HashMap<String, T>();
+            for (T i : l) {
                 ndx.put(i.getAddressType().getId(), i);
             }
             return ndx;
@@ -48,6 +48,8 @@ public interface FirewallManager {
     public ServerGroup getServerGroup(Integer groupId);
 
     public void saveServerGroup(ServerGroup serverGroup);
+
+    public void deleteServerGroup(ServerGroup serverGroup);
 
     public FirewallSettings getSettings();
 

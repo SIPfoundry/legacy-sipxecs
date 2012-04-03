@@ -17,10 +17,12 @@ package org.sipfoundry.sipxconfig.site.firewall;
 import static java.lang.String.format;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -67,6 +69,18 @@ public abstract class EditFirewallRules extends BaseComponent implements PageBeg
 
     public void setServerGroupOption(SelectServerGroup.Option option) {
         option.setProperties(getRule());
+    }
+
+    public IPrimaryKeyConverter getRuleConverter() {
+        final Map<String, EditableFirewallRule> ruleMap = FirewallManager.Util.defaultsByAddressTypeId(getRules());
+        return new IPrimaryKeyConverter() {
+            public Object getPrimaryKey(Object value) {
+                return ((EditableFirewallRule) value).getAddressType().getId();
+            }
+            public Object getValue(Object primaryKey) {
+                return ruleMap.get(primaryKey);
+            }
+        };
     }
 
     @Override

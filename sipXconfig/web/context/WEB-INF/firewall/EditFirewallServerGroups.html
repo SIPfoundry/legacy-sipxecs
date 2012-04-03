@@ -17,7 +17,7 @@
     </li>
   </ul>
   <table jwcid="customGroups@common/Table" id="firewall:list" columns="* customName,customServers" source="ognl:serverGroups"
-    row="ognl:currentServerGroup">
+    row="ognl:currentServerGroup" selections="ognl:selections">
     <div jwcid="customNameColumnValue@Block">
       <a href="#" jwcid="@DirectLink" listener="listener:editGroup" parameters="ognl:currentServerGroup.id"> <span
         jwcid="@Insert" class="enabled" value="ognl:currentServerGroup.name" /> </a>
@@ -26,4 +26,10 @@
       <span jwcid="@Insert" class="enabled" value="ognl:currentServerGroup.serverList" />
     </div>
   </table>
+    <ul class="component-submit">
+      <li>
+        <input id="group:delete" jwcid="delete@Submit" listener="listener:delete" value="message:label.delete"/>
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+    </ul>
 </form>

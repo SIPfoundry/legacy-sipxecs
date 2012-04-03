@@ -39,7 +39,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class FreeswitchFeature implements FeatureProvider, AddressProvider, ProcessProvider {
     public static final LocationFeature FEATURE = new LocationFeature("freeSwitch");
-    public static final AddressType SIP_ADDRESS = AddressType.sip("freeswitch-sip");
+    public static final AddressType SIP_ADDRESS = AddressType.sipTcp("freeswitch-sip");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("freeswitch-xmlrpc", "http://%s:%d/RPC2");
     public static final AddressType EVENT_ADDRESS = new AddressType("freeswitch-event");
     public static final AddressType ACC_EVENT_ADDRESS = new AddressType("acc-freeswitch-event");

@@ -37,7 +37,7 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     private DnsManager m_dnsManager;
 
     public Address getSingleAddress(AddressType type) {
-        return getSingleAddress(type, null);
+        return getSingleAddress(type, (Location) null);
     }
 
     public Address getSingleAddress(AddressType type, Location requester) {
@@ -107,5 +107,23 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
         }
 
         return types;
+    }
+
+    @Override
+    public Address getSingleAddress(AddressType type, AddressType backupType) {
+        Address address = getSingleAddress(type);
+        if (address == null) {
+            address = getSingleAddress(backupType);
+        }
+        return address;
+    }
+
+    @Override
+    public Address getSingleAddress(AddressType type, AddressType backupType, Location requester) {
+        Address address = getSingleAddress(type, requester);
+        if (address == null) {
+            address = getSingleAddress(backupType, requester);
+        }
+        return address;
     }
 }

@@ -58,21 +58,26 @@ public class FirewallConfigTest {
     @Test
     public void iptables() throws IOException {        
         List<FirewallRule> rules = new ArrayList<FirewallRule>();
-        AddressType testType = new AddressType("test");
-        rules.add(new DefaultFirewallRule(testType, FirewallRule.SystemId.CLUSTER));
+        AddressType t1 = new AddressType("t1");
+        AddressType t2 = new AddressType("t2");
+        rules.add(new DefaultFirewallRule(t1, FirewallRule.SystemId.CLUSTER));
+        rules.add(new DefaultFirewallRule(t2, FirewallRule.SystemId.PUBLIC));
         Location l1 = new Location("one", "1.1.1.1");
         Location l2 = new Location("two", "2.2.2.2");
         List<Location> cluster = Arrays.asList(l1, l2);
         
-        ServerGroup g1 = new ServerGroup();
-        ServerGroup g2 = new ServerGroup();
+        ServerGroup g1 = new ServerGroup("ClassA", "192.168.1.0/8 192.168.2.1/32");
+        ServerGroup g2 = new ServerGroup("ClassB", "192.168.0.0/16");
         List<ServerGroup> groups = Arrays.asList(g1, g2);
 
         AddressManager addressManager = createMock(AddressManager.class);
-        addressManager.getAddresses(testType, l1);
-        Address a1 = new Address(testType, l1.getAddress(), 100);
-        Address a2 = new Address(testType, l1.getAddress(), 200);
+        addressManager.getAddresses(t1, l1);
+        Address a1 = new Address(t1, l1.getAddress(), 100);
+        Address a2 = new Address(t1, l1.getAddress(), 200);
+        Address a3 = new Address(t2, l1.getAddress(), 300);
         expectLastCall().andReturn(Arrays.asList(a1, a2)).once();
+        addressManager.getAddresses(t2, l1);
+        expectLastCall().andReturn(Arrays.asList(a3)).once();
         replay(addressManager);
         m_config.setAddressManager(addressManager);
         

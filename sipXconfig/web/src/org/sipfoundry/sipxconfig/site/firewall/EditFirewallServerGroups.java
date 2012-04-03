@@ -14,8 +14,9 @@
  */
 package org.sipfoundry.sipxconfig.site.firewall;
 
-
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
@@ -26,6 +27,7 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
@@ -54,6 +56,19 @@ public abstract class EditFirewallServerGroups extends BaseComponent implements 
 
     public abstract FirewallRule.SystemId getCurrentSystemGroup();
 
+    public abstract SelectMap getSelections();
+
+    public abstract void setSelections(SelectMap selections);
+
+    public void delete() {
+        Collection<Serializable> allSelected = getSelections().getAllSelected();
+        for (Serializable id : allSelected) {
+            ServerGroup group = getFirewallManager().getServerGroup((Integer) id);
+            getFirewallManager().deleteServerGroup(group);
+        }
+        setServerGroups(getFirewallManager().getServerGroups());
+    }
+
     public IPage editGroup(Integer groupId) {
         return gotoEditGroupPage(groupId);
     }
@@ -74,6 +89,11 @@ public abstract class EditFirewallServerGroups extends BaseComponent implements 
         List<ServerGroup> groups = getServerGroups();
         if (groups == null) {
             setServerGroups(getFirewallManager().getServerGroups());
+        }
+
+        SelectMap selections = getSelections();
+        if (selections == null) {
+            setSelections(new SelectMap());
         }
     }
 }

@@ -1,11 +1,8 @@
 *filter
-:INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
 :OUTPUT ACCEPT [60:6096]
 :syn-flood - [0:0]
-
--N PUBLIC
--A PUBLIC -j ACCEPT
 
 <%
   chains.each { |chain|
@@ -22,15 +19,14 @@
 
 <% 
   rules.each { |rule|
-%>-A INPUT --dport <%= rule[:port] %> -j <%= rule[:chain] %>
+%>-A INPUT -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -m state --state NEW,ESTABLISHED -j <%= rule[:chain] %>
 <%
     if rule[:prioritize]
-%>-t mangle -A OUTPUT -p tcp --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
+%>-t mangle -A OUTPUT -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
 <%
     end
   }
 %>
--A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
 COMMIT

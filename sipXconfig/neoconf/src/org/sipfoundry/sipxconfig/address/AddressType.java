@@ -16,14 +16,27 @@
  */
 package org.sipfoundry.sipxconfig.address;
 
-
 public class AddressType {
     private String m_id;
     private String m_format;
+    private Protocol m_protocol = Protocol.tcp;
     private int m_canonicalPort;
+
+    /**
+     * There are a lot more types (see /etc/protocol) but these are the only imaginable ones
+     * we need to support.
+     */
+    public enum Protocol {
+        tcp, udp, tlsp, icmp
+    }
 
     public AddressType(String uniqueId) {
         m_id = uniqueId;
+    }
+
+    public AddressType(String uniqueId, Protocol protocol) {
+        this(uniqueId);
+        m_protocol = protocol;
     }
 
     public AddressType(String uniqueId, String format) {
@@ -31,9 +44,19 @@ public class AddressType {
         m_format = format;
     }
 
+    public AddressType(String uniqueId, String format, Protocol protocol) {
+        this(uniqueId, format);
+        m_protocol = protocol;
+    }
+
     public AddressType(String uniqueId, String format, int canonicalPort) {
         this(uniqueId, format);
         m_canonicalPort = canonicalPort;
+    }
+
+    public AddressType(String uniqueId, String format, int canonicalPort, Protocol protocol) {
+        this(uniqueId, format, canonicalPort);
+        m_protocol = protocol;
     }
 
     public AddressType(String uniqueId, int canonicalPort) {
@@ -41,11 +64,28 @@ public class AddressType {
         m_canonicalPort = canonicalPort;
     }
 
+    public AddressType(String uniqueId, int canonicalPort, Protocol protocol) {
+        this(uniqueId, canonicalPort);
+        m_protocol = protocol;
+    }
+
     /**
      * Convenience method to format address as a sip type address
      */
-    public static AddressType sip(String uniqueId) {
-        return new AddressType(uniqueId, "sip:%s:%d");
+    public static AddressType sipTcp(String uniqueId) {
+        return sip(uniqueId, Protocol.tcp);
+    }
+
+    public static AddressType sipUdp(String uniqueId) {
+        return sip(uniqueId, Protocol.udp);
+    }
+
+    public static AddressType sipTls(String uniqueId) {
+        return sip(uniqueId, Protocol.tlsp);
+    }
+
+    public static AddressType sip(String uniqueId, Protocol protocol) {
+        return new AddressType(uniqueId, "sip:%s:%d", protocol);
     }
 
     public String getId() {
@@ -91,5 +131,13 @@ public class AddressType {
 
     public int getCanonicalPort() {
         return m_canonicalPort;
+    }
+
+    public Protocol getProtocol() {
+        return m_protocol;
+    }
+
+    public void setProtocol(Protocol protocol) {
+        m_protocol = protocol;
     }
 }

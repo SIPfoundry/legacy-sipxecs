@@ -44,6 +44,10 @@ public interface AddressManager {
 
     public Address getSingleAddress(AddressType type, Location requester);
 
+    public Address getSingleAddress(AddressType type, AddressType backupType);
+
+    public Address getSingleAddress(AddressType type, AddressType backupType, Location requester);
+
     public List<Address> getAddresses(AddressType type);
 
     public List<Address> getAddresses(AddressType type, Location requester);

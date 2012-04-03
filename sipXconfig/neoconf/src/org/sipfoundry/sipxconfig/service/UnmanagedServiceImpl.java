@@ -49,7 +49,7 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService,
 
     @Override
     public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
+        return Collections.singleton(SSH);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService,
 
     @Override
     public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type) {
-        if (type.equalsAnyOf(SSH)) {
+        if (type.equals(SSH)) {
             // should default be cluster? safer yes, but very unlikely.
             return new DefaultFirewallRule(type, FirewallRule.SystemId.PUBLIC);
         }

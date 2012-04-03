@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 public interface Ivr {
     public static final LocationFeature FEATURE = new LocationFeature("ivr");
     public static final GlobalFeature CALLPILOT = new GlobalFeature("callpilot");
-    public static final AddressType SIP_ADDRESS = AddressType.sip("ivr-sip");
+    public static final AddressType SIP_ADDRESS = AddressType.sipTcp("ivr-sip");
     public static final AddressType REST_API = new AddressType("ivrRestApi", "https://%s:%d");
 
     public IvrSettings getSettings();

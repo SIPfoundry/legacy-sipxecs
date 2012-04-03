@@ -19,6 +19,8 @@ public interface AdminContext {
     public static final AddressType HTTPS_ADDRESS = new AddressType("secureAdminApi", "https://%s:%d", 443);
     public static final AddressType TFTP_ADDRESS = new AddressType("tftp", 69);
     public static final AddressType FTP_ADDRESS = new AddressType("ftp", 21);
+    // FTP needs 2 ports - control and data
+    public static final AddressType FTP_DATA_ADDRESS = new AddressType("ftpData", 20);
     public static final AlarmDefinition ALARM_LOGIN_FAILED = new AlarmDefinition("LOGIN_FAILED", 3);
 
     final String CONTEXT_BEAN_NAME = "adminContext";

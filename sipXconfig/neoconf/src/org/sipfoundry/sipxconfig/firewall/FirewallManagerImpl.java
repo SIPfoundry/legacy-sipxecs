@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -51,7 +52,7 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
 public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> implements FirewallManager,
-        FeatureProvider, SetupListener, BeanFactoryAware {
+        FeatureProvider, SetupListener, BeanFactoryAware, DaoEventListener {
     private static final Log LOG = LogFactory.getLog(FirewallManagerImpl.class);
     private static final String SERVER_GROUP_COL = "firewall_server_group_id";
     private BeanWithSettingsDao<FirewallSettings> m_settingsDao;
@@ -93,10 +94,11 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
 
     @Override
     public void setup(SetupManager manager) {
-        if (!manager.isSetup(FEATURE.getId())) {
-            manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
-            manager.setSetup(FEATURE.getId());
-        }
+// do not enable by default until all is working ok -- Douglas
+//        if (!manager.isSetup(FEATURE.getId())) {
+//            manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
+//            manager.setSetup(FEATURE.getId());
+//        }
     }
 
     public List<ServerGroup> getServerGroups() {
@@ -121,13 +123,17 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
     public List<DefaultFirewallRule> getDefaultFirewallRules() {
         List<DefaultFirewallRule> rules = new ArrayList<DefaultFirewallRule>();
         for (AddressType type : m_addressManager.getAddressTypes()) {
+            DefaultFirewallRule rule = null;
             for (FirewallProvider provider : getProviders()) {
-                DefaultFirewallRule rule = provider.getFirewallRule(this, type);
-                if (rule == null) {
-                    rule = new DefaultFirewallRule(type, FirewallRule.SystemId.CLUSTER, false);
+                rule = provider.getFirewallRule(this, type);
+                if (rule != null) {
+                    break;
                 }
-                rules.add(rule);
             }
+            if (rule == null) {
+                rule = new DefaultFirewallRule(type, FirewallRule.SystemId.CLUSTER, false);
+            }
+            rules.add(rule);
         }
         return rules;
     }
@@ -277,5 +283,22 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
                 }
             }
         });
+    }
+
+    @Override
+    public void deleteServerGroup(ServerGroup serverGroup) {
+        m_jdbc.update("delete from firewall_server_group where firewall_server_group_id = ?", serverGroup.getId());
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof ServerGroup) {
+            ServerGroup group = (ServerGroup) entity;
+            m_jdbc.update("delete from firewall_rule where firewall_server_group_id = ?", group.getId());
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
     }
 }

@@ -2,7 +2,7 @@
 create table firewall_server_group (
    firewall_server_group_id int4 not null,      
    name varchar(255) not null unique,
-   servers varchar(255) not null unique,
+   servers varchar(255) not null,
    primary key (firewall_server_group_id)
 );
 

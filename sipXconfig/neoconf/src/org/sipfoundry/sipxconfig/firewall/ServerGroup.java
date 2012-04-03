@@ -14,12 +14,25 @@
  */
 package org.sipfoundry.sipxconfig.firewall;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.feature.Feature;
 
-public class ServerGroup extends BeanWithId implements NamedObject {
+public class ServerGroup extends BeanWithId implements NamedObject, DeployConfigOnEdit {
     private String m_name;
     private String m_serverList;
+
+    public ServerGroup() {
+    }
+
+    public ServerGroup(String name, String list) {
+        m_name = name;
+        m_serverList = list;
+    }
 
     @Override
     public String getName() {
@@ -37,5 +50,10 @@ public class ServerGroup extends BeanWithId implements NamedObject {
 
     public String getServerList() {
         return m_serverList;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) FirewallManager.FEATURE);
     }
 }

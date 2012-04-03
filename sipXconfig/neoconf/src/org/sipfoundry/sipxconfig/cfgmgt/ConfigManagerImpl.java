@@ -276,7 +276,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     @Override
     public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(SUPERVISOR_ADDRESS);
+        return null;
     }
 
     @Override

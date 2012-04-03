@@ -37,7 +37,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider,
     AlarmProvider, FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
-            TFTP_ADDRESS, FTP_ADDRESS);
+            TFTP_ADDRESS, FTP_ADDRESS, FTP_DATA_ADDRESS);
     private LocationsManager m_locationsManager;
 
     @Override
@@ -55,12 +55,13 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         Address address;
         if (type.equals(HTTP_ADDRESS)) {
             address = new Address(HTTP_ADDRESS, location.getAddress(), 12000);
+        } else if (type.equalsAnyOf(HTTPS_ADDRESS, TFTP_ADDRESS, FTP_ADDRESS, FTP_DATA_ADDRESS)) {
+            // this assumes admin ui is also tftp and ftp server, which is a correct assumption
+            // for now.
+            address = new Address(type, location.getAddress());
         } else {
-            address = new Address(HTTPS_ADDRESS, location.getAddress());
+            return null;
         }
-        // else ftp and tftp won't have ports defines, 0 means it's assumed to be default
-        // also, this assumed admin ui is also tftp and ftp server, which is a correct assumption
-        // for now.
 
         return Collections.singleton(address);
     }
@@ -101,7 +102,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type) {
-        if (type.equalsAnyOf(FTP_ADDRESS, TFTP_ADDRESS)) {
+        if (type.equalsAnyOf(FTP_ADDRESS, FTP_DATA_ADDRESS, TFTP_ADDRESS)) {
             return new DefaultFirewallRule(type, FirewallRule.SystemId.PUBLIC);
         }
         return null;

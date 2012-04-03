@@ -86,8 +86,15 @@ public class FirewallConfig implements ConfigProvider {
 
         c.startArray("chains");
         Collection<?> ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
-        c.write(":name", FirewallRule.SystemId.CLUSTER.toString());
-        c.writeInlineArray(":ipv4s", ips);
+        String nameId = ":name";
+        String ipv4sId = ":ipv4s";
+        c.write(nameId, FirewallRule.SystemId.CLUSTER.toString());
+        c.writeInlineArray(ipv4sId, ips);
+        for (ServerGroup group : groups) {
+            c.nextElement();
+            c.write(nameId, group.getName());
+            c.write(ipv4sId, group.getServerList().replaceAll("\\s", ", "));
+        }
         c.endArray();
 
         c.startArray("rules");
@@ -96,15 +103,26 @@ public class FirewallConfig implements ConfigProvider {
             List<Address> addresses = m_addressManager.getAddresses(type, thisLocation);
             if (addresses != null) {
                 for (Address address : addresses) {
-                    String id = address.getType().getId();
+                    AddressType atype = address.getType();
+                    String id = atype.getId();
                     int port = address.getCanonicalPort();
                     if (port == 0) {
                         LOG.error("Cannot open up port zero for service id " + id);
                     } else {
                         c.write(":port", port);
+                        c.write(":protocol", atype.getProtocol());
                         c.write(":service", id);
                         c.write(":priority", rule.isPriority());
-                        c.write(":chain", rule.getSystemId().name());
+                        ServerGroup group = rule.getServerGroup();
+                        String chain;
+                        if (group != null) {
+                            chain = group.getName();
+                        } else if (rule.getSystemId() == FirewallRule.SystemId.PUBLIC) {
+                            chain = "ACCEPT";
+                        } else {
+                            chain = rule.getSystemId().name();
+                        }
+                        c.write(":chain", chain);
                         c.nextElement();
                     }
                 }

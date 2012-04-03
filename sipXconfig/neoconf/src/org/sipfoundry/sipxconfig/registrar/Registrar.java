@@ -21,9 +21,9 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface Registrar {
     public static final LocationFeature FEATURE = new LocationFeature("registrar");
-    public static final AddressType TCP_ADDRESS = AddressType.sip("registrar-tcp");
+    public static final AddressType TCP_ADDRESS = AddressType.sipTcp("registrar-tcp");
     public static final AddressType EVENT_ADDRESS = new AddressType("registrar-event");
-    public static final AddressType UDP_ADDRESS = AddressType.sip("registrar-udp");
+    public static final AddressType UDP_ADDRESS = AddressType.sipUdp("registrar-udp");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("registrar-xmlrpc");
     public static final AddressType PRESENCE_MONITOR_ADDRESS = new AddressType("registrar-presence",
             "http://%s:%d/RPC2");

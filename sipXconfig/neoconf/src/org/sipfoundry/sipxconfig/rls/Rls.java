@@ -21,8 +21,8 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface Rls {
     public static final LocationFeature FEATURE = new LocationFeature("rls");
-    public static final AddressType UDP_SIP = AddressType.sip("rlsUdp");
-    public static final AddressType TCP_SIP = AddressType.sip("rlsTcp");
+    public static final AddressType UDP_SIP = AddressType.sipUdp("rlsUdp");
+    public static final AddressType TCP_SIP = AddressType.sipTcp("rlsTcp");
 
     public RlsSettings getSettings();
 

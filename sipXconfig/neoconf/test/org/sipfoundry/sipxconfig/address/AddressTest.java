@@ -25,11 +25,11 @@ public class AddressTest {
     
     @Test
     public void noProtocol() {
-        assertEquals("sip:1:2", new Address(AddressType.sip("test"), "1", 2).toString());
-        assertEquals("1:2", new Address(AddressType.sip("test"), "1", 2).stripProtocol());
+        assertEquals("sip:1:2", new Address(AddressType.sipTcp("test"), "1", 2).toString());
+        assertEquals("1:2", new Address(AddressType.sipTcp("test"), "1", 2).stripProtocol());
         assertEquals("1", new Address(new AddressType("test"), "1").stripProtocol());
         assertEquals("one.two:3", new Address(new AddressType("test"), "one.two", 3).stripProtocol());
-        assertEquals("test.example.org:2", new Address(AddressType.sip("test"), "test.example.org", 2).stripProtocol());
+        assertEquals("test.example.org:2", new Address(AddressType.sipTcp("test"), "test.example.org", 2).stripProtocol());
         assertEquals("test.example.org:2/x/y", new Address(new AddressType("test", "http://%s:%d/x/y"), "test.example.org", 2).stripProtocol());
     }
 
