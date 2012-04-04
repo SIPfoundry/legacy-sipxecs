@@ -75,6 +75,12 @@
                 file="ognl:uploadConfigurationFile" />
             </tr>
             <tr jwcid="@common/FieldPanel"
+              field="component:deviceconfig"
+                  label="message:backup.DEVICE_CONFIG">
+                  <td jwcid="deviceconfig@Upload"
+                file="ognl:uploadDeviceConfigFile" />
+            </tr>            
+            <tr jwcid="@common/FieldPanel"
               field="component:voicemail"
                   label="message:backup.VOICEMAIL">
                   <td jwcid="voicemail@Upload"
@@ -85,7 +91,7 @@
                   label="message:backup.CDR">
                   <td jwcid="cdr@Upload"
                 file="ognl:uploadCdrFile" />
-            </tr>
+            </tr>           
           </table>
         </fieldset>
         <ul class="component-submit">

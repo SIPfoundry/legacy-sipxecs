@@ -35,6 +35,7 @@
     <property name="binDirectory" value="${sysdir.bin}" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="configCommands" ref="configCommands" />
+    <property name="featureManager" ref="featureManager" />
   </bean>
 
   <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.backup.FtpRestore" parent="restore">

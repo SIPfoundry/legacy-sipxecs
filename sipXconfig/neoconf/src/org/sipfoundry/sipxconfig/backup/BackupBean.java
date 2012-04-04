@@ -18,7 +18,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class BackupBean implements Serializable {
     public enum Type {
-        CONFIGURATION("-c"), VOICEMAIL("-v"), CDR("-cdr");
+        CONFIGURATION("-c"), VOICEMAIL("-v"), CDR("-cdr"), DEVICE_CONFIG("-dc");
 
         private String m_option;
 
@@ -35,6 +35,8 @@ public class BackupBean implements Serializable {
                 return CONFIGURATION;
             } else if (StringUtils.equals(BackupPlan.CDR_ARCHIVE, name)) {
                 return CDR;
+            } else if (StringUtils.equals(BackupPlan.DEVICE_CONFIG, name)) {
+                return DEVICE_CONFIG;
             }
             return VOICEMAIL;
         }
