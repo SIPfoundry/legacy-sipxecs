@@ -16,6 +16,8 @@ SIP_REGISTRAR_TCP_PORT : $!{registrarService.sipPort}
 SIP_REGISTRAR_UDP_PORT : $!{registrarService.sipPort}
 SIP_REGISTRAR_REG_EVENT_PORT : $!{registrarService.registrarEventSipPort}
 
+SIPX_SEND_TRYING_FOR_NIST : true
+
 # Configure the redirectors.
 SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM : @sipxpbx.lib.dir@/libRedirectorUserParam.so
 SIP_REDIRECT_AUTHORITY_LEVEL.090-USERPARAM : 60

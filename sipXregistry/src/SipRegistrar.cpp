@@ -23,6 +23,7 @@
 #include "net/SipUserAgent.h"
 #include "net/NameValueTokenizer.h"
 #include "net/XmlRpcDispatch.h"
+#include "net/SipTransaction.h"
 #include "sipdb/RegistrationDB.h"
 #include "registry/SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
@@ -168,6 +169,8 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    {
 	  mBindIp = "0.0.0.0";
    }
+
+   SipTransaction::SendTryingForNist = mConfigDb->getBoolean("SIPX_SEND_TRYING_FOR_NIST", TRUE);
 }
 
 int SipRegistrar::run(void* pArg)
