@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # sipXrest - Startup script for sipxrest
+# chkconfig: 35 85 15
+# description: sipxrest is web service for 3ppc and cdrlog apis
 # processname: sipxrest
 
 # Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.

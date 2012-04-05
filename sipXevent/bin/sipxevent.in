@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # sipXevent - Startup script for sipxevent
+# chkconfig: 35 85 15
+# description: sipxevent is a web sockets service for system events
 # processname: sipxevent
 
 # Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
