@@ -29,6 +29,8 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.WaitingListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -50,6 +52,7 @@ public class Restore implements Serializable, WaitingListener {
     private List<BackupBean> m_selectedBackups;
     private ConfigCommands m_configCommands;
     private LocationsManager m_locationsManager;
+    private FeatureManager m_featureManager;
 
     @Override
     public void afterResponseSent() {
@@ -79,6 +82,7 @@ public class Restore implements Serializable, WaitingListener {
         BackupBean config = null;
         BackupBean voicemail = null;
         BackupBean cdr = null;
+        BackupBean deviceConfig = null;
         for (BackupBean bean : backups) {
             if (bean.getType().equals(BackupBean.Type.CONFIGURATION)) {
                 config = bean;
@@ -86,6 +90,8 @@ public class Restore implements Serializable, WaitingListener {
                 voicemail = bean;
             } else if (bean.getType().equals(BackupBean.Type.CDR)) {
                 cdr = bean;
+            } else if (bean.getType().equals(BackupBean.Type.DEVICE_CONFIG)) {
+                deviceConfig = bean;
             }
         }
 
@@ -104,6 +110,10 @@ public class Restore implements Serializable, WaitingListener {
 
         if (config != null) {
             runRestoreScript(config, verify, false);
+        }
+
+        if (deviceConfig != null) {
+            runRestoreScript(deviceConfig, verify, false);
         }
     }
 
@@ -192,12 +202,19 @@ public class Restore implements Serializable, WaitingListener {
         m_locationsManager = locationsManager;
     }
 
+    @Required
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
     public String getRestoreLogContent() {
         StringBuilder builder = new StringBuilder();
         try {
             File log = new File(getLogDirectory(), RESTORE_LOG);
             builder.append(IOUtils.toString(new FileReader(log)));
-            builder.append(m_mailboxManager.getMailboxRestoreLog());
+            if (m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
+                builder.append(m_mailboxManager.getMailboxRestoreLog());
+            }
             return builder.toString();
         } catch (FileNotFoundException ex) {
             throw new UserException("&log.found.ex");

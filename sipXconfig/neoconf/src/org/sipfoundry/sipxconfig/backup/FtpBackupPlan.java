@@ -99,13 +99,14 @@ public class FtpBackupPlan extends BackupPlan {
                 continue;
             }
             String[] childrenFiles = ftpContext.listFiles(directory);
-            if (childrenFiles.length > 3) {
-                // more than 3 files - not interested
+            if (childrenFiles.length > 4) {
+                // more than 4 files - not interested
                 continue;
             }
             if (contains(childrenFiles, CONFIGURATION_ARCHIVE)
                 || contains(childrenFiles, VOICEMAIL_ARCHIVE)
-                || contains(childrenFiles, CDR_ARCHIVE)) {
+                || contains(childrenFiles, CDR_ARCHIVE)
+                || contains(childrenFiles, DEVICE_CONFIG)) {
                 listDirValid.add(directory);
             }
         }
@@ -136,7 +137,8 @@ public class FtpBackupPlan extends BackupPlan {
                 for (String name : names) {
                     if (StringUtils.equals(name, BackupPlan.VOICEMAIL_ARCHIVE)
                         || StringUtils.equals(name, BackupPlan.CONFIGURATION_ARCHIVE)
-                        || StringUtils.equals(name, BackupPlan.CDR_ARCHIVE)) {
+                        || StringUtils.equals(name, BackupPlan.CDR_ARCHIVE)
+                        || StringUtils.equals(name, BackupPlan.DEVICE_CONFIG)) {
                         backupFiles.add(new File(backupFolder.getAbsolutePath(), name));
                     }
                 }
