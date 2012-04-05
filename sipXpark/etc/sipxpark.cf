@@ -87,21 +87,3 @@ bundle agent sipxpark_running {
         args => "restart";
 }
 
-# This code was extracted from park java code.  not sure how to handle this or when versions 
-# this applies to --Douglas
-#
-# @Override
-# public void onInitTask(String task) {
-#     LOG.info("Starting park server migration");
-#     File parkServerDirectory = new File(m_orbitsGenerator.getAudioDirectory());
-#     File systemMohDirectory = new File(m_musicOnHoldManager.getAudioDirectoryPath());
-#     try {
-#         if (parkServerDirectory.exists()) {
-#             LOG.info("Copying all files from " + m_orbitsGenerator.getAudioDirectory() + " to "
-#                     + systemMohDirectory.getAbsolutePath());
-#             FileUtils.copyDirectory(parkServerDirectory, systemMohDirectory);
-#         }
-#     } catch (IOException e) {
-#         LOG.error("Unable to copy files/folder; " + e);
-#     }
-# }
