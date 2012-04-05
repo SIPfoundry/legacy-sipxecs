@@ -33,8 +33,11 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 
-public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
+public class Acd implements FeatureProvider, AddressProvider, FeatureListener, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("acd");
     public static final AddressType CONFIG_ADDRESS = new AddressType("acdConfig");
     public static final AddressType MONITOR_ADDRESS = new AddressType("acdMonitor");
@@ -58,11 +61,6 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
 
     public boolean isEnabled() {
         return m_featureManager.isFeatureEnabled(FEATURE);
-    }
-
-    @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADRESSES;
     }
 
     @Override
@@ -121,5 +119,10 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
 
     @Override
     public void getBundleFeatures(Bundle b) {
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return DefaultFirewallRule.rules(ADRESSES);
     }
 }

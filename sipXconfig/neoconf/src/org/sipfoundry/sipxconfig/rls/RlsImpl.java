@@ -31,12 +31,15 @@ import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessProvider {
+public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessProvider, FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(UDP_SIP, TCP_SIP);
     private BeanWithSettingsDao<RlsSettings> m_settingsDao;
 
@@ -60,11 +63,6 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessPr
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
     }
 
     @Override
@@ -108,5 +106,10 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessPr
         if (b.isUnifiedCommunications()) {
             b.addFeature(FEATURE);
         }
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return DefaultFirewallRule.rules(ADDRESSES);
     }
 }

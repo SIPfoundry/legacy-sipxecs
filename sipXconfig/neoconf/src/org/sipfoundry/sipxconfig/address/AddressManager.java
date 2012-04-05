@@ -38,7 +38,7 @@ public interface AddressManager {
         }
     }
 
-    public List<AddressType> getAddressTypes();
+//    public List<AddressType> getAddressTypes();
 
     public Address getSingleAddress(AddressType type);
 

@@ -40,12 +40,16 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvider, FeatureListener, ProcessProvider {
+public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvider, FeatureListener,
+        ProcessProvider, FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_UDP, SIP_TCP, HTTP_API);
     private BeanWithSettingsDao<MwiSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -69,8 +73,8 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return DefaultFirewallRule.rules(ADDRESSES);
     }
 
     @Override

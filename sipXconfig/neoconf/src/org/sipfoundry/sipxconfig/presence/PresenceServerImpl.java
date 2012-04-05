@@ -41,6 +41,9 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -52,7 +55,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class PresenceServerImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, FeatureListener,
-        PresenceServer, ProcessProvider {
+        PresenceServer, ProcessProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("acdPresence");
     public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi", "http://%s:%d/RPC2");
     public static final AddressType SIP_TCP_ADDRESS = new AddressType("acdPresenceTcp");
@@ -185,11 +188,6 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS);
-    }
-
-    @Override
     public java.util.Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Location requester) {
         if (!type.equalsAnyOf(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS)) {
@@ -248,5 +246,10 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
 
     @Override
     public void getBundleFeatures(Bundle b) {
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return DefaultFirewallRule.rules(Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS));
     }
 }

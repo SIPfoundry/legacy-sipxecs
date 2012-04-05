@@ -70,16 +70,8 @@ public class DhcpManagerImpl extends SipxHibernateDaoSupport implements DhcpMana
     }
 
     @Override
-    public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type) {
-        if (type.equals(DHCPD_ADDRESS)) {
-            return new DefaultFirewallRule(type, FirewallRule.SystemId.PUBLIC);
-        }
-        return null;
-    }
-
-    @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(DHCPD_ADDRESS);
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(DHCPD_ADDRESS, FirewallRule.SystemId.PUBLIC));
     }
 
     @Override

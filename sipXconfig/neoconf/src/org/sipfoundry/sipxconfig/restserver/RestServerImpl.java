@@ -31,12 +31,16 @@ import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class RestServerImpl implements FeatureProvider, AddressProvider, RestServer, ProcessProvider {
+public class RestServerImpl implements FeatureProvider, AddressProvider, RestServer, ProcessProvider, FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTPS_API, EXTERNAL_API, SIP_TCP);
     private BeanWithSettingsDao<RestServerSettings> m_settingsDao;
 
@@ -58,11 +62,6 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return Collections.singleton(FEATURE);
-    }
-
-    @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
     }
 
     @Override
@@ -105,5 +104,14 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
         if (b.isUnifiedCommunications()) {
             b.addFeature(FEATURE);
         }
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(HTTPS_API, SIP_TCP));
+
+        // this should probably proxies thru apache, if so remove this line
+        rules.add(new DefaultFirewallRule(EXTERNAL_API, FirewallRule.SystemId.PUBLIC));
+        return rules;
     }
 }

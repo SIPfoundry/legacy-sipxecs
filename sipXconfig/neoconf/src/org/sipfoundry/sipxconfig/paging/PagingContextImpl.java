@@ -36,6 +36,10 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -43,7 +47,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext, FeatureProvider,
-        AddressProvider, ProcessProvider {
+        AddressProvider, ProcessProvider, FirewallProvider {
 
     /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
     private static final String ALERT_INFO = "sipXpage";
@@ -236,8 +240,11 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        List<AddressType> cluster = Arrays.asList(SIP_TCP, SIP_TLS, SIP_UDP);
+        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(cluster);
+        rules.add(new DefaultFirewallRule(RTP_PORT, FirewallRule.SystemId.PUBLIC));
+        return rules;
     }
 
     @Override

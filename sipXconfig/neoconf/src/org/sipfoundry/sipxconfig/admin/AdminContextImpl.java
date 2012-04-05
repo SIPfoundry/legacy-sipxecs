@@ -41,11 +41,6 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     private LocationsManager m_locationsManager;
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
-    }
-
-    @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!ADDRESSES.contains(type)) {
             return null;
@@ -101,10 +96,8 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     }
 
     @Override
-    public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type) {
-        if (type.equalsAnyOf(FTP_ADDRESS, FTP_DATA_ADDRESS, TFTP_ADDRESS)) {
-            return new DefaultFirewallRule(type, FirewallRule.SystemId.PUBLIC);
-        }
-        return null;
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return DefaultFirewallRule.rules(Arrays.asList(FTP_ADDRESS, FTP_DATA_ADDRESS, TFTP_ADDRESS),
+                FirewallRule.SystemId.PUBLIC);
     }
 }

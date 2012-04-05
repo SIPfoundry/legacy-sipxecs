@@ -14,12 +14,20 @@
  */
 package org.sipfoundry.sipxconfig.firewall;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.address.AddressType;
 
 public class DefaultFirewallRule implements FirewallRule {
     private boolean m_priority;
     private SystemId m_systemId;
     private AddressType m_addressType;
+
+    public DefaultFirewallRule(AddressType type) {
+        this(type, SystemId.CLUSTER);
+    }
 
     public DefaultFirewallRule(AddressType type, SystemId systemId) {
         m_systemId = systemId;
@@ -29,6 +37,18 @@ public class DefaultFirewallRule implements FirewallRule {
     public DefaultFirewallRule(AddressType type, SystemId systemId, boolean priority) {
         this(type, systemId);
         m_priority = priority;
+    }
+
+    public static List<DefaultFirewallRule> rules(Collection<AddressType> types) {
+        return rules(types, SystemId.CLUSTER);
+    }
+
+    public static List<DefaultFirewallRule> rules(Collection<AddressType> types, SystemId systemId) {
+        List<DefaultFirewallRule> rules = new ArrayList<DefaultFirewallRule>(types.size());
+        for (AddressType t : types) {
+            rules.add(new DefaultFirewallRule(t, systemId));
+        }
+        return rules;
     }
 
     @Override

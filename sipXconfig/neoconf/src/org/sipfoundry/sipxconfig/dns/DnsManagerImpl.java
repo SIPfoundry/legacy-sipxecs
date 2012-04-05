@@ -32,6 +32,10 @@ import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -40,7 +44,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvider, BeanFactoryAware, ProcessProvider {
+public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvider, BeanFactoryAware,
+    ProcessProvider, FirewallProvider {
     private BeanWithSettingsDao<DnsSettings> m_settingsDao;
     private List<DnsProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
@@ -91,8 +96,8 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(DNS_ADDRESS);
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(DNS_ADDRESS, FirewallRule.SystemId.PUBLIC));
     }
 
     @Override

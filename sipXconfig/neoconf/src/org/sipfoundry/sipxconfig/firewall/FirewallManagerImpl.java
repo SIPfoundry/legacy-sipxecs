@@ -31,7 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -122,18 +121,11 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
 
     public List<DefaultFirewallRule> getDefaultFirewallRules() {
         List<DefaultFirewallRule> rules = new ArrayList<DefaultFirewallRule>();
-        for (AddressType type : m_addressManager.getAddressTypes()) {
-            DefaultFirewallRule rule = null;
-            for (FirewallProvider provider : getProviders()) {
-                rule = provider.getFirewallRule(this, type);
-                if (rule != null) {
-                    break;
-                }
+        for (FirewallProvider provider : getProviders()) {
+            Collection<DefaultFirewallRule> addRules = provider.getFirewallRules(this);
+            if (addRules != null && !addRules.isEmpty()) {
+                rules.addAll(addRules);
             }
-            if (rule == null) {
-                rule = new DefaultFirewallRule(type, FirewallRule.SystemId.CLUSTER, false);
-            }
-            rules.add(rule);
         }
         return rules;
     }

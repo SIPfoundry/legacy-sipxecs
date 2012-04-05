@@ -30,13 +30,16 @@ import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider, ProcessProvider {
+public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider, ProcessProvider, FirewallProvider {
     private BeanWithSettingsDao<AcdStatsSettings> m_settingsDao;
 
     public AcdStatsSettings getSettings() {
@@ -55,11 +58,6 @@ public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider,
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return Collections.singleton(FEATURE);
-    }
-
-    @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(API_ADDRESS);
     }
 
     @Override
@@ -94,5 +92,13 @@ public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider,
 
     @Override
     public void getBundleFeatures(Bundle b) {
+        if (b.basedOn(Bundle.OTHER)) {
+            b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(API_ADDRESS));
     }
 }

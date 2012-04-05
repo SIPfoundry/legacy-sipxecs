@@ -79,8 +79,8 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESS_TYPES;
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return DefaultFirewallRule.rules(ADDRESS_TYPES, FirewallRule.SystemId.PUBLIC);
     }
 
     @Override
@@ -156,14 +156,5 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         if (b.isRouter()) {
             b.addFeature(FEATURE);
         }
-    }
-
-    @Override
-    public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type) {
-        if (!ADDRESS_TYPES.contains(type)) {
-            return null;
-        }
-
-        return new DefaultFirewallRule(type, FirewallRule.SystemId.PUBLIC, true);
     }
 }

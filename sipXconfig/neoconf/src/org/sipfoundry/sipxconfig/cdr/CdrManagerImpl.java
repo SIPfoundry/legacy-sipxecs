@@ -49,6 +49,9 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -64,7 +67,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import com.thoughtworks.xstream.XStream;
 
 public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, FeatureProvider, AddressProvider,
-        ProcessProvider {
+        ProcessProvider, FirewallProvider {
     static final String CALL_ID = "call_id";
     static final String CALLEE_AOR = "callee_aor";
     static final String TERMINATION = "termination";
@@ -522,11 +525,6 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(CDR_API);
-    }
-
-    @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Location requester) {
         if (!type.equals(CDR_API)) {
@@ -565,5 +563,10 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         if (b.isRouter()) {
             b.addFeature(FEATURE);
         }
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(CDR_API));
     }
 }

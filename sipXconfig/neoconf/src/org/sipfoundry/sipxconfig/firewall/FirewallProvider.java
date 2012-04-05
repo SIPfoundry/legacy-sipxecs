@@ -14,10 +14,10 @@
  */
 package org.sipfoundry.sipxconfig.firewall;
 
-import org.sipfoundry.sipxconfig.address.AddressType;
+import java.util.Collection;
 
 public interface FirewallProvider {
 
-    public DefaultFirewallRule getFirewallRule(FirewallManager manager, AddressType type);
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager);
 
 }

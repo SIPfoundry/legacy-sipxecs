@@ -30,12 +30,16 @@ import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class ProvisionImpl implements FeatureProvider, AddressProvider, Provision, ProcessProvider {
+public class ProvisionImpl implements FeatureProvider, AddressProvider, Provision, ProcessProvider, FirewallProvider {
     private BeanWithSettingsDao<ProvisionSettings> m_settingsDao;
 
     public ProvisionSettings getSettings() {
@@ -57,8 +61,8 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(PROVISION_SERVICE);
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(PROVISION_SERVICE, FirewallRule.SystemId.PUBLIC));
     }
 
     @Override

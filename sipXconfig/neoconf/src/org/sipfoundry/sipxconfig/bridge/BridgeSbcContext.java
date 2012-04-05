@@ -31,9 +31,12 @@ import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 
-public class BridgeSbcContext implements FeatureProvider, AddressProvider {
+public class BridgeSbcContext implements FeatureProvider, AddressProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("sbcBridge");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc", "https://%s:%d");
     private SbcDeviceManager m_sbcDeviceManager;
@@ -46,11 +49,6 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider {
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return Collections.singleton(FEATURE);
-    }
-
-    @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(XMLRPC_ADDRESS);
     }
 
     public static Address newSbcAddress(BridgeSbc bridge, AddressType type) {
@@ -91,5 +89,10 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider {
         if (b.isRouter()) {
             b.addFeature(FEATURE);
         }
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(XMLRPC_ADDRESS));
     }
 }
