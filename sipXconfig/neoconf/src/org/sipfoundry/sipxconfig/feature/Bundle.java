@@ -25,6 +25,9 @@ public class Bundle {
     /** Minimal system */
     public static final Bundle ROUTER = new Bundle("router");
 
+    /** Things that don't fit anywhere */
+    public static final Bundle OTHER = new Bundle("other");
+
     /** Minimal system plus media services */
     public static final Bundle BASIC = new Bundle("basic", ROUTER);
 

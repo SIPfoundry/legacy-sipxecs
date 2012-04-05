@@ -16,9 +16,15 @@
  */
 package org.sipfoundry.sipxconfig.address;
 
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.builder.EqualsBuilder;
 
 public class Address {
+    public static final Transformer GET_IP = new Transformer() {
+        public Object transform(Object o) {
+            return (o == null ? null : ((Address) o).getAddress());
+        }
+    };
     private String m_address;
     private int m_port;
     private AddressType m_type;

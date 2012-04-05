@@ -35,12 +35,17 @@ dist_cfplugins_DATA = \
 	sipxsupervisor.cf \
 	selinux.cf \
 	firewall.cf \
+	dhcpd.cf \
 	sendmail.cf \
 	zz_sipxlogwatcher.cf
 
 fwconfdir = $(SIPX_CONFDIR)/firewall
 dist_fwconf_DATA = \
 	firewall.erb
+
+dhcpdir = $(SIPX_CONFDIR)/dhcp
+dist_dhcp_DATA = \
+	dhcpd.erb
 
 cflibdir =  $(SIPX_CFINPUTS)/plugin.d/lib
 cflib_DATA = \

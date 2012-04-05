@@ -360,7 +360,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public Collection<Bundle> getBundles(FeatureManager manager) {
-        return Arrays.asList(Bundle.BASIC, Bundle.ROUTER, Bundle.UNIFIED_COMMUNICATIONS);
+        return Arrays.asList(Bundle.BASIC, Bundle.ROUTER, Bundle.UNIFIED_COMMUNICATIONS, Bundle.OTHER);
     }
 
     @Override

@@ -1,0 +1,110 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# This is dhcpd configuration. Uses either /etc/init.d./dhcpd (centos 6) or 
+# /bin/systemctl (fedora 16) scripts whichever are available.
+#
+
+bundle agent dhcpd {
+  methods:
+    dhcpd::
+      "any" usebundle => "dhcpd_config";
+    fedora16_or_greater::
+      "any" usebundle => "dhcpd_systemctl_running";
+    !fedora16_or_greater::
+      "any" usebundle => "dhcpd_sysv_running";
+}
+
+bundle agent dhcpd_config {
+  vars:
+    "template" string => "$(sipx.SIPX_CONFDIR)/dhcp/dhcpd.erb";
+    "temp" string => "$(sipx.SIPX_TMPDIR)/dhcpd.conf.temp";
+    "data" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/dhcpd.yaml";
+
+  files:
+    any::      
+      "$(temp)"
+        comment => "Preprocess DHCP template $(this.promiser)",
+        create => "true",
+        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-config-maker \
+            --in $(data) --out $(temp) --template $(template)";
+
+      "/etc/dhcp/dhcpd.conf"
+        comment => "DHCP daemonconfig $(this.promoiser)",
+        perms => mog("0644","root","root"),
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(temp)"),
+        classes => if_repaired("restart_dhcpd");
+}
+
+bundle agent dhcpd_systemctl_running {
+  vars:
+    "service" string => "dhcpd.service";
+
+  classes:
+    "dhcpd_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    # NOTE: Start/stop commands will complain about not being able to open a TTY, but commands
+    # to complete their task
+    dhcpd_running.!dhcpd::
+      "$(sipx.systemctl)"
+        comment => "stop dhcpd",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable dhcpd",
+        args => "disable $(service)";
+
+    !dhcpd_running.dhcpd::
+      "$(sipx.systemctl)"
+        comment => "start dhcpd",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable dhcpd",
+        args => "enable $(service)";
+}
+
+
+bundle agent dhcpd_sysv_running {
+  vars:
+   "service" string => "/etc/init.d/dhcpd";
+   "service_command" string => "/usr/sbin/dhcpd";
+
+  methods:
+    "any" usebundle => find_service_by_command("$(service_command)", "dhcpd_running", "root");
+    !dhcpd::
+      "any" usebundle => rh_chkconfig_status("dhcpd off");
+    dhcpd::
+      "any" usebundle => rh_chkconfig_status("dhcpd on");
+
+  commands:
+    !dhcpd.dhcpd_running::
+      "$(service)"
+        comment => "stop dhcpd",
+        args => "stop";
+
+    dhcpd.!dhcpd_running::
+      "$(service)"
+        comment => "start dhcpd",
+        args => "start";
+
+    dhcpd.dhcpd_running.restart_dhcpd::
+      "$(service)"
+        comment => "start dhcpd",
+        args => "restart";
+}
+

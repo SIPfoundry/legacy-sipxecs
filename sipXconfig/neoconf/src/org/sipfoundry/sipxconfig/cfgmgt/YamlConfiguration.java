@@ -48,7 +48,7 @@ public class YamlConfiguration extends AbstractConfigurationFile {
         m_out.write(indent());
         m_out.write(key);
         m_out.write(": ");
-        m_out.write(value.toString());
+        m_out.write(value == null ? "" : value.toString());
         m_out.write("\n");
     }
 
