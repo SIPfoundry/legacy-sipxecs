@@ -41,7 +41,7 @@ dist_cfplugins_DATA = \
 
 fwconfdir = $(SIPX_CONFDIR)/firewall
 dist_fwconf_DATA = \
-	firewall.erb
+	iptables.erb
 
 dhcpdir = $(SIPX_CONFDIR)/dhcp
 dist_dhcp_DATA = \

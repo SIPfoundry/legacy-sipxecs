@@ -18,33 +18,27 @@
 bundle agent firewall {
   methods:
     firewall::
-      "any" usebundle => "firewall_config";
+      "any" usebundle => "firewall_kernel_config";
+      "any" usebundle => "firewall_iptables_config";
     fedora16_or_greater.!unmanaged_firewall::
       "any" usebundle => "firewall_systemctl_running";
     !fedora16_or_greater.!unmanaged_firewall::
       "any" usebundle => "firewall_sysv_running";
 }
 
-bundle agent firewall_config {
+bundle agent firewall_kernel_config {
   vars:
     "dim_sysctl" int => readstringarray("sysctl", "$(sipx.SIPX_CFDATA)/sysctl.part", 
         "\s*#[^\n]*", "=", 10, 4000);
-    "sysctl_tunables" slist => getindices("firewall_config.sysctl");
-    "rules" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/firewall.yaml";
+    "sysctl_tunables" slist => getindices("firewall_kernel.sysctl");
 
   files:
     any::
-      "$(rules)"
-        comment => "check for updates in firewall rules in $(this.promiser)",
-        changes => repair_on_change,
-        classes => if_repaired("update_firewall"),
-        action => fix;
-
       "/etc/sysctl.conf"
         comment => "Kernel network parameters $(this.promoiser)",
         perms => mog("0644","root","root"),
         create => "true",
-        edit_line => sysctl_conf("@(firewall_config.sysctl_tunables)"),
+        edit_line => sysctl_conf("@(firewall_kernel_config.sysctl_tunables)"),
         classes => if_repaired("update_sysctl");
 
   commands:
@@ -52,27 +46,63 @@ bundle agent firewall_config {
       "/sbin/sysctl"
         comment => "Apply kernel network parameters",
         args => "-p";
-
-  commands:
-    update_firewall.unmanaged_firewall::
-      "$(sipx.SIPX_LIBEXECDIR)/sipx-firewall-maker"
-        comment => "Install new firewall rules",
-        contain => in_shell,
-        args => "--in $(rules) --out /etc/sysconfig/iptables.unmanaged";
-
-    update_firewall.!unmanaged_firewall::
-      "$(sipx.SIPX_LIBEXECDIR)/sipx-firewall-maker"
-        comment => "Install new firewall rules",
-        contain => in_shell,
-        args => "--in $(rules) | /sbin/iptables-restore";
 }
 
 bundle edit_line sysctl_conf(sysctl_tunables) {
   insert_lines:
-    "$(sysctl_tunables) = $(firewall_config.sysctl[$(sysctl_tunables)][1])";
+    "$(sysctl_tunables) = $(firewall_kernel_config.sysctl[$(sysctl_tunables)][1])";
 
   delete_lines:
     "$(sysctl_tunables)\s*=.*";
+}
+
+bundle agent firewall_iptables_config {
+  vars:
+    "template" string => "$(sipx.SIPX_CONFDIR)/firewall/iptables.erb";
+    "post_erb" string => "$(sipx.SIPX_TMPDIR)/iptables.post_erb";
+    "iptables" string => "$(sipx.SIPX_TMPDIR)/iptables";
+    "unapplied" string => "$(sipx.SIPX_TMPDIR)/iptables.unapplied";
+    "data" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/firewall.yaml";
+
+  classes:
+    # rules from a previous run exist because of a failed attempt to apply.
+    "apply_iptables" expression => fileexists("$(unapplied)");
+
+  files:
+    any::
+      # feed YAML to template to build iptable config
+      "$(post_erb)"
+        comment => "Preprocess fireall template $(this.promiser)",
+        create => "true",
+        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-config-maker \
+            --in $(data) --out $(post_erb) --template $(template)";
+
+      # feed iptables to cfengine to decide if rules changed. As a bonus
+      # apply any cfengine vars i.e. $(foo)
+      "$(iptables)"
+        comment => "Building iptables config $(this.promiser)",
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(post_erb)"),
+        classes => if_repaired("new_iptables");
+
+    new_iptables::
+      # brand new rules were generated, mark as outstanding by making a copy
+      "$(unapplied)"
+        comment => "Marking new iptables for install",
+        create => "true",
+        copy_from => local_cp("$(iptables)"),
+        classes => if_repaired("apply_iptables");
+
+  commands:
+    apply_iptables.!unmanaged_firewall::
+      # outstanding rules either from this run or previous failed run need
+      # to be applied.  Apply them and on success unmark rules as outstanding
+      # by deleting trigger file
+      "/sbin/iptables-restore"
+        comment => "Installing and peristing new firewall rules",
+        contain => in_shell,
+        args => "< $(unapplied) && /etc/init.d/iptables save && rm $(unapplied)";
 }
 
 bundle agent firewall_systemctl_running {

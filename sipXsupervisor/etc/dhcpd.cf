@@ -41,7 +41,7 @@ bundle agent dhcpd_config {
             --in $(data) --out $(temp) --template $(template)";
 
       "/etc/dhcp/dhcpd.conf"
-        comment => "DHCP daemonconfig $(this.promoiser)",
+        comment => "DHCP daemon config $(this.promoiser)",
         perms => mog("0644","root","root"),
         create => "true",
         edit_defaults => empty,
