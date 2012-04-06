@@ -57,7 +57,8 @@ bundle server access_rules {
         "@SIPX_VARDIR@/tmp",
         "@SIPX_VARDIR@/backup",
         "@SIPX_IVRDATADIR@/prompts",
-        "@SIPX_IVRDATADIR@/moh"
+        "@SIPX_IVRDATADIR@/moh",
+        "@SIPX_VARDIR@/parkserver/music"
      };
   access:
     "$(export_dirs)"
