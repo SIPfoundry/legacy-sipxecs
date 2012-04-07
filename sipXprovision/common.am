@@ -1,3 +1,20 @@
+cfg_PKGS = \
+	sipxconfig-neoconf \
+	sipxcommons \
+	velocity \
+	commons-lang \
+	commons-io \
+	dom4j \
+	org.springframework.beans \
+	org.springframework.core \
+	org.springframework.transaction \
+	xercesImpl \
+	sipxconfig-neoconf \
+	sipxconfig-web \
+	tapestry-annotations \
+	tapestry-framework \
+	hivemind
+
 provision_PKGS = \
 	sipxcommons \
 	log4j \
@@ -9,4 +26,3 @@ provision_PKGS = \
 	javax.servlet \
 	velocity \
 	jetty
-

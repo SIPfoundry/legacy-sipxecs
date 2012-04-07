@@ -38,10 +38,6 @@ public class ProvisionSettings extends PersistableSettings {
     }
 
     public class Defaults {
-        @SettingEntry(path = "provision-config/provision.sipxchangeDomainName")
-        public String getDomainName() {
-            return m_coreContext.getDomainName();
-        }
         @SettingEntry(path = "provision-config/provision.username")
         public String getUserName() {
             return getProvisionUser().getUserName();
@@ -67,7 +63,7 @@ public class ProvisionSettings extends PersistableSettings {
 
     private Address getAdminAddress() {
         if (m_adminAddress == null) {
-            m_adminAddress = m_addressManager.getSingleAddress(AdminContext.HTTPS_ADDRESS);
+            m_adminAddress = m_addressManager.getSingleAddress(AdminContext.HTTP_ADDRESS);
         }
         return m_adminAddress;
     }

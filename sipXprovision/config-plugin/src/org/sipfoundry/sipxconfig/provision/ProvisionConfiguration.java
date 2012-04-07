@@ -26,6 +26,7 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 
@@ -42,7 +43,12 @@ public class ProvisionConfiguration implements ConfigProvider {
         ProvisionSettings settings = m_provision.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            Writer prov = new FileWriter(new File(dir, "sipxprovision-config.cfdat"));
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(Provision.FEATURE);
+            ConfigUtils.enableCfengineClass(dir, "sipxprovision.cfdat", enabled, "sipxprovision");
+            if (!enabled) {
+                continue;
+            }
+            Writer prov = new FileWriter(new File(dir, "sipxprovision-config.part"));
             try {
                 write(prov, settings);
             } finally {

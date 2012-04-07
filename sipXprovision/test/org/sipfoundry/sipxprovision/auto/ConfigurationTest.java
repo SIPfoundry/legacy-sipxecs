@@ -8,11 +8,11 @@
  */
 package org.sipfoundry.sipxprovision.auto;
 
-import junit.framework.TestCase;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.Properties;
+
+import junit.framework.TestCase;
 
 /**
  * Tests for the Configuration class.

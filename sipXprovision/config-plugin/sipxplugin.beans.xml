@@ -27,4 +27,6 @@
   <bean id="provisionConfiguration" class="org.sipfoundry.sipxconfig.provision.ProvisionConfiguration">
     <property name="provision" ref="provision" />
   </bean>
+  
+  <bean id="provisionFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.ProvisionFeatureHook" />  
 </beans>

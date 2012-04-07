@@ -35,7 +35,7 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
 public class ProvisionConfigurationTest {
-    
+
     @Test
     public void testConfig() throws Exception {
         ProvisionConfiguration config = new ProvisionConfiguration();
@@ -51,12 +51,11 @@ public class ProvisionConfigurationTest {
         replay(coreContext);
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getSingleAddress(AdminContext.HTTPS_ADDRESS);
-        expectLastCall().andReturn(new Address(AdminContext.HTTPS_ADDRESS, "admin.example.org", 100)).once();
-        replay(addressManager);        
+        expectLastCall().andReturn(new Address(AdminContext.HTTP_ADDRESS, "admin.example.org", 12000)).once();
+        replay(addressManager);
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         settings.setAddressManager(addressManager);
         settings.setCoreContext(coreContext);
-        settings.setModelFilesContext(TestHelper.getModelFilesContext());
         StringWriter actual = new StringWriter();
         config.write(actual, settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxprovision-config"));

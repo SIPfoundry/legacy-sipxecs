@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# sipXrecording - Startup script for sipxrecording
+# processname: sipxrecording
+
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+prog=sipxprovision
+pidfile="@SIPX_RUNDIR@/sipxprovision.pid"
+config="@SIPX_CONFDIR@/sipxprovision-config"
+
+[ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
+
+checkRunningInstance() {
+  if [ -f "${pidfile}" ]; then
+    pid=`cat ${pidfile}`
+    if checkpid $pid 2>&1; then
+      echo "Process $prog is already running with pid $pid"
+      exit 1
+    fi
+  fi
+}
+
+configtest() {	
+  # Check that the config gile exists.	  
+  sipx_config_exists $config
+  Status=$(($Status+$?))
+
+  # Check that the log file is writable.
+  logfile="@SIPX_LOGDIR@/sipXprovision.log"
+  if [ -e $logfile -a ! -w $logfile ]
+  then
+    echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+    Status=1
+  fi
+}
+
+# Start sipxrecording
+start() {
+  checkRunningInstance
+  
+  [ -f $config ] || exit 6
+  
+  JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+  Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @provision_PKGS@`
+  export CLASSPATH=`echo @SIPX_CONFDIR@/sipxprovision @SIPX_JAVADIR@/sipXprovision/*.jar ${Dependencies} | sed -e 's/ /:/g'`  
+  
+  setJavaSslOpts
+  
+  Command="$JavaCmd \
+    -Dprocname=sipxprovision \
+    $TrustStoreOpts \
+	$KeyStoreOpts \
+    -Djetty.x509.algorithm=$X509Algorithm \
+	-Djetty.ssl.password=$StorePassword \
+	-Djetty.ssl.keypassword=$StorePassword	\
+    -Dconf.dir=@SIPX_CONFDIR@ \
+    -Dvar.dir=@SIPX_VARDIR@ \
+    org.sipfoundry.sipxprovision.SipXprovision \
+    $Args"
+  if [ -n "${NoFork}" ] ; then
+    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
+  else
+    echo -n $"Starting $prog: "
+    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+    echo $! > ${pidfile}
+    echo_success
+  fi  
+}
+
+stop() {
+  echo -n $"Stopping sipxprovision: "
+  killproc -p "${pidfile}" -t30 -TERM "sipxprovision"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
+}
+
+restart() {
+  stop
+  # sleep for no good reason. Can be disconcerting if stop/start
+  # switch is too fast IMHO
+  sleep 1
+  start
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${pidfile} ] && restart || :
+    ;;
+  status)
+    status -p ${pidfile} java
+    ;;
+  configtest)
+    configtest
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork}"
+    Status=1
+esac
+
+exit $Status
