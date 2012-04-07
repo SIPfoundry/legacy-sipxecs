@@ -92,6 +92,10 @@ Requires: bitstream-vera-sans-fonts
 Requires: httpd >= 2.0
 %endif
 
+# Server. sipxconfig will disable server this by default automatically
+# unless admin specifically turns it on
+Requires: dhcp
+
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 

@@ -84,9 +84,9 @@ bundle agent ftp_running {
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "ftp_running", "root");
     ftp::
-      "any" usebundle => rh_chkconfig_status("vsftp on");
+      "any" usebundle => rh_chkconfig_status("vsftpd on");
     !ftp.!unmanaged_ftp::
-      "any" usebundle => rh_chkconfig_status("vsftp off");
+      "any" usebundle => rh_chkconfig_status("vsftpd off");
 
   commands:
     ftp.!unmanaged_ftp.ftp_running::
