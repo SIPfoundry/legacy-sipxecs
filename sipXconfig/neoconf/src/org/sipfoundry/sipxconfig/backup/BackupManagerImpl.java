@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
-import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServerConfig;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.support.DataAccessUtils;
@@ -63,10 +63,10 @@ public abstract class BackupManagerImpl extends HibernateDaoSupport implements A
         if (ftpBackupPlan.getFtpConfiguration() != null) {
             return;
         }
-        List ftpConfigs = getHibernateTemplate().loadAll(FtpConfiguration.class);
-        FtpConfiguration ftpConfig = (FtpConfiguration) singleResult(ftpConfigs);
+        List ftpConfigs = getHibernateTemplate().loadAll(FtpExternalServerConfig.class);
+        FtpExternalServerConfig ftpConfig = (FtpExternalServerConfig) singleResult(ftpConfigs);
         if (ftpConfig == null) {
-            ftpConfig = new FtpConfiguration();
+            ftpConfig = new FtpExternalServerConfig();
         }
         ftpBackupPlan.setFtpConfiguration(ftpConfig);
     }

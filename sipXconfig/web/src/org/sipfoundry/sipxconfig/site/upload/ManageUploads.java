@@ -13,9 +13,11 @@ import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Message;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -24,6 +26,8 @@ import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.ftp.FtpManager;
+import org.sipfoundry.sipxconfig.ftp.FtpSettings;
 import org.sipfoundry.sipxconfig.upload.DefaultSystemFirmwareInstall;
 import org.sipfoundry.sipxconfig.upload.Upload;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
@@ -61,6 +65,19 @@ public abstract class ManageUploads extends SipxBasePage implements PageBeginRen
     public abstract Collection getUpload();
 
     public abstract UploadSpecification getSelectedSpecification();
+
+    @InjectObject("spring:ftpManager")
+    public abstract FtpManager getFtpManager();
+
+    public abstract FtpSettings getSettings();
+
+    public abstract void setSettings(FtpSettings settings);
+
+    @Persist
+    @InitialValue(value = "literal:files")
+    public abstract String getTab();
+
+    public abstract void setTab(String tab);
 
     @Message("error.alreadyActivated")
     public abstract String getAlreadyActivatedError();
@@ -136,5 +153,12 @@ public abstract class ManageUploads extends SipxBasePage implements PageBeginRen
         if (getUpload() == null) {
             setUpload(getUploadManager().getUpload());
         }
+        if (getSettings() == null) {
+            setSettings(getFtpManager().getSettings());
+        }
+    }
+
+    public void saveSettings() {
+        getFtpManager().saveSettings(getSettings());
     }
 }

@@ -9,7 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.ftp;
 
-public interface FtpContext {
+
+public interface FtpExternalServer {
     void openConnection();
 
     String[] listDirectories(String path);

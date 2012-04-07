@@ -17,7 +17,6 @@
 package org.sipfoundry.sipxconfig.feature;
 
 import java.util.Collection;
-import java.util.Set;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 
@@ -35,7 +34,7 @@ public class SimpleConstraint implements BundleConstraint {
 
     @Override
     public Collection<Location> getApplicableLocations(FeatureManager manager, Feature feature,
-            Set<Feature> currentlyEnabledFeatures, Collection<Location> locations) {
+            Collection<Location> locations) {
         return locations;
     }
 }

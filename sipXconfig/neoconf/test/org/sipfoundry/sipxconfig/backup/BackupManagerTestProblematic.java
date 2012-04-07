@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
-import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServerConfig;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 /**
@@ -37,7 +37,7 @@ public class BackupManagerTestProblematic extends IntegrationTestCase {
         assertTrue(backupPlan instanceof FtpBackupPlan);
 
         FtpBackupPlan ftpBackupPlan = (FtpBackupPlan) backupPlan;
-        FtpConfiguration ftpConfiguration = ftpBackupPlan.getFtpConfiguration();
+        FtpExternalServerConfig ftpConfiguration = ftpBackupPlan.getFtpConfiguration();
         assertNotNull(ftpConfiguration);
         assertFalse(ftpConfiguration.isNew());
 

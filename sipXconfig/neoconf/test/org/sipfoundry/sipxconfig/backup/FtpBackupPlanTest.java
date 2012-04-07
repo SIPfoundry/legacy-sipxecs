@@ -21,13 +21,13 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.backup.BackupBean.Type;
-import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
-import org.sipfoundry.sipxconfig.ftp.FtpContext;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServerConfig;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServer;
 
 public class FtpBackupPlanTest extends TestCase {
 
     public void testGetBackups() {
-        final FtpContext ftpContext = createMock(FtpContext.class);
+        final FtpExternalServer ftpContext = createMock(FtpExternalServer.class);
 
         String[] directoryNames = new String[] {
             "200804221100", "200804221101", "200804221102"
@@ -56,9 +56,9 @@ public class FtpBackupPlanTest extends TestCase {
 
         replay(ftpContext);
 
-        FtpConfiguration ftpConfiguration = new FtpConfiguration() {
+        FtpExternalServerConfig ftpConfiguration = new FtpExternalServerConfig() {
             @Override
-            public FtpContext getFtpContext() {
+            public FtpExternalServer getFtpContext() {
                 return ftpContext;
             }
         };

@@ -11,7 +11,7 @@ import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
-import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServerConfig;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -34,7 +34,7 @@ public class FtpConfigurationTestIntegration extends IntegrationTestCase {
         assertEquals(true, actual.get("configs"));
         assertEquals(true, actual.get("voicemail"));
         
-        FtpConfiguration ftpConf = new FtpConfiguration();
+        FtpExternalServerConfig ftpConf = new FtpExternalServerConfig();
         ftpConf.setHost("host");
         ftpConf.setUserId("userId");
         ftpConf.setPassword("password");

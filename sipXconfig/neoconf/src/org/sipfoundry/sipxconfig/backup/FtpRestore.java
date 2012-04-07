@@ -16,8 +16,8 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
-import org.sipfoundry.sipxconfig.ftp.FtpContext;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServerConfig;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServer;
 import org.springframework.beans.factory.annotation.Required;
 
 public class FtpRestore extends Restore {
@@ -26,7 +26,7 @@ public class FtpRestore extends Restore {
 
     private String m_downloadDirectory;
 
-    private FtpConfiguration m_ftpConfiguration;
+    private FtpExternalServerConfig m_ftpConfiguration;
 
     @Override
     protected void prepare(List<BackupBean> backups) {
@@ -36,7 +36,7 @@ public class FtpRestore extends Restore {
         } catch (IOException ex) {
             LOG.error("Could not delete previously executed FTP restore", ex);
         }
-        FtpContext ftpContext = m_ftpConfiguration.getFtpContext();
+        FtpExternalServer ftpContext = m_ftpConfiguration.getFtpContext();
         try {
             ftpContext.openConnection();
             File backupDownload = new File(m_downloadDirectory);
@@ -58,7 +58,7 @@ public class FtpRestore extends Restore {
         m_downloadDirectory = downloadDirectory;
     }
 
-    public void setFtpConfiguration(FtpConfiguration ftpConfiguration) {
+    public void setFtpConfiguration(FtpExternalServerConfig ftpConfiguration) {
         m_ftpConfiguration = ftpConfiguration;
     }
 }

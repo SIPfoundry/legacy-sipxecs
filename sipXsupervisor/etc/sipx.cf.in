@@ -43,14 +43,29 @@ bundle common sipx {
   vars:
     any::
       "location_id" string => readfile("@SIPX_CFDATA@/defaults/location_id", "100");
-      "bind_ip" string => "$(sys.ipv4)";
-      "systemctl" string => "/bin/systemctl";
+      "iface"
+        string => "$(sys.interface)",
+        policy => "overridable";
+      "bind_ip" 
+        string => "$(sys.ipv4)",
+        policy => "overridable";
+      "systemctl" 
+        string => "/bin/systemctl",
+        policy => "overridable";
+      "crontabs"
+        string => "/var/spool/cron",
+        policy => "overridable";
+      "adduser"
+        string => "/usr/sbin/adduser",
+        policy => "overridable";
+      "nologin"
+        string => "/sbin/nologin",
+        policy => "overridable";
 
     SuSE::
       "crontabs" string => "/var/spool/cron/tabs";
-
-    redhat::
-      "crontabs" string => "/var/spool/cron";
+      "adduser" string => "/usr/sbin/useradd";
+      "nologin" string => "/bin/false";
 
     debian|ubuntu::
       "crontabs" string => "/var/spool/crontabs";
@@ -382,3 +397,30 @@ body action fix {
   action_policy => "fix";
 }
 
+
+# Verify that a system user exists and ensure home directory
+# is set properly if they do already exist
+#
+# Example
+#  methods:
+#    "any" usebundle => verify_system_user("foo","733t","/var/lib/foo")
+#
+bundle agent verify_system_user(user,password,home) {
+  classes:
+    any::
+      "has_user" not => userexists("$(user)");
+
+  files:
+    has_user::
+      "/etc/passwd"
+        create => "false",
+        edit_line => set_user_field("$(user)","6","$(home)"); # 6 is home dir
+
+  commands:
+    !has_user::
+      "$(useradd)",
+        comment => "Creating user $(user)",
+        contain => in_shell,
+        args => "-d $(home) -s /sbin/nologin -M $(user) && \
+          echo -e '$(password)' | /usr/bin/passwd --stdin $(user)";
+}

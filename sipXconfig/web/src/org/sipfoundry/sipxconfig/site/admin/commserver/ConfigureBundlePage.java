@@ -33,6 +33,7 @@ import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -88,12 +89,14 @@ public abstract class ConfigureBundlePage extends PageWithCallback implements Pa
 
     public String getConstraintBlockId() {
         Feature f = getFeature();
-        FeatureManager fm = getFeatureManager();
-        BundleConstraint c = getBundle().getConstraint(f);
-        if (c.isLocationDependent(fm, f)) {
+        if (f instanceof GlobalFeature) {
             return "global";
         }
-        if (c.isSingleLocation(fm, f) && getLocations().size() > 1) {
+
+        FeatureManager fm = getFeatureManager();
+        BundleConstraint c = getBundle().getConstraint(f);
+        Collection<Location> candidates = c.getApplicableLocations(fm, f, getLocations());
+        if (c.isSingleLocation(fm, f) && candidates.size() > 1) {
             return "pickOne";
         }
 
@@ -238,9 +241,17 @@ public abstract class ConfigureBundlePage extends PageWithCallback implements Pa
     }
 
     public Collection<Cell> getCells() {
-        List<Cell> cells = new ArrayList<Cell>(getLocations().size());
+        Feature f = getFeature();
+        FeatureManager fm = getFeatureManager();
+        BundleConstraint c = getBundle().getConstraint(f);
+        Collection<Location> validLocations = c.getApplicableLocations(fm, f, getLocations());
+        Collection<Integer> valid = CollectionUtils.collect(validLocations, new BeanWithId.BeanToId());
+        List<Cell> cells = new ArrayList<Cell>(valid.size());
         for (Location l : getLocations()) {
-            cells.add(new Cell(getFeature(), l));
+            Cell cell = new Cell(getFeature(), l);
+            cell.m_enabled = valid.contains(l.getId());
+            cells.add(cell);
+
         }
         return cells;
     }
@@ -249,6 +260,7 @@ public abstract class ConfigureBundlePage extends PageWithCallback implements Pa
         private static final char DELIM = '|';
         private Feature m_feature;
         private Location m_location;
+        private boolean m_enabled;
 
         Cell(Feature f, Location l) {
             m_feature = f;
@@ -276,6 +288,10 @@ public abstract class ConfigureBundlePage extends PageWithCallback implements Pa
 
         public Location getLocation() {
             return m_location;
+        }
+
+        public boolean isEnabled() {
+            return m_enabled;
         }
     }
 

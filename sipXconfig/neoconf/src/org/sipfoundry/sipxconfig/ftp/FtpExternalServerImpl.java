@@ -1,11 +1,16 @@
-/*
+/**
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
- *
- * $
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.ftp;
 
@@ -16,8 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -28,19 +31,13 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
-import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
-import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class FtpContextImpl implements FtpContext, ProcessProvider {
-    private static final Log LOG = LogFactory.getLog(FtpContextImpl.class);
+public class FtpExternalServerImpl implements FtpExternalServer {
 
+    private static final Log LOG = LogFactory.getLog(FtpManagerImpl.class);
     private static final String UP = "..";
     private static final String INTERNAL_FTP_ERROR = "&message.ftpServerError";
-
     private FTPClient m_client;
-
     private String m_host;
     private String m_userId;
     private String m_password;
@@ -241,10 +238,5 @@ public class FtpContextImpl implements FtpContext, ProcessProvider {
 
     public void setUserId(String userId) {
         m_userId = userId;
-    }
-
-    @Override
-    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        return (location.isPrimary() ? Collections.singleton(new ProcessDefinition("vsftpd")) : null);
     }
 }

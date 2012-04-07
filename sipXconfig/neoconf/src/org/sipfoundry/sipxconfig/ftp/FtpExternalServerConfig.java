@@ -13,7 +13,7 @@ import java.io.Serializable;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public class FtpConfiguration extends BeanWithId implements Serializable {
+public class FtpExternalServerConfig extends BeanWithId implements Serializable {
     private String m_host;
     private String m_userId;
     private String m_password;
@@ -42,8 +42,8 @@ public class FtpConfiguration extends BeanWithId implements Serializable {
         m_userId = userId;
     }
 
-    public FtpContext getFtpContext() {
-        FtpContextImpl ftpContext = new FtpContextImpl();
+    public FtpExternalServer getFtpContext() {
+        FtpExternalServerImpl ftpContext = new FtpExternalServerImpl();
         ftpContext.setHost(m_host);
         ftpContext.setUserId(m_userId);
         ftpContext.setPassword(m_password);

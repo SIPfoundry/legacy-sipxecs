@@ -209,6 +209,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/dhcp/*
 %config(noreplace) %{sipxpbxconf}/firewall/*
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
+%config(noreplace) %{sipxpbxconf}/ftp/*
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
 %config(noreplace) %{sipxpbxconf}/log4j.properties
 %config(noreplace) %{sipxpbxconf}/mailbox/*

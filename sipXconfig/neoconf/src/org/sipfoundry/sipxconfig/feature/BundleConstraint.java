@@ -16,8 +16,9 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
+
 import java.util.Collection;
-import java.util.Set;
+import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 
@@ -30,6 +31,29 @@ public interface BundleConstraint {
         }
     };
 
+    public static final BundleConstraint PRIMARY_ONLY = new BundleConstraint() {
+        @Override
+        public boolean isSingleLocation(FeatureManager manager, Feature feature) {
+            return true;
+        }
+
+        @Override
+        public Collection<Location> getApplicableLocations(FeatureManager manager, Feature feature,
+                Collection<Location> locations) {
+            for (Location l : locations) {
+                if (l.isPrimary()) {
+                    return Collections.singleton(l);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public boolean isLocationDependent(FeatureManager manager, Feature feature) {
+            return true;
+        }
+    };
+
     public static final BundleConstraint DEFAULT = new SimpleConstraint();
 
     public boolean isSingleLocation(FeatureManager manager, Feature feature);
@@ -37,5 +61,5 @@ public interface BundleConstraint {
     public boolean isLocationDependent(FeatureManager manager, Feature feature);
 
     public Collection<Location> getApplicableLocations(FeatureManager manager, Feature feature,
-            Set<Feature> currentlyEnabledFeatures, Collection<Location> locations);
+            Collection<Location> locations);
 }
