@@ -53,8 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxprovision
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxprovision.cf
 %dir %attr(775,sipx,sipx) %{_sysconfdir}/sipxpbx/sipxprovision
-%config(noreplace) %{_sysconfdir}/sipxpbx/sipxprovision/sipxprovision.properties
-%config(noreplace) %{_sysconfdir}/sipxpbx/sipxrecording/sipxprovision.xml
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxprovision/*
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXprovision
 %{_datadir}/java/sipXecs/sipXprovision/sipXprovision.jar
 %{_datadir}/java/sipXecs/sipXconfig/plugins/provision-cfg-service.jar

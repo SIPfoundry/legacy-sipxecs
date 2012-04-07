@@ -10,6 +10,7 @@ Packager: Douglas Hubler <dhubler@ezuce.com>
 Url: http://www.sipfoundry.org
 
 BuildRequires: automake
+BuildRequires: httpd
 Requires: httpd
 # not installed by default on centos 6
 Requires: mod_ssl

@@ -218,7 +218,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxpage/*
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
 %config(noreplace) %{sipxpbxconf}/sipxpresence/*
-%config(noreplace) %{sipxpbxconf}/sipxprovision/*
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
 %config(noreplace) %{sipxpbxconf}/sipxregistrar/*
 %config(noreplace) %{sipxpbxconf}/sipxrest/*
