@@ -25,7 +25,7 @@ bundle agent ftp {
 bundle agent ftp_config {
   vars:
     any::
-      "rootdir" string => "$(sipx.SIPX_DATADIR)/configserver/phone/profile/tftproot";
+      "rootdir" string => "$(sipx.SIPX_VARDIR)/configserver/phone/profile/tftproot";
       "config" 
         string => "/etc/vsftpd/vsftpd.conf",
         policy => "overridable";

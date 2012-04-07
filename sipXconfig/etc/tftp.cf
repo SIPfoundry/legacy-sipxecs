@@ -34,7 +34,7 @@ bundle agent tftp_config {
 
 bundle edit_line tftp_xinet_config {
   vars:
-    "rootdir" string => "$(sipx.SIPX_DATADIR)/configserver/phone/profile/tftproot";
+    "rootdir" string => "$(sipx.SIPX_VARDIR)/configserver/phone/profile/tftproot";
     tftp::
       "disable" string => "no";
     !tftp::
