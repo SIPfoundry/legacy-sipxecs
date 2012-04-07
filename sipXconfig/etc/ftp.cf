@@ -89,7 +89,7 @@ bundle agent ftp_running {
       "any" usebundle => rh_chkconfig_status("vsftpd off");
 
   commands:
-    ftp.!unmanaged_ftp.ftp_running::
+    !ftp.!unmanaged_ftp.ftp_running::
       "$(service)"
         comment => "stop ftp",
         args => "stop";
