@@ -34,7 +34,7 @@ public class FtpConfig implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(FtpManager.FTP_FEATURE, SbcManager.FEATURE)) {
+        if (!request.applies(FtpManager.FTP_FEATURE, FtpManager.TFTP_FEATURE, SbcManager.FEATURE)) {
             return;
         }
 
@@ -44,15 +44,17 @@ public class FtpConfig implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(l);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(FtpManager.FTP_FEATURE, l);
             ConfigUtils.enableCfengineClass(dir, "ftp.cfdat", enabled, "ftp");
-            if (!enabled) {
-                continue;
+            if (enabled) {
+                Writer config = new FileWriter(new File(dir, "vsftp.config.part"));
+                try {
+                    writeConfig(config, settings);
+                } finally {
+                    IOUtils.closeQuietly(config);
+                }
             }
-            Writer config = new FileWriter(new File(dir, "vsftp.config.part"));
-            try {
-                writeConfig(config, settings);
-            } finally {
-                IOUtils.closeQuietly(config);
-            }
+
+            boolean tftpEnabled = manager.getFeatureManager().isFeatureEnabled(FtpManager.TFTP_FEATURE, l);
+            ConfigUtils.enableCfengineClass(dir, "tftp.cfdat", tftpEnabled, "tftp");
         }
     }
 

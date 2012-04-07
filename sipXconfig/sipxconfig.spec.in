@@ -95,10 +95,6 @@ Requires: httpd >= 2.0
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# should match sipXlib.m4:SIPX_VARDIR/upgrade
-%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
-%define this_archive %{name}-%{version}-%{release}.tgz
-
 %description
   Configuring one phone can be a daunting task, configuring a hundred
 phones can be maddening. sipXconfig leverages Jetty, Axis
@@ -130,12 +126,6 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables FTP for devices controlled by %{name}
 
-%if %{_vendor} == suse
-%define vsftpd_conf /etc/vsftpd.conf
-%else
-%define vsftpd_conf /etc/vsftpd/vsftpd.conf
-%endif
-
 %description ftp
 * installs and configures vsftpd server
 * turns on xinit.d/vsftpd service on
@@ -162,13 +152,6 @@ export NO_BRP_CHECK_BYTECODE_VERSION=true
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
-%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
-mkdir -p %{upgrade_archive_root}
-tar --directory ${RPM_BUILD_ROOT} \
-    -czf %{upgrade_archive_root}/%{this_archive} \
-    etc \
-    var/sipxdata/configserver
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -187,7 +170,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,sipx,sipx) %{phonedir}/profile/docroot
 %dir %attr(775,sipx,sipx) %{phonedir}/profile/tftproot
 %dir %{_localstatedir}
-%{upgrade_archive_dir}/%{this_archive}
 
 # Install configserver config files, directory only is created by pbx
 #
@@ -265,84 +247,5 @@ rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
 # empty but required to generate RPM
 %files tftp
 
-%post tftp
-sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
-
-# turn on the service so its started after all reboots.
-/sbin/chkconfig xinetd on >/dev/null
-
-%if %{_vendor} == suse
-# turn on the service so its started after all reboots.
-/sbin/chkconfig xinetd on >/dev/null
-
-# ensure that INET services are running
-/sbin/service xinetd start >/dev/null
-%endif
-
 # empty but required to generate RPM
 %files ftp
-
-%post ftp
-
-%if %{_vendor} == suse
-%define adduser /usr/sbin/useradd
-%define nologin /bin/false
-%else
-%define adduser /usr/sbin/adduser
-%define nologin /sbin/nologin
-%endif
-
-if ! id -u PlcmSpIp > /dev/null 2>&1
-then
-  # default user account polycom phones use
-  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M PlcmSpIp >/dev/null
-  echo -e "PlcmSpIp" | /usr/bin/passwd --stdin PlcmSpIp >/dev/null
-fi
-
-if ! id -u lvp2890 > /dev/null 2>&1
-then
-  # default user account Nortel 1535 phones use
-  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M lvp2890 >/dev/null
-  echo -e "28904all" | /usr/bin/passwd --stdin lvp2890 >/dev/null
-fi
-
-# 'install' ftpd config file
-mv %{vsftpd_conf} %{vsftpd_conf}.sipx-orig
-cat > %{vsftpd_conf} <<EOF
-# vsftpd config for sipxconfig
-local_enable=YES
-write_enable=YES
-local_umask=022
-dirlist_enable=NO
-xferlog_enable=YES
-connect_from_port_20=YES
-xferlog_std_format=YES
-pam_service_name=vsftpd
-listen=YES
-chroot_local_user=YES
-pasv_min_port=50000
-pasv_max_port=50050
-EOF
-chmod 600 %{vsftpd_conf}
-
-/sbin/chkconfig vsftpd on >/dev/null
-
-# anaconda installs may not have network installed or ready
-# however they do restart system post installation
-if /sbin/service vsftpd status | grep -v grep | grep running >/dev/null
-then
-  /sbin/service vsftpd stop >/dev/null
-fi
-
-/sbin/service vsftpd start >/dev/null
-
-%preun ftp
-if [ "$1" = "0" ] ; then
-  /usr/sbin/userdel PlcmSpIp
-  /usr/sbin/userdel lvp2890
-  if [ -e %{vsftpd_conf}.sipx-orig ]
-  then
-    mv %{vsftpd_conf}.sipx-orig %{vsftpd_conf}
-    service vsftpd restart
-  fi
-fi

@@ -12,7 +12,7 @@
 # details.
 
 #
-# sipxconfig configuration and process management
+# sipxconfig ftp configuration of vsftp service
 #
 bundle agent ftp {
   methods:

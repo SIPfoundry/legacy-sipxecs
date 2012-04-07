@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.ftp;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -38,7 +39,8 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements FtpManager, ProcessProvider,
     SetupListener, FeatureProvider, FirewallProvider, AddressProvider {
-    private static final Collection<AddressType> ADDRESSES = Arrays.asList(TFTP_ADDRESS, FTP_ADDRESS, FTP_DATA_ADDRESS);
+    private static final List<AddressType> ADDRESSES = Arrays.asList(TFTP_ADDRESS, FTP_ADDRESS, FTP_DATA_ADDRESS);
+    private static final List<LocationFeature> FEATURES = Arrays.asList(TFTP_FEATURE, FTP_FEATURE);
     private LocationsManager m_locationsManager;
     private BeanWithSettingsDao<FtpSettings> m_settingsDao;
 
@@ -49,10 +51,12 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
 
     @Override
     public void setup(SetupManager manager) {
-        if (!manager.isSetup(FTP_FEATURE.getId())) {
-            Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
-            manager.getFeatureManager().enableLocationFeature(FTP_FEATURE, primary, true);
-            manager.setSetup(FTP_FEATURE.getId());
+        for (LocationFeature f : FEATURES) {
+            if (!manager.isSetup(f.getId())) {
+                Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
+                manager.getFeatureManager().enableLocationFeature(f, primary, true);
+                manager.setSetup(f.getId());
+            }
         }
     }
 
@@ -63,15 +67,16 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
 
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
-        // TODO Auto-generated method stub
-        return null;
+        return FEATURES;
     }
 
     @Override
     public void getBundleFeatures(Bundle b) {
         if (b.isBasic()) {
             // Primary only because of local manipulation of files by sipxconfig
-            b.addFeature(FTP_FEATURE, BundleConstraint.PRIMARY_ONLY);
+            for (LocationFeature f : FEATURES) {
+                b.addFeature(f, BundleConstraint.PRIMARY_ONLY);
+            }
         }
     }
 
