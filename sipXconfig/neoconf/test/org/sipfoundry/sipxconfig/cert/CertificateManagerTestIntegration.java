@@ -13,7 +13,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class CertificateManagerIntegrationTest extends IntegrationTestCase {
+public class CertificateManagerTestIntegration extends IntegrationTestCase {
     private CertificateManagerImpl m_certificateManagerImpl;
 
     @Override
