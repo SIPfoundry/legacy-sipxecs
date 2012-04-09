@@ -34,11 +34,16 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public class FirewallConfig implements ConfigProvider {
+public class FirewallConfig implements ConfigProvider, FeatureListener {
     private static final Logger LOG = Logger.getLogger(FirewallConfig.class);
     private FirewallManager m_firewallManager;
     private AddressManager m_addressManager;
+    private ConfigManager m_configManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -137,5 +142,19 @@ public class FirewallConfig implements ConfigProvider {
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        // every feature enable/disable will trigger firewall rules to reconfig
+        // because cannot tell what this affects
+        m_configManager.configureEverywhere(FirewallManager.FEATURE);
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+        // see enableLocationFeature
+        m_configManager.configureEverywhere(FirewallManager.FEATURE);
     }
 }
