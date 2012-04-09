@@ -157,4 +157,8 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         // see enableLocationFeature
         m_configManager.configureEverywhere(FirewallManager.FEATURE);
     }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
 }
