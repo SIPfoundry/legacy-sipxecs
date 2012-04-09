@@ -72,7 +72,7 @@ ant_DEPS = $(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(ant_PKGS))
 precommit : check
 	$(MAKE) reset check-integration
 
-reset : reset-db reset-acd reset-cdr
+reset : reset-db reset-acd reset-cdr;
 
 reset-db :
 	if ! `$(PG_SQL) -l | grep SIPXCONFIG_TEST > /dev/null` ; then \
