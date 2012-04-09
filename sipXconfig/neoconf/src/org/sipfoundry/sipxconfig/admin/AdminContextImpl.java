@@ -46,7 +46,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         if (type.equals(HTTP_ADDRESS)) {
             address = new Address(HTTP_ADDRESS, location.getAddress(), 12000);
         } else {
-            return null;
+            address = new Address(type, location.getAddress());
         }
 
         return Collections.singleton(address);
