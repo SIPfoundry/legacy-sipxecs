@@ -102,7 +102,7 @@ bundle agent firewall_iptables_config {
       "/sbin/iptables-restore"
         comment => "Installing and peristing new firewall rules",
         contain => in_shell,
-        args => "< $(unapplied) && /etc/init.d/iptables save && rm $(unapplied)";
+        args => "< $(unapplied) && /etc/init.d/iptables save && rm -f $(unapplied)";
 }
 
 bundle agent firewall_systemctl_running {

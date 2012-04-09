@@ -19,14 +19,18 @@
 
 <% 
   rules.each { |rule|
-%>-A INPUT -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -m state --state NEW,ESTABLISHED -j <%= rule[:chain] %>
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -m state --state NEW,ESTABLISHED -j <%= rule[:chain] %>
 <%
     if rule[:prioritize]
-%>-t mangle -A OUTPUT -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
+%>-t mangle -A OUTPUT -i $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
 <%
     end
   }
 %>
+
+<%# Simple things like outgoing DNS queries would not work w/o allowing response traffic back in %>
+-A INPUT -i $(sipx.iface) -m state --state RELATED,ESTABLISHED -j ACCEPT
+
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
 COMMIT
