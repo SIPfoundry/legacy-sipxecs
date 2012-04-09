@@ -92,11 +92,9 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
             return null;
         }
 
-        // this assumes admin ui is also tftp and ftp server, which is a correct assumption
-        // for now.
-        Location primary = m_locationsManager.getPrimaryLocation();
-        Address address = new Address(type, primary.getAddress());
-        return Collections.singleton(address);
+        LocationFeature f = (type.equals(FTP_ADDRESS) ? FTP_FEATURE : TFTP_FEATURE);
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(f);
+        return Location.toAddresses(type, locations);
     }
 
     public void setLocationsManager(LocationsManager locationsManager) {

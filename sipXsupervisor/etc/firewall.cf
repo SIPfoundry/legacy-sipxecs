@@ -17,13 +17,17 @@
 #
 bundle agent firewall {
   methods:
-    firewall::
-      "any" usebundle => "firewall_kernel_config";
-      "any" usebundle => "firewall_iptables_config";
+    # Interesting note: commands to configure iptables fail if iptables not
+    # running, so reverse normal order: 
+    #  1. check running status first 
+    #  2. configure service.
     fedora16_or_greater.!unmanaged_firewall::
       "any" usebundle => "firewall_systemctl_running";
     !fedora16_or_greater.!unmanaged_firewall::
       "any" usebundle => "firewall_sysv_running";
+    firewall::
+      "any" usebundle => "firewall_kernel_config";
+      "any" usebundle => "firewall_iptables_config";
 }
 
 bundle agent firewall_kernel_config {
