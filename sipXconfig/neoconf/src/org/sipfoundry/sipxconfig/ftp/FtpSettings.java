@@ -30,14 +30,13 @@ public class FtpSettings extends PersistableSettings implements DeployConfigOnEd
     private SbcManager m_sbcManager;
 
     public FtpSettings() {
-        // TODO: This causes bridge object to be created, which is not desired.
-        //addDefaultBeanSettingHandler(new Defaults());
+        addDefaultBeanSettingHandler(new Defaults());
     }
 
     public class Defaults {
         @SettingEntry(path = "vsftp-config/pasv_address")
         public String getPassiveAddress() {
-            DefaultSbc sbc = m_sbcManager.loadDefaultSbc();
+            DefaultSbc sbc = m_sbcManager.getDefaultSbc();
             return (sbc != null ? sbc.getAddress() : "");
         }
     }

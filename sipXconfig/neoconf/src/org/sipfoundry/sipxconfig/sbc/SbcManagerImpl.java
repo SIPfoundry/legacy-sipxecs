@@ -34,9 +34,14 @@ public class SbcManagerImpl extends SipxHibernateDaoSupport implements SbcManage
     private DomainManager m_domainManager;
     private BeanFactory m_beanFactory;
 
-    public DefaultSbc loadDefaultSbc() {
-        List sbcs = getHibernateTemplate().loadAll(DefaultSbc.class);
+    public DefaultSbc getDefaultSbc() {
+        List<DefaultSbc> sbcs = getHibernateTemplate().loadAll(DefaultSbc.class);
         DefaultSbc sbc = (DefaultSbc) DataAccessUtils.singleResult(sbcs);
+        return sbc;
+    }
+
+    public DefaultSbc loadDefaultSbc() {
+        DefaultSbc sbc = getDefaultSbc();
         if (sbc == null) {
             sbc = new DefaultSbc();
             sbc.setRoutes(createDefaultSbcRoutes());
