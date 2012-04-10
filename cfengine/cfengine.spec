@@ -1,6 +1,6 @@
 Summary: A systems administration tool for networks
 Name: cfengine
-Version: 3.2.3
+Version: 3.3.0
 Release: 1%{?dist}
 License: GPLv3
 Group: Applications/System
@@ -11,6 +11,7 @@ Source3: cf-monitord
 URL: http://www.cfengine.org/
 BuildRequires: db4-devel,openssl-devel,bison,flex,m4,libacl-devel
 BuildRequires: libselinux-devel,tetex-dvips,texinfo-tex,pcre-devel
+BuildRequires: tokyocabinet-devel
 Requires(post): /sbin/chkconfig, /sbin/install-info
 Requires(preun): /sbin/chkconfig, /sbin/install-info, /sbin/service
 Requires(postun): /sbin/service
@@ -41,7 +42,8 @@ This package contains the documentation for cfengine.
 
 %build
 %configure BERKELEY_DB_LIB=-ldb \
-    --enable-selinux
+    --enable-selinux \
+    --enable-fhs
 make
 
 
@@ -51,12 +53,6 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
 make DESTDIR=$RPM_BUILD_ROOT install
-# make directory tree for cfengine configs
-mkdir -p $RPM_BUILD_ROOT%{_var}/%{name}
-for i in ppkeys inputs outputs
-do
-    mkdir -m 0700 $RPM_BUILD_ROOT%{_var}/%{name}/$i
-done
 
 # It's ugly, but thats the way Mark wants to have it. :(
 # If we don't create this link, cfexecd will not be able to start
@@ -122,24 +118,27 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc AUTHORS ChangeLog README
 %{_sbindir}/*
-%{_libdir}/libpromises*
+/usr/libexec/cfengine/libpromises*
 %{_mandir}/man8/*
 %{_initrddir}/cf-monitord
 %{_initrddir}/cf-execd
 %{_initrddir}/cf-serverd
 %{_var}/%{name}
 
-
 %files doc
 %defattr(-,root,root,-)
-%doc /usr/share/doc/cfengine/README
-%doc /usr/share/doc/cfengine/ChangeLog
-%doc /usr/share/doc/cfengine/example_config/*.cf
-%doc /usr/share/doc/cfengine/examples/*.cf
-%doc docs/*html
-
+%doc %{_datadir}/doc/cfengine/README
+%doc %{_datadir}/doc/cfengine/ChangeLog
+%doc %{_datadir}/doc/cfengine/example_config/*.cf
+%doc %{_datadir}/doc/cfengine/examples/*.cf
+%doc %{_datadir}/doc/cfengine-%{version}/AUTHORS
+%doc %{_datadir}/doc/cfengine-%{version}/ChangeLog
+%doc %{_datadir}/doc/cfengine-%{version}/README
 
 %changelog
+* Tue Apr 10 2012 Douglas Hubler <douglas@hubler.us> - 3.3.0-1
+- Update to 3.3.0
+
 * Tue Jun 21 2011 Douglas Hubler <douglas@hubler.us> - 3.1.5-2
 - Removed --with-doc no longer nec
 - Added --target to get to compile.
