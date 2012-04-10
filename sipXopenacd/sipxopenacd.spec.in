@@ -13,6 +13,7 @@ BuildRequires: automake
 BuildRequires: erlang
 BuildRequires: erlmongo
 BuildRequires: openacd
+
 %define plugindir /opt/OpenACD/plugin.d
 
 Source: %name-%version.tar.gz
@@ -21,7 +22,6 @@ BuildRoot: %{_tmppath}/%name-%version-root
 
 Requires: sipxcommserverlib >= %version
 Requires: openacd
-Requires: erlang
 Requires: erlmongo
 
 %description
@@ -32,7 +32,7 @@ OpenACD integration for sipXecs
 
 %build
 %configure @SIPX_RPM_CONFIGURE_OPTIONS@
-make all
+make rcompile
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -46,6 +46,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxopenacd
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxopenacd.cf
 %{plugindir}/sipxplugin.app
+%{plugindir}/erlmongo.app
 %{plugindir}/sipxplugin/ebin/sipxplugin.app
 %{plugindir}/sipxplugin/ebin/*.beam
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
