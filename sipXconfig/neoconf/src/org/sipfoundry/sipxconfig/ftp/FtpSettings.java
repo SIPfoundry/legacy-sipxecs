@@ -30,7 +30,8 @@ public class FtpSettings extends PersistableSettings implements DeployConfigOnEd
     private SbcManager m_sbcManager;
 
     public FtpSettings() {
-        addDefaultBeanSettingHandler(new Defaults());
+        // TODO: This causes bridge object to be created, which is not desired.
+        //addDefaultBeanSettingHandler(new Defaults());
     }
 
     public class Defaults {
