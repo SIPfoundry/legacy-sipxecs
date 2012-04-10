@@ -198,7 +198,8 @@ bundle agent mongodb_systemctl_running {
       "service" string => "mongod.service";
 
   classes:
-    "mongodb_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+    mongodb_sysctl::
+      "mongodb_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
     !mongod.mongodb_running::

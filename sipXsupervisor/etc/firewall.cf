@@ -114,6 +114,7 @@ bundle agent firewall_systemctl_running {
     "service" string => "iptables.service";
 
   classes:
+    fedora16_or_greater::
     "iptables_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:

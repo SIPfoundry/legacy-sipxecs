@@ -54,7 +54,9 @@ bundle agent dhcpd_systemctl_running {
     "service" string => "dhcpd.service";
 
   classes:
-    "dhcpd_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+    # wrap w/fedora16_or_greater to avoid 
+    fedora16_or_greater::
+      "dhcpd_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
     # NOTE: Start/stop commands will complain about not being able to open a TTY, but commands
