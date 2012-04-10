@@ -183,6 +183,7 @@ runTask() {
     buildCommand task-$taskId
     Command="$Command org.sipfoundry.sipxconfig.common.SystemTaskRunner $*"
     runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+    Status=$?
 }
 
 
@@ -197,9 +198,11 @@ start() {
     Command="$Command org.mortbay.jetty.Server @SIPX_CONFDIR@/sipxconfig-jetty.xml"
     if [ -n "${NoFork}" ] ; then
       runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+      Status=$?
     else
       echo -n $"Starting sipxconfig: "
       runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+      Status=$?
       echo $! > ${PidFile}
       echo
       echo_success

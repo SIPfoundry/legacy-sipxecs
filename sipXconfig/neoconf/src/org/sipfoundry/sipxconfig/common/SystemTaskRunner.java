@@ -25,8 +25,12 @@ public class SystemTaskRunner {
                 throw new IllegalArgumentException("bean to run is required as first argument");
             }
             new SystemTaskRunner().runMain(args);
+
+        // need to exit, otherwise call from cfengine fails to return
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
         } finally {
-            // otherwise call from cfengine fails to return
             System.exit(0);
         }
     }
