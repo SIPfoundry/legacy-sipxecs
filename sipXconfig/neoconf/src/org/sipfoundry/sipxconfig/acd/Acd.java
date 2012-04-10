@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.acd;
 
@@ -18,13 +27,17 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 
-public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
+public class Acd implements FeatureProvider, AddressProvider, FeatureListener, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("acd");
     public static final AddressType CONFIG_ADDRESS = new AddressType("acdConfig");
     public static final AddressType MONITOR_ADDRESS = new AddressType("acdMonitor");
@@ -51,13 +64,8 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADRESSES;
-    }
-
-    @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         List<Address> addresses = null;
         if (ADRESSES.contains(type)) {
             m_acdContext.getServers();
@@ -65,10 +73,9 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
             addresses = new ArrayList<Address>();
             for (Location location : locations) {
                 AcdServer server = m_acdContext.getAcdServerForLocationId(location.getId());
-                Address address = new Address();
-                address.setAddress(location.getAddress());
+                Address address = null;
                 if (type.equals(CONFIG_ADDRESS)) {
-                    address.setPort(server.getPort());
+                    address = new Address(CONFIG_ADDRESS, location.getAddress(), server.getPort());
                 } else if (type.equals(TCP_SIP_ADDRESS)) {
                     address.setPort(server.getSipPort());
                 } else if (type.equals(UDP_SIP_ADDRESS)) {
@@ -78,6 +85,7 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
                 } else if (type.equals(MONITOR_ADDRESS)) {
                     address.setPort(server.getMonitorPort());
                 }
+                addresses.add(address);
             }
         }
         return addresses;
@@ -107,5 +115,14 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener {
 
     public void setAcdContext(AcdContext acdContext) {
         m_acdContext = acdContext;
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return DefaultFirewallRule.rules(ADRESSES);
     }
 }

@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipXbridge configuration and process management
@@ -9,8 +18,8 @@ bundle agent sipxbridge {
   methods:
     sipxbridge::
       "any" usebundle => "sipxbridge_config";
-      "any" usebundle => "sipxbridge_setup";
     any::
+      "any" usebundle => "sipxbridge_setup";
       "any" usebundle => "sipxbridge_running";
 }
 
@@ -19,23 +28,25 @@ bundle agent sipxbridge_config {
     any::
       "xml_file" slist => {
         "sipxbridge.xml",
-	"peeridentities.xml"
+        "peeridentities.xml"
       };
 
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        comment => "install sipxbridge config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxbridge"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxbridge");
 }
 
 bundle agent sipxbridge_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxbridge");
+    !src.sipxbridge::
+      "any" usebundle => rh_chkconfig_status("sipxbridge on");
+    !src.!sipxbridge::
+      "any" usebundle => rh_chkconfig_status("sipxbridge off");
 }
 
 bundle agent sipxbridge_running {
@@ -48,18 +59,18 @@ bundle agent sipxbridge_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxbridge_running");
 
   commands:
-    sipxbridge_running.!sipxbridge::
+    (!sipxbridge|stop_sipxecs).sipxbridge_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
-        args => "stop",
-	action => track("sipxbridge_stop");
+        comment => "stop sipxbridge",
+        args => "stop";
 
-    !sipxbridge_running.sipxbridge::
+    sipxbridge.!sipxbridge_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
-        args => "start",
-	action => track("sipxbridge_start");
+        comment => "start sipxbridge",
+        args => "start";
 
-    restart_sipxbridge::
+    sipxbridge.sipxbridge_running.(restart_sipxecs|restart_sipxbridge)::
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
-        args => "restart",
-	action => track("sipxbridge_restart");
+        comment => "restart sipxbridge",
+        args => "restart";
 }

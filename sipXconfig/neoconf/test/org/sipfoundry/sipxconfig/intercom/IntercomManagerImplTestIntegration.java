@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.intercom;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -165,7 +166,7 @@ public class IntercomManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testGetRules() throws Exception {
         loadDataSet("intercom/SampleIntercoms.xml");
-        List< ? extends DialingRule> rules = m_intercomManager.getDialingRules();
+        List< ? extends DialingRule> rules = m_intercomManager.getDialingRules(new Location());
         assertEquals(2, rules.size());
     }
 

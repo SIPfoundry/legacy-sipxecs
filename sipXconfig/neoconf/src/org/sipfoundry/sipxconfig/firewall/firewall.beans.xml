@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="firewallManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.firewall.FirewallManager</value>
+    </property>
+    <property name="target">
+      <ref local="firewallManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="firewallManagerImpl" class="org.sipfoundry.sipxconfig.firewall.FirewallManagerImpl" parent="abstractDaoImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.firewall.FirewallSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+    <property name="addressManager" ref="addressManager"/>
+    <property name="jdbc" ref="configJdbcTemplate"/>
+  </bean>
+  
+  <bean id="firewallSettings" class="org.sipfoundry.sipxconfig.firewall.FirewallSettings" parent="settingsBean">
+  </bean>
+  
+  <bean id="firewallConfig" class="org.sipfoundry.sipxconfig.firewall.FirewallConfig">
+    <property name="firewallManager" ref="firewallManager"/>
+    <property name="addressManager" ref="addressManager"/>
+    <property name="configManager" ref="configManager"/>
+  </bean>
+</beans>

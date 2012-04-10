@@ -11,6 +11,11 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressType;
 
 public final class SettingUtil {
     private SettingUtil() {
@@ -93,5 +98,40 @@ public final class SettingUtil {
             visitSetting(array);
             return true;
         }
+    }
+
+    /**
+     * When you have a setting or group of settings that form an ip address or
+     * set of ip addresses.  This abstracts the definition so of underlying settings
+     * definition changes to or from a group, this still works.
+     *
+     * This does not include port numbers, ports on addresses are zero (i.e. unset and
+     * therefore the implicit default for that address)
+     *
+     * Example:
+     *   SettingUtil.getAddresses(getSettings(), "named/forwarders");
+     *
+     */
+    public static List<Address> getAddresses(AddressType t, Setting base, String setting) {
+        List<Address> addresses = Collections.emptyList();
+        Setting s = base.getSetting(setting);
+        if (s instanceof SettingSet) {
+            SettingSet set = (SettingSet) base.getSetting(setting);
+            Collection<Setting> values = set.getValues();
+            addresses = new ArrayList<Address>();
+            for (Setting server : values) {
+                String value = server.getValue();
+                if (value != null) {
+                    addresses.add(new Address(t, value));
+                }
+            }
+        } else {
+            String value = s.getValue();
+            if (value != null) {
+                addresses = Collections.singletonList(new Address(t, value));
+            }
+        }
+
+        return addresses;
     }
 }

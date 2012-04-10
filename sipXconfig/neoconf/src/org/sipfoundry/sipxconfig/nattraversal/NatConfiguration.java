@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
@@ -16,11 +25,13 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.sbc.SbcRoutes;
@@ -32,15 +43,15 @@ public class NatConfiguration implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(NatTraversal.FEATURE, ProxyManager.FEATURE)) {
+        if (!request.applies(NatTraversal.FEATURE, ProxyManager.FEATURE, LocationsManager.FEATURE)) {
             return;
         }
 
         boolean relayEnabled = manager.getFeatureManager().isFeatureEnabled(NatTraversal.FEATURE);
         Set<Location> locations = request.locations(manager);
         NatSettings settings = m_nat.getSettings();
-        int proxyTcpPort = manager.getAddressManager().getSingleAddress(ProxyManager.TCP_ADDRESS).getPort();
-        int proxyTlsPort = manager.getAddressManager().getSingleAddress(ProxyManager.TLS_ADDRESS).getPort();
+        Address proxyTcp = manager.getAddressManager().getSingleAddress(ProxyManager.TCP_ADDRESS);
+        Address proxyTls = manager.getAddressManager().getSingleAddress(ProxyManager.TLS_ADDRESS);
         SbcRoutes routes = m_sbcManager.getRoutes();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
@@ -49,14 +60,14 @@ public class NatConfiguration implements ConfigProvider {
             if (configEnabled) {
                 Writer writer = new FileWriter(new File(dir, "nattraversalrules.xml"));
                 try {
-                    write(writer, settings, location, routes, proxyTcpPort, proxyTlsPort);
+                    write(writer, settings, location, routes, proxyTcp.getPort(), proxyTls.getPort());
                 } finally {
                     IOUtils.closeQuietly(writer);
                 }
             }
 
             boolean serviceEnabled = (relayEnabled && proxyEnabled);
-            ConfigUtils.enableCfengineClass(dir, "sipxrelay.cfdat", "sipxrelay", serviceEnabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxrelay.cfdat", serviceEnabled, "sipxrelay");
         }
     }
 

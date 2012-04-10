@@ -9,559 +9,267 @@
  */
 package org.sipfoundry.sipxconfig.cert;
 
+import static java.lang.String.format;
 
-import static org.apache.commons.lang.StringUtils.join;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.commserver.SoftwareAdminApi;
-import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
-import org.springframework.beans.factory.annotation.Required;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * Backup provides Java interface to backup scripts
+ * Certificate Management Implementation.
  */
-public class CertificateManagerImpl implements CertificateManager {
+public class CertificateManagerImpl extends SipxHibernateDaoSupport implements CertificateManager, SetupListener {
     private static final Log LOG = LogFactory.getLog(CertificateManager.class);
-
-    private static final String PROPERTIES_FILE = "webCert.properties";
-    private static final String DOUBLE_QUOTES = "\"";
-    private static final String READ_ERROR = "&msg.readError";
-    private static final String WRITE_ERROR = "&msg.writeError";
-    private static final String SCRIPT_ERROR = "&msg.scriptGenError";
-    private static final String TMP = "tmp";
-    private static final String WORKDIR_FLAG = "--workdir";
-    private static final String BLANK = " ";
-    private static final String SCRIPT_EXCEPTION_MESSAGE = "Script finished with exit code ";
-    private static final String RUNNING = "Running";
-    private static final String DEFAULTS_FLAG = "--defaults";
-    private static final String PARAMETERS_FLAG = "--parameters";
-    private static final String GEN_SSL_KEYS_SH = "/gen-ssl-keys.sh";
-    private static final String CA_REHASH = "/ca_rehash";
-    private static final String KEYSTOREGEN_SH = "/sipxkeystoregen";
-    private static final String CHECK_CERT = "/check-cert.sh";
-    private static final String WEB_ONLY = "--web-only";
-    private static final String WEB_KEY = "-web.key";
-    private static final String SSL_CERT = "ssl.crt";
-    private static final String ERROR_CERT_VALIDATE = "&error.validate";
-    private static final String ERROR_MSG_COPY = "&msg.copyError";
-    private static final String ERROR_VALID = "&error.valid";
-    private static final String EXTERNAL_KEY_BASED = "external-key-based";
-    private static final String RESTART_SIPXECS = "restart";
-    private static final String[] SSL_CA_EXTENSIONS = {
-        "pem", "crt"
-    };
-
-    private String m_binCertDirectory;
-
-    private String m_certDirectory;
-
-    private String m_sslDirectory;
-
-    private String m_sslAuthDirectory;
-
-    private String m_certdbDirectory;
-
-    private String m_libExecDirectory;
-
-    private ApiProvider<SoftwareAdminApi> m_softwareAdminApiProvider;
-
+    private static final String WEB_CERT = "ssl-web";
+    private static final String COMM_CERT = "ssl";
+    private static final String AUTHORITY_TABLE = "authority";
+    private static final String CERT_TABLE = "cert";
+    private static final String CERT_COLUMN = "data";
+    private static final String KEY_COLUMN = "private_key";
+    private static final String SELF_SIGN_AUTHORITY_PREFIX = "ca.";
+    private BeanWithSettingsDao<CertificateSettings> m_settingsDao;
+    private SetupListener m_locationSetup;
     private LocationsManager m_locationsManager;
-
+    private JdbcTemplate m_jdbc;
     private ConfigManager m_configManager;
+    private List<String> m_thirdPartyAuthorites;
 
-    public void setBinCertDirectory(String binCertDirectory) {
-        m_binCertDirectory = binCertDirectory;
+    public CertificateSettings getSettings() {
+        return m_settingsDao.findOrCreateOne();
     }
 
-    public void setCertDirectory(String certDirectory) {
-        m_certDirectory = certDirectory;
+    public void saveSettings(CertificateSettings settings) {
+        m_settingsDao.upsert(settings);
     }
 
-    public void setSslDirectory(String sslDirectory) {
-        m_sslDirectory = sslDirectory;
+    @Override
+    public void setWebCertificate(String cert) {
+        setWebCertificate(cert, null);
     }
 
-    public void setLibExecDirectory(String libExecDirectory) {
-        m_libExecDirectory = libExecDirectory;
+    @Override
+    public void setWebCertificate(String cert, String key) {
+        validateCert(cert, key);
+        updateCertificate(WEB_CERT, cert, key, getSelfSigningAuthority());
     }
 
-    public Properties loadCertPropertiesFile() {
-        File propertiesFile = new File(m_certDirectory, PROPERTIES_FILE);
-        try {
-            FileInputStream propertiesStream = new FileInputStream(propertiesFile);
-            Properties properties = new Properties();
-            properties.load(propertiesStream);
-            Enumeration<Object> propertiesEnum = properties.keys();
-            while (propertiesEnum.hasMoreElements()) {
-                String key = (String) propertiesEnum.nextElement();
-                String value = properties.getProperty(key);
-                value = StringUtils.strip(value, DOUBLE_QUOTES);
-                properties.setProperty(key, value);
-            }
-            return properties;
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (IOException e) {
-            throw new UserException(READ_ERROR, propertiesFile.getPath());
-        }
+    @Override
+    public void setCommunicationsCertificate(String cert) {
+        setCommunicationsCertificate(cert, null);
     }
 
-    public void writeCertPropertiesFile(Properties properties) {
-        File propertiesFile = new File(m_certDirectory, PROPERTIES_FILE);
-        try {
-            Enumeration<Object> propertiesEnum = properties.keys();
-            while (propertiesEnum.hasMoreElements()) {
-                String key = (String) propertiesEnum.nextElement();
-                String value = properties.getProperty(key);
-                value = DOUBLE_QUOTES + value + DOUBLE_QUOTES;
-                properties.setProperty(key, value);
-            }
-            FileOutputStream propertiesStream = new FileOutputStream(propertiesFile);
-            properties.store(propertiesStream, null);
-        } catch (IOException e) {
-            throw new UserException(WRITE_ERROR, propertiesFile.getPath());
-        }
+    public void setCommunicationsCertificate(String cert, String key) {
+        validateCert(cert, key);
+        updateCertificate(COMM_CERT, cert, key, getSelfSigningAuthority());
     }
 
-    public String readCSRFile(String serverName) {
-        File csrFile = new File(m_certDirectory, serverName + "-web.csr");
-        try {
-            return FileUtils.readFileToString(csrFile, "US-ASCII");
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (IOException e) {
-            throw new UserException(READ_ERROR, csrFile.getPath());
-        }
+    void updateCertificate(String name, String cert, String key, String authority) {
+        m_jdbc.update("delete from cert where name = ?", name);
+        m_jdbc.update("insert into cert (name, data, private_key, authority) values (?, ?, ?, ?)", name, cert, key,
+                authority);
+        m_configManager.configureEverywhere(FEATURE);
     }
 
-    private String[] getGenerateCSRFileCommand() {
-        String[] cmdLine = new String[] {
-            m_binCertDirectory + GEN_SSL_KEYS_SH, "--csr", WEB_ONLY, DEFAULTS_FLAG, PARAMETERS_FLAG,
-            PROPERTIES_FILE, WORKDIR_FLAG, m_certDirectory
-        };
-        return cmdLine;
+    void addThirdPartyAuthority(String name, String data) {
+        addAuthority(name, data, null);
     }
 
-    private String[] getValidateCertFileCommand(File file, boolean isCA) {
-        if (isCA) {
-            return new String[] {
-                m_binCertDirectory + CHECK_CERT, "--certificate-authority ", file.getPath()
-            };
-        } else {
-            return new String[] {
-                m_binCertDirectory + CHECK_CERT, file.getPath()
-            };
-        }
-
+    void addAuthority(String name, String data, String key) {
+        m_jdbc.update("delete from authority where name = ? ", name);
+        m_jdbc.update("delete from cert where authority = ? ", name); // should be zero
+        m_jdbc.update("insert into authority (name, data, private_key) values (?, ?, ?)", name, data, key);
+        m_configManager.configureEverywhere(FEATURE);
     }
 
-    private String[] getShowCertFileCommand(File file) {
-        String[] cmdLine = new String[] {
-            m_binCertDirectory + GEN_SSL_KEYS_SH, "--show-cert", file.getPath()
-        };
-        return cmdLine;
+    String getSecurityData(String table, String column, String name) {
+        String sql = format("select %s from %s where name = ?", column, table);
+        return DaoUtils.requireOneOrZero(m_jdbc.queryForList(sql, String.class, name), sql);
     }
 
-    private String[] getHashCertsCommand() {
-        String[] cmdLine = new String[] {
-            m_binCertDirectory + CA_REHASH
-        };
-        return cmdLine;
+    @Override
+    public String getWebCertificate() {
+        return getSecurityData(CERT_TABLE, CERT_COLUMN, WEB_CERT);
     }
 
-    private String[] getKeyStoreGenCommand() {
-        String[] cmdLine = new String[] {
-            m_libExecDirectory + KEYSTOREGEN_SH
-        };
-        return cmdLine;
+    @Override
+    public String getWebPrivateKey() {
+        return getSecurityData(CERT_TABLE, KEY_COLUMN, WEB_CERT);
     }
 
-    public File getCAFile(String fileName) {
-        return new File(m_sslAuthDirectory + File.separator + fileName);
+    @Override
+    public String getCommunicationsCertificate() {
+        return getSecurityData(CERT_TABLE, CERT_COLUMN, COMM_CERT);
     }
 
-    public File getCATmpFile(String fileName) {
-        return new File(getCATmpDir() + File.separator + fileName);
+    @Override
+    public String getCommunicationsPrivateKey() {
+        return getSecurityData(CERT_TABLE, KEY_COLUMN, COMM_CERT);
     }
 
-    private String getCATmpDir() {
-        try {
-            FileUtils.forceMkdir(new File(m_sslAuthDirectory + File.separator + TMP));
-            return m_sslAuthDirectory + File.separator + TMP;
-        } catch (IOException ex) {
-            throw new UserException("&error.temp");
-        }
+    @Override
+    public List<String> getAuthorities() {
+        List<String> authorities = m_jdbc.queryForList("select name from authority order by name", String.class);
+        return authorities;
     }
 
-    public void setSslAuthDirectory(String sslAuthDirectory) {
-        m_sslAuthDirectory = sslAuthDirectory;
+    @Override
+    public String getAuthorityCertificate(String authority) {
+        return getSecurityData(AUTHORITY_TABLE, CERT_COLUMN, authority);
     }
 
-    private InputStream runCommand(String[] command) {
-        try {
-            Runtime runtime = Runtime.getRuntime();
-
-            Process proc = runtime.exec(command);
-            LOG.debug("Executing: " + StringUtils.join(command, BLANK));
-            proc.waitFor();
-            if (proc.exitValue() != 0) {
-                throw new ScriptExitException(proc.exitValue());
-            }
-            return proc.getInputStream();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public String getAuthorityKey(String authority) {
+        return getSecurityData(AUTHORITY_TABLE, KEY_COLUMN, authority);
     }
 
-    public void generateCSRFile() {
-        try {
-            runCommand(getGenerateCSRFileCommand());
-        } catch (RuntimeException e) {
-            throw new UserException(SCRIPT_ERROR, e.getMessage());
-        }
+    public String getSelfSigningAuthority() {
+        String domain = Domain.getDomain().getName();
+        return SELF_SIGN_AUTHORITY_PREFIX + domain;
     }
 
-    public boolean validateCertificateAuthority(File file) {
-        try {
-            // validate the file if it can be an authority certificate
-            runCommand(getValidateCertFileCommand(file, true));
-            return true;
-        } catch (ScriptExitException ex) {
-            deleteCRTAuthorityTmpDirectory();
-            return false;
-        } catch (RuntimeException ex) {
-            deleteCRTAuthorityTmpDirectory();
-            throw new UserException(ERROR_CERT_VALIDATE, file.getName());
-        }
+    @Override
+    public void addTrustedAuthority(String authority, String cert) {
+        validateAuthority(cert);
+        addAuthority(authority, cert, null);
     }
 
-    public boolean validateCertificate(File file) {
-        try {
-            runCommand(getValidateCertFileCommand(file, false));
-            return true;
-        } catch (ScriptExitException ex) {
-            return false;
-        } catch (RuntimeException ex) {
-            throw new UserException(ERROR_CERT_VALIDATE, file.getName());
-        }
-    }
-
-    public String showCertificate(File file) {
-        try {
-            InputStream inputStream = runCommand(getShowCertFileCommand(file));
-            return IOUtils.toString(inputStream);
-        } catch (Exception ex) {
-            throw new UserException("&error.show", file.getName());
-        }
-    }
-
-    public void rehashCertificates() {
-        try {
-            runCommand(getHashCertsCommand());
-        } catch (RuntimeException ex) {
-            throw new UserException("&error.rehash");
-        }
-    }
-
-    public void restartRemote() {
-        // restart distributed systems in order to regenerate their keystore/truststore.
-        try {
-            Location[] locations = m_locationsManager.getLocations();
-            for (Location location : locations) {
-                if (!location.isPrimary()) {
-                    SoftwareAdminApi api = m_softwareAdminApiProvider.getApi(location.getSoftwareAdminUrl());
-                    api.exec(m_locationsManager.getPrimaryLocation().getFqdn(), RESTART_SIPXECS);
-                }
-            }
-        } catch (XmlRpcRemoteException e) {
-            LOG.error("Cannot restart remote locations", e);
-        }
-    }
-
-    public void generateKeyStores() {
-        try {
-            runCommand(getKeyStoreGenCommand());
-            m_configManager.restartAllJavaProcesses();
-        } catch (RuntimeException ex) {
-            throw new UserException("&error.regenstore");
-        }
-    }
-
-    public File getCRTFile(String serverName) {
-        return new File(m_certDirectory, serverName + "-web.crt");
-    }
-
-    public File getExternalCRTFile() {
-        return getCRTFile(EXTERNAL_KEY_BASED);
-    }
-
-    public File getKeyFile(String serverName) {
-        return new File(m_certDirectory, serverName + WEB_KEY);
-    }
-
-    public File getExternalKeyFile() {
-        return getKeyFile(EXTERNAL_KEY_BASED);
-    }
-
-    public void deleteCA(CertificateDecorator cert) {
-        if (isSystemGenerated(cert.getFileName())) {
-            throw new UserException("&error.delete.default.ca", cert.getFileName());
+    @Override
+    public void deleteTrustedAuthority(String authority) {
+        if (authority.equals(getSelfSigningAuthority())) {
+            throw new UserException("Cannot delete self signing certificate authority");
         }
 
-        Collection<File> files = FileUtils.listFiles(new File(m_sslAuthDirectory), SSL_CA_EXTENSIONS, false);
-        Collection<File> filesToDelete = new ArrayList<File>();
-        try {
-            for (File file : files) {
-                if (StringUtils.equals(file.getCanonicalFile().getName(), cert.getFileName())) {
-                    filesToDelete.add(getCAFile(file.getName()));
-                }
-            }
-            HttpClient httpClient = getNewHttpClient();
-            Location[] locations = m_locationsManager.getLocations();
-            for (Location curLocation : locations) {
-                for (File file : filesToDelete) {
-                    String remoteFileName = join(new Object[] {
-                        curLocation.getHttpsServerUrl(), file.getAbsolutePath()
-                    });
-                    DeleteMethod httpDelete = new DeleteMethod(remoteFileName);
-                    try {
-                        int statusCode = httpClient.executeMethod(httpDelete);
-                        if (statusCode != 200) {
-                            throw new UserException("&error.https.server.status.code", curLocation.getFqdn(),
-                                    String.valueOf(statusCode));
-                        }
-                    } catch (HttpException ex) {
-                        throw new UserException("&error.https.server", curLocation.getFqdn(), ex.getMessage());
-                    } finally {
-                        httpDelete.releaseConnection();
+        m_jdbc.update("delete from authority where name = ?", authority);
+        m_jdbc.update("delete from cert where authority = ?", authority);
+        m_configManager.configureEverywhere(FEATURE);
+    }
+
+    void checkSetup() {
+        String domain = Domain.getDomain().getName();
+        String authority = getSelfSigningAuthority();
+        String authorityCertificate = getAuthorityCertificate(authority);
+        if (authorityCertificate == null) {
+            CertificateAuthorityGenerator gen = new CertificateAuthorityGenerator(domain);
+            addAuthority(authority, gen.getCertificateText(), gen.getPrivateKeyText());
+        }
+        for (String thirdPartAuth : m_thirdPartyAuthorites) {
+            if (getAuthorityCertificate(thirdPartAuth) == null) {
+                try {
+                    InputStream thirdPartIn = getClass().getResourceAsStream(thirdPartAuth);
+                    if (thirdPartIn == null) {
+                        throw new IOException("Missing resource " + thirdPartAuth);
                     }
+                    String thirdPartCert = IOUtils.toString(thirdPartIn);
+                    String thirdPartAuthId = CertificateUtils.stripPath(thirdPartAuth);
+                    addThirdPartyAuthority(thirdPartAuthId, thirdPartCert);
+                } catch (IOException e) {
+                    LOG.error("Cannot import authority " + thirdPartAuth, e);
                 }
             }
-        } catch (IOException ex) {
-            throw new UserException("&error.delete.cert");
+        }
+
+        if (!hasCertificate(COMM_CERT, authority)) {
+            createCommunicationsCert(authority);
+        }
+        if (!hasCertificate(WEB_CERT, authority)) {
+            String hostname = m_locationsManager.getPrimaryLocation().getHostname();
+            createWebCert(authority, hostname);
         }
     }
 
-    // check the issuer DN name against ssl.crt (always signed by sipx)
-    private boolean isSystemGenerated(String fileName) {
-        X509Certificate sslCrt = X509CertificateUtils.getX509Certificate(m_sslDirectory + File.separatorChar
-                + SSL_CERT);
-        X509Certificate currentCertificate = X509CertificateUtils.getX509Certificate(m_certdbDirectory
-                + File.separatorChar + fileName);
-        if (sslCrt != null && currentCertificate != null) {
-            return StringUtils.equals(sslCrt.getIssuerDN().getName(), currentCertificate.getIssuerDN().getName());
-        }
-        return false;
+    boolean hasCertificate(String id, String authority) {
+        int check = m_jdbc.queryForInt("select count(*) from cert where name = ? and authority = ?", id, authority);
+        return (check >= 1);
     }
 
-    public void deleteCAs(Collection<CertificateDecorator> listCert) {
-        UserException userEx = null;
-        for (CertificateDecorator certDecorator : listCert) {
-            try {
-                deleteCA(certDecorator);
-            } catch (UserException ex) {
-                userEx = ex;
-            }
-        }
-
-        if (userEx != null) {
-            throw userEx;
-        }
+    void createCommunicationsCert(String authority) {
+        String authKey = getAuthorityKey(authority);
+        String issuer = getIssuer(authority);
+        String domain = Domain.getDomain().getName();
+        CertificateGenerator gen = CertificateGenerator.sip(domain, issuer, authKey);
+        updateCertificate(COMM_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
     }
 
-    public void copyCRTAuthority() {
-        m_configManager.configureEverywhere(CertificateManager.FEATURE);
+    void createWebCert(String authority, String host) {
+        String authKey = getAuthorityKey(authority);
+        String issuer = getIssuer(authority);
+        String domain = Domain.getDomain().getName();
+        CertificateGenerator gen = CertificateGenerator.web(domain, host, issuer, authKey);
+        updateCertificate(WEB_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
     }
 
-    public Set<CertificateDecorator> listCertificates() {
-        Set<CertificateDecorator> certificates = new TreeSet<CertificateDecorator>();
-        Collection<File> files = FileUtils.listFiles(new File(m_sslAuthDirectory), SSL_CA_EXTENSIONS, false);
-        CertificateDecorator certificateDecorator = null;
-
-        for (File file : files) {
-            try {
-                file = file.getCanonicalFile();
-            } catch (IOException ex) {
-                continue;
-            }
-            certificateDecorator = new CertificateDecorator();
-            certificateDecorator.setFileName(file.getName());
-            certificateDecorator.setDirName(file.getParentFile().getPath());
-            certificateDecorator.setSystemGenerated(isSystemGenerated(file.getName()));
-            certificates.add(certificateDecorator);
-        }
-        return certificates;
+    String getIssuer(String authority) {
+        String authCertText = getSecurityData(AUTHORITY_TABLE, CERT_COLUMN, authority);
+        X509Certificate authCert = CertificateUtils.readCertificate(authCertText);
+        return authCert.getSubjectDN().getName();
     }
 
-    public void deleteCRTAuthorityTmpDirectory() {
+    void validateCert(String certTxt, String keyTxt) {
+        X509Certificate cert = CertificateUtils.readCertificate(certTxt);
         try {
-            FileUtils.deleteDirectory(new File(getCATmpDir()));
-        } catch (IOException ex) {
-            LOG.error("Cannot delete temporary certificate directory");
-            // Temporary path cannot be deleted
+            cert.checkValidity();
+        } catch (CertificateExpiredException e) {
+            throw new UserException("Certificate has expired.");
+        } catch (CertificateNotYetValidException e) {
+            throw new UserException("Certificate valid date range is in the future, it is not yet valid.");
         }
+        if (StringUtils.isNotBlank(keyTxt)) {
+            CertificateUtils.readCertificateKey(keyTxt);
+        }
+        // to do, validate key w/cert and cert w/authorities
     }
 
-    public void writeCRTFile(String crt, String server) {
-        File crtFile = getCRTFile(server);
-
-        try {
-            FileUtils.writeStringToFile(getCRTFile(server), crt);
-        } catch (IOException e) {
-            throw new UserException(WRITE_ERROR, crtFile.getPath());
-        }
+    void validateAuthority(String cert) {
+        validateCert(cert, null);
+        // to do validate authority cert
     }
 
-    public void writeExternalCRTFile(String crt) {
-        writeCRTFile(crt, EXTERNAL_KEY_BASED);
+    @Override
+    public void setup(SetupManager manager) {
+        // ensure it's run first to get primary location
+        m_locationSetup.setup(manager);
+        checkSetup();
     }
 
-    public void writeKeyFile(String key) {
-        File keyFile = getExternalKeyFile();
-        try {
-            FileUtils.writeStringToFile(keyFile, key);
-        } catch (IOException e) {
-            throw new UserException(WRITE_ERROR, keyFile.getPath());
-        }
+    public void setJdbc(JdbcTemplate jdbc) {
+        m_jdbc = jdbc;
     }
 
-    public void importKeyAndCertificate(String server, boolean isCsrBased) {
-        File newCertificate = isCsrBased ? getCRTFile(server) : getExternalCRTFile();
-        if (!newCertificate.exists()) {
-            throw new UserException(ERROR_VALID);
-        }
-
-        File newKey = isCsrBased ? getKeyFile(server) : getExternalKeyFile();
-        if (!newKey.exists()) {
-            throw new UserException(ERROR_VALID);
-        }
-
-        if (!validateCertificate(newCertificate)) {
-            throw new UserException(ERROR_VALID);
-        }
-
-        File oldCertificate = new File(m_sslDirectory, "ssl-web.crt");
-        File oldKey = new File(m_sslDirectory, "ssl-web.key");
-
-        File backupCertificate = new File(m_sslDirectory, "ssl-web.oldcrt");
-        File backupKey = new File(m_sslDirectory, "ssl-web.oldkey");
-
-        try {
-            if (isCsrBased) {
-                Runtime runtime = Runtime.getRuntime();
-                String[] cmdLine = new String[] {
-                    m_binCertDirectory + GEN_SSL_KEYS_SH, WORKDIR_FLAG, m_certDirectory, "--pkcs", WEB_ONLY,
-                    DEFAULTS_FLAG, PARAMETERS_FLAG, PROPERTIES_FILE,
-                };
-                Process proc = runtime.exec(cmdLine);
-                LOG.debug(RUNNING + StringUtils.join(cmdLine, BLANK));
-                proc.waitFor();
-                if (proc.exitValue() != 0) {
-                    throw new UserException(SCRIPT_ERROR, SCRIPT_EXCEPTION_MESSAGE + proc.exitValue());
-                }
-            }
-
-            FileUtils.copyFile(oldCertificate, backupCertificate);
-            FileUtils.copyFile(oldKey, backupKey);
-
-            FileUtils.copyFile(newCertificate, oldCertificate);
-            FileUtils.copyFile(newKey, oldKey);
-        } catch (Exception ex) {
-            throw new UserException(ERROR_MSG_COPY);
-        }
-
-        try {
-            generateKeyStores();
-        } catch (UserException userException) {
-            try {
-                FileUtils.copyFile(backupCertificate, oldCertificate);
-                FileUtils.copyFile(backupKey, oldKey);
-
-                backupCertificate.delete();
-                backupKey.delete();
-
-            } catch (Exception ex) {
-                throw new UserException(ERROR_MSG_COPY);
-            }
-
-            throw userException;
-        }
-
-        backupCertificate.delete();
-        backupKey.delete();
+    public void setLocationSetup(SetupListener locationSetup) {
+        m_locationSetup = locationSetup;
     }
 
-    public void setCertdbDirectory(String certdbDirectory) {
-        m_certdbDirectory = certdbDirectory;
-    }
-
-    public class ScriptExitException extends UserException {
-        public ScriptExitException(int exitCode) {
-            super("&error.script.exit.code", exitCode);
-        }
-    }
-
-    @Required
-    public void setSoftwareAdminApiProvider(ApiProvider<SoftwareAdminApi> softwareAdminApiProvider) {
-        m_softwareAdminApiProvider = softwareAdminApiProvider;
-    }
-
-    @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
 
-    protected HttpClient getNewHttpClient() {
-        return new HttpClient();
-    }
-
-    @Override
-    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (request.applies(CertificateManager.FEATURE)) {
-            Location[] locations = m_locationsManager.getLocations();
-            for (File file : new File(getCATmpDir()).listFiles()) {
-                for (Location location : locations) {
-                    File dstDir = manager.getLocationDataDirectory(location);
-                    // call replicate on each location so JobStatus page can show replication status
-                    // on
-                    // each affected location
-                    FileUtils.copyFileToDirectory(file, dstDir);
-                }
-            }
-            deleteCRTAuthorityTmpDirectory();
-        }
+    public void setSettingsDao(BeanWithSettingsDao<CertificateSettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    public void setThirdPartyAuthorites(List<String> thirdPartyAuthorites) {
+        m_thirdPartyAuthorites = thirdPartyAuthorites;
     }
 }

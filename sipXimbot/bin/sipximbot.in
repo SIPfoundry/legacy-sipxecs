@@ -1,0 +1,115 @@
+#!/bin/bash
+
+# sipximbot - Startup script for sipximbot
+
+# chkconfig: 35 85 15
+# description: sipximbot is an IM Bot subystem that uses FreeSWITCH as a media server.
+# processname: sipximbot
+
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+prog=sipximbot
+pidfile="@SIPX_RUNDIR@/sipximbot.pid"
+
+[ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
+
+checkRunningInstance() {
+  if [ -f "${pidfile}" ]; then
+    pid=`cat ${pidfile}`
+    if checkpid $pid 2>&1; then
+      echo "Process $prog is already running with pid $pid"
+      exit 1
+    fi
+  fi
+}
+
+start() {
+    checkRunningInstance
+
+    JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @imbot_PKGS@`
+    export CLASSPATH=`echo @SIPX_CONFDIR@/sipximbot @SIPX_JAVADIR@/{sipXimbot,sipXopenfire/plugins}/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+
+    setJavaSslOpts
+
+    # procname is there so cfengine can find it
+    Command="$JavaCmd \
+      -Dprocname=sipximbot \
+      -Dconf.dir=@SIPX_CONFDIR@ \
+      -Dlog.dir=@SIPX_LOGDIR@ \
+      -Dvar.dir=@SIPX_VARDIR@ \
+      $JavaSslOpts \
+      ${SIPXIMBOT_OPTS} \
+         org.sipfoundry.sipximbot.SipXimbot \
+	 $Args"
+    if [ -n "${NoFork}" ] ; then
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
+    else
+      echo -n $"Starting sipximbot: "
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+      echo $! > ${pidfile}
+      echo_success
+    fi
+}
+
+stop() {
+  echo -n $"Stopping sipximbot: "
+  killproc -p "${pidfile}" -t30 -TERM "sipximbot"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
+}
+
+restart() {
+  stop
+  start
+}
+
+configtest() {
+     sipx_config_exists @SIPX_CONFDIR@/sipximbot.properties
+     Status=$(($Status+$?))
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipximbot.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+         echo "Log file '$logfile' exists but is not writable." >&2
+         Status=1
+     fi
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${pidfile} ] && restart || :
+    ;;
+  status)
+    status -p ${pidfile} java
+    ;;
+  configtest)
+    configtest
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork|configtest}"
+    Status=1
+esac
+
+exit $Status

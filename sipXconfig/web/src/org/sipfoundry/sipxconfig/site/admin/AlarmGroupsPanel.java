@@ -79,7 +79,7 @@ public abstract class AlarmGroupsPanel extends BaseComponent implements PageBegi
         }
 
         boolean printErrorMessage = getAlarmServerManager().removeAlarmGroups(allSelected,
-                getAlarmServerManager().getAlarmTypes());
+                getAlarmServerManager().getAlarms());
         if (printErrorMessage) {
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
             validator.record(new ValidatorException(getMessages().getMessage("msg.err.defalutAlarmGroupDeletion")));

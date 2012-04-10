@@ -14,6 +14,7 @@ import static org.easymock.EasyMock.replay;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.dialplan.ExchangeMediaServer;
+import org.sipfoundry.sipxconfig.dialplan.MediaServer.Operation;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 
 public class ExchangeMediaServerTest extends TestCase {
@@ -35,7 +36,7 @@ public class ExchangeMediaServerTest extends TestCase {
 
     public void testConstructorWithArgs() {
         ExchangeMediaServer out = new ExchangeMediaServer(HOSTNAME, VOICEMAIL_EXTENSION);
-        assertEquals("Wrong value for hostname.", HOSTNAME, out.getHostname());
+        assertEquals("Wrong value for hostname.", HOSTNAME, out.getHostname(Operation.Autoattendant));
         assertEquals("Wrong value for extension.", VOICEMAIL_EXTENSION, out.getServerExtension());
     }
 
@@ -57,6 +58,6 @@ public class ExchangeMediaServerTest extends TestCase {
     }
 
     public void testGetAddress() {
-        assertEquals("Wrong server address.", HOSTNAME, m_out.getHostname());
+        assertEquals("Wrong server address.", HOSTNAME, m_out.getHostname(Operation.Autoattendant));
     }
 }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+  <beans:bean id="eventProps" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <beans:property name="locations">
+      <beans:list>
+        <beans:value>file:${conf.dir}/sipxevent.properties</beans:value>        
+      </beans:list>
+    </beans:property>  
+    <beans:property name="searchSystemEnvironment" value="true" />
+    <beans:property name="ignoreUnresolvablePlaceholders" value="true" />
+  </beans:bean>
+  
+  <beans:bean id="webSocketServer" class="org.sipfoundry.sipxevent.WebSocketServer" init-method="init">
+  	<beans:property name="keystore" value="${keystore.file}" />
+  	<beans:property name="password" value="${keystore.password}" />
+  	<beans:property name="logFile" value="${log.file}" />
+  	<beans:property name="resourceBase" value="${java.dir}" />
+  	<beans:property name="confDir" value="${conf.dir}" />
+  	<beans:property name="logLevel" value="${log.level}" />
+  	<beans:property name="port" value="${websocket.port}" />
+  </beans:bean>     
+                 
+</beans:beans>

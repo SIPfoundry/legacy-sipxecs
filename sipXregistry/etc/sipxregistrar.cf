@@ -1,6 +1,15 @@
-# Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipXregstrar configuration and process management
@@ -9,8 +18,10 @@
 bundle agent sipxregistrar {
   methods:
     sipxregistrar::
+      "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxregistrar_config";
     any::
+      "any" usebundle => "sipxregistrar_setup";
       "any" usebundle => "sipxregistrar_running";
 }
 
@@ -18,11 +29,11 @@ bundle agent sipxregistrar_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/registrar-config"
+        comment => "registrar config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => registrar_config_contents(),
-        classes => if_repaired("restart_sipxregistrar"),
-	action => track("registrar-config");
+        classes => if_repaired("restart_sipxregistrar");
 }
 
 bundle edit_line registrar_config_contents() {
@@ -33,7 +44,6 @@ bundle edit_line registrar_config_contents() {
       "SIP_REDIRECT.100-PICKUP.ORBIT_FILENAME : $(sipx.SIPX_CONFDIR)/orbits.xml";
       "SIP_REDIRECT.130-MAPPING.MAPPING_RULES_FILENAME : $(sipx.SIPX_CONFDIR)/mappingrules.xml";
       "SIP_REDIRECT.140-FALLBACK.MAPPING_RULES_FILENAME : $(sipx.SIPX_CONFDIR)/fallbackrules.xml";
-      "SIP_REDIRECT.900-PRESENCE.USER_PREFS_FILE : $(sipx.SIPX_CONFDIR)/presencerouting-prefs.xml";
       "SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM : $(sipx.SIPX_LIBDIR)/libRedirectorUserParam.so";
       "SIP_REDIRECT_HOOK_LIBRARY.100-PICKUP : $(sipx.SIPX_LIBDIR)/libRedirectorPickUp.so";
       "SIP_REDIRECT_HOOK_LIBRARY.110-REG : $(sipx.SIPX_LIBDIR)/libRedirectorRegDB.so";
@@ -54,6 +64,14 @@ bundle edit_line registrar_config_contents() {
       ".*";
 }
 
+bundle agent sipxregistrar_setup {
+  methods:
+    !src.sipxregistrar::
+      "any" usebundle => rh_chkconfig_status("sipxregistrar on");
+    !src.!sipxregistrar::
+      "any" usebundle => rh_chkconfig_status("sipxregistrar off");
+}
+
 bundle agent sipxregistrar_running {
   vars:
     any::
@@ -64,18 +82,18 @@ bundle agent sipxregistrar_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxregistrar_running");
 
   commands:
-    sipxregistrar_running.!sipxregistrar::
+    (!sipxregistrar|stop_sipxecs).sipxregistrar_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        args => "stop",
-	action => track("sipxegistrar stop");
+        comment => "stop sipxregistrar",
+        args => "stop";
 
-    !sipxregistrar_running.sipxregistrar::
+    sipxregistrar.!sipxregistrar_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        args => "start",
-	action => track("sipxegistrar start");
+        comment => "start sipxregistrar",
+        args => "start";
 
-    restart_sipxregistrar::
+    sipxregistrar.(restart_sipxregistrar|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        args => "restart",
-	action => track("sipxegistrar restart");
+        comment => "restart sipxregistrar",
+        args => "restart";
 }

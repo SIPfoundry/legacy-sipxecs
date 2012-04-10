@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
@@ -39,16 +40,18 @@ public class SipxOpenfireConfiguration {
         Address proxyAddress = m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS);
         Address restAddress = m_addressManager.getSingleAddress(RestServer.HTTPS_API);
         Address restExtAddress = m_addressManager.getSingleAddress(RestServer.EXTERNAL_API);
-        
+
         context.put("settings", settings);
         String username = XMPP_SERVER.getUserName();
         User user = m_coreContext.getSpecialUser(XMPP_SERVER);
         context.put("username", username);
         context.put("location", location);
-        context.put("password", user.getSipPassword());       
+        context.put("password", user.getSipPassword());
         context.put("resource-list", SpeedDial.getResourceListId(username, true));
         context.put("domainName", m_domainManager.getDomainName());
-        context.put("proxy", proxyAddress);
+        if (proxyAddress != null) {
+            context.put("proxyPort", proxyAddress.getPort());
+        }
         context.put("restAddress", restAddress);
         context.put("restExtAddress", restExtAddress);
         try {

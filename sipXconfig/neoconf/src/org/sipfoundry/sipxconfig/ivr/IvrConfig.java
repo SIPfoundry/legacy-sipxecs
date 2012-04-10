@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.ivr;
 
@@ -16,6 +25,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -55,7 +65,7 @@ public class IvrConfig implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = featureManager.isFeatureEnabled(Ivr.FEATURE, location);
 
-            ConfigUtils.enableCfengineClass(dir, "sipxivr.cfdat", "sipxivr", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxivr.cfdat", enabled, "sipxivr");
             if (!enabled) {
                 continue;
             }
@@ -78,16 +88,16 @@ public class IvrConfig implements ConfigProvider {
         // potential bug: name "operator" could be changed by admin. this should be configurable
         // and linked with vm dialing rule
         config.write("ivr.operatorAddr", "sip:operator@" + domain.getName());
-        config.write("ivr.configAddress", adminApi.getAddress());
 
         // required services
         if (mwiApi == null) {
-            throw new IllegalStateException("MWI feature needs to be enabled. No addresses found.");
+            throw new ConfigException("MWI feature needs to be enabled. No addresses found.");
         }
         config.write("ivr.mwiUrl", mwiApi.toString());
         if (adminApi == null) {
-            throw new IllegalStateException("Admin feature needs to be enabled. No addresses found.");
+            throw new ConfigException("Admin feature needs to be enabled. No addresses found.");
         }
+        config.write("ivr.configAddress", adminApi.getAddress());
         config.write("ivr.configUrl", adminApi.toString());
 
         // optional services

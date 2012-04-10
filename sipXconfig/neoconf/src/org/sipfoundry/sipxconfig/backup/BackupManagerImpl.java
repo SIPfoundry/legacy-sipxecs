@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.backup;
 
@@ -14,7 +23,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
-import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServerConfig;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.support.DataAccessUtils;
@@ -45,7 +54,6 @@ public abstract class BackupManagerImpl extends HibernateDaoSupport implements A
                 initFtpConfig(plan);
             }
             getHibernateTemplate().save(plan);
-            getHibernateTemplate().flush();
         }
         return plan;
     }
@@ -55,10 +63,10 @@ public abstract class BackupManagerImpl extends HibernateDaoSupport implements A
         if (ftpBackupPlan.getFtpConfiguration() != null) {
             return;
         }
-        List ftpConfigs = getHibernateTemplate().loadAll(FtpConfiguration.class);
-        FtpConfiguration ftpConfig = (FtpConfiguration) singleResult(ftpConfigs);
+        List ftpConfigs = getHibernateTemplate().loadAll(FtpExternalServerConfig.class);
+        FtpExternalServerConfig ftpConfig = (FtpExternalServerConfig) singleResult(ftpConfigs);
         if (ftpConfig == null) {
-            ftpConfig = new FtpConfiguration();
+            ftpConfig = new FtpExternalServerConfig();
         }
         ftpBackupPlan.setFtpConfiguration(ftpConfig);
     }

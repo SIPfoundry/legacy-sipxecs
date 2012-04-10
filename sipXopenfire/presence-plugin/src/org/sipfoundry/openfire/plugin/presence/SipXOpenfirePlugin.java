@@ -53,6 +53,7 @@ import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.util.NotFoundException;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.config.AccountsParser;
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.XmppAccountInfo;
@@ -270,8 +271,15 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             componentManager.getLog().error(ex);
             throw new SipXOpenfirePluginException("Error reading config file ", ex);
         }
-
         configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
+
+        String clientConfig = configurationPath + "/mongo-client.ini";
+        try {
+            UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         parseConfigurationFile();
 
         initializeLogging();
@@ -354,7 +362,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             throw new SipXOpenfirePluginException("Cannot find user accounts file");
         } else {
             this.accountsParser = new AccountsParser(accountConfigurationFile);
-            this.accountsParser.parseAccounts();
             this.accountsParser.startScanner();
         }
 
@@ -643,22 +650,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         try {
             User user = userManager.getUser(userAccount.getUserName());
             // user already exists - update its properties
+            //Openfire API automatically launches EventType.user_modified events
+            //and saves information in Openfire DB
             user.setPassword(userAccount.getPassword());
             user.setName(userAccount.getDisplayName());
             user.setEmail(userAccount.getEmail());
-
-            // user has changed, found out all the groups that the
-            // user is a part of and remove and re-add it so that changes
-            // made to user attributes such a display name get updated immediately.
-            Collection<Group>  groups = groupManager.getGroups( user );
-            for( Group group : groups )
-            {
-                log.debug("update UserAccount resetting " + userAccount.getUserName() + " in group " + group.getName());
-                String jidAsString = XmppAccountInfo.appendDomain(userAccount.getUserName());
-                JID jid = new JID(jidAsString);
-                group.getMembers().remove(jid);
-                group.getMembers().add(jid);
-            }
         } catch (UserNotFoundException e) {
             try {
                 // user does not exist create it.

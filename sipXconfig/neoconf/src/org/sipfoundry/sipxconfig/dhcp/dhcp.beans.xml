@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="dhcpManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.dhcp.DhcpManager</value>
+    </property>
+    <property name="target">
+      <ref local="dhcpManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="dhcpManagerImpl" class="org.sipfoundry.sipxconfig.dhcp.DhcpManagerImpl" parent="abstractDaoImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.dhcp.DhcpSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="dhcpSettings" class="org.sipfoundry.sipxconfig.dhcp.DhcpSettings" parent="settingsBean">
+    <property name="locationsManager" ref="locationsManager"/>
+  </bean>
+  
+  <bean id="dhcpConfig" class="org.sipfoundry.sipxconfig.dhcp.DhcpConfig">
+    <property name="dhcpManager" ref="dhcpManager"/>
+  </bean>
+</beans>

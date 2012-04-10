@@ -6,6 +6,7 @@ dist_jar_DATA = \
 	.java-dep \
 	$(wildcard $(srcdir)/*.jar)
 
+# Experimental makefile to download source for jars.
 SPRING = \
 	aop \
 	asm \
@@ -24,9 +25,6 @@ JAR_SRCS = $(call JavaDep,$(srcdir),\
 	junit \
 	spring-mock \
 	$(foreach M,$(SPRING),org.springframework.$(M)))
-
-foo :
-	echo $(SPRING)
 
 $(JAR_LIBSRC)/junit-%.jar.src :
 	wget https://github.com/downloads/KentBeck/junit/junit-$*-src.jar

@@ -33,27 +33,38 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
+import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.BundleProvider;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
-        FeatureProvider, AddressProvider {
+        FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, BundleProvider, FirewallProvider {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -69,13 +80,18 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
     private static final String DEFAULT_QUEUE = "default_queue";
-    private static final String DEFAULT_CLIENT = "Demo Client";
     private static final String FS_ACTIONS_WITH_DATA = "freeswitchActionsWithData";
+    private static final String OPEN_ACD_RELEASE_CODE_WITH_LABEL = "openAcdClientReleaseCodeWithLabel";
+    private static final String OPEN_ACD_PROCESS_NAME = "openacd";
 
     private AliasManager m_aliasManager;
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<OpenAcdSettings> m_settingsDao;
     private ListableBeanFactory m_beanFactory;
+    private CoreContext m_coreContext;
+    private ReplicationManager m_replicationManager;
+
+    private String m_openacdHome;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures() {
@@ -88,25 +104,21 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(REST_API);
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(REST_API));
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (type.equals(REST_API)) {
-            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-            List<Address> addresses = new ArrayList<Address>(locations.size());
-            for (Location location : locations) {
-                Address address = new Address();
-                address.setAddress(location.getAddress());
-                address.setPort(5050);
-                address.setFormat("http://%s:%d/");
-                addresses.add(address);
-            }
-            return addresses;
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
+        if (!type.equals(REST_API)) {
+            return null;
         }
-        return null;
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        for (Location location : locations) {
+            addresses.add(new Address(REST_API, location.getAddress(), 5050));
+        }
+        return addresses;
     }
 
     public OpenAcdSettings getSettings() {
@@ -332,14 +344,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     public class DefaultAgentGroupDeleteException extends UserException {
     }
 
-    public void addAgentsToGroup(OpenAcdAgentGroup agentGroup, Collection<OpenAcdAgent> agents) {
-        for (OpenAcdAgent agent : agents) {
-            agentGroup.addAgent(agent);
-            agent.setGroup(agentGroup);
-        }
-        saveAgentGroup(agentGroup);
-    }
-
     public List<OpenAcdAgent> getAgents() {
         return getHibernateTemplate().loadAll(OpenAcdAgent.class);
     }
@@ -363,12 +367,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         checkAgent(agent);
         getHibernateTemplate().saveOrUpdate(agent);
         agent.setOldName(agent.getName());
+        m_coreContext.saveUserToAgentsGroup(agent.getUser());
     }
 
     private void checkAgent(OpenAcdAgent agent) {
-        if (StringUtils.isBlank(agent.getPin())) {
-            throw new UserException("&blank.agentPin.error");
-        }
         // check if agent security is empty
         if (StringUtils.isBlank(agent.getSecurity())) {
             throw new UserException("&blank.agentSecurity.error");
@@ -377,10 +379,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void deleteAgent(OpenAcdAgent agent) {
-        OpenAcdAgentGroup group = agent.getGroup();
-        group.removeAgent(agent);
-        getHibernateTemplate().save(group);
         getHibernateTemplate().delete(agent);
+        m_coreContext.saveRemoveUserFromAgentGroup(agent.getUser());
     }
 
     @Override
@@ -632,14 +632,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (client.isNew()) {
             getHibernateTemplate().save(client);
         } else {
-            if (isNameChanged(client)) {
-                // don't rename the default client
-                OpenAcdClient defaultClient = getClientByName(DEFAULT_CLIENT);
-                if (defaultClient != null && defaultClient.getId().equals(client.getId())) {
-                    throw new UserException("&msg.err.defaultClientRename");
-                }
-            }
-
             getHibernateTemplate().merge(client);
         }
     }
@@ -683,7 +675,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void deleteClient(OpenAcdClient client) {
-        if (client.getName().equals(DEFAULT_CLIENT) || isUsedByLine(OpenAcdLine.BRAND + client.getIdentity())) {
+        if (isUsedByLine(OpenAcdLine.BRAND + client.getIdentity())) {
             throw new ClientInUseException();
         } else {
             getHibernateTemplate().delete(client);
@@ -900,8 +892,65 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         return getHibernateTemplate().load(OpenAcdRecipeStep.class, recipeStepId);
     }
 
-    public void onSave(Object entity) {
+    @Override
+    public List<OpenAcdReleaseCode> getReleaseCodes() {
+        return getHibernateTemplate().loadAll(OpenAcdReleaseCode.class);
+    }
 
+    @Override
+    public OpenAcdReleaseCode getReleaseCodeById(Integer id) {
+        return getHibernateTemplate().load(OpenAcdReleaseCode.class, id);
+    }
+
+    @Override
+    public void saveReleaseCode(OpenAcdReleaseCode code) {
+        // Check for duplicate labels
+        if (code.isNew() || (!code.isNew() && isLabelChanged(code))) {
+            checkForDuplicateLabel(code);
+        }
+
+        if (code.isNew()) {
+            getHibernateTemplate().save(code);
+        } else {
+            getHibernateTemplate().merge(code);
+        }
+    }
+
+    private boolean isLabelChanged(OpenAcdReleaseCode code) {
+        return !getReleaseCodeById(code.getId()).getLabel().equals(code.getLabel());
+    }
+
+    private void checkForDuplicateLabel(OpenAcdReleaseCode code) {
+        String labelCode = code.getLabel();
+        OpenAcdReleaseCode existingCode = getReleaseCodeByLabel(labelCode);
+        if (existingCode != null) {
+            throw new UserException("&duplicate.codeLabel.error", existingCode);
+        }
+    }
+
+    private OpenAcdReleaseCode getReleaseCodeByLabel(String label) {
+        List<OpenAcdReleaseCode> codes = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                OPEN_ACD_RELEASE_CODE_WITH_LABEL, VALUE, label);
+        return DataAccessUtils.singleResult(codes);
+    }
+
+    @Override
+    public void removeReleaseCodes(Collection<Integer> codesId) {
+        List<OpenAcdReleaseCode> codes = new ArrayList<OpenAcdReleaseCode>();
+        for (Integer id : codesId) {
+            OpenAcdReleaseCode code = getReleaseCodeById(id);
+            codes.add(code);
+        }
+        getDaoEventPublisher().publishDeleteCollection(codes);
+        getHibernateTemplate().deleteAll(codes);
+    }
+
+    public void onSave(Object entity) {
+        if (entity instanceof OpenAcdSettings) {
+            OpenAcdSettings settings = (OpenAcdSettings) entity;
+            m_replicationManager.replicateEntity(new OpenAcdLogConfigCommand(settings.getLogLevel(), settings
+                    .getLogDir() + OpenAcdContext.OPENACD_LOG));
+        }
     }
 
     public void onDelete(Object entity) {
@@ -909,8 +958,29 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             User user = (User) entity;
             OpenAcdAgent agent = getAgentByUser(user);
             if (agent != null) {
-                deleteAgent(agent);
-                getHibernateTemplate().flush();
+                //must manually de-associate group-agent
+                agent.getGroup().removeAgent(agent);
+                getDaoEventPublisher().publishDelete(agent);
+                //do not call deleteAgent here b/c it will re-insert user into mongo
+                //(we don't care about user-group association update since the user is deleted anyway)
+                getHibernateTemplate().delete(agent);
+            }
+        } else if (entity instanceof OpenAcdQueueGroup) {
+            getHibernateTemplate().flush();
+            OpenAcdQueueGroup qgr = (OpenAcdQueueGroup) entity;
+            for (OpenAcdQueue q : qgr.getQueues()) {
+                m_replicationManager.removeEntity(q);
+            }
+        } else if (entity instanceof OpenAcdAgentGroup) {
+            OpenAcdAgentGroup aggr = (OpenAcdAgentGroup) entity;
+            for (OpenAcdAgent agent : aggr.getAgents()) {
+                m_replicationManager.removeEntity(agent);
+            }
+        } else if (entity instanceof OpenAcdSkillGroup) {
+            getHibernateTemplate().flush();
+            OpenAcdSkillGroup skillGroup = (OpenAcdSkillGroup) entity;
+            for (OpenAcdSkill skill : skillGroup.getSkills()) {
+                m_replicationManager.removeEntity(skill);
             }
         }
     }
@@ -937,4 +1007,34 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         m_settingsDao = settingsDao;
     }
 
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition(OPEN_ACD_PROCESS_NAME,
+                new StringBuilder(m_openacdHome).append("/bin/").append(OPEN_ACD_PROCESS_NAME).toString())) : null);
+    }
+
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
+    }
+
+    @Override
+    public Collection<Bundle> getBundles(FeatureManager manager) {
+        return Collections.singleton(CALL_CENTER);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.basedOn(CALL_CENTER)) {
+            b.addFeature(FEATURE);
+        }
+    }
+
+    public void setOpenacdHome(String openAcdHome) {
+        m_openacdHome = openAcdHome;
+    }
 }

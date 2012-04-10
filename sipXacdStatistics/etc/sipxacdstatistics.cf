@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipxacdstatistics configuration and process management
@@ -9,8 +18,8 @@ bundle agent sipxacdstatistics {
   methods:
     sipxacdstatistics::
       "any" usebundle => "sipxacdstatistics_config";
-      "any" usebundle => "sipxacdstatistics_setup";
     any::
+      "any" usebundle => "sipxacdstatistics_setup";
       "any" usebundle => "sipxacdstatistics_running";
 }
 
@@ -22,17 +31,17 @@ bundle agent sipxacdstatistics_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxconfig-report-config"
+        comment => "installing ACD config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_line => sipxacdstatistics_report_config,
-	action => track("$(this.promiser)");
+        edit_line => sipxacdstatistics_report_config;
 
       "$(sipx.SIPX_CONFDIR)/config-agent.properties"
+        comment => "installing ACD config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => set_variable_values("sipxacdstatistics_config.agent"),
-	classes => if_repaired("restart_sipxacdstatistics"),
-	action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxacdstatistics");
 }
 
 bundle edit_line sipxacdstatistics_report_config {
@@ -75,19 +84,19 @@ bundle agent sipxacdstatistics_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxacdstatistics_running");
 
   commands:
-    sipxacdstatistics_running.!sipxacdstatistics::
+    (!sipxacdstatistics|stop_sipxecs).sipxacdstatistics_running::
       "$(service)"
-        args => "stop",
-	action => track("sipxacdstatistics_stop");
+        comment => "stop sipxacdstatistics",
+        args => "stop";
 
-    !sipxacdstatistics_running.sipxacdstatistics::
+    sipxacdstatistics.!sipxacdstatistics_running::
       "$(service)"
-        args => "start",
-	action => track("sipxacdstatistics_start");
+        comment => "start sipxacdstatistics",
+        args => "start";
 
-    restart_sipxacdstatistics::
+    sipxacdstatistics.sipxacdstatistics_running.(restart_sipxecs|restart_sipxacdstatistics)::
       "$(service)"
-        args => "restart",
-	action => track("sipxacdstatistics_restart");
+        comment => "restart sipxacdstatistics",
+        args => "restart";
 }
 

@@ -14,12 +14,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DidInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -67,21 +69,24 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     }
 
     @Override
-    public void storeCallGroup(CallGroup callGroup) {
+    public void saveCallGroup(CallGroup callGroup) {
         // Check for duplicate names or extensions before saving the call group
         String name = callGroup.getName();
         String extension = callGroup.getExtension();
-        final String huntGroupTypeName = "hunt group";
+        String did = callGroup.getDid();
+        final String huntGroupTypeName = "&label.huntGroup";
         if (!m_aliasManager.canObjectUseAlias(callGroup, name)) {
             throw new NameInUseException(huntGroupTypeName, name);
         }
         if (!m_aliasManager.canObjectUseAlias(callGroup, extension)) {
             throw new ExtensionInUseException(huntGroupTypeName, extension);
         }
-        if (!m_aliasManager.canObjectUseAlias(callGroup, callGroup.getDid())) {
-            throw new ExtensionInUseException(huntGroupTypeName, callGroup.getDid());
+        if (!m_aliasManager.canObjectUseAlias(callGroup, did)) {
+            throw new ExtensionInUseException(huntGroupTypeName, did);
         }
-        getDaoEventPublisher().publishSave(callGroup);
+        if (StringUtils.isNotBlank(did) && did.equals(extension)) {
+            throw new DidInUseException(huntGroupTypeName, did);
+        }
         getHibernateTemplate().saveOrUpdate(callGroup);
         // activate call groups every time the call group is saved
         m_replicationContext.generate(callGroup);
@@ -169,7 +174,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             groupDup.setDid(null);
 
             groupDup.setEnabled(false);
-            storeCallGroup(groupDup);
+            saveCallGroup(groupDup);
             getDaoEventPublisher().publishSave(groupDup);
         }
     }
@@ -222,7 +227,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             User user = m_coreContext.loadUser(userId);
             callGroup.insertRingForUser(user);
         }
-        storeCallGroup(callGroup);
+        saveCallGroup(callGroup);
     }
 
     @Override

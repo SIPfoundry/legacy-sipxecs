@@ -17,6 +17,7 @@ import java.util.Collection;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.acd.stats.AcdStats;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -30,7 +31,7 @@ public class AcdReportConfigTest {
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         StringWriter actual = new StringWriter();
         String expected = IOUtils.toString(getClass().getResourceAsStream("report-config-expected.xml"));
-        Collection<Address> apis = Arrays.asList(new Address("one"), new Address("two"));
+        Collection<Address> apis = Arrays.asList(new Address(AcdStats.API_ADDRESS, "one"), new Address(AcdStats.API_ADDRESS, "two"));
         config.write(actual, settings, apis);
         assertEquals(expected, actual.toString());
     }

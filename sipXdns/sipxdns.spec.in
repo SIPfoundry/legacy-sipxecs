@@ -1,0 +1,41 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary: sipXecs dns integration project
+License: LGPL
+Group: Telcommunications
+Vendor: SIPfoundry
+Packager: Douglas Hubler <dhubler@ezuce.com>
+Url: http://www.sipfoundry.org
+
+BuildRequires: automake
+Requires: bind
+Requires: sipxsupervisor >= %version
+
+Source: %name-%version.tar.gz
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Setup dns server on this system
+
+%prep
+%setup -q
+
+%build
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx-dns-zone-maker
+%{_sysconfdir}/sipxpbx/sipxdns/zone.erb
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxdns.cf

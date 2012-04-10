@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Send trap to snmpd service, which in turn can send it to snmptrapd service or any other
+# configured trap monitoring service
+here=`hostname`
+
+# must be root to call snmptrap command
+
+# TODO: use proper time and code octets for args 3 and 4
+
+snmptrap -v 2c -c public localhost '' SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications \
+         SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.1 s "$1" \
+         SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.2 s "$here" \
+         SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.3 x 0x00000000 \
+         SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.4 x 0x00000000

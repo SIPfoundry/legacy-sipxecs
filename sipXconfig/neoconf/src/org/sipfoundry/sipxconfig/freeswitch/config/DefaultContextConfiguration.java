@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionCollector;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -41,8 +42,8 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
         write(writer, location, bridge, authCodes, extensions);
     }
 
-    void write(Writer writer, Location location, Bridge bridge, boolean authCodes, List<FreeswitchExtension> extensions)
-        throws IOException {
+    void write(Writer writer, Location location, Bridge bridge, boolean authCodes,
+            List<FreeswitchExtension> extensions) throws IOException {
         VelocityContext context = new VelocityContext();
         if (bridge != null) {
             Set<Conference> conferences = bridge.getConferences();
@@ -58,6 +59,7 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
             }
         }
         context.put("location", location);
+        addAdditionalLocations(context, location);
         context.put("dollar", "$");
         context.put("freeswitchExtensions", freeswitchExtensions);
         write(writer, context);
@@ -81,6 +83,19 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
     @Override
     protected String getTemplate() {
         return "freeswitch/default_context.xml.vm";
+    }
+
+    private void addAdditionalLocations(VelocityContext context, Location location) {
+        List<Location> locations = getFeatureManager().getLocationsForEnabledFeature(Ivr.FEATURE);
+        if (locations != null) {
+            locations.remove(location);
+            context.put("locations", locations);
+        }
+    }
+
+    @Required
+    public FeatureManager getFeatureManager() {
+        return m_featureManager;
     }
 
     @Required

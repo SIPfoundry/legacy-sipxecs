@@ -1,0 +1,63 @@
+$TTL 1800
+@       IN     SOA    ns1.<%= domain %>. root.<%= domain %>. (
+                       <%= serialno %> ; serial#
+                       1800            ; refresh, seconds
+                       1800            ; retry, seconds
+                       1800            ; expire, seconds
+                       1800 )          ; minimum TTL, seconds
+<% 
+  dns_servers.each { |server| 
+%><%= domain %>.            IN     NS     <%= server[:name] %>.
+<%}
+
+  naptr_protocols.each { |proto| 
+  protoCode = 'SIP+D2' + proto[0,1].upcase  # SIP+D2T
+%><%= domain %>.               IN      NAPTR   2 0 "s" "<%= protoCode %>" "" _sip._<%= proto %>.<%= domain %>.
+<%} 
+
+  # distribute traffic equally for now to each proxy
+  sip_protocols.each { |proto|
+    if proxy_servers
+      proxy_servers.each { |server| 
+        if proto == 'tls'
+%>_sips._tcp.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
+_sip._tls.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
+<%
+        else
+
+%>_sip._<%= proto %>.<%= domain %>.     IN      SRV     10 10 5060 <%= server[:name] %>.
+<%      end
+      }
+    end
+  }
+
+  if resource_records
+    resource_records.each { |rr|
+      if rr[:records]
+        rr[:records].each { |a|
+%><%= rr[:proto] %>.<%= rr[:resource] %>.<%= domain %>.   IN    SRV   10 10 <%= a[:port] %> <%= a[:name] %>.
+<%
+          rr[:records].each { |b|
+            # give priority to local registrar
+            rr_priority = (a == b ? '10' : '20')
+%><%= rr[:proto] %>.<%= rr[:resource] %>.<%= a[:name] %>.   IN    SRV   <%= rr_priority %> 10 <%= b[:port] %> <%= b[:name] %>.
+<%        } 
+        }
+      end
+    } 
+  end
+
+
+  if im_servers
+    im_servers.each { |server| 
+%>_xmpp-server._tcp.<%= domain %>.     IN   SRV   10  10  5269  <%= server[:name] %>.
+_xmpp-client._tcp.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
+_xmpp-server._tcp.conference.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
+_xmpp-client._tcp.conference.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
+<%  } 
+  end
+
+  all_servers.each { |server| 
+%><%= server[:name] %>.           IN      A       <%= server[:ipv4] %>
+<%}
+%>

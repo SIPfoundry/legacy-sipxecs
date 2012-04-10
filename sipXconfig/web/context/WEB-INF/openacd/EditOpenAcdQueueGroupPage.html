@@ -33,6 +33,10 @@
 		  </tr>
         </tbody>
       </table>
+      <span jwcid="@If" condition="ognl:renderRecipe">
+          <span jwcid="recipes@openacd/OpenAcdRecipeComponent"
+            objectWithRecipe="ognl:queueGroup"/>
+	  </span>
     </fieldset>
     <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
   </form>

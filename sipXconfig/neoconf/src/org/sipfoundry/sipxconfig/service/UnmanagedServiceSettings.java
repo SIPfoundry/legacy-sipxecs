@@ -1,23 +1,30 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public class UnmanagedServiceSettings extends PersistableSettings {
     private LocationsManager m_locationsManager;
@@ -46,27 +53,8 @@ public class UnmanagedServiceSettings extends PersistableSettings {
         return getSettingValue("services/syslog");
     }
 
-    public List<Address> getAddresses(String setting) {
-        List<Address> addresses = Collections.emptyList();
-        Setting s = getSettings().getSetting(setting);
-        if (s instanceof SettingSet) {
-            SettingSet set = (SettingSet) getSettings().getSetting(setting);
-            Collection<Setting> values = set.getValues();
-            addresses = new ArrayList<Address>();
-            for (Setting server : values) {
-                String value = server.getValue();
-                if (value != null) {
-                    addresses.add(new Address(value));
-                }
-            }
-        } else {
-            String value = s.getValue();
-            if (value != null) {
-                addresses = Collections.singletonList(new Address(value));
-            }
-        }
-
-        return addresses;
+    public List<Address> getAddresses(AddressType t, String setting) {
+        return SettingUtil.getAddresses(t, getSettings(), setting);
     }
 
     @Override

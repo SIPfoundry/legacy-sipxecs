@@ -7,6 +7,7 @@ INCLUDES = \
 bin_PROGRAMS = sipstatus
 
 sipstatus_LDADD = \
+	-lmongoclient \
 	@SIPXCOMMSERVER_LIBS@
 
 sipstatus_CXXFLAGS = \

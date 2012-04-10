@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.site.openacd;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +108,7 @@ public abstract class OpenAcdSkillsList extends BaseComponent {
         super.prepareForRender(cycle);
 
         setSkillsSize(0);
-        Set<OpenAcdSkill> assignedSkills = null;
+        Set<OpenAcdSkill> assignedSkills = new HashSet<OpenAcdSkill>();
         if (getAgentGroup() != null) {
             assignedSkills = getAgentGroup().getSkills();
             initQueueSelections(getAgentGroup().getQueues());

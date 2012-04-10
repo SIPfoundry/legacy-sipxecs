@@ -72,18 +72,22 @@ public class MappingRulesTest extends XMLTestCase {
     public void setUp() {
         m_out = new MappingRules();
         m_out.setDomainName("example.org");
-        m_out.setLocation(TestHelper.createDefaultLocation());
+        Location l = TestHelper.createDefaultLocation();
+        m_out.setLocation(l);
         
         m_addressManager = createMock(AddressManager.class);
-        m_addressManager.getSingleAddress(Rls.TCP_SIP, DialPlanContext.FEATURE);
-        expectLastCall().andReturn(new Address("192.168.1.5", 9906)).anyTimes();
-        m_addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, DialPlanContext.FEATURE);
-        expectLastCall().andReturn(new Address("park.example.org", 100)).anyTimes();
-        m_addressManager.getSingleAddress(PagingContext.SIP_TCP, DialPlanContext.FEATURE);
-        expectLastCall().andReturn(new Address("page.example.org", 101)).anyTimes();
+        m_addressManager.getSingleAddress(Rls.TCP_SIP, l);
+        expectLastCall().andReturn(new Address(Rls.TCP_SIP, "192.168.1.5", 9906)).anyTimes();
+        m_addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, l);
+        expectLastCall().andReturn(new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 100)).anyTimes();
+        m_addressManager.getSingleAddress(PagingContext.SIP_TCP, l);
+        expectLastCall().andReturn(new Address(PagingContext.SIP_TCP, "page.example.org", 101)).anyTimes();
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, l);
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "192.168.1.1", 102)).anyTimes();
         m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-        expectLastCall().andReturn(new Address("192.168.1.1")).anyTimes();
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "192.168.1.1", 102)).anyTimes();
         replay(m_addressManager);
+        
         m_out.setAddressManager(m_addressManager);
     }
 

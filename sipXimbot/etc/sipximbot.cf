@@ -1,0 +1,101 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# sipximbot configuration and process management
+#
+bundle agent sipximbot {
+  methods:
+    sipximbot::
+      "any" usebundle => "sipximbot_config";
+    any::
+      "any" usebundle => "sipximbot_setup";
+      "any" usebundle => "sipximbot_running";
+}
+
+bundle agent sipximbot_config {
+  vars:    
+    any::
+      "xml_file_norestart" slist => { 
+        "xmpp-account-info.xml"
+      };
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipximbot.properties"
+        comment => "install imbot config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipximbot_properties_contents,
+        classes => if_repaired("restart_sipximbot");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
+        comment => "install imbot config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)");
+
+}
+
+bundle edit_line sipximbot_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipximbot.properties.part"
+        insert_type => "file";
+      "log.file=$(sipx.SIPX_LOGDIR)/sipximbot.log";
+      "imbot.docDirectory=$(sipx.wwwdir)/doc";
+      "imbot.sipxchangeDomainName=$(sipx.domain)";
+      "imbot.realm=$(sipx.realm)";
+  delete_lines:
+    any::
+      ".*";
+}
+
+
+bundle agent sipximbot_setup {
+  methods:
+    !src.sipximbot::
+      "any" usebundle => rh_chkconfig_status("sipximbot on");
+    !src.!sipximbot::
+      "any" usebundle => rh_chkconfig_status("sipximbot off");
+}
+
+bundle agent sipximbot_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipximbot\s.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipximbot_running");
+
+  commands:
+    (!sipximbot|stop_sipxecs).sipximbot_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipximbot"
+        comment => "stop sipximbot",
+        args => "stop";
+
+    sipximbot.!sipximbot_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipximbot"
+        comment => "start sipximbot",
+        args => "start";
+
+    sipximbot.sipximbot_running.(restart_sipxecs|restart_sipximbot)::
+      "$(sipx.SIPX_SERVICEDIR)/sipximbot"
+        comment => "restart sipximbot",
+        args => "restart";
+}
+
+
+

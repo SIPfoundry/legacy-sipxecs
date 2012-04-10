@@ -57,76 +57,22 @@
         </tbody>
       </table>
       <span jwcid="@If" condition="ognl:renderRecipe">
-	  <ul class="component-links">
-		<li>
-		  <a jwcid="addRecipeStepLink@LinkSubmit" id="link.addRecipeStep" listener="listener:addRecipeStep">
-			<span key="link.addRecipeStep">Add Recipe Step</span>
-		  </a>
-		</li>
-	  </ul>
-	  <table jwcid="@common/Table" id="recipeSteps:list"
-		  columns="* criteria, action"
-		  source="ognl:recipeSteps.values"
-		  row="ognl:recipeStepBean"
-		  selections="bean:selections">
-		<tbody>
-		  <tr jwcid="criteriaColumnValue@Block">
-			<td jwcid="@openacd/OpenAcdRecipeConditionComponent" recipeStepBean="ognl:recipeStepBean"/>
-		  </tr>
-		  <tr jwcid="actionColumnValue@Block">
-			<table>
-			  <tr>
-				<td>
-				  <span jwcid="action@PropertySelection" id="action"
-					model="ognl:actionModel"
-					value="ognl:recipeStepBean.recipeStep.action.action"
-					onchange="javascript:this.form.submit();" />
-				</td>
-				<span jwcid="@If" condition="ognl:priorityComponent">
-				<td>
-				  <span jwcid="priority@TextField" id="priority" size="8"
-					value="ognl:recipeStepBean.recipeStep.action.actionValue"
-					validators="spring-validators:validPhone,required"
-					displayName="message:action.priority"/>
-				</td>
+      <div jwcid="@If" condition="ognl:inheritedRecipes.size() > 0">
+      <table>
+	   <tbody>
+	   <tr>
+	    <td><label class="settingLabel"><span jwcid="@Insert" value="message:label.inherited.recipes" /></label></td>
+		<td><ul>
+				<span jwcid="@For" source="ognl:inheritedRecipes" value="ognl:recipe">
+				  <li><label class="settingLabel"><span jwcid="@Insert" value="ognl:recipe"/></label></li>
 				</span>
-				<span jwcid="@If" condition="ognl:mediaAnnounceComponent">
-				<td>
-				  <span jwcid="mediaAnnounce@TextField" id="mediaAnnounce" size="8"
-					value="ognl:recipeStepBean.recipeStep.action.actionValue" 
-					validators="validators:required"
-					displayName="message:action.announce"/>
-				</td>
-				</span>
-			  </tr>
-			  <span jwcid="@If" condition="ognl:skillComponent">
-			  <tr>
-				<span jwcid="@openacd/OpenAcdSkillsList" recipeAction="ognl:recipeStepBean.recipeStep.action" defaultRecipeSkills="ognl:queue.skills" />
-			  </tr>
-			  </span>
-			  <tr>
-				<td>
-				  <span jwcid="frequency@PropertySelection" id="frequency"
-					model="ognl:frequencyModel"
-					value="ognl:recipeStepBean.recipeStep.frequency"/>
-				</td>
-			  </tr>
-			</table>
-		  </tr>
-		</tbody>
-	  </table>
-	  <ul class="component-submit">
-		<li>
-		  <input jwcid="delete@Submit" id="recipeSteps:delete"
-			  listener="listener:deleteSteps"
-			  selected="ognl:selectedRows"
-			  tag="ognl:selections.allSelected"
-			  value="message:button.delete" />
-			<span jwcid="@common/Confirm"
-				component="component:delete"
-				prompt="message:confirm.delete"/>
-		</li>
-	  </ul>
+				</ul>
+		</td>
+		</tr>
+		</table>
+		</div>
+        <span jwcid="recipes@openacd/OpenAcdRecipeComponent"
+           objectWithRecipe="ognl:queue"/>
 	  </span>
     </fieldset>
     <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>

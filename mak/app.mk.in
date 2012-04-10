@@ -11,16 +11,10 @@ sf_broken = \
   sipXpreflight \
   sipXrls \
   sipXsaa \
-  sipXrest \
-  sipXcallController \
-  sipXcdrLog \
   sipXtools \
   sipXpark \
   sipXpresence \
-  sipXimbot \
   sipXpage \
-  sipXprovision \
-  sipXrecording \
   sipXphonelog
 
 sf = \
@@ -40,7 +34,14 @@ sf = \
   sipXsnom \
   sipXunidata \
   sipXgrandstream \
-  sipXexample
+  sipXimbot \
+  sipXexample \
+  sipXrest \
+  sipXcallController \
+  sipXcdrLog \
+  sipXevent \
+  sipXrecording \
+  sipXprovision
 
 lang = \
   sipXlang-abitibi-fr_CA \

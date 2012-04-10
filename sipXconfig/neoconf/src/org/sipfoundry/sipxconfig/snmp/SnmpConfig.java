@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.snmp;
 
@@ -15,41 +24,65 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 
-public class SnmpConfig implements ConfigProvider, FeatureListener {
+public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListener {
     private SnmpManager m_snmp;
     private ConfigManager m_configManager;
 
+    public void setup(SetupManager manager) {
+        if (!manager.isSetup(SnmpManager.FEATURE.getId())) {
+            // SNMP is pretty core to the system, enable it by default
+            manager.getFeatureManager().enableGlobalFeature(SnmpManager.FEATURE, true);
+            manager.setSetup(SnmpManager.FEATURE.getId());
+        }
+    }
+
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(SnmpManager.FEATURE)) {
+        if (!request.applies(SnmpManager.FEATURE, LocationsManager.FEATURE)) {
             return;
         }
         Set<Location> locations = request.locations(manager);
-        for (Location location : locations) {
-            File dir = manager.getLocationDataDirectory(location);
-            List<ProcessDefinition> defs = m_snmp.getProcessDefinitions(location);
-            Writer wtr = new FileWriter(new File(dir, "snmpd.conf.part"));
-            try {
-                writeProcesses(wtr, defs);
-            } finally {
-                IOUtils.closeQuietly(wtr);
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(SnmpManager.FEATURE);
+        File gdir = manager.getGlobalDataDirectory();
+        ConfigUtils.enableCfengineClass(gdir, "snmpd.cfdat", enabled, SnmpManager.FEATURE.getId());
+        if (enabled) {
+            for (Location location : locations) {
+                File dir = manager.getLocationDataDirectory(location);
+                List<ProcessDefinition> defs = m_snmp.getProcessDefinitions(location);
+                Writer wtr = new FileWriter(new File(dir, "snmpd.conf.part"));
+                try {
+                    writeProcesses(wtr, defs);
+                } finally {
+                    IOUtils.closeQuietly(wtr);
+                }
             }
         }
     }
 
     void writeProcesses(Writer w, List<ProcessDefinition> defs) throws IOException {
         for (ProcessDefinition def : defs) {
-            w.write("proc ");
+            w.write("regexp_proc ");
             w.write(def.getProcess());
+            String regexp = def.getRegexp();
+            if (StringUtils.isNotBlank(regexp)) {
+                // max min  (max of 0 means unlimited)
+                w.write(" 0 1 ");
+                w.write(regexp);
+            }
             w.write("\n");
         }
     }

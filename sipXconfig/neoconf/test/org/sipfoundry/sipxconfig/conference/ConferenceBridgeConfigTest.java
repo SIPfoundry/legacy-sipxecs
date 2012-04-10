@@ -49,10 +49,10 @@ public class ConferenceBridgeConfigTest extends TestCase {
         replay(domainManager);
         
         AddressManager addressManager = createMock(AddressManager.class);
-        addressManager.getSingleAddress(Ivr.REST_API, ConferenceBridgeContext.FEATURE);
-        expectLastCall().andReturn(new Address("ivr.example.com", 1111)).anyTimes();
-        addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
-        expectLastCall().andReturn(new Address("fs.example.com", 2222)).anyTimes();        
+        addressManager.getSingleAddress(Ivr.REST_API);
+        expectLastCall().andReturn(new Address(Ivr.REST_API, "ivr.example.com", 1111)).anyTimes();
+        addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "fs.example.com", 2222)).anyTimes();        
         replay(addressManager);
         
         Conference conf1 = new Conference();

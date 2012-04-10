@@ -58,6 +58,12 @@
           </tr>
           <tr>
             <td>
+              <input jwcid="checkDeviceConfig@Checkbox" id="backup:check:deviceconfig" value="ognl:backupPlan.deviceConfig"/>
+              <label for="backup:check:deviceconfig"><span key="label.deviceconfig"/></label>
+            </td>
+          </tr>          
+          <tr>
+            <td>
               <input jwcid="checkVoicemail@Checkbox" id="backup:check:voicemail" value="ognl:backupPlan.voicemail"/>
               <label for="backup:check:voicemail"><span key="label.voicemail"/></label>
             </td>
@@ -67,7 +73,7 @@
               <input jwcid="checkCdr@Checkbox" id="backup:check:cdr" value="ognl:backupPlan.cdr"/>
               <label for="backup:check:cdr"><span key="label.cdr"/></label>
             </td>
-          </tr>
+          </tr>          
           <tr jwcid="@common/FieldPanel"
             for="backup:limit"
             label="message:label.limitCount"

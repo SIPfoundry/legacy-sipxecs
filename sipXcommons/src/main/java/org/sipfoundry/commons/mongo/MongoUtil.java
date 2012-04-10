@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.commons.mongo;
 
@@ -37,12 +46,20 @@ public final class MongoUtil {
      *  BasicBSONObject ret = MongoUtil.runCommand(m_db, "rs.config()");
      */
     public static BasicBSONObject runCommand(DB db, String command) {
-        CommandResult status = db.doEval(command);
+        CommandResult status = db.doEval(command);        
         if (!status.ok()) {
             String msg = format("Cannot run command '%s'. Result '%s'.", command, status);
             throw new MongoCommandException(msg);
         }
         return getObject(status, "retval");
+    }
+    
+    public static void checkForError(BasicBSONObject o) {
+        int ok = o.getInt("ok");
+        if (ok == 0) {
+            String what = o.getString("assertion");
+            throw new MongoCommandException(what);
+        }
     }
 
     /**

@@ -1,0 +1,71 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipxprovision configuration and process management
+#
+bundle agent sipxprovision {
+  methods:
+    sipxprovision::
+      "any" usebundle => "sipxprovision_config";
+    any::
+      "any" usebundle => "sipxprovision_setup";
+      "any" usebundle => "sipxprovision_running";
+}
+
+bundle agent sipxprovision_config {
+  files:  
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxprovision-config"
+        comment => "install sipxprovision config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxprovision_properties_contents,
+        classes => if_repaired("restart_sipxprovision");
+}
+
+bundle edit_line sipxprovision_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxprovision-config.part"
+        insert_type => "file";
+      "log.file=$(sipx.SIPX_LOGDIR)/sipxprovision.log";
+      "provision.sipxchangeDomainName=$(sipx.domain)";    
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxprovision_setup {
+  methods:
+    !src.sipxprovision::
+      "any" usebundle => rh_chkconfig_status("sipxprovision on");
+    !src.!sipxprovision::
+      "any" usebundle => rh_chkconfig_status("sipxprovision off");
+}
+
+bundle agent sipxprovision_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipxprovision\s.*";
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxprovision_running");
+
+  commands:
+    !sipxprovision.sipxprovision_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxprovision"
+        comment => "stop sipxprovision",
+        args => "stop";
+
+    sipxprovision.!sipxprovision_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxprovision"
+        comment => "start sipxprovision",
+        args => "start";
+
+    sipxprovision.sipxprovision_running.(restart_sipxecs|restart_sipxprovision)::
+      "$(sipx.SIPX_SERVICEDIR)/sipxprovision"
+        comment => "restart sipxprovision",
+        args => "restart";
+}

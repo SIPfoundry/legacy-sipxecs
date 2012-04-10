@@ -40,11 +40,12 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
     public static final String VOICEMAIL_ARCHIVE = "voicemail.tar.gz";
     public static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
     public static final String CDR_ARCHIVE = "cdr.tar.gz";
+    public static final String DEVICE_CONFIG = "device_config.tar.gz";
     public static final FilenameFilter BACKUP_FILE_FILTER = new FilenameFilter() {
         @Override
         public boolean accept(File dir, String name) {
             return StringUtils.equals(name, VOICEMAIL_ARCHIVE) || StringUtils.equals(name, CONFIGURATION_ARCHIVE)
-                || StringUtils.equals(name, CDR_ARCHIVE);
+                || StringUtils.equals(name, CDR_ARCHIVE) || StringUtils.equals(name, DEVICE_CONFIG);
         }
     };
     private static final SimpleDateFormat FILE_NAME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
@@ -56,6 +57,7 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
     private boolean m_voicemail = true;
     private boolean m_configs = true;
     private boolean m_cdr = true;
+    private boolean m_deviceConfig = true;
     private Integer m_limitedCount = 50;
     private Date m_backupTime;
     private String m_emailAddress;
@@ -186,6 +188,11 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
             success = perform(workingDir, binDir, "-cdr");
         }
 
+        if (isDeviceConfig() && success) {
+            // call detail records backup
+            success = perform(workingDir, binDir, "-dc");
+        }
+
         return success;
     }
 
@@ -232,6 +239,10 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         if (isCdr()) {
             File cdr = new File(backupDir, CDR_ARCHIVE);
             files.add(cdr);
+        }
+        if (isDeviceConfig()) {
+            File deviceConfig = new File(backupDir, DEVICE_CONFIG);
+            files.add(deviceConfig);
         }
         return (File[]) files.toArray(new File[files.size()]);
     }
@@ -286,12 +297,20 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         m_cdr = cdr;
     }
 
+    public boolean isDeviceConfig() {
+        return m_deviceConfig;
+    }
+
+    public void setDeviceConfig(boolean deviceConfig) {
+        m_deviceConfig = deviceConfig;
+    }
+
     /**
      * For backup to make sense at least one of the parameters (i.e. voicemail or configuration)
      * have to be set.
      */
     public boolean isEmpty() {
-        return !(m_voicemail || m_configs || m_cdr);
+        return !(m_voicemail || m_configs || m_cdr || m_deviceConfig);
     }
 
     public void schedule(Timer timer, String binPath) {

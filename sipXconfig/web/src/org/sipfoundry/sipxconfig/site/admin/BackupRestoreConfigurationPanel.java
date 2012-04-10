@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.FtpBackupPlan;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServerConfig;
 import org.sipfoundry.sipxconfig.site.common.IPageWithReset;
 
 @ComponentClass
@@ -28,7 +28,7 @@ public abstract class BackupRestoreConfigurationPanel extends BaseComponent impl
     @InjectObject(value = "spring:backupManager")
     public abstract BackupManager getBackupManager();
 
-    public abstract void setFtpConfiguration(FtpConfiguration ftpConfiguration);
+    public abstract void setFtpConfiguration(FtpExternalServerConfig ftpConfiguration);
 
     public abstract BackupPlan getBackupPlan();
 

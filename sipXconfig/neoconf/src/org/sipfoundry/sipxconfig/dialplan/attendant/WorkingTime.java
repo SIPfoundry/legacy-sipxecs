@@ -333,7 +333,7 @@ public class WorkingTime extends ScheduledAttendant {
     }
 
     public static class OverlappingPeriodsException extends UserException {
-        private static final String ERROR = "Periods defined overlap. Please modify them in order to proceed";
+        private static final String ERROR = "&error.overlappingPeriodsException";
 
         public OverlappingPeriodsException() {
             super(ERROR);
@@ -341,7 +341,7 @@ public class WorkingTime extends ScheduledAttendant {
     }
 
     public static class InvalidPeriodException extends UserException {
-        private static final String ERROR = "The start time of one of the periods is after the stop time.";
+        private static final String ERROR = "&error.invalidPeriodException";
 
         public InvalidPeriodException() {
             super(ERROR);
@@ -349,7 +349,7 @@ public class WorkingTime extends ScheduledAttendant {
     }
 
     public static class SameStartAndStopHoursException extends UserException {
-        private static final String ERROR = "The start time equals the stop time.";
+        private static final String ERROR = "&error.sameStartAndStopHoursException";
 
         public SameStartAndStopHoursException() {
             super(ERROR);

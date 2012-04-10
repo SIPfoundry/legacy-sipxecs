@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipxivr configuration and process management
@@ -9,13 +18,15 @@ bundle agent sipxivr {
   methods:
     sipxivr::
       "any" usebundle => "sipxivr_config";
-      "any" usebundle => "sipxivr_setup";
+    moh::
+      "any" usebundle => "sync_moh_prompts";
     any::
+      "any" usebundle => "sipxivr_setup";
       "any" usebundle => "sipxivr_running";
 }
 
 bundle agent sipxivr_config {
-  vars:    
+  vars:
     any::
       "xml_file" slist => { 
         "autoattendants.xml",
@@ -24,19 +35,40 @@ bundle agent sipxivr_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxivr.properties"
+        comment => "install sipxivr config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	edit_line => sipxivr_properties_contents,
-        classes => if_repaired("restart_sipxivr"),
-	action => track("$(this.promiser)");
+        edit_line => sipxivr_properties_contents,
+        classes => if_repaired("restart_sipxivr");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        comment => "install sipxivr config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxivr"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxivr");
+
+    !primary::
+      "$(sipx.SIPX_IVRDATADIR)/prompts"
+        comment => "sync AA prompts",
+        create => "true",
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_IVRDATADIR)/prompts"),
+        file_select => wav_prompt,
+        depth_search => recurse("1");
+}
+
+bundle agent sync_moh_prompts {
+    files:
+      !primary::
+        "$(sipx.SIPX_IVRDATADIR)/moh"
+         comment => "sync MoH files",
+         create => "true",
+         perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+         copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_IVRDATADIR)/moh"),
+         file_select => wav_prompt,
+         depth_search => recurse("2");
 }
 
 bundle edit_line sipxivr_properties_contents {
@@ -48,13 +80,15 @@ bundle edit_line sipxivr_properties_contents {
       "ivr.realm=$(sipx.realm)";
       "log.file=$(sipx.SIPX_LOGDIR)/sipxivr.log";
       "ivr.dataDirectory=$(sipx.SIPX_IVRDATADIR)";
+      "ivr.identity=$(sipx.location_id)";
       "ivr.mailstoreDirectory=$(sipx.SIPX_IVRDATADIR)/mailstore";
       "ivr.promptsDirectory=$(sipx.SIPX_IVRDATADIR)/prompts";
       "ivr.scriptsDirectory=$(sipx.wwwdir)/doc/aa_vxml";
       "ivr.docDirectory=$(sipx.wwwdir)/doc";
+      "ivr.logDirectory=$(sipx.SIPX_LOGDIR)";
       "ivr.organizationPrefs=$(sipx.SIPX_IVRDATADIR)/organizationprefs.xml";
       "ivr.binDirectory=$(sipx.SIPX_BINDIR)";
-	  "ivr.backupPath=$(sipx.SIPX_VARDIR)/backup";
+     "ivr.backupPath=$(sipx.SIPX_VARDIR)/backup";
   delete_lines:
     any::
       ".*";
@@ -64,7 +98,9 @@ bundle edit_line sipxivr_properties_contents {
 bundle agent sipxivr_setup {
   methods:
     !src.sipxivr::
-      "any" usebundle => rh_chkconfig_status("sipxivr");
+      "any" usebundle => rh_chkconfig_status("sipxivr on");
+    !src.!sipxivr::
+      "any" usebundle => rh_chkconfig_status("sipxivr off");
 }
 
 bundle agent sipxivr_running {
@@ -77,21 +113,34 @@ bundle agent sipxivr_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxivr_running");
 
   commands:
-    sipxivr_running.!sipxivr::
+    (!sipxivr|stop_sipxecs).sipxivr_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxivr"
-        args => "stop",
-	action => track("sipxivr stop");
+        comment => "stop sipxivr",
+        args => "stop";
 
-    !sipxivr_running.sipxivr::
+    sipxivr.!sipxivr_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxivr"
-        args => "start",
-	action => track("sipxivr start");
+        comment => "start sipxivr",
+        args => "start";
 
-    restart_sipxivr::
+    sipxivr.sipxivr_running.(restart_sipxecs|restart_sipxivr)::
       "$(sipx.SIPX_SERVICEDIR)/sipxivr"
-        args => "restart",
-	action => track("sipxivr restart");
+        comment => "restart sipxivr",
+        args => "restart";
 }
 
+body copy_from copy_prompts(server,file) {
+  servers => { "$(server)" };
+  source => "$(file)";
+  compare => "digest";
+  trustkey => "true";
+  purge => "true";
+}
 
+body file_select wav_prompt {
+  leaf_name => {
+    ".*\.wav"
+  };
+  file_result => "leaf_name";
+}
 

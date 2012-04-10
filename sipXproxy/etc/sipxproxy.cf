@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipXproxy configuration and process management
@@ -8,10 +17,23 @@
 bundle agent sipxproxy {
   methods:
     sipxproxy::
+      "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxproxy_config";
-      "any" usebundle => "sipxproxy_setup";
     any::
+      "any" usebundle => "sipxproxy_setup";
       "any" usebundle => "sipxproxy_running";
+    sipxlogwatcher::
+      "any" usebundle => "sipxproxy_logwatcher";
+}
+
+bundle agent sipxproxy_logwatcher {
+  files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxproxy.sec"
+      comment => "sipxproxy log watcher",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxproxy/sipxproxy.sec.erb --out $(this.promiser)",
+      classes => if_repaired("reload_sipxlogwatcher");
 }
 
 bundle agent sipxproxy_config {
@@ -26,26 +48,25 @@ bundle agent sipxproxy_config {
         "fallbackrules.xml",
         "forwardingrules.xml",
         "nattraversalrules.xml",
-        "sipxbridge.xml",
-        "callresolver-config"
+        "sipxbridge.xml"
       };
 
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipXproxy-config"
+        comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => sipXproxy_config_contents(),
-        classes => if_repaired("restart_sipxproxy"),
-	action => track("sipXproxy-config");
+        classes => if_repaired("restart_sipxproxy");
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxproxy"),
-	action => track("$(xml_file)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxproxy");
 }
 
 bundle edit_line sipXproxy_config_contents() {
@@ -74,8 +95,10 @@ bundle edit_line sipXproxy_config_contents() {
 
 bundle agent sipxproxy_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxproxy");
+    !src.sipxproxy::
+      "any" usebundle => rh_chkconfig_status("sipxproxy on");
+    !src.!sipxproxy::
+      "any" usebundle => rh_chkconfig_status("sipxproxy off");
 }
 
 bundle agent sipxproxy_running {
@@ -88,19 +111,19 @@ bundle agent sipxproxy_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxproxy_running");
 
   commands:
-    sipxproxy_running.!sipxproxy::
+    (!sipxproxy|stop_sipxecs).sipxproxy_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        args => "stop",
-	action => track("sipxproxy_stop");
+        comment => "stop sipxproxy",
+        args => "stop";
 
-    !sipxproxy_running.sipxproxy::
+    sipxproxy.!sipxproxy_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        args => "start",
-	action => track("sipxproxy_start");
+        comment => "start sipxproxy",
+        args => "start";
 
-    restart_sipxproxy::
+    sipxproxy.sipxproxy_running.(restart_sipxproxy|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        args => "restart",
-	action => track("sipxproxy_restart");
+        comment => "restart sipxproxy",
+        args => "restart";
 }
 

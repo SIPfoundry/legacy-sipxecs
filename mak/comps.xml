@@ -1,34 +1,53 @@
 <?xml version="1.0"?>
 <!DOCTYPE comps PUBLIC "-//The cAos Project//DTD Comps info//EN" "comps.dtd">
-<!--
-  - I cannot get groups to be recursive. groupreq doesn't appear to have
-  - much effect. See
-  -   https://lists.dulug.duke.edu/pipermail/yum-devel/2006-May/002140.html
-  - categories do not help either. From what I can tell, you need to duplicate
-  - package dependencies
-  -->
 <comps>
   <group>
    <id>sipxecs</id>
    <uservisible>true</uservisible>
-   <name>sipXecs PBX</name>
-   <description>Standard sipXpbx PBX</description>
+   <name>sipXecs UCnified Communications System</name>
+   <description>Primary or main sipXecs install, Install more than you
+   may use, but not everything is enabled by default</description>
    <packagelist>
      <packagereq type="mandatory">sipxproxy</packagereq>
      <packagereq type="mandatory">sipxpublisher</packagereq>
      <packagereq type="mandatory">sipxregistry</packagereq>
      <packagereq type="mandatory">sipxconfig</packagereq>
-     <!-- counterpath : deps because of web deployment issues -->
-     <packagereq type="mandatory">sipxcounterpath</packagereq>
-     <packagereq type="mandatory">sipxpolycom</packagereq>
-     <packagereq type="mandatory">sipxaudiocodes</packagereq>
      <packagereq type="mandatory">sipxbridge</packagereq>
      <packagereq type="mandatory">sipxivr</packagereq>
      <packagereq type="mandatory">sipxopenfire</packagereq>
      <packagereq type="mandatory">sipxfreeswitch</packagereq>
+     <packagereq type="mandatory">sipxdns</packagereq>
+     <!-- polycom arguable the defacto, but not strictly required -->
+     <packagereq type="mandatory">sipxpolycom</packagereq>
+     <!-- good to have one gateway option installed -->
+     <packagereq type="mandatory">sipxaudiocodes</packagereq>
+     <!-- counterpath : deps because of web deployment issues -->
+     <packagereq type="mandatory">sipxcounterpath</packagereq>
      <!-- 4.4 feature compatibility -->
      <packagereq type="mandatory">sipxconfig-ftp</packagereq>
      <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <packagereq type="mandatory">sipxsnmp</packagereq>
+     <packagereq type="mandatory">sipxrecording</packagereq>
+     <packagereq type="mandatory">sipxcdr</packagereq>
+   </packagelist>
+  </group>
+  <group>
+   <id>sipxecs-2nd</id>
+   <uservisible>true</uservisible>
+   <name>sipXecs Additional Server</name>
+   <description>When you're installing addition systems.  You could install sipxecs but
+   there would be many components you wouldn't need because they are only relevant on the
+   primary server.</description>
+   <packagelist>
+     <packagereq type="mandatory">sipxproxy</packagereq>
+     <packagereq type="mandatory">sipxpublisher</packagereq>
+     <packagereq type="mandatory">sipxregistry</packagereq>
+     <packagereq type="mandatory">sipxbridge</packagereq>
+     <packagereq type="mandatory">sipxivr</packagereq>
+     <packagereq type="mandatory">sipxopenfire</packagereq>
+     <packagereq type="mandatory">sipxfreeswitch</packagereq>
+     <packagereq type="mandatory">sipxdns</packagereq>
+     <packagereq type="mandatory">sipxsnmp</packagereq>
    </packagelist>
   </group>
 </comps>

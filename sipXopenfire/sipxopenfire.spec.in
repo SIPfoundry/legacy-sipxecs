@@ -62,5 +62,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.enable_openfire_admin_console
 %{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.disable_openfire_admin_console
 %{_datadir}/java/sipXecs/sipXopenfire/lib/*.jar
-%{_datadir}/java/sipXecs/sipXconfig/plugins/cfg-service.jar
-
+%{_datadir}/java/sipXecs/sipXconfig/plugins/openfire-cfg-service.jar
+%dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
+%{_localstatedir}/sipxdata/cfdata/defaults/sipxopenfire.cfdat

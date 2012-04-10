@@ -1,4 +1,11 @@
-#!@BASH@
+#!/bin/bash
+
+# sipxcdr - Startup script for sipxcdr
+
+# chkconfig: 35 85 15
+# description: sipxcdr is a CDR (Call Distribution Record) aggregration
+# processname: sipxcdr
+
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -407,22 +414,6 @@ onSetup() {
     then
        databaseCommand create
        # echo 'CDR database created'
-    fi
-    # Ensure that sipx-sudo-restore is owned by root and
-    # that the UID permission bit is set.
-    # sipxcdr may run on a secondary location and sipx-sudo-restore is used for restoring cdr on this location
-    #TODO port this code snipped to cfengine
-    if test -e @bindir@/sipx-sudo-restore
-    then
-        is_file_owned_by_username  @bindir@/sipx-sudo-restore "root"
-        if [ $? -ne 0 ]
-        then
-            chown root @bindir@/sipx-sudo-restore
-        fi
-        if test ! -x @bindir@/sipx-sudo-restore -o ! -u @bindir@/sipx-sudo-restore
-        then
-            chmod 4755 @bindir@/sipx-sudo-restore
-        fi
     fi
 }
 

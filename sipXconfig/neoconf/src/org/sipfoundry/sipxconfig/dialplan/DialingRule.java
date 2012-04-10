@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
@@ -49,6 +50,7 @@ public abstract class DialingRule extends BeanWithId implements NamedObject, IDi
     private List<Gateway> m_gateways = new ArrayList<Gateway>();
     private transient PermissionManager m_permissionManager;
     private Schedule m_schedule;
+    private Location m_location;
 
     public abstract String[] getPatterns();
 
@@ -93,6 +95,14 @@ public abstract class DialingRule extends BeanWithId implements NamedObject, IDi
 
     public List<Gateway> getGateways() {
         return m_gateways;
+    }
+
+    public void setLocation(Location location) {
+        m_location = location;
+    }
+
+    public Location getLocation() {
+        return m_location;
     }
 
     /**

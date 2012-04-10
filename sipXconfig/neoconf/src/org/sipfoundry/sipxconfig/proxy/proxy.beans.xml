@@ -7,6 +7,7 @@
 
   <bean id="proxyManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="target" ref="proxyManagerImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.proxy.ProxyManager"/>
   </bean>
 
   <bean id="proxyManagerImpl" class="org.sipfoundry.sipxconfig.proxy.ProxyManagerImpl">
@@ -20,6 +21,7 @@
       </bean>
     </property>
     <property name="featureManager" ref="featureManager" />
+    <property name="configManager" ref="configManager" />
   </bean>
 
   <bean id="proxyConfiguration" class="org.sipfoundry.sipxconfig.proxy.ProxyConfiguration">

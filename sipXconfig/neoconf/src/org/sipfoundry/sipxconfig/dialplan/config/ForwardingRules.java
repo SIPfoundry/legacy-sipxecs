@@ -79,10 +79,10 @@ public class ForwardingRules extends RulesFile {
 
         // set required sipx services in context
         context.put("domainName", getDomainName());
-        context.put("proxyAddress", m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS));
-        context.put("statusAddress", m_addressManager.getSingleAddress(Mwi.SIP_TCP));
-        context.put("regEventAddress", m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS));
-        context.put("regAddress", m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS));
+        context.put("proxyAddress", m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS, getLocation()));
+        context.put("statusAddress", m_addressManager.getSingleAddress(Mwi.SIP_TCP, getLocation()));
+        context.put("regEventAddress", m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS, getLocation()));
+        context.put("regAddress", m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS, getLocation()));
         context.put("location", getLocation());
 
         List<BridgeSbc> bridgeSbcs = new ArrayList<BridgeSbc>();

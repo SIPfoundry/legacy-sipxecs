@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipXpage configuration and process management
@@ -9,8 +18,8 @@ bundle agent sipxpage {
   methods:
     sipxpage::
       "any" usebundle => "sipxpage_config";
-      "any" usebundle => "sipxpage_setup";
     any::
+      "any" usebundle => "sipxpage_setup";
       "any" usebundle => "sipxpage_running";
 }
 
@@ -18,11 +27,11 @@ bundle agent sipxpage_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxpage.properties"
+        comment => "install paging config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => sipxpage_properties,
-        classes => if_repaired("restart_sipxpage"),
-	action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxpage");
 }
 
 bundle edit_line sipxpage_properties {
@@ -40,8 +49,10 @@ bundle edit_line sipxpage_properties {
 
 bundle agent sipxpage_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxpage");
+    !src.sipxpage::
+      "any" usebundle => rh_chkconfig_status("sipxpage on");
+    !src.!sipxpage::
+      "any" usebundle => rh_chkconfig_status("sipxpage off");
 }
 
 bundle agent sipxpage_running {
@@ -54,18 +65,18 @@ bundle agent sipxpage_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpage_running");
 
   commands:
-    sipxpage_running.!sipxpage::
+    (!sipxpage|stop_sipxecs).sipxpage_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
-        args => "stop",
-	action => track("sipxpage_stop");
+        comment => "stop sipxpage",
+        args => "stop";
 
-    !sipxpage_running.sipxpage::
+    sipxpage.!sipxpage_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
-        args => "start",
-	action => track("sipxpage_start");
+        comment => "start sipxpage",
+        args => "start";
 
-    restart_sipxpage::
+    sipxpage.sipxpage_running.(restart_sipxpage|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
-        args => "restart",
-	action => track("sipxpage_restart");
+        comment => "restart sipxpage",
+        args => "restart";
 }

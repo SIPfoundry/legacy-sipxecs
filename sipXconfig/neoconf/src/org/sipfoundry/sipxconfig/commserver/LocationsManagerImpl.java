@@ -12,9 +12,13 @@ package org.sipfoundry.sipxconfig.commserver;
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,17 +26,29 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location.State;
+import org.sipfoundry.sipxconfig.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
+public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager,
+        ApplicationListener<ApplicationEvent>, SetupListener {
     public static final Log LOG = LogFactory.getLog(LocationsManagerImpl.class);
     private static final String LOCATION_PROP_NAME = "fqdn";
     private static final String LOCATION_PROP_PRIMARY = "primary";
     private static final String LOCATION_PROP_IP = "ipAddress";
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
+    private JdbcTemplate m_jdbcTemplate;
+    private AuditLogContext m_auditLogContext;
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
@@ -87,10 +103,9 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     /**
      * Stores location without publishing events. Used for migrating locations.
-    @Override
-    public void storeMigratedLocation(Location location) {
-        getHibernateTemplate().saveOrUpdate(location);
-    }
+     *
+     * @Override public void storeMigratedLocation(Location location) {
+     *           getHibernateTemplate().saveOrUpdate(location); }
      */
 
     @Override
@@ -147,12 +162,79 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         if (location.isPrimary()) {
             throw new UserException("&error.delete.primary", location.getFqdn());
         }
-        getHibernateTemplate().delete(location);
-        getHibernateTemplate().flush();
+        // ARGH!! Kept getting duplicate object in session and usual tricks of merge and evict
+        // didn't work so i resorted to SQL. --Douglas
+        Location merge = getHibernateTemplate().merge(location);
+        getHibernateTemplate().delete(merge);
+//        // ARGH!! Kept getting duplicate object in session and usual tricks of merge and evict
+//        // didn't work so i resorted to SQL. --Douglas
+//        m_jdbcTemplate.execute("delete from location where location_id = " + location.getId());
+//        getHibernateTemplate().flush();
     }
 
     @Override
     public Location getPrimaryLocation() {
         return loadLocationByUniqueProperty(LOCATION_PROP_PRIMARY, true);
+    }
+
+    /**
+     * Override ApplicationListener.onApplicationEvent so we can handle events.
+     */
+    @Override
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof ReplicationsFinishedEvent) {
+            updateLocations();
+        }
+    }
+
+    private void updateLocations() {
+        Location[] locations = getLocations();
+        for (Location location : locations) {
+            // location is updated when SendProfiles finished execution and also
+            // if/when any files get replicated in other scenarios based on
+            // AuditLogContext worker's reports
+            // such as when firstRun task is executed or occasional replications
+            // take place when system is up and running
+            Set<String> failedList = m_auditLogContext.getReplicationFailedList(location.getFqdn());
+            if (failedList != null && !failedList.isEmpty()) {
+                // when something failed, we have configuration error
+                Set<String> prevFailedList = location.getFailedReplications();
+                prevFailedList.addAll(failedList);
+                location.setLastAttempt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+                location.setState(State.CONFIGURATION_ERROR);
+                location.setFailedReplications(prevFailedList);
+                // location is configured only when sendProfiles successfully
+                // finished and nothing failed
+            } else if (!m_auditLogContext.isSendProfilesInProgress(location)) {
+                location.setLastAttempt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+                location.setState(State.CONFIGURED);
+                location.setFailedReplications(new TreeSet<String>());
+            } else {
+                // in this case means that nothing failed at this point and we are
+                // in send profiles progress...
+                // we don't have to do anything because we have to wait until send
+                // profiles finishes
+                continue;
+            }
+            getHibernateTemplate().update(location);
+        }
+    }
+
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        m_jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public void setup(SetupManager manager) {
+        if (!manager.isSetup(LocationsManager.FEATURE.getId())) {
+            // Need that host.cfdat file for at least snmpd
+            manager.getFeatureManager().enableGlobalFeature(LocationsManager.FEATURE, true);
+            manager.setSetup(LocationsManager.FEATURE.getId());
+        }
+    }
+
+    @Required
+    public void setAuditLogContext(AuditLogContext auditLogContext) {
+        m_auditLogContext = auditLogContext;
     }
 }

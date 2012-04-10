@@ -27,16 +27,16 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 
-public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replicable {
+public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replicable, OpenAcdObjectWithRecipe {
     private String m_name;
     private String m_description;
     private Set<OpenAcdQueue> m_queues = new LinkedHashSet<OpenAcdQueue>();
     private String m_oldName;
+    private Set<OpenAcdRecipeStep> m_steps = new LinkedHashSet<OpenAcdRecipeStep>();
 
     public String getName() {
         return m_name;
@@ -78,6 +78,22 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replica
         m_oldName = oldName;
     }
 
+    public Set<OpenAcdRecipeStep> getSteps() {
+        return m_steps;
+    }
+
+    public void setSteps(Set<OpenAcdRecipeStep> steps) {
+        m_steps = steps;
+    }
+
+    public void addStep(OpenAcdRecipeStep step) {
+        m_steps.add(step);
+    }
+
+    public void removeStep(OpenAcdRecipeStep step) {
+        m_steps.remove(step);
+    }
+
     public int hashCode() {
         return new HashCodeBuilder().append(m_name).toHashCode();
     }
@@ -100,14 +116,15 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replica
         for (OpenAcdSkill skill : getSkills()) {
             skills.add(skill.getAtom());
         }
-        props.put(MongoConstants.SKILLS, skills);
+        props.put(OpenAcdContext.SKILLS, skills);
 
         List<String> profiles = new ArrayList<String>();
         for (OpenAcdAgentGroup profile : getAgentGroups()) {
             profiles.add(profile.getName());
         }
-        props.put(MongoConstants.PROFILES, profiles);
-        props.put(MongoConstants.OLD_NAME, getOldName());
+        props.put(OpenAcdContext.RECIPES, OpenAcdQueue.constructRecipeMongoObject(m_steps));
+        props.put(OpenAcdContext.PROFILES, profiles);
+        props.put(OpenAcdContext.OLD_NAME, getOldName());
         return props;
     }
 

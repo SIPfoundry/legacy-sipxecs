@@ -12,8 +12,10 @@ package org.sipfoundry.sipxconfig.backup;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +23,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigCommands;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.WaitingListener;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -31,24 +39,20 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class Restore implements Serializable, WaitingListener {
     private static final Log LOG = LogFactory.getLog(Restore.class);
-
     private static final String ERROR = "Errors when executing restore script: %s";
-
-    private static final String RESTORE_BINARY = "sipx-sudo-restore";
-
-    private static final String SPACE = " ";
-
+    private static final String RESTORE_LOG = "sipx-restore.log";
+    private static final String RESTORE_SCRIPT = "sipx-restore";
+    private static final String SEPARATOR = " ";
     private static final int INCOMPATIBLE_VERSIONS = 5;
     private static final int INVALID_CONFIGURATION_ARCHIVE = 7;
     private static final int INVALID_VOICEMAIL_ARCHIVE = 8;
-
-    private static final String RESTORE_LOG = "sipx-restore.log";
-
-    private String m_binDirectory;
     private String m_logDirectory;
+    private String m_binDirectory;
     private MailboxManager m_mailboxManager;
-
     private List<BackupBean> m_selectedBackups;
+    private ConfigCommands m_configCommands;
+    private LocationsManager m_locationsManager;
+    private FeatureManager m_featureManager;
 
     @Override
     public void afterResponseSent() {
@@ -78,6 +82,7 @@ public class Restore implements Serializable, WaitingListener {
         BackupBean config = null;
         BackupBean voicemail = null;
         BackupBean cdr = null;
+        BackupBean deviceConfig = null;
         for (BackupBean bean : backups) {
             if (bean.getType().equals(BackupBean.Type.CONFIGURATION)) {
                 config = bean;
@@ -85,46 +90,76 @@ public class Restore implements Serializable, WaitingListener {
                 voicemail = bean;
             } else if (bean.getType().equals(BackupBean.Type.CDR)) {
                 cdr = bean;
+            } else if (bean.getType().equals(BackupBean.Type.DEVICE_CONFIG)) {
+                deviceConfig = bean;
             }
         }
 
         if (voicemail != null) {
-            m_mailboxManager.performRestore(voicemail, verify, config != null);
+            if (verify) {
+                // verify locally if valid archive
+                runRestoreScript(voicemail, verify, true);
+            } else {
+                m_mailboxManager.performRestore(voicemail, config != null);
+            }
         }
 
         if (cdr != null) {
-            runRestoreScript(getBinDirectory(), cdr, verify, false);
+            runRestoreScript(cdr, verify, false);
         }
 
         if (config != null) {
-            runRestoreScript(getBinDirectory(), config, verify, false);
+            runRestoreScript(config, verify, false);
+        }
+
+        if (deviceConfig != null) {
+            runRestoreScript(deviceConfig, verify, false);
         }
     }
 
-    public static void runRestoreScript(String binDir, BackupBean backup, boolean verify, boolean noRestart) {
-        String[] cmdLine = getCmdLine(binDir, backup, verify, noRestart);
-        try {
-            Process process = Runtime.getRuntime().exec(getCmdLine(binDir, backup, verify, noRestart));
-            int code = process.waitFor();
-            if (code == INCOMPATIBLE_VERSIONS && verify) {
-                throw new UserException("&message.wrongVersion");
-            } else if (code == INVALID_CONFIGURATION_ARCHIVE && verify) {
-                throw new UserException("&message.wrongConfigurationFileToRestore");
-            } else if (code == INVALID_VOICEMAIL_ARCHIVE && verify) {
-                throw new UserException("&message.wrongVoicemailFileToRestore");
+    public void runRestoreScript(BackupBean backup, boolean verify, boolean noRestart) {
+        if (verify) {
+            // run directly restore script if validating archives only, otherwise it needs to be
+            // run as root, so drive this through cfengine
+            String cmdLine = composeCmdLine(backup, verify, noRestart);
+            try {
+                File script = new File(m_binDirectory, RESTORE_SCRIPT);
+                Process process = Runtime.getRuntime().exec(script.getAbsolutePath() + SEPARATOR + cmdLine);
+                int code = process.waitFor();
+                if (code == INCOMPATIBLE_VERSIONS && verify) {
+                    throw new UserException("&message.wrongVersion");
+                } else if (code == INVALID_CONFIGURATION_ARCHIVE && verify) {
+                    throw new UserException("&message.wrongConfigurationFileToRestore");
+                } else if (code == INVALID_VOICEMAIL_ARCHIVE && verify) {
+                    throw new UserException("&message.wrongVoicemailFileToRestore");
+                }
+            } catch (IOException e) {
+                LOG.error(String.format(ERROR, cmdLine));
+                throw new UserException("&message.noScriptFound");
+            } catch (InterruptedException e) {
+                LOG.warn(String.format(ERROR, cmdLine));
             }
-        } catch (IOException e) {
-            LOG.error(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));
-            throw new UserException("&message.noScriptFound");
-        } catch (InterruptedException e) {
-            LOG.warn(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));
+        } else {
+            Writer wtr = null;
+            try {
+                Location primary = m_locationsManager.getPrimaryLocation();
+                File f = new File(((ConfigManager) m_configCommands).getLocationDataDirectory(primary),
+                        "restore.ini");
+                wtr = new FileWriter(f);
+                wtr.write(composeCmdLine(backup, verify, noRestart));
+                wtr.flush();
+                m_configCommands.runRestoreScript(primary);
+            } catch (IOException ex) {
+                LOG.error(String.format(ERROR, ex.getMessage()));
+                throw new UserException("&err.restore.failed");
+            } finally {
+                IOUtils.closeQuietly(wtr);
+            }
         }
     }
 
-    static String[] getCmdLine(String binDir, BackupBean backup, boolean verify, boolean noRestart) {
-        File executable = new File(binDir, RESTORE_BINARY);
+    String composeCmdLine(BackupBean backup, boolean verify, boolean noRestart) {
         List<String> cmds = new ArrayList<String>();
-        cmds.add(executable.getAbsolutePath());
         cmds.add(backup.getType().getOption());
         cmds.add(backup.getPath());
         cmds.add("--non-interactive");
@@ -135,20 +170,16 @@ public class Restore implements Serializable, WaitingListener {
         if (noRestart) {
             cmds.add("--no-restart");
         }
-        return cmds.toArray(new String[cmds.size()]);
+        return StringUtils.join(cmds, SEPARATOR);
     }
 
-    public String getBinDirectory() {
-        return m_binDirectory;
+    public String getLogDirectory() {
+        return m_logDirectory;
     }
 
     @Required
     public void setBinDirectory(String binDirectory) {
         m_binDirectory = binDirectory;
-    }
-
-    public String getLogDirectory() {
-        return m_logDirectory;
     }
 
     @Required
@@ -161,12 +192,29 @@ public class Restore implements Serializable, WaitingListener {
         m_mailboxManager = mailboxManager;
     }
 
+    @Required
+    public void setConfigCommands(ConfigCommands configCommands) {
+        m_configCommands = configCommands;
+    }
+
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
+    @Required
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
     public String getRestoreLogContent() {
         StringBuilder builder = new StringBuilder();
         try {
             File log = new File(getLogDirectory(), RESTORE_LOG);
             builder.append(IOUtils.toString(new FileReader(log)));
-            builder.append(m_mailboxManager.getMailboxRestoreLog());
+            if (m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
+                builder.append(m_mailboxManager.getMailboxRestoreLog());
+            }
             return builder.toString();
         } catch (FileNotFoundException ex) {
             throw new UserException("&log.found.ex");

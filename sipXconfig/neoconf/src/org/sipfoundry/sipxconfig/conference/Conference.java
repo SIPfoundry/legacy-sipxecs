@@ -15,6 +15,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -211,7 +212,7 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
 
     @SettingEntry(path = AOR_RECORD)
     public String getAorRecord() {
-        Address fs = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
+        Address fs = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
         return SipUri.format(StringUtils.defaultString(m_name), fs.getAddress(), fs.getPort());
     }
 
@@ -340,6 +341,6 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) FreeswitchFeature.FEATURE);
+        return Arrays.asList((Feature) FreeswitchFeature.FEATURE, (Feature) ConferenceBridgeContext.FEATURE);
     }
 }

@@ -1,0 +1,107 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# sipxconfig ftp configuration of vsftp service
+#
+bundle agent ftp {
+  methods:
+    ftp::
+      "any" usebundle => ftp_config;
+    any::
+      "any" usebundle => ftp_running;
+}
+
+bundle agent ftp_config {
+  vars:
+    any::
+      "rootdir" string => "$(sipx.SIPX_VARDIR)/configserver/phone/profile/tftproot";
+      "config" 
+        string => "/etc/vsftpd/vsftpd.conf",
+        policy => "overridable";
+
+    SuSE::
+      "config" string => "/etc/vsftpd.conf";
+
+  methods:
+    any::
+      # default user account polycom phones use
+      "polycom_user" usebundle => verify_system_user("PlcmSpIp", "PlcpSpIp", "$(rootdir)");
+
+       # default user account Nortel 1535 phones use
+      "nortel_user" usebundle => verify_system_user("lvp2890", "28904all", "$(rootdir)");
+
+  files:
+    "$(config)"
+      comment => "Update VSFTP config $(this.promiser)",
+      create => "true",
+      perms => m("600"),
+      edit_defaults => empty,
+      edit_line => vsftp_config,
+      classes => if_repaired("restart_ftp");
+}
+
+bundle edit_line vsftp_config {
+  insert_lines:
+"# vsftpd config created by sipxconfig
+cmds_allowed=TYPE,PASV,RETR,CWD,SIZE,QUIT,STOR,PWD,USER,PASS,APPE
+xferlog_file=/var/log/vsftpd.log
+local_enable=YES
+write_enable=YES
+local_umask=022
+dirlist_enable=NO
+connect_from_port_20=YES
+xferlog_std_format=YES
+pam_service_name=vsftpd
+listen=YES
+chroot_local_user=YES
+pasv_min_port=50000
+pasv_max_port=50050
+port_enable=YES
+log_ftp_protocol=YES
+";
+    "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/vsftp.config.part"
+      insert_type => "file";
+}
+
+bundle agent ftp_running {
+  vars:
+    any::
+      "service" string => "/etc/init.d/vsftpd";
+      "service_command" string => "/usr/sbin/vsftpd";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "ftp_running", "root");
+    ftp::
+      "any" usebundle => rh_chkconfig_status("vsftpd on");
+    !ftp.!unmanaged_ftp::
+      "any" usebundle => rh_chkconfig_status("vsftpd off");
+
+  commands:
+    !ftp.!unmanaged_ftp.ftp_running::
+      "$(service)"
+        comment => "stop ftp",
+        args => "stop";
+
+    ftp.!ftp_running::
+      "$(service)"
+        comment => "start ftp",
+        args => "start";
+
+    ftp.ftp_running.!unmanaged_ftp.restart_ftp::
+      "$(service)"
+        comment => "restart ftp",
+        args => "restart";
+}
+

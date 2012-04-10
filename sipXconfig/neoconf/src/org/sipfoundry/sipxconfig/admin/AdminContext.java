@@ -9,17 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 
-public interface AdminContext extends AddressProvider, ProcessProvider {
+public interface AdminContext {
     public static final LocationFeature FEATURE = new LocationFeature("admin");
-    public static final AddressType HTTP_ADDRESS = new AddressType("adminApi");
-    public static final AddressType HTTPS_ADDRESS = new AddressType("secureAdminApi");
-    public static final AddressType TFTP_ADDRESS = new AddressType("tftp");
-    public static final AddressType FTP_ADDRESS = new AddressType("ftp");
+    public static final AddressType HTTP_ADDRESS = new AddressType("adminApi", "http://%s:%d");
+    public static final AddressType HTTPS_ADDRESS = new AddressType("secureAdminApi", "https://%s:%d", 443);
+    public static final AlarmDefinition ALARM_LOGIN_FAILED = new AlarmDefinition("LOGIN_FAILED", 3);
 
     final String CONTEXT_BEAN_NAME = "adminContext";
 

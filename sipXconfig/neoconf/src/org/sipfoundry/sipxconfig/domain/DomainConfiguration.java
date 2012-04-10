@@ -38,23 +38,19 @@ public class DomainConfiguration implements ConfigProvider {
         Domain domain = domainManager.getDomain();
         String fqdn = m_locationsManager.getPrimaryLocation().getFqdn();
         String lang = manager.getDomainManager().getExistingLocalization().getLanguage();
-        Set<Location> locations = request.locations(manager);
-        File dir = manager.getGlobalDataDirectory();
-        for (int i = 0; i < locations.size(); i++) {
-            Writer wtr1 = new FileWriter(new File(dir, "domain-config.part"));
-            try {
-                writeDomainConfigPart(wtr1, domain, fqdn);
-            } finally {
-                IOUtils.closeQuietly(wtr1);
-            }
+        File gdir = manager.getGlobalDataDirectory();
+        Writer wtr1 = new FileWriter(new File(gdir, "domain-config.part"));
+        try {
+            writeDomainConfigPart(wtr1, domain, fqdn);
+        } finally {
+            IOUtils.closeQuietly(wtr1);
+        }
 
-            Writer wtr2 = new FileWriter(new File(dir, "domain.cfdat"));
-            try {
-                write(wtr2, domain, lang);
-            } finally {
-                IOUtils.closeQuietly(wtr2);
-            }
-
+        Writer wtr2 = new FileWriter(new File(gdir, "domain.cfdat"));
+        try {
+            write(wtr2, domain, lang);
+        } finally {
+            IOUtils.closeQuietly(wtr2);
         }
     }
 

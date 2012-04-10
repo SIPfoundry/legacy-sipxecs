@@ -13,9 +13,8 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Properties;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.commons.codec.binary.Base64;
-
+import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.util.Hostname;
 

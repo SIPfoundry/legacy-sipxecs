@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.moh;
 
@@ -13,8 +22,10 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.springframework.beans.factory.annotation.Required;
 
 public class MohAddressFactory {
@@ -29,6 +40,19 @@ public class MohAddressFactory {
     private String m_mohUser;
 
     public Address getMediaAddress() {
+        return getMediaAddress(null);
+    }
+
+    public Address getMediaAddress(Location location) {
+        Address addr = null;
+        if (location == null) {
+            addr = m_addressManager.getSingleAddress(Ivr.SIP_ADDRESS);
+        } else {
+            addr = m_addressManager.getSingleAddress(Ivr.SIP_ADDRESS, location);
+        }
+        if (addr != null) {
+            return addr;
+        }
         if (m_freeswitchAddress == null) {
             m_freeswitchAddress = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
         }
@@ -44,15 +68,31 @@ public class MohAddressFactory {
     }
 
     public String getPortAudioMohUri() {
-        return getMohUri(m_mohUser + PORT_AUDIO_SOURCE_SUFFIX);
+        return getMohUri(getPortAudioUser());
     }
 
     public String getLocalFilesMohUri() {
-        return getMohUri(m_mohUser + LOCAL_FILES_SOURCE_SUFFIX);
+        return getMohUri(getLocalFilesUser());
     }
 
     public String getNoneMohUri() {
-        return getMohUri(m_mohUser + NONE_SUFFIX);
+        return getMohUri(getNoneUser());
+    }
+
+    public String getDefaultUser() {
+        return m_mohUser;
+    }
+
+    public String getLocalFilesUser() {
+        return m_mohUser + LOCAL_FILES_SOURCE_SUFFIX;
+    }
+
+    public String getPortAudioUser() {
+        return m_mohUser + PORT_AUDIO_SOURCE_SUFFIX;
+    }
+
+    public String getNoneUser() {
+        return m_mohUser + NONE_SUFFIX;
     }
 
     /**
@@ -88,7 +128,7 @@ public class MohAddressFactory {
         if (mohParam != null) {
             params.put(MOH, mohParam);
         }
-        return SipUri.format("IVR", getMediaAddress().toString(), params);
+        return SipUri.format("IVR", getMediaAddress().getAddress(), params);
     }
 
     private String getMohUri(String mohParam) {
@@ -107,4 +147,5 @@ public class MohAddressFactory {
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
+
 }

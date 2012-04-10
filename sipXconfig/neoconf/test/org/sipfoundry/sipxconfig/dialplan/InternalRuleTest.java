@@ -70,7 +70,7 @@ public class InternalRuleTest extends TestCase {
         m_mediaServer = new FreeswitchMediaServer();
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-        expectLastCall().andReturn(new Address("192.168.1.1")).anyTimes();
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "192.168.1.1", 100)).anyTimes();
         replay(addressManager);
         m_mediaServer.setAddressManager(addressManager);
 
@@ -120,25 +120,25 @@ public class InternalRuleTest extends TestCase {
         assertEquals("20004", v.getPatterns()[0]);
         assertEquals(0, v.getPermissions().size());
         UrlTransform tv = (UrlTransform) v.getTransforms()[0];
-        assertEquals("<sip:IVR@192.168.1.1:0;action=retrieve>", tv.getUrl());
+        assertEquals("<sip:IVR@192.168.1.1:100;action=retrieve>", tv.getUrl());
 
         assertEquals(TEST_DESCRIPTION, vt.getDescription());
         assertEquals("7xxxxx", vt.getPatterns()[0]);
         assertEquals(0, vt.getPermissions().size());
         UrlTransform tvt = (UrlTransform) vt.getTransforms()[0];
-        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>", tvt.getUrl());
+        assertEquals("<sip:IVR@192.168.1.1:100;mailbox={vdigits};action=deposit>", tvt.getUrl());
 
         assertEquals(TEST_DESCRIPTION, vf.getDescription());
         assertEquals("~~vm~.", vf.getPatterns()[0]);
         assertEquals(PermissionName.FREESWITH_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
-        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>;q=0.1", tvf.getUrl());
+        assertEquals("<sip:IVR@192.168.1.1:100;mailbox={vdigits};action=deposit>;q=0.1", tvf.getUrl());
 
         assertEquals("Fax Routing rule", faxRule.getDescription());
         assertEquals("~~ff~.", faxRule.getPatterns()[0]);
         assertEquals(0 == faxRule.getPermissionNames().size(), true);
         UrlTransform faxRuleUrl = (UrlTransform) faxRule.getTransforms()[0];
-        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=faxrx>", faxRuleUrl.getUrl());
+        assertEquals("<sip:IVR@192.168.1.1:100;mailbox={vdigits};action=faxrx>", faxRuleUrl.getUrl());
 
         EasyMock.verify(m_beanFactory, m_localizationContext);
     }
@@ -175,19 +175,19 @@ public class InternalRuleTest extends TestCase {
         assertEquals("20004", v.getPatterns()[0]);
         assertEquals(0, v.getPermissions().size());
         UrlTransform tv = (UrlTransform) v.getTransforms()[0];
-        assertTrue(tv.getUrl().startsWith("<sip:IVR@192.168.1.1:0;action=retrieve>;sipx-ValidTime="));
+        assertTrue(tv.getUrl().startsWith("<sip:IVR@192.168.1.1:100;action=retrieve>;sipx-ValidTime="));
 
         assertEquals(TEST_DESCRIPTION, vt.getDescription());
         assertEquals("7xxxxx", vt.getPatterns()[0]);
         assertEquals(0, vt.getPermissions().size());
         UrlTransform tvt = (UrlTransform) vt.getTransforms()[0];
-        assertTrue(tvt.getUrl().startsWith("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>;sipx-ValidTime="));
+        assertTrue(tvt.getUrl().startsWith("<sip:IVR@192.168.1.1:100;mailbox={vdigits};action=deposit>;sipx-ValidTime="));
 
         assertEquals(TEST_DESCRIPTION, vf.getDescription());
         assertEquals("~~vm~.", vf.getPatterns()[0]);
         assertEquals(PermissionName.FREESWITH_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
-        assertTrue(tvf.getUrl().startsWith("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>;q=0.1;sipx-ValidTime="));
+        assertTrue(tvf.getUrl().startsWith("<sip:IVR@192.168.1.1:100;mailbox={vdigits};action=deposit>;q=0.1;sipx-ValidTime="));
 
         EasyMock.verify(m_beanFactory, m_localizationContext);
     }
@@ -223,25 +223,25 @@ public class InternalRuleTest extends TestCase {
         assertEquals("20004", v.getPatterns()[0]);
         assertEquals(0, v.getPermissions().size());
         UrlTransform tv = (UrlTransform) v.getTransforms()[0];
-        assertEquals("<sip:IVR@192.168.1.1:0;action=retrieve;locale=pl>", tv.getUrl());
+        assertEquals("<sip:IVR@192.168.1.1:100;action=retrieve;locale=pl>", tv.getUrl());
 
         assertEquals(TEST_DESCRIPTION, vt.getDescription());
         assertEquals("7xxxxx", vt.getPatterns()[0]);
         assertEquals(0, vt.getPermissions().size());
         UrlTransform tvt = (UrlTransform) vt.getTransforms()[0];
-        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit;locale=pl>", tvt.getUrl());
+        assertEquals("<sip:IVR@192.168.1.1:100;mailbox={vdigits};action=deposit;locale=pl>", tvt.getUrl());
 
         assertEquals(TEST_DESCRIPTION, vf.getDescription());
         assertEquals("~~vm~.", vf.getPatterns()[0]);
         assertEquals(PermissionName.FREESWITH_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
-        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit;locale=pl>;q=0.1", tvf.getUrl());
+        assertEquals("<sip:IVR@192.168.1.1:100;mailbox={vdigits};action=deposit;locale=pl>;q=0.1", tvf.getUrl());
 
         assertEquals("Fax Routing rule", faxRule.getDescription());
         assertEquals("~~ff~.", faxRule.getPatterns()[0]);
         assertEquals(0 == faxRule.getPermissionNames().size(), true);
         UrlTransform faxRuleUrl = (UrlTransform) faxRule.getTransforms()[0];
-        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=faxrx;locale=pl>", faxRuleUrl.getUrl());
+        assertEquals("<sip:IVR@192.168.1.1:100;mailbox={vdigits};action=faxrx;locale=pl>", faxRuleUrl.getUrl());
 
         EasyMock.verify(m_beanFactory, m_localizationContext);
     }

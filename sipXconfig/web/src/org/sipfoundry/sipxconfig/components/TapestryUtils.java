@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -302,6 +303,15 @@ public final class TapestryUtils {
             array = s.split("\\s+");
         }
         return array;
+    }
+
+    /**
+     * Return resource string if it exists, otherwise the give defaultMessage
+     */
+    public static String getDefaultMessage(Messages messages, String key, String defaultMessage) {
+        String msg = messages.getMessage(key);
+        return (msg.equals('[' + key.toUpperCase() + ']') ? defaultMessage : msg);
+
     }
 
     public static List<Validator> getSerialNumberValidators(DeviceDescriptor model) {

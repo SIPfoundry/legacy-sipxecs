@@ -2,10 +2,10 @@
 #   End Users - add new settings to end of this file, be sure to add extra line feed
 #   Developers - add new settings anywhere but end of this file so pkg-upgrade script
 #                can have a better chance to migrate this file properly
-parkConfig.audioDirectory=@SIPX_VARDIR@/sipxpage/music
+parkConfig.audioDirectory=@SIPX_VARDIR@/parkserver/music
 pagingConfiguration.audioDirectory=@SIPX_VARDIR@/sipxpage/music
 openAcdSettings.audioDirectory=@SIPX_VARDIR@/configserver/phone/acd/audio
-openAcdSettings.logDirectory=@SIPX_LOGDIR@
+openAcdSettings.logDirectory=@OPENACD_HOME@/log
 
 sipImpl.port=5180
 
@@ -74,6 +74,8 @@ sysdir.vxml.moh=@SIPX_IVRDATADIR@/moh
 sysdir.webtest.srcdir=@top_srcdir@/web/test
 sysdir.mongo_ns=
 sysdir.mongo_client_ini=@SIPX_CONFDIR@/mongo-client.ini
+openfire.home=@OPENFIRE_HOME@
+openAcdContextImpl.openacdHome=@OPENACD_HOME@
 
 # ACD server defaults - can be changed in UI
 acdServer.port=8110
@@ -85,8 +87,4 @@ mailboxManagerImpl.stdpromptDirectory=@wwwdir@/doc/stdprompts
 
 # yum command exists on system?
 packageUpdateManager.yumCapable=@YUM_EXISTS@
-
-configManagerImpl.cfDataDir=@SIPX_VARDIR@/cfdata
-configAgent.command=@SIPX_BINDIR@/sipxagent %s
-configAgent.logDir=@SIPX_LOGDIR@
 # ======= BEGIN NEW INSTALLATION SETTINGS =================

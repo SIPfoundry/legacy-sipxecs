@@ -14,6 +14,9 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
+/**
+ * ACD Presence system. Determining when an agent is available.
+ */
 public interface PresenceServer {
     public static final LocationFeature FEATURE = new LocationFeature("acdPresence");
     public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi");

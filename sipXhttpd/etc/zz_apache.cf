@@ -1,0 +1,114 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# Postgres configuration for working with sipxecs
+#
+
+bundle agent zz_apache {
+  methods:
+    apache::
+      "any" usebundle => apache_config;
+    fedora16_or_greater::
+      "any" usebundle => "apache_sysctl_running";
+    !fedora16_or_greater::
+      "any" usebundle => "apache_sysv_running";
+}
+
+bundle agent apache_config {
+  vars:
+    any::
+      "ssl_web" slist => {
+        "ssl-web.key",
+        "ssl-web.crt"
+      };
+
+  files:
+    any::
+      "$(sipx.APACHE2_CONFDIR)/welcome.conf"
+        comment => "remove apache config $(this.promiser)",
+        delete => tidy,
+        classes => if_repaired("restart_apache");
+
+      "$(sipx.APACHE2_CONFDIR)/ssl.conf"
+        comment => "add apache ssl conf $(this.promiser)",
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(sipx.SIPX_CONFDIR)/apache/ssl.conf"),
+        classes => if_repaired("restart_apache");
+
+      "$(sipx.APACHE2_CONFDIR)/ssl/."
+        create => "true",
+        perms => mog("700","root","root");
+
+      "$(sipx.APACHE2_CONFDIR)/ssl/$(ssl_web)"
+        comment => "install ssl info $(this.promiser)",
+        create => "true",
+        copy_from => copy_from_cfdata("$(ssl_web)"),
+        perms => mog("600","root","root"),
+        classes => if_repaired("restart_apache");
+}
+
+bundle agent apache_sysv_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.APACHE2_HTTPD)";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "apache_running","$(sipx.APACHE2_USER)");
+    apache::
+      "any" usebundle => rh_chkconfig_status("httpd on");
+    !apache::
+      "any" usebundle => rh_chkconfig_status("httpd off");
+
+  commands:
+    !apache.apache_running::
+      "/sbin/service"
+        comment => "stop apache",
+        args => "httpd stop";
+
+    apache.!apache_running::
+      "/sbin/service"
+        comment => "start apache",
+        args => "httpd start";
+
+    apache.apache_running.restart_apache::
+      "/sbin/service"
+        comment => "restart apache",
+        args => "httpd restart";
+}
+
+bundle agent apache_sysctl_running {
+  vars:
+    fedora16_or_greater::
+      "service" string => "httpd.service";
+
+  classes:
+    "apache_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !apache.apache_running::
+      "$(sipx.systemctl)"
+        comment => "stop apache",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable apache",
+        args => "disable $(service)";
+
+    apache.!apache_running::
+      "$(sipx.systemctl)"
+        comment => "start apache",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable apache",
+        args => "enable $(service)";
+
+    apache.apache_running.restart_apache::
+      "$(sipx.systemctl)"
+        comment => "restart apache",
+        args => "restart";
+}

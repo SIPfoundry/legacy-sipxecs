@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipXopenacd configuration and process management
@@ -10,8 +19,8 @@ bundle agent sipxopenacd {
   methods:
     sipxopenacd::
       "any" usebundle => "sipxopenacd_config";
-      "any" usebundle => "sipxopenacd_setup";
     any::
+      "any" usebundle => "sipxopenacd_setup";
       "any" usebundle => "sipxopenacd_running";
 }
 
@@ -19,17 +28,17 @@ bundle agent sipxopenacd_config {
   files:
     any::
       "$(sipx.OPENACD_HOME)/etc/vm.args"
+        comment => "install openacd config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	edit_line => sipxopenacd_vm_args,
-	action => track("$(this.promiser)");
+        edit_line => sipxopenacd_vm_args;
 
     any::
       "$(sipx.OPENACD_HOME)/etc/app.config"
+        comment => "install openacd config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/app.config"),
-	action => track("$(this.promiser)");
+        edit_line => sipxopenacd_app_config;
 }
 
 bundle edit_line sipxopenacd_vm_args() {
@@ -56,8 +65,27 @@ bundle edit_line sipxopenacd_vm_args() {
 -mnesia dir '\"$(sipx.OPENACD_HOME)/run/Mnesia.openacd@$(sys.fqhost)\"'
 
 ## Tweak GC to run more often
--env ERL_FULLSWEEP_AFTER 10
-";
+-env ERL_FULLSWEEP_AFTER 10"
+;
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle edit_line sipxopenacd_app_config() {
+  insert_lines:
+    any::
+"
+[{'OpenACD', [
+	{console_loglevel, $(sipx.OPENACD_LOG_LEVEl)},
+	{logfiles, [{\"$(sipx.OPENACD_HOME)/log/full.log\", $(sipx.OPENACD_LOG_LEVEl)}]},
+	{plugin_dir, \"plugin.d\"}, {plugins, [sipxplugin]}
+]},
+{sasl, [
+	{errlog_type, error} % disable SASL progress reports
+]}]."
+;
 
   delete_lines:
     any::
@@ -66,32 +94,34 @@ bundle edit_line sipxopenacd_vm_args() {
 
 bundle agent sipxopenacd_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxopenacd");
+    !src.sipxopenacd::
+      "any" usebundle => rh_chkconfig_status("sipxopenacd on");
+    !src.!sipxopenacd::
+      "any" usebundle => rh_chkconfig_status("sipxopenacd off");
 }
 
 bundle agent sipxopenacd_running {
   vars:
     any::
-      "service_command" string => "$(sipx.OPENACD_HOME)/bin/openacd";
+      "service_command" string => ".*\s$(sipx.OPENACD_HOME)/bin/openacd\s.*";
 
   methods:
     any::
-      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxopenacd_running");
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenacd_running");
 
   commands:
-    sipxopenacd_running.!sipxopenacd::
+    (!sipxopenacd|stop_sipxecs).sipxopenacd_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
-        args => "stop",
-	action => track("sipxopenacd stop");
+        comment => "stop sipxopenacd",
+        args => "stop";
 
-    !sipxopenacd_running.sipxopenacd::
+    sipxopenacd.!sipxopenacd_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
-        args => "start",
-	action => track("sipxopenacd start");
+        comment => "start sipxopenacd",
+        args => "start";
 
-    restart_sipxopenacd::
+    sipxopenacd.sipxopenacd_running.(restart_sipxecs|restart_sipxopenacd)::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
-        args => "restart",
-	action => track("sipxopenacd restart");
+        comment => "restart sipxopenacd",
+        args => "restart";
 }

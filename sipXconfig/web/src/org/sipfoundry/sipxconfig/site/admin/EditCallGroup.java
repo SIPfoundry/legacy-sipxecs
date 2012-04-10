@@ -129,7 +129,7 @@ public abstract class EditCallGroup extends PageWithCallback implements PageBegi
     private void saveValid() {
         CallGroupContext context = getCallGroupContext();
         CallGroup callGroup = getCallGroup();
-        context.storeCallGroup(callGroup);
+        context.saveCallGroup(callGroup);
         Integer id = getCallGroup().getId();
         setCallGroupId(id);
     }

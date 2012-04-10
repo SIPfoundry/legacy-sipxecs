@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.cfgmgt;
 
@@ -39,12 +48,14 @@ public final class ConfigUtils {
      *           "Goose is not enabled!";
      *   }
      */
-    public static final void enableCfengineClass(File dir, String file, String property, boolean enabled)
+    public static final void enableCfengineClass(File dir, String file, boolean enabled, String... properties)
         throws IOException {
         Writer w = new FileWriter(new File(dir, file));
         try {
             CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
-            config.writeClass(property, enabled);
+            for (String property : properties) {
+                config.writeClass(property, enabled);
+            }
         } finally {
             IOUtils.closeQuietly(w);
         }

@@ -20,6 +20,10 @@ dbdir = @SIPX_CONFDIR@/database
 dist_db_DATA = \
 	sipxopenfire-initdb.sql
 
+cfdefaultsdir = $(SIPX_CFDATA)/defaults
+dist_cfdefaults_DATA = \
+	sipxopenfire.cfdat
+
 cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
 dist_cfinputs_DATA = \
 	sipxopenfire.cf

@@ -11,23 +11,34 @@ package org.sipfoundry.sipxconfig.intercom;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.IntercomRule;
+import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class IntercomManagerImpl extends SipxHibernateDaoSupport implements IntercomManager,
-        BeanFactoryAware {
+public class IntercomManagerImpl extends SipxHibernateDaoSupport implements IntercomManager, BeanFactoryAware,
+        FeatureProvider, FeatureListener {
 
     public static final String CONTEXT_BEAN_NAME = "intercomManagerImpl";
+    private ConfigManager m_configManager;
 
     private BeanFactory m_beanFactory;
 
@@ -87,7 +98,8 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
     }
 
     /** Return a list of dialing rules, one for each intercom configuration */
-    public List<DialingRule> getDialingRules() {
+    @Override
+    public List<DialingRule> getDialingRules(Location location) {
         List<Intercom> intercoms = loadIntercoms();
         List<DialingRule> rules = new ArrayList<DialingRule>(intercoms.size());
         for (Intercom intercom : intercoms) {
@@ -99,5 +111,56 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
+    }
+
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+        return Collections.singleton(FEATURE);
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+        return null;
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+        if (!feature.equals(IntercomManager.FEATURE)) {
+            return;
+        }
+
+        Intercom intercom = getIntercom();
+        if (!intercom.isNew()) {
+            switch (event) {
+            case POST_ENABLE:
+                intercom.setEnabled(true);
+                saveIntercom(intercom);
+                m_configManager.configureEverywhere(DialPlanContext.FEATURE);
+                break;
+            case PRE_DISABLE:
+                intercom.setEnabled(false);
+                saveIntercom(intercom);
+                m_configManager.configureEverywhere(DialPlanContext.FEATURE);
+            default:
+                break;
+            }
+        }
+
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

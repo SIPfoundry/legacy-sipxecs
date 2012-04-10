@@ -44,6 +44,7 @@
         </property>
       </bean>
     </property>
+	<property name="configJdbcTemplate" ref="configJdbcTemplate" />	
   </bean>
 
   <bean id="filePhonebookEntryUpgradeTask" class="org.sipfoundry.sipxconfig.phonebook.FilePhonebookEntryUpgradeTask">
@@ -57,5 +58,6 @@
 
   <bean id="generalPhonebookSettings" class="org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings" parent="settingsBean">
   </bean>
+  
 
 </beans>

@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+
 import static org.sipfoundry.sipxconfig.components.TapestryUtils.createDateColumn;
 import static org.sipfoundry.sipxconfig.components.TapestryUtils.isValid;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +29,6 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.alarm.AlarmContext;
 import org.sipfoundry.sipxconfig.alarm.AlarmEvent;
 import org.sipfoundry.sipxconfig.alarm.AlarmHistoryManager;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -36,13 +37,8 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-
 public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBeginRenderListener {
     private static final String CLIENT = "client";
-
-    @InjectObject("spring:alarmContextImpl")
-    public abstract AlarmContext getAlarmContext();
 
     @InjectObject("spring:alarmHistoryManager")
     public abstract AlarmHistoryManager getAlarmHistoryManager();
@@ -97,8 +93,11 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
             Arrays.sort(hosts);
             StringPropertySelectionModel model = new StringPropertySelectionModel(hosts);
             setHostModel(model);
-            if (Arrays.binarySearch(hosts, getHost()) > 0 && getHostModel().getOptionCount() > 0) {
-                setHost(getHostModel().getLabel(0));
+            // check to make sure host is still valid, otherwise pick 1st host
+            if (getHost() != null) {
+                if (Arrays.binarySearch(hosts, getHost()) < 0 && getHostModel().getOptionCount() > 0) {
+                    setHost(getHostModel().getLabel(0));
+                }
             }
         }
 
@@ -141,7 +140,6 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
             return;
         }
 
-        getAlarmContext().reloadAlarms();
         // force alarm events reloading
         setAlarmEventsCached(null);
     }

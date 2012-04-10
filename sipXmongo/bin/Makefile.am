@@ -1,12 +1,17 @@
 include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-	$(bin_SCRIPTS:=.in)
+	$(bin_SCRIPTS:=.in) \
+	$(initd_SCRIPTS:=.in)
 
 bin_SCRIPTS = \
 	mongodb-repair
 
-$(bin_SCRIPTS) : % : %.in
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+	mongod-arbiter
+
+$(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(bin_SCRIPTS)
+CLEANFILES = $(initd_SCRIPTS) $(bin_SCRIPTS)

@@ -42,9 +42,9 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getSingleAddress(PresenceServer.HTTP_ADDRESS);
-        expectLastCall().andReturn(new Address("presence-api.example.org", 100)).anyTimes();
+        expectLastCall().andReturn(new Address(PresenceServer.HTTP_ADDRESS, "presence-api.example.org", 100)).anyTimes();
         addressManager.getSingleAddress(PresenceServer.SIP_TCP_ADDRESS);
-        expectLastCall().andReturn(new Address("presence-sip.example.org", 101)).anyTimes();
+        expectLastCall().andReturn(new Address(PresenceServer.SIP_TCP_ADDRESS, "presence-sip.example.org", 101)).anyTimes();
         replay(addressManager);
         m_server.setAddressManager(addressManager);
     }

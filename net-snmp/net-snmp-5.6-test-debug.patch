@@ -1,0 +1,29 @@
+Don't check tests which depend on DNS - it's disabled in Koji
+
+diff -up net-snmp-5.6/testing/fulltests/default/T070com2sec_simple.com2sec net-snmp-5.6/testing/fulltests/default/T070com2sec_simple
+--- net-snmp-5.6/testing/fulltests/default/T070com2sec_simple.com2sec	2010-05-29 01:05:00.000000000 +0200
++++ net-snmp-5.6/testing/fulltests/default/T070com2sec_simple	2010-10-26 16:49:52.035589747 +0200
+@@ -125,6 +125,10 @@ SAVECHECKAGENT '<"c406a", 255.255.255.25
+ SAVECHECKAGENT 'line 27: Error:' # msg from h_strerror so it varies
+ SAVECHECKAGENT 'line 28: Error:' # msg from h_strerror so it varies
+ 
++FINISHED
++
++# don't test the later, it depends on DNS, which is not available in Koji
++
+ CHECKAGENT '<"c408a"'
+ if [ "$snmp_last_test_result" -eq 0 ] ; then
+   CHECKAGENT 'line 29: Error:'
+diff -up net-snmp-5.6/testing/fulltests/default/T071com2sec6_simple.com2sec net-snmp-5.6/testing/fulltests/default/T071com2sec6_simple
+--- net-snmp-5.6/testing/fulltests/default/T071com2sec6_simple.com2sec	2010-10-26 16:47:24.150590802 +0200
++++ net-snmp-5.6/testing/fulltests/default/T071com2sec6_simple	2010-10-26 16:49:00.388839597 +0200
+@@ -132,6 +132,9 @@ SAVECHECKAGENT '<"c606a", ffff:ffff:ffff
+ SAVECHECKAGENT 'line 27: Error:'
+ SAVECHECKAGENT 'line 28: Error:'
+ 
++FINISHED
++
++# don't test the later, it depends on DNS, which is not available in Koji
+ # 608
+ CHECKAGENT '<"c608a"'
+ if [ "$snmp_last_test_result" -eq 0 ] ; then

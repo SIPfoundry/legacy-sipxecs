@@ -1,11 +1,18 @@
-/*
+/**
  *
  *
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * $
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.commons.mongo;
 
@@ -122,36 +129,4 @@ public interface MongoConstants {
     static final String DISTRIB_LISTS = "dlst";
     //AUTH CODE
     static final String AUTH_CODE = "authc";
-    //OPENACD
-    static final String QUEUE_GROUP = "qgrp";
-    static final String SKILLS = "skl";
-    static final String PROFILES = "prfl";
-    static final String WEIGHT = "wht";
-    static final String OLD_NAME = "oldnm";
-    static final String ACTION = "actn";
-    static final String CONDITION = "cndt";
-    static final String FREQUENCY = "frq";
-    static final String STEP_NAME = "stpnm";
-    static final String RECIPES = "rcps";
-    
-    static final String PIN = "pin";
-    static final String AGENT_GROUP = "aggrp";
-    static final String SKILLS_ATOM = "sklatm";
-    static final String QUEUES = "qs";
-    static final String CLIENTS = "clns";
-    static final String FIRST_NAME = "fnm";
-    static final String LAST_NAME = "lnm";
-    static final String SECURITY = "scrty";
-    
-    static final String VALUE = "vlu";
-    static final String NODE = "nd";
-    static final String DIAL_STRING = "dlst";
-    static final String LISTENER_ENABLED = "lstenbl";
-    static final String LOG_LEVEL = "lglvl";
-    static final String LOG_DIR = "lgdir";
-    static final String ATOM = "atom";
-    static final String GROUP_NAME = "grpnm";
-    static final String DESCRIPTION = "dscr";
-    static final String UUID = "uuid";
-    static final String TYPE = "type";
 }

@@ -1,0 +1,61 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+# Ensure machine know's it's fully qualified hostname. and that it's hostname
+# resovlves to it's external, default IP address
+
+bundle agent hostname {
+  files:
+    "/etc/hosts"
+      create => "true",
+      comment => "Edit $(this.promiser)",
+      perms => m("644"),
+      edit_line => hosts_contents;
+
+    "/etc/sysconfig/network"
+      create => "true",
+      comment => "Edit $(this.promiser)",
+      perms => m("644"),
+      edit_line => sysconfig_network;
+
+  commands:
+    "/bin/hostname"
+      args => "$(sipx.host).$(sipx.net_domain)";
+}
+
+bundle edit_line sysconfig_network {
+  insert_lines:
+    "HOSTNAME=$(sipx.host).$(sipx.net_domain)";
+  delete_lines:
+    "HOSTNAME=.*";
+}
+
+bundle edit_line hosts_contents {
+  
+  # ipv6 not supported, but ipv6 style host names shouldn't hurt.
+  insert_lines:
+"$(sys.ipv4) $(sipx.host).$(sipx.net_domain) $(sipx.host)";
+"127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4";
+"::1         localhost localhost.localdomain localhost6 localhost6.localdomain6";
+
+  delete_lines:
+    # safest to delete all in case ip or hostname changes.
+    !src::
+      ".*";
+
+    src::
+     "$(sys.ipv4)\s(.*)";
+     "127\.0\.0\.1\s(.*)";
+     "::1\s(.*)";
+      
+}

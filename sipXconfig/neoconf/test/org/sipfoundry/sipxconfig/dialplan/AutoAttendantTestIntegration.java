@@ -51,6 +51,7 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
         aa.setMenu(menu);
 
         m_autoAttendantManager.storeAutoAttendant(aa);
+        flush();
         
         Object[][] expected = new Object[][] {
                 {"test-aa", "1", "transfer_out", "1234"},
@@ -58,7 +59,8 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
         };
         ResultDataGrid actual = new ResultDataGrid();
         db().query("select name, dialpad_key, action, parameter from auto_attendant as a, " +
-                "attendant_menu_item as m where a.auto_attendant_id = m.auto_attendant_id", actual);
+                "attendant_menu_item as m where a.auto_attendant_id = m.auto_attendant_id order by dialpad_key",
+                actual);
         assertArrayEquals(expected, actual.toArray());
     }
 
@@ -104,7 +106,7 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
             fail();
         } catch (AttendantInUseException e) {
             assertTrue(true);
-            assertTrue(e.getMessage().indexOf("attendant_rule") > 0);
+            assertEquals(e.getMessage(),"&error.attendantInUse");
         }
     }
 

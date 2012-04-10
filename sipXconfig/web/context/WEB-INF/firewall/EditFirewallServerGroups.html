@@ -1,0 +1,35 @@
+<h2><span key="systemGroups"/></h2>
+<form jwcid="@Form" id="editGroups" delegate="bean:validator">
+  <table jwcid="systemGroups@common/Table" id="firewall:list" columns="* systemName,systemServers" source="ognl:systemGroups"
+    row="ognl:currentSystemGroup">
+    <div jwcid="systemNameColumnValue@Block">
+      <span jwcid="@Insert" class="enabled" value="ognl:currentSystemGroup" />
+    </div>
+    <div jwcid="systemServersColumnValue@Block">
+      <span jwcid="@Insert" class="enabled" value="ognl:getMessages().getMessage('system.' + currentSystemGroup)" />
+    </div>
+  </table>
+  <br/>
+  <h2><span key="customGroups"/></h2>
+  <ul class="component-links">
+    <li><a jwcid="@DirectLink" id="AddServerGroup" listener="listener:addGroup"><span
+        key="addServerGroup" /> </a>
+    </li>
+  </ul>
+  <table jwcid="customGroups@common/Table" id="firewall:list" columns="* customName,customServers" source="ognl:serverGroups"
+    row="ognl:currentServerGroup" selections="ognl:selections">
+    <div jwcid="customNameColumnValue@Block">
+      <a href="#" jwcid="@DirectLink" listener="listener:editGroup" parameters="ognl:currentServerGroup.id"> <span
+        jwcid="@Insert" class="enabled" value="ognl:currentServerGroup.name" /> </a>
+    </div>
+    <div jwcid="customServersColumnValue@Block">
+      <span jwcid="@Insert" class="enabled" value="ognl:currentServerGroup.serverList" />
+    </div>
+  </table>
+    <ul class="component-submit">
+      <li>
+        <input id="group:delete" jwcid="delete@Submit" listener="listener:delete" value="message:label.delete"/>
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+</form>

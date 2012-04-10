@@ -26,6 +26,7 @@ package org.sipfoundry.sipxconfig.rest;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
@@ -171,6 +172,10 @@ public class XStreamRepresentation<T> extends OutputRepresentation {
             m_representation.write(outputStream);
         } else if (m_object != null) {
             getXstream().toXML(m_object, outputStream);
+        }
+        if (outputStream != null) {
+            outputStream.flush();
+            IOUtils.closeQuietly(outputStream);
         }
     }
 }

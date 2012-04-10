@@ -15,44 +15,39 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Backup provides Java interface to backup scripts
  */
-public class AdminContextImpl extends HibernateDaoSupport implements AdminContext {
-    private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS,
-            TFTP_ADDRESS, FTP_ADDRESS);
+public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider,
+    AlarmProvider {
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS);
     private LocationsManager m_locationsManager;
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
-    }
-
-    @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!ADDRESSES.contains(type)) {
             return null;
         }
 
         Location location = m_locationsManager.getPrimaryLocation();
-        Address address = new Address();
-        address.setAddress(location.getAddress());
-
+        Address address;
         if (type.equals(HTTP_ADDRESS)) {
-            address.setPort(12000);
-        } else if (type.equals(HTTPS_ADDRESS)) {
-            address.setPort(8443);
+            address = new Address(HTTP_ADDRESS, location.getAddress(), 12000);
+        } else {
+            address = new Address(type, location.getAddress());
         }
-        // else ftp and tftp won't have ports defines, 0 means it's assumed to be default
-        // also, this assumed admin ui is also tftp and ftp server, which is a correct assumption
-        // for now.
 
         return Collections.singleton(address);
     }
@@ -82,6 +77,12 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        return (location.isPrimary() ? Collections.singleton(new ProcessDefinition("java")) : null);
+        return (location.isPrimary() ? Collections.singleton(new ProcessDefinition("sipxconfig",
+                ".*-Dprocname=sipxconfig.*")) : null);
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        return Collections.singleton(ALARM_LOGIN_FAILED);
     }
 }

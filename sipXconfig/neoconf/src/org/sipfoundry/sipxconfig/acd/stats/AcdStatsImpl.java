@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
@@ -17,13 +26,20 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class AcdStatsImpl implements FeatureProvider, AddressProvider, AcdStats {
+public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider, ProcessProvider, FirewallProvider {
     private BeanWithSettingsDao<AcdStatsSettings> m_settingsDao;
 
     public AcdStatsSettings getSettings() {
@@ -45,13 +61,8 @@ public class AcdStatsImpl implements FeatureProvider, AddressProvider, AcdStats 
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(API_ADDRESS);
-    }
-
-    @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!type.equals(API_ADDRESS)) {
             return null;
         }
@@ -62,7 +73,7 @@ public class AcdStatsImpl implements FeatureProvider, AddressProvider, AcdStats 
             AcdStatsSettings settings = getSettings();
             addresses = new ArrayList<Address>(locations.size());
             for (Location location : locations) {
-                addresses.add(new Address(location.getAddress(), settings.getAcdStatsPort(), "http://%s:%d"));
+                addresses.add(new Address(API_ADDRESS, location.getAddress(), settings.getAcdStatsPort()));
             }
         }
         return addresses;
@@ -71,5 +82,23 @@ public class AcdStatsImpl implements FeatureProvider, AddressProvider, AcdStats 
     @Required
     public void setSettingsDao(BeanWithSettingsDao settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxacd-stats")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.basedOn(Bundle.OTHER)) {
+            b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(API_ADDRESS));
     }
 }

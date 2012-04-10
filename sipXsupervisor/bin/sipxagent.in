@@ -1,84 +1,114 @@
-#!/bin/bash
+#!/usr/bin/ruby
 
-Defines=
-Hosts=
-Action=RUN_LOCAL
-Status=0
-Args=$*
-Verbose=
+require 'optparse'
 
-while [ $# -ne 0 ]
-do
-    case ${1} in
-      --help|-h)
-        Action=USAGE
-        exit
-        ;;
-      --verbose|-v)
-        Verbose=-v
-	;;
-      --define|-d)
-        Defines="$Defines -D $2"
-	shift
-	;;
-      --host|-H)
-        Action=RUN_REMOTE
-	Hosts="${Hosts}${HostsDelim}$2"
-	HostsDelim=","
-	shift
-      ;;
-    esac
-    shift # always consume 1
-done
+# automake substitution vars
+$user = '@SIPXPBXUSER@'
+$bindir = '@SIPX_BINDIR@'
+$cfinputs = '@SIPX_CFINPUTS@'
+$logfile = '@SIPX_LOGDIR@/sipxagent.log'
 
-# Non-root user HAS to use remote access because this user doesn't
-# have file permissions run promises as non-root user.
-if [ `whoami` != "root" ]; then
-  if [ -z "${Hosts}" ]; then
-    Action=RUN_REMOTE
-    Hosts=127.0.0.1
-  fi
-fi
+# global vars
+$args = Array.new(ARGV)
 
-check_remote_setup() {
-  [ ! -f ~/.cfagent/ppkeys/localhost.priv ] && cf-key
-  if [ ! -f @SIPX_CONFDIR@/sipxsupervisor-allowed-addrs.ini ] ; then 
-    echo -e "127.0.0.1\n::1" > @SIPX_CONFDIR@/sipxsupervisor-allowed-addrs.ini
-  fi
-}
+def cmd(verbose, cmd)
+  puts cmd if verbose
+  return system(cmd)
+end
 
-if [ "${Action}" = "USAGE" ]
-then
-  cat <<USAGE
-sipxagent [--host hostname1 --host hostname2] [options]
+def run(verbose, is_remote, is_raw, hosts, defines, bundles)
+  
+  if (Process.uid == 0 && is_remote) # uid == 0 for root?
+    #
+    # You should not run cf-runagent as root because root user does not have all
+    # the ssl keys setup. Only sipx user should. So if you are attemptng to run
+    # cf-agent remote as root, no problem, we'll switch you over automatically
+    # we need to go thru su so environment is setup properly
+    #
 
-Optional Parameters:
-
- --help       - This message
-
- -H|--host    - Execute this on remote host(s) or even on local host but as non-root user.
-                Requires that sipxsupervisor is running on host and allows connections from
-                this machines.
-
- -D class     - Define a 'class' to be sent to remote machine. Can be used multiple times.
-                A 'class' is like a boolean and can be used to denote a command, state
-	        or multitude of things, it's really up to how the promises were written.
-USAGE
-fi
-
-if [ "${Action}" = "RUN_REMOTE" ]; then
-  if [ `whoami` = "root" ]; then
     # !RECURSIVE
     # Too many commands needs to run as proper user to try and run "su" on them all 
     # so just call this script again as the proper user
-    su - @SIPXPBXUSER@ sh -c "$0 $Args"
+    ok = cmd(verbose, "su - #{$user} sh -c \"#{$bindir}/sipxagent #{$args.join(' ')}\"")
+
   else
-    check_remote_setup
-    cf-runagent ${Verbose} -H "$Hosts" -f @SIPX_CFINPUTS@/sipxagent.cf ${Defines} -o "${Verbose} -K"
-    Status=$?
-  fi
-elif [ "${Action}" = "RUN_LOCAL" ]; then
-  cf-agent ${Verbose} -IKf @SIPX_CFINPUTS@/promises.cf ${Defines}
-  Status=$?
-fi
-exit $Status
+    dstr = (defines.empty? ? '' : "-D " + defines.join(' -D '))
+    bstr = (bundles.empty? ? '' : "-b " + bundles.join(' -b '))
+    hstr = (hosts.empty? ? '' : "-H " + hosts.join(' -H '))
+    vstr = (verbose ? '-v' : '')
+    analyzer = (is_raw ? '' : "| #{$bindir}/sipxagent-log-reader #{vstr}")
+    if (is_remote || Process.uid != 0)
+      ok = cmd(verbose, "cf-runagent -v #{hstr} -f #{$cfinputs}/sipxagent.cf -o \"-v #{dstr} #{bstr} -K\" | tee -a #{$logfile} #{analyzer}")
+    else 
+      # Short-cut - If you're root and you're not remote, do not bother going thru 
+      # sipxsupervisor.  This is handy if supervisor is dead or in the very initial
+      # call to sipxecs-setup on primary when nothing is running yet
+      ok = cmd(verbose, "cf-agent -v #{dstr} #{bstr} -IKf #{$cfinputs}/promises.cf #{analyzer}");
+    end
+  end
+  exit(ok ? 0 : 1)
+end  
+
+
+verbose = false
+hosts = [ '127.0.0.1' ]
+defines = []
+bundles = []
+# assume this is a local run
+is_remote = false
+is_raw = false
+
+args = OptionParser.new { |opts|
+  opts.banner = "Usage : sipxagent [options]"
+
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on("--verbose", "Send extra details to console.") {
+    verbose = true
+  }
+
+  opts.on_tail("-r", "--raw", "Show raw output fron CFEngine") {|v|
+    is_raw = true
+  }
+
+  opts.on_tail("-h host", "--host host", <<EOF
+Execute this on remote host(s) or even on local host but 
+as non-root user. Requires that sipxsupervisor is running on host and allows connections 
+from this machines.
+
+EOF
+               ) {|v|
+    hosts << v
+    is_remote = true
+  }
+
+  opts.on_tail("-b bundle", "--bundle bundle", <<EOF
+Specify a CFEngine 'bundle' that will execute on remote 
+machine instead of the standard one that runs through config files. 
+
+EOF
+               ) {|v|
+    bundles << v
+  }
+
+  opts.on_tail("-d class", "--define class", <<EOF
+Define a CFEngine 'class' to be sent to remote machine.
+Can be used multiple times. A 'class' is like a boolean and can be used to denote a
+command, state or multitude of things, it's really up to how the promises were written.
+
+Common Defines:
+
+ stop_sipxecs        - Stop all sipxecs related processes
+ restart_sipxecs     - Restart all sipxecs related processes
+
+EOF
+               ) {|v|
+    defines << v
+  }
+
+}
+args.parse!
+
+status = run(verbose, is_remote, is_raw, hosts, defines, bundles)
+exit status

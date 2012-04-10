@@ -119,5 +119,4 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     public void replicateWork(Replicable entity) {
         throw new RuntimeException("No clear what should happen here --Douglas");
     }
-
 }

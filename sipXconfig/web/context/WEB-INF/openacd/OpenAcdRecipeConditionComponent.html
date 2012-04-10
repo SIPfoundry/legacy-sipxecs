@@ -7,7 +7,8 @@
     </li>
   </ul>
   <table>
-	<tr jwcid="@For" source="ognl:recipeStepBean.recipeStep.conditions" value="ognl:recipeCondition" index="ognl:index" volatile="true">
+    <span jwcid="@For" source="ognl:recipeStepBean.recipeStep.conditions" value="ognl:recipeCondition" index="ognl:index" volatile="true">
+	<tr>
 	  <td>
 		<span jwcid="@PropertySelection" id="ognl:'condition_' + index"
 		  model="ognl:conditionModel"
@@ -27,10 +28,36 @@
 		  displayName="message:condition.value" />
 	  </span>
 	  <span jwcid="@Else">
-	    <span jwcid="@TextField" id="ognl:'conditionValue_' + index" size="8"
-	      value="ognl:recipeCondition.valueCondition"
-		  validators="validators:required"
-		  displayName="message:condition.value" />
+	    <span jwcid="@If" condition="ognl:clientComponent">
+		  <span jwcid="@openacd/OpenAcdClientSelect" id="ognl:'conditionValue_' + index"
+		    selectedClient="ognl:selectedClient"/>
+	    </span>
+	    <span jwcid="@Else">
+	      <span jwcid="@If" condition="ognl:dayOfWeekComponent">
+		    <span jwcid="@PropertySelection" id="ognl:'conditionValue_' + index"
+		      model="ognl:selectDayOfWeekModel"
+		      value="ognl:dayOfWeek" />
+	      </span>
+	      <span jwcid="@Else">
+	        <span jwcid="@If" condition="ognl:hourComponent">
+		      <span jwcid="@DropdownTimePicker" id="ognl:'conditionValue_' + index"
+		        value="ognl:hour" translator="translator:date,pattern=HH"/>
+	        </span>
+	        <span jwcid="@Else">
+	          <span jwcid="@If" condition="ognl:mediaTypeComponent">
+		        <span jwcid="@PropertySelection" id="ognl:'conditionValue_' + index"
+		          model="ognl:selectMediaTypeModel"
+		          value="ognl:mediaType" />
+		      </span>
+		      <span jwcid="@Else">
+		        <span jwcid="@TextField" id="ognl:'conditionValue_' + index" size="8"
+		          value="ognl:recipeCondition.valueCondition"
+		          validators="validators:required"
+		          displayName="message:condition.value" />
+		      </span>
+	        </span>
+	      </span>
+	    </span>
 	  </span>
 	  </td>
 	  <td>
@@ -39,5 +66,11 @@
 		</a>
 	  </td>
 	</tr>
+	<tr>
+	  <td colspan=4>
+	    <span jwcid="@Insert" value="ognl:helpText" class="settingDescription"/>
+	  </td>
+	</tr>
+	</span>
   </table>
 <fieldset>

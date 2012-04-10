@@ -21,10 +21,12 @@ import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.DidInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
@@ -45,9 +47,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String VALUE = "value";
-    private static final String DIALING_RULE = "dialing rule";
+    private static final String DIALING_RULE = "&label.dialingRule";
     private static final String DIAL_PLAN = "Dial-plan: ";
-    private static final String VOICEMAIL = "voicemail";
+    private static final String VOICEMAIL = "&label.voicemail";
     private AliasManager m_aliasManager;
     private ListableBeanFactory m_beanFactory;
     private AuditLogContext m_auditLogContext;
@@ -140,6 +142,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (!m_aliasManager.canObjectUseAlias(rule, voiceMailDid)) {
             throw new ExtensionInUseException(VOICEMAIL, voiceMailDid);
         }
+        if (StringUtils.isNotBlank(voiceMailDid) && voiceMailDid.equals(voiceMailExtension)) {
+            throw new DidInUseException(VOICEMAIL, voiceMailDid);
+        }
     }
 
     private void checkAliasCollisionsForAttendantRule(AttendantRule ar) {
@@ -151,6 +156,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (!m_aliasManager.canObjectUseAlias(ar, attendantDid)) {
             throw new ExtensionInUseException(DIALING_RULE, attendantDid);
         }
+        if (StringUtils.isNotBlank(attendantDid) && attendantDid.equals(attendantExtension)) {
+            throw new DidInUseException(DIALING_RULE, attendantDid);
+        }
 
         String aa = ar.getAttendantAliases();
         String[] aliases = AttendantRule.getAttendantAliasesAsArray(aa);
@@ -158,8 +166,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         for (int i = 0; i < aliases.length; i++) {
             String ruleAlias = aliases[i];
             if (!m_aliasManager.canObjectUseAlias(ar, ruleAlias)) {
-                final String message = "Alias \"{0}\" is already in use.  "
-                        + "Please choose another alias for this auto attendant.";
+                final String message = "&error.aliasCollisionException";
                 throw new UserException(message, ruleAlias);
             }
         }
@@ -234,9 +241,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
-    public List<DialingRule> getGenerationRules() {
+    public List<DialingRule> getGenerationRules(Location location) {
         DialPlan dialPlan = getDialPlan();
-        return dialPlan.getGenerationRules();
+        return dialPlan.getGenerationRules(location);
     }
 
     public List<AttendantRule> getAttendantRules() {

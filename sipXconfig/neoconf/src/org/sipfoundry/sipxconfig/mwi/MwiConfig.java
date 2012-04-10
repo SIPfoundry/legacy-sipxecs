@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.mwi;
 
@@ -18,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -46,7 +56,7 @@ public class MwiConfig implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(Mwi.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxpublisher.cfdat", "sipxpublisher", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxpublisher.cfdat", enabled, "sipxpublisher");
             if (!enabled) {
                 continue;
             }
@@ -83,6 +93,9 @@ public class MwiConfig implements ConfigProvider {
 
     void writePlugin(Writer wtr, Address ivrApi) throws IOException {
         VelocityContext context = new VelocityContext();
+        if (ivrApi == null) {
+            throw new ConfigException("MWI is enabled but could not find IVR address");
+        }
         context.put("mwiUrl", ivrApi.toString() + "/mwi");
         try {
             m_velocityEngine.mergeTemplate("sipxstatus/status-plugin.vm", context, wtr);

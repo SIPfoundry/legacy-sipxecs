@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
@@ -52,7 +53,7 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
         // other contexts could announce changes in their system affect DialPlanContext.FEATURE
         //
         if (!request.applies(ProxyManager.FEATURE, DialPlanContext.FEATURE, LocalizationContext.FEATURE,
-                PagingContext.FEATURE, Rls.FEATURE, ParkOrbitContext.FEATURE)) {
+                PagingContext.FEATURE, Rls.FEATURE, ParkOrbitContext.FEATURE, LocationsManager.FEATURE)) {
             return;
         }
 
@@ -83,7 +84,7 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
                     file.setDomainName(domainName);
                 }
 
-                generateXml(files);
+                generateXml(files, location);
 
                 for (int i = 0; i < files.length; i++) {
                     files[i].write(writers[i]);
@@ -97,13 +98,13 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
         }
     }
 
-    private void generateXml(RulesFile[] files) {
+    private void generateXml(RulesFile[] files, Location location) {
         // Get rules from dialing rule providers and the dial plan
         List<IDialingRule> rules = new ArrayList<IDialingRule>();
         if (m_dialingRuleProvider != null) {
-            rules.addAll(m_dialingRuleProvider.getDialingRules());
+            rules.addAll(m_dialingRuleProvider.getDialingRules(location));
         }
-        rules.addAll(m_planContext.getGenerationRules());
+        rules.addAll(m_planContext.getGenerationRules(location));
 
         for (RulesFile file : files) {
             file.begin();

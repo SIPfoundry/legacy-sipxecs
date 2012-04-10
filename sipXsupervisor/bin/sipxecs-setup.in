@@ -1,100 +1,191 @@
 #!/usr/bin/ruby
 
 require 'optparse'
+require 'fileutils'
 
-$domain_dat = "@SIPX_CFDATA@/domain.cfdat"
+# using only @VAR@ style vars in this section only helps make this maintainable when integrating
+# patches.
+$cfdatadir = "@SIPX_CFDATA@"
+$confdir = "@SIPX_CONFDIR@"
+$logdir = "@SIPX_LOGDIR@"
+$bindir = "@SIPX_BINDIR@"
+$servicedir = "@SIPX_SERVICEDIR@"
+$user = "@SIPXPBXUSER@"
+$group = "@SIPXPBXGROUP@"
+
+$domain_dat = "#{$cfdatadir}/domain.cfdat"
 $root_keydir = "/var/cfengine/ppkeys"
-home_dir = `awk -F : '/@SIPXPBXUSER@/ { print $6 }' /etc/passwd`.chomp
+home_dir = `awk -F : '/#{$user}/ { print $6 }' /etc/passwd`.chomp
 $user_keydir = "#{home_dir}/.cfagent/ppkeys"
-$primary_dir = "@SIPX_CFDATA@/1"
-$primary_dat = "#{$primary_dir}/primary.cfdat"
-$location_dat = "@SIPX_CFDATA@/defaults/location_id"
-$log = "@SIPX_LOGDIR@/sipxecs-setup.log"
+$primary_dat = "#{$cfdatadir}/defaults/primary.cfdat"
+$secondary_dat = "#{$cfdatadir}/defaults/secondary.cfdat"
+$master_dat= "#{$cfdatadir}/defaults/master"
+$location_dat = "#{$cfdatadir}/defaults/location_id"
+$log = "#{$logdir}/sipxagent.log"
 $verbose = false
-$cli_options = {}
+$advanced = false
 $exit_status = 0
 
 def run_command(cmd)
   puts cmd if $verbose
-  ok = system("#{cmd} >> #{$log}")
+  ok = system("#{cmd} #{' >/dev/null' unless $verbose}")
   if (!ok) 
+    puts
     puts  "Failure to run command #{cmd}. See #{$log} for details. After you"
     puts  "have addressed the issue, you may rerun this script."
     puts
-    if $verbose
-      system "cat #{$log}"
-    end
-    exit 1
   end
+  return ok
 end
 
 def set_root_keys
   #harmless if re-run  
-  run_command "/usr/sbin/cf-key"
+  exit 1 unless run_command "/usr/sbin/cf-key"
 end
 
-# PRIMARY ONLY
 def set_nonroot_keys
   #harmless if re-run
-  run_command "su - @SIPXPBXUSER@ sh -c '/usr/sbin/cf-key'"
+  exit 1 unless run_command "su - #{$user} sh -c '/usr/sbin/cf-key'"
 end
 
-# PRIMARY ONLY
+def set_secondary
+  return true if File.exists?($secondary_dat)
+  puts "Configuring as an additional server..."
+
+  master_address = prompt_required("Enter ip address or fully qualified host name of the primary server : ")
+
+  location_id = prompt_required("Enter the numeric id assigned to this server by the administration server : ")
+  File.open($location_dat,'w') {|f|
+    f.puts location_id
+  }
+  location_dir = "#{$cfdatadir}/#{location_id}"
+  Dir.mkdir(location_dir) unless File.directory?(location_dir)  
+  
+  master_cfdata = "#{$cfdatadir}"
+  master_confdir = "#{$confdir}"
+  if $advanced
+    master_cfdata = prompt_default("Enter SIPX_CFDATA directory on master", master_cfdata)
+    master_confdir = prompt_default("Enter SIPX_CONFDIR directory on master", master_confdir)
+  end
+  File.open($master_dat,'w') {|f|
+    f.puts "address=#{master_address}"
+    f.puts "SIPX_CFDATA=#{master_cfdata}"
+    f.puts "SIPX_CONFDIR=#{master_confdir}"
+  }
+  File.open($secondary_dat,'w') {|f|
+    f.puts "+sipxsupervisor"
+  }
+
+  return true
+end
+
+# Return true or false IF machine is primary, not is anything was done or not
 def set_primary
-  return if File.exists?($primary_dat)
-  return if !prompt_confirm("Configure as primary machine? : [ enter y or n ] ")
+  return false if File.exists?($secondary_dat)
+  return true if File.exists?($primary_dat)
+  return false unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
+  puts "Configuring as the first server..."
   File.open($location_dat, 'w') {|f|
     f.puts('1')
   }
   puts "Created #{$location_dat}" if $verbose
-  Dir.mkdir($primary_dir) unless File.directory?($primary_dir)
   File.open($primary_dat, 'w') {|f|
     f.puts <<EOF
 +primary
 +sipxsupervisor
 +postgres
 +mongod
++apache
 EOF
   }
   puts "Created #{$primary_dat}" if $verbose
-  `chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ #{$primary_dir}`
+  return true
 end
 
 def prompt_confirm(msg)
-  while (true)
+  return prompt(msg + " [ enter 'y' or 'n' ] : ", "Invalid response. Please use 'y' or 'n'.") {|v|
+    case v.downcase
+    when 'y'
+      true
+    when 'n' 
+      false
+    else 
+      nil
+    end
+  }
+end
+
+def prompt(msg, err_msg = "Invalid answer")
+  while true
     print msg
-    value = readline.chomp.downcase
-    return false if value == 'n'
-    return true if value == 'y'
-    puts "Invalid response. Please use 'y' or 'n'."
+    value = readline.chomp
+    answer = yield(value)
+    return answer unless answer.nil?
+    puts err_msg
   end
 end
 
-def prompt(msg, default)
-  print msg
-  value = readline.chomp
-  return value.empty? ? default : value
+def prompt_default(msg, default)
+  prompt(msg << (default.empty? ? ' : ' : " [ press enter for '\e[0;31m#{default}\e[m' ] : ")) {|v|
+    s = v.empty? ? default : v
+    s.empty? ? nil : s
+  }
 end
+
+def prompt_required(msg)
+  return prompt(msg, "You must specify a value") {|v|
+    v.empty? ? nil : v
+  }
+end
+
+#def prompt(msg, default)
+#  print msg
+#  value = readline.chomp
+#  return value.empty? ? default : value
+#end
 
 # PRIMARY ONLY
 def set_domain
   return if File.exists?($domain_dat)
-  current_fqdn = `hostname -f`.chomp
-  fqdn = prompt("Enter fully qualified domain name : [ press enter to use #{current_fqdn} ] ", current_fqdn)
-  domain = prompt("Enter SIP domain name : [ press enter to use #{fqdn} ] ", fqdn)
-  realm = prompt("Enter SIP realm : [ press enter to use #{domain} ] ", domain)
-  new_secret = `head -c 18 /dev/urandom | base64`.chomp
-  shared_secret = prompt("Enter shared secret : [ press enter to use random value ] ", new_secret) 
+  current_host = `hostname -s 2>/dev/null`.chomp
+  current_domain = `hostname -d 2>/dev/null`.chomp
+  host = prompt_default("Enter system \e[0;31mhost name without the domain\e[m name", current_host)
+  domain = prompt_default("Enter \e[0;31mdomain\e[m name", current_domain)
+  puts <<EOF
+\e[0;31mTip:\e[m Use '\e[0;31m#{host}.#{domain}\e[m' as your SIP domain if you are setting up for the first
+time or if you know you are only going to setup one server. This can make configuration
+easier.  You can always change the value later.
+EOF
+  sip_domain = prompt_default("Enter \e[0;31mSIP domain\e[m name", domain)
+  realm = prompt_default("Enter \e[0;31mSIP realm\e[m", sip_domain)
+  # shared secret is not really used anymore, but some servers still read it
+  shared_secret = `head -c 18 /dev/urandom | base64`.chomp
   File.open($domain_dat, 'w') { |f|
     f.puts <<EOF
-=domain=#{domain}
+=domain=#{sip_domain}
 =realm=#{realm}
 =secret=#{shared_secret}
 =lang=en
 EOF
   }
   puts "Created #{$domain_dat}" if $verbose
-  `chown @SIPXPBXUSER@:@SIPXPBXGROUP@ #{$domain_dat}`
+  FileUtils.chown($user, $group, $domain_dat)
+
+  File.open("#{$cfdatadir}/network.cfdat", 'w') { |f|
+    f.puts <<EOF
+=net_domain=#{domain}
+EOF
+  }
+
+  location_dir = "#{$cfdatadir}/1"
+  Dir.mkdir(location_dir) unless File.directory?(location_dir)
+  host_dat = "#{location_dir}/host.cfdat"
+  File.open(host_dat, 'w') { |f|
+    f.puts <<EOF
+=host=#{host}
+EOF
+  }  
+  FileUtils.chown_R($user, $group, location_dir)
 end
 
 def rm_files(d)
@@ -114,6 +205,10 @@ end
 
 def reset
   rm_file($domain_dat)
+  rm_file($primary_dat)
+  rm_file($secondary_dat)
+  rm_file($master_dat)
+  rm_file($location_dat)
 end
 
 def reset_all
@@ -140,6 +235,10 @@ args = OptionParser.new { |opts|
     reset_all
   }
 
+  opts.on("--advanced", "Ask advanced questions.") {
+    $advanced = true
+  }
+
   opts.on_tail("--help", "Print options") {
     puts opts
     exit
@@ -149,13 +248,26 @@ args = OptionParser.new { |opts|
 args.parse!
 
 raise 'Must run as root' unless Process.uid == 0
-rm_file($log)
 set_root_keys()
 set_nonroot_keys()
-set_primary()
-set_domain()
+if set_primary()
+  set_domain()
+else
+  set_secondary
+end
 
-print "Configuring system, this may take a few minutes..."
+puts "Configuring system, this may take a few minutes..."
 
-run_command("@SIPX_BINDIR@/sipxagent" + ($verbose ? " -v" : ""))
-puts "done."
+# First pass generated cfdata info
+exit 1 unless run_command("#{$bindir}/sipxagent #{'-v ' if $verbose} -d setup")
+
+# 2nd pass operates on cfdata info
+ok = run_command("#{$bindir}/sipxagent #{'-v ' if $verbose}")
+
+if !ok
+  puts "failed."
+  exit 1
+else
+  puts "done."
+  exit 0
+end

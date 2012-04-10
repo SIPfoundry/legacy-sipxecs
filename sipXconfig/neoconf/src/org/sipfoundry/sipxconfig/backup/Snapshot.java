@@ -9,9 +9,10 @@
 package org.sipfoundry.sipxconfig.backup;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -24,16 +25,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigCommands;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.commserver.SoftwareAdminApi;
-import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -41,6 +38,8 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class Snapshot {
     public static final String EXECUTION_HAS_NOT_COMPLETED = "RUNNING";
+
+    private static final String SEPARATOR = " ";
 
     private boolean m_logs = true;
 
@@ -56,8 +55,6 @@ public class Snapshot {
 
     private LocationsManager m_locationsManager;
 
-    private ApiProvider<SoftwareAdminApi> m_softwareAdminApiProvider;
-
     private String m_destDirectory;
 
     private volatile Date m_generatedDate;
@@ -66,74 +63,41 @@ public class Snapshot {
 
     private List<Future<SnapshotResult>> m_futures;
 
+    private ConfigCommands m_configCommands;
+
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
-    }
-
-    private String getHost() {
-        return m_locationsManager.getPrimaryLocation().getFqdn();
-    }
-
-    @Required
-    public void setSoftwareAdminApiProvider(ApiProvider softwareAdminApiProvider) {
-        m_softwareAdminApiProvider = softwareAdminApiProvider;
     }
 
     public String getDestinationDirectory() {
         return m_destDirectory;
     }
 
+    @Required
+    public void setConfigCommands(ConfigCommands configCommands) {
+        m_configCommands = configCommands;
+    }
+
     class GetSnapshot implements Callable<SnapshotResult> {
         private final Location m_location;
-        private final Date m_startDate;
-        private final Date m_endDate;
+        private final ConfigCommands m_configCommands;
 
-        public GetSnapshot(Location location, Date startDate, Date endDate) {
+        public GetSnapshot(Location location, ConfigCommands configCommands) {
             super();
             m_location = location;
-            m_startDate = startDate;
-            m_endDate = endDate;
+            m_configCommands = configCommands;
         }
 
         public SnapshotResult call() throws InterruptedException {
-            HttpClient client = new HttpClient();
-            String fqdn = m_location.getFqdn();
-            try {
-                SoftwareAdminApi api = m_softwareAdminApiProvider.getApi(m_location.getSoftwareAdminUrl());
-                List<String> remoteLogFilename = api.snapshot(getHost(), getCmdLine(m_startDate, m_endDate));
-                if (remoteLogFilename.isEmpty() || remoteLogFilename.get(0).length() == 0) {
-                    return new SnapshotResult(new UserException("&error.xml.rpc.null.snapshot", fqdn));
-                }
-
-                do {
-                    Thread.sleep(1000);
-                } while (EXECUTION_HAS_NOT_COMPLETED.equals(api.execStatus(getHost(), "snapshot")));
-
-                GetMethod httpget = new GetMethod(m_location.getHttpsServerUrl() + remoteLogFilename.get(0));
-
-                int statusCode = client.executeMethod(httpget);
-                if (statusCode != 200) {
-                    return new SnapshotResult(new UserException("&error.https.server.status.code", fqdn, String
-                            .valueOf(statusCode)));
-                }
-
-                File localOutputFile = new File(getDestinationDirectory(), "sipx-snapshot-" + fqdn + ".tar.gz");
-                FileOutputStream fos = new FileOutputStream(localOutputFile);
-                IOUtils.copy(httpget.getResponseBodyAsStream(), fos);
-                fos.close();
-
-                setGeneratedDate(new Date());
-
-                httpget.releaseConnection();
-                return new SnapshotResult(m_location, localOutputFile);
-            } catch (HttpException e) {
-                return new SnapshotResult(new UserException("&error.https.server", fqdn, e.getMessage()));
-            } catch (IOException e) {
-                return new SnapshotResult(new UserException("&error.io.exception", e.getMessage()));
-            } catch (XmlRpcRemoteException e) {
-                return new SnapshotResult(new UserException("&error.xml.rpc", e.getMessage(), fqdn));
+            m_configCommands.collectSnapshot(m_location);
+            setGeneratedDate(new Date());
+            if (!m_location.isPrimary()) {
+                // get snapshot from distributed
+                m_configCommands.uploadSnapshot(m_locationsManager.getPrimaryLocation());
             }
+            return new SnapshotResult(m_location, new File(getDestinationDirectory(),
+                    getArchiveName(m_location.getFqdn())));
         }
     }
 
@@ -142,54 +106,77 @@ public class Snapshot {
 
         m_futures = new ArrayList<Future<SnapshotResult>>(locations.length);
         for (Location location : locations) {
-            if (location.isRegistered()) {
-                GetSnapshot task = new GetSnapshot(location, startDate, endDate);
-                m_futures.add(m_executorService.submit(task));
+            Writer wtr = null;
+            try {
+                File f = new File(((ConfigManager) m_configCommands).getLocationDataDirectory(location),
+                        "snapshot.ini");
+                wtr = new FileWriter(f);
+                composeCmdLine(wtr, startDate, endDate, location.getFqdn());
+            } catch (IOException ex) {
+                throw new UserException("&err.snapshot.failed");
+            } finally {
+                IOUtils.closeQuietly(wtr);
             }
+            GetSnapshot task = new GetSnapshot(location, m_configCommands);
+            m_futures.add(m_executorService.submit(task));
         }
         m_executorService.shutdown();
     }
 
-    String[] getCmdLine(Date startDate, Date endDate) {
-        List<String> cmds = new ArrayList<String>();
-        cmds.add("--logs");
+    void composeCmdLine(Writer wtr, Date startDate, Date endDate, String fqdn) throws IOException {
+        wtr.write("--logs");
         if (m_logs) {
-            cmds.add("current");
+            wtr.write(SEPARATOR);
+            wtr.write("current");
             // Log start/stop times may only be specified with '--logs current'
             if (m_filterTime) {
                 // Times must be specified in UCT
-                cmds.add("--log-start");
-                cmds.add(formatDate(startDate));
-                cmds.add("--log-stop");
-                cmds.add(formatDate(endDate));
+                wtr.write(SEPARATOR);
+                wtr.write("--log-start");
+                wtr.write(SEPARATOR);
+                wtr.write(formatDate(startDate));
+                wtr.write(SEPARATOR);
+                wtr.write("--log-stop");
+                wtr.write(SEPARATOR);
+                wtr.write(formatDate(endDate));
             }
         } else {
-            cmds.add("none");
+            wtr.write(SEPARATOR);
+            wtr.write("none");
         }
 
         if (m_credentials) {
-            cmds.add("--credentials");
+            wtr.write(SEPARATOR);
+            wtr.write("--credentials");
         }
 
         if (m_cdr) {
-            cmds.add("--cdr");
+            wtr.write(SEPARATOR);
+            wtr.write("--cdr");
         }
 
         if (m_profiles) {
-            cmds.add("--profiles");
+            wtr.write(SEPARATOR);
+            wtr.write("--profiles");
         }
 
         if (!m_www) {
-            cmds.add("--no-www");
+            wtr.write(SEPARATOR);
+            wtr.write("--no-www");
         }
 
-        return cmds.toArray(new String[cmds.size()]);
+        wtr.write(SEPARATOR);
+        wtr.write(getDestinationDirectory() + "/" + getArchiveName(fqdn));
+    }
+
+    private String getArchiveName(String fqdn) {
+        return String.format("sipx-snapshot-%s.tar.gz", fqdn);
     }
 
     private String formatDate(Date date) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTime(date);
-        return (String.format("%1$tF %1$tT", calendar));
+        return (String.format("'%1$tF %1$tT'", calendar));
     }
 
     public boolean isCredentials() {

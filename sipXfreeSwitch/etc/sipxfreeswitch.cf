@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # FreeSWITCH configuration and process management
@@ -9,56 +18,68 @@ bundle agent sipxfreeswitch {
   methods:
     sipxfreeswitch::
       "any" usebundle => "sipxfreeswitch_config";
-      "any" usebundle => "sipxfreeswitch_setup";
     any::
+      "any" usebundle => "sipxfreeswitch_setup";
       "any" usebundle => "sipxfreeswitch_running";
 }
 
 bundle agent sipxfreeswitch_config {
   vars:    
     any::
-      "conference_file" string => "$(sipx.SIPX_CONFDIR)/freeswitch/autoload_configs/conference.conf.xml";
+      "conference_file" string => "$(sipx.SIPX_CONFDIR)/freeswitch/conf/autoload_configs/conference.conf.xml";
+
+      "xml_file_reload_only" slist => { 
+        "dialplan/sipX_context.xml"
+      };
 
       "xml_file" slist => { 
         "freeswitch.xml",
-	"dialplan/sipX_context.xml",
-	"sip_profiles/sipX_profile.xml",
+        "vars.xml",
+        "sip_profiles/sipX_profile.xml",
         "autoload_configs/xml_rpc.conf.xml",
- 	"autoload_configs/switch.conf.xml",
- 	"autoload_configs/logfile.conf.xml",
- 	"autoload_configs/local_stream.conf.xml"
+         "autoload_configs/switch.conf.xml",
+         "autoload_configs/logfile.conf.xml",
+         "autoload_configs/local_stream.conf.xml"
       };
 
   files:
     !sipxconference::
       "$(conference_file)"
+        comment => "install freeswitch config $(this.promiser)",
         delete => unlink,
-        classes => if_repaired("reload_freeswitch"),
-	action => track("$(this.promiser)");
+        classes => if_repaired("reload_sipxfreeswitch");
 
     sipxconference::
       "$(conference_file)"
+        comment => "install freeswitch config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/conference.conf.xml"),
-        classes => if_repaired("reload_freeswitch"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/conference.conf.xml"),
+        classes => if_repaired("reload_sipxfreeswitch");
 
     any::
       "$(sipx.SIPX_CONFDIR)/freeswitch/conf/$(xml_file)"
+        comment => "install freeswitch config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxfreeswitch"),
-	action => track("$(xml_file)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxfreeswitch");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/freeswitch/conf/$(xml_file_reload_only)"
+        comment => "install freeswitch config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_reload_only)"),
+        classes => if_repaired("reload_sipxfreeswitch");
 
     any::
       "$(sipx.SIPX_CONFDIR)/freeswitch/conf/autoload_configs/modules.conf.xml"
+        comment => "install freeswitch config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	edit_line => sipxfreeswitch_modules,
-        classes => if_repaired("restart_sipxfreeswitch"),
-	action => track("$(xml_file)");        
+        edit_line => sipxfreeswitch_modules,
+        classes => if_repaired("restart_sipxfreeswitch");
 }
 
 bundle edit_line sipxfreeswitch_modules {
@@ -135,7 +156,9 @@ any::
 bundle agent sipxfreeswitch_setup {
   methods:
     !src.sipxfreeswitch::
-      "any" usebundle => rh_chkconfig_status("sipxfreeswitch");
+      "any" usebundle => rh_chkconfig_status("sipxfreeswitch on");
+    !src.!sipxfreeswitch::
+      "any" usebundle => rh_chkconfig_status("sipxfreeswitch off");
 }
 
 bundle agent sipxfreeswitch_running {
@@ -148,26 +171,25 @@ bundle agent sipxfreeswitch_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxfreeswitch_running");
 
   commands:
-    sipxfreeswitch_running.!sipxfreeswitch::
+    (!sipxfreeswitch|stop_sipxecs).sipxfreeswitch_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
-        args => "stop",
-	action => track("sipxfreeswitch stop");
+        comment => "stop freeswitch",
+        args => "stop";
 
-    !sipxfreeswitch_running.sipxfreeswitch::
+    sipxfreeswitch.!sipxfreeswitch_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
-        args => "start",
-	action => track("sipxfreeswitch start");
+        comment => "start freeswitch",
+        args => "start";
 
-    # TODO: only reload freeswitch, not restart
-    reload_freeswitch::
+    sipxfreeswitch.sipxfreeswitch_running.reload_sipxfreeswitch::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
-        args => "restart",
-	action => track("sipxfreeswitch restart");
+        comment => "reload freeswitch",
+        args => "reload";
 
-    restart_sipxfreeswitch::
+    sipxfreeswitch.sipxfreeswitch_running.(restart_sipxecs|restart_sipxfreeswitch)::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
-        args => "restart",
-	action => track("sipxfreeswitch restart");
+        comment => "restart freeswitch",
+        args => "restart";
 }
 
 

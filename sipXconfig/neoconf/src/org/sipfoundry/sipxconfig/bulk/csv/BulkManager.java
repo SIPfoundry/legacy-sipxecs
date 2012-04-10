@@ -10,9 +10,7 @@
 package org.sipfoundry.sipxconfig.bulk.csv;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 
 public interface BulkManager {
     public static final String CONTEXT_BEAN_NAME = "bulkManager";
@@ -20,6 +18,4 @@ public interface BulkManager {
     void insertFromCsv(Reader reader);
 
     void insertFromCsv(File file, boolean deleteOnImport);
-
-    void performExport(Writer writer) throws IOException;
 }

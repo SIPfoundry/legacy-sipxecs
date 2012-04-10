@@ -3,10 +3,90 @@
  -  components into one place but these could be separate files for each section 
  -->
 <span jwcid="InternalPluginsFeaturesTop@Block">
-  <li><a jwcid="@PageLink" page="proxy/EditProxy"><span key="menu.proxy.featureMenu"/></a></li>
-  <li><a jwcid="@PageLink" page="registrar/EditRegistrar"><span key="menu.registrar.featureMenu"/></a></li>
-  <li><a jwcid="@PageLink" page="ivr/EditIvr"><span key="menu.ivr.featureMenu"/></a></li>
-  <li><a jwcid="@PageLink" page="park/ListParkOrbits"><span key="menu.park.featureMenu"/></a></li>
-  <li><a jwcid="@PageLink" page="paging/PagingGroupsPage"><span key="menu.paging.featureMenu"/></a></li>
-  <li><a jwcid="@PageLink" page="nat/EditNatTraversal"><span key="menu.nat.featureMenu"/></a></li>
+  <li jwcid="@If" condition="ognl:isOn('ivr')">
+	  <a jwcid="@PageLink" page="ivr/EditIvr"><span key="menu.ivr.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('park')">
+	  <a jwcid="@PageLink" page="park/ListParkOrbits"><span key="menu.park.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('page')">
+	  <a jwcid="@PageLink" page="paging/PagingGroupsPage"><span key="menu.paging.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('acd')">
+	<a jwcid="@PageLink" id="menu.acd" page="acd/ListAcdServers"><span key="menu.acd">ACD</span></a>
+  </li>
+   <!-- does not used "presenceServer.enabled" because AcdPresenceServer page requires ACD to be available as well -->
+   <li jwcid="@If" condition="ognl:isOn('acdPresence')">
+	<a jwcid="@PageLink" id="menu.acdPresence" page="acd/AcdPresenceServer"><span key="menu.acdPresence">ACD Presence</span></a>
+   </li>
+   <li jwcid="@If" condition="ognl:isOn('openacd')">
+     <a jwcid="@PageLink" id="menu.openAcd" page="openacd/OpenAcdServerPage"><span key="menu.openAcd">Contact Center</span></a>
+   </li>
+   <li jwcid="@If" condition="ognl:isOn('conference')">
+	 <a jwcid="@PageLink" id="menu.conferenceBridge" page="conference/ListBridges"><span key="menu.conferenceBridge">Conference Bridge</span></a>
+   </li>
+   <li jwcid="@If" condition="ognl:isOn('autoAttendant')">
+     <a jwcid="@PageLink" id="menu.attendants" page="dialplan/ManageAttendants"><span key="menu.attendants">Auto Attendants</span></a>
+   </li>
+   <li jwcid="@If" condition="ognl:isOn('intercom')">     
+	<a jwcid="@PageLink" id="menu.intercom" page="admin/Intercom"><span key="menu.intercom">Intercom</span></a>
+   </li>
+   <li jwcid="@If" condition="ognl:isOn('proxy')">     
+	<a jwcid="@PageLink" id="menu.huntGroups" page="admin/ListCallGroups"><span key="menu.huntGroups">Hunt Groups</span></a>
+   </li>
+   <li jwcid="@If" condition="ognl:isOn('moh')">     
+	<a jwcid="@PageLink" id="menu.musicOnHold" page="admin/MusicOnHold"><span key="menu.musicOnHold">Music on Hold</span></a>
+   </li>
+   <li jwcid="@If" condition="ognl:isOn('authCode')">     
+     <a jwcid="@PageLink" id="menu.authcodes" page="admin/AuthCodes"><span key="menu.authcodes">Authorization Codes</span></a>
+   </li>
+   <li>
+     <a jwcid="@PageLink" id="menu.phonebook" page="phonebook/ManagePhonebooks" ><span key="menu.phonebook">Phonebooks</span></a>
+   </li>
+  <li jwcid="@If" condition="ognl:isOn('imbot')">
+    <a jwcid="@PageLink" page="imbot/EditIMBot"><span key="menu.imbot.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('event')">
+	  <a jwcid="@PageLink" page="websocket/EditWebsocket"><span key="menu.websocket.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('restServer')">
+	  <a jwcid="@PageLink" page="restServer/EditRestServer"><span key="menu.restServer.featureMenu"/></a>
+  </li>  
+</span>
+<span jwcid="InternalPluginsSystemBottom@Block">
+  <li jwcid="@If" condition="ognl:isOn('sipxdns')">
+	  <a jwcid="@PageLink" page="dns/EditDns"><span key="menu.dns.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('firewall')">
+    <a jwcid="@PageLink" page="firewall/ManageFirewall"><span key="menu.firewall.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('dhcpd')">
+    <a jwcid="@PageLink" page="dhcp/EditDhcpd"><span key="menu.dhcpd.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('proxy')">
+	  <a jwcid="@PageLink" page="proxy/EditProxy"><span key="menu.proxy.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('registrar')">
+	  <a jwcid="@PageLink" page="registrar/EditRegistrar"><span key="menu.registrar.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('mwi')">
+	  <a jwcid="@PageLink" page="mwi/EditMwi"><span key="menu.mwi.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('natTraversal')">
+	  <a jwcid="@PageLink" page="nat/EditNatTraversal"><span key="menu.nat.featureMenu"/></a>
+  </li>
+</span>
+<span jwcid="InternalPluginsDiagnosticsTop@Block">
+	<li jwcid="@If" condition="ognl:isOn('registrar')">
+	  <a jwcid="@PageLink" id="menu.registrations" page="admin/commserver/Registrations"><span key="menu.registrations">Registrations</span></a>
+	</li>					
+    <li jwcid="@If" condition="ognl:isOn('sipxcdr')">
+	  <a jwcid="@PageLink" id="menu.cdr" page="cdr/CdrPage"><span key="menu.cdr">Calls</span></a>
+	</li>
+    <li jwcid="@If" condition="ognl:isOn('acdStats')">
+  	  <a jwcid="@PageLink" id="menu.acdHistory" page="acd/AcdHistoryPage"><span key="menu.acdHistory">ACD Calls</span></a>
+    </li>
+    <li jwcid="@If" condition="ognl:isOn('sbcBridge')">
+	  <a jwcid="@PageLink" id="menu.sbcStats" page="sbc/BridgeSbcStatisticsPage"><span key="menu.sbcStats">SIP Trunk SBC Statistics</span></a>
+    </li>
 </span>

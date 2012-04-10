@@ -1,0 +1,116 @@
+#!/bin/bash
+# sipXrecording - Startup script for sipxrecording
+
+# chkconfig: 35 85 15
+# description: sipxrecording is an recording service that works with freeswitch
+# processname: sipxrecording
+
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+prog=sipxrecording
+pidfile="@SIPX_RUNDIR@/sipxrecording.pid"
+config_props="@SIPX_CONFDIR@/sipxrecording.properties"
+config_bridge="@SIPX_CONFDIR@/conferencebridge.xml"
+
+[ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
+
+checkRunningInstance() {
+  if [ -f "${pidfile}" ]; then
+    pid=`cat ${pidfile}`
+    if checkpid $pid 2>&1; then
+      echo "Process $prog is already running with pid $pid"
+      exit 1
+    fi
+  fi
+}
+
+configtest() {  
+  # check validity of conference bridge xml file
+  @bindir@/sipx-validate-xml ${config_bridge}
+  Status=$((${Status} + $?))
+
+  # Check that the log file is writable.
+  logfile="@SIPX_LOGDIR@/sipXrecording.log"
+  if [ -e $logfile -a ! -w $logfile ]
+  then
+    echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+    Status=1
+  fi
+}
+
+# Start sipxrecording
+start() {
+  checkRunningInstance
+  
+  [ -f $config_props ] || exit 6
+  
+  JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+  Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @recording_PKGS@`
+  export CLASSPATH=`echo @SIPX_CONFDIR@/sipxrecording @SIPX_JAVADIR@/{sipXrecording,sipXopenfire/plugins}/*.jar ${Dependencies} | sed -e 's/ /:/g'`  
+  
+  Command="$JavaCmd \
+    -Dprocname=sipxrecording \
+    -Dconf.dir=@SIPX_CONFDIR@ \
+    -Dvar.dir=@SIPX_VARDIR@ \
+    org.sipfoundry.sipxrecording.SipXrecording \
+    $Args"
+  if [ -n "${NoFork}" ] ; then
+    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
+  else
+    echo -n $"Starting $prog: "
+    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+    echo $! > ${pidfile}
+    echo_success
+  fi  
+}
+
+stop() {
+  echo -n $"Stopping sipxrecording: "
+  killproc -p "${pidfile}" -t30 -TERM "sipxrecording"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
+}
+
+restart() {
+    stop
+    # sleep for no good reason. Can be disconcerting if stop/start
+    # switch is too fast IMHO
+    sleep 1
+    start
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${pidfile} ] && restart || :
+    ;;
+  status)
+    status -p ${pidfile} java
+    ;;
+  configtest)
+    configtest
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork}"
+    Status=1
+esac
+
+exit $Status

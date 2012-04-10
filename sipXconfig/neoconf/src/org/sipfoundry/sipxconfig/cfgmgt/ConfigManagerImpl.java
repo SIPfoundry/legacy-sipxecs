@@ -1,18 +1,31 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.cfgmgt;
 
+
 import java.io.File;
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,6 +33,9 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -27,12 +43,14 @@ import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFactoryAware {
+public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFactoryAware, AlarmProvider,
+    ConfigCommands {
     private static final Log LOG = LogFactory.getLog(ConfigManagerImpl.class);
     private File m_cfDataDir;
     private DomainManager m_domainManager;
@@ -47,7 +65,11 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private Set<Feature> m_affectedFeatures = new HashSet<Feature>();
     private boolean m_allFeaturesAffected;
     private ConfigAgent m_configAgent;
+    private RunBundleAgent m_runAgent;
     private SipxReplicationContext m_sipxReplicationContext;
+    private JobContext m_jobContext;
+    private String m_uploadDir;
+    private Set<String> m_registeredIps;
 
     public void init() {
         m_worker = new ConfigWorker();
@@ -104,17 +126,93 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         return work;
     }
 
+    public Collection<Location> getRegisteredLocations() {
+        return getRegisteredLocations(m_locationManager.getLocationsList());
+    }
+
+
+    public Collection<Location> getRegisteredLocations(Collection<Location> locations) {
+        File csv = new File(m_uploadDir + "/lastseen.csv");
+        RegisteredLocationResolver resolver = new RegisteredLocationResolver(this, m_registeredIps, csv);
+        Collection<Location> registered = resolver.getRegisteredLocations(locations);
+        m_registeredIps = resolver.getRegisteredIps();
+        return registered;
+    }
+
     // not synchronized so new incoming work can accumulate.
     public void doWork(ConfigRequest request) {
+        String jobLabel = "Configuration";
+        runProviders(request, jobLabel);
+        runCfengine(request, jobLabel);
+        runPostProviders(request, jobLabel);
+    }
+
+    @Override
+    public void runProviders() {
+        ConfigRequest work = getWork();
+        if (work != null) {
+            runProviders(work, "setup");
+        }
+    }
+
+    private void runProviders(ConfigRequest request, String jobLabel) {
         LOG.info("Configuration work to do. Notifying providers.");
+        Serializable job = m_jobContext.schedule(jobLabel);
+        m_jobContext.start(job);
+        Stack<Exception> errors = new Stack<Exception>();
         for (ConfigProvider provider : getProviders()) {
             try {
                 provider.replicate(this, request);
             } catch (Exception e) {
-                LOG.error("Non fatal failure to configure." + provider.getClass(), e);
+                LOG.error(jobLabel, e);
+                errors.push(e);
             }
         }
-        m_configAgent.run();
+
+        // even though there are errors, proceed to deploy phase. May want to
+        // reevaluate this decision --Douglas
+        if (errors.size() == 0) {
+            m_jobContext.success(job);
+        } else {
+            fail(m_jobContext, jobLabel, job, errors.pop());
+            // Tricky alert - show additional errors as new jobs
+            while (!errors.empty()) {
+                Serializable jobError = m_jobContext.schedule(jobLabel);
+                m_jobContext.start(jobError);
+                fail(m_jobContext, jobLabel, jobError, errors.pop());
+            }
+        }
+    }
+
+    private void runCfengine(ConfigRequest request, String jobLabel) {
+        Collection<Location> all = m_locationManager.getLocationsList();
+        Collection<Location> registered = getRegisteredLocations(all);
+        m_configAgent.run(registered);
+    }
+
+    private void runPostProviders(ConfigRequest request, String jobLabel) {
+        // After config has rolled out
+        for (ConfigProvider provider : getProviders()) {
+            try {
+                if (provider instanceof PostConfigListener) {
+                    ((PostConfigListener) provider).postReplicate(this, request);
+                }
+            } catch (Exception e) {
+                Serializable jobError = m_jobContext.schedule(jobLabel);
+                m_jobContext.start(jobError);
+                fail(m_jobContext, jobLabel, jobError, e);
+            }
+        }
+    }
+
+    static void fail(JobContext jc, String label, Serializable job, Exception e) {
+        // ConfigException's error message is useful to user, otherwise emit raw error
+        LOG.error(label, e);
+        if (e instanceof ConfigException) {
+            jc.failure(job, e.getMessage(), new RuntimeException());
+        } else {
+            jc.failure(job, "Internal Error", e);
+        }
     }
 
     public String getCfDataDir() {
@@ -137,21 +235,6 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             d.mkdirs();
         }
         return d;
-    }
-
-    @Override
-    public ConfigStatus getStatus(Location location, String key) {
-        return ConfigStatus.OK;
-    }
-
-    @Override
-    public void restartAllJavaProcesses() {
-        // TODO
-    }
-
-    @Override
-    public void restartService(Location location, String service) {
-        // TODO
     }
 
     @Override
@@ -192,22 +275,17 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(SUPERVISOR_ADDRESS);
-    }
-
-    @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (type.equals(SUPERVISOR_ADDRESS)) {
-            // this will eventually phase out in favor of sipxsupervisor-lite
-            return Collections.singleton(new Address(null, 8092));
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
+        if (!type.equals(SUPERVISOR_ADDRESS)) {
+            return null;
         }
-        return null;
+        // this will eventually phase out in favor of sipxsupervisor-lite
+        return Collections.singleton(new Address(SUPERVISOR_ADDRESS, null, 8092));
     }
 
     private Collection<ConfigProvider> getProviders() {
         if (m_providers == null) {
-            Map<String, ConfigProvider> providers = m_beanFactory.getBeansOfType(ConfigProvider.class);
+            Map<String, ConfigProvider> providers = m_beanFactory.getBeansOfType(ConfigProvider.class, false, false);
             m_providers = providers.values();
         }
         return m_providers;
@@ -246,5 +324,95 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
+    }
+
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
+    }
+
+    @Override
+    public void run(RunRequest request) {
+        LOG.info("Running " + request.getLabel());
+        m_runAgent.run(request.getLocations(), request.getLabel(), request.getBundles(), request.getDefines());
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        return Arrays.asList(PROCESS_FAILED, PROCESS_RESTARTED, PROCESS_STARTED);
+    }
+
+    @Override
+    public void restartServices() {
+        restartServices(getRegisteredLocations());
+    }
+
+    @Override
+    public void restartServices(Collection<Location> locations) {
+        RunRequest r = new RunRequest("restart services", locations);
+        r.setDefines("restart_sipxecs");
+        run(r);
+    }
+
+    @Override
+    public void lastSeen() {
+        Location primary = m_locationManager.getPrimaryLocation();
+        RunRequest r = new RunRequest("registration check", Collections.singleton(primary));
+        r.setBundles("last_seen");
+        run(r);
+    }
+
+    @Override
+    public void collectSnapshot(Location location) {
+        RunRequest collect = new RunRequest("collect snapshot", Collections.singleton(location));
+        collect.setBundles("collect_snapshot");
+        run(collect);
+    }
+
+    @Override
+    public void uploadSnapshot(Location location) {
+        RunRequest collect = new RunRequest("upload snapshot", Collections.singleton(location));
+        collect.setBundles("upload_snapshot");
+        run(collect);
+    }
+
+    @Override
+    public void collectVmBackup(Location location) {
+        RunRequest collect = new RunRequest("collect voicemail backup", Collections.singleton(location));
+        collect.setBundles("vmbackup");
+        run(collect);
+    }
+
+    @Override
+    public void uploadVmBackup(Location location) {
+        RunRequest collect = new RunRequest("upload voicemail backup", Collections.singleton(location));
+        collect.setBundles("upload_vmbackup");
+        run(collect);
+    }
+
+    @Override
+    public void restoreVmBackup(Location location) {
+        RunRequest collect = new RunRequest("restore voicemail backup", Collections.singleton(location));
+        collect.setBundles("restore_vmbackup");
+        run(collect);
+    }
+
+    @Override
+    public void runRestoreScript(Location location) {
+        RunRequest collect = new RunRequest("restore config backup", Collections.singleton(location));
+        collect.setBundles("run_restore");
+        run(collect);
+    }
+
+    @Override
+    public ConfigCommands getConfigCommands() {
+        return this;
+    }
+
+    public void setRunAgent(RunBundleAgent runAgent) {
+        m_runAgent = runAgent;
+    }
+
+    public void setUploadDir(String uploadDir) {
+        m_uploadDir = uploadDir;
     }
 }

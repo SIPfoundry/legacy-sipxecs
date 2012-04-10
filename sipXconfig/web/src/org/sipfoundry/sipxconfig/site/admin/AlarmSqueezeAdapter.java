@@ -9,18 +9,29 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.util.List;
+
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.alarm.Alarm;
 
 public class AlarmSqueezeAdapter implements IPrimaryKeyConverter {
+    private List<Alarm> m_alarms;
+
+    public AlarmSqueezeAdapter(List<Alarm> alarms) {
+        m_alarms = alarms;
+    }
+
     public Object getPrimaryKey(Object value) {
         Alarm alarm = (Alarm) value;
-        return alarm.getAlarmId();
+        return alarm.getAlarmDefinition().getId();
     }
 
     public Object getValue(Object primaryKey) {
-        Alarm alarm = new Alarm();
-        alarm.setAlarmId(primaryKey.toString());
-        return alarm;
+        for (Alarm alarm : m_alarms) {
+            if (alarm.getAlarmDefinition().getId().equals(primaryKey)) {
+                return alarm;
+            }
+        }
+        return null;
     }
 }

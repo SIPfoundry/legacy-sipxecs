@@ -36,22 +36,11 @@
 	</span>
     <table jwcid="@common/Table" id="certificates:list"
       columns="* fileName, certDescription"
-      source="ognl:certificatesModel"
-      row="ognl:currentRow"
-      selections="bean:selections"
-      converter="bean:certificateConverter">
+      source="ognl:certificateManager.authorities"
+      row="ognl:authority"
+      selections="bean:selections">
       <span jwcid="fileNameColumnValue@Block">
-        <span jwcid="@If" condition="ognl:currentRow.systemGenerated">
-          <span jwcid="link@common/DownloadLink"
-            fileName="ognl:currentRow.fileName"
-            dirName="ognl:currentRow.dirName"
-            contentType="literal:application/octet-stream">
-              <span jwcid="@Insert" value="ognl:currentRow.fileName"/>
-          </span>
-        </span>
-        <span jwcid="@Else">
-          <span jwcid="@Insert" value="ognl:currentRow.fileName"/>
-        </span>
+        <span jwcid="@Insert" value="ognl:authority"/>
       </span>
       <span jwcid="certDescriptionColumnValue@Block">
         <ul class="settingDescription">

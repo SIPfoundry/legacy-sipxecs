@@ -35,7 +35,6 @@
         <param name="sequence">openacd_agent_seq</param>
       </generator>
 	</id>
-    <property name="pin"/>
     <property name="security"/>
     <many-to-one name="group" class="OpenAcdAgentGroup" column="openacd_agent_group_id" not-null="true" lazy="proxy"
       foreign-key="fk_openacd_agent_group" />
@@ -75,6 +74,10 @@
 	   <key column="openacd_queue_group_id" />
 	   <many-to-many column="openacd_agent_group_id" class="OpenAcdAgentGroup"/>
     </set>
+	<set name="steps" table="openacd_queue_recipe_step" cascade="all,delete-orphan" order-by="openacd_recipe_step_id">
+	  <key column="openacd_queue_group_id"/>
+	  <one-to-many class="OpenAcdRecipeStep"/>
+	</set>    
   </class>
 
   <class name="OpenAcdQueue" table="openacd_queue">
@@ -97,7 +100,7 @@
 	   <many-to-many column="openacd_agent_group_id" class="OpenAcdAgentGroup" />
     </set>
 	<set name="steps" table="openacd_queue_recipe_step" cascade="all,delete-orphan" order-by="openacd_recipe_step_id">
-	  <key column="openacd_queue_id" not-null="true"/>
+	  <key column="openacd_queue_id"/>
 	  <one-to-many class="OpenAcdRecipeStep"/>
 	</set>
   </class>
@@ -176,6 +179,17 @@
     <property name="description"/>
   </class>
 
+  <class name="OpenAcdReleaseCode" table="openacd_release_codes">
+    <id name="id" column="openacd_code_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_release_codes_seq</param>
+      </generator>
+	</id>
+    <property name="label"/>
+    <property name="bias"/>
+    <property name="description"/>
+  </class>
+
   <subclass name="OpenAcdExtension" extends="org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension" discriminator-value="O">
   </subclass>
 
@@ -243,6 +257,10 @@
 
   <query name="openAcdSkillGroupWithName">
     <![CDATA[from OpenAcdSkillGroup skillGroup where skillGroup.name = :value]]>
+  </query>
+
+  <query name="openAcdClientReleaseCodeWithLabel">
+    <![CDATA[from OpenAcdReleaseCode code where code.label = :value]]>
   </query>
 
   <sql-query name="allSkills">

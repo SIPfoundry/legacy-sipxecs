@@ -1,0 +1,51 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+bundle common commands {
+  vars:
+    any::
+      "upload_dir" string => "@SIPX_VARDIR@/cfupload";
+}
+
+bundle agent last_seen {
+  methods:
+    any::
+      "report" usebundle => "last_seen_report";
+
+  files:
+    any::
+      "$(commands.upload_dir)/lastseen.csv"
+        create => "false",
+        perms => mog(644,"@SIPXPBXUSER@","@SIPXPBXGROUP@");
+}
+
+bundle agent last_seen_report {
+  files:
+    any::
+      "$(commands.upload_dir)/."
+        create => "true",
+        perms => mog(644,"@SIPXPBXUSER@","@SIPXPBXGROUP@");
+
+  commands:
+    any::
+      "/usr/sbin/cf-report"
+        args => "-IKvf @SIPX_CFINPUTS@/plugin.d/lib/commands.cf";
+}
+
+body reporter control {
+  reports => { 
+    "last_seen" 
+  };
+  build_directory => "$(commands.upload_dir)";
+  report_output => "csv";
+}

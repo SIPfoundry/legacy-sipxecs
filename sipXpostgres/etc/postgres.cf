@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # Postgres configuration for working with sipxecs
@@ -11,8 +20,10 @@ bundle agent postgres {
     postgres::
       "any" usebundle => "postgres_init";
       "any" usebundle => "postgres_config";
-    any::
-      "any" usebundle => "postgres_running";
+    fedora16_or_greater::
+      "any" usebundle => "postgres_sysctl_running";
+    !fedora16_or_greater::
+      "any" usebundle => "postgres_sysv_running";
 }
 
 bundle agent postgres_init {
@@ -26,12 +37,14 @@ bundle agent postgres_init {
     # complete, yet postgres is not fully initialized
     initdb::
       "$(sipx.PGDATA)"
+        comment => "clear uninitialized postgres",
         file_select => days_old("0"),
-	depth_search => recurse("inf"),
+        depth_search => recurse("inf"),
         delete => tidy;
 
       "$(sipx.PGDATA)/."
-	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)");
+        comment => "fix postgres permissions",
+        perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)");
 
   commands:
     # Most distributions use a separate command "initdb"
@@ -39,12 +52,16 @@ bundle agent postgres_init {
     # starting and stopping server. Although you could call
     # initdb directly there is various other housekeeping that
     # the service script handles so leverage it here.
-    initdb::
-      "$(sipx.PG_DAEMON)"        
+    fedora16_or_greater.initdb::
+      "/usr/bin/postgresql-setup"
+        comment => "initialize postgres",
+        args => "initdb";
+
+    !fedora16_or_greater.initdb::
+      "$(sipx.PG_DAEMON)"
+        comment => "initialize postgres",
         args => "initdb";
 }
-
-
 
 bundle agent define_class(to_be_defined) {
   vars:
@@ -56,23 +73,26 @@ bundle agent postgres_config {
   files:
     postgres::
       "$(sipx.PGDATA)/pg_hba.conf"
+        comment => "allow local connections to postgres in $(this.promiser)",
         create => "false",
-	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
- 	# only reload is nec. but not bothering to support this atm
+        perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+         # only reload is nec. but not bothering to support this atm
         classes => if_repaired("restart_postgres"),
-	edit_line => pg_hba_conf;
+        edit_line => pg_hba_conf;
 
       "$(sipx.PGDATA)/postgresql.conf"
+        comment => "install required postgres settings in $(this.promiser)",
         create => "true",
-	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+        perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
         classes => if_repaired("restart_postgres"),
-	edit_line => postgresql_conf;
+        edit_line => postgresql_conf;
 
       "$(sipx.PGDATA)/postmaster.opts.default"
+        comment => "allow tcp connections to postgres in $(this.promiser)",
         create => "true",
-	perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
+        perms => mog("644","$(sipx.POSTGRESQL_USER)","$(sipx.POSTGRESQL_GROUP)"),
         classes => if_repaired("restart_postgres"),
-	edit_line => replace_contents("-i");
+        edit_line => replace_contents("-i");
 }
 
 bundle edit_line postgresql_conf {
@@ -114,8 +134,7 @@ bundle edit_line pg_hba_conf {
     "local.*";
 }
 
-
-bundle agent postgres_running {
+bundle agent postgres_sysv_running {
   vars:
     any::
       "service_command" string => "/usr/bin/postmaster";
@@ -123,20 +142,57 @@ bundle agent postgres_running {
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "postgres_running","$(sipx.POSTGRESQL_USER)");
+    postgres::
+      "any" usebundle => rh_chkconfig_status("postgresql on");
+    !postgres::
+      "any" usebundle => rh_chkconfig_status("postgresql off");
 
   commands:
-    postgres_running.!postgres::
+    !postgres.postgres_running::
       "$(sipx.PG_DAEMON)"
-        args => "stop",
-	action => track("postgres_stop");
+        comment => "stop postgres",
+        args => "stop";
 
-    !postgres_running.postgres::
+    postgres.!postgres_running::
       "$(sipx.PG_DAEMON)"
-        args => "start",
-	action => track("postgres_start");
+        comment => "start postgres",
+        args => "start";
 
-    restart_postgres.postgres::
+    postgres.postgres_running.restart_postgres::
       "$(sipx.PG_DAEMON)"
-        args => "restart",
-	action => track("postgres_restart");  
+        comment => "restart postgres",
+        args => "restart";
+}
+
+bundle agent postgres_sysctl_running {
+  vars:
+    fedora16_or_greater::
+      "service" string => "postgresql.service";
+
+  classes:
+    "postgres_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !postgres.postgres_running::
+      "$(sipx.systemctl)"
+        comment => "stop postgres",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable postgres",
+        args => "disable $(service)";
+
+    postgres.!postgres_running::
+      "$(sipx.systemctl)"
+        comment => "start postgres",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable postgres",
+        args => "enable $(service)";
+
+    postgres.postgres_running.restart_postgres::
+      "$(sipx.systemctl)"
+        comment => "restart postgres",
+        args => "restart";
 }

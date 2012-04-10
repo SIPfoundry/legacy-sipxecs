@@ -1,0 +1,15 @@
+603243: include struct.h in installed -devel files
+
+
+diff -up net-snmp-5.5/agent/Makefile.in.orig net-snmp-5.5/agent/Makefile.in
+--- net-snmp-5.5/agent/Makefile.in.orig	2010-06-16 13:48:48.000000000 +0200
++++ net-snmp-5.5/agent/Makefile.in	2010-06-16 14:02:36.000000000 +0200
+@@ -44,7 +44,7 @@ INSTALLBUILTSUBDIRHEADERS=../include/net
+ INSTALLBUILTSUBDIR=agent
+ 
+ INCLUDEMIBGROUPDIR=agent/mibgroup
+-INCLUDEMIBGROUPDIRHEADERS=util_funcs.h
++INCLUDEMIBGROUPDIRHEADERS=util_funcs.h struct.h
+ 
+ OTHERINSTALL=installmibgroupheaders @EMBEDPERLINSTALL@
+ OTHERUNINSTALL=@EMBEDPERLUNINSTALL@

@@ -39,7 +39,7 @@
       <userPattern>0</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:IVR@192.168.1.1:0;action=autoattendant;schedule_id=operator&gt;</url>
+          <url>&lt;sip:IVR@192.168.1.1:102;action=autoattendant;schedule_id=operator&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -49,7 +49,7 @@
       <userPattern>+123456789</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:IVR@192.168.1.1:0;action=retrieve&gt;</url>
+          <url>&lt;sip:IVR@192.168.1.1:102;action=retrieve&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -67,7 +67,7 @@
       <userPattern>2xxx</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit&gt;</url>
+          <url>&lt;sip:IVR@192.168.1.1:102;mailbox={vdigits};action=deposit&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -86,7 +86,7 @@
       <permissionMatch>
         <permission>FreeswitchVoicemailServer</permission>
         <transform>
-          <url>&lt;sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit&gt;;q=0.1</url>
+          <url>&lt;sip:IVR@192.168.1.1:102;mailbox={vdigits};action=deposit&gt;;q=0.1</url>
         </transform>
       </permissionMatch>
     </userMatch>

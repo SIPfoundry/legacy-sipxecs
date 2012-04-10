@@ -14,14 +14,12 @@ import java.io.Writer;
 import java.util.Date;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public interface CdrManager extends FeatureProvider, AddressProvider {
-    public static final LocationFeature FEATURE = new LocationFeature("cdr");
+public interface CdrManager {
+    public static final LocationFeature FEATURE = new LocationFeature("sipxcdr");
     public static final AddressType CDR_API = new AddressType("cdrApi");
 
     final String CONTEXT_BEAN_NAME = "cdrManager";

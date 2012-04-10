@@ -69,7 +69,7 @@ public interface MailboxManager {
 
     boolean performBackup(File workingDir);
 
-    void performRestore(BackupBean archive, boolean validate, boolean noRestart);
+    void performRestore(BackupBean archive, boolean noRestart);
 
     String getMailboxRestoreLog();
 

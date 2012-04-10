@@ -35,6 +35,7 @@ public class AlarmHistoryManagerImpl implements AlarmHistoryManager {
 
     private String m_logDirectory;
     private LocationsManager m_locationsManager;
+    private AlarmServerManager m_alarmServerManager;
 
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
@@ -91,7 +92,7 @@ public class AlarmHistoryManagerImpl implements AlarmHistoryManager {
         String line = null;
         List<AlarmEvent> contents = new ArrayList<AlarmEvent>();
         while ((line = input.readLine()) != null) {
-            AlarmEvent alarmEvent = new AlarmEvent(line);
+            AlarmEvent alarmEvent = AlarmEvent.parseEvent(m_alarmServerManager, line);
             Date date = alarmEvent.getDate();
             if (startDate.before(date) && endDate.after(date)) {
                 contents.add(alarmEvent);
@@ -104,5 +105,9 @@ public class AlarmHistoryManagerImpl implements AlarmHistoryManager {
             int first, int pageSize) throws IOException {
         List<AlarmEvent> contents = parseEventsStream(responseStream, startDate, endDate);
         return DataCollectionUtil.getPage(contents, first, pageSize);
+    }
+
+    public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
+        m_alarmServerManager = alarmServerManager;
     }
 }

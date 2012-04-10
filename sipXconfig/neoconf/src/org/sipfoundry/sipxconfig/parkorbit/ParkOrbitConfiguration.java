@@ -49,7 +49,7 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(ParkOrbitContext.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxpark.cfdat", "sipxpark", enabled);
+            ConfigUtils.enableCfengineClass(dir, "sipxpark.cfdat", enabled, "sipxpark");
             if (!enabled) {
                 continue;
             }

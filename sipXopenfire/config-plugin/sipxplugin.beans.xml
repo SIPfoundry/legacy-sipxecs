@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+  <bean id="openfireImpl" class="org.sipfoundry.sipxconfig.openfire.OpenfireImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.openfire.OpenfireSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+    <property name="openfireHome" value="${openfire.home}"/>
+  </bean>
+
+  <bean id="openfire" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="openfireImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.openfire.Openfire"/>
+  </bean>
+
+  <bean id="openfireSettings" class="org.sipfoundry.sipxconfig.openfire.OpenfireSettings">
+    <property name="localizationContext" ref="localizationContext"/>
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="logDir" value="${sysdir.log}" />
+  </bean>
+  
+  <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration">
+    <property name="config" ref="openfireXml"/>
+    <property name="sipxConfig" ref="openfireSipxXml"/>
+    <property name="accountConfig" ref="openfireAccountXml"/>
+    <property name="ldapManager" ref="ldapManager"/>
+    <property name="configManager" ref="configManager"/>
+    <property name="featureManager" ref="featureManager"/>
+    <property name="websocket" ref="websocket"/>
+  </bean>
+
+  <bean id="openfireSipxXml" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireConfiguration">
+    <property name="coreContext" ref="coreContext" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="openfire" ref="openfire" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="velocityEngine" ref="velocityEngine" />        
+  </bean>
+
+  <bean id="openfireXml" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="ldapManager" ref="ldapManager" />
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="openfireApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="userAccountServer." />
+    <property name="secure" value="false" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.openfire.OpenfireApi" />
+  </bean>
+
+  <bean id="openfireAccountXml" class="org.sipfoundry.sipxconfig.openfire.XmppAccountInfo">
+    <property name="coreContext" ref="coreContext" />
+    <property name="conferenceContext" ref="conferenceBridgeContext" />
+    <property name="validUsers" ref="validUsers" />
+    <property name="imbot" ref="imBot" />
+  </bean>
+
+  <bean id="imFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.IMFeatureHook" />
+</beans>

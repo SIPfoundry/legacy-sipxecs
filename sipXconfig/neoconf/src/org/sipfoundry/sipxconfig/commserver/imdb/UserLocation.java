@@ -1,11 +1,18 @@
-/*
+/**
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * $
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
@@ -20,6 +27,7 @@ import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.ASSISTANT_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.ASSISTANT_PHONE;
+import static org.sipfoundry.commons.mongo.MongoConstants.AVATAR;
 import static org.sipfoundry.commons.mongo.MongoConstants.CELL_PHONE_NUMBER;
 import static org.sipfoundry.commons.mongo.MongoConstants.COMPANY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.FAX_NUMBER;
@@ -68,6 +76,7 @@ public class UserLocation extends AbstractDataSetGenerator {
                 top.put(FAX_NUMBER, abe.getFaxNumber());
                 top.put(HOME_PHONE_NUMBER, abe.getHomePhoneNumber());
                 top.put(CELL_PHONE_NUMBER, abe.getCellPhoneNumber());
+                top.put(AVATAR, abe.getAvatar());
                 top.put(LOCATION, abe.getLocation());
                 // FIXME abe.getOfficeAddress should be accurate enough to get real office address
                 // complete fix should be when XX-8002 gets solved
@@ -94,8 +103,9 @@ public class UserLocation extends AbstractDataSetGenerator {
                     top.put(OFFICE_DESIGNATION, officeAddress.getOfficeDesignation());
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
 }

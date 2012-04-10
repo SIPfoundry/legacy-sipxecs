@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 
 import com.mongodb.DBObject;
 
@@ -29,8 +30,11 @@ public class OpenAcd extends AbstractDataSetGenerator {
         if (entity.getName() != null) {
             top.put(MongoConstants.NAME, entity.getName());
         }
-        top.put(MongoConstants.UUID,  UUID.randomUUID().toString());
-        top.put(MongoConstants.TYPE, entity.getClass().getSimpleName().toString().toLowerCase());
+
+        top.put(OpenAcdContext.UUID,  UUID.randomUUID().toString());
+        top.put(OpenAcdContext.TYPE, entity.getClass().getSimpleName().toString().toLowerCase());
+        top.put(MongoConstants.REALM, getCoreContext().getAuthorizationRealm());
+
         return true;
     }
 

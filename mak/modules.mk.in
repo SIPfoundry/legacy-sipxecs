@@ -15,6 +15,8 @@ sipx = \
   sipXsnmp \
   sipXpostgres \
   sipXmongo \
+  sipXdns \
+  sipXhttpd \
   sipXcommons \
   sipXrelay \
   sipXbridge \
@@ -30,6 +32,7 @@ sipx = \
   sipXproxy \
   sipXpublisher \
   sipXregistry \
+  sipXpark \
   sipXpolycom
 
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i 
@@ -39,18 +42,23 @@ lib_common = \
   freeswitch \
   js \
   mongo \
+  net-snmp \
   OpenACD \
   erlmongo \
   sipx-openfire \
   ruby-dbi \
   ruby-postgres \
-  cfengine
+  cfengine \
+  php-seclib
 
-$(foreach V,11 12 13 14 15 16 17 18 19 20,$(eval lib_fedora_$(V) = $(lib_common)))
+$(foreach V,11 12 13 14 15 16,$(eval lib_fedora_$(V) = $(lib_common) sec))
+
+$(foreach V,17 18 19 20,$(eval lib_fedora_$(V) = $(lib_common)))
 
 lib_centos_6 = \
   epel-release \
   $(lib_common) \
+  sec \
   nsis \
   nsis-data
 

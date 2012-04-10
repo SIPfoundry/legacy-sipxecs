@@ -79,6 +79,8 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
 
     public abstract IUploadFile getUploadCdrFile();
 
+    public abstract IUploadFile getUploadDeviceConfigFile();
+
     @InjectObject(value = "spring:restore")
     public abstract Restore getRestore();
 
@@ -160,11 +162,14 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
         boolean restoreVoicemail = false;
         boolean restoreConfig = false;
         boolean restoreCdr = false;
+        boolean restoreDeviceConfig = false;
         for (File file : selectedFiles) {
             BackupBean backup = new BackupBean(file);
             selectedBackups.add(backup);
             if (backup.getType() == BackupBean.Type.CONFIGURATION) {
                 restoreConfig = true;
+            } else if (backup.getType() == BackupBean.Type.DEVICE_CONFIG) {
+                restoreDeviceConfig = true;
             } else if (backup.getType() == BackupBean.Type.CDR) {
                 restoreCdr = true;
             } else if (backup.getType() == BackupBean.Type.VOICEMAIL) {
@@ -178,7 +183,7 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
             return null;
         }
         Restore restore = prepareRestore(selectedBackups, getBackupPlanType());
-        return setupWaitingPage(restore, restoreConfig, restoreVoicemail, restoreCdr);
+        return setupWaitingPage(restore, restoreConfig, restoreVoicemail, restoreCdr, restoreDeviceConfig);
     }
 
     public IPage uploadAndRestoreFiles() {
@@ -189,10 +194,16 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
             boolean restoreVoicemail = false;
             boolean restoreConfig = false;
             boolean restoreCdr = false;
+            boolean restoreDeviceConfig = false;
             config = upload(getUploadConfigurationFile(), BackupPlan.CONFIGURATION_ARCHIVE);
             if (config != null) {
                 selectedBackups.add(config);
                 restoreConfig = true;
+            }
+            BackupBean deviceConfig = upload(getUploadDeviceConfigFile(), BackupPlan.DEVICE_CONFIG);
+            if (deviceConfig != null) {
+                selectedBackups.add(deviceConfig);
+                restoreDeviceConfig = true;
             }
             BackupBean cdr = upload(getUploadCdrFile(), BackupPlan.CDR_ARCHIVE);
             if (cdr != null) {
@@ -209,7 +220,7 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
                 throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
             }
             Restore restore = prepareRestore(selectedBackups, LocalBackupPlan.TYPE);
-            return setupWaitingPage(restore, restoreConfig, restoreVoicemail, restoreCdr);
+            return setupWaitingPage(restore, restoreConfig, restoreVoicemail, restoreCdr, restoreDeviceConfig);
         } catch (ValidatorException e) {
             validator.record(e);
             return null;
@@ -217,14 +228,15 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
 
     }
 
-    private IPage setupWaitingPage(Restore restore, boolean restoreConfig, boolean restoreVoicemail, boolean restoreCdr) {
+    private IPage setupWaitingPage(Restore restore, boolean restoreConfig, boolean restoreVoicemail,
+        boolean restoreCdr, boolean restoreDeviceConfig) {
         if (restoreConfig) {
             // sets the waiting listener: it'll be notified by waiting page when this is
             // requested by the client (browser) - after it loads the waiting page
             WaitingPage waitingPage = getWaitingPage();
             waitingPage.setWaitingListener(restore);
             return waitingPage;
-        } else if (restoreVoicemail || restoreCdr) {
+        } else if (restoreVoicemail || restoreCdr || restoreDeviceConfig) {
             restore.afterResponseSent();
             if (restoreVoicemail && !restoreCdr) {
                 TapestryUtils.recordSuccess(this, getMessages().getMessage("message.remoteRestore.started"));
@@ -232,6 +244,8 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
                 TapestryUtils.recordSuccess(this, getMessages().getMessage("message.cdr.started"));
             } else if (restoreCdr && restoreVoicemail) {
                 TapestryUtils.recordSuccess(this, getMessages().getMessage("message.cdr.ivr.started"));
+            } else if (restoreDeviceConfig) {
+                TapestryUtils.recordSuccess(this, getMessages().getMessage("message.deviceconfig.restored"));
             }
             return null;
         } else {
@@ -278,6 +292,15 @@ public abstract class RestorePage extends UserBasePage implements IPageWithReset
         if (size == 3 && (list.get(0).getType() != list.get(1).getType())
                 && (list.get(0).getType() != list.get(2).getType())
                 && (list.get(1).getType() != list.get(2).getType())) {
+            // 3 selections are OK if they are of different types
+            return true;
+        }
+        if (size == 4 && (list.get(0).getType() != list.get(1).getType())
+                && (list.get(0).getType() != list.get(2).getType())
+                && (list.get(1).getType() != list.get(2).getType())
+                && (list.get(0).getType() != list.get(3).getType())
+                && (list.get(1).getType() != list.get(3).getType())
+                && (list.get(2).getType() != list.get(3).getType())) {
             // 3 selections are OK if they are of different types
             return true;
         }

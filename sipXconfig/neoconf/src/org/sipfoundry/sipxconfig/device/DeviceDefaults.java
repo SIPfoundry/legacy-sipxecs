@@ -16,12 +16,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.ftp.FtpManager;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
@@ -87,7 +87,7 @@ public class DeviceDefaults {
     }
 
     public Address getTftpServer() {
-        return m_addressManager.getSingleAddress(AdminContext.TFTP_ADDRESS);
+        return m_addressManager.getSingleAddress(FtpManager.TFTP_ADDRESS);
     }
 
     /**

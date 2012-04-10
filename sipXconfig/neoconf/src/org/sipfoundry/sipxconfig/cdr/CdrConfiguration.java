@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.cdr;
 
@@ -13,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -32,21 +42,24 @@ public class CdrConfiguration implements ConfigProvider {
             return;
         }
 
+        Set<Location> locations = request.locations(manager);
         List<Location> proxyLocations = manager.getFeatureManager().getLocationsForEnabledFeature(ProxyManager.FEATURE);
-        if (proxyLocations.isEmpty()) {
-            return;
-        }
-
         CdrSettings settings = m_cdrManager.getSettings();
-        for (Location location : proxyLocations) {
+        for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+            boolean enabled = proxyLocations.contains(location);
+            String datfile = "sipxcdr.cfdat";
+            if (!enabled) {
+                ConfigUtils.enableCfengineClass(dir, datfile, false, CdrManager.FEATURE.getId());
+                continue;
+            }
+            ConfigUtils.enableCfengineClass(dir, datfile, true, CdrManager.FEATURE.getId(), "postgres");
             FileWriter wtr = new FileWriter(new File(dir, "callresolver-config"));
             try {
                 write(wtr, proxyLocations, settings);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
-            ConfigUtils.enableCfengineClass(dir, "sipxcdr.cfdat", "sipxcdr", true);
         }
     }
 

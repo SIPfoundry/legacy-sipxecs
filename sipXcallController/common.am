@@ -1,0 +1,5 @@
+callcntlr_PKGS = \
+	sipxcommons \
+	jain-sip-sdp \
+	org.restlet \
+	log4j

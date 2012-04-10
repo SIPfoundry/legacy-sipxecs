@@ -1,0 +1,6 @@
+provision.servlet.port=8185
+log.level=NOTICE
+provision.username=provisioner
+provision.password=1234Password
+provision.configUrl=https://admin.example.org:100
+provision.sipxchangeDomainName=example.org

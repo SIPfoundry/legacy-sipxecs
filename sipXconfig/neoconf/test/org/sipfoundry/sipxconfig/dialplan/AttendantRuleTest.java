@@ -68,7 +68,7 @@ public class AttendantRuleTest extends TestCase {
 
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-        expectLastCall().andReturn(new Address("ivr.example.org", 3333)).anyTimes();
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "ivr.example.org", 3333)).anyTimes();
         replay(addressManager);        
         mediaServer.setAddressManager(addressManager);
         
@@ -118,7 +118,7 @@ public class AttendantRuleTest extends TestCase {
         
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-        expectLastCall().andReturn(new Address("zzz.example.org", 4444)).anyTimes();
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "zzz.example.org", 4444)).anyTimes();
         replay(addressManager);        
         mediaServer.setAddressManager(addressManager);
 

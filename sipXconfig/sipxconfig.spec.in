@@ -52,6 +52,7 @@ Requires: sipxcommserverlib >= %version
 Requires: sipxacdstatistics-client >= %version
 Requires: sipxcdr-client >= %version
 Requires: sipxpostgres >= %version
+Requires: sipxhttpd >= %version
 
 # doesn't really require mongo server on same machine, but 
 # hard to see a reason why this isn't true and there needs
@@ -91,12 +92,12 @@ Requires: bitstream-vera-sans-fonts
 Requires: httpd >= 2.0
 %endif
 
+# Server. sipxconfig will disable server this by default automatically
+# unless admin specifically turns it on
+Requires: dhcp
+
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
-
-# should match sipXlib.m4:SIPX_VARDIR/upgrade
-%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
-%define this_archive %{name}-%{version}-%{release}.tgz
 
 %description
   Configuring one phone can be a daunting task, configuring a hundred
@@ -129,12 +130,6 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables FTP for devices controlled by %{name}
 
-%if %{_vendor} == suse
-%define vsftpd_conf /etc/vsftpd.conf
-%else
-%define vsftpd_conf /etc/vsftpd/vsftpd.conf
-%endif
-
 %description ftp
 * installs and configures vsftpd server
 * turns on xinit.d/vsftpd service on
@@ -161,13 +156,6 @@ export NO_BRP_CHECK_BYTECODE_VERSION=true
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
-%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
-mkdir -p %{upgrade_archive_root}
-tar --directory ${RPM_BUILD_ROOT} \
-    -czf %{upgrade_archive_root}/%{this_archive} \
-    etc \
-    var/sipxdata/configserver
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -175,7 +163,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc  README  NOTICE  ChangeLog %name.configlog
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxconfig
-%{_datadir}/sipxecs/cfinputs/plugin.d/sipxconfig.cf
+%{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
 %attr(755,sipx, sipx) %{_bindir}/sipx-time-manager
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/.java-dep
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/*.jar
@@ -186,7 +174,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,sipx,sipx) %{phonedir}/profile/docroot
 %dir %attr(775,sipx,sipx) %{phonedir}/profile/tftproot
 %dir %{_localstatedir}
-%{upgrade_archive_dir}/%{this_archive}
 
 # Install configserver config files, directory only is created by pbx
 #
@@ -197,51 +184,56 @@ rm -rf $RPM_BUILD_ROOT
 # see http://lists.rpm.org/pipermail/rpm-list/2011-July/000946.html
 
 %defattr(644,root,root,755)
-%config(noreplace) %{sipxpbxconf}/sipxconfig-jetty.xml
-%config(noreplace) %{sipxpbxconf}/log4j.properties
-%config(noreplace) %{sipxpbxconf}/sipxconfig.properties
-%config(noreplace) %{sipxpbxconf}/sipxconfig.properties.map
 %config(noreplace) %{sipxpbxconf}/VM_global_library.vm
-%config(noreplace) %{sipxpbxconf}/setting.dtd
-%config(noreplace) %{sipxpbxconf}/setting.xsl
+%config(noreplace) %{sipxpbxconf}/acd/*
 %config(noreplace) %{sipxpbxconf}/acme/*
 %config(noreplace) %{sipxpbxconf}/acmePhone/*
-%config(noreplace) %{sipxpbxconf}/acd/*
-%config(noreplace) %{sipxpbxconf}/sipxacdreports/*
-%config(noreplace) %{sipxpbxconf}/sipxacdstats/*
 %config(noreplace) %{sipxpbxconf}/alarms/*
+%config(noreplace) %{sipxpbxconf}/certificate/*
 %config(noreplace) %{sipxpbxconf}/commserver/*
-%config(noreplace) %{sipxpbxconf}/freeswitch/*
 %config(noreplace) %{sipxpbxconf}/database/*
+%config(noreplace) %{sipxpbxconf}/dhcp/*
+%config(noreplace) %{sipxpbxconf}/firewall/*
+%config(noreplace) %{sipxpbxconf}/freeswitch/*
+%config(noreplace) %{sipxpbxconf}/ftp/*
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
+%config(noreplace) %{sipxpbxconf}/log4j.properties
+%config(noreplace) %{sipxpbxconf}/mailbox/*
+%config(noreplace) %{sipxpbxconf}/moh/*
 %config(noreplace) %{sipxpbxconf}/mongo/*
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
-%config(noreplace) %{sipxpbxconf}/sipxbridge/*
-%config(noreplace) %{sipxpbxconf}/sipxconference/*
-%config(noreplace) %{sipxpbxconf}/sipxconfig/*
-%config(noreplace) %{sipxpbxconf}/sipximbot/*
-%config(noreplace) %{sipxpbxconf}/scsimbot/*
-%config(noreplace) %{sipxpbxconf}/sipxivr/*
-%config(noreplace) %{sipxpbxconf}/sipxproxy/*
-%config(noreplace) %{sipxpbxconf}/sipxacccode/*
-%config(noreplace) %{sipxpbxconf}/sipxregistrar/*
-%config(noreplace) %{sipxpbxconf}/sipxcallresolver/*
-%config(noreplace) %{sipxpbxconf}/sipxpresence/*
-%config(noreplace) %{sipxpbxconf}/sipxstatus/*
-%config(noreplace) %{sipxpbxconf}/sipxpark/*
-%config(noreplace) %{sipxpbxconf}/sipxpage/*
-%config(noreplace) %{sipxpbxconf}/sipxrecording/*
-%config(noreplace) %{sipxpbxconf}/sipxrls/*
-%config(noreplace) %{sipxpbxconf}/sipxvxml/*
-%config(noreplace) %{sipxpbxconf}/test.d/*
-%config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
-%config(noreplace) %{sipxpbxconf}/unmanaged/*
-%config(noreplace) %{sipxpbxconf}/mailbox/*
-%config(noreplace) %{sipxpbxconf}/sipxsaa/*
-%config(noreplace) %{sipxpbxconf}/sipxrest/*
-%config(noreplace) %{sipxpbxconf}/sipxprovision/*
 %config(noreplace) %{sipxpbxconf}/openacd/*
+%config(noreplace) %{sipxpbxconf}/scsimbot/*
+%config(noreplace) %{sipxpbxconf}/setting.dtd
+%config(noreplace) %{sipxpbxconf}/setting.xsl
+%config(noreplace) %{sipxpbxconf}/sipxacccode/*
+%config(noreplace) %{sipxpbxconf}/sipxacdreports/*
+%config(noreplace) %{sipxpbxconf}/sipxacdstats/*
+%config(noreplace) %{sipxpbxconf}/sipxbridge/*
+%config(noreplace) %{sipxpbxconf}/sipxcallresolver/*
+%config(noreplace) %{sipxpbxconf}/sipxconference/*
+%config(noreplace) %{sipxpbxconf}/sipxconfig-jetty.xml
+%config(noreplace) %{sipxpbxconf}/sipxconfig.properties
+%config(noreplace) %{sipxpbxconf}/sipxconfig.properties.map
+%config(noreplace) %{sipxpbxconf}/sipxconfig/*
+%config(noreplace) %{sipxpbxconf}/sipxdns/*
+%config(noreplace) %{sipxpbxconf}/sipximbot/*
+%config(noreplace) %{sipxpbxconf}/sipxivr/*
+%config(noreplace) %{sipxpbxconf}/sipxpage/*
+%config(noreplace) %{sipxpbxconf}/sipxpark/*
+%config(noreplace) %{sipxpbxconf}/sipxpresence/*
+%config(noreplace) %{sipxpbxconf}/sipxproxy/*
+%config(noreplace) %{sipxpbxconf}/sipxregistrar/*
+%config(noreplace) %{sipxpbxconf}/sipxrest/*
+%config(noreplace) %{sipxpbxconf}/sipxrls/*
+%config(noreplace) %{sipxpbxconf}/sipxsaa/*
+%config(noreplace) %{sipxpbxconf}/sipxstatus/*
+%config(noreplace) %{sipxpbxconf}/sipxvxml/*
+%config(noreplace) %{sipxpbxconf}/sipxwebsocket/*
+%config(noreplace) %{sipxpbxconf}/test.d/*
 %config(noreplace) %{sipxpbxconf}/tunnel/*
+%config(noreplace) %{sipxpbxconf}/unmanaged/*
+%config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/reports
 %config(noreplace) %{_localstatedir}/sipxdata/reports/*
@@ -258,84 +250,5 @@ rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
 # empty but required to generate RPM
 %files tftp
 
-%post tftp
-sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
-
-# turn on the service so its started after all reboots.
-/sbin/chkconfig xinetd on >/dev/null
-
-%if %{_vendor} == suse
-# turn on the service so its started after all reboots.
-/sbin/chkconfig xinetd on >/dev/null
-
-# ensure that INET services are running
-/sbin/service xinetd start >/dev/null
-%endif
-
 # empty but required to generate RPM
 %files ftp
-
-%post ftp
-
-%if %{_vendor} == suse
-%define adduser /usr/sbin/useradd
-%define nologin /bin/false
-%else
-%define adduser /usr/sbin/adduser
-%define nologin /sbin/nologin
-%endif
-
-if ! id -u PlcmSpIp > /dev/null 2>&1
-then
-  # default user account polycom phones use
-  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M PlcmSpIp >/dev/null
-  echo -e "PlcmSpIp" | /usr/bin/passwd --stdin PlcmSpIp >/dev/null
-fi
-
-if ! id -u lvp2890 > /dev/null 2>&1
-then
-  # default user account Nortel 1535 phones use
-  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M lvp2890 >/dev/null
-  echo -e "28904all" | /usr/bin/passwd --stdin lvp2890 >/dev/null
-fi
-
-# 'install' ftpd config file
-mv %{vsftpd_conf} %{vsftpd_conf}.sipx-orig
-cat > %{vsftpd_conf} <<EOF
-# vsftpd config for sipxconfig
-local_enable=YES
-write_enable=YES
-local_umask=022
-dirlist_enable=NO
-xferlog_enable=YES
-connect_from_port_20=YES
-xferlog_std_format=YES
-pam_service_name=vsftpd
-listen=YES
-chroot_local_user=YES
-pasv_min_port=50000
-pasv_max_port=50050
-EOF
-chmod 600 %{vsftpd_conf}
-
-/sbin/chkconfig vsftpd on >/dev/null
-
-# anaconda installs may not have network installed or ready
-# however they do restart system post installation
-if /sbin/service vsftpd status | grep -v grep | grep running >/dev/null
-then
-  /sbin/service vsftpd stop >/dev/null
-fi
-
-/sbin/service vsftpd start >/dev/null
-
-%preun ftp
-if [ "$1" = "0" ] ; then
-  /usr/sbin/userdel PlcmSpIp
-  /usr/sbin/userdel lvp2890
-  if [ -e %{vsftpd_conf}.sipx-orig ]
-  then
-    mv %{vsftpd_conf}.sipx-orig %{vsftpd_conf}
-    service vsftpd restart
-  fi
-fi

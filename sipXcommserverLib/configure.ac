@@ -38,13 +38,11 @@ AC_CONFIG_FILES([
   include/Makefile
   bin/Makefile
   etc/Makefile
-  bin/ssl-cert/Makefile
   src/Makefile
   src/sipdb/Makefile
   src/xsdvalid/Makefile
   src/test/Makefile
   meta/Makefile
-  src/sipxrestorebinary/Makefile
   src/sipxpackage/Makefile
   src/sipxswadmin/Makefile
   src/sipxzoneadmin/Makefile

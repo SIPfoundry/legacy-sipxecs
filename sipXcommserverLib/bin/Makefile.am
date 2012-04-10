@@ -1,13 +1,13 @@
 include $(top_srcdir)/config/utility.am
 
-SUBDIRS = ssl-cert
-
 INCLUDES = -I$(top_srcdir)/include
+libexecdir = @SIPX_LIBEXECDIR@
+libexec_SCRIPTS = \
+	sipx-strip-db-secrets.pl
 
 utildir = @SIPX_LIBEXECDIR@
 util_SCRIPTS = \
 	sipx-archive-common \
-	sipxkeystoregen \
 	sipx-utils.sh
 
 bin_SCRIPTS = \
@@ -20,6 +20,7 @@ bin_SCRIPTS = \
 dist_bin_SCRIPTS = \
 	pkg-upgrade \
 	configmerge \
+	sipx-log-cut \
 	configquery
 
 setupdir = @SIPX_LIBEXECDIR@/setup.d
@@ -32,27 +33,12 @@ setup_SCRIPTS = \
         sipxzoneadmin-init
 
 EXTRA_DIST = \
+	$(libexec_SCRIPTS:=.in) \
 	$(bin_SCRIPTS:=.in) \
 	$(setup_SCRIPTS:=.in) \
 	$(util_SCRIPTS:=.in)
 
-$(util_SCRIPTS) $(bin_SCRIPTS) $(setup_SCRIPTS) : % : %.in Makefile
+$(util_SCRIPTS) $(libexec_SCRIPTS) $(bin_SCRIPTS) $(setup_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS) $(util_SCRIPTS)
-
-noinst_PROGRAMS = \
-	sipxconfigrpc \
-	sipxconfigrpcsrv
-
-sipxconfigrpc_SOURCES = \
-	configrpc.cpp
-
-sipxconfigrpcsrv_SOURCES = \
-	configrpcsrv.cpp
-
-sipxconfigrpc_LDADD = \
-	../src/libsipXcommserver.la
-
-sipxconfigrpcsrv_LDADD = \
-	../src/libsipXcommserver.la
+CLEANFILES = $(bin_SCRIPTS) $(setup_SCRIPTS) $(util_SCRIPTS) $(libexec_SCRIPTS)

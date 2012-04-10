@@ -26,14 +26,10 @@ BuildRequires: net-snmp-devel >= 5.3.1
 BuildRequires: net-snmp-devel >= 5.3.1
 Requires: net-snmp-libs >= 5.3.1
 %endif
-
-# sending email - an smtp listener must be running on localhost
-%if %{_vendor} == redhat
-Requires: smtpdaemon
-%endif
-%if %{_vendor} == suse
+# log watcher
+Requires: sec
 Requires: sendmail
-%endif
+Requires: sendmail-cf
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -80,14 +76,16 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
-%attr(755,root,root) %{_bindir}/sipxagent
-%attr(755,root,root) %{_bindir}/sipxecs-setup
-%attr(755,root,root) %{_sysconfdir}/init.d/sipxsupervisor
+%attr(755,root,root) %{_bindir}/*
+%attr(755,root,root) %{_sysconfdir}/init.d/*
+%attr(755,root,root) %{_sysconfdir}/sipxpbx/dhcp/*
+%attr(755,root,root) %{_sysconfdir}/sipxpbx/firewall/*
+%attr(755,root,root) %{_datadir}/sipxecs/cfmodules/*
+%attr(755,root,root) %{_libexecdir}/sipXecs/*
 %{_datadir}/sipxecs/cfinputs/*.cf
-%attr(755,root,root) %{_datadir}/sipxecs/cfmodules/sipx
-%attr(755,root,root) %{_datadir}/sipxecs/cfmodules/readfile-if-exists
 %{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
+%{_datadir}/sipxecs/cfinputs/plugin.d/lib/*.cf
 # where sipxconfig writes data, sipx user needs r/w access
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 # defaults are static, only root should write
-%{_localstatedir}/sipxdata/cfdata/defaults/dirs.cfdat
+%{_localstatedir}/sipxdata/cfdata/defaults/*

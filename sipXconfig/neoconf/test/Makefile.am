@@ -72,7 +72,7 @@ ant_DEPS = $(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(ant_PKGS))
 precommit : check
 	$(MAKE) reset check-integration
 
-reset : reset-db reset-acd reset-cdr
+reset : reset-db reset-acd reset-cdr;
 
 reset-db :
 	if ! `$(PG_SQL) -l | grep SIPXCONFIG_TEST > /dev/null` ; then \
@@ -123,5 +123,6 @@ define sipxconfig_properties
 	acdHistoryDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST
 	mongoDbFactory.connectionUrl=mongodb://127.0.0.1:27017
 	sysdir.mongo_ns=_TEST
+	setupManagerImpl.enabled=false
 endef
 export sipxconfig_properties

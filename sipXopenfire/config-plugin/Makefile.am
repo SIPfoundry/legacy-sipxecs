@@ -14,13 +14,15 @@ noinst_DATA = \
 
 jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 jar_DATA = $(cfg_JAR)
-cfg_JAR = cfg-service.jar
-cfg_RESOURCES = src/sipxplugin.beans.xml
+cfg_JAR = openfire-cfg-service.jar
+cfg_RESOURCES = \
+	$(shell cd $(srcdir); find plugin -type f) \
+	sipxplugin.beans.xml
 
 $(cfg_JAR) : javac-cfg $(cfg_RESOURCES)
 	jar -cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
-	  $(call JarInclude,$(srcdir)/src,$(subst src/,,$(cfg_RESOURCES)))
+	  $(call JarInclude,$(srcdir),$(cfg_RESOURCES))
 
 cfg_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig,$(cfg_PKGS))

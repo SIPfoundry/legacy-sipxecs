@@ -11,10 +11,13 @@ package org.sipfoundry.sipxconfig.freeswitch;
 import java.util.Formatter;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
 import org.sipfoundry.sipxconfig.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.dialplan.MediaServer;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
@@ -77,13 +80,26 @@ public class FreeswitchMediaServer extends MediaServer {
         Formatter f = new Formatter(params);
         f.format(";schedule_id=%s", attendantName);
         appendLocale(f);
-        return MappingRule.buildUrl(USER_PART, getHostname(), params.toString(), null, null);
+        return MappingRule.buildUrl(USER_PART, getHostname(Operation.Autoattendant), params.toString(), null, null);
     }
 
     @Override
-    public String getHostname() {
-        // wrong: need to select FS by location
-        return m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS).toString();
+    public String getHostname(Operation operation) {
+        if (getLocation() != null) {
+            Address addr = m_addressManager.getSingleAddress(Ivr.SIP_ADDRESS, getLocation());
+            if (addr != null) {
+                return addr.getAddress();
+            }
+        }
+        return getRegularHostname();
+    }
+
+    public String getRegularHostname() {
+        Address fs = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        if (fs == null) {
+            throw new ConfigException("Freeswitch is not enabled but media services is required");
+        }
+        return fs.addressColonPort();
     }
 
     private void appendLocale(Formatter f) {

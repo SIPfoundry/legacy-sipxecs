@@ -12,7 +12,7 @@ jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipXpolycom.jar
 jar_DATA = $(JAR_FILE)
 
-polycom_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
+polycom_SRC = $(shell cd $(srcdir); find org -name '*.java' -type f )
 polycom_RESOURCES = sipxplugin.beans.xml
 
 polycom_DEPS = \

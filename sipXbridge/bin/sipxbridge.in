@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# sipxbridge - Startup script for sipxbridge
+# chkconfig: 35 85 15 
+# description: sipxbridge is an SIP Trunking server
+# processname: sipxbridge
+
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 # Contributors retain copyright to elements licensed under a Contributor Agreement.

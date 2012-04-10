@@ -483,7 +483,7 @@ function marshal_configuration_information () {
    @SIPX_DATADIR@/process.d
    /var/log/yum.log
    /var/log/messages
-   /var/log/mongodb/mongodb.log
+   /var/log/mongo/mongod.log
    /etc/yum.conf
    /etc/yum
    /etc/yum.repos.d
@@ -510,7 +510,7 @@ EOF
 
 	   # Place extract.log at the top level of the tar file.
 	   CommentFiles="${CommentFiles} ${cutDir}/extract.log"
-	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap* @SIPX_LOGDIR@/openacd/*.log
+	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap* @OPENACD_HOME@/log/*.log
 	   do
 	       # Start cutting at the base log.
 	       if cutIfTimestamps "${base_log}"
@@ -554,7 +554,7 @@ EOF
 	   done
 	   ;;
        current)
-	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap* @SIPX_LOGDIR@/openacd/*.log
+	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap* @OPENACD_HOME@/log/*.log
 	   do
 	     echo $log >> $Work.copy-files
 	   done
@@ -564,7 +564,7 @@ EOF
 		@SIPX_LOGDIR@/*log.${Logs}{,.gz} \
 		@SIPX_LOGDIR@/phone/*.log.${Logs}{,.gz} \
 		$(openfireLogs) \
-                @SIPX_LOGDIR@/openacd/*.log.${Logs}{,.gz}
+                @OPENACD_HOME@/log/*.log.${Logs}{,.gz}
 		2>/dev/null \
 		| grep '.' \
 		>> $Work.copy-files
@@ -574,7 +574,7 @@ EOF
 	   fi
 	   ;;
        all)
-	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log @SIPX_LOGDIR@/trace/*.pcap* @SIPX_LOGDIR@/openacd/*.log
+	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log @SIPX_LOGDIR@/trace/*.pcap* @OPENACD_HOME@/log/*.log
 	   do
 	     echo $log >> $Work.copy-files
 	   done
@@ -1087,10 +1087,10 @@ EOF
      fi
 
      #include OpenAcd configuration
-     OpenacdDir=${Work}/OpenACD
+     OpenacdDir=${Work}@OPENACD_HOME@
      mkdir ${OpenacdDir}
-     cp -r /opt/OpenACD/etc ${OpenacdDir}
-     cp -r @SIPX_VARDIR@/openacd ${OpenacdDir}
+     cp -r @OPENACD_HOME@/etc ${OpenacdDir}
+     cp -r @OPENACD_HOME@/run ${OpenacdDir}
    fi
 
    #Dump the mongo database in bson format
@@ -1104,7 +1104,6 @@ EOF
      fi
      mongoexport -d imdb -c node -o ${Work}/mongo.imdb.node.json
      mongoexport -d node -c registrar -o ${Work}/mongo.node.registrar.json
-     mongoexport -d openacd -c commands -o ${Work}/OpenACD/mongo.openacd.commands.json
    fi
 }
 
@@ -1123,6 +1122,7 @@ then
   tar cf - -C ${Work} . | gzip >${ToFile}
   # Remove the temporary files.
   rm -rf $Work
+  chmod 644 ${ToFile}
 
   echo "Configuration saved in '${ToFile}'"
 

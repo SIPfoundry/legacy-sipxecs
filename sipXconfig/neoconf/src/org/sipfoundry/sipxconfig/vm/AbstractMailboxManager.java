@@ -1,11 +1,18 @@
-/*
+/**
  *
  *
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * $
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.vm;
 
@@ -20,7 +27,6 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
@@ -34,9 +40,6 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
     private AddressManager m_addressManager;
-    private String m_host;
-    private Integer m_port;
-    private String m_binDir;
     private FeatureManager m_featureManager;
 
     public boolean isSystemCpui() {
@@ -52,7 +55,11 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
 
     public String getMediaFileURL(String userId, String folder, String messageId) {
         String url = "https://%s:%s/media/%s/%s/%s";
-        return String.format(url, getHost(), getPort(), userId, folder, messageId);
+        Address ivrAddress = m_addressManager.getSingleAddress(Ivr.REST_API);
+        if (ivrAddress != null) {
+            return String.format(url, ivrAddress.getAddress(), ivrAddress.getPort(), userId, folder, messageId);
+        }
+        return null;
     }
 
     public List<String> getFolderIds() {
@@ -71,17 +78,11 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
             if (m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
                 deleteMailbox(user.getUserName());
             }
-        } else if (entity instanceof Location) {
-            if (m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
-                init();
-            }
         }
     }
 
+    @Override
     public void onSave(Object entity) {
-        if (entity instanceof Location) {
-            init();
-        }
     }
 
     public void setStdpromptDirectory(String stdpromptDirectory) {
@@ -138,38 +139,12 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         return m_locationsManager;
     }
 
-    public void setBinDir(String binDir) {
-        m_binDir = binDir;
-    }
-
-    protected String getBinDir() {
-        return m_binDir;
-    }
-
     protected String getMailboxServerUrl() {
-        return String.format("https://%s:%s", getHost(), getPort());
-    }
-
-    protected String getHost() {
-        if (m_host == null) {
-            init();
-        }
-        return m_host;
-    }
-
-    protected int getPort() {
-        if (m_port == null) {
-            init();
-        }
-        return m_port;
-    }
-
-    public void init() {
         Address ivrAddress = m_addressManager.getSingleAddress(Ivr.REST_API);
         if (ivrAddress != null) {
-            m_host = ivrAddress.getAddress();
-            m_port = ivrAddress.getPort();
+            return String.format("https://%s:%s", ivrAddress.getAddress(), ivrAddress.getPort());
         }
+        return null;
     }
 
     public void setFeatureManager(FeatureManager featureManager) {
@@ -180,5 +155,13 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    public AddressManager getAddressManager() {
+        return m_addressManager;
+    }
+
+    public FeatureManager getFeatureManager() {
+        return m_featureManager;
     }
 }

@@ -10,6 +10,7 @@ package org.sipfoundry.voicemail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxivr.SipxIvrConfiguration;
 import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
+import org.sipfoundry.sipxivr.rest.WebServer;
 import org.sipfoundry.voicemail.mailbox.Folder;
 import org.sipfoundry.voicemail.mailbox.MailboxDetails;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
@@ -35,10 +37,10 @@ import org.sipfoundry.voicemail.mailbox.VmMessage;
 
 /**
  * A RESTful interface to the mailbox messages
- * 
+ *
  * three services at the moment: Mark a message read Update the MWI status Get the FS channel UID
  * for the current call answering session for the mailbox Get/Set a user's active greeting type
- * 
+ *
  * Prefix is /mailbox/* Paths are /{mailbox}/ /mwi PUT (no data) updates the MWI for this mailbox
  * (i.e. tells the status server to update the MWI status of devices GET returns the MWI status
  * for this mailbox /uuid GET returns the FS channel UUID for a current call answering session for
@@ -103,12 +105,9 @@ public class MailboxServlet extends HttpServlet {
         boolean trustedSource = request.getAttribute("trustedSource") != null
                 && request.getAttribute("trustedSource").equals(sharedSecret);
         if (!trustedSource) {
-            String authenticatedUserName = request.getUserPrincipal().getName();
-            if (!authenticatedUserName.equals(user.getUserName())) {
-                if (!authenticatedUserName.equals("superadmin")) {
-                    response.sendError(403); // Send 403 Forbidden
-                    return;
-                }
+            if (isForbidden(request, user.getUserName())) {
+                response.sendError(403); // Send 403 Forbidden
+                return;
             }
         }
 
@@ -118,7 +117,7 @@ public class MailboxServlet extends HttpServlet {
             if (trustedSource) {
                 if (method.equals(METHOD_PUT)) {
                     try {
-                        mailboxManager.deleteMailbox(user);
+                        mailboxManager.deleteMailbox(mailboxString);
                     } catch (Exception ex) {
                         response.sendError(500);
                     }
@@ -338,6 +337,16 @@ public class MailboxServlet extends HttpServlet {
             }
         }
 
+    }
+
+    private boolean isForbidden(HttpServletRequest request, String userName) {
+        Principal principal = request.getUserPrincipal();
+        String authenticatedUserName = (principal == null) ? null : principal.getName();
+        String requestHost = request.getRemoteHost();
+        boolean trustedHost = requestHost != null && requestHost.equals(WebServer.TRUSTED_SOURCE);
+        String trustedUserName = request.getHeader("sipx-user");
+        String allowedUser = authenticatedUserName != null ? authenticatedUserName : (trustedHost ? trustedUserName : null);
+        return allowedUser == null || (!allowedUser.equals(userName) && !allowedUser.equals("superadmin"));
     }
 
     private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {

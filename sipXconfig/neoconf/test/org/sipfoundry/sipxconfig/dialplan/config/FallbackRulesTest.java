@@ -33,12 +33,12 @@ import org.dom4j.Document;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.dialplan.CallPattern;
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.dialplan.DialPattern;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.EmergencyRule;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -59,13 +59,14 @@ public class FallbackRulesTest extends XMLTestCase {
     public void setUp() {
         m_out = new FallbackRules();
         m_out.setDomainName("example.org");
+        Location l = TestHelper.createDefaultLocation();
         AddressManager addressManager = createMock(AddressManager.class);
-        addressManager.getSingleAddress(Rls.TCP_SIP, DialPlanContext.FEATURE);
-        expectLastCall().andReturn(new Address("rls.example.org", 100));
-        addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, DialPlanContext.FEATURE);
-        expectLastCall().andReturn(new Address("park.example.org", 101));        
-        addressManager.getSingleAddress(PagingContext.SIP_TCP, DialPlanContext.FEATURE);
-        expectLastCall().andReturn(new Address("page.example.org", 102));        
+        addressManager.getSingleAddress(Rls.TCP_SIP, l);
+        expectLastCall().andReturn(new Address(Rls.TCP_SIP, "rls.example.org", 100));
+        addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, l);
+        expectLastCall().andReturn(new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 101));        
+        addressManager.getSingleAddress(PagingContext.SIP_TCP, l);
+        expectLastCall().andReturn(new Address(PagingContext.SIP_TCP, "page.example.org", 102));        
         replay(addressManager);
         m_out.setAddressManager(addressManager);
     }

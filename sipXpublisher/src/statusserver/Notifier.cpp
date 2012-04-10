@@ -236,7 +236,7 @@ Notifier::sendNotifyForeachSubscription (
             else
             {
                subscriptionState = SIP_SUBSCRIPTION_ACTIVE ";expires=";
-               char expStr[10];
+               char expStr[16];
                sprintf(expStr, "%d", expires);
                subscriptionState.append(expStr);
             }

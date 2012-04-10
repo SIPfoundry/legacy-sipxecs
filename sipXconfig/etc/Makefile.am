@@ -29,7 +29,10 @@ conf_DATA = sipxconfig.properties
 
 cfinputsdir = @SIPX_CFINPUTS@/plugin.d
 dist_cfinputs_DATA = \
-	sipxconfig.cf
+	00_sipxconfig.cf \
+	sipxconfig.cf \
+	tftp.cf \
+	ftp.cf
 
 # automatically selects configuration files, but as importantly, also has to distinguish what is NOT
 # a configuration file in the 'find' statement

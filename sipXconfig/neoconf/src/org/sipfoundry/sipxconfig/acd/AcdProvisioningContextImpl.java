@@ -9,10 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
+
 import java.io.Serializable;
+import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.RunRequest;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.presence.PresenceServer;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
@@ -46,7 +49,9 @@ public class AcdProvisioningContextImpl implements AcdProvisioningContext {
         } finally {
             // XML-RPC deploy operation doesn't automatically restart the acd service
             // Make sure that the acd service is marked for restart
-            m_configManager.restartService(server.getLocation(), "sipxacd");
+            RunRequest r = new RunRequest("restart ACD", Collections.singleton(server.getLocation()));
+            r.setDefines("restart_sipxacd");
+            m_configManager.run(r);
             if (success) {
                 m_jobContext.success(jobId);
             } else {

@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # Postgres configuration for working with sipxecs
@@ -10,18 +19,51 @@ bundle agent snmp {
   methods:
     snmp::
       "any" usebundle => "snmp_config";
-    any::
-      "any" usebundle => "snmp_running";
+      "any" usebundle => "snmptrap_config";
+    fedora16_or_greater::
+      "any" usebundle => "snmp_systemctl_running";
+      "any" usebundle => "snmptrap_systemctl_running";
+    !fedora16_or_greater::
+      "any" usebundle => "snmp_sysv_running";
+      "any" usebundle => "snmptrap_sysv_running";
 }
 
 bundle agent snmp_config {
   files:
     snmp::
       "/etc/snmp/snmpd.conf"
-        create => "false",
-	perms => m("644"),
+        create => "true",
+        perms => m("644"),
         classes => if_repaired("reload_snmp"),
-	edit_line => snmpd_conf;
+        edit_line => snmpd_conf;
+}
+
+
+bundle agent snmptrap_config {
+  files:
+      "/etc/snmp/snmptrapd.conf"
+        create => "true",
+        perms => m("644"),
+        classes => if_repaired("reload_snmptrapd"),
+        edit_line => snmptrapd_conf;
+
+    snmp.src::
+      "/usr/share/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt"
+        create => "true",
+        perms => m("644"),
+        classes => if_repaired("reload_snmp"),
+        copy_from => local_cp("$(sipx.datadir)/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt");
+}
+
+bundle edit_line snmptrapd_conf {
+  insert_lines:
+    any::
+"authCommunity   log,execute,net public
+traphandle SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.SIPX_LIBEXECDIR)/sipxtrap-handler sipxecs-alarm";
+
+  delete_lines:
+    any::
+      ".*";
 }
 
 bundle edit_line snmpd_conf {
@@ -30,7 +72,8 @@ bundle edit_line snmpd_conf {
 
   insert_lines:
     any::
-"com2sec local  localhost       public
+"com2sec local  localhost  public
+com2sec local  $(sipx.master_address) public
 group   rwgroup v1           local
 group   rwgroup v2c           local
 view    all    included   .1  80
@@ -38,11 +81,11 @@ access  rwgroup \"\"      any       noauth    exact  all none none
 syslocation Unknown
 syscontact Root <root@localhost>
 dontLogTCPWrappersConnects yes
+dlmod regexp_proc $(sipx.SIPX_LIBDIR)/snmpagent/regexp_proc.so
 ";
 
    "$(part)"
-     insert_type => "file",
-     ifvarclass => canonify(fileexists("$(part)"));
+     insert_type => "file";
 
   delete_lines:
     any::
@@ -50,7 +93,7 @@ dontLogTCPWrappersConnects yes
 }
 
 
-bundle agent snmp_running {
+bundle agent snmp_sysv_running {
   vars:
     any::
       "service" string => "/etc/init.d/snmpd";
@@ -59,20 +102,127 @@ bundle agent snmp_running {
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "snmp_running","root");
+    !snmp::
+      "any" usebundle => rh_chkconfig_status("snmpd off");
+    snmp::
+      "any" usebundle => rh_chkconfig_status("snmpd on");
 
   commands:
-    snmp_running.!snmp::
+    !snmp.snmp_running::
       "$(service)"
-        args => "stop",
-	action => track("snmp_stop");
+        comment => "stop snmp",
+        args => "stop";
 
-    !snmp_running.snmp::
+    snmp.!snmp_running::
       "$(service)"
-        args => "start",
-	action => track("snmp_start");
+        comment => "start snmp",
+        args => "start";
 
-    reload_snmp.snmp::
+    # reload (-HUP) seems to kill snmpd process and not
+    # start it back up again. 
+    snmp.snmp_running.reload_snmp::
       "$(service)"
-        args => "reload",
-	action => track("snmp_restart");  
+        comment => "restart snmp",
+        args => "restart";
+}
+
+bundle agent snmptrap_sysv_running {
+  vars:
+    any::
+      "service" string => "/etc/init.d/snmptrapd";
+      "service_command" string => "/usr/sbin/snmptrapd";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "snmptrap_running","root");
+    !snmp::
+      "any" usebundle => rh_chkconfig_status("snmptrapd off");
+    snmp::
+      "any" usebundle => rh_chkconfig_status("snmptrapd on");
+
+  commands:
+    !snmp.snmptrap_running::
+      "$(service)"
+        comment => "stop snmptrap",
+        args => "stop";
+
+    snmp.!snmptrap_running::
+      "$(service)"
+        comment => "start snmptrap",
+        args => "start";
+
+    snmp.snmptrap_running.reload_snmptrap::
+      "$(service)"
+        comment => "reload snmptrap",
+        args => "reload";
+}
+
+bundle agent snmp_systemctl_running {
+  vars:
+    any::
+      "service" string => "snmpd.service";
+
+  classes:
+    any::
+      "snmp_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !snmp.snmp_running::
+      "$(sipx.systemctl)"
+        comment => "stop snmpd",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable snmpd",
+        args => "disable $(service)";
+
+    snmp.!snmp_running::
+      "$(sipx.systemctl)"
+        comment => "start snmpd",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable snmpd",
+        args => "enable $(service)";
+
+    # reload (-HUP) seems to kill snmpd process and not
+    # start it back up again. 
+    snmp.snmp_running.reload_snmp::
+      "$(sipx.systemctl)"
+        comment => "restart snmpd",
+        args => "restart $(service)";
+}
+
+bundle agent snmptrap_systemctl_running {
+  vars:
+    any::
+      "service" string => "snmptrapd.service";
+
+  classes:
+    any::
+      "snmptrap_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !snmp.snmptrap_running::
+      "$(sipx.systemctl)"
+        comment => "stop snmptrapd",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable snmptrapd",
+        args => "disable $(service)";
+
+    snmp.!snmptrap_running::
+      "$(sipx.systemctl)"
+        comment => "start snmptrapd",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable snmptrapd",
+        args => "enable $(service)";
+
+    snmp.snmptrap_running.reload_snmptrap::
+      "$(sipx.systemctl)"
+        comment => "reload snmptrapd",
+        args => "reload $(service)";
 }

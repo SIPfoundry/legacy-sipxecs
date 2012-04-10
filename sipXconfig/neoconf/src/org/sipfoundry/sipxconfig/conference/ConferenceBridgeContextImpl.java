@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
@@ -24,6 +25,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
+import org.sipfoundry.sipxconfig.common.DidInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -41,7 +43,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         ConferenceBridgeContext {
     private static final String BUNDLE_CONFERENCE = "conference";
-    private static final String CONFERENCE = BUNDLE_CONFERENCE;
+    private static final String CONFERENCE = "&label.conference";
     private static final String VALUE = "value";
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
     private static final String CONFERENCE_BY_NAME = "conferenceByName";
@@ -78,6 +80,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     public void validate(Conference conference) {
         String name = conference.getName();
         String extension = conference.getExtension();
+        String did = conference.getDid();
         if (name == null) {
             throw new UserException("A conference must have a name");
         }
@@ -98,8 +101,11 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         if (!m_aliasManager.canObjectUseAlias(conference, extension)) {
             throw new ExtensionInUseException(CONFERENCE, extension);
         }
-        if (!m_aliasManager.canObjectUseAlias(conference, conference.getDid())) {
-            throw new ExtensionInUseException(CONFERENCE, conference.getDid());
+        if (!m_aliasManager.canObjectUseAlias(conference, did)) {
+            throw new ExtensionInUseException(CONFERENCE, did);
+        }
+        if (StringUtils.isNotBlank(did) && did.equals(extension)) {
+            throw new DidInUseException(CONFERENCE, did);
         }
     }
 

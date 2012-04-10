@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="recordingSettings" class="org.sipfoundry.sipxconfig.recording.RecordingSettings" parent="settingsBean">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+
+  <bean id="recordingImpl" class="org.sipfoundry.sipxconfig.recording.RecordingImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.recording.RecordingSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>  
+  </bean>
+
+  <bean id="recording" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="recordingImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.recording.Recording"/>
+  </bean>
+  
+  <bean id="recordingConfig" class="org.sipfoundry.sipxconfig.recording.RecordingConfig">
+  	<property name="recording" ref="recording" />
+  </bean>
+  
+  <bean id="recordingFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.RecordingFeatureHook" />
+</beans>

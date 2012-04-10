@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.mwi;
 
@@ -17,6 +26,7 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class MwiConfigTest {
@@ -43,7 +53,7 @@ public class MwiConfigTest {
         config.setVelocityEngine(TestHelper.getVelocityEngine());
         StringWriter actual = new StringWriter();
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-status-plugin-config"));        
-        config.writePlugin(actual, new Address("ivr.example.org", 100, "https://%s:%d"));
+        config.writePlugin(actual, new Address(Ivr.REST_API, "ivr.example.org", 100));
         assertEquals(expected, actual.toString());
     }
 }

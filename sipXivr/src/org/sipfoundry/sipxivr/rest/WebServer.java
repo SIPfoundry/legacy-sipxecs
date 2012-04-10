@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipxivr.rest;
 
@@ -29,7 +29,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
  * Run a Jetty based web server to handle http/https requests for sipXivr
- * 
+ *
  */
 public class WebServer implements BeanFactoryAware {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
@@ -39,6 +39,7 @@ public class WebServer implements BeanFactoryAware {
     private BeanFactory m_beanFactory;
     private SipxIvrUserRealm m_userRealm;
     private String m_secret;
+    public static final String TRUSTED_SOURCE = "127.0.0.1";
 
     public void init() {
         Map<String, RestApiBean> beans = ((ListableBeanFactory) m_beanFactory).getBeansOfType(RestApiBean.class);
@@ -50,7 +51,7 @@ public class WebServer implements BeanFactoryAware {
 
     /**
      * add a servlet for the Web server to use
-     * 
+     *
      * @param name
      * @param pathSpec
      * @param servletClass must be of type javax.servlet.Servlet
@@ -83,10 +84,11 @@ public class WebServer implements BeanFactoryAware {
             httpContext.setRealm(m_userRealm);
 
             CustomSecurityHandler sh = new CustomSecurityHandler();
-            sh.addTrustedSource("127.0.0.1");
+
             sh.addTrustedSource("localhost");
             sh.addTrustedSource(m_configAddress);
             sh.addSharedSecret(m_secret);
+            sh.addTrustedSource(TRUSTED_SOURCE);
             httpContext.addHandler(0, sh);
 
             httpContext.addHandler(1, m_servletHandler);

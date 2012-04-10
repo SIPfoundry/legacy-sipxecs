@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.DidInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -40,13 +41,17 @@ import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware, DaoEventListener {
+public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
+        DaoEventListener, ProcessProvider {
     public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);
     private static final String NAME_PROPERTY = "name";
     private static final String SERVER_PARAM = "acdServer";
@@ -54,7 +59,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     private static final String SQL = "alter table acd_server drop column host";
     private static final String ACD_LINE_IDS_WITH_ALIAS = "acdLineIdsWithAlias";
     private static final String VALUE = "value";
-    private static final String LINE = "line";
+    private static final String LINE = "&label.line";
     private static final String AGENT_FOR_USER_AND_SERVER_QUERY = "agentForUserAndServer";
 
     private AliasManager m_aliasManager;
@@ -111,6 +116,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             AcdLine line = (AcdLine) acdComponent;
             String name = line.getName();
             String extension = line.getExtension();
+            String did = line.getDid();
             DaoUtils.checkDuplicates(getHibernateTemplate(), AcdLine.class, line, NAME_PROPERTY,
                     new NameInUseException(LINE, line.getName()));
             DaoUtils.checkDuplicates(getHibernateTemplate(), AcdLine.class, line, "extension",
@@ -122,8 +128,11 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             if (!m_aliasManager.canObjectUseAlias(line, extension)) {
                 throw new ExtensionInUseException(LINE, extension);
             }
-            if (!m_aliasManager.canObjectUseAlias(line, line.getDid())) {
-                throw new ExtensionInUseException(LINE, line.getDid());
+            if (!m_aliasManager.canObjectUseAlias(line, did)) {
+                throw new ExtensionInUseException(LINE, did);
+            }
+            if (StringUtils.isNotBlank(did) && did.equals(extension)) {
+                throw new DidInUseException(LINE, did);
             }
         }
         if (acdComponent instanceof AcdQueue) {
@@ -539,10 +548,15 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     }
 
     private void onLocationDelete(Location location) {
-        getHibernateTemplate().update(location);
         AcdServer server = getAcdServerForLocationId(location.getId());
         if (server != null) {
             getHibernateTemplate().delete(server);
         }
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(Acd.FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxacd")) : null);
     }
 }

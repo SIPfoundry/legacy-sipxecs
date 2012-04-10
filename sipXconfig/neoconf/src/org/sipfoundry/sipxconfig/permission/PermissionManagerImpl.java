@@ -20,15 +20,20 @@ import java.util.TreeSet;
 
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> implements PermissionManager {
+public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> implements PermissionManager,
+        DaoEventListener {
     private ModelFilesContext m_modelFilesContext;
     private Set<Permission> m_permissions;
     private Collection<Permission> m_customPermissions;
+    private ReplicationManager m_replicationManager;
 
     public void saveCallPermission(Permission permission) {
         if (isLabelInUse(permission)) {
@@ -249,7 +254,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     }
 
     private static class DuplicatePermissionLabelException extends UserException {
-        private static final String ERROR = "Permission {0} was already defined. Please choose another name.";
+        private static final String ERROR = "&message.duplicatePermission";
 
         public DuplicatePermissionLabelException(String label) {
             super(ERROR, label);
@@ -268,16 +273,65 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
 
     /**
      * For use in tests only
+     *
      * @param customPermissions
      */
     public void setCustomPermissions(Collection<Permission> customPermissions) {
         m_customPermissions = customPermissions;
     }
+
     /**
      * For use in tests only
+     *
      * @param customPermissions
      */
     public void setPermissions(Set<Permission> permissions) {
         m_permissions = permissions;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Permission) {
+            removePermission((Permission) entity);
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        if (entity instanceof Permission) {
+            generatePermission((Permission) entity);
+        }
+    }
+
+    private void generatePermission(Permission permission) {
+        Object originalDefaultValue = getOriginalValue(permission, "defaultValue");
+        if (originalDefaultValue == null) {
+            if (!permission.getDefaultValue()) {
+                return;
+            } else {
+                // We do not need lazy/async here. The operation uses mongo commands and does not
+                // hit PG db.
+                // It will take a matter of seconds and the control is taken safely to the page.
+                // (i.e. we do not need to worry about timeout.)
+                m_replicationManager.addPermission(permission);
+                return;
+            }
+        }
+
+        if ((Boolean) originalDefaultValue == permission.getDefaultValue()) {
+            return;
+        }
+        m_replicationManager.replicateAllData(DataSet.PERMISSION);
+    }
+
+    private void removePermission(Permission permission) {
+        // We do not need lazy/async here. The operation uses mongo commands and does not hit PG
+        // db. It will take a matter of seconds and the control is taken safely to the page.
+        // (i.e. we do not need to worry about timeout.)
+        m_replicationManager.removePermission(permission);
+    }
+
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
     }
 }

@@ -254,7 +254,22 @@
     </property>
   </bean>
 
-  <bean id="daoEventPublisher" class="org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl"></bean>
+  <bean id="daoEventPublisher" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.common.event.DaoEventPublisher</value>
+    </property>
+    <property name="target">
+      <ref local="daoEventPublisherImpl" />
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>hibernateInterceptor</value>
+      </list>
+    </property>
+  </bean>
+  
+  <bean id="daoEventPublisherImpl" class="org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl">  
+  </bean>  
 
   <bean id="onDeleteEventDispatcher" class="org.sipfoundry.sipxconfig.common.event.DaoEventDispatcher"
     factory-method="createDeleteDispatcher">

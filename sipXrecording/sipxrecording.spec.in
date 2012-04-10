@@ -21,7 +21,7 @@ Obsoletes: sipxvxml
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
-Requires: sipxopenfire >= %version
+BuildRequires: sipxconfig >= %version
 
 %if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
@@ -51,7 +51,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXrecording
-%attr(644,root,root) %{_datadir}/sipxecs/schema/conferencebridge.xsd
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxrecording
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxrecording.cf
+%dir %attr(775,sipx,sipx) %{_sysconfdir}/sipxpbx/sipxrecording
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxrecording/sipxrecording.properties
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxrecording/sipxrecording.xml
+%attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXrecording
+%{_datadir}/java/sipXecs/sipXrecording/sipXrecording.jar
+%{_datadir}/java/sipXecs/sipXconfig/plugins/recording-cfg-service.jar
+%attr(644,root,root) %{_datadir}/sipxecs/schema/conferencebridge.xsd

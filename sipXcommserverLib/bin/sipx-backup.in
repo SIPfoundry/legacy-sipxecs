@@ -32,9 +32,10 @@ usage() {
   echo "   -h|--help             Display this help text."
   echo "   -n|--non-interactive  Do not run in interactive mode.  All output is logged "
   echo "                         to sipx-restore.log."
-  echo "   -c|--configuration    Backup only Configuation.  (Incompatible with -v or -cdr.)"
-  echo "   -cdr|--cdrdatabase    Backup only Call Detail Records (CDR).  (Incompatible with -v or -c.)"
-  echo "   -v|--voicemail        Backup only Voicemail.  (Incompatible with -c or -cdr.)"
+  echo "   -c|--configuration    Backup only Configuation.  (Incompatible with -v or -cdr or -dc.)"
+  echo "   -dc|--device-config   Backup only Device Configuration.  (Incompatible with -v or -cdr or -c.)"
+  echo "   -cdr|--cdrdatabase    Backup only Call Detail Records (CDR).  (Incompatible with -v or -c or -dc.)"
+  echo "   -v|--voicemail        Backup only Voicemail.  (Incompatible with -c or -cdr or -dc.)"
   echo "   -d|--directory        Create the archive(s) in the specified directory, rather"
   echo "                         than the current working directory."
   echo
@@ -48,6 +49,7 @@ bad_candv_usage() {
 CONFIGURATION="yes"
 VOICEMAIL="yes"
 CDR="yes"
+DEVICE_CONFIG="yes"
 ARCHIVE_DIR=`pwd`
 
 bad_directory() {
@@ -74,6 +76,16 @@ do
       fi
       VOICEMAIL="no"
       CDR="no"
+      DEVICE_CONFIG="no"
+      ;;
+      
+      -dc|--device-config)
+      if [ "$DEVICE_CONFIG" = "no" ]; then
+         bad_candv_usage
+      fi
+      VOICEMAIL="no"
+      CDR="no"
+      CONFIGURATION="no"
       ;;
 
     -v|--voicemail)
@@ -82,6 +94,7 @@ do
       fi
       CONFIGURATION="no"
       CDR="no"
+      DEVICE_CONFIG="no"
       ;;
 
     -cdr|--cdrdatabase)
@@ -90,6 +103,7 @@ do
       fi
       CONFIGURATION="no"
       VOICEMAIL="no"
+      DEVICE_CONFIG="no"
       ;;
 
     -d|--directory)
@@ -120,6 +134,9 @@ done
 CONFIG_BACKUP_TAR_FILE=$ARCHIVE_DIR/configuration.tar
 CONFIG_BACKUP_FILE=$CONFIG_BACKUP_TAR_FILE.gz
 
+DEVICE_CONFIG_BACKUP_TAR_FILE=$ARCHIVE_DIR/device_config.tar
+DEVICE_CONFIG_BACKUP_FILE=$DEVICE_CONFIG_BACKUP_TAR_FILE.gz
+
 CDR_BACKUP_TAR_FILE=$ARCHIVE_DIR/cdr.tar
 CDR_BACKUP_FILE=$CDR_BACKUP_TAR_FILE.gz
 
@@ -144,11 +161,10 @@ then
     @SIPX_CONFDIR@/ssl/authorities/* \
     @SIPX_VARDIR@/configserver/phone/acd/audio/* \
     @SIPX_VARDIR@/parkserver/music/* \
-    @SIPX_VARDIR@/upload/* \
     @SIPX_VXMLDATADIR@/moh/* \
     @SIPX_VXMLDATADIR@/prompts/* \
     @SIPX_VARDIR@/sipxpage/music/* \
-    @SIPX_CONFDIR@/openacd/Mnesia*/* \
+    @OPENACD_HOME@/run/Mnesia*/* \
     $SIPX_CERTDB_DIR/* \
     "
 
@@ -207,6 +223,37 @@ then
 
 fi # *** END Configuration ***
 
+#*** BEGIN Device Config ***
+if [ "$DEVICE_CONFIG" = "yes" ] 
+then
+  DeviceFiles=`ls -d @SIPX_VARDIR@/upload/* 2> /dev/null`
+  for File in $DeviceFiles; do
+     if [ -d $File ]; then
+       UserFiles=`ls $File/* 2> /dev/null`;
+       for UserFile in $UserFiles; do
+            ExistingDeviceBackupFiles="$ExistingDeviceBackupFiles $UserFile"
+       done
+     else
+       ExistingDeviceBackupFiles="$ExistingDeviceBackupFiles $File"
+     fi
+  done
+
+  # List what will be backed up.
+  for File in $ExistingDeviceBackupFiles
+  do
+    echo "  $File"
+  done
+  confirm_action  
+
+  # Delete the old backup file if it exists.
+  delete_old_file $DEVICE_CONFIG_BACKUP_FILE
+  
+  # Copy the files.
+  echo -n "Copying device config files... "
+  tar cC / $ExistingDeviceBackupFiles -C $ARCHIVE_DIR $VERSION_FILE_NAME | gzip --best > $DEVICE_CONFIG_BACKUP_FILE
+  echo "done."
+fi #*** END Device Config***
+
 # *** BEGIN CDR ***
 if [ "$CDR" = "yes" ]
 then
@@ -252,6 +299,7 @@ then
   # Copy the files.
   echo -n "Copying voicemail files... "
   tar cC / $ExistingFiles $Dirs -C $ARCHIVE_DIR $VERSION_FILE_NAME | gzip --best > $VM_BACKUP_FILE
+  chmod 644 $VM_BACKUP_FILE
   echo "done."
 
 fi # *** END Voicemail ***

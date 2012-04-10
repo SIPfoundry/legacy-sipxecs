@@ -234,7 +234,8 @@ public final class PhoneTestDriver {
 
         AddressManager addressManager = EasyMock.createMock(AddressManager.class);
         addressManager.getSingleAddress((AddressType) anyObject());
-        expectLastCall().andReturn(new Address("testdriver.example.org", 1234)).anyTimes();
+        AddressType t = new AddressType("test");
+        expectLastCall().andReturn(new Address(t, "testdriver.example.org", 1234)).anyTimes();
         replay(addressManager);
         defaults.setAddressManager(addressManager);
 

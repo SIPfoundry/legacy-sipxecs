@@ -151,19 +151,6 @@
     </sipx-task>
   </target>
 
-  <!--
-    - Add service to system from CLI.  
-    -  Example:
-    -    -Dservice.id=ntpService -Dservice.address=address-or-hostname
-  -->
-  <target name="add-service" depends="upgrade">
-    <sipx-task beanId="addServiceTask">
-      <arg value="${service.name}" />
-      <arg value="${service.id}" />
-      <arg value="${service.address}" />
-    </sipx-task>
-  </target>
-
   <target name="add-upload" depends="upgrade">
     <sipx-task beanId="uploadTask">
       <arg value="${upload.spec}" />
@@ -391,6 +378,7 @@
 	<antcall target="call-rate-limit" />
 	<antcall target="openacd-add-default-client" />
 	<antcall target="migrate-regionid-to-beanid" />
+    <antcall target="createlang-plpgsql"/>
     <antcall target="migrate-gw-calleralias-info" />
 	<antcall target="openacd-queue-remove-sort" />
 	<antcall target="openacd-add-skill-groups" />
@@ -407,6 +395,14 @@
     <antcall target="migrate_services" />
     <antcall target="settings_with_location" />
   	<antcall target="remove-personal-att-oper" />
+  	<antcall target="setup-ids" />
+	<antcall target="openacd-remove-default-client" />
+	<antcall target="openacd-add-release-codes" />
+	<antcall target="alarm-drop-pkey" />
+	<antcall target="openacd-add-queuegroup-recipe" />
+    <antcall target="openacd-agent-remove-pin" />
+    <antcall target="cert" />
+    <antcall target="firewall" />
   </target>
 
   <target name="plugin-patches">
@@ -589,6 +585,10 @@
 
   <target name="reset-superadmin" depends="upgrade" description="initialize superadmin user, administation group and resets password to blank">
     <sipx-task beanId="resetAdministrator" />
+  </target>
+
+  <target name="setup" depends="upgrade" description="Run setup which in turn may run cfengine work if there is work to do">
+    <sipx-task beanId="setup" />
   </target>
 
   <target name="first-run" depends="upgrade" description="Make sipXconfig behave as it was just installed or upgraded.">
@@ -1003,17 +1003,6 @@
   </target>
 
   <!--
-    Patches that use the SQL Procedural Language (PL/pgSQL) should depend on this task to ensure
-    the language is created.  Because 'failonerror' is 'false', it can be run without problem even
-    when the language is already created.
-  -->
-  <target name="createlang-plpgsql">
-    <exec executable="createlang" failonerror="false">
-      <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}" />
-    </exec>
-  </target>
-
-  <!--
     - version1 patches
   -->
   <!-- 
@@ -1104,8 +1093,11 @@
   <target name="gateway-enabled" unless="gateway-enabled">
     <db-patch patch="gateway-enabled"/>
   </target>
-  <target name="migrate-pregroup-alarm-contacts" depends="createlang-plpgsql" unless="migrate-pregroup-alarm-contacts">
-    <db-patch patch="migrate-pregroup-alarm-contacts"/>
+  <target name="createlang-plpgsql" unless="createlang-plpgsql">
+    <plsql-patch patch="createlang-plpgsql"/>
+  </target>
+  <target name="migrate-pregroup-alarm-contacts" unless="migrate-pregroup-alarm-contacts">
+    <plsql-patch patch="migrate-pregroup-alarm-contacts"/>
   </target>
   <target name="tls_peer" unless="tls_peer">
     <db-patch patch="tls_peer"/>
@@ -1170,8 +1162,8 @@
   <target name="sbc-addressPort" unless="sbc-addressPort">
     <db-patch patch="sbc-addressPort"/>
   </target>
-  <target name="migrate-sbcs" depends="createlang-plpgsql" unless="migrate-sbcs">
-    <db-patch patch="migrate-sbcs"/>
+  <target name="migrate-sbcs" unless="migrate-sbcs">
+    <plsql-patch patch="migrate-sbcs"/>
   </target>
   <target name="location-add-tls-port" unless="location-add-tls-port">
     <db-patch patch="location-add-tls-port"/>
@@ -1215,7 +1207,7 @@
     </sipx-sql>
   </target>
   <target name="migrate-gw-calleralias-info" unless="migrate-gw-calleralias-info">
-    <db-patch patch="migrate-gw-calleralias-info" />
+    <plsql-patch patch="migrate-gw-calleralias-info" />
   </target>
   <target name="openacd-queue-remove-sort" unless="openacd-queue-remove-sort">
 	<db-patch patch="openacd-queue-remove-sort" />
@@ -1273,6 +1265,30 @@
   </target>
   <target name="remove-personal-att-oper" unless="remove-personal-att-oper">
     <db-patch patch="remove-personal-att-oper" />
+  </target>
+  <target name="setup-ids" unless="setup-ids">
+    <db-patch patch="setup-ids" />
+  </target>
+  <target name="openacd-remove-default-client" unless="openacd-remove-default-client">
+	<db-patch patch="openacd-remove-default-client" />
+  </target>
+  <target name="openacd-add-release-codes" unless="openacd-add-release-codes">
+	<db-patch patch="openacd-add-release-codes" />
+  </target>
+  <target name="alarm-drop-pkey" unless="alarm-drop-pkey">
+	<db-patch patch="alarm-drop-pkey" />
+  </target>
+  <target name="openacd-add-queuegroup-recipe" unless="openacd-add-queuegroup-recipe">
+	<db-patch patch="openacd-add-queuegroup-recipe" />
+  </target>
+  <target name="openacd-agent-remove-pin" unless="openacd-agent-remove-pin">
+	<db-patch patch="openacd-agent-remove-pin" />
+  </target>
+  <target name="cert" unless="cert">
+	<db-patch patch="cert" />
+  </target>
+  <target name="firewall" unless="firewall">
+	<db-patch patch="firewall" />
   </target>
 
   <!--
@@ -1332,7 +1348,7 @@
   <!-- run spring beans implementing SystemTaskRunner from CLI -->
   <macrodef name="sipx-task">
     <attribute name="beanId" />
-    <attribute name="output" default="/dev/stdout" />
+    <attribute name="output" default="stdouterr.txt" />
     <element name="task-body" optional="yes" implicit="yes" />
     <sequential>
       <java classname="org.sipfoundry.sipxconfig.common.SystemTaskRunner" output="@{output}">

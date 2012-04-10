@@ -44,6 +44,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
        ApplicationContextAware, ReplicableProvider {
 
     public static final String ADMIN_GROUP_NAME = "administrators";
+    public static final String AGENT_GROUP_NAME = "Contact-center-agents";
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final int SIP_PASSWORD_LEN = 8;
     private static final String USERNAME_PROP_NAME = "userName";
@@ -151,7 +152,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 newUserName = true;
                 String origPintoken = (String) getOriginalValue(user, "pintoken");
                 if (origPintoken.equals(user.getPintoken())) {
-                    throw new ChangePintokenRequiredException("When changing user name, you must also change PIN");
+                    throw new ChangePintokenRequiredException("&error.changePintokenRequiredException");
                 }
             }
         } else {
@@ -588,6 +589,37 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         admin.setPin(StringUtils.defaultString(pin), getAuthorizationRealm());
         admin.addGroup(adminGroup);
         saveUser(admin);
+    }
+
+    private void createAgentsGroup() {
+        Group agentGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, AGENT_GROUP_NAME);
+        if (agentGroup == null) {
+            agentGroup = new Group();
+            agentGroup.setName(AGENT_GROUP_NAME);
+            agentGroup.setResource(User.GROUP_RESOURCE_ID);
+            agentGroup.setDescription("All contact center agents");
+            agentGroup.setSettingValue(ImAccount.IM_ACCOUNT, "1");
+            m_settingDao.saveGroup(agentGroup);
+        }
+    }
+
+    @Override
+    public void saveUserToAgentsGroup(User user) {
+        createAgentsGroup();
+        Group allAgentsGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, AGENT_GROUP_NAME);
+        if (allAgentsGroup != null) {
+            user.getGroups().add(allAgentsGroup);
+            getHibernateTemplate().merge(user);
+        }
+    }
+
+    @Override
+    public void saveRemoveUserFromAgentGroup(User user) {
+        Group agentGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, AGENT_GROUP_NAME);
+        if (agentGroup != null) {
+            user.removeGroup(agentGroup);
+            saveUser(user);
+        }
     }
 
     public void setSettingDao(SettingDao settingDao) {

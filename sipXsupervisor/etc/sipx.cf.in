@@ -1,6 +1,15 @@
-# Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # Main library and core entry point of cfengine agent scripts.
@@ -34,13 +43,29 @@ bundle common sipx {
   vars:
     any::
       "location_id" string => readfile("@SIPX_CFDATA@/defaults/location_id", "100");
-      "bind_ip" string => "$(sys.ipv4)";
+      "iface"
+        string => "$(sys.interface)",
+        policy => "overridable";
+      "bind_ip" 
+        string => "$(sys.ipv4)",
+        policy => "overridable";
+      "systemctl" 
+        string => "/bin/systemctl",
+        policy => "overridable";
+      "crontabs"
+        string => "/var/spool/cron",
+        policy => "overridable";
+      "adduser"
+        string => "/usr/sbin/adduser",
+        policy => "overridable";
+      "nologin"
+        string => "/sbin/nologin",
+        policy => "overridable";
 
     SuSE::
       "crontabs" string => "/var/spool/cron/tabs";
-
-    redhat::
-      "crontabs" string => "/var/spool/cron";
+      "adduser" string => "/usr/sbin/useradd";
+      "nologin" string => "/bin/false";
 
     debian|ubuntu::
       "crontabs" string => "/var/spool/crontabs";
@@ -53,18 +78,28 @@ bundle common sipx {
       #
       # comparing where the service directory is seems like a solid test if src based install
       "src" not => strcmp("@SIPX_SERVICEDIR@", "/etc/init.d");
+
+      # established assumption
+      "primary" expression => strcmp("$(location_id)", "1");
+
+    fedora::
+      "fedora16_or_greater" expression => "fedora_16|fedora_17|fedora_18|fedora_19|fedora_20";
 }
 
 # add a crontab. Will automaticall reload crontab service
 bundle agent add_crontab(regex,line) {
   files:
     "$(sipx.cron)"
+      handle => "add_cron",
+      comment => "add cron $(this.promiser) - $(line)",
       edit_line => add_crontab_line("$(regex)","$(line)"),
       classes => if_repaired("reload_crontab");
       
   processes:
     reload_crontab::
-      "cron" signals => { "hup" };
+      "cron" 
+        comment => "reload cron",
+        signals => { "hup" };
   
 }
 
@@ -93,44 +128,58 @@ bundle edit_line add_crontab_line(regex,value) {
     "$(regex)";
 }
 
-#
-# imports all the variables into $(sipx.*) from *.cfdat files
-#
-# NOTE: Cannot use $(sipx. here because it's not loaded yet. Instead
-# use @SIPX.
-# 
 bundle agent sipx_module {
-  vars:
-    "failed_log" string => "@SIPX_LOGDIR@/sipxagent-failed.log";
-    "repaired_log" string => "@SIPX_LOGDIR@/sipxagent-repaired.log";
-    "kept_log" string => "@SIPX_LOGDIR@/sipxagent-kept.log";
-    "logs" slist => { "$(failed_log)", "$(repaired_log)", "$(kept_log)" };
-
-  classes:
-    "domain_init" not => fileexists("@SIPX_CFDATA@/domain.cfdat");
-
-  files:
-    any::
-      "$(logs)"
-        delete => tidy;
-    
-      "$(logs)"
-        create => "true",
-	perms => m(644);
-
-    domain_init::
-      "@SIPX_CFDATA@/domain.cfdat"
-        create => "true",
-	perms => mog(644,"@SIPXPBXUSER@","@SIPXPBXGROUP@"),
-	edit_line => domain_cfdat();
-
   commands:
     any::
       "@SIPX_CFMODULES@/sipx"
         args => "$(sipx.location_id)",
-        module => "true",
-	ifvarclass => canonify(fileexists("@SIPX_CFMODULES@/sipx"));
+        module => "true";
 }
+
+body copy_from master_files(server,dir) {
+  servers => { "$(server)" };
+  source => "$(dir)";
+  trustkey => "true";
+  compare => "digest";
+}
+
+bundle agent sipx_init {
+  methods:
+    !primary::
+      "update" usebundle => "update_from_master";
+}
+
+bundle agent update_from_master {
+  # here we go to "great lengths" to avoid using $(sipx. variables and classes 
+  # because we have not pulled down a fresh copy of cfdata yet and they could change.
+  # location_id is safe because it's loaded differently and not allowed to change
+  vars:
+    !primary::
+      "dim_master" int => readstringarray("master","@SIPX_CFDATA@/defaults/master", "#[^\n]*", "=", 10, 4000);
+      "server" string => "$(master[address][1])";
+
+  files:
+    !primary::
+      # root own files only as extra measure against tampering, but not strict requirement
+      "@SIPX_CFDATA@"
+        handle => "update_global",
+        copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])"),
+        depth_search => recurse("1"),
+        perms => m("644"),
+        classes => if_notkept("fatal_error");
+
+      "@SIPX_CFDATA@/$(sipx.location_id)"
+        handle => "update_location",
+        copy_from => master_files("$(server)","$(master[SIPX_CFDATA][1])/$(sipx.location_id)"),
+        depth_search => recurse("inf"),
+        perms => m("644"),
+        classes => if_notkept("fatal_error");
+
+  reports:
+    !primary::
+      "Replication from $(server)";
+}
+
 
 #
 # Normal delete single file operation. Doesn't remove containing directory if it's empty
@@ -142,25 +191,6 @@ bundle agent sipx_module {
 #
 body delete unlink {
   rmdirs => "false";
-}
-
-bundle edit_line domain_cfdat {
-# TODO: decide if we really need shared secret. Until then stick in a 
-# static value. The code below to generate on works, but has strange
-# side affects where it inserts multiple lines probably because the value
-# is different each time cfengine resolves the vars
-#
-#  vars:
-#    "SharedSecret" string => execresult("/usr/bin/head -c 18 /dev/urandom | /usr/bin/base64", "useshell");
-
-  insert_lines:
-    "=domain=$(sys.fqhost)";
-    "=realm=$(sys.fqhost)";
-    "=lang=en";
-    "=secret=Y4bguaywt2sNB8eKwFRgTeMN";
-
-  delete_lines:
-    ".*";
 }
 
 #
@@ -186,13 +216,9 @@ body copy_from copy_from_cfdata(filename) {
   compare => "digest";
 }
 
-# identify essentially all promises with this to surface issues in sipxconfig ui
-body action track(id) {
-  log_failed => "$(sipx_module.failed_log)";
-  log_repaired => "$(sipx_module.repaired_log)";
-  # bug, w/o a log_kept entry, cfengine will segfault. Tested up to 3.3.0 r3779.
-  log_kept => "$(sipx_module.kept_log)";
-  log_string => "$(id)";
+body copy_from copy_from_cfdatadir {
+  source => "$(sipx.SIPX_CFDATA)";
+  compare => "digest";
 }
 
 #
@@ -337,3 +363,64 @@ body process_select by_pid(pid) {
   process_result => "pid";
 }
 
+#
+# When you want to trigger an action when a file has changed. Be 
+# careful however. This can be a bit limiting because admin will 
+# have no way to force action if for some reason it's broken because
+# trigger files that's being watch may not change. A trick is to put
+# something in the file like a serial number or a date so file
+# changes from sipxconfig when OK or Apply is hit or send profiles
+# is run.  See DNS and Firewall code for examples.
+# 
+# Example
+#
+#   files:
+#      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/some-file"
+#        comment => "check for updates to $(this.promiser)",
+#        changes => repair_on_change,
+#        classes => if_repaired("do_something"),
+#        action => fix;
+#
+#   commands:
+#      do_something::
+#         "/some/command";
+#
+#
+body changes repair_on_change {
+  hash           => "best";
+  report_changes => "content";
+  update_hashes  => "yes";
+}
+
+# Part of above
+body action fix {
+  action_policy => "fix";
+}
+
+
+# Verify that a system user exists and ensure home directory
+# is set properly if they do already exist
+#
+# Example
+#  methods:
+#    "any" usebundle => verify_system_user("foo","733t","/var/lib/foo")
+#
+bundle agent verify_system_user(user,password,home) {
+  classes:
+    any::
+      "has_user" not => userexists("$(user)");
+
+  files:
+    has_user::
+      "/etc/passwd"
+        create => "false",
+        edit_line => set_user_field("$(user)","6","$(home)"); # 6 is home dir
+
+  commands:
+    !has_user::
+      "$(useradd)",
+        comment => "Creating user $(user)",
+        contain => in_shell,
+        args => "-d $(home) -s /sbin/nologin -M $(user) && \
+          echo -e '$(password)' | /usr/bin/passwd --stdin $(user)";
+}

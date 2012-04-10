@@ -91,7 +91,7 @@ public abstract class Sbc extends BeanWithId implements DeployConfigOnEdit {
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) SbcFeature.SBC, (Feature) DialPlanContext.FEATURE,
+        return Arrays.asList((Feature) SbcManager.FEATURE, (Feature) DialPlanContext.FEATURE,
                 (Feature) NatTraversal.FEATURE);
     }
 }

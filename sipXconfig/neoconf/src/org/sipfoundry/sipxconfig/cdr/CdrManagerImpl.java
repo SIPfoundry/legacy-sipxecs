@@ -38,15 +38,24 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -57,7 +66,8 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import com.thoughtworks.xstream.XStream;
 
-public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
+public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, FeatureProvider, AddressProvider,
+        ProcessProvider, FirewallProvider {
     static final String CALL_ID = "call_id";
     static final String CALLEE_AOR = "callee_aor";
     static final String TERMINATION = "termination";
@@ -515,13 +525,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(CDR_API);
-    }
-
-    @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
+            Location requester) {
         if (!type.equals(CDR_API)) {
             return null;
         }
@@ -531,7 +536,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         }
 
         CdrSettings settings = getSettings();
-        return Collections.singleton(new Address(locations.get(0).getAddress(), settings.getAgentPort()));
+        return Collections.singleton(new Address(CDR_API, locations.get(0).getAddress(), settings.getAgentPort()));
     }
 
     public void setAddressManager(AddressManager addressManager) {
@@ -544,5 +549,24 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
 
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxcdr",
+                ".*\\s$(sipx.SIPX_LIBDIR)/ruby/gems/[0-9.]+/gems/sipxcallresolver-[0-9.]+/lib/main.rb\\s.*")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isRouter()) {
+            b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(CDR_API));
     }
 }

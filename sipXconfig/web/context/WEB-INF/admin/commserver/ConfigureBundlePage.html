@@ -1,0 +1,49 @@
+<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="@Form" id="configureBundler" delegate="bean:validator">
+    <div class="tableDiv">
+      <table class="component">
+        <thead>
+          <tr>
+            <th class="activeColumnHeader"></th>
+            <th class="activeColumnHeader"><span key="all"/></th>
+            <span jwcid="@For" source="ognl:locations" value="ognl:locationObject">
+              <th class="activeColumnHeader"><span jwcid="@Insert" value="ognl:locationObject.hostname"/></th>
+            </span>
+          </tr>
+        </thead>
+        <tbody>
+        <span jwcid="@For" source="ognl:bundle.features" value="ognl:feature" converter="ognl:featureConverter">
+          <tr jwcid="@Any" class="ognl:rowClass.next">
+              <td><span jwcid="@Any"
+                title="ognl:messages.getMessage('feature.' + feature.id + '.description')"><span
+                jwcid="@Insert" value="ognl:messages.getMessage('feature.' + feature.id)" /></span></td>
+            <span jwcid="@RenderBlock" block="ognl:components.get(constraintBlockId)"/>
+            <span jwcid="global@Block">
+               <td style="text-align:center" class="activeColumnValue" jwcid="@Any">
+                 <input jwcid="@Checkbox" value="ognl:globalFeatureEnabled"/>
+               </td>                
+              <td jwcid="@Any" colspan="ognl:locations.size"/>
+            </span>
+            <span jwcid="pickOne@Block">
+              <td/>
+              <span jwcid="@RadioGroup" selected="ognl:pickedSingleCell">
+                <span jwcid="@For" source="ognl:cells" value="ognl:cell" converter="ognl:cellConverter">
+                  <td class="activeColumnValue"><input jwcid="@Radio" value="ognl:cell" disabled="ognl:!cell.enabled"/></td>
+                </span>
+              </span>
+            </span>
+            <span jwcid="pickAny@Block">
+              <td/>
+              <span jwcid="@For" source="ognl:cells" value="ognl:cell" converter="ognl:cellConverter">
+                <td class="activeColumnValue"><input jwcid="@Checkbox" value="ognl:cellPickedFromAnyInRow"  disabled="ognl:!cell.enabled"/></td>
+              </span>
+            </span>
+          </tr>
+        </span>
+        </tbody>
+      </table>
+    </div>
+    <span jwcid="@common/FormActions" callback="ognl:callback" listener="listener:save" />
+  </form>
+</div>

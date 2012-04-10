@@ -43,7 +43,7 @@ public class ConferenceBridgeConfig {
     }
 
     private String findMailboxServer() {
-        return m_addressManager.getSingleAddress(Ivr.REST_API, ConferenceBridgeContext.FEATURE).toString();
+        return m_addressManager.getSingleAddress(Ivr.REST_API).addressColonPort();
     }
 
     private void generateConference(Element usersEl, Conference conference, String domainName,

@@ -5,11 +5,15 @@ AM_INIT_AUTOMAKE(foreign tar-ustar)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 m4_include([config/sipXlib2.m4])
-
-CHECK_POSTGRES
-
+AC_PROG_LIBTOOL
+AC_LTDL_SHLIBEXT
+AC_PROG_CXX
+AX_COMPILER_VENDOR
+AC_PROG_CC
 AC_CONFIG_FILES([
     Makefile
+    bin/Makefile
     etc/Makefile
+    src/Makefile
 ])
 AC_OUTPUT

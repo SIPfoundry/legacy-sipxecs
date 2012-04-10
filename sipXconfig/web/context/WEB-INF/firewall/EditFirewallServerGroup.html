@@ -1,0 +1,20 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+<h2>
+  <span key="page.title"/>
+</h2>
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="@Form" delegate="bean:validator">    
+    <fieldset>
+      <table>
+        <tr jwcid="@common/FieldPanel" for="group:name" field="ognl:components.name" label="message:label.name">
+          <input jwcid="name@TextField" id="group:name" value="ognl:serverGroup.name" displayName="message:label.name"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel" for="group:servers" field="ognl:components.servers" label="message:label.servers">
+          <input jwcid="servers@TextField" id="group:servers" value="ognl:serverGroup.serverList" displayName="message:label.servers"/>
+        </tr>
+      </table>
+    </fieldset>            
+    <ul jwcid="@common/FormActions"  callback="ognl:callback"
+      listener="listener:save"/>
+  </form>
+</div>

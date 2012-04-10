@@ -31,15 +31,23 @@ import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.PagingRule;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext, FeatureProvider,
-        AddressProvider {
+        AddressProvider, ProcessProvider, FirewallProvider {
 
     /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
     private static final String ALERT_INFO = "sipXpage";
@@ -137,7 +145,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         removeAll(PagingGroup.class);
     }
 
-    public List< ? extends DialingRule> getDialingRules() {
+    public List< ? extends DialingRule> getDialingRules(Location location) {
         if (!m_featureManager.isFeatureEnabled(FEATURE)) {
             return null;
         }
@@ -232,12 +240,15 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        List<AddressType> cluster = Arrays.asList(SIP_TCP, SIP_TLS, SIP_UDP);
+        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(cluster);
+        rules.add(new DefaultFirewallRule(RTP_PORT, FirewallRule.SystemId.PUBLIC));
+        return rules;
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!ADDRESSES.contains(type)) {
             return null;
         }
@@ -246,18 +257,33 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location l : locations) {
-            Address address = new Address(l.getAddress());
+            Address address = null;
             if (type.equals(SIP_TCP)) {
-                address.setPort(settings.getSipTcpPort());
+                address = new Address(SIP_TCP, l.getAddress(), settings.getSipTcpPort());
             } else if (type.equals(SIP_UDP)) {
-                address.setPort(settings.getSipUdpPort());
+                address = new Address(SIP_UDP, l.getAddress(), settings.getSipUdpPort());
             } else if (type.equals(SIP_TLS)) {
-                address.setPort(settings.getSipTlsPort());
+                address = new Address(SIP_TLS, l.getAddress(), settings.getSipTlsPort());
             } else if (type.equals(RTP_PORT)) {
-                address.setPort(settings.getRtpPort());
+                address = new Address(RTP_PORT, l.getAddress(), settings.getRtpPort());
             }
+            addresses.add(address);
         }
 
         return addresses;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxpage", ".*\\s-Dprocname=sipxpage\\s.*"))
+                : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

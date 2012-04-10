@@ -1,8 +1,0 @@
-[{'OpenACD', [
-	{console_loglevel, critical},
-	{logfiles, [{"full.log", critical}, {"console.log", critical}]},
-	{plugin_dir, "plugin.d"}, {plugins, [sipxplugin]}
-]},
-{sasl, [
-	{errlog_type, error} % disable SASL progress reports
-]}].

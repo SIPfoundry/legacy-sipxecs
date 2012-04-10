@@ -1,0 +1,11 @@
+[Unit]
+Description=Simple Event Correlator script to filter log file entries
+After=syslog.target
+
+[Service]
+Type=forking
+PIDFile=/run/sec.pid
+ExecStart=/usr/bin/sec -detach -pid=/run/sec.pid -conf=/etc/sec/*.sec -input=/var/log/messages -log=/var/log/sec -intevents
+
+[Install]
+WantedBy=multi-user.target

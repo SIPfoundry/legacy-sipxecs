@@ -16,6 +16,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin:@FREESWITCH_PREFIX@/bin
 DESC="FreeSwitch Voice Switching System"
 NAME=freeswitch
 DAEMON=@FREESWITCH_PREFIX@/bin/$NAME
+FS_CLI=@FREESWITCH_PREFIX@/bin/fs_cli
 DAEMON_ARGS="\
   -conf @SIPX_CONFDIR@/freeswitch/conf \
   -db @SIPX_VARDIR@/tmp/freeswitch \
@@ -101,6 +102,13 @@ do_stop() {
         return $RETVAL
 }
 
+do_reload() {
+        $FS_CLI -x "reloadXml"
+        RETVAL=$?
+        echo
+        return $RETVAL
+}
+
 # See how we were called.
 case "$1" in
   start)
@@ -108,6 +116,9 @@ case "$1" in
         ;;
   stop)
         do_stop
+        ;;
+  reload)
+        do_reload
         ;;
   restart)
         do_stop

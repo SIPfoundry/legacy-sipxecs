@@ -20,6 +20,7 @@ do
       # Re-direct stderr and stdout to a log file.
       rm -rf @SIPX_LOGDIR@/sipx-restore.log
       exec 3<>@SIPX_LOGDIR@/sipx-restore.log
+      chmod 644 @SIPX_LOGDIR@/sipx-restore.log
       exec 2>&3
       exec 1>&3
       ;;
@@ -27,12 +28,6 @@ do
 done
 
 operation_stamp
-
-if [ "`whoami`" != root ]
-then
-  echo "You must be root in order to restore."
-  exit 4
-fi
 
 usage() {
   echo
@@ -48,6 +43,7 @@ usage() {
   echo "   -c|--configuration <archive>  Restore the specified Configuration archive."
   echo "   -v|--voicemail <archive>      Restore the specified voicemail archive."
   echo "   -cdr|--cdrdatabase <archive>  Restore the Call Detail Records archive."
+  echo "   -dc|--device-config <archive>  Restore the Device config archive."
   echo "   -e|--enforce-version          Verify the version number."
   echo "   --verify                      Just verify the archive. Should be used with -e switch"
   echo "   --no-restart                  Do not restart server"
@@ -105,7 +101,24 @@ do
         bad_archive ${2}
       fi
       ;;
-
+      
+    -dc|--device-config)
+      # Parse and check the Device Config archive file path.
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -f "${2}" ]
+      then
+        # The extra argument specifies a regular file.
+        # Store it, then consume it.
+        DEVICE_CONFIG_PATH="${2}"
+        shift
+      else
+        bad_archive ${2}
+      fi
+      ;;
+      
     -cdr|--cdrdatabase)
       # Parse and check the Configuration archive file path.
       if [ -z "${2}" ]
@@ -144,7 +157,7 @@ do
 done
 
 # Ensure at least one archive was specified.
-if [ -z "$CONFIGURATION_PATH" ] &&  [ -z "$VOICEMAIL_PATH" ] && [ -z "$CDR_PATH" ]
+if [ -z "$CONFIGURATION_PATH" ] &&  [ -z "$VOICEMAIL_PATH" ] && [ -z "$CDR_PATH" ] && [ -z "$DEVICE_CONFIG_PATH" ]
 then
   echo "Must specify at least one archive file to restore."
   bad_usage
@@ -225,7 +238,7 @@ fi
 
 if [ -n "$CDR_PATH" ]
 then
-  #sanity check - we check if configuration/voicemail archives are indeed configuration/voicemail files respectively
+  #sanity check - we check if cdr archive is indeed cdr
   if [[ `tar --list --file=$CDR_PATH | grep db_cdr.tar` != db_cdr.tar ]];
   then
     echo "Cdr archive seems invalid (it's either corrupt or incomplete, or it may be a voicemail/configuration archive)"
@@ -237,6 +250,12 @@ if [ $CHECK_ARCHIVE = "yes" ]
 then
   echo "Archive seems to be O.K. You can proceed with restoring"
   exit 6
+fi
+
+if [ "`whoami`" != root ]
+then
+  echo "You must be root in order to restore."
+  exit 4
 fi
 
 if [ $RESTART_SERVER = "yes" ]
@@ -272,12 +291,10 @@ then
   echo "done."
 
   # Configuration files.
-  mkdir -p @SIPX_VARDIR@/upload
-  mkdir -p @SIPX_CONFDIR@/openacd
+  mkdir -p @OPENACD_HOME@/run
   echo -n "Restoring configuration files..."
-  tar xzvC / --exclude $DB_TAR < $CONFIGURATION_PATH
-  chown -R @SIPXPBXUSER@ @SIPX_VARDIR@/upload
-  chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ @SIPX_CONFDIR@/openacd
+  tar xzvC / --exclude $DB_TAR < $CONFIGURATION_PATH  
+  chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ @OPENACD_HOME@/run
   echo "done."
 
   # Re-install the local SSL files - it's always a safe thing to do.
@@ -299,6 +316,19 @@ then
   echo "done."
   
 fi # *** END Configuration ***
+
+# *** BEGIN device config ***
+if [ -n "$DEVICE_CONFIG_PATH"  ]
+then
+
+  # Device config files.
+  echo -n "Restoring device config files..."
+  mkdir -p @SIPX_VARDIR@/upload
+  tar xzvC / < $DEVICE_CONFIG_PATH
+  chown -R @SIPXPBXUSER@ @SIPX_VARDIR@/upload
+  echo "done."
+
+fi # *** END device config ***
 
 # *** BEGIN Cdr ***
 PATH_DB_CDR_TAR=@SIPX_TMPDIR@/$DB_CDR_TAR

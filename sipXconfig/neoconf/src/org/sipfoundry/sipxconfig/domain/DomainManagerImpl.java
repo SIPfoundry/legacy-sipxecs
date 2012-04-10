@@ -9,11 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -25,16 +27,26 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.localization.Localization;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
+    private static DomainManagerImpl s_instance;
     private static final String DOMAIN_CONFIG_ERROR = "Unable to load initial domain-config file.";
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
     private static final String SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
     private Domain m_domain;
     private String m_domainConfigFilename;
+
+    public DomainManagerImpl() {
+        s_instance = this;
+    }
+
+    static Domain getDomainInstance() {
+        return s_instance.getDomain();
+    }
 
     /**
      * @return non-null unless test environment
@@ -42,7 +54,11 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     public Domain getDomain() {
         Domain domain = getExistingDomain();
         if (domain == null) {
-            throw new DomainNotInitializedException();
+            initializeDomain();
+            domain = getExistingDomain();
+            if (domain == null) {
+                throw new DomainNotInitializedException();
+            }
         }
 
         return domain;
@@ -85,7 +101,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         return (Localization) DataAccessUtils.singleResult(l);
     }
 
-    public List<DialingRule> getDialingRules() {
+    public List<DialingRule> getDialingRules(Location location) {
         List<DialingRule> rules;
         Domain d = getDomain();
         if (d.hasAliases()) {
@@ -116,9 +132,9 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
             domainConfig.load(domainConfigInputStream);
             Domain domain = new Domain();
             parseDomainConfig(domain, domainConfig);
-            domain.initSecret();
             saveDomain(domain);
-            getDaoEventPublisher().publishSave(domain);
+            // Do not publish as there should not be a change
+            // getDaoEventPublisher().publishSave(domain);
         } catch (FileNotFoundException fnfe) {
             LOG.fatal(DOMAIN_CONFIG_ERROR, fnfe);
         } catch (IOException ioe) {
@@ -142,16 +158,8 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     private Set<String> getAlliasesFromDomainConfig(Properties domainConfig) {
-        Set<String> aliases = new LinkedHashSet<String>();
         String[] domainConfigAliases = StringUtils.split(domainConfig.getProperty("SIP_DOMAIN_ALIASES"), ' ');
-        if (domainConfigAliases != null) {
-            for (String alias : domainConfigAliases) {
-                if (!alias.equals(domainConfig.getProperty(SIP_DOMAIN_NAME))) {
-                    aliases.add(alias);
-                }
-            }
-        }
-
+        Set<String> aliases = new LinkedHashSet<String>(Arrays.asList(domainConfigAliases));
         return aliases;
     }
 

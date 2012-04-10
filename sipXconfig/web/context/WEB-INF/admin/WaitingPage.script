@@ -11,7 +11,7 @@ dojo.require("dojo.io.ScriptSrcIO");
 var waitForServerDown = true;
 var timeToExpire = 0;
 var targetUrl = location.href;
-var base_url = "https://" + getUrlBase() + ":8443/sipxconfig";
+var base_url = "http://" + getUrlBase();
 
 
 function getUrlBase() {

@@ -291,15 +291,15 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
      *
      * @param number number to call - refer is sent to current user
      */
-    public void call(String fromUri) {
+    public void call(String from) {
         String domain = getDomainManager().getDomain().getName();
         String userAddrSpec = getUser().getAddrSpec(domain);
-        String destAddrSpec = SipUri.extractAddressSpec(fromUri);
+        String destAddrSpec = SipUri.format(from, domain, false);
         if (destAddrSpec != null) {
             String displayName = "ClickToCall";
             getSipService().sendRefer(getUser(), userAddrSpec, displayName, destAddrSpec);
         } else {
-            LOG.error("Failed to get URI to call: " + fromUri);
+            LOG.error("Failed to get URI to call: " + from);
         }
     }
 

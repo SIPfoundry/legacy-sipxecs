@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipXpark configuration and process management
@@ -9,8 +18,8 @@ bundle agent sipxpark {
   methods:
     sipxpark::
       "any" usebundle => "sipxpark_config";
-      "any" usebundle => "sipxpark_setup";
     any::
+      "any" usebundle => "sipxpark_setup";
       "any" usebundle => "sipxpark_running";
 }
 
@@ -18,18 +27,27 @@ bundle agent sipxpark_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxpark-config"
+        comment => "install sipxpark config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => sipxpark_config_contents(),
-        classes => if_repaired("restart_sipxpark"),
-	action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxpark");
 
       "$(sipx.SIPX_CONFDIR)/orbits.xml"
+        comment => "install sipxpark orbits config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/orbits.xml"),
-        classes => if_repaired("restart_sipxpark"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/orbits.xml"),
+        classes => if_repaired("restart_sipxpark");
+
+    !primary::
+      "$(sipx.SIPX_VARDIR)/parkserver/music"
+        comment => "sync Parkserver prompts",
+        create => "true",
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_VARDIR)/parkserver/music"),
+        file_select => wav_prompt,
+        depth_search => recurse("1");
 }
 
 bundle edit_line sipxpark_config_contents {
@@ -46,8 +64,10 @@ bundle edit_line sipxpark_config_contents {
 
 bundle agent sipxpark_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxpark");
+    !src.sipxpark::
+      "any" usebundle => rh_chkconfig_status("sipxpark on");
+    !src.!sipxpark::
+      "any" usebundle => rh_chkconfig_status("sipxpark off");
 }
 
 bundle agent sipxpark_running {
@@ -60,37 +80,19 @@ bundle agent sipxpark_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpark_running");
 
   commands:
-    sipxpark_running.!sipxpark::
+    (!sipxpark|stop_sipxecs).sipxpark_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpark"
-        args => "stop",
-	action => track("sipxpark_stop");
+        comment => "stop sipxpark",
+        args => "stop";
 
-    !sipxpark_running.sipxpark::
+    sipxpark.!sipxpark_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpark"
-        args => "start",
-	action => track("sipxpark_start");
+        comment => "start sipxpark",
+        args => "start";
 
-    restart_sipxpark::
+    sipxpark.sipxpark_running.restart_sipxpark::
       "$(sipx.SIPX_SERVICEDIR)/sipxpark"
-        args => "restart",
-	action => track("sipxpark_restart");
+        comment => "restart sipxpark",
+        args => "restart";
 }
 
-# This code was extracted from park java code.  not sure how to handle this or when versions 
-# this applies to --Douglas
-#
-# @Override
-# public void onInitTask(String task) {
-#     LOG.info("Starting park server migration");
-#     File parkServerDirectory = new File(m_orbitsGenerator.getAudioDirectory());
-#     File systemMohDirectory = new File(m_musicOnHoldManager.getAudioDirectoryPath());
-#     try {
-#         if (parkServerDirectory.exists()) {
-#             LOG.info("Copying all files from " + m_orbitsGenerator.getAudioDirectory() + " to "
-#                     + systemMohDirectory.getAbsolutePath());
-#             FileUtils.copyDirectory(parkServerDirectory, systemMohDirectory);
-#         }
-#     } catch (IOException e) {
-#         LOG.error("Unable to copy files/folder; " + e);
-#     }
-# }

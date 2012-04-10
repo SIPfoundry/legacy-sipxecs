@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 public abstract class EditLocationPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/EditLocationPage";
     private static final String CONFIG_TAB = "configureLocation";
-    private static final String FEATURES_TAB = "configureFeatures";
+    private static final String SERVICES_TAB = "listServices";
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -56,7 +56,7 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
 
     public Collection<String> getAvailableTabNames() {
         Collection<String> tabNames = new ArrayList<String>();
-        tabNames.addAll(Arrays.asList(CONFIG_TAB, FEATURES_TAB));
+        tabNames.addAll(Arrays.asList(CONFIG_TAB, SERVICES_TAB));
         return tabNames;
     }
 
@@ -74,6 +74,7 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
             setRegistered(location.isRegistered());
         } else {
             location = new Location();
+            setTab(CONFIG_TAB);
         }
         setLocationBean(location);
     }

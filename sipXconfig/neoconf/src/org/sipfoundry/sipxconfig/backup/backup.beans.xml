@@ -31,11 +31,20 @@
 
   <bean id="restore" class="org.sipfoundry.sipxconfig.backup.Restore">
 	<property name="mailboxManager" ref="mailboxManager" />
-    <property name="binDirectory" value="${sysdir.bin}" />
     <property name="logDirectory" value="${sysdir.log}" />
+    <property name="binDirectory" value="${sysdir.bin}" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="configCommands" ref="configCommands" />
+    <property name="featureManager" ref="featureManager" />
   </bean>
 
   <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.backup.FtpRestore" parent="restore">
+  </bean>
+
+  <bean id="snapshot" class="org.sipfoundry.sipxconfig.backup.Snapshot">
+    <property name="destDirectory" value="${sysdir.tmp}" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="configCommands" ref="configCommands" />
   </bean>
 
 </beans>

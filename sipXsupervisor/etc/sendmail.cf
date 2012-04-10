@@ -1,0 +1,117 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+# Manage sendmail configuration
+
+bundle agent sendmail {
+  methods:
+    sendmail::
+      "any" usebundle => "sendmail_config";
+    any::
+      "any" usebundle => "sendmail_sysv_running";
+}
+
+bundle agent sendmail_config {
+  files:
+    sendmail::
+      "/etc/sysconfig/sendmail"
+        comment => "Sendmail sysconfig",
+        perms => mog(644,root,root),
+        edit_line => sendmail_sysconfig,
+        classes => if_repaired("restart_sendmail");
+
+      "/etc/mail/sendmail.mc"
+        comment => "Sendmail sysconfig",
+        perms => mog(644,root,root),
+        edit_line => sendmail_mc,
+        classes => if_repaired("sendmail_apply_config");
+
+  commands:
+    sendmail_apply_config::
+      "/usr/bin/make"
+        comment => "Apply sendmail config",
+        args => "-C /etc/mail",
+        classes => if_repaired("restart_sendmail");
+}
+
+bundle edit_line sendmail_sysconfig {
+  insert_lines:
+    "SENDMAIL_OPTARG=-odd";
+    # Process queued messages quickly (usually within 15 seconds).
+    "QUEUE=p15s";
+  delete_lines:
+    "QUEUE=.*";
+    "SENDMAIL_OPTARG=.*";
+}
+
+bundle edit_line sendmail_mc {
+  vars:
+    "timeout" string => "1m";
+    "conf[MCI_CACHE_TIMEOUT]" string => "$(timeout)";
+    "conf[TO_INITIAL]" string => "$(timeout)";
+    "conf[TO_CONNECT]" string => "$(timeout)";
+    "conf[TO_ACONNECT]" string => "$(timeout)";
+    "conf[TO_HELO]" string => "$(timeout)";
+    "conf[TO_MAIL]" string => "$(timeout)";
+    "conf[TO_RCPT]" string => "$(timeout)";
+    "conf[TO_DATAINIT]" string => "$(timeout)";
+    "conf[TO_DATABLOCK]" string => "$(timeout)";
+    "conf[TO_DATAFINAL]" string => "$(timeout)";
+    "conf[TO_RSET]" string => "$(timeout)";
+    "conf[TO_QUIT]" string => "$(timeout)";
+    "conf[TO_MISC]" string => "$(timeout)";
+    "conf[TO_COMMAND]" string => "$(timeout)";
+    "conf[TO_IDENT]" string => "$(timeout)";
+    "conf[TO_FILEOPEN]" string => "$(timeout)";
+    "conf[TO_LHLO]" string => "$(timeout)";
+    "conf[TO_AUTH]" string => "$(timeout)";
+    "conf[TO_STARTTLS]" string => "$(timeout)";
+    "conf[TO_CONTROL]" string => "$(timeout)";
+    "conf[TO_QUEUERETURN]" string => "1d";
+    "conf[TO_QUEUERETURN_DSN]" string => "1h";
+    "conf[TO_QUEUEWARN]" string => "2d";
+    "param" slist => getindices("conf");
+
+  insert_lines:    
+    "define(`conf$(param)', `$(conf[$(param)])')dnl configured by sipxecs";
+
+  delete_lines:
+    ".*dnl configured by sipxecs";
+}
+
+bundle agent sendmail_sysv_running {
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("sendmail", "sendmail_running", "smmsp");
+
+    !src.sendmail::
+      "any" usebundle => rh_chkconfig_status("sendmail on");
+    !src.!sendmail::
+      "any" usebundle => rh_chkconfig_status("sendmail off");
+
+  commands:
+    !sendmail.sendmail_running::
+      "/sbin/service"
+        comment => "stop sendmail",
+        args => "sendmail stop";
+
+    sendmail.!sendmail_running::
+      "/sbin/service"
+        comment => "start sendmail",
+        args => "sendmail start";
+
+    sendmail.sendmail_running.restart_sendmail::
+      "/sbin/service"
+        comment => "restart sendmail",
+        args => "sendmail restart";
+}

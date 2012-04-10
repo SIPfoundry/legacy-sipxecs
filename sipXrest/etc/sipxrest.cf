@@ -1,0 +1,65 @@
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+#
+# sipxrest configuration and process management
+#
+bundle agent sipxrest {
+  methods:
+    sipxrest::
+      "any" usebundle => "sipxrest_config";
+    any::
+      "any" usebundle => "sipxrest_setup";
+      "any" usebundle => "sipxrest_running";
+}
+
+bundle agent sipxrest_config {
+  vars:
+    any::
+      "xml_file" slist => {
+        "sipxrest-config.xml"
+      };
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        comment => "install sipxrest config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxrest");
+}
+
+bundle agent sipxrest_setup {
+  methods:
+    !src.sipxrest::
+      "any" usebundle => rh_chkconfig_status("sipxrest on");
+    !src.!sipxrest::
+      "any" usebundle => rh_chkconfig_status("sipxrest off");
+}
+
+bundle agent sipxrest_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-Dprocname=sipxrest\s.*";
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxrest_running");
+
+  commands:
+    !sipxrest.sipxrest_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxrest"
+        comment => "stop sipxrest",
+        args => "stop";
+
+    sipxrest.!sipxrest_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxrest"
+        comment => "start sipxrest",
+        args => "start";
+
+    sipxrest.sipxrest_running.(restart_sipxecs|restart_sipxrest)::
+      "$(sipx.SIPX_SERVICEDIR)/sipxrest"
+        comment => "restart sipxrest",
+        args => "restart";
+}

@@ -54,9 +54,9 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
     }
 
     public void testGetUri() {
-        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
-        expectLastCall().andReturn(new Address("bridge1.example.org", 1111)).once();
-        expectLastCall().andReturn(new Address("abc.example.com", 2222)).once();
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "bridge1.example.org", 1111)).once();
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "abc.example.com", 2222)).once();
         replay(m_addressManager);
         
         m_bridge.addConference(m_conf);
@@ -68,8 +68,8 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
     }
 
     public void testGenerateRemoteAdmitSecret() {
-        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
-        expectLastCall().andReturn(new Address("bridge1.example.org", 1111)).once();
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "bridge1.example.org", 1111)).once();
         replay(m_addressManager);
         
         m_bridge.addConference(m_conf);
@@ -80,8 +80,8 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
     }
 
     public void testGenerateAliases() {
-        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, ConferenceBridgeContext.FEATURE);
-        expectLastCall().andReturn(new Address("bridge1.sipfoundry.org", 2222)).anyTimes();
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "bridge1.sipfoundry.org", 2222)).anyTimes();
         replay(m_addressManager);
 
         m_bridge.addConference(m_conf);

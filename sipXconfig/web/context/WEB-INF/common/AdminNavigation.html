@@ -11,7 +11,6 @@
 					<li><a jwcid="@PageLink" id="menu.userGroups" page="user/UserGroups"><span key="menu.userGroups">User Groups</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.extensions" page="admin/ExtensionPools"><span key="menu.extensions">User Extension Pool</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.tlspeers" page="admin/TlsPeers"><span key="menu.tlspeers">TLS Peers</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.authcodes" page="admin/AuthCodes"><span key="menu.authcodes">Authorization Codes</span></a></li>
 					<span jwcid="@common/Plugin" blockId="UserBottom"/>
 				</ul>
 			</div>
@@ -25,7 +24,7 @@
 					<li><a jwcid="@PageLink" id="menu.devices" page="phone/ManagePhones"><span key="menu.devices">Phones</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.deviceGroups" page="phone/PhoneGroups"><span key="menu.deviceGroups">Phone Groups</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.gateways" page="gateway/ListGateways"><span key="menu.gateways">Gateways</span></a></li>
-					<li jwcid="@If" condition="ognl:sipTrunkEnabled">
+				    <li jwcid="@If" condition="ognl:isOn('sbcBridge')">
 						<a jwcid="@PageLink" id="menu.internalsbcs" page="bridge/ListBridgeSbcs"><span key="menu.internalsbcs">Internal SBCs</span></a>
 					</li>
 					<li><a jwcid="@PageLink" id="menu.uploads" page="upload/ManageUploads"><span key="menu.uploads">Upload Firmware</span></a></li>
@@ -40,25 +39,6 @@
 				<a class="heading"><span key="menu.section.admin">Features</span></a>
 				<ul>
 					<span jwcid="@common/Plugin" blockId="FeaturesTop"/>
-					<li jwcid="@If" condition="ognl:acdEnabled">
-						<a jwcid="@PageLink" id="menu.acd" page="acd/ListAcdServers"><span key="menu.acd">ACD</span></a>
-					</li>
-					<!-- does not used "presenceServer.enabled" because AcdPresenceServer page requires ACD to be available as well -->
-					<li jwcid="@If" condition="ognl:acdEnabled">
-						<a jwcid="@PageLink" id="menu.acdPresence" page="acd/AcdPresenceServer"><span key="menu.acdPresence">ACD Presence</span></a>
-					</li>
-					<li jwcid="@If" condition="ognl:openAcdEnabled">
-						<a jwcid="@PageLink" id="menu.openAcd" page="openacd/OpenAcdServerPage"><span key="menu.openAcd">Contact Center</span></a>
-					</li>
-					<li><a jwcid="@PageLink" id="menu.conferenceBridge" page="conference/ListBridges"><span key="menu.conferenceBridge">Conference Bridge</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.attendants" page="dialplan/ManageAttendants"><span key="menu.attendants">Auto Attendants</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.intercom" page="admin/Intercom"><span key="menu.intercom">Intercom</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.huntGroups" page="admin/ListCallGroups"><span key="menu.huntGroups">Hunt Groups</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.musicOnHold" page="admin/MusicOnHold"><span key="menu.musicOnHold">Music on Hold</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.phonebook" page="phonebook/ManagePhonebooks" ><span key="menu.phonebook">Phonebooks</span></a></li>
-					<li jwcid="@If" condition="ognl:openFireEnabled">
-						<a jwcid="@PageLink" id="menu.instantMessaging" page="admin/InstantMessaging"><span key="menu.instantMessaging">Instant Messaging</span></a>
-					</li>
 					<span jwcid="@common/Plugin" blockId="FeaturesBottom"/>
 				</ul>
 			</div>
@@ -72,7 +52,9 @@
 					<li><a jwcid="@PageLink" id="menu.locations" page="admin/commserver/LocationsPage"><span key="menu.locations">Locations (HA)</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.branches" page="branch/BranchesPage"><span key="menu.branches">Branches</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.domain" page="admin/ManageDomain"><span key="menu.domain">Domain</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.dialPlans" page="dialplan/EditFlexibleDialPlan"><span key="menu.dialPlans">Dial Plans</span></a></li>
+				    <span jwcid="@If" condition="ognl:isOn('proxy')">
+					  <li><a jwcid="@PageLink" id="menu.dialPlans" page="dialplan/EditFlexibleDialPlan"><span key="menu.dialPlans">Dial Plans</span></a></li>
+					</span>
 					<li><a jwcid="@PageLink" id="menu.internetCalling" page="dialplan/sbc/InternetCalling"><span key="menu.internetCalling">Internet Calling</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.permissions" page="permission/ListPermissions"><span key="menu.permissions">Permissions</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.importCsv" page="admin/BulkImport"><span key="menu.importCsv">Import</span></a></li>
@@ -92,17 +74,6 @@
 				<a class="heading"><span key="menu.section.diag">Diagnostics</span></a>
 				<ul>
 					<span jwcid="@common/Plugin" blockId="DiagnosticsTop"/>
-					<li jwcid="@If" condition="ognl:coreContext.debug">
-							<a jwcid="@PageLink" id="menu.testpage" page="TestPage"><span key="menu.testpage">Tests</span></a>
-					</li>
-					<li><a jwcid="@PageLink" id="menu.registrations" page="admin/commserver/Registrations"><span key="menu.registrations">Registrations</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.cdr" page="cdr/CdrPage"><span key="menu.cdr">Calls</span></a></li>
-					<li jwcid="@If" condition="ognl:acdEnabled">
-						<a jwcid="@PageLink" id="menu.acdHistory" page="acd/AcdHistoryPage"><span key="menu.acdHistory">ACD Calls</span></a>
-					</li>
-					<li jwcid="@If" condition="ognl:sipTrunkEnabled">
-						<a jwcid="@PageLink" id="menu.sbcStats" page="sbc/BridgeSbcStatisticsPage"><span key="menu.sbcStats">SIP Trunk SBC Statistics</span></a>
-					</li>
 					<li><a jwcid="@PageLink" id="menu.jobs" page="admin/JobStatusPage"><span key="menu.jobs">Job Status</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.configdiag" page="admin/configdiag/ConfigurationDiagnosticPage"><span key="menu.configdiag">Configuration Tests</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.snapshot" page="admin/SnapshotPage"><span key="menu.snapshot">Snapshot</span></a></li>

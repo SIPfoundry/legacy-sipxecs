@@ -41,9 +41,9 @@ public class BackupPlanTest extends TestCase {
 
     public void testGetBackupLocations() {
         File[] backupLocations = m_backup.getBackupFiles(new File("."));
-        assertEquals(3, backupLocations.length);
+        assertEquals(4, backupLocations.length);
         String[] refBackupLocations = {
-            "./configuration.tar.gz", "./voicemail.tar.gz", "./cdr.tar.gz"
+            "./configuration.tar.gz", "./voicemail.tar.gz", "./cdr.tar.gz", "./device_config.tar.gz"
         };
         for (int i = 0; i < refBackupLocations.length; i++) {
             String expected = refBackupLocations[i].replace('/', File.separatorChar);

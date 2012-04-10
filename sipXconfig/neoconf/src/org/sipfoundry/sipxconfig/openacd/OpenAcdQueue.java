@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
@@ -38,7 +37,8 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
 import com.mongodb.BasicDBObject;
 
-public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, DeployConfigOnEdit {
+public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, DeployConfigOnEdit,
+    OpenAcdObjectWithRecipe {
     private String m_name;
     private String m_description;
     private OpenAcdQueueGroup m_group;
@@ -144,34 +144,39 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, 
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(MongoConstants.QUEUE_GROUP, getQueueGroup());
+        props.put(OpenAcdContext.QUEUE_GROUP, getQueueGroup());
         List<String> skills = new ArrayList<String>();
         for (OpenAcdSkill skill : getSkills()) {
             skills.add(skill.getAtom());
         }
-        props.put(MongoConstants.SKILLS, skills);
+        props.put(OpenAcdContext.SKILLS, skills);
         List<String> profiles = new ArrayList<String>();
         for (OpenAcdAgentGroup profile : getAgentGroups()) {
             profiles.add(profile.getName());
         }
-        props.put(MongoConstants.PROFILES, profiles);
-        props.put(MongoConstants.WEIGHT, getWeight());
-        props.put(MongoConstants.OLD_NAME, getOldName());
+        props.put(OpenAcdContext.PROFILES, profiles);
+        props.put(OpenAcdContext.WEIGHT, getWeight());
+        props.put(OpenAcdContext.OLD_NAME, getOldName());
+
+        props.put(OpenAcdContext.RECIPES, constructRecipeMongoObject(m_steps));
+        return props;
+    }
+
+    public static List<BasicDBObject> constructRecipeMongoObject(Set<OpenAcdRecipeStep> steps) {
         List<BasicDBObject> objects = new ArrayList<BasicDBObject>();
-        for (OpenAcdRecipeStep step : m_steps) {
+        for (OpenAcdRecipeStep step : steps) {
             BasicDBObject recipeStep = new BasicDBObject();
-            recipeStep.put(MongoConstants.ACTION, step.getAction().getMongoObject());
+            recipeStep.put(OpenAcdContext.ACTION, step.getAction().getMongoObject());
             List<BasicDBObject> conditions = new ArrayList<BasicDBObject>();
             for (OpenAcdRecipeCondition condition : step.getConditions()) {
                 conditions.add(condition.getMongoObject());
             }
-            recipeStep.put(MongoConstants.CONDITION, conditions);
-            recipeStep.put(MongoConstants.FREQUENCY, step.getFrequency());
-            recipeStep.put(MongoConstants.STEP_NAME, "New Step");
+            recipeStep.put(OpenAcdContext.CONDITION, conditions);
+            recipeStep.put(OpenAcdContext.FREQUENCY, step.getFrequency());
+            recipeStep.put(OpenAcdContext.STEP_NAME, "New Step");
             objects.add(recipeStep);
         }
-        props.put(MongoConstants.RECIPES, objects);
-        return props;
+        return objects;
     }
 
     @Override

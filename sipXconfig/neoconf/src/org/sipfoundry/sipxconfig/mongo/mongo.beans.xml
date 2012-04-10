@@ -27,19 +27,26 @@
   
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfig">
     <property name="mongoManager" ref="mongoManager"/>
+    <property name="mongoReplicaSetManager" ref="mongoReplicaSetManager"/>
   </bean>
 
   <bean id="mongoSettings" class="org.sipfoundry.sipxconfig.mongo.MongoSettings" parent="settingsBean">
   </bean>
 
+  <!-- Use separate mongo factor to protect against disconnetion when -->
+  <bean id="mongoLocalDbFactory" class="org.sipfoundry.commons.mongo.MongoSpringFactory">
+    <property name="connectionUrl" value="mongodb://localhost:27017"/>
+  </bean>  
+
   <bean id="localDb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
-    <constructor-arg ref="mongoDbFactory"/>
+    <constructor-arg ref="mongoLocalDbFactory"/>
     <!--  NOTE: same db used in unit tests to keep that in mind -->
     <property name="dbname" value="local"/> 
   </bean>
   
   <bean id="mongoReplicaSetManager" class="org.sipfoundry.sipxconfig.mongo.MongoReplicaSetManager" init-method="checkState">
     <property name="localDb" ref="localDb"/>
+    <property name="jdbcTemplate" ref="configJdbcTemplate"/>
   </bean>
   
 </beans>

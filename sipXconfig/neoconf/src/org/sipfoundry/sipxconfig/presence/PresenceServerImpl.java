@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.presence;
 
@@ -26,12 +35,19 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.BeanFactory;
@@ -39,14 +55,13 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class PresenceServerImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, FeatureListener,
-        PresenceServer {
+        PresenceServer, ProcessProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("acdPresence");
-    public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi");
+    public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi", "http://%s:%d/RPC2");
     public static final AddressType SIP_TCP_ADDRESS = new AddressType("acdPresenceTcp");
     public static final AddressType SIP_UDP_ADDRESS = new AddressType("acdPresenceUdp");
     public static final String OBJECT_CLASS_KEY = "object-class";
     private static final Log LOG = LogFactory.getLog(PresenceServer.class);
-    private static final List<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS);
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<PresenceSettings> m_settingsDao;
@@ -173,14 +188,9 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return ADDRESSES;
-    }
-
-    @Override
     public java.util.Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Object requester) {
-        if (!ADDRESSES.contains(type) || manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            Location requester) {
+        if (!type.equalsAnyOf(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS)) {
             return null;
         }
 
@@ -188,15 +198,13 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
         List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            Address address = new Address();
-            address.setAddress(location.getAddress());
+            Address address = null;
             if (type.equals(HTTP_ADDRESS)) {
-                address.setPort(settings.getApiPort());
-                address.setFormat("http://%s:%d/RPC2");
+                address = new Address(HTTP_ADDRESS, location.getAddress(), settings.getApiPort());
             } else if (type.equals(SIP_TCP_ADDRESS)) {
-                address.setPort(settings.getSipTcpPort());
+                address = new Address(SIP_TCP_ADDRESS, location.getAddress(), settings.getSipTcpPort());
             } else if (type.equals(SIP_UDP_ADDRESS)) {
-                address.setPort(settings.getSipUdpPort());
+                address = new Address(SIP_UDP_ADDRESS, location.getAddress(), settings.getSipUdpPort());
             }
             addresses.add(address);
         }
@@ -228,5 +236,20 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxpresence")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return DefaultFirewallRule.rules(Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS));
     }
 }

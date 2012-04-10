@@ -1,40 +1,76 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipxcdr configuration and process management
 #
 bundle agent sipxcdr {
   methods:
-    any::
+    sipxcdr::
       "any" usebundle => "postgres";
-      "any" usebundle => "sipxcommserverlib";
+      "any" usebundle => "sipxcdr_config";
+    any::
+      "any" usebundle => "sipxcdr_setup";
       "any" usebundle => "sipxcdr_running";
+}
+
+bundle agent sipxcdr_config {
+  vars:
+    any::
+      "conf_file" slist => {
+        "callresolver-config"
+      };
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(conf_file)"
+        comment => "install CDR config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(conf_file)"),
+        classes => if_repaired("restart_sipxcdr");
+}
+
+bundle agent sipxcdr_setup {
+  methods:
+    !src.sipxcdr::
+      "any" usebundle => rh_chkconfig_status("sipxcdr on");
+    !src.!sipxcdr::
+      "any" usebundle => rh_chkconfig_status("sipxcdr off");
 }
 
 bundle agent sipxcdr_running {
   vars:
     any::
-      "service_command" string => ".*\s-Dprocname=sipxcdr\s.*";
+      "service_command" string => ".*\s$(sipx.SIPX_LIBDIR)/ruby/gems/[0-9.]+/gems/sipxcallresolver-[0-9.]+/lib/main.rb\s.*";
 
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxcdr_running");
 
   commands:
-    sipxcdr_running.!sipxcdr::
+    (!sipxcdr|stop_sipxecs).sipxcdr_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
-        args => "stop",
-	action => track("sipxcdr stop");
+        comment => "stop sipxcdr",
+        args => "stop";
 
-    !sipxcdr_running.sipxcdr::
+    sipxcdr.!sipxcdr_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
-        args => "start",
-	action => track("sipxcdr start");
+        comment => "start sipxcdr",
+        args => "start";
 
-    restart_sipxcdr::
+    sipxcdr.sipxcdr_running.(restart_sipxecs|restart_sipxcdr)::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
-        args => "restart",
-	action => track("sipxcdr restart");
+        comment => "restart sipxcdr",
+        args => "restart";
 }

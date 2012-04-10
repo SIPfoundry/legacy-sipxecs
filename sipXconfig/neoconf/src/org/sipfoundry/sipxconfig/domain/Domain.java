@@ -28,6 +28,7 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit {
     private static final int SECRET_SIZE = 18;
 
     private String m_name;
+    private String m_networkName;
     private Set<String> m_aliases;
     private String m_sharedSecret;
 
@@ -38,6 +39,10 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit {
 
     public Domain(String name) {
         setName(name);
+    }
+
+    public static Domain getDomain() {
+        return DomainManagerImpl.getDomainInstance();
     }
 
     /**
@@ -116,5 +121,13 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit {
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) DomainManager.FEATURE);
+    }
+
+    public String getNetworkName() {
+        return m_networkName;
+    }
+
+    public void setNetworkName(String networkName) {
+        m_networkName = networkName;
     }
 }

@@ -13,12 +13,8 @@ PROG_JAVA_DEP
 AC_CONFIG_FILES([
   Makefile 
   src/Makefile
-  src/main/Makefile
-  src/main/java/Makefile
-  src/test/Makefile
-  src/test/java/Makefile
+  test/Makefile
   bin/Makefile
   etc/Makefile
-  meta/Makefile
 ])
 AC_OUTPUT

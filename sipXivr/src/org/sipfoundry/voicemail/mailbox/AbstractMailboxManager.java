@@ -1,11 +1,18 @@
-/*
+/**
  *
  *
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+ * Copyright (c) 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * $
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.voicemail.mailbox;
 
@@ -35,6 +42,7 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     private String m_configUrl;
     private String m_secret;
     private Emailer m_emailer;
+    private String m_identity;
 
     protected abstract VmMessage saveTempMessageInStorage(User destUser, TempMessage message,
             MessageDescriptor descriptor, String messageId);
@@ -186,35 +194,37 @@ public abstract class AbstractMailboxManager implements MailboxManager {
      * 
      * @param directory which holds the messageid.txt file
      */
-    private static synchronized String nextMessageId(String directory) {
-        long numericMessageId = 1;
-        String format = "%08d";
-        String messageId = String.format(format, numericMessageId);
-
-        // messageid.txt file is (hopefully) in the directory
+    private synchronized String nextMessageId(String directory) {
         File midFile = new File(directory, "messageid.txt");
         String messageIdFilePath = midFile.getPath();
-        if (midFile.exists()) {
+        long numericMessageId;
+        String messageId;
+        if (!midFile.exists()) {
+            numericMessageId = 1;
+            String format = m_identity + "%08d";
+            messageId = String.format(format, numericMessageId);
+            numericMessageId++;
             try {
-                // The messageid in the file is the NEXT one
-                messageId = FileUtils.readFileToString(midFile);
-
-                // on older systems, this messageid.txt file may have a newline
-                // character in it.. need to strip if off
-                if (messageId.endsWith("\n")) {
-                    messageId = messageId.substring(0, 8);
-                }
-
-                numericMessageId = Long.parseLong(messageId);
+                FileUtils.writeStringToFile(midFile, String.format(format, numericMessageId));
             } catch (IOException e) {
-                LOG.error("Message::nextMessageId cannot read " + messageIdFilePath, e);
+                LOG.error("Message::nextMessageId cannot write " + messageIdFilePath, e);
                 throw new RuntimeException(e);
             }
+            return messageId;
+        }
+
+        try {
+            // The messageid in the file is the NEXT one
+            messageId = FileUtils.readFileToString(midFile);
+            numericMessageId = Long.parseLong(messageId);
+        } catch (IOException e) {
+            LOG.error("Message::nextMessageId cannot read " + messageIdFilePath, e);
+            throw new RuntimeException(e);
         }
         // Increment message id, store for another day
         numericMessageId++;
         try {
-            FileUtils.writeStringToFile(midFile, String.format(format, numericMessageId));
+            FileUtils.writeStringToFile(midFile, String.valueOf(numericMessageId));
         } catch (IOException e) {
             LOG.error("Message::nextMessageId cannot write " + messageIdFilePath, e);
             throw new RuntimeException(e);
@@ -306,6 +316,10 @@ public abstract class AbstractMailboxManager implements MailboxManager {
 
     public void setMwiManager(Mwi mwiManager) {
         m_mwi = mwiManager;
+    }
+
+    public void setIvrIdentity(String identity) {
+        m_identity = identity;
     }
 
 }

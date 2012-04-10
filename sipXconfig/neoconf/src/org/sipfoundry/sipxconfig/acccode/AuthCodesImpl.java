@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.acccode;
 
@@ -21,22 +30,27 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.AuthorizationCodeRule;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, FeatureProvider, AuthCodes {
+public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, FeatureProvider, AuthCodes,
+        ProcessProvider {
     private AuthCodeManager m_authCodeManager;
     private AddressManager m_addressManager;
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<AuthCodeSettings> m_settingsDao;
 
     @Override
-    public List< ? extends DialingRule> getDialingRules() {
+    public List< ? extends DialingRule> getDialingRules(Location location) {
         List<Location> locations = m_featureManager.getLocationsForEnabledFeature(FEATURE);
         if (locations.isEmpty()) {
             return Collections.emptyList();
@@ -107,5 +121,19 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
     @Required
     public void setSettingsDao(BeanWithSettingsDao<AuthCodeSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxacccode",
+                ".*\\s-Dprocname=sipxacccode\\s.*")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

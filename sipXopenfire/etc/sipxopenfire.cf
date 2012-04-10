@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipxopenfire configuration and process management
@@ -9,39 +18,62 @@ bundle agent sipxopenfire {
   methods:
     sipxopenfire::
       "any" usebundle => "sipxopenfire_config";
-      "any" usebundle => "sipxopenfire_setup";
     any::
+      "any" usebundle => "sipxopenfire_setup";
       "any" usebundle => "sipxopenfire_running";
 }
 
 bundle agent sipxopenfire_config {
   vars:    
     any::
-      "xml_file" slist => { 
-        "autoattendants.xml",
+      "xml_file_restart" slist => { 
+        "sipxopenfire.xml"
+      };
+
+    any::
+      "xml_file_norestart" slist => { 
+        "xmpp-account-info.xml",
       };
 
   files:
     any::
-      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
+      "$(sipx.SIPX_JAVADIR)/sipXopenfire/conf/openfire.xml"
+        comment => "install openfire config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	edit_line => sipxopenfire_properties_contents,
-        classes => if_repaired("restart_sipxopenfire"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
+        classes => if_repaired("restart_sipxopenfire");
 
     any::
       # Write out the config information so the plugin can read it.
       "/tmp/sipx.properties"
+        comment => "install openfire config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	edit_line => sipxopenfire_sipx_properties,
-        classes => if_repaired("restart_sipxopenfire"),
-	action => track("$(this.promiser)");
+        edit_line => sipxopenfire_sipx_properties,
+        classes => if_repaired("restart_sipxopenfire");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file_restart)"
+        comment => "install openfire config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_restart)"),
+        classes => if_repaired("restart_sipxopenfire");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
+        comment => "install openfire config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)");
 }
 
 bundle edit_line sipxopenfire_sipx_properties {
-  insert_lines:
+  insert_lines:	
+  any::
+    "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipx.properties.part"
+      insert_type => "file";	
     "conf.dir=$(sipx.SIPX_CONFDIR)";
     "localization.file=$(sipx.SIPX_CONFDIR)/openfire/sipxopenfire-prompts.properties";
     "openfire.home=$(sipx.OPENFIRE_HOME)";
@@ -50,102 +82,38 @@ bundle edit_line sipxopenfire_sipx_properties {
     ".*";
 }
 
-
-bundle edit_line sipxopenfire_properties_contents {
-  vars:
-    openfire_debug::
-      "debug" string => "true";
-
-    !openfire_debug::
-      "debug" string => "false";
-
-    openfire_admin::
-      "port" string => "9094";
-      "secure_port" string => "9095";
-
-    !openfire_admin::
-      "port" string => "-1";
-      "secure_port" string => "-1";
-
-  insert_lines:
-    any::"
-<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<jive>
-  <adminConsole>
-    <port>$(port)</port>
-    <securePort>$(secure_port)</securePort>
-  </adminConsole>
-  <admin>
-    <authorizedUsernames>admin, superadmin</authorizedUsernames>
-  </admin>
-  <provider>
-    <admin>
-      <className>org.jivesoftware.openfire.admin.DefaultAdminProvider</className>
-    </admin>
-    <auth></auth>
-    <group></group>
-    <user></user>
-    <lockout></lockout>
-    <securityAudit>
-      <className>org.jivesoftware.openfire.security.DefaultSecurityAuditProvider</className>
-    </securityAudit>
-    <vcard></vcard>
-  </provider>
-  <connectionProvider>
-    <className>org.jivesoftware.database.DefaultConnectionProvider</className>
-  </connectionProvider>
-  <database>
-    <defaultProvider>
-      <driver>org.postgresql.Driver</driver>
-      <serverURL>jdbc:postgresql://localhost:5432/openfire</serverURL>
-      <username>postgres</username>
-      <password>postgres</password>
-    </defaultProvider>
-  </database>
-  <setup>true</setup>
-  <log>
-    <debug>
-      <enabled>$(debug)</enabled>
-    </debug>
-  </log>
-</jive>";
-
-  delete_lines:
-    any::
-      ".*";
-}
-
-
 bundle agent sipxopenfire_setup {
   methods:
     !src.sipxopenfire::
-      "any" usebundle => rh_chkconfig_status("sipxopenfire");
+      "any" usebundle => rh_chkconfig_status("sipxopenfire on");
+    !src.!sipxopenfire::
+      "any" usebundle => rh_chkconfig_status("sipxopenfire off");
 }
 
 bundle agent sipxopenfire_running {
   vars:
     any::
-      "service_command" string => ".*\s-Dprocname=sipxopenfire\s.*";
+      "service_command" string => ".*\s-Dexe4j.moduleName=$(sipx.OPENFIRE_HOME)/bin/openfire\s.*";
 
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenfire_running");
 
   commands:
-    sipxopenfire_running.!sipxopenfire::
+    (!sipxopenfire|stop_sipxecs).sipxopenfire_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
-        args => "stop",
-	action => track("sipxopenfire stop");
+        comment => "stop sipxopenfire",
+        args => "stop";
 
-    !sipxopenfire_running.sipxopenfire::
+    sipxopenfire.!sipxopenfire_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
-        args => "start",
-	action => track("sipxopenfire start");
+        comment => "start sipxopenfire",
+        args => "start";
 
-    restart_sipxopenfire::
+    sipxopenfire.sipxopenfire_running.(restart_sipxecs|restart_sipxopenfire)::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
-        args => "restart",
-	action => track("sipxopenfire restart");
+        comment => "restart sipxopenfire",
+        args => "restart";
 }
 
 

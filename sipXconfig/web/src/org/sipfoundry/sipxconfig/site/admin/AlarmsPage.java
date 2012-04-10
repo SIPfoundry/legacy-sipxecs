@@ -86,7 +86,7 @@ public abstract class AlarmsPage extends SipxBasePage implements PageBeginRender
 
         List<Alarm> alarms = getAlarms();
         if (alarms == null) {
-            alarms = getAlarmServerManager().getAlarmTypes();
+            alarms = getAlarmServerManager().getAlarms();
             setAlarms(alarms);
 
             SelectMap selections = getSelections();
@@ -105,6 +105,7 @@ public abstract class AlarmsPage extends SipxBasePage implements PageBeginRender
     }
 
     public void activate() {
-        getAlarmServerManager().deployAlarmConfiguration(getAlarmServer(), getAlarms());
+        getAlarmServerManager().saveAlarmServer(getAlarmServer());
+        getAlarmServerManager().saveAlarms(getAlarms());
     }
 }

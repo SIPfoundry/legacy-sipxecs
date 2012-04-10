@@ -23,29 +23,29 @@
 #end	    
     <methodMatch>
       <methodPattern>SUBSCRIBE</methodPattern>
-#if("" != ${statusAddress.address})
+#if( ${statusAddress} )
 
       <!-- Message waiting indication events -->
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <!--this goes to the status server-->
-        <routeTo>&lt;${statusAddress};transport=tcp&gt;</routeTo>
+        <routeTo>&lt;${statusAddress.stripProtocol()};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
 #end
       <!-- "reg" event subscriptions. -->
       <fieldMatch fieldName="Event">
         <fieldPattern>reg</fieldPattern>
-        <routeTo>&lt;${regEventAddress};transport=tcp&gt;</routeTo>
+        <routeTo>&lt;${regEventAddress.stripProtocol()};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      <routeTo>&lt;${regAddress};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+      <routeTo>&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
 
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    <routeTo>&lt;${regAddress};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+    <routeTo>&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
   </route>
 
 #if(${sbc.enabled})

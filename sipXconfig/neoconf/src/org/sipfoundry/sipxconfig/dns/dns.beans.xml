@@ -2,6 +2,31 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
+  <bean id="dnsSettings" class="org.sipfoundry.sipxconfig.dns.DnsSettings" scope="prototype" parent="settingsBean">
+  </bean>
+  
+  <bean id="dnsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.dns.DnsManager" />
+    <property name="target" ref="dnsManagerImpl"/>
+  </bean>
+
+  <bean id="dnsManagerImpl" class="org.sipfoundry.sipxconfig.dns.DnsManagerImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.dns.DnsSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+    <property name="addressManager" ref="addressManager"/>
+  </bean>
+
+  <bean id="dnsConfig" class="org.sipfoundry.sipxconfig.dns.DnsConfig">
+    <property name="dnsManager" ref="dnsManager"/>
+  </bean>
+
   <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.dns.DnsTestContextImpl">
     <constructor-arg ref="commandContext" />
     <constructor-arg value="sipx-dns" />

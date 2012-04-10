@@ -34,5 +34,16 @@
       <value>org.sipfoundry.sipxconfig.mail</value>
     </property>
   </bean>
+  
+  <bean id="mailManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.mail.MailManager"/>
+    <property name="target" ref="mailManagerImpl" />
+  </bean>
+  
+  <bean id="mailManagerImpl" class="org.sipfoundry.sipxconfig.mail.MailManagerImpl">
+  </bean>
+  
+  <bean id="mailManagerConfig" class="org.sipfoundry.sipxconfig.mail.MailConfig">
+  </bean>  
 
 </beans>

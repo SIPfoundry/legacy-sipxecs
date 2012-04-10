@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#
+# CFEngine helper script
+#
+# Runs a command at a later time. NOTE: Being asynchronous, there's no good
+#  way to check success.
+#
+# USAGE:
+#
+#  First arg delay in seconds before executing
+#  Remaining args command to be executed
+# 
+# Example:
+#
+#    commands:
+#      "$(sipx.CFMODULES)/run-later"
+#         args => "60 $(sipx.SIPX_SERVICEDIR)/sipxsupervisor restart";
+#
+
+delay=$1
+shift
+nohup sh -c "/bin/sleep $delay && $*" > /dev/null 2>&1 &

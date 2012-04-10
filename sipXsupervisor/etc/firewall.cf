@@ -1,41 +1,171 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
-# This is iptables configuration
+# This is iptables configuration. Uses either /etc/init.d./iptables (centos 6) or 
+# /bin/systemctl (fedora 16) scripts whichever are available.
 #
 bundle agent firewall {
   methods:
-    any::
-      "any" usebundle => "firewall_running";
+    # Interesting note: commands to configure iptables fail if iptables not
+    # running, so reverse normal order: 
+    #  1. check running status first 
+    #  2. configure service.
+    fedora16_or_greater.!unmanaged_firewall::
+      "any" usebundle => "firewall_systemctl_running";
+    !fedora16_or_greater.!unmanaged_firewall::
+      "any" usebundle => "firewall_sysv_running";
+    firewall::
+      "any" usebundle => "firewall_kernel_config";
+      "any" usebundle => "firewall_iptables_config";
 }
 
-bundle agent firewall_running {
- vars:
-   "service" string => "/etc/init.d/iptables";
+bundle agent firewall_kernel_config {
+  vars:
+    "dim_sysctl" int => readstringarray("sysctl", "$(sipx.SIPX_CFDATA)/sysctl.part", 
+        "\s*#[^\n]*", "=", 10, 4000);
+    "sysctl_tunables" slist => getindices("firewall_kernel.sysctl");
 
- classes:
-    "iptables_running" expression => returnszero("/sbin/lsmod | grep ip_tables","useshell");
-
-  methods:
-    redhat::
-      "any" usebundle => rh_chkconfig_status("iptables off");
+  files:
+    any::
+      "/etc/sysctl.conf"
+        comment => "Kernel network parameters $(this.promoiser)",
+        perms => mog("0644","root","root"),
+        create => "true",
+        edit_line => sysctl_conf("@(firewall_kernel_config.sysctl_tunables)"),
+        classes => if_repaired("update_sysctl");
 
   commands:
+    update_sysctl::
+      "/sbin/sysctl"
+        comment => "Apply kernel network parameters",
+        args => "-p";
+}
+
+bundle edit_line sysctl_conf(sysctl_tunables) {
+  insert_lines:
+    "$(sysctl_tunables) = $(firewall_kernel_config.sysctl[$(sysctl_tunables)][1])";
+
+  delete_lines:
+    "$(sysctl_tunables)\s*=.*";
+}
+
+bundle agent firewall_iptables_config {
+  vars:
+    "template" string => "$(sipx.SIPX_CONFDIR)/firewall/iptables.erb";
+    "post_erb" string => "$(sipx.SIPX_TMPDIR)/iptables.post_erb";
+    "iptables" string => "$(sipx.SIPX_TMPDIR)/iptables";
+    "unapplied" string => "$(sipx.SIPX_TMPDIR)/iptables.unapplied";
+    "data" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/firewall.yaml";
+
+  classes:
+    # rules from a previous run exist because of a failed attempt to apply.
+    "apply_iptables" expression => fileexists("$(unapplied)");
+
+  files:
+    any::
+      # feed YAML to template to build iptable config
+      "$(post_erb)"
+        comment => "Preprocess fireall template $(this.promiser)",
+        create => "true",
+        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-config-maker \
+            --in $(data) --out $(post_erb) --template $(template)";
+
+      # feed iptables to cfengine to decide if rules changed. As a bonus
+      # apply any cfengine vars i.e. $(foo)
+      "$(iptables)"
+        comment => "Building iptables config $(this.promiser)",
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(post_erb)"),
+        classes => if_repaired("new_iptables");
+
+    new_iptables::
+      # brand new rules were generated, mark as outstanding by making a copy
+      "$(unapplied)"
+        comment => "Marking new iptables for install",
+        create => "true",
+        copy_from => local_cp("$(iptables)"),
+        classes => if_repaired("apply_iptables");
+
+  commands:
+    apply_iptables.!unmanaged_firewall::
+      # outstanding rules either from this run or previous failed run need
+      # to be applied.  Apply them and on success unmark rules as outstanding
+      # by deleting trigger file
+      "/sbin/iptables-restore"
+        comment => "Installing and peristing new firewall rules",
+        contain => in_shell,
+        args => "< $(unapplied) && /etc/init.d/iptables save && rm -f $(unapplied)";
+}
+
+bundle agent firewall_systemctl_running {
+  vars:
+    "service" string => "iptables.service";
+
+  classes:
+    "iptables_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    # NOTE: Start/stop commands will complain about not being able to open a TTY, but commands
+    # to complete their task
     iptables_running.!firewall::
-      "$(service)"
-        args => "stop",
-	action => track("$(service) stop");
+      "$(sipx.systemctl)"
+        comment => "stop iptables",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable iptables",
+        args => "disable $(service)";
 
     !iptables_running.firewall::
-      "$(service)"
-        args => "start",
-	action => track("$(service) start");
+      "$(sipx.systemctl)"
+        comment => "start iptables",
+        args => "start $(service)";
 
-    restart_iptables::
+      "$(sipx.systemctl)"
+        comment => "enable iptables",
+        args => "enable $(service)";
+}
+
+
+bundle agent firewall_sysv_running {
+  vars:
+   "service" string => "/etc/init.d/iptables";
+
+  classes:    
+    "iptables_running" expression => fileexists("/var/lock/subsys/iptables");
+
+  methods:
+    !firewall::
+      "any" usebundle => rh_chkconfig_status("iptables off");
+    firewall::
+      "any" usebundle => rh_chkconfig_status("iptables on");
+
+  commands:
+    !firewall.iptables_running::
       "$(service)"
-        args => "restart",
-	action => track("$(service) restart");
+        comment => "stop iptables",
+        args => "stop";
+
+    firewall.!iptables_running::
+      "$(service)"
+        comment => "start iptables",
+        args => "start";
+
+    firewall.iptables_running.restart_iptables::
+      "$(service)"
+        comment => "start iptables",
+        args => "restart";
 }
 

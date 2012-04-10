@@ -1,6 +1,6 @@
 <configuration name="local_stream.conf" description="stream files from local dir">
   <!-- fallback to default if requested moh class isn't found -->
-  <directory name="default" path="@SIPX_PROMPTSDIR@/stdprompts/music/8000">
+  <directory name="default" path="${docDir}/stdprompts/music/8000">
     <param name="rate" value="8000"/>
     <param name="shuffle" value="true"/>
     <param name="channels" value="1"/>
@@ -11,7 +11,7 @@
 #if(${audioDir})
   <directory name="moh" path="${audioDir}">
 #else
-  <directory name="moh" path="@SIPX_PROMPTSDIR@/stdprompts/music/8000">
+  <directory name="moh" path="${docDir}/stdprompts/music/8000">
 #end
     <param name="rate" value="8000"/>
     <param name="shuffle" value="false"/>

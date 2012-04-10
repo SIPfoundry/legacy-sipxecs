@@ -1,15 +1,28 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.bridge;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -24,9 +37,14 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
 
-public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
+public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener, ProcessProvider {
+    // uses of this definition are not related, just defined in one place to avoid checkstyle err
+    private static final String SIPXBRIDGE = "sipxbridge";
     private SbcDeviceManager m_sbcDeviceManager;
 
     @Override
@@ -36,21 +54,20 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
         }
 
         Set<Location> locations = request.locations(manager);
-        FeatureManager fm = manager.getFeatureManager();
         List<BridgeSbc> bridges = m_sbcDeviceManager.getBridgeSbcs();
-        for (Location l : locations) {
-            for (BridgeSbc bridge : bridges) {
-                Location location = bridge.getLocation();
-                boolean bridgeHere = l.getId().equals(location.getId());
-                File dir = manager.getLocationDataDirectory(location);
-                ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", "sipxbridge", bridgeHere);
-                boolean proxyHere = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
-                // Proxy source reads sipxbrige.xml to find how to connect to bridge
-                if (bridgeHere || proxyHere) {
-                    // strange object for profile location to be compatible with device module
-                    ProfileLocation profileLocation = bridge.getProfileLocation();
-                    bridge.generateFiles(profileLocation);
-                }
+        Map<Integer, BridgeSbc> bridgesMap = new HashMap<Integer, BridgeSbc>();
+        for (BridgeSbc bridge : bridges) {
+            bridgesMap.put(bridge.getLocation().getId(), bridge);
+        }
+        for (Location location : locations) {
+            BridgeSbc bridge = bridgesMap.get(location.getId());
+            boolean bridgeHere = bridge != null ? true : false;
+            File dir = manager.getLocationDataDirectory(location);
+            ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, SIPXBRIDGE);
+            if (bridgeHere) {
+                // strange object for profile location to be compatible with device module
+                ProfileLocation profileLocation = bridge.getProfileLocation();
+                bridge.generateFiles(profileLocation);
             }
         }
     }
@@ -86,5 +103,12 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener {
 
     public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
         m_sbcDeviceManager = sbcDeviceManager;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE, location);
+        return (enabled ? Collections
+                .singleton(new ProcessDefinition(SIPXBRIDGE, ".*\\s-Dprocname=sipxbridge\\s.*")) : null);
     }
 }

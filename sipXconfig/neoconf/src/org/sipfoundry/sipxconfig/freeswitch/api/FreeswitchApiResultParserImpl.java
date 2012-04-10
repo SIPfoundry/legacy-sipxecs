@@ -182,11 +182,13 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
             callerIdName = "";
         }
 
-        scan.next(); // skip caller ID number
+        String number = scan.next();
 
         String permissions = scan.next();
         member.setCanHear(permissions.contains("hear"));
         member.setCanSpeak(permissions.contains("speak"));
+
+        member.setNumber(number);
 
         member.setName(callerIdName + " (" + sipAddress + ")");
 

@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipxpublisher configuration and process management
@@ -8,34 +17,30 @@
 bundle agent sipxpublisher {
   methods:
     sipxpublisher::
+      "any" usebundle => "sipxcommserverlib";
       "any" usebundle => "sipxpublisher_config";
-      "any" usebundle => "sipxpublisher_setup";
     any::
+      "any" usebundle => "sipxpublisher_setup";
       "any" usebundle => "sipxpublisher_running";
 }
 
 bundle agent sipxpublisher_config {
-  vars:
-    any::
-      "xml_file" slist => {
-        "status-plugin.xml"
-      };
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/status-config"
+        comment => "install MWI config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => sipstatus_config_contents(),
-        classes => if_repaired("restart_sipxpublisher"),
-	action => track("status-config");
+        classes => if_repaired("restart_sipxpublisher");
 
     any::
-      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+      "$(sipx.SIPX_CONFDIR)/status-plugin.xml"
+        comment => "install MWI plugin config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxpublisher"),
-	action => track("$(xml_file)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/status-plugin.xml"),
+        classes => if_repaired("restart_sipxpublisher");
 }
 
 bundle edit_line sipstatus_config_contents() {
@@ -52,8 +57,10 @@ bundle edit_line sipstatus_config_contents() {
 
 bundle agent sipxpublisher_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxpublisher");
+    !src.sipxpublisher::
+      "any" usebundle => rh_chkconfig_status("sipxpublisher on");
+    !src.!sipxpublisher::
+      "any" usebundle => rh_chkconfig_status("sipxpublisher off");
 }
 
 bundle agent sipxpublisher_running {
@@ -66,19 +73,19 @@ bundle agent sipxpublisher_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpublisher_running");
 
   commands:
-    sipxpublisher_running.!sipxpublisher::
+    (!sipxpublisher|stop_sipxecs).sipxpublisher_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
-        args => "stop",
-	action => track("sipxpublisher stop");
+        comment => "stop sipxpublisher",
+        args => "stop";
 
-    !sipxpublisher_running.sipxpublisher::
+    sipxpublisher.!sipxpublisher_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
-        args => "start",
-	action => track("sipxpublisher start");
+        comment => "start sipxpublisher",
+        args => "start";
 
-    restart_sipxpublisher::
+    sipxpublisher.sipxpublisher_running.(restart_sipxpublisher|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
-        args => "restart",
-	action => track("sipxpublisher restart");
+        comment => "restart sipxpublisher",
+        args => "restart";
 }
 

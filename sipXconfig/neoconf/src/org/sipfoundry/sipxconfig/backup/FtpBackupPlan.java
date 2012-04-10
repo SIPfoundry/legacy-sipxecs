@@ -26,15 +26,15 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.SipxUtil;
 import org.sipfoundry.sipxconfig.backup.BackupBean.Type;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.ftp.FtpConfiguration;
-import org.sipfoundry.sipxconfig.ftp.FtpContext;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServerConfig;
+import org.sipfoundry.sipxconfig.ftp.FtpExternalServer;
 
 public class FtpBackupPlan extends BackupPlan {
     public static final String TYPE = "F";
 
     private static final Log LOG = LogFactory.getLog(FtpBackupPlan.class);
 
-    private FtpConfiguration m_ftpConfiguration;
+    private FtpExternalServerConfig m_ftpConfiguration;
 
     @Override
     public File[] doPerform(String binPath) throws IOException, InterruptedException {
@@ -50,7 +50,7 @@ public class FtpBackupPlan extends BackupPlan {
 
     @Override
     protected void doPurge(int limitCount) {
-        FtpContext ftpContext = m_ftpConfiguration.getFtpContext();
+        FtpExternalServer ftpContext = m_ftpConfiguration.getFtpContext();
         try {
             ftpContext.openConnection();
             String[] directoriesValid = getValidDirectories(ftpContext);
@@ -76,7 +76,7 @@ public class FtpBackupPlan extends BackupPlan {
     }
 
     private void uploadBackupsFtp(File backupDir) {
-        FtpContext ftpContext = m_ftpConfiguration.getFtpContext();
+        FtpExternalServer ftpContext = m_ftpConfiguration.getFtpContext();
         try {
             ftpContext.openConnection();
             ftpContext.upload(backupDir.getAbsolutePath());
@@ -89,7 +89,7 @@ public class FtpBackupPlan extends BackupPlan {
      * Filter mechanism to avoid deleting other directories that are not created by sipXconfig
      * backup.
      */
-    public String[] getValidDirectories(FtpContext ftpContext) {
+    public String[] getValidDirectories(FtpExternalServer ftpContext) {
         String[] directories = ftpContext.listDirectories(".");
         List<String> listDirValid = new ArrayList<String>();
         for (String directory : directories) {
@@ -99,13 +99,14 @@ public class FtpBackupPlan extends BackupPlan {
                 continue;
             }
             String[] childrenFiles = ftpContext.listFiles(directory);
-            if (childrenFiles.length > 3) {
-                // more than 3 files - not interested
+            if (childrenFiles.length > 4) {
+                // more than 4 files - not interested
                 continue;
             }
             if (contains(childrenFiles, CONFIGURATION_ARCHIVE)
                 || contains(childrenFiles, VOICEMAIL_ARCHIVE)
-                || contains(childrenFiles, CDR_ARCHIVE)) {
+                || contains(childrenFiles, CDR_ARCHIVE)
+                || contains(childrenFiles, DEVICE_CONFIG)) {
                 listDirValid.add(directory);
             }
         }
@@ -116,7 +117,7 @@ public class FtpBackupPlan extends BackupPlan {
 
     @Override
     public List<Map<Type, BackupBean>> getBackups() {
-        FtpContext ftpContext = m_ftpConfiguration.getFtpContext();
+        FtpExternalServer ftpContext = m_ftpConfiguration.getFtpContext();
         try {
             ftpContext.openConnection();
             String[] directoryNames = getValidDirectories(ftpContext);
@@ -136,7 +137,8 @@ public class FtpBackupPlan extends BackupPlan {
                 for (String name : names) {
                     if (StringUtils.equals(name, BackupPlan.VOICEMAIL_ARCHIVE)
                         || StringUtils.equals(name, BackupPlan.CONFIGURATION_ARCHIVE)
-                        || StringUtils.equals(name, BackupPlan.CDR_ARCHIVE)) {
+                        || StringUtils.equals(name, BackupPlan.CDR_ARCHIVE)
+                        || StringUtils.equals(name, BackupPlan.DEVICE_CONFIG)) {
                         backupFiles.add(new File(backupFolder.getAbsolutePath(), name));
                     }
                 }
@@ -149,11 +151,11 @@ public class FtpBackupPlan extends BackupPlan {
         }
     }
 
-    public FtpConfiguration getFtpConfiguration() {
+    public FtpExternalServerConfig getFtpConfiguration() {
         return m_ftpConfiguration;
     }
 
-    public void setFtpConfiguration(FtpConfiguration ftpConfiguration) {
+    public void setFtpConfiguration(FtpExternalServerConfig ftpConfiguration) {
         m_ftpConfiguration = ftpConfiguration;
     }
 }

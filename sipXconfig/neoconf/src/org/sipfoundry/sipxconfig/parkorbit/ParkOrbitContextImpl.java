@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.parkorbit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
@@ -25,18 +27,26 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 
 public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements ParkOrbitContext, BeanFactoryAware,
-        FeatureProvider {
+        FeatureProvider, AddressProvider, ProcessProvider, FirewallProvider {
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
     private AliasManager m_aliasManager;
@@ -56,7 +66,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         // Check for duplicate names and extensions before saving the park orbit
         String name = parkOrbit.getName();
         String extension = parkOrbit.getExtension();
-        final String parkOrbitTypeName = "call park";
+        final String parkOrbitTypeName = "&label.callPark";
         if (!m_aliasManager.canObjectUseAlias(parkOrbit, name)) {
             throw new NameInUseException(parkOrbitTypeName, name);
         }
@@ -157,12 +167,14 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     }
 
     @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(SIP_TCP_PORT);
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(SIP_TCP_PORT, SIP_UDP_PORT));
+        rules.add(new DefaultFirewallRule(SIP_RTP_PORT, FirewallRule.SystemId.PUBLIC));
+        return rules;
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equalsAnyOf(SIP_TCP_PORT, SIP_UDP_PORT, SIP_RTP_PORT)) {
             return null;
         }
@@ -175,14 +187,15 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         ParkSettings settings = getSettings();
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
-            Address address = new Address(location.getAddress());
+            Address address = null;
             if (type.equals(SIP_TCP_PORT)) {
-                address.setPort(settings.getSipTcpPort());
+                address = new Address(SIP_TCP_PORT, location.getAddress(), settings.getSipTcpPort());
             } else if (type.equals(SIP_UDP_PORT)) {
-                address.setPort(settings.getSipUdpPort());
+                address = new Address(SIP_UDP_PORT, location.getAddress(), settings.getSipUdpPort());
             } else if (type.equals(SIP_RTP_PORT)) {
-                address.setPort(settings.getRtpPort());
+                address = new Address(SIP_RTP_PORT, location.getAddress(), settings.getRtpPort());
             }
+            addresses.add(address);
         }
         return addresses;
     }
@@ -199,5 +212,18 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
         return Collections.singleton(FEATURE);
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+        return (enabled ? Collections.singleton(new ProcessDefinition("sipxpark")) : null);
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isBasic()) {
+            b.addFeature(FEATURE);
+        }
     }
 }

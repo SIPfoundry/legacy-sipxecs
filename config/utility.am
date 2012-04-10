@@ -72,6 +72,7 @@ CommonVariablesNames = \
 	$(filter GEM%,$(.VARIABLES)) \
 	$(filter FREESWITCH%,$(.VARIABLES)) \
 	$(filter OPENFIRE%,$(.VARIABLES)) \
+	$(filter OPENACD%,$(.VARIABLES)) \
 	$(filter APACHE%,$(.VARIABLES)) \
 	$(filter PACKAGE%,$(.VARIABLES)) \
 	$(filter-out am__%,$(filter %dir,$(.VARIABLES)))

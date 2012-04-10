@@ -15,7 +15,7 @@ URL: http://www.igniterealtime.org/
 %define prefix /opt
 %define homedir %{prefix}/openfire
 
-Requires: java-devel
+Requires: java-devel >= 1.6
 Requires: shadow-utils
 Obsoletes: openfire
 

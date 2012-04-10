@@ -33,7 +33,7 @@
   <group name="openacd-config">
     <setting name="log_level">
       <type refid="loglevel" />
-      <value>critical</value>
+      <value>notice</value>
     </setting>
     <setting name="log_dir" advanced="yes">
       <type><string/></type>

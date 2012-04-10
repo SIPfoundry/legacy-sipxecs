@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.bridge;
 
@@ -18,14 +27,18 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 
-public class BridgeSbcContext implements FeatureProvider, AddressProvider {
+public class BridgeSbcContext implements FeatureProvider, AddressProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("sbcBridge");
-    public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc");
+    public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc", "https://%s:%d");
     private SbcDeviceManager m_sbcDeviceManager;
 
     @Override
@@ -38,42 +51,48 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider {
         return Collections.singleton(FEATURE);
     }
 
-    @Override
-    public Collection<AddressType> getSupportedAddressTypes(AddressManager manager) {
-        return Collections.singleton(XMLRPC_ADDRESS);
-    }
-
-    private Address newSbcAddress(BridgeSbc bridge, AddressType type) {
-        Address address = new Address();
-        address.setAddress(bridge.getAddress());
-        if (type.equals(XMLRPC_ADDRESS)) {
-            address.setPort(bridge.getXmlRpcPort());
-            address.setFormat("https://%s:%d");
+    public static Address newSbcAddress(BridgeSbc bridge, AddressType type) {
+        if (!type.equals(XMLRPC_ADDRESS)) {
+            return null;
         }
-        return address;
+        return new Address(XMLRPC_ADDRESS, bridge.getLocation().getFqdn(), bridge.getXmlRpcPort());
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Object requester) {
-        if (type == XMLRPC_ADDRESS) {
-            if (requester instanceof BridgeSbc) {
-                Collections.singleton(newSbcAddress((BridgeSbc) requester, type));
-            } else {
-                List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-                List<Address> addresses = new ArrayList<Address>(locations.size());
-                List<BridgeSbc> bridges = m_sbcDeviceManager.getBridgeSbcs();
-                for (BridgeSbc bridge : bridges) {
-                    Location location = bridge.getLocation();
-                    if (locations.contains(location)) {
-                        addresses.add(newSbcAddress(bridge, type));
-                    }
-                }
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
+        if (!type.equals(XMLRPC_ADDRESS)) {
+            return null;
+        }
+
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
+        if (locations == null || locations.size() == 0) {
+            return null;
+        }
+
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        List<BridgeSbc> bridges = m_sbcDeviceManager.getBridgeSbcs();
+        for (BridgeSbc bridge : bridges) {
+            Location location = bridge.getLocation();
+            if (locations.contains(location)) {
+                addresses.add(newSbcAddress(bridge, type));
             }
         }
-        return null;
+        return addresses;
     }
 
     public void setSbcDeviceManager(SbcDeviceManager mgr) {
         m_sbcDeviceManager = mgr;
+    }
+
+    @Override
+    public void getBundleFeatures(Bundle b) {
+        if (b.isRouter()) {
+            b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(XMLRPC_ADDRESS));
     }
 }

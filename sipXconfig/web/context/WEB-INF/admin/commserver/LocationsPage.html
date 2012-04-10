@@ -1,5 +1,5 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'locations','unmanaged','features'}" selectedTab="ognl:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'locations', 'roles'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
@@ -23,26 +23,21 @@
 	  </ul>
 	  <table jwcid="@common/Table" id="locations:list"
 	    source="ognl:locations"
-	    columns="* name, address, description:name, status, lastAttempt"
+	    columns="* name, id, address, description:name, status"
 	    row="ognl:currentRow"
 	    selections="bean:selections">
 	    <span jwcid="nameColumnValue@Block">
-	      <img jwcid="@Image" image="asset:serverIcon" align="absmiddle" />
 	      <span jwcid="editLocationLink@DirectLink"
 	          listener="listener:editLocation" parameters="ognl:currentRow.id">
 	        <span jwcid="@Insert" value="ognl:currentRow.fqdn"/>
 	      </span>
 	    </span>
+	    <span jwcid="idColumnValue@Block">
+	      <span jwcid="@Insert" value="ognl:currentRow.id"/>
+	    </span>
 	    <span jwcid="statusColumnValue@Block">
 			<span jwcid="@Insert" value="ognl:statusLabel" renderTag="false" raw="true"/>
-			<span jwcid="@If" condition="ognl:failedState " renderTag="false">
-			  [<a jwcid="@DirectLink" listener="listener:seeState" parameters="ognl:{currentRow}">
-			  <span key="link.seeState" /></a>]
-			</span>
-	    </span>
-	    <span jwcid="lastAttemptColumnValue@Block">
-	      <span jwcid="@Insert" value="ognl:lastAttempt"/>
-	    </span>
+	    </span>	    
 	  </table>
 	  <ul class="component-submit">
 	    <li>
@@ -62,7 +57,7 @@
 	  </ul>
 	</form>
   </div>
-  <div jwcid="unmanagedTab@Block">
+  <div jwcid="settingsTab@Block">
 	  <form jwcid="form@Form" delegate="bean:validator">
 	    <fieldset jwcid="@setting/SettingsFieldset"
 	        settings="ognl:unmanagedServiceSettings.settings" />
@@ -70,9 +65,8 @@
 	        listener="listener:applyUnmanagedServiceSettings"/>
 	  </form>
   </div>
-  <div jwcid="featuresTab@Block">
-    <form jwcid="@Form" delegate="bean:validator">
-      <span jwcid="@feature/ConfigureFeaturesPanel" callback="ognl:callback"/>
-    </form>
+  <div jwcid="rolesTab@Block">
+    <div jwcid="@admin/commserver/RolesPanel">
+    </div>  
   </div>
 </div>

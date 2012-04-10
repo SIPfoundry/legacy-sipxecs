@@ -1,8 +1,19 @@
 {application, sipxplugin,
 [{description, "OpenACD and sipXecs integration"},
 {vsn, "@VERSION@.@PACKAGE_REVISION@"},
-{modules, [sipxplugin_app, sipxplugin_poller, sipxplugin_supervisor]},
-{registered, [sipxplugin_poller, sipxplugin_supervisor]},
+{modules,[
+	sipxplugin_app,
+	sipxplugin_sup,
+	sipxplugin_poller,
+	spx_autoloader,
+	spx_freeswitchmedia_loader,
+	spx_integration,
+	spx_util]},
+{registered, [
+	sipxplugin_sup,
+	spx_autoloader
+%	integration
+	]},
 {applications, [kernel, stdlib, erlmongo]},
 {mod, {sipxplugin_app, []}},
 {start_phases, []}

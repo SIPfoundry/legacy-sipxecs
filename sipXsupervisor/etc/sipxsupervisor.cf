@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # This is sipxsupervisor the configuration and process management. Not to be 
@@ -23,16 +32,17 @@ bundle agent sipxsupervisor_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxsupervisor-allowed-addrs.ini"
+        comment => "add allowed addresses to sipxsupervisor",
         create => "true",
         perms => m("644"),
         edit_line => sipxsupervisor_allowed_addrs,
-	action => track("$(this.promiser)");
+        classes => if_repaired("restart_sipxsupervisor");
 
       "$(sipx.SIPX_CONFDIR)/sipxsupervisor-allowed-users.ini"
+        comment => "add allowed users to sipxsupervisor",
         create => "true",
         perms => m("644"),
-        edit_line => sipxsupervisor_allowed_users,
-	action => track("$(this.promiser)");
+        edit_line => sipxsupervisor_allowed_users;
 }
 
 bundle edit_line sipxsupervisor_allowed_addrs {
@@ -95,19 +105,21 @@ bundle agent sipxsupervisor_running {
       "any" usebundle => find_service_by_command("$(service_command)","sipxsupervisor_running","root");
 
   commands:
-    sipxsupervisor_running.!sipxsupervisor::
+    !sipxsupervisor.sipxsupervisor_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
-        args => "stop",
-	action => track("sipxsupervisor_stop");
+        comment => "stop sipxsupervisor",
+        args => "stop";
 
-    !sipxsupervisor_running.sipxsupervisor::
+    sipxsupervisor.!sipxsupervisor_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
-        args => "start",
-	action => track("sipxsupervisor_start");
+        comment => "start sipxsupervisor",
+        args => "start";
 
-    restart_sipxsupervisor::
-      "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
-        args => "restart",
-	action => track("sipxsupervisor_restart");
+    # NOTE: Restart in background because often supervisor is coordinating the restart command.
+    # Delay 60 seconds but not tested as being optimal value. -- Douglas
+    sipxsupervisor.sipxsupervisor_running.(restart_sipxecs|restart_sipxsupervisor)::
+      "$(sipx.SIPX_CFMODULES)/run-later"
+        comment => "restart sipxsupervisor in background",
+        args => "60 $(sipx.SIPX_SERVICEDIR)/sipxsupervisor restart";
 }
 

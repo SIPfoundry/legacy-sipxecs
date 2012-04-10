@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.forwarding;
 
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,17 +21,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 import org.springframework.dao.DataAccessException;
 
-public class ForwardingContextImplTestIntegration extends IntegrationTestCase {
+public class ForwardingContextImplTestIntegration extends ImdbTestCase {
     private ForwardingContext m_forwardingContext;
     private CoreContext m_coreContext;
     private final Integer m_testUserId = new Integer(1000);
@@ -118,6 +121,7 @@ public class ForwardingContextImplTestIntegration extends IntegrationTestCase {
         assertArrayEquals(expected, actual.toArray());
 
         assertEquals(35, callSequence.getCfwdTime());
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1000", MongoConstants.CFWDTIME, 35);
     }
 
     public void testMove() throws Exception {

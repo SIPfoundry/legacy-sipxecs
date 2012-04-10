@@ -194,8 +194,8 @@ public class UserTest extends TestCase {
         user.setSettingTypedValue("im/im-account", true);
         
         AddressManager am = EasyMock.createNiceMock(AddressManager.class);
-        am.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, user);
-        expectLastCall().andReturn(new Address("1111111", 22)).anyTimes();
+        am.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "1111111", 22)).anyTimes();
         replay(am);
         user.setAddressManager(am);
 
@@ -267,8 +267,8 @@ public class UserTest extends TestCase {
         user.setPermissionManager(pManager);
 
         AddressManager am = EasyMock.createNiceMock(AddressManager.class);
-        am.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, user);
-        expectLastCall().andReturn(new Address("1111111", 22)).anyTimes();
+        am.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "1111111", 22)).anyTimes();
         replay(am);
         user.setAddressManager(am);
 

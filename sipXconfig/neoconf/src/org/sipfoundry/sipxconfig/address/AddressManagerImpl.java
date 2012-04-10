@@ -1,18 +1,28 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.address;
-
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -20,22 +30,23 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
-    public static final AddressType NTP_ADDRESS = new AddressType("ntp");
+    public static final AddressType NTP_ADDRESS = new AddressType("ntp", 123);
     private List<AddressProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
     private FeatureManager m_featureManager;
+    private DnsManager m_dnsManager;
 
     public Address getSingleAddress(AddressType type) {
-        return getSingleAddress(type, null);
+        return getSingleAddress(type, (Location) null);
     }
 
-    public Address getSingleAddress(AddressType type, Object requester) {
-        // TODO: Consult DNS provider to return SRV addresses when appropriate to return
-        // a single address that is really a combination of addresses
+    public Address getSingleAddress(AddressType type, Location requester) {
         for (AddressProvider provider : getProviders()) {
             Collection<Address> addresses = provider.getAvailableAddresses(this, type, requester);
             if (addresses != null && addresses.size() > 0) {
-                return addresses.iterator().next();
+                // Consult DNS provider to return SRV addresses when appropriate to return
+                // a single address that is really a combination of addresses
+                return m_dnsManager.getSingleAddress(type, addresses, requester);
             }
         }
 
@@ -46,9 +57,7 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
         return getAddresses(type, null);
     }
 
-    public List<Address> getAddresses(AddressType type, Object requester) {
-        // TODO: Consult DNS provider to return SRV addresses when appropriate to return
-        // a single address that is really a combination of addresses
+    public List<Address> getAddresses(AddressType type, Location requester) {
         List<Address> addresses = new ArrayList<Address>();
         for (AddressProvider provider : getProviders()) {
             Collection<Address> some = provider.getAvailableAddresses(this, type, requester);
@@ -63,7 +72,7 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     List<AddressProvider> getProviders() {
         if (m_providers == null) {
             Map<String, AddressProvider> beanMap = m_beanFactory.getBeansOfType(
-                    AddressProvider.class, false, true);
+                    AddressProvider.class, false, false);
             m_providers = new ArrayList<AddressProvider>(beanMap.values());
         }
         return m_providers;
@@ -81,5 +90,40 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     @Required
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    public void setDnsManager(DnsManager dnsManager) {
+        m_dnsManager = dnsManager;
+    }
+
+//    @Override
+//    public List<AddressType> getAddressTypes() {
+//        List<AddressType> types = new ArrayList<AddressType>();
+//        for (AddressProvider provider : getProviders()) {
+//            Collection<AddressType> providerTypes = provider.getSupportedAddressTypes(this);
+//            if (providerTypes != null && providerTypes.size() > 0) {
+//                types.addAll(providerTypes);
+//            }
+//        }
+//
+//        return types;
+//    }
+
+    @Override
+    public Address getSingleAddress(AddressType type, AddressType backupType) {
+        Address address = getSingleAddress(type);
+        if (address == null) {
+            address = getSingleAddress(backupType);
+        }
+        return address;
+    }
+
+    @Override
+    public Address getSingleAddress(AddressType type, AddressType backupType, Location requester) {
+        Address address = getSingleAddress(type, requester);
+        if (address == null) {
+            address = getSingleAddress(backupType, requester);
+        }
+        return address;
     }
 }

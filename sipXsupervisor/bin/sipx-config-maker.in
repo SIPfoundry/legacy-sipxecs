@@ -1,0 +1,73 @@
+#!/usr/bin/ruby
+
+#
+# Generate an output file by reading a YAML data file and running 
+# thru a ruby ERB template file.
+#
+
+require 'optparse'
+require 'erb'
+require 'yaml'
+
+def config(yaml, template, out)
+  data = YAML::load_file(yaml)
+  out.puts config_generate(data, template)
+end
+
+def config_generate(data, template)
+  erb = ERB.new(File.read(template))
+  erb.filename = template
+  var = binding
+  # this is magic that allows in yaml file
+  #   who : world
+  # when run thru
+  #  hello <%= who %>
+  # be
+  #  hello world
+  data.each_key { |x|
+    eval "#{x} = data['#{x}']", var
+  }
+  return erb.result(var)
+end
+
+
+if __FILE__ == $0
+
+args = OptionParser.new { |opts|
+  opts.banner = "Usage : sipx-config-maker [options]"
+
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on("--help", "Print this help message.") {
+    puts opts
+    exit
+  }
+
+  opts.on("--example", "Print an example config file") {
+puts <<EOF
+TBD
+EOF
+  exit
+  }
+
+  opts.on("--template FILE", "ERB formated template.") {|f|
+    $template = f
+  }
+
+  opts.on("--in FILE", "YAML formated file for firewall config.") {|f|
+    $yaml = f
+  }
+
+  $out = STDOUT
+  opts.on("--out FILE", "Write to file, otherwise output is sent to stdout") {|f|
+    $out = File.open(f, 'w')
+  }
+}
+args.parse!
+  raise "Missing --template parameter to an ERB file" if $template.nil?
+  raise "Missing --in parameter to a YAML data file" if $template.nil?
+
+  config($yaml, $template, $out)
+end
+

@@ -1,6 +1,15 @@
-# Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # CFEngine server that allows agents to initiate an agent run remotely. This is the rules
@@ -40,19 +49,26 @@ body agent control {
 }
 
 bundle server access_rules {
+  vars:
+    "export_dirs" slist => {
+        "/usr/sbin/cf-agent",
+        "@SIPX_CFDATA@",
+        "@SIPX_LOGDIR@",
+        "@SIPX_VARDIR@/tmp",
+        "@SIPX_VARDIR@/backup",
+        "@SIPX_IVRDATADIR@/prompts",
+        "@SIPX_IVRDATADIR@/moh",
+        "@SIPX_VARDIR@/parkserver/music"
+     };
   access:
-    "/usr/sbin/cf-agent"
+    "$(export_dirs)"
         admit => { @(sipx.allowed_addrs) },
-	maproot => { @(sipx.allowed_addrs) };
-      
-    "@SIPX_CFINPUTS@"
-        admit => { @(sipx.allowed_addrs) },
-	maproot => { @(sipx.allowed_addrs) };
+        maproot => { @(sipx.allowed_addrs) };
 
     roles:
         ".*"
-	  # todo, remove root?
 	  authorize => { @(sipx.allowed_users) };
+
   reports:
     linux::
       "Allowing connections from $(sipx.allowed_addrs)";

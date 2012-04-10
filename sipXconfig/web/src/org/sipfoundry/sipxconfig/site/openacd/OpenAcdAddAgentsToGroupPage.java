@@ -203,9 +203,8 @@ public abstract class OpenAcdAddAgentsToGroupPage extends PageWithCallback imple
                 agent.setSkills(getDummyAgent().getSkills());
                 agent.setQueues(getDummyAgent().getQueues());
                 agent.setClients(getDummyAgent().getClients());
-                agents.add(agent);
+                getOpenAcdContext().saveAgent(agent);
             }
-            getOpenAcdContext().addAgentsToGroup(group, agents);
         } else {
             throw new UserException(getMessages().getMessage("error.requiredUser"));
         }

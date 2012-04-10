@@ -8,13 +8,19 @@ cfg_PKGS = \
 	org.springframework.beans \
 	org.springframework.core \
 	org.springframework.transaction \
-	xercesImpl
+	xercesImpl \
+	sipxconfig-neoconf \
+	sipxconfig-web \
+	tapestry-annotations \
+	tapestry-framework \
+	hivemind
 
 plugin_JAR_PKGS = \
 	com.noelios.restlet \
 	commons-beanutils \
 	commons-collections \
 	commons-digester \
+	commons-io \
 	dnsjava \
 	dom4j \
 	jain-sip-sdp \
@@ -22,9 +28,10 @@ plugin_JAR_PKGS = \
 	mongo \
 	org.restlet \
 	sipxcommons \
+	not-yet-commons-ssl \
 	ws-commons-util \
 	xmlrpc-client \
-	xmlrpc-server
+	xmlrpc-server		
 
 plugin_JAR_RT_PKGS = \
 	com.noelios.restlet \

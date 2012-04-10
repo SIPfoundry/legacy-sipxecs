@@ -57,6 +57,7 @@ public class ForwardingRulesTest extends XMLTestCase {
     private Location m_statusLocation;
     private SbcDeviceManager m_sbcDeviceManager;
     private AddressManager m_addressManager;
+    private Location m_location;
 
     @Override
     protected void setUp() throws Exception {
@@ -65,21 +66,23 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         DomainManager domainManager = TestHelper.getMockDomainManager();
         replay(domainManager);
+        
+        m_location = TestHelper.createDefaultLocation();
 
         m_addressManager = createMock(AddressManager.class);
-        m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS);
-        expectLastCall().andReturn(new Address("proxy.example.org", 9901)).once();
-        m_addressManager.getSingleAddress(Mwi.SIP_TCP);
-        expectLastCall().andReturn(new Address("mwi.example.org", 9902)).once();
-        m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS);
-        expectLastCall().andReturn(new Address("regevent.example.org", 9903)).once();
-        m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS);        
-        expectLastCall().andReturn(new Address("reg.example.org", 9904)).once();
+        m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS, m_location);
+        expectLastCall().andReturn(new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 9901)).once();
+        m_addressManager.getSingleAddress(Mwi.SIP_TCP, m_location);
+        expectLastCall().andReturn(new Address(Mwi.SIP_TCP, "mwi.example.org", 9902)).once();
+        m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS, m_location);
+        expectLastCall().andReturn(new Address(Registrar.EVENT_ADDRESS, "regevent.example.org", 9903)).once();
+        m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS, m_location);        
+        expectLastCall().andReturn(new Address(Registrar.TCP_ADDRESS, "reg.example.org", 9904)).once();
         replay(m_addressManager);
 
+        List<Location> locations = new ArrayList<Location>();
         m_statusLocation = new Location();
         m_statusLocation.setAddress("192.168.1.5");
-        List<Location> locations = new ArrayList<Location>();
         locations.add(m_statusLocation);
         m_sbcDeviceManager = createMock(SbcDeviceManager.class);
 
@@ -114,6 +117,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         replay(rule, sbcManager);
 
         ForwardingRules rules = generate(rule, sbcManager);
+        rules.setLocation(m_location);
         rules.setAddressManager(m_addressManager);
         String actual = toString(rules);
         InputStream referenceXmlStream = ForwardingRulesTest.class.getResourceAsStream("forwardingrules.test.xml");

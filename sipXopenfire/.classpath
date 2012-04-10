@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="vcard-provider/src"/>
 	<classpathentry kind="src" path="presence-plugin/test"/>
 	<classpathentry kind="src" path="presence-plugin/src"/>
+	<classpathentry kind="src" path="ws-plugin/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/activation.jar"/>
@@ -24,6 +25,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT"/>
-	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/openfire.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

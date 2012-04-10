@@ -10,18 +10,27 @@
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
     <property name="configAgent" ref="configAgent"/>
+    <property name="runAgent" ref="runAgent"/>
     <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
+    <property name="jobContext" ref="jobContext"/>    
+    <property name="cfDataDir" value="${sysdir.var}/cfdata"/>
+    <property name="uploadDir" value="${sysdir.var}/cfupload"/>
   </bean>
-  
   <alias alias="configManager" name="configManagerImpl"/>
-  
+  <alias alias="configCommands" name="configManagerImpl"/>  
+
   <bean id="configTrigger" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigTrigger">
     <property name="configManager" ref="configManager"/>
   </bean>
-    
-  <bean id="configAgent" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigAgent">
+  
+  <bean id="cfAgent" abstract="true">
     <property name="locationsManager" ref="locationsManager"/>
-    <property name="jobContext" ref="jobContext"/>
+    <property name="command" value="${sysdir.bin}/sipxagent"/>  
+    <property name="jobContext" ref="jobContext"/>    
   </bean>
-
+    
+  <bean id="configAgent" class="org.sipfoundry.sipxconfig.cfgmgt.ConfigAgent" parent="cfAgent"/>
+  
+  <bean id="runAgent" class="org.sipfoundry.sipxconfig.cfgmgt.RunBundleAgent" parent="cfAgent"/>
+  
 </beans>

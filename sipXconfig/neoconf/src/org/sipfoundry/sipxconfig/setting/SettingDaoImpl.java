@@ -82,8 +82,10 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
                 affectAdmin = true;
             }
         }
-        m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
-        getDaoEventPublisher().publishDeleteCollection(groups);
+        if (!sqlUpdates.isEmpty()) {
+            m_jdbcTemplate.batchUpdate(sqlUpdates.toArray(new String[sqlUpdates.size()]));
+            getDaoEventPublisher().publishDeleteCollection(groups);
+        }
         return affectAdmin;
     }
 

@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipxacccode configuration and process management
@@ -9,8 +18,8 @@ bundle agent sipxacccode {
   methods:
     sipxacccode::
       "any" usebundle => "sipxacccode_config";
-      "any" usebundle => "sipxacccode_setup";
     any::
+      "any" usebundle => "sipxacccode_setup";
       "any" usebundle => "sipxacccode_running";
 }
 
@@ -19,11 +28,11 @@ bundle agent sipxacccode_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxacccode.properties"
+        comment => "install auth codes config $(this.promiser)",
         create => "true",
         perms => m("644"),
-	edit_line => sipxacccode_properties_contents,
-        classes => if_repaired("restart_sipxacccode"),
-	action => track("$(this.promiser)");
+        edit_line => sipxacccode_properties_contents,
+        classes => if_repaired("restart_sipxacccode");
 
 }
 
@@ -46,7 +55,9 @@ bundle edit_line sipxacccode_properties_contents {
 bundle agent sipxacccode_setup {
   methods:
     !src.sipxacccode::
-      "any" usebundle => rh_chkconfig_status("sipxacccode");
+      "any" usebundle => rh_chkconfig_status("sipxacccode on");
+    !src.!sipxacccode::
+      "any" usebundle => rh_chkconfig_status("sipxacccode off");
 }
 
 bundle agent sipxacccode_running {
@@ -59,20 +70,20 @@ bundle agent sipxacccode_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxacccode_running");
 
   commands:
-    sipxacccode_running.!sipxacccode::
+    (!sipxacccode|stop_sipxecs).sipxacccode_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
-        args => "stop",
-	action => track("sipxacccode stop");
+        comment => "stop sipxacccode",
+        args => "stop";
 
-    !sipxacccode_running.sipxacccode::
+    sipxacccode.!sipxacccode_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
-        args => "start",
-	action => track("sipxacccode start");
+        comment => "start sipxacccode",
+        args => "start";
 
-    restart_sipxacccode::
+    sipxacccode.sipxacccode_running.(restart_sipxecs|restart_sipxacccode)::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
-        args => "restart",
-	action => track("sipxacccode restart");
+        comment => "restart sipxacccode",
+        args => "restart";
 }
 
 

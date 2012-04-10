@@ -9,15 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
-import static java.util.Collections.emptyList;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -27,28 +28,49 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.util.CollectionUtils;
 
 public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> implements AlarmServerManager,
-        DaoEventListener {
+        DaoEventListener, BeanFactoryAware {
     private static final Log LOG = LogFactory.getLog(AlarmServerManagerImpl.class);
-
     private static final String DEFAULT_HOST = "@localhost";
     private static final String PARAM_ALARM_GROUP_ID = "alarmGroupId";
     private static final String PARAM_ALARM_GROUP_NAME = "alarmGroupName";
     private static final String GROUP_NAME_DISABLED = "disabled";
     private static final String GROUP_NAME_DEFAULT = "default";
     private static final String MIB_FILE_NAME = "SIPXECS-ALARM-NOTIFICATION-MIB.mib";
-
+    private ListableBeanFactory m_beanFactory;
     private String m_sipxUser;
     private String m_logDirectory;
     private String m_configDirectory;
     private String m_alarmsStringsDirectory;
     private String m_mibsDirectory;
     private LocationsManager m_locationsManager;
+    private Set<AlarmProvider> m_providers;
+    private Map<String, AlarmDefinition> m_definitions;
+    private JdbcTemplate m_jdbcTemplate;
+
+    public Map<String, AlarmDefinition> getAlarmDefinitions() {
+        Map<String, AlarmDefinition> defs = new HashMap<String, AlarmDefinition>();
+        for (AlarmProvider p : getAlarmProviders()) {
+            Collection<AlarmDefinition> avail = p.getAvailableAlarms(this);
+            if (avail != null) {
+                for (AlarmDefinition d : avail) {
+                    defs.put(d.getId(), d);
+                }
+            }
+        }
+        return defs;
+    }
 
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
@@ -134,11 +156,6 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         updateDefaultAlarmGroup();
     }
 
-    public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms) {
-        saveAlarmCodes(alarms);
-        saveAlarmServer(server);
-    }
-
     public AlarmServer getAlarmServer() {
         List servers = getHibernateTemplate().loadAll(AlarmServer.class);
         AlarmServer server = (AlarmServer) DataAccessUtils.singleResult(servers);
@@ -167,18 +184,33 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         }
     }
 
-    private void saveAlarmServer(AlarmServer server) {
+    @Override
+    public void saveAlarmServer(AlarmServer server) {
         HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(server);
         template.flush();
     }
 
-    private void saveAlarmCodes(List<Alarm> alarmCodes) {
-        HibernateTemplate template = getHibernateTemplate();
-        Collection oldAlarms = template.loadAll(Alarm.class);
-        template.deleteAll(oldAlarms);
-        template.saveOrUpdateAll(new ArrayList(alarmCodes));
-        template.flush();
+    @Override
+    public void saveAlarms(final List<Alarm> alarms) {
+        m_jdbcTemplate.execute("delete from alarm_code");
+        BatchPreparedStatementSetter save = new BatchPreparedStatementSetter() {
+
+            @Override
+            public int getBatchSize() {
+                return alarms.size();
+            }
+
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                Alarm a = alarms.get(i);
+                ps.setString(1, a.getAlarmDefinition().getId());
+                ps.setString(2, a.getGroupName());
+                ps.setInt(3, a.getMinThreshold());
+            }
+        };
+        String sql = "insert into alarm_code (alarm_code_id, email_group, min_threshold) values (?, ?, ?)";
+        m_jdbcTemplate.batchUpdate(sql, save);
     }
 
     public String getHost() {
@@ -206,16 +238,32 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         return null;
     }
 
-    public List<Alarm> getAlarmTypes() {
-        try {
-            InputStream isAlarmsConfig = new FileInputStream(m_configDirectory + "/alarms/sipXalarms-config.xml");
-            InputStream isAlarmsString = new FileInputStream(m_alarmsStringsDirectory + "/sipXalarms-strings.xml");
-            AlarmTypesParser parser = new AlarmTypesParser(getHibernateTemplate());
-            return parser.getTypes(isAlarmsConfig, isAlarmsString);
-        } catch (FileNotFoundException e) {
-            LOG.error("Cannot find alarm definitions", e);
-            return emptyList();
+    public List<Alarm> getAlarms() {
+        final List<Alarm> alarms = new ArrayList<Alarm>();
+        final Map<String, AlarmDefinition> defs = new HashMap<String, AlarmDefinition>(getAlarmDefinitions());
+        RowCallbackHandler rows = new RowCallbackHandler() {
+
+            @Override
+            public void processRow(ResultSet rs) throws SQLException {
+                String id = rs.getString("alarm_code_id");
+                AlarmDefinition d = defs.get(id);
+                if (d == null) {
+                    return;
+                }
+                Alarm a = new Alarm(d);
+                defs.remove(id);
+                a.setGroupName(rs.getString("email_group"));
+                a.setMinThreshold(rs.getInt("min_threshold"));
+                alarms.add(a);
+            }
+        };
+
+        m_jdbcTemplate.query("select * from alarm_code", rows);
+        for (AlarmDefinition def : defs.values()) {
+            Alarm a = new Alarm(def);
+            alarms.add(a);
         }
+        return alarms;
     }
 
     @Override
@@ -301,5 +349,24 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
 
     @Override
     public void onSave(Object entity) {
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+
+    Set<AlarmProvider> getAlarmProviders() {
+        if (m_providers == null) {
+            Map<String, AlarmProvider> beanMap = m_beanFactory.getBeansOfType(
+                    AlarmProvider.class, false, false);
+            m_providers = new HashSet<AlarmProvider>(beanMap.values());
+        }
+
+        return m_providers;
+    }
+
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        m_jdbcTemplate = jdbcTemplate;
     }
 }

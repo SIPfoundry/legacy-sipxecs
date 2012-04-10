@@ -1,0 +1,87 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# sipxconfig tftp configuration thru xinetd
+#
+bundle agent tftp {
+  methods:
+    primary::
+      "any" usebundle => tftp_config;
+    primary::
+      "any" usebundle => tftp_running;
+}
+
+bundle agent tftp_config {
+  files:
+    "/etc/xinetd.d/tftp"
+      comment => "Allow TFTP connections in $(this.promiser)",
+      create => "false",
+      perms => m("644"),
+      edit_line => tftp_xinet_config,
+      classes => if_repaired("reload_xinetd");
+}
+
+bundle edit_line tftp_xinet_config {
+  vars:
+    "rootdir" string => "$(sipx.SIPX_VARDIR)/configserver/phone/profile/tftproot";
+    tftp::
+      "disable" string => "no";
+    !tftp::
+      "disable" string => "yes";
+
+# little tricky, by inserting config lines and trailing '}' this will ensure
+# config goes into surrounding bracket '{}'
+# extra space is just so it looks good when in final config
+  insert_lines:
+"        disable                 = $(disable)
+        server_args             = -s $(rootdir)
+}";
+
+  delete_lines:
+    "\s*disable\s*=.*";
+    "\s*server_args\s*=.*";
+    "\s*}.*";
+}
+
+# There is no shutdown of xinetd because we cannot be sure other services
+# are not also using it.
+bundle agent tftp_running {
+  vars:
+    any::
+      "service" string => "/etc/init.d/xinetd";
+      "service_command" string => "xinetd";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "xinetd_running", "root");
+    tftp::
+      "any" usebundle => rh_chkconfig_status("xinetd on");
+
+  commands:
+    tftp.!xinetd_running::
+      "$(service)"
+        comment => "start xinetd",
+        args => "start";
+
+    tftp.xinetd_running.reload_xinetd::
+      "$(service)"
+        comment => "reload xinetd",
+        args => "reload";
+
+    tftp.xinetd_running.restart_xinetd::
+      "$(service)"
+        comment => "restart xinetd",
+        args => "restart";
+}
+

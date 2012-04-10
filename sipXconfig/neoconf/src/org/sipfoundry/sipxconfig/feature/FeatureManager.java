@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.feature;
 
@@ -19,6 +28,8 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 public interface FeatureManager {
 
     public Set<GlobalFeature> getEnabledGlobalFeatures();
+
+    public Set<LocationFeature> getEnabledLocationFeatures();
 
     public Set<LocationFeature> getEnabledLocationFeatures(Location location);
 
@@ -44,4 +55,10 @@ public interface FeatureManager {
     public Set<LocationFeature> getAvailableLocationFeatures(Location location);
 
     public List<Location> getLocationsForEnabledFeature(LocationFeature feature);
+
+    public Bundle getBundle(String id);
+
+    public List<Bundle> getBundles();
+
+    public void enableBundleOnPrimary(Bundle b);
 }

@@ -16,6 +16,7 @@
   <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl" parent="abstractDaoImpl">
     <property name="aliasManager" ref="aliasManager" />
     <property name="featureManager" ref="featureManager" />
+    <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">
@@ -25,6 +26,7 @@
         </property>
       </bean>
     </property>
+    <property name="coreContext" ref="coreContext" />
   </bean>
   
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -39,13 +41,13 @@
   <bean id="openAcdReplicationProvider" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
       <property name="proxyInterfaces">
       <list>
-        <value>org.sipfoundry.sipxconfig.common.ReplicableProvider</value>
+        <value>org.sipfoundry.sipxconfig.openacd.OpenAcdReplicationProvider</value>
       </list>
     </property>
     <property name="target" ref="openAcdReplicationProviderImpl" />
   </bean>
 
-  <bean id="openAcdReplicationProviderImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdReplicationProvider">
+  <bean id="openAcdReplicationProviderImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdReplicationProviderImpl">
     <property name="openAcdContext" ref="openAcdContext" />
     <property name="featureManager" ref="featureManager" />
   </bean>
@@ -85,8 +87,9 @@
   </bean>
   
   <bean id="openAcdConfig" class="org.sipfoundry.sipxconfig.openacd.OpenAcdConfiguration">
-    <property name="velocityEngine" ref="velocityEngine" />
     <property name="openAcdContext" ref="openAcdContext" />
+    <property name="openAcdReplicationProvider" ref="openAcdReplicationProvider" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
   
   <bean id="openAcdSettings" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSettings" parent="settingsBean">

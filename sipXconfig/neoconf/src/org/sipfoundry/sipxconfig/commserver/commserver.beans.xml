@@ -8,6 +8,8 @@
   </bean>
 
   <bean id="locationsManagerImpl" class="org.sipfoundry.sipxconfig.commserver.LocationsManagerImpl" parent="abstractDaoImpl">
+    <property name="jdbcTemplate" ref="configJdbcTemplate"/>
+    <property name="auditLogContext" ref="auditLogContext" />
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -68,6 +70,9 @@
   <bean id="initialConfig" class="org.sipfoundry.sipxconfig.commserver.InitialConfig">
     <property name="tmpDirectory" value="${sysdir.tmp}"/>
     <property name="binDirectory" value="${sysdir.libexec}"/>
+  </bean>
+  
+  <bean id="locationsConfig" class="org.sipfoundry.sipxconfig.commserver.LocationsConfig">  
   </bean>
 
 </beans>

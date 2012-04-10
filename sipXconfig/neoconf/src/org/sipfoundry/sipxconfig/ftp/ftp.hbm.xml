@@ -5,7 +5,7 @@
   <!--
     - FTP Configuration
   -->
-  <class name="FtpConfiguration" table="ftp_configuration">
+  <class name="FtpExternalServerConfig" table="ftp_configuration">
     <id name="id" column="id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">ftp_configuration_seq</param>

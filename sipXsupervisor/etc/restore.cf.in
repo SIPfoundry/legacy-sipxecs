@@ -1,0 +1,30 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+bundle agent run_restore {
+  methods:
+    any::
+      "any" usebundle => "sipx_module";
+      "invoke_script" usebundle => invoke_restore_script("@SIPX_CFDATA@/$(sipx.location_id)/restore.ini");
+}
+
+bundle agent invoke_restore_script(ini) {
+  vars:
+    "restore_args" string => readfile("$(ini)", "1500");
+
+  commands:
+    any::
+      "@SIPX_BINDIR@/sipx-restore"
+        args => $(restore_args);
+}
+

@@ -1,6 +1,15 @@
-# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
-# Contributors retain copyright to elements licensed under a Contributor Agreement.
-# Licensed to the User under the AGPL license.
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 
 #
 # sipXrelay configuration and process management
@@ -9,8 +18,8 @@ bundle agent sipxrelay {
   methods:
     sipxrelay::
       "any" usebundle => "sipxrelay_config";
-      "any" usebundle => "sipxrelay_setup";
     any::
+      "any" usebundle => "sipxrelay_setup";
       "any" usebundle => "sipxrelay_running";
 }
 
@@ -18,17 +27,19 @@ bundle agent sipxrelay_config {
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/nattraversalrules.xml"
+        comment => "install NAT traversal rules $(this.promiser)",
         create => "true",
         perms => m("644"),
-	copy_from => copy_from_cfdata("$(sipx.location_id)/nattraversalrules.xml"),
-        classes => if_repaired("restart_sipxrelay"),
-	action => track("$(this.promiser)");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/nattraversalrules.xml"),
+        classes => if_repaired("restart_sipxrelay");
 }
 
 bundle agent sipxrelay_setup {
   methods:
-    !src::
-      "any" usebundle => rh_chkconfig_status("sipxrelay");
+    !src.sipxrelay::
+      "any" usebundle => rh_chkconfig_status("sipxrelay on");
+    !src.!sipxrelay::
+      "any" usebundle => rh_chkconfig_status("sipxrelay off");
 }
 
 bundle agent sipxrelay_running {
@@ -41,18 +52,18 @@ bundle agent sipxrelay_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxrelay_running");
 
   commands:
-    sipxrelay_running.!sipxrelay::
+    (!sipxrelay|stop_sipxecs).sipxrelay_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxrelay"
-        args => "stop",
-	action => track("sipxrelay_stop");
+        comment => "stop sipxrelay",
+        args => "stop";
 
-    !sipxrelay_running.sipxrelay::
+    sipxrelay.!sipxrelay_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxrelay"
-        args => "start",
-	action => track("sipxrelay_start");
+        comment => "start sipxrelay",
+        args => "start";
 
-    restart_sipxrelay::
+    sipxrelay.sipxrelay_running.(restart_sipxrelay|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxrelay"
-        args => "restart",
-	action => track("sipxrelay_restart");
+        comment => "restart sipxrelay",
+        args => "restart";
 }

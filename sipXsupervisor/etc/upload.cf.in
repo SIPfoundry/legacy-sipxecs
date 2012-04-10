@@ -1,0 +1,58 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Pull cfengine log files from each server
+#
+
+bundle agent upload {
+  methods:
+    any::
+      "any" usebundle => "sipx_module";
+      "any" usebundle => "upload_logs";
+}
+
+bundle agent upload_logs {
+  vars:
+    "fqdn" slist => readstringlist("@SIPX_CFDATA@/servers", "=(.*?)end", "\n", 100, 4000);
+    "dim_servers" int => readstringarray("server", "@SIPX_CFDATA@/servers", "#[^\n]*", "[\s=]", 100, 4000);
+
+  files:
+    "@SIPX_LOGDIR@/sipxagent/$(server[$(fqdn)][1])/."
+      handle => "upload_dir",
+      create => "true",
+      perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@");
+
+    "@SIPX_LOGDIR@/sipxagent/$(server[$(fqdn)][1])"
+      handle => "upload",
+      create => "true",
+      perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@"),
+      copy_from => master_files("$(server[$(fqdn)][2])", "@SIPX_LOGDIR@"),
+      file_select => sipxagent_logs,
+      depth_search => recurse("1");
+
+  reports:
+    linux::
+      "Uploading from $(server[$(fqdn)][0])";
+}
+
+body file_select sipxagent_logs {
+  leaf_name => {
+    "sipxagent-.*\.log"
+  };
+  file_types => { 
+    "plain",
+    "reg"
+  };
+  file_result => "leaf_name";
+}

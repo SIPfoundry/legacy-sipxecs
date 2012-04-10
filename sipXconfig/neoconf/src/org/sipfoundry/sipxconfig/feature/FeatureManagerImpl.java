@@ -1,14 +1,26 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.feature;
 
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +28,10 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -29,12 +43,16 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
  * NOTE: This implementation pays no attention to efficiency.  Should work in caching or optimize queries
  * accordingly if found to be inefficient during testing.
  */
-public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, FeatureManager {
+public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, FeatureManager,
+    DaoEventListener, BundleProvider {
     private ListableBeanFactory m_beanFactory;
     private Collection<FeatureProvider> m_providers;
+    private Collection<BundleProvider> m_bundleProviders;
     private Collection<FeatureListener> m_listeners;
     private JdbcTemplate m_jdbcTemplate;
     private DaoEventPublisher m_daoEventPublisher;
+    private LocationsManager m_locationsManager;
+    private List<Bundle> m_bundles;
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -44,11 +62,21 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     Collection<FeatureProvider> getFeatureProviders() {
         if (m_providers == null) {
             Map<String, FeatureProvider> beanMap = safeGetListableBeanFactory().getBeansOfType(
-                    FeatureProvider.class, false, true);
+                    FeatureProvider.class, false, false);
             m_providers = new ArrayList<FeatureProvider>(beanMap.values());
         }
 
         return m_providers;
+    }
+
+    Collection<BundleProvider> getBundleProviders() {
+        if (m_bundleProviders == null) {
+            Map<String, BundleProvider> beanMap = safeGetListableBeanFactory().getBeansOfType(
+                    BundleProvider.class, false, false);
+            m_bundleProviders = new ArrayList<BundleProvider>(beanMap.values());
+        }
+
+        return m_bundleProviders;
     }
 
     private ListableBeanFactory safeGetListableBeanFactory() {
@@ -61,7 +89,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     Collection<FeatureListener> getFeatureListeners() {
         if (m_listeners == null) {
             Map<String, FeatureListener> beanMap = safeGetListableBeanFactory().getBeansOfType(
-                    FeatureListener.class, false, true);
+                    FeatureListener.class, false, false);
             m_listeners = new ArrayList<FeatureListener>(beanMap.values());
         }
 
@@ -198,12 +226,21 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
         return features;
     }
 
+    public Set<LocationFeature> getEnabledLocationFeatures() {
+        List<String> queryForList = m_jdbcTemplate.queryForList("select feature_id from feature_local", String.class);
+        return locationFeatures(queryForList);
+    }
+
     @Override
     public Set<LocationFeature> getEnabledLocationFeatures(Location location) {
         List<String> queryForList = m_jdbcTemplate.queryForList(
                 "select feature_id from feature_local where location_id = ? ", String.class, location.getId());
-        Set<LocationFeature> features = new HashSet<LocationFeature>(queryForList.size());
-        for (String id : queryForList) {
+        return locationFeatures(queryForList);
+    }
+
+    Set<LocationFeature> locationFeatures(List<String> ids) {
+        Set<LocationFeature> features = new HashSet<LocationFeature>(ids.size());
+        for (String id : ids) {
             features.add(new LocationFeature(id));
         }
         return features;
@@ -286,5 +323,76 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Location) {
+            // When deleting a location, treat this as if someone disabled all features at this location.
+            Set<LocationFeature> none = Collections.emptySet();
+            enableLocationFeatures(none, (Location) entity);
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
+    }
+
+    @Override
+    public List<Bundle> getBundles() {
+        if (m_bundles == null) {
+            m_bundles = new ArrayList<Bundle>();
+            for (BundleProvider bp : getBundleProviders()) {
+                Collection<Bundle> sublist = bp.getBundles(this);
+                if (sublist != null) {
+                    for (Bundle b : sublist) {
+                        for (FeatureProvider fp : getFeatureProviders()) {
+                            fp.getBundleFeatures(b);
+                        }
+                        m_bundles.add(b);
+                    }
+                }
+            }
+        }
+
+        return m_bundles;
+    }
+
+    @Override
+    public Collection<Bundle> getBundles(FeatureManager manager) {
+        return Arrays.asList(Bundle.BASIC, Bundle.ROUTER, Bundle.UNIFIED_COMMUNICATIONS, Bundle.OTHER);
+    }
+
+    @Override
+    public void enableBundleOnPrimary(Bundle b) {
+        HashSet<GlobalFeature> global = new HashSet<GlobalFeature>();
+        HashSet<LocationFeature> local = new HashSet<LocationFeature>();
+        separateGlobalFromLocal(b.getFeatures(), global, local);
+        enableGlobalFeatures(global);
+        enableLocationFeatures(local, m_locationsManager.getPrimaryLocation());
+    }
+
+    void separateGlobalFromLocal(Collection<Feature> features, Set<GlobalFeature> global, Set<LocationFeature> local) {
+        for (Feature f : features) {
+            if (f instanceof GlobalFeature) {
+                global.add((GlobalFeature) f);
+            } else {
+                local.add((LocationFeature) f);
+            }
+        }
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
+    @Override
+    public Bundle getBundle(String id) {
+        for (Bundle b : getBundles()) {
+            if (b.getId().equals(id)) {
+                return b;
+            }
+        }
+        return null;
     }
 }

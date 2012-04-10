@@ -45,10 +45,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxopenacd
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxopenacd.cf
-%dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/openacd
-%dir %attr(755,sipx,sipx) %{_localstatedir}/log/sipxpbx/openacd
 %{plugindir}/sipxplugin.app
 %{plugindir}/sipxplugin/ebin/sipxplugin.app
-%{plugindir}/sipxplugin/ebin/sipxplugin_app.beam
-%{plugindir}/sipxplugin/ebin/sipxplugin_poller.beam
-%{plugindir}/sipxplugin/ebin/sipxplugin_supervisor.beam
+%{plugindir}/sipxplugin/ebin/*.beam
+%dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
+%{_localstatedir}/sipxdata/cfdata/defaults/sipxopenacd.cfdat

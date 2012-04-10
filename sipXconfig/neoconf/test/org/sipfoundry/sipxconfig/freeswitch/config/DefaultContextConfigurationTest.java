@@ -13,21 +13,27 @@ import static org.easymock.classextension.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class DefaultContextConfigurationTest {
@@ -98,6 +104,12 @@ public class DefaultContextConfigurationTest {
         Location location = TestHelper.createDefaultLocation();
         Bridge bridge = new Bridge();
         List<FreeswitchExtension> extensions = Collections.emptyList();
+        IMocksControl mc = EasyMock.createControl();
+        FeatureManager mgr = mc.createMock(FeatureManager.class);
+        mgr.getLocationsForEnabledFeature(Ivr.FEATURE);
+        mc.andReturn(null);
+        mc.replay();
+        m_configuration.setFeatureManager(mgr);
         m_configuration.write(actual, location, bridge, false, extensions);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-no-conferences.test.xml"));
         assertEquals(expected, actual.toString());
@@ -108,6 +120,12 @@ public class DefaultContextConfigurationTest {
         StringWriter actual = new StringWriter();
         Location location = TestHelper.createDefaultLocation();
         Bridge bridge = new Bridge();
+        IMocksControl mc = EasyMock.createControl();
+        FeatureManager mgr = mc.createMock(FeatureManager.class);
+        mgr.getLocationsForEnabledFeature(Ivr.FEATURE);
+        mc.andReturn(null);
+        mc.replay();
+        m_configuration.setFeatureManager(mgr);
         List<FreeswitchExtension> extensions = getExtensions();
         m_configuration.write(actual, location, bridge, false, extensions);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context_freeswitch_extensions.test.xml"));
@@ -118,6 +136,12 @@ public class DefaultContextConfigurationTest {
     public void testConferenceConfig() throws Exception {
         StringWriter actual = new StringWriter();
         Location location = TestHelper.createDefaultLocation();
+        IMocksControl mc = EasyMock.createControl();
+        FeatureManager mgr = mc.createMock(FeatureManager.class);
+        mgr.getLocationsForEnabledFeature(Ivr.FEATURE);
+        mc.andReturn(null);
+        mc.replay();
+        m_configuration.setFeatureManager(mgr);
         Bridge bridge = createBridge();
         List<FreeswitchExtension> extensions = Collections.emptyList();
         m_configuration.write(actual, location, bridge, false, extensions);
@@ -129,10 +153,42 @@ public class DefaultContextConfigurationTest {
     public void testAuthCodesConfig() throws Exception {
         StringWriter actual = new StringWriter();
         Location location = TestHelper.createDefaultLocation();
+        IMocksControl mc = EasyMock.createControl();
+        FeatureManager mgr = mc.createMock(FeatureManager.class);
+        mgr.getLocationsForEnabledFeature(Ivr.FEATURE);
+        mc.andReturn(null);
+        mc.replay();
+        m_configuration.setFeatureManager(mgr);
         Bridge bridge = new Bridge();
         List<FreeswitchExtension> extensions = Collections.emptyList();
         m_configuration.write(actual, location, bridge, true, extensions);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-authcodes.test.xml"));
+        assertEquals(expected, actual.toString());
+    }
+
+    @Test
+    public void testVMsConfig() throws Exception {
+        StringWriter actual = new StringWriter();
+        List<Location> locations = new LinkedList<Location>();
+        Location manila = TestHelper.createDefaultLocation();
+        manila.setAddress("10.1.1.0");
+        locations.add(manila);
+        Location boston = new Location("boston.test.org");
+        boston.setAddress("10.1.1.1");
+        locations.add(boston);
+        Location bucharest = new Location("buc.test.org");
+        bucharest.setAddress("10.1.1.2");
+        locations.add(bucharest);
+        IMocksControl mc = EasyMock.createControl();
+        FeatureManager mgr = mc.createMock(FeatureManager.class);
+        mgr.getLocationsForEnabledFeature(Ivr.FEATURE);
+        mc.andReturn(locations);
+        mc.replay();
+        m_configuration.setFeatureManager(mgr);
+        Bridge bridge = new Bridge();
+        List<FreeswitchExtension> extensions = Collections.emptyList();
+        m_configuration.write(actual, manila, bridge, false, extensions);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-vms.test.xml"));
         assertEquals(expected, actual.toString());
     }
 }

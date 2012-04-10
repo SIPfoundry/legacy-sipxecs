@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
@@ -175,19 +174,19 @@ public class MappingRules extends RulesXmlFile {
             rulesString = rulesString.replace(MY_HOSTNAME, location.getHostname());
 
             // Not sure why these addresses cannot use dialplan interfaces
-            Address rls = m_addressManager.getSingleAddress(Rls.TCP_SIP, DialPlanContext.FEATURE);
+            Address rls = m_addressManager.getSingleAddress(Rls.TCP_SIP, location);
             if (rls != null) {
-                rulesString = rulesString.replace(RLS_SIP_SRV_OR_HOSTPORT, rls.toString());
+                rulesString = rulesString.replace(RLS_SIP_SRV_OR_HOSTPORT, rls.addressColonPort());
             }
 
-            Address park = m_addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, DialPlanContext.FEATURE);
+            Address park = m_addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, location);
             if (park != null) {
-                rulesString = rulesString.replace(ORBIT_SERVER_SIP_SRV_OR_HOSTPORT, park.toString());
+                rulesString = rulesString.replace(ORBIT_SERVER_SIP_SRV_OR_HOSTPORT, park.addressColonPort());
             }
 
-            Address page = m_addressManager.getSingleAddress(PagingContext.SIP_TCP, DialPlanContext.FEATURE);
+            Address page = m_addressManager.getSingleAddress(PagingContext.SIP_TCP, location);
             if (page != null) {
-                rulesString = rulesString.replace("${PAGE_SERVER_ADDR}", page.getAddress());
+                rulesString = rulesString.replace("${PAGE_SERVER_ADDR}", page.addressColonPort());
                 rulesString = rulesString.replace("${PAGE_SERVER_SIP_PORT}", String.valueOf(page.getPort()));
             }
 
@@ -199,6 +198,10 @@ public class MappingRules extends RulesXmlFile {
         } catch (DocumentException de) {
             throw new RuntimeException(de);
         }
+    }
+
+    private String addressPort(Address a) {
+        return a.getAddress() + ':' + a.getPort();
     }
 
     public AddressManager getAddressManager() {

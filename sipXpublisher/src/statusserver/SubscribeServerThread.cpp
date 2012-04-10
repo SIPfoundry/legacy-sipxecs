@@ -190,7 +190,7 @@ UtlBoolean SubscribeServerThread::insertRow(
    const UtlString& recordRoute,
    const int& notifyCseq)
 {
-   UtlBoolean status = false;
+   UtlBoolean status = true;
    {
       // Critical Section here
       OsLock mutex(mLock);

@@ -3,8 +3,8 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="faxrx" class="org.sipfoundry.faxrx.FaxRx" scope="eslRequest">
-    <property name="sendImUrl" value="${ivr.sendIMUrl}" />
     <property name="validUsers" ref="validUsers" />
+    <property name="faxProcessor" ref="faxProcessor" />
     <property name="eslRequestController" ref="faxEslRequestController" />
   </bean>
 
@@ -12,6 +12,11 @@
     <property name="sipxchangeDomainName" value="${ivr.sipxchangeDomainName}" />
     <property name="fsConfig" ref="fsConfig" />
     <property name="fsEventSocket" ref="fsEventSocket" />
+  </bean>
+
+  <bean id="faxProcessor" class="org.sipfoundry.faxrx.FaxProcessor" init-method="init">
+    <property name="sendImUrl" value="${ivr.sendIMUrl}" />
+    <property name="faxFormat" value="${fax.format}" />
   </bean>
 
 </beans>

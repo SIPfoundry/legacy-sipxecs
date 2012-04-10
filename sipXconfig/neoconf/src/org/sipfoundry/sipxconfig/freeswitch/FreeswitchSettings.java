@@ -1,9 +1,18 @@
-/*
- * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.freeswitch;
 
@@ -17,19 +26,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class FreeswitchSettings extends SettingsWithLocation {
     private static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     private static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
-    private static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
     private static final String FREESWITCH_CODECS = "freeswitch-config/FREESWITCH_CODECS";
-
-    public static enum SystemMohSetting {
-        FILES_SRC, SOUNDCARD_SRC, NONE;
-        public static SystemMohSetting parseSetting(String mohSetting) {
-            try {
-                return valueOf(mohSetting);
-            } catch (IllegalArgumentException e) {
-                return FILES_SRC;
-            }
-        }
-    }
 
     public int getEventSocketPort() {
         return 8084; // not configurable at this time, no particular reason. --Douglas
@@ -45,10 +42,6 @@ public class FreeswitchSettings extends SettingsWithLocation {
 
     public int getFreeswitchSipPort() {
         return (Integer) getSettingTypedValue(FREESWITCH_SIP_PORT);
-    }
-
-    public String getMusicOnHoldSource() {
-        return (String) getSettingValue(FREESWITCH_MOH_SOURCE);
     }
 
     public class Defaults {

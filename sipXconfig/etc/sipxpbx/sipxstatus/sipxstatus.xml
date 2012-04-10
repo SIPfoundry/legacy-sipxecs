@@ -51,7 +51,7 @@
       <type refid="nonRootPort"/>
       <value>8101</value>
     </setting>
-    <setting name="SIP_STATUS_LOG_LEVEL" hidden="yes">
+    <setting name="SIP_STATUS_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

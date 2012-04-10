@@ -11,7 +11,8 @@ EXTRA_REPLACE = \
 	YUM_EXISTS \
 	MRTG_ENABLED \
 	IS_TEST_MODE \
-	POSTGRESQL_USER
+	POSTGRESQL_USER \
+	OPENACD_HOME
 
 neoconf_JAVAROOT = $(abspath $(top_builddir)/neoconf/src/classes)
 neoconf_JAR = $(abspath $(top_builddir)/neoconf/src/sipxconfig-neoconf.jar)
@@ -22,6 +23,8 @@ neoconf_PKGS = \
 	antlr \
 	aopalliance \
 	axis \
+    bcpkix-jdk15on \
+	bcprov-jdk15on \
 	cglib \
 	com.noelios.restlet \
 	com.noelios.restlet.ext.servlet \
@@ -73,6 +76,7 @@ neoconf_PKGS = \
 	saxpath \
 	serializer \
 	sipxcommons \
+	snmp4j \
 	spring-data-commons-core \
 	spring-data-mongodb \
 	spring-ldap \
@@ -98,7 +102,6 @@ web_PKGS = \
 	hivemind-lib \
 	jasper-compiler \
 	javassist \
-	jce \
 	jdom \
 	jetty \
 	jta \

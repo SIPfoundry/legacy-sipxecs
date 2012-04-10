@@ -20,12 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
@@ -38,6 +40,8 @@ import com.mongodb.DBObject;
 
 public class MailstoreTestIntegration extends ImdbTestCase {
     private MailboxManager m_mailboxManager;
+    private AddressManager m_addressManager;
+    private ProxyManager m_proxyManager;
     private User m_user;
 
     @Override
@@ -46,6 +50,8 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         m_user.setUserName("200");
         m_user.setDomainManager(getDomainManager());
         m_user.setPermissionManager(getPermissionManager());
+        m_user.setAddressManager(m_addressManager);
+        m_user.setProxyManager(m_proxyManager);
     }
 
     public void testGenerate() throws Exception {
@@ -139,5 +145,13 @@ public class MailstoreTestIntegration extends ImdbTestCase {
 
     public void setMailboxManager(MailboxManager localMailboxManager) {
         m_mailboxManager = localMailboxManager;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public void setProxyManager(ProxyManager proxyManager) {
+        m_proxyManager = proxyManager;
     }
 }

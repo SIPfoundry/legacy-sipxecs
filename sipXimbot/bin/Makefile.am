@@ -1,13 +1,13 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/common.am
 
-EXTRA_DIST = \
-    $(bin_SCRIPTS:=.in)
+EXTRA_DIST = $(initd_SCRIPTS:=.in)
 
-bin_SCRIPTS = \
-    sipximbot.sh
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+	sipximbot
 
-$(bin_SCRIPTS) : % : %.in Makefile
+$(initd_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,imbot_PKGS)
 
-CLEANFILES = $(bin_SCRIPTS)
+CLEANFILES = $(initd_SCRIPTS)

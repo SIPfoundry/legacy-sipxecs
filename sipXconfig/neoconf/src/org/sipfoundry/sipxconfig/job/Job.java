@@ -23,18 +23,12 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
  */
 public class Job extends BeanWithId implements Serializable {
     private static final Log LOG = LogFactory.getLog(Job.class);
-
     private Date m_start;
-
     private Date m_stop;
-
     private JobStatus m_status = JobStatus.SCHEDULED;
-
     private final String m_name;
     private Location m_location;
-
     private String m_errorMsg = StringUtils.EMPTY;
-
     private Throwable m_exception;
 
     public Job(String name) {
@@ -103,7 +97,6 @@ public class Job extends BeanWithId implements Serializable {
     }
 
     public String getErrorMsg() {
-
         if (!m_status.equals(JobStatus.FAILED) && !m_status.equals(JobStatus.WARNING)) {
             return org.apache.commons.lang.StringUtils.EMPTY;
         }

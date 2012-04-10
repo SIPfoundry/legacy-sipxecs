@@ -18,7 +18,7 @@
 -export([start/2, stop/1]).
 
 start(_Type, _Args) ->
-	sipxplugin_supervisor:start_link().
+	sipxplugin_sup:start_link().
 
 
 stop(_State) ->

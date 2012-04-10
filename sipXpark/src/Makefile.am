@@ -14,6 +14,8 @@ sipxpark_LDADD = \
 	@SIPXCALL_LIBS@ \
 	@SIPXMEDIAADAPTER_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@ \
+        -lmongoclient \
+        -lboost_system-mt \
 	@GIPS_NEQ_OBJS@
 
 sipxpark_CXXFLAGS = \

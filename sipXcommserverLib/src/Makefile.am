@@ -2,7 +2,6 @@ SUBDIRS = \
 	sipdb \
 	. \
 	xsdvalid \
-	sipxrestorebinary \
 	sipxpackage \
 	sipxswadmin \
 	sipxzoneadmin \
