@@ -29,6 +29,7 @@
      <packagereq type="mandatory">sipxsnmp</packagereq>
      <packagereq type="mandatory">sipxrecording</packagereq>
      <packagereq type="mandatory">sipxcdr</packagereq>
+     <packagereq type="mandatory">sipxprovision</packagereq>
    </packagelist>
   </group>
   <group>
