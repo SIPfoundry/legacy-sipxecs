@@ -46,4 +46,8 @@ public class SetupMain implements SystemTaskEntryPoint {
     public void setSetupManager(SetupManager setupManager) {
         m_setupManager = setupManager;
     }
+
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
+    }
 }

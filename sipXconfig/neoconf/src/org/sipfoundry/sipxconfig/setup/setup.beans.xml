@@ -10,13 +10,13 @@
   <bean id="setupManagerImpl" class="org.sipfoundry.sipxconfig.setup.SetupManagerImpl">
     <property name="featureManager" ref="featureManager"/>
     <property name="configManager" ref="configManager"/>
-    <property name="jobContext" ref="jobContext"/>
     <property name="jdbcTemplate" ref="configJdbcTemplate"/>
   </bean>  
   
   <bean id="setup" class="org.sipfoundry.sipxconfig.setup.SetupMain">
     <property name="configManager" ref="configManager"/>
     <property name="setupManager" ref="setupManager"/>
+    <property name="jobContext" ref="jobContext"/>
   </bean>
   
 </beans>
