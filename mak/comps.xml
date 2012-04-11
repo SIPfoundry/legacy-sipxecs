@@ -30,6 +30,29 @@
      <packagereq type="mandatory">sipxrecording</packagereq>
      <packagereq type="mandatory">sipxcdr</packagereq>
      <packagereq type="mandatory">sipxprovision</packagereq>
+     <packagereq type="mandatory">sipxrest</packagereq>
+     <packagereq type="mandatory">sipxevent</packagereq>
+     <packagereq type="mandatory">sipxcdrlog</packagereq>
+     <packagereq type="mandatory">sipxevent</packagereq>
+     <packagereq type="mandatory">sipxacccode</packagereq>
+     <packagereq type="mandatory">sipxaastra</packagereq>
+     <packagereq type="mandatory">sipxacccode</packagereq>
+     <packagereq type="mandatory">sipxaudiocodes</packagereq>
+     <packagereq type="mandatory">sipxcallcontroller</packagereq>
+     <packagereq type="mandatory">sipxcdrlog</packagereq>
+     <packagereq type="mandatory">sipxcisco</packagereq>
+     <packagereq type="mandatory">sipxclearone</packagereq>
+     <packagereq type="mandatory">sipxevent</packagereq>
+     <packagereq type="mandatory">sipxgrandstream</packagereq>
+     <packagereq type="mandatory">sipxgtek</packagereq>
+     <packagereq type="mandatory">sipxhitachi</packagereq>
+     <packagereq type="mandatory">sipxipdialog</packagereq>
+     <packagereq type="mandatory">sipxisphone</packagereq>
+     <packagereq type="mandatory">sipxlg-nortel</packagereq>
+     <packagereq type="mandatory">sipxmitel</packagereq>
+     <packagereq type="mandatory">sipxnortel</packagereq>
+     <packagereq type="mandatory">sipxsnom</packagereq>
+     <packagereq type="mandatory">sipxunidata</packagereq>
    </packagelist>
   </group>
   <group>
