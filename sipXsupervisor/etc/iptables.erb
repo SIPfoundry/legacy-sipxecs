@@ -9,10 +9,17 @@
 %>-N <%= chain[:name] %>
 <%
     chain[:ipv4s].each { |ipv4|
-%>-A <%= chain[:name] %> -s <%= ipv4 %> -j ACCEPT 
+%>-A <%= chain[:name] %> -s <%= ipv4 %> -j ACCEPT
 <%
     }
-%>-A <%= chain[:name] %> -j DROP 
+%>-A <%= chain[:name] %> -j DROP
+<%
+  }
+%>
+
+<%
+  cluster.each { |ipv4|
+%>-A INPUT -i $(sipx.iface) -s <%= ipv4 %> -j ACCEPT
 <%
   }
 %>

@@ -89,16 +89,14 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         Location thisLocation) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
-        c.startArray("chains");
         Collection<?> ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
-        String nameId = ":name";
-        String ipv4sId = ":ipv4s";
-        c.write(nameId, FirewallRule.SystemId.CLUSTER.toString());
-        c.writeInlineArray(ipv4sId, ips);
+        c.writeInlineArray("cluster", ips);
+
+        c.startArray("chains");
         for (ServerGroup group : groups) {
             c.nextElement();
-            c.write(nameId, group.getName());
-            c.write(ipv4sId, group.getServerList().replaceAll("\\s", ", "));
+            c.write(":name", group.getName());
+            c.write(":ipv4s", group.getServerList().replaceAll("\\s", ", "));
         }
         c.endArray();
 
@@ -113,23 +111,29 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
                     int port = address.getCanonicalPort();
                     if (port == 0) {
                         LOG.error("Cannot open up port zero for service id " + id);
-                    } else {
-                        c.write(":port", port);
-                        c.write(":protocol", atype.getProtocol());
-                        c.write(":service", id);
-                        c.write(":priority", rule.isPriority());
-                        ServerGroup group = rule.getServerGroup();
-                        String chain;
-                        if (group != null) {
-                            chain = group.getName();
-                        } else if (rule.getSystemId() == FirewallRule.SystemId.PUBLIC) {
-                            chain = "ACCEPT";
-                        } else {
-                            chain = rule.getSystemId().name();
-                        }
-                        c.write(":chain", chain);
-                        c.nextElement();
+                        continue;
                     }
+
+                    // blindly allowed
+                    if (FirewallRule.SystemId.CLUSTER == rule.getSystemId()) {
+                        continue;
+                    }
+
+                    c.write(":port", port);
+                    c.write(":protocol", atype.getProtocol());
+                    c.write(":service", id);
+                    c.write(":priority", rule.isPriority());
+                    ServerGroup group = rule.getServerGroup();
+                    String chain;
+                    if (group != null) {
+                        chain = group.getName();
+                    } else if (rule.getSystemId() == FirewallRule.SystemId.PUBLIC) {
+                        chain = "ACCEPT";
+                    } else {
+                        chain = rule.getSystemId().name();
+                    }
+                    c.write(":chain", chain);
+                    c.nextElement();
                 }
             }
         }

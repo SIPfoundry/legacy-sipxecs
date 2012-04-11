@@ -60,6 +60,7 @@ public class FirewallConfigTest {
         List<FirewallRule> rules = new ArrayList<FirewallRule>();
         AddressType t1 = new AddressType("t1");
         AddressType t2 = new AddressType("t2");
+        AddressType t3 = new AddressType("t3");
         rules.add(new DefaultFirewallRule(t1, FirewallRule.SystemId.CLUSTER));
         rules.add(new DefaultFirewallRule(t2, FirewallRule.SystemId.PUBLIC));
         Location l1 = new Location("one", "1.1.1.1");
@@ -70,14 +71,22 @@ public class FirewallConfigTest {
         ServerGroup g2 = new ServerGroup("ClassB", "192.168.0.0/16");
         List<ServerGroup> groups = Arrays.asList(g1, g2);
 
+        DefaultFirewallRule r3 = new DefaultFirewallRule(t3, FirewallRule.SystemId.PUBLIC);
+        EditableFirewallRule editable = new EditableFirewallRule(r3);
+        editable.setServerGroup(g1);
+        rules.add(editable);
+
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getAddresses(t1, l1);
         Address a1 = new Address(t1, l1.getAddress(), 100);
         Address a2 = new Address(t1, l1.getAddress(), 200);
         Address a3 = new Address(t2, l1.getAddress(), 300);
+        Address a4 = new Address(t2, l1.getAddress(), 400);
         expectLastCall().andReturn(Arrays.asList(a1, a2)).once();
         addressManager.getAddresses(t2, l1);
         expectLastCall().andReturn(Arrays.asList(a3)).once();
+        addressManager.getAddresses(t3, l1);
+        expectLastCall().andReturn(Arrays.asList(a4)).once();
         replay(addressManager);
         m_config.setAddressManager(addressManager);
         
