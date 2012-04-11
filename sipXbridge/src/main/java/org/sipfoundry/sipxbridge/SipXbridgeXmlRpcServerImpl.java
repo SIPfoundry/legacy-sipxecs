@@ -9,24 +9,19 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.net.ssl.SSLServerSocket;
 import javax.servlet.ServletException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpListener;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
-import org.mortbay.http.SslListener;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
-import org.mortbay.util.ThreadedServer;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcServer;
 
 public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
@@ -57,69 +52,12 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 						.getXmlRpcPort());
 				inetAddrPort.setInetAddress(InetAddress.getByName(Gateway
 						.getLocalAddress()));
-				if (Gateway.getBridgeConfiguration().isSecure()) {
-					SslListener sslListener = new SslListener(inetAddrPort);
-					inetAddrPort.setInetAddress(InetAddress.getByName(Gateway
-							.getLocalAddress()));
-
-					String keystore = System.getProperties().getProperty(
-							"javax.net.ssl.keyStore");
-					if ( logger.isDebugEnabled() ) logger.debug("keystore = " + keystore);
-					sslListener.setKeystore(keystore);
-					String algorithm = System.getProperties().getProperty(
-							"jetty.x509.algorithm");
-					if ( logger.isDebugEnabled() ) logger.debug("algorithm = " + algorithm);
-					sslListener.setAlgorithm(algorithm);
-					String password = System.getProperties().getProperty(
-							"jetty.ssl.password");
-					sslListener.setPassword(password);
-
-					String keypassword = System.getProperties().getProperty(
-							"jetty.ssl.keypassword");
-
-					sslListener.setKeyPassword(keypassword);
-					sslListener.setMaxThreads(32);
-					sslListener.setMinThreads(4);
-					sslListener.setLingerTimeSecs(30000);
-
-					((ThreadedServer) sslListener).open();
-
-					String[] cypherSuites = ((SSLServerSocket) sslListener
-							.getServerSocket()).getSupportedCipherSuites();
-
-					//for (String suite : cypherSuites) {
-					//	logger.info("Cypher Suites enabled : " + suite);
-					//}
-
-					((SSLServerSocket) sslListener.getServerSocket())
-							.setEnabledCipherSuites(cypherSuites);
-
-					String[] protocols = ((SSLServerSocket) sslListener
-							.getServerSocket()).getSupportedProtocols();
-
-					for (String protocol : protocols) {
-						logger.info("Supported protocol = " + protocol);
-					}
-
-					((SSLServerSocket) sslListener.getServerSocket())
-							.setEnabledProtocols(protocols);
-
-					webServer.setListeners(new HttpListener[] { sslListener });
-
-					for (HttpListener listener : webServer.getListeners()) {
-						if ( logger.isDebugEnabled() ) logger.debug("Listener = " + listener);
-
-						listener.start();
-					}
-
-				} else {
-					SocketListener socketListener = new SocketListener(
-							inetAddrPort);
-					socketListener.setMaxThreads(32);
-					socketListener.setMinThreads(4);
-					socketListener.setLingerTimeSecs(30000);
-					webServer.addListener(socketListener);
-				}
+				SocketListener socketListener = new SocketListener(
+						inetAddrPort);
+				socketListener.setMaxThreads(32);
+				socketListener.setMinThreads(4);
+				socketListener.setLingerTimeSecs(30000);
+				webServer.addListener(socketListener);
 
 				HttpContext httpContext = new HttpContext();
 
@@ -171,7 +109,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 				            itspAccount.getRegistrationRecord().getRegistrationStatus());
 				}
 			}
-			
+
 		} catch (Throwable ex) {
 		    throw new ServletException(formatStackTrace(ex), ex);
 		}

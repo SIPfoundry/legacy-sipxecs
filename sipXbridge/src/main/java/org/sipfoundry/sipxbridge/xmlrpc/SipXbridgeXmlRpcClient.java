@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 
@@ -19,9 +19,9 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 /**
- * 
+ *
  * Client to invoke methods on the SipxBridgeXmlRpcServer.
- * 
+ *
  */
 @SuppressWarnings("unchecked")
 public class SipXbridgeXmlRpcClient {
@@ -29,12 +29,12 @@ public class SipXbridgeXmlRpcClient {
 
     private XmlRpcClient client;
 
-    public SipXbridgeXmlRpcClient(String serverAddress, int port, boolean isSecure) {
+    public SipXbridgeXmlRpcClient(String serverAddress, int port) {
         try {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         	config.setEnabledForExceptions(true);
 			config.setEnabledForExtensions(true);
-			String url = (isSecure? "https" : "http") + "://" + serverAddress + ":" + port;
+			String url = "http://" + serverAddress + ":" + port;
 			if ( logger.isDebugEnabled() ) logger.debug("SipXbridgeXmlRpcClient: url =  " + url);
             config.setServerURL(new URL(url));
             this.client = new XmlRpcClient();
@@ -44,11 +44,11 @@ public class SipXbridgeXmlRpcClient {
         }
     }
 
-   
+
     /**
      * Gets an array of Registration records - one record for each account
      * that requires registration.
-     * 
+     *
      * @return an array of registration records.
      */
 
@@ -75,11 +75,11 @@ public class SipXbridgeXmlRpcClient {
 
         return registrationRecords;
     }
-    
-    
+
+
     /**
      * Get a count of the number of ongoing calls.
-     * 
+     *
      * @return the number of ongoing calls.
      */
     public int getCallCount() {
@@ -112,7 +112,7 @@ public class SipXbridgeXmlRpcClient {
             throw new SipXbridgeClientException(ex);
         }
     }
-    
+
     public void exit() {
         try {
             client.execute(SipXbridgeXmlRpcServer.SERVER + "."

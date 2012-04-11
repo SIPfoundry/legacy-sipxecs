@@ -20,9 +20,6 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Handler;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
 import javax.sip.Dialog;
 import javax.sip.ListeningPoint;
 import javax.sip.SipException;
@@ -46,8 +43,8 @@ import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.commons.util.DomainConfiguration;
-import org.sipfoundry.sipxrelay.SymmitronClient;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
+import org.sipfoundry.sipxrelay.SymmitronClient;
 
 /**
  * The main class
@@ -87,12 +84,12 @@ public class Gateway {
 
     /*
      * Internal SIp Provider. If TLS is supported for internal
-     * connections then the bridge does not accept TCP and udp 
-     * packets from the proxy server. 
+     * connections then the bridge does not accept TCP and udp
+     * packets from the proxy server.
      */
     private static SipProvider internalProvider;
-    
-   
+
+
     /*
      * External provider (UDP and TCP)
      */
@@ -209,7 +206,7 @@ public class Gateway {
 
     private static int oldStunPort = -1;
 
-    private static HashSet<String> supportedTransports = new HashSet<String>(); 
+    private static HashSet<String> supportedTransports = new HashSet<String>();
 
     // ///////////////////////////////////////////////////////////////////////
 
@@ -271,10 +268,9 @@ public class Gateway {
 
             symmitronPort = Gateway.getBridgeConfiguration()
                     .getSymmitronXmlRpcPort();
-            isSecure = Gateway.getBridgeConfiguration().isSecure();
 
             symmitronClient = new SymmitronClient("sipxbridge", address, symmitronPort,
-                    isSecure, callControlManager);
+                    false, callControlManager);
             symmitronClients.put(address, symmitronClient);
         }
 
@@ -289,7 +285,7 @@ public class Gateway {
      */
     static void initializeLogging() throws SipXbridgeException {
         try {
-           
+
             BridgeConfiguration bridgeConfiguration = Gateway
                     .getBridgeConfiguration();
             String logLevel = bridgeConfiguration.getLogLevel();
@@ -329,7 +325,7 @@ public class Gateway {
 
             Gateway.logAppender = new SipFoundryAppender(
                     new SipFoundryLayout(), Gateway.getLogFile(),true);
-            
+
             logger.setLevel(Level.toLevel(logLevel));
             logger.addAppender(logAppender);
             commonsLogger.setLevel(Level.toLevel(logLevel));
@@ -599,7 +595,7 @@ public class Gateway {
                                 localPort, "tls");
                 internalProvider = ProtocolObjects.getSipStack()
                         .createSipProvider(internalTlsListeningPoint);
-                internalProvider.addListeningPoint(internalTlsListeningPoint);        
+                internalProvider.addListeningPoint(internalTlsListeningPoint);
             }
 
             registrationManager = new RegistrationManager();
@@ -777,7 +773,7 @@ public class Gateway {
         /*
          * Check for mandatory fields.
          */
-				
+
         boolean invalidAccountDetected = false;
         HashSet<ItspAccountInfo> invalidItspAccounts = new HashSet<ItspAccountInfo>();
         for (ItspAccountInfo accountInfo : Gateway.accountManager
@@ -811,7 +807,7 @@ public class Gateway {
 logger.info("FOUND BAD ACCOUNT");
         }
 
-				
+
         try {
             Gateway.accountManager.startAuthenticationFailureTimers();
 						boolean foundAccount = false;
@@ -1031,7 +1027,7 @@ logger.info("FOUND BAD ACCOUNT");
                 Gateway.proxyURI.setPort( getBridgeConfiguration().getSipxProxyPort());
             } else {
                 if ( logger.isDebugEnabled() ) logger.debug("sipx proxy port is : " + getBridgeConfiguration().getSipxProxyPort() );
-                
+
             }
         } catch (Exception ex) {
             logger.error("Error initializing proxy address", ex);
@@ -1092,14 +1088,6 @@ logger.info("FOUND BAD ACCOUNT");
          */
 
         registerWithItsp();
-
-        /*
-         * Initialize connection with sipxrelay.
-         */
-        if (getBridgeConfiguration().isSecure()) {
-            Gateway.initHttpsClient();
-        }
-
     }
 
     private static void parsePeerIdentitiesFile() {
@@ -1182,20 +1170,13 @@ logger.info("FOUND BAD ACCOUNT");
          */
         Gateway.initializeLogging();
         if ( logger.isDebugEnabled() ) logger.debug("exit()");
-        /*
-         * Initialize the HTTPS client.
-         */
-        if (Gateway.getBridgeConfiguration().isSecure()) {
-            Gateway.initHttpsClient();
-        }
 
         /*
          * Connect to the sipxbridge server and ask him to exit.
          */
         SipXbridgeXmlRpcClient client = new SipXbridgeXmlRpcClient(Gateway
                 .getBridgeConfiguration().getExternalAddress(), Gateway
-                .getBridgeConfiguration().getXmlRpcPort(), Gateway
-                .getBridgeConfiguration().isSecure());
+                .getBridgeConfiguration().getXmlRpcPort());
         client.stop();
         System.exit(0);
     }
@@ -1221,12 +1202,12 @@ logger.info("FOUND BAD ACCOUNT");
      * @return
      */
     static int getGlobalPort(String transport) {
-        
+
         int port =  Gateway.accountManager.getBridgeConfiguration().getGlobalPort() != -1 ? Gateway.accountManager
                 .getBridgeConfiguration().getGlobalPort()
                 : Gateway.accountManager.getBridgeConfiguration()
                         .getExternalPort();
-                
+
         if (transport.equalsIgnoreCase("tls")) {
             return port +1;
         } else {
@@ -1334,7 +1315,7 @@ logger.info("FOUND BAD ACCOUNT");
     public static HashSet<String> getSupportedTransports() {
        return Gateway.supportedTransports ;
      }
-    
+
     /**
      * The set of codecs handled by the park server.
      *
@@ -1371,29 +1352,6 @@ logger.info("FOUND BAD ACCOUNT");
             logger.fatal(errorString, new Exception());
         }
     }
-
-    /**
-     *
-     * This method must be called before SSL connection is initialized.
-     */
-    private static void initHttpsClient() {
-        try {
-            // Create empty HostnameVerifier
-            HostnameVerifier hv = new HostnameVerifier() {
-                public boolean verify(String arg0, SSLSession arg1) {
-                    return true;
-                }
-            };
-
-            HttpsURLConnection.setDefaultHostnameVerifier(hv);
-
-        } catch (Exception ex) {
-            logger.fatal("Unexpected exception initializing HTTPS client", ex);
-            throw new SipXbridgeException(ex);
-        }
-    }
-
-  
 
     public static PeerIdentities getPeerIdentities() {
         return peerIdentities;
