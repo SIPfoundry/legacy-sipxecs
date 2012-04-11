@@ -106,7 +106,10 @@ bundle agent firewall_iptables_config {
       "/sbin/iptables-restore"
         comment => "Installing and peristing new firewall rules",
         contain => in_shell,
-        args => "< $(unapplied) && /etc/init.d/iptables save && rm -f $(unapplied)";
+        # Calling restore and save immediately after will ignore new settings
+        # adding a delay seems to give enough time for tables to build and save
+        # to work
+        args => "< $(unapplied) && pause 2 && /etc/init.d/iptables save && rm -f $(unapplied)";
 }
 
 bundle agent firewall_systemctl_running {
