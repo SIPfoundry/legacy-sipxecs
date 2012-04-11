@@ -22,7 +22,6 @@
         </property>
       </bean>
     </property>
-    <property name="locationsManager" ref="locationsManager"/>
   </bean>
     
   <bean id="ftpSettings" class="org.sipfoundry.sipxconfig.ftp.FtpSettings" parent="settingsBean">

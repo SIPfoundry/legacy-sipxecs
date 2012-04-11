@@ -20,7 +20,6 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.BundleConstraint;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
@@ -41,7 +40,6 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
     SetupListener, FeatureProvider, FirewallProvider, AddressProvider {
     private static final List<AddressType> ADDRESSES = Arrays.asList(TFTP_ADDRESS, FTP_ADDRESS, FTP_DATA_ADDRESS);
     private static final List<LocationFeature> FEATURES = Arrays.asList(TFTP_FEATURE, FTP_FEATURE);
-    private LocationsManager m_locationsManager;
     private BeanWithSettingsDao<FtpSettings> m_settingsDao;
 
     @Override
@@ -95,10 +93,6 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
         LocationFeature f = (type.equals(FTP_ADDRESS) ? FTP_FEATURE : TFTP_FEATURE);
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(f);
         return Location.toAddresses(type, locations);
-    }
-
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
     }
 
     public void setSettingsDao(BeanWithSettingsDao<FtpSettings> settingsDao) {
