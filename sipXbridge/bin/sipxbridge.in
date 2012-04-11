@@ -40,16 +40,13 @@ start() {
     Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
     export CLASSPATH=`echo @SIPX_CONFDIR@/sipxbridge @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
 
-    setJavaSslOpts
-
     # procname is there so cfengine can find it
     Command="$JavaCmd \
       -Dprocname=sipxbridge \
       -Dconf.dir=@SIPX_CONFDIR@ \
-      $JavaSslOpts \
-	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-         -Dsipxbridge.command=start 		\
-         org.sipfoundry.sipxbridge.Gateway \
+	  -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+      -Dsipxbridge.command=start \
+      org.sipfoundry.sipxbridge.Gateway \
 	 $Args"
     if [ -n "${NoFork}" ] ; then
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
@@ -88,19 +85,6 @@ configtest() {
 	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
 	 Status=1
      fi
-
-    JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
-    export CLASSPATH=`echo @SIPX_CONFDIR@/sipxbridge @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
-
-    setJavaSslOpts
-
-     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
-     $JavaSslOpts \
-	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-         -Dsipxbridge.command=configtest 		\
-         org.sipfoundry.sipxbridge.Gateway \
-	 $Args
 }
 
 case "$1" in
