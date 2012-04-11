@@ -17,7 +17,6 @@ import org.restlet.Filter;
 import org.restlet.data.ChallengeRequest;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
-import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Parameter;
 import org.restlet.data.Protocol;
@@ -55,23 +54,10 @@ public class DigestAuthenticationFilter extends Filter {
 
     @Override
     protected int beforeHandle(Request request, Response response) {
-        String remoteAddr = request.getClientInfo().getAddress();
-        if(remoteAddr.equals(RestServer.TRUSTED_SOURCE)) {
-            logger.debug("Request from trusted source: "+RestServer.TRUSTED_SOURCE);
-            Form headers = (Form) request.getAttributes().get("org.restlet.http.headers");
-            String requestedUser = headers.getFirstValue("sipx-user");
-            String agentName = plugin.getAgent(request);
-            if (requestedUser != null && agentName != null) {
-                if (requestedUser.equals(agentName)) {
-                    return Filter.CONTINUE;
-                } else {
-                    response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
-                    response.setEntity("user missmatch ", MediaType.TEXT_PLAIN);
-                    return Filter.STOP;
-                }
-            }
+        if (Util.isSourceTrusted(request)) {
+            return Filter.CONTINUE;
         }
-
+        String remoteAddr = request.getClientInfo().getAddress();
         int httpPort = request.getHostRef().getHostPort();
         try {
             String proxyDomain = RestServer.getRestServerConfig().getSipxProxyDomain();

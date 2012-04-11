@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipximbot;
 
@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
 
@@ -21,9 +20,8 @@ public class RestfulRequest {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
     boolean m_justTesting;
     String m_testingResult;
-    
+
     String m_urlString;
-    String m_digest;
     String m_content;
     String m_contentType;
     String m_response;
@@ -32,13 +30,6 @@ public class RestfulRequest {
 
     public RestfulRequest(String urlString) {
         m_urlString = urlString;
-    }
-
-    public RestfulRequest(String urlString, String user, String password) {
-        m_urlString = urlString;
-        if (user != null && password != null) {
-            m_digest = "Basic " + new String(Base64.encodeBase64((user+":"+password).getBytes()));
-        }
     }
 
     /**
@@ -60,12 +51,6 @@ public class RestfulRequest {
 
         // URL connection channel.
         HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-
-        // Set the Authorization header to the encoded user/passcode
-        // combination
-        if (m_digest != null) {
-            urlConn.setRequestProperty("Authorization", m_digest);
-        }
 
         return urlConn;
     }
@@ -101,7 +86,7 @@ public class RestfulRequest {
 
             // Connect!
             urlConn.connect();
-            
+
             // Find out what happened
             m_responseCode = urlConn.getResponseCode();
             m_response = urlConn.getResponseMessage();
@@ -127,11 +112,11 @@ public class RestfulRequest {
 
     /**
      * Convenience method to send a request to a URL
-     * 
-     * @param method an HTTP method, PUT, DELETE, POST, GET, etc. 
-     *        where no body is provided.  
+     *
+     * @param method an HTTP method, PUT, DELETE, POST, GET, etc.
+     *        where no body is provided.
      *        Any response (assumed to be text) is in m_content;
-     * @throws Exception 
+     * @throws Exception
      */
     boolean send(String method, String value) throws Exception{
         HttpURLConnection urlConn = getConnection(value);
@@ -149,13 +134,13 @@ public class RestfulRequest {
         urlConn.disconnect();
         return result;
     }
-    
+
 
     /**
      * Convenience method to PUT to a URL (no body)
-     * 
+     *
      * @param value A string added to the end of the url.  Redacted from logs.
-     * @throws Exception 
+     * @throws Exception
      */
     public boolean put(String value) throws Exception{
         return send("PUT", value);
@@ -163,9 +148,9 @@ public class RestfulRequest {
 
     /**
      * Convenience method to POST to a URL (no body)
-     * 
+     *
      * @param value A string added to the end of the url.  Redacted from logs.
-     * @throws Exception 
+     * @throws Exception
      */
     public boolean post(String value) throws Exception{
         return send("POST", value);
@@ -173,8 +158,8 @@ public class RestfulRequest {
 
     /**
      * Convenience method to DELETE to a URL
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public boolean delete() throws Exception{
         return send("DELETE", null);
@@ -182,49 +167,49 @@ public class RestfulRequest {
 
     /**
      * Convenience method to GET to a URL
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public boolean get() throws Exception{
         return send("GET", null);
     }
 
-    
+
     /**
      * method to GET content from a URL with a reusable connection
-     * No content is read from the connection, that's up to the caller. 
-     * 
+     * No content is read from the connection, that's up to the caller.
+     *
      * @param urlConn a HttpURLConnection from {@link getConnection}
-     * @throws Exception 
+     * @throws Exception
      */
     public boolean get(HttpURLConnection urlConn) throws Exception{
         return request("GET", urlConn);
     }
-    
+
     public int getResponseCode() {
         return m_responseCode ;
     }
-    
+
     public String getResponse() {
         return m_response;
     }
-    
+
     public String getResult() {
         return m_content;
     }
-    
+
     public String getContentType() {
         return m_contentType;
     }
-    
+
     public String getContent() {
         return m_content;
     }
-    
+
     public Exception getException() {
         return m_exception;
     }
-    
+
     public boolean isJustTesting() {
         return m_justTesting;
     }
@@ -232,7 +217,7 @@ public class RestfulRequest {
     public void setJustTesting(boolean justTesting) {
         m_justTesting = justTesting;
     }
-    
+
     public void setTestingResult(String result) {
         m_testingResult = result;
     }

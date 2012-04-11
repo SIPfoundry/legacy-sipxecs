@@ -27,6 +27,7 @@ import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.restconfig.RestServerConfig;
 import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
+import org.sipfoundry.commons.security.CustomSecurityHandler;
 import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
@@ -53,8 +54,6 @@ public class RestServer {
     private static AccountManagerImpl accountManager;
 
     private static SipStackBean sipStackBean;
-
-    public static final String TRUSTED_SOURCE = "127.0.0.1";
 
 
     public static RestServerConfig getRestServerConfig() {
@@ -85,9 +84,10 @@ public class RestServer {
                 restServerConfig.getHttpPort());
         InetAddrPort externalInetAddrPort = new InetAddrPort(restServerConfig.getIpAddress(),
                 restServerConfig.getPublicHttpPort());
+        logger.debug("External Inet Port = " + externalInetAddrPort.toString());
+        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
+        String secret = config.getSharedSecret();
         Logger.getLogger("org.mortbay").setLevel(Level.OFF);
-
-
 
         if (isSecure) {
                 SslListener sslListener = new SslListener();
@@ -134,15 +134,12 @@ public class RestServer {
 
 
         // create a listener for the unsecure port.
-        logger.debug("External Inet Port = " + externalInetAddrPort.toString());
         SocketListener socketListener = new SocketListener();
         socketListener.setPort(restServerConfig.getPublicHttpPort());
         socketListener.setMaxThreads(32);
         socketListener.setMinThreads(4);
         socketListener.setLingerTimeSecs(30000);
         socketListener.setMaxIdleTimeMs(60000);
-        webServer.addListener(socketListener);
-        socketListener.start();
 
         HttpContext httpContext = new HttpContext();
         httpContext.setContextPath("/");
@@ -150,15 +147,19 @@ public class RestServer {
                 RestServerApplication.class.getName());
         ServletHandler servletHandler = new ServletHandler();
         Class<?> servletClass = com.noelios.restlet.ext.servlet.ServerServlet.class;
-        servletHandler.addServlet("rest", "/*",
-                servletClass.getName());
+        servletHandler.addServlet("rest", "/*", servletClass.getName());
 
+        CustomSecurityHandler sh = new CustomSecurityHandler();
 
-        httpContext.addHandler(servletHandler);
-
+        sh.addTrustedSource("localhost");
+        sh.addSharedSecret(secret);
+        sh.addTrustedSource(restServerConfig.getConfigAddress());
+        sh.addTrustedSource(restServerConfig.getImbotAddress());
+        httpContext.addHandler(0, sh);
+        httpContext.addHandler(1, servletHandler);
 
         webServer.addContext(httpContext);
-
+        webServer.addListener(socketListener);
         webServer.start();
 
     }

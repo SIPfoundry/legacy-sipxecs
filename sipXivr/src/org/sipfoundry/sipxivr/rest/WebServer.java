@@ -8,21 +8,15 @@
  */
 package org.sipfoundry.sipxivr.rest;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SecurityConstraint;
 import org.mortbay.http.SslListener;
-import org.mortbay.http.handler.SecurityHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
+import org.sipfoundry.commons.security.CustomSecurityHandler;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -126,28 +120,6 @@ public class WebServer implements BeanFactoryAware {
         sslListener.setMaxIdleTimeMs(60000);
 
         return sslListener;
-    }
-
-    private class CustomSecurityHandler extends SecurityHandler {
-        private List<String> _hosts = new ArrayList<String>();
-        private String _secret = null;
-
-        public void addTrustedSource(String ipSource) {
-            _hosts.add(ipSource);
-        }
-
-        public void addSharedSecret(String secret) {
-            _secret = secret;
-        }
-
-        public void handle(String pathInContext, String pathParams, HttpRequest request, HttpResponse response)
-                throws HttpException, IOException {
-            if (!_hosts.contains(request.getRemoteAddr())) {
-                getHttpContext().checkSecurityConstraints(pathInContext, request, response);
-            } else {
-                request.setAttribute("trustedSource", _secret);
-            }
-        }
     }
 
     public void setConfigAddress(String address) {
