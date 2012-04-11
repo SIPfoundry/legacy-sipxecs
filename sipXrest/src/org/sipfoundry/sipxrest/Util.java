@@ -8,12 +8,12 @@ package org.sipfoundry.sipxrest;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import javax.sip.header.CallIdHeader;
-import javax.sip.header.FromHeader;
-import javax.sip.header.ToHeader;
-import javax.sip.message.Message;
-import javax.sip.message.Request;
-import javax.sip.message.Response;
+import javax.servlet.http.HttpServletRequest;
+
+import org.sipfoundry.commons.security.CustomSecurityHandler;
+import org.sipfoundry.commons.util.DomainConfiguration;
+
+import com.noelios.restlet.ext.servlet.ServletCall;
 
 public class Util {
     /**
@@ -25,7 +25,7 @@ public class Util {
 
     /**
      * Converts b[] to hex string.
-     * 
+     *
      * @param b the bte array to convert
      * @return a Hex representation of b.
      */
@@ -41,7 +41,7 @@ public class Util {
 
     /**
      * Defined in rfc 2617 as H(data) = MD5(data);
-     * 
+     *
      * @param data data
      * @return MD5(data)
      */
@@ -56,8 +56,14 @@ public class Util {
         }
     }
 
- 
+    public static boolean isSourceTrusted(org.restlet.data.Request request) {
+        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
+        String sharedSecret = config.getSharedSecret();
 
-    
+        HttpServletRequest httpRequest = ServletCall.getRequest(request);
+
+        String trusted = (String)httpRequest.getAttribute(CustomSecurityHandler.TRUSTED_SOURCE_KEY);
+        return trusted != null && trusted.equals(sharedSecret);
+    }
 
 }

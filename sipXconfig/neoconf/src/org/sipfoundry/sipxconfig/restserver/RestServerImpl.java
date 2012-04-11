@@ -41,7 +41,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class RestServerImpl implements FeatureProvider, AddressProvider, RestServer, ProcessProvider, FirewallProvider {
-    private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTPS_API, EXTERNAL_API, SIP_TCP);
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTPS_API, HTTP_API, EXTERNAL_API, SIP_TCP);
     private BeanWithSettingsDao<RestServerSettings> m_settingsDao;
 
     @Override
@@ -79,6 +79,8 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
                 address = new Address(HTTPS_API, location.getAddress(), settings.getHttpsPort());
             } else if (type.equals(EXTERNAL_API)) {
                 address = new Address(EXTERNAL_API, location.getAddress(), settings.getExternalPort());
+            } else if (type.equals(HTTP_API)) {
+                address = new Address(HTTP_API, location.getAddress(), settings.getExternalPort());
             } else if (type.equals(SIP_TCP)) {
                 address = new Address(SIP_TCP, location.getAddress(), settings.getSipPort());
             }

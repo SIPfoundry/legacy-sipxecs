@@ -7,4 +7,6 @@
   <log-directory>@SIPX_LOGDIR@</log-directory>
   <log-level>NOTICE</log-level>
   <sip-port>6050</sip-port>
+  <config-address>192.168.1.100</config-address>
+  <imbot-address>192.168.1.101</imbot-address>
 </rest-config>

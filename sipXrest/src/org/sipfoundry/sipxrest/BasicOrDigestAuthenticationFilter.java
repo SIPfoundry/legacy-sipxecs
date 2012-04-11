@@ -5,11 +5,6 @@
  */
 package org.sipfoundry.sipxrest;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Collection;
-
-import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 
 import org.apache.log4j.Logger;
@@ -19,11 +14,10 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.sipfoundry.commons.siprouter.FindSipServer;
 
 public class BasicOrDigestAuthenticationFilter extends Filter {
 
-    private static Logger logger = Logger.getLogger(BasicAuthenticationFilter.class);
+    private static Logger logger = Logger.getLogger(BasicOrDigestAuthenticationFilter.class);
 
     private SipURI sipUri;
 
@@ -36,37 +30,9 @@ public class BasicOrDigestAuthenticationFilter extends Filter {
         this.plugin = plugin;
     }
 
-    private boolean requestFromSipXDomain(Request request) throws UnknownHostException {
-        Collection<Hop> hops = new FindSipServer(logger).getSipxProxyAddresses(sipUri);
-        String remoteAddr = request.getClientInfo().getAddress();
-
-        for (Hop hop : hops) {
-            if (InetAddress.getByName(hop.getHost()).getHostAddress().equals(remoteAddr)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     protected int beforeHandle(Request request, Response response) {
-        String remoteAddr = request.getClientInfo().getAddress();
-        String scheme = request.getProtocol().getSchemeName();
         try {
-
-            logger.debug("Authentication request " + remoteAddr);
-            if (requestFromSipXDomain(request)) {
-                if (request.getProtocol().equals(Protocol.HTTPS)) {
-                    logger.debug("Request was recieved over HTTPS protocol from sipx domain");
-                    return Filter.CONTINUE;
-                } else if (request.getProtocol().equals(Protocol.HTTP)) {
-                    logger.debug("Request was received over HTTP from sipx domain");
-                    response.setEntity("HTTP request from sipx domain - rejecting", MediaType.TEXT_PLAIN);                 
-                    response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-                    return Filter.STOP;
-                }
-            }
-
             if (request.getProtocol().equals(Protocol.HTTP)) {
                 /*
                  * Request arrived over HTTP - do the digest authentication filter.

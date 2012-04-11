@@ -9,9 +9,9 @@ import org.apache.commons.digester.Digester;
 import org.xml.sax.InputSource;
 
 public class RestServerConfigFileParser {
-	
+
 	public static final String REST_CONFIG = "rest-config";
-	
+
 	  /**
      * Add the digester rules.
      *
@@ -29,8 +29,10 @@ public class RestServerConfigFileParser {
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"sipx-proxy-domain"), "setSipxProxyDomain",0);
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"log-directory"), "setLogDirectory",0);
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"log-level"), "setLogLevel",0);
+        digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"config-address"), "setConfigAddress",0);
+        digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"imbot-address"), "setImbotAddress",0);
     }
-    
+
     public RestServerConfig parse(String url) {
         Digester digester = new Digester();
         addRules(digester);
@@ -42,7 +44,7 @@ public class RestServerConfigFileParser {
         } catch (Exception ex) {
       	  throw new RuntimeException(ex);
         }
-     
+
   }
 
 }
