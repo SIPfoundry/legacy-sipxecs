@@ -33,6 +33,7 @@
     <sipx-supervisor-host>${location.fqdn}</sipx-supervisor-host>
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
     <rejectStrayPackets>${nat.getSetting('reject-stray-packets').Value}</rejectStrayPackets>
+    <secureXMLRPC>false</secureXMLRPC>
   </info>
   <localtopology>
 #foreach($subnet in ${routes.subnets})
