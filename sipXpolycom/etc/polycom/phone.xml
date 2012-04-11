@@ -2363,6 +2363,12 @@
     </group>
   </group>
   <group name="voIpProt.SIP">
+     <setting name="failover">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+    </setting>
     <group name="serverFeatureControl">
       <setting name="cf">
         <type>
