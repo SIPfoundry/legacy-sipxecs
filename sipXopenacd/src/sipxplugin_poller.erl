@@ -31,11 +31,11 @@
 -record(state, {timer, last_poll_time}).
 -define(SERVER, ?MODULE).
 
--include("log.hrl").
--include("cpx.hrl").
--include("queue.hrl").
--include("call.hrl").
--include("agent.hrl").
+-include_lib("OpenACD/include/log.hrl").
+-include_lib("OpenACD/include/cpx.hrl").
+-include_lib("OpenACD/include/queue.hrl").
+-include_lib("OpenACD/include/call.hrl").
+-include_lib("OpenACD/include/agent.hrl").
 
 start() ->
 	gen_server:start_link({local, ?SERVER}, ?SERVER, [], []).
@@ -127,7 +127,7 @@ code_change(_OldVsn, State, _Extra) ->
 get_new_config() ->
 	%connect to openacd db and count objects in commands collection
 	Mong = mongoapi:new(def,<<"openacd">>),
-	
+
 	case Mong:find("commands", [], undefined, 0, 0) of
 		{ok, []} ->
 			?DEBUG("No Command to execute", []);
@@ -136,7 +136,7 @@ get_new_config() ->
 				get_command_values(Cmd, Mong)
 			end, Commands)
 	end.
-	
+
 get_command_values(Data, Mong) ->
 	case Data of
 		[] ->
@@ -204,7 +204,7 @@ process_agent(Agent, "UPDATE") ->
 	case agent_auth:get_agent(OldName) of
 		{atomic, [Old]} ->
 			%% TODO must be an atomic operation
-			Id = Old#agent_auth.id,			
+			Id = Old#agent_auth.id,
 			agent_auth:set_agent(Id,
 				get_str(<<"name">>, Agent),
 				get_str(<<"pin">>, Agent),
@@ -338,7 +338,7 @@ process_queue(_, Command) ->
 	?WARNING("Unrecognized command: ~s", [Command]),
 	{error, unkown_command}.
 
-process_fs_media_manager(Config, _Command) ->	
+process_fs_media_manager(Config, _Command) ->
 	%% TODO should be getting a boolean than a string
 	case get_bin(<<"enabled">>, Config) of
 		<<"true">> ->
@@ -441,7 +441,7 @@ extract_recipe_step(RecipeStep) ->
 
 get_all_skills(Props) ->
 	Skills = get_atom_list(<<"skillsAtoms">>, Props),
-	Queues = [{'_queue', X} || 
+	Queues = [{'_queue', X} ||
 		X <- get_atom_list(<<"queuesName">>, Props)],
 	Clients = [{'_brand', X} ||
 		X <- get_atom_list(<<"clientsName">>, Props)],
@@ -450,17 +450,17 @@ get_all_skills(Props) ->
 get_agent_security(Agent) ->
 	SecurityBin = get_bin(<<"security">>, Agent),
     case SecurityBin of
-    	<<"SUPERVISOR">> ->
-    		supervisor;
-    	<<"ADMIN">> ->
-    		admin;
-    	_ ->
-    		agent
+	<<"SUPERVISOR">> ->
+		supervisor;
+	<<"ADMIN">> ->
+		admin;
+	_ ->
+		agent
     end.
 
 get_client_options(Client) ->
 	Options = proplists:get_value(<<"additionalObjects">>, Client, []),
-	
+
 	lists:foldl(
 		fun({<<"vm_priority_diff">>, N}, Acc) when is_float(N) ->
 			[{vm_priority_diff, trunc(N)}|Acc];
@@ -469,10 +469,10 @@ get_client_options(Client) ->
 			Acc
 		end, [], Options).
 
-get_recipes(Queue) ->	
+get_recipes(Queue) ->
 	{array, RecipeStepsJ} = proplists:get_value(
 		<<"additionalObjects">>, Queue),
-	
+
 	[extract_recipe_step(X) || X <- RecipeStepsJ].
 
 get_str(Key, L) ->
@@ -529,4 +529,3 @@ split_bin_to_atoms0([<<>>, Rest], Pattern, Acc) ->
 split_bin_to_atoms0([B, Rest], Pattern, Acc) ->
 	split_bin_to_atoms0(binary:split(Rest, Pattern),
 		Pattern, [binary_to_atom(B, utf8)|Acc]).
-

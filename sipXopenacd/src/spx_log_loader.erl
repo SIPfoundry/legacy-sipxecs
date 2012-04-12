@@ -65,14 +65,18 @@ get_db_config(JPropToConfig) ->
 jprop_to_config([]) ->
     {ok, none};
 jprop_to_config(JProp) ->
-    LogFile = spx_util:get_str(<<"lgfile">>, JProp),
+    LogDir = spx_util:get_str(<<"lgdir">>, JProp),
     LogLevel = spx_util:get_atom(<<"lglvl">>, JProp),
 
-    {ok, {LogFile, LogLevel}}.
+    {ok, {LogLevel, LogDir}}.
 
 -spec load(conf()) -> {ok, conf()}.
-load({LogFile, LogLevel}) ->
-    cpxlog:set_loglevel(LogFile, LogLevel),
+load({LogLevel, LogDir}) ->
+    FullLogPath = filename:join(LogDir, "full.log"),
+    ConsoleLogPath = filename:join(LogDir, "console.log"),
+
+    cpxlog:set_loglevel(FullLogPath, LogLevel),
+    cpxlog:set_loglevel(ConsoleLogPath, LogLevel),
     ok;
 load(_) ->
     ok.
@@ -85,15 +89,16 @@ unload(_) ->
 
 load_test() ->
     LogLevel = 2,
-    LogFile = "/tmp/oacd.log",
+    LogDir = "/tmp",
 
     meck:new(cpxlog),
     meck:expect(cpxlog, set_loglevel, fun(_, _) -> ok end),
 
     ?assertEqual(ok, load({LogLevel, LogDir})),
     ?assert(meck:validate(cpxlog)),
-    ?assert(meck:called(cpxlog, set_loglevel, ["/tmp/oacd.log", LogLevel])),
-    
+    ?assert(meck:called(cpxlog, set_loglevel, ["/tmp/full.log", LogLevel])),
+    ?assert(meck:called(cpxlog, set_loglevel, ["/tmp/console.log", LogLevel])),
+
     meck:unload(cpxlog).
 
 unload_test() ->
@@ -112,13 +117,13 @@ empty_jprop_to_config_test() ->
 good_jprop_to_config_test() ->
     JSON = <<"{
         \"_id\" : \"OpenAcdLogConfigCommand-1\",
-        \"lgfile\" : \"null/openacd/\",
+        \"lgdir\" : \"null/openacd/\",
         \"lglvl\" : \"notice\",
         \"uuid\" : \"08393547-8d37-40dc-977d-273439b2919e\",
         \"type\" : \"openacdlogconfigcommand\"
     }">>,
     {struct, JProp} = mochijson2:decode(JSON),
-    ?assertEqual({"null/openacd/", notice}, jprop_to_config(JProp)).
+    ?assertEqual({notice, "null/openacd/"}, jprop_to_config(JProp)).
 
 get_db_config_test_() ->
     {foreach,
