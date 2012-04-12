@@ -107,7 +107,7 @@ build_agent([{<<"name">>, Login}|T], Acc) ->
 build_agent([{<<"skl">>, {array, Skills}}|T], Acc) ->
 	OldSkills = Acc#agent_auth.skills,
 	build_agent(T, Acc#agent_auth{skills=
-		OldSkills ++ [binary_to_atom(X, utf8) || X <- Skills]});;
+		OldSkills ++ [binary_to_atom(X, utf8) || X <- Skills]});
 build_agent([{<<"qs">>, {array, Queues}}|T], Acc) ->
 	OldSkills = Acc#agent_auth.skills,
 	build_agent(T, Acc#agent_auth{skills=
