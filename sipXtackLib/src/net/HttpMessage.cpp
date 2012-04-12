@@ -3384,6 +3384,9 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
     UtlString method;
     UtlString referenceHash;
     UtlString msgDigestHash;
+    UtlString messageQop;
+
+    bool hasQop = strlen(qop) > 0;
 
     if(thisMessageUri && *thisMessageUri)
     {
@@ -3416,9 +3419,9 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
     buildMd5Digest(encodedA1,
                    NULL, // algorithm
                    nonce,
-                   cnonce, // cnonce
-                   nonceCount, // nonceCount
-                   qop, // qop
+                   hasQop ? cnonce : NULL, // cnonce
+                   hasQop ? nonceCount : NULL, // nonceCount
+                   hasQop ? qop : NULL, // qop
                    method.data(),
                    uri.data(),
                    NULL, // body digest
@@ -3475,6 +3478,7 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
     UtlString method;
     UtlString referenceHash;
     UtlString msgDigestHash;
+    bool hasQop = strlen(qop) > 0;
 
     if (thisMessageUri && *thisMessageUri)
     {
@@ -3497,9 +3501,9 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
     buildMd5Digest(userPasswordDigest,
                    NULL, // algorithm
                    nonce,
-                   cnonce, // cnonce
-                   nonceCount, // nonceCount
-                   qop, // qop
+                   hasQop ? cnonce : NULL, // cnonce
+                   hasQop ? nonceCount : NULL, // nonceCount
+                   hasQop ? qop : NULL, // qop
                    method.data(),
                    uri.data(),
                    NULL, // body digest
