@@ -82,11 +82,12 @@ public class FirewallConfigTest {
         Address a2 = new Address(t1, l1.getAddress(), 200);
         Address a3 = new Address(t2, l1.getAddress(), 300);
         Address a4 = new Address(t2, l1.getAddress(), 400);
-        expectLastCall().andReturn(Arrays.asList(a1, a2)).once();
+        Address aIgnored = new Address(t1, l2.getAddress(), 400);
+        expectLastCall().andReturn(Arrays.asList(a1, a2, aIgnored)).once();
         addressManager.getAddresses(t2, l1);
-        expectLastCall().andReturn(Arrays.asList(a3)).once();
+        expectLastCall().andReturn(Arrays.asList(a3, aIgnored)).once();
         addressManager.getAddresses(t3, l1);
-        expectLastCall().andReturn(Arrays.asList(a4)).once();
+        expectLastCall().andReturn(Arrays.asList(a4, aIgnored)).once();
         replay(addressManager);
         m_config.setAddressManager(addressManager);
         

@@ -109,7 +109,7 @@ bundle agent firewall_iptables_config {
         # Calling restore and save immediately after will ignore new settings
         # adding a delay seems to give enough time for tables to build and save
         # to work
-        args => "< $(unapplied) && pause 2 && /etc/init.d/iptables save && rm -f $(unapplied)";
+        args => "< $(unapplied) && sleep 2 && /etc/init.d/iptables save && rm -f $(unapplied)";
 }
 
 bundle agent firewall_systemctl_running {

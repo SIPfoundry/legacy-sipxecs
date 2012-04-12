@@ -106,9 +106,16 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             List<Address> addresses = m_addressManager.getAddresses(type, thisLocation);
             if (addresses != null) {
                 for (Address address : addresses) {
+
+                    // not a rule for this server
+                    if (!address.getAddress().equals(thisLocation.getAddress())) {
+                        continue;
+                    }
+
                     AddressType atype = address.getType();
                     String id = atype.getId();
                     int port = address.getCanonicalPort();
+                    // internal error
                     if (port == 0) {
                         LOG.error("Cannot open up port zero for service id " + id);
                         continue;
