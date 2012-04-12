@@ -5,16 +5,18 @@
 :syn-flood - [0:0]
 
 <%
-  chains.each { |chain|
+  unless chains.nil?
+    chains.each { |chain|
 %>-N <%= chain[:name] %>
 <%
-    chain[:ipv4s].each { |ipv4|
+      chain[:ipv4s].each { |ipv4|
 %>-A <%= chain[:name] %> -s <%= ipv4 %> -j ACCEPT
 <%
-    }
+      }
 %>-A <%= chain[:name] %> -j DROP
 <%
-  }
+    }
+  end
 %>
 
 <%
