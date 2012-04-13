@@ -16,7 +16,7 @@ SIP_REGISTRAR_TCP_PORT : $!{registrarService.sipPort}
 SIP_REGISTRAR_UDP_PORT : $!{registrarService.sipPort}
 SIP_REGISTRAR_REG_EVENT_PORT : $!{registrarService.registrarEventSipPort}
 
-SIPX_SEND_TRYING_FOR_NIST : true
+SIPX_SEND_TRYING_FOR_NIST : $!settings.getSetting('other/SIPX_SEND_TRYING_FOR_NIST').Value
 
 # Configure the redirectors.
 SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM : @sipxpbx.lib.dir@/libRedirectorUserParam.so

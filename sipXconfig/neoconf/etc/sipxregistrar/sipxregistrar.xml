@@ -116,4 +116,19 @@
       <value>NOTICE</value>
     </setting>
   </group>
+  <group name="other">
+    <setting name="SIPX_SEND_TRYING_FOR_NIST" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>true</value>
+    </setting>
+  </group>
 </model>
